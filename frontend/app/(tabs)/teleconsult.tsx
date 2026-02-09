@@ -377,7 +377,7 @@ export default function TeleconsultScreen() {
         {r === 'beneficiary' && <Text style={s.subtitle}>Questionnaire pré-consultation</Text>}
       </View>
       {r === 'teleassistance' ? <TeleassistanceDashboard token={token} />
-        : r === 'guardian' ? <GuardianInterventions token={token} />
+        : r === 'guardian' ? <GuardianInterventions token={token} user={user} />
         : r === 'admin' ? <AdminManagement token={token} />
         : <BeneficiaryTeleconsult token={token} />}
     </SafeAreaView>
