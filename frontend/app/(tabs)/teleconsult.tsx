@@ -351,17 +351,132 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
     </ScrollView>);
 }
 
-/* ===== ADMIN: MANAGEMENT ===== */
-function AdminManagement({ token }: { token: string }) {
-  const router = useRouter();
+/* ===== ADMIN: INTERVENANTS MANAGEMENT ===== */
+function AdminIntervenants({ token }: { token: string }) {
+  const [codes, setCodes] = useState<any[]>([]);
+  const [providers, setProviders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [editCode, setEditCode] = useState<any>(null);
+  const [form, setForm] = useState({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [c, p] = await Promise.all([
+          apiFetch('/api/admin/intervention-codes', {}, token).catch(() => []),
+          apiFetch('/api/admin/intervention-providers', {}, token).catch(() => []),
+        ]);
+        setCodes(c); setProviders(p);
+      } catch {} finally { setLoading(false); }
+    })();
+  }, []);
+
+  const saveCode = async () => {
+    if (!form.structure_name) return Alert.alert('Erreur', 'Nom de structure requis');
+    setSaving(true);
+    try {
+      if (editCode) {
+        await apiFetch(`/api/admin/intervention-codes/${editCode.id}`, { method: 'PUT', body: JSON.stringify(form) }, token);
+        setCodes(codes.map(c => c.id === editCode.id ? { ...c, ...form } : c));
+      } else {
+        const r = await apiFetch('/api/admin/intervention-codes', { method: 'POST', body: JSON.stringify({ ...form, radius_km: parseFloat(form.radius_km) || 30 }) }, token);
+        setCodes([r, ...codes]);
+      }
+      setShowModal(false); setEditCode(null);
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+  };
+
+  const toggleCode = async (id: string) => {
+    try {
+      const r = await apiFetch(`/api/admin/intervention-codes/${id}/toggle`, { method: 'PUT' }, token);
+      setCodes(codes.map(c => c.id === id ? { ...c, active: r.active } : c));
+    } catch (e: any) { Alert.alert('Erreur', e.message); }
+  };
+
+  const deleteCode = (id: string) => {
+    Alert.alert('Supprimer', 'Supprimer définitivement ce code intervenant ?', [{ text: 'Annuler' },
+      { text: 'Supprimer', style: 'destructive', onPress: async () => { await apiFetch(`/api/admin/intervention-codes/${id}`, { method: 'DELETE' }, token); setCodes(codes.filter(c => c.id !== id)); } }]);
+  };
+
+  const openEdit = (c: any) => {
+    setEditCode(c);
+    setForm({ structure_name: c.structure_name || '', raison_sociale: c.raison_sociale || '', siret: c.siret || '', tva: c.tva || '', adresse: c.adresse || '', telephone: c.telephone || '', email_contact: c.email_contact || '', radius_km: String(c.default_radius_km || 30) });
+    setShowModal(true);
+  };
+
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
+
   return (
     <ScrollView contentContainerStyle={s.sc}>
-      <TouchableOpacity style={s.adminCard} onPress={() => router.push('/backoffice')}>
-        <Ionicons name="settings-outline" size={20} color={Colors.primary} />
-        <View style={s.adminInfo}><Text style={s.adminLabel}>Back Office complet</Text><Text style={s.adminDesc}>Stats, utilisateurs, codes, alertes</Text></View>
-        <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
-      </TouchableOpacity>
-    </ScrollView>);
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{codes.length} structure(s) d'intervention</Text>
+        <TouchableOpacity testID="add-intervenant-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}
+          onPress={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' }); setShowModal(true); }}>
+          <Ionicons name="add" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
+        </TouchableOpacity>
+      </View>
+
+      {codes.map(c => (
+        <View key={c.id} style={[s.ivCard, !c.active && { opacity: 0.5 }]}>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={s.ivName}>{c.structure_name}</Text>
+              <View style={{ backgroundColor: Colors.subtle, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+                <Text style={{ fontSize: 12, fontWeight: '800', letterSpacing: 1, color: Colors.primary }}>{c.code}</Text>
+              </View>
+            </View>
+            {c.raison_sociale ? <Text style={{ fontSize: 11, color: Colors.textMuted }}>{c.raison_sociale}</Text> : null}
+            {c.siret ? <Text style={{ fontSize: 10, color: Colors.textMuted }}>SIRET: {c.siret} {c.tva ? `· TVA: ${c.tva}` : ''}</Text> : null}
+            <Text style={s.ivSt}>Rayon: {c.default_radius_km || 30}km · {c.uses_count}/{c.max_uses} util. · {c.active ? 'Actif' : 'Désactivé'}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 4 }}>
+            <TouchableOpacity onPress={() => openEdit(c)} style={{ padding: 6 }}><Ionicons name="create-outline" size={16} color={Colors.primary} /></TouchableOpacity>
+            <TouchableOpacity onPress={() => toggleCode(c.id)} style={{ padding: 6 }}><Ionicons name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={16} color={c.active ? Colors.textMuted : Colors.success} /></TouchableOpacity>
+            <TouchableOpacity onPress={() => deleteCode(c.id)} style={{ padding: 6 }}><Ionicons name="trash-outline" size={16} color={Colors.destructive} /></TouchableOpacity>
+          </View>
+        </View>
+      ))}
+
+      {providers.length > 0 && <>
+        <Text style={[s.secTitle, { marginTop: 16 }]}>Intervenants actifs ({providers.length})</Text>
+        {providers.map((p: any) => (
+          <View key={p.user_id} style={s.ivCard}>
+            <View style={s.ivInfo}><Text style={s.ivName}>{p.name}</Text><Text style={s.ivSt}>{p.structure_name} · {p.radius_km}km</Text></View>
+          </View>
+        ))}
+      </>}
+
+      <Modal visible={showModal} transparent animationType="slide">
+        <View style={s.modalO}><View style={s.modalC}>
+          <Text style={s.modalTitle}>{editCode ? 'Modifier la structure' : 'Nouvelle structure d\'intervention'}</Text>
+          {[
+            { k: 'structure_name', l: 'Nom commercial', p: 'Ex: Ambulances du Sud' },
+            { k: 'raison_sociale', l: 'Raison sociale', p: 'Ex: SARL Ambulances du Sud' },
+            { k: 'siret', l: 'SIRET', p: '12345678900000' },
+            { k: 'tva', l: 'N° TVA', p: 'FR12345678900' },
+            { k: 'adresse', l: 'Adresse', p: '12 rue des Chênes, 75001 Paris' },
+            { k: 'telephone', l: 'Téléphone', p: '+33 1 23 45 67 89' },
+            { k: 'email_contact', l: 'Email contact', p: 'contact@structure.fr' },
+            { k: 'radius_km', l: 'Rayon d\'intervention (km)', p: '30' },
+          ].map(f => (
+            <View key={f.k}>
+              <Text style={{ fontSize: 11, color: Colors.textMuted, marginTop: 8, marginBottom: 2 }}>{f.l}</Text>
+              <TextInput style={s.modalInput} placeholder={f.p} placeholderTextColor={Colors.textMuted}
+                value={(form as any)[f.k]} onChangeText={(v: string) => setForm({ ...form, [f.k]: v })} keyboardType={f.k === 'radius_km' ? 'numeric' : 'default'} />
+            </View>
+          ))}
+          <View style={s.modalBtns}>
+            <TouchableOpacity style={s.cancelBtn} onPress={() => setShowModal(false)}><Text style={{ color: Colors.textMuted, fontWeight: '600' }}>Annuler</Text></TouchableOpacity>
+            <TouchableOpacity style={s.confirmBtn} onPress={saveCode} disabled={saving}>
+              {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>{editCode ? 'Modifier' : 'Créer'}</Text>}
+            </TouchableOpacity>
+          </View>
+        </View></View>
+      </Modal>
+    </ScrollView>
+  );
 }
 
 /* ===== MAIN ===== */
