@@ -1611,15 +1611,15 @@ async def get_sent_emails(user=Depends(get_current_user)):
 async def seed_demo_data():
     """Create demo accounts if they don't exist"""
     demo_accounts = [
-        {"email": "admin@chutex.fr", "name": "Admin Chutex", "phone": "+33600000001", "role": "admin"},
-        {"email": "demo@chutex.fr", "name": "Jean Dupont", "phone": "+33651245918", "role": "beneficiary",
-         "date_of_birth": "15/03/1955", "gender": "Homme", "address": "12 rue de la Santé, 75014 Paris",
+        {"email": "admin@chutex.fr", "name": "Directeur Chutex", "phone": "+33600000001", "role": "admin"},
+        {"email": "robert.martin@email.fr", "name": "Robert Martin", "phone": "+33651245918", "role": "beneficiary",
+         "date_of_birth": "15/03/1952", "gender": "Homme", "address": "12 rue de la Santé, 75014 Paris",
          "height_cm": 175, "weight_kg": 72, "blood_type": "A+", "allergies": "Pénicilline",
-         "medical_conditions": "Hypertension légère", "emergency_contact_name": "Marie Dupont",
-         "emergency_contact_phone": "+33630686585", "doctor_name": "Dr. Martin"},
-        {"email": "guardian@chutex.fr", "name": "Marie Dupont", "phone": "+33630686585", "role": "guardian",
+         "medical_conditions": "Hypertension légère, arthrose", "emergency_contact_name": "Claire Martin",
+         "emergency_contact_phone": "+33630686585", "doctor_name": "Dr. Lefèvre"},
+        {"email": "claire.martin@email.fr", "name": "Claire Martin", "phone": "+33630686585", "role": "guardian",
          "guardian_type": "particular", "relationship": "Fille"},
-        {"email": "teleassist@chutex.fr", "name": "Sophie Martin", "phone": "+33477101011", "role": "teleassistance"},
+        {"email": "plateau@chutex.fr", "name": "Plateau Écoute Chutex", "phone": "+33477101011", "role": "teleassistance"},
     ]
     for acct in demo_accounts:
         existing = await db.users.find_one({"email": acct["email"]})
