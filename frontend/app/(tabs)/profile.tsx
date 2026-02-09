@@ -205,6 +205,22 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         )}
 
+        {user.role === 'beneficiary' && (
+          <TouchableOpacity testID="data-sharing-link" style={st.shortcutBtn} onPress={() => router.push('/data-sharing')}>
+            <Ionicons name="shield-checkmark-outline" size={18} color={Colors.primary} />
+            <Text style={st.shortcutT}>Gérer le partage de données</Text>
+            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+          </TouchableOpacity>
+        )}
+
+        {user.role === 'beneficiary' && (
+          <TouchableOpacity testID="reminders-link" style={st.shortcutBtn} onPress={() => router.push('/reminders')}>
+            <Ionicons name="alarm-outline" size={18} color={Colors.primary} />
+            <Text style={st.shortcutT}>Mes rappels quotidiens</Text>
+            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity testID="logout-btn" style={st.logoutBtn} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={16} color={Colors.destructive} />
           <Text style={st.logoutT}>Se déconnecter</Text>
