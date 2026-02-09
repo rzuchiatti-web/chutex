@@ -81,6 +81,7 @@ export default function BackofficeScreen() {
     { id: 'codes', label: 'Codes' },
     { id: 'prescriptions', label: 'Prescriptions' },
     { id: 'interventions', label: 'Intervenants' },
+    { id: 'kpi', label: 'KPI' },
   ] as const;
 
   return (
