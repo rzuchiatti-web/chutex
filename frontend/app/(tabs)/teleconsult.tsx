@@ -246,47 +246,119 @@ function TeleassistanceDashboard({ token }: { token: string }) {
   }
 
   /* DASHBOARD */
+  const [tab, setTab] = useState<'en_cours'|'historique'|'interventions'>('en_cours');
+  const activeAlerts = alerts;
+  const activeEscs = escalations.filter(e => !['resolved','cancelled'].includes(e.status));
+  const historyEscs = escalations.filter(e => ['resolved','dispatched','cancelled'].includes(e.status));
+
+  const manualTakeover = async (eid: string) => {
+    try {
+      await apiFetch(`/api/teleassistance/escalation/${eid}/takeover`, { method: 'POST' }, token);
+      Alert.alert('Reprise manuelle', 'Vous avez pris le contrôle de cette escalade.');
+      fetchData();
+    } catch (e: any) { Alert.alert('Erreur', e.message); }
+  };
+
+  const resolveEscalation = async (eid: string) => {
+    try {
+      await apiFetch(`/api/teleassistance/escalation/${eid}/resolve`, { method: 'POST' }, token);
+      Alert.alert('Résolu', 'L\'escalade a été résolue.');
+      fetchData();
+    } catch (e: any) { Alert.alert('Erreur', e.message); }
+  };
+
   return (
     <ScrollView contentContainerStyle={s.sc} showsVerticalScrollIndicator={false}>
+      {/* Tabs */}
       <View style={s.tabRow}>
-        <TouchableOpacity testID="ta-tab-alerts" style={[s.tabBtn, tab === 'alerts' && s.tabBtnA]} onPress={() => setTab('alerts')}>
-          <Text style={[s.tabBtnT, tab === 'alerts' && s.tabBtnTA]}>Alertes ({alerts.length})</Text>
+        <TouchableOpacity testID="ta-tab-live" style={[s.tabBtn, tab === 'en_cours' && s.tabBtnA]} onPress={() => setTab('en_cours')}>
+          <Text style={[s.tabBtnT, tab === 'en_cours' && s.tabBtnTA]}>En cours ({activeAlerts.length + activeEscs.length})</Text>
         </TouchableOpacity>
-        <TouchableOpacity testID="ta-tab-escalations" style={[s.tabBtn, tab === 'escalations' && s.tabBtnA]} onPress={() => setTab('escalations')}>
-          <Text style={[s.tabBtnT, tab === 'escalations' && s.tabBtnTA]}>Escalades ({escalations.length})</Text>
+        <TouchableOpacity testID="ta-tab-history" style={[s.tabBtn, tab === 'historique' && s.tabBtnA]} onPress={() => setTab('historique')}>
+          <Text style={[s.tabBtnT, tab === 'historique' && s.tabBtnTA]}>Historique ({historyEscs.length})</Text>
+        </TouchableOpacity>
+        <TouchableOpacity testID="ta-tab-ivs" style={[s.tabBtn, tab === 'interventions' && s.tabBtnA]} onPress={() => setTab('interventions')}>
+          <Text style={[s.tabBtnT, tab === 'interventions' && s.tabBtnTA]}>Interventions</Text>
         </TouchableOpacity>
       </View>
 
-      {tab === 'alerts' && (alerts.length > 0 ? alerts.map(a => (
-        <View key={a.id} style={[s.taAlertCard, a.severity === 'critical' && { borderLeftColor: Colors.destructive }]}>
-          <View style={s.taAlertTop}>
-            <Ionicons name={a.alert_type === 'sos' ? 'alert-circle' : 'warning'} size={18} color={a.severity === 'critical' ? Colors.destructive : Colors.textMuted} />
-            <View style={s.taAlertInfo}><Text style={s.taAlertMsg}>{a.message}</Text><Text style={s.taAlertMeta}>{a.beneficiary_name} · {new Date(a.created_at).toLocaleTimeString('fr-FR')}</Text></View>
-            <View style={[s.taBadge, a.teleassistance_status !== 'pending' && { backgroundColor: Colors.primary + '12' }]}>
-              <Text style={[s.taBadgeT, a.teleassistance_status !== 'pending' && { color: Colors.primary }]}>{a.teleassistance_status || 'pending'}</Text>
-            </View>
-          </View>
-          <TouchableOpacity testID={`start-esc-${a.id}`} style={s.startEscBtn} onPress={() => startEscalation(a)} disabled={processing}>
-            <Ionicons name="call" size={14} color="#FFF" /><Text style={s.startEscBtnT}>Lancer protocole d'appel IA</Text>
-          </TouchableOpacity>
-        </View>
-      )) : <View style={s.emptyC}><Ionicons name="checkmark-circle" size={36} color={Colors.textMuted} /><Text style={s.emptyT}>Aucune alerte active</Text></View>)}
+      {/* EN COURS: Active alerts + active escalations */}
+      {tab === 'en_cours' && (
+        <>
+          {/* Active escalations (IA in progress) */}
+          {activeEscs.map(e => (
+            <TouchableOpacity key={e.id} style={[s.taAlertCard, { borderLeftColor: Colors.primary }]}
+              onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: e.alert_id } })}>
+              <View style={s.taAlertTop}>
+                <View style={[s.escPulseSmall, { backgroundColor: e.status === 'manual_control' ? '#FF9800' : Colors.primary }]}>
+                  <Ionicons name={e.status === 'manual_control' ? 'hand-left' : 'pulse'} size={12} color="#FFF" />
+                </View>
+                <View style={s.taAlertInfo}>
+                  <Text style={s.taAlertMsg}>{e.beneficiary_name} — {e.current_step?.replace(/_/g, ' ')}</Text>
+                  <Text style={s.taAlertMeta}>
+                    IA: {e.status === 'manual_control' ? 'Contrôle manuel' : 'Automatique'} · Étape: {e.current_step}
+                  </Text>
+                  {e.timeline && e.timeline.length > 0 && (
+                    <Text style={{ fontSize: 10, color: Colors.primary, marginTop: 2 }}>Dernière action: {e.timeline[e.timeline.length-1]?.note}</Text>
+                  )}
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+              </View>
+              <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
+                {e.status !== 'manual_control' && (
+                  <TouchableOpacity style={[s.startEscBtn, { flex: 1, backgroundColor: '#FF9800' }]}
+                    onPress={(ev) => { ev.stopPropagation(); manualTakeover(e.id); }}>
+                    <Ionicons name="hand-left" size={12} color="#FFF" /><Text style={s.startEscBtnT}>Reprendre en manuel</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity style={[s.startEscBtn, { flex: 1, backgroundColor: Colors.success }]}
+                  onPress={(ev) => { ev.stopPropagation(); resolveEscalation(e.id); }}>
+                  <Ionicons name="checkmark-circle" size={12} color="#FFF" /><Text style={s.startEscBtnT}>Résoudre</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          ))}
 
-      {tab === 'escalations' && (escalations.length > 0 ? escalations.map(e => (
-        <View key={e.id} style={s.escLogCard}>
-          <View style={[s.escLogDot, { backgroundColor: e.status === 'resolved' ? Colors.success : e.status === 'dispatched' ? Colors.destructive : Colors.primary }]} />
+          {/* Active alerts with no escalation yet */}
+          {activeAlerts.filter(a => !activeEscs.find(e => e.alert_id === a.id)).map(a => (
+            <TouchableOpacity key={a.id} style={[s.taAlertCard, a.severity === 'critical' && { borderLeftColor: Colors.destructive }]}
+              onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
+              <View style={s.taAlertTop}>
+                <Ionicons name={a.alert_type === 'sos' ? 'alert-circle' : 'warning'} size={18} color={a.severity === 'critical' ? Colors.destructive : Colors.textMuted} />
+                <View style={s.taAlertInfo}><Text style={s.taAlertMsg}>{a.message}</Text><Text style={s.taAlertMeta}>{a.beneficiary_name} · {new Date(a.created_at).toLocaleTimeString('fr-FR')}</Text></View>
+                <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+              </View>
+            </TouchableOpacity>
+          ))}
+
+          {activeAlerts.length === 0 && activeEscs.length === 0 && (
+            <View style={s.emptyC}><Ionicons name="checkmark-circle" size={36} color={Colors.success} /><Text style={s.emptyT}>Aucune alerte en cours</Text><Text style={{ fontSize: 12, color: Colors.textMuted }}>Le plateau IA surveille en temps réel</Text></View>
+          )}
+        </>
+      )}
+
+      {/* HISTORIQUE */}
+      {tab === 'historique' && (historyEscs.length > 0 ? historyEscs.map(e => (
+        <TouchableOpacity key={e.id} style={s.escLogCard}
+          onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: e.alert_id } })}>
+          <View style={[s.escLogDot, { backgroundColor: e.status === 'resolved' ? Colors.success : Colors.destructive }]} />
           <View style={s.escLogInfo}>
             <Text style={s.escLogName}>{e.beneficiary_name}</Text>
-            <Text style={s.escLogRes}>{e.status === 'resolved' ? 'Résolu' : e.status === 'dispatched' ? 'Intervention dispatchée' : e.status === 'guardian_handling' ? 'Gardien' : 'En cours'}</Text>
+            <Text style={s.escLogRes}>{e.status === 'resolved' ? 'Résolu' : 'Intervention dispatchée'}</Text>
           </View>
           <Text style={s.escLogDate}>{new Date(e.created_at).toLocaleString('fr-FR')}</Text>
-          {e.intervention_id && (
-            <TouchableOpacity onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: e.intervention_id } })}>
-              <Ionicons name="map-outline" size={18} color={Colors.primary} />
-            </TouchableOpacity>
-          )}
+          <Ionicons name="chevron-forward" size={14} color={Colors.textMuted} />
+        </TouchableOpacity>
+      )) : <View style={s.emptyC}><Text style={s.emptyT}>Aucun historique</Text></View>)}
+
+      {/* INTERVENTIONS */}
+      {tab === 'interventions' && (
+        <View style={s.emptyC}>
+          <MaterialCommunityIcons name="ambulance" size={36} color={Colors.textMuted} />
+          <Text style={s.emptyT}>Interventions en cours</Text>
+          <Text style={{ fontSize: 12, color: Colors.textMuted }}>Les interventions dispatchées apparaîtront ici</Text>
         </View>
-      )) : <View style={s.emptyC}><Text style={s.emptyT}>Aucune escalade</Text></View>)}
+      )}
     </ScrollView>
   );
 }
