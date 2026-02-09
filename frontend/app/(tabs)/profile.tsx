@@ -151,6 +151,14 @@ export default function ProfileScreen() {
         )}
 
         {user.role === 'beneficiary' && (
+          <TouchableOpacity testID="share-link" style={st.shortcutBtn} onPress={() => router.push('/link-code')}>
+            <Ionicons name="qr-code-outline" size={18} color={Colors.primary} />
+            <Text style={st.shortcutT}>Partager mon profil (Code / QR)</Text>
+            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+          </TouchableOpacity>
+        )}
+
+        {user.role === 'beneficiary' && (
           <TouchableOpacity testID="devices-shortcut" style={st.shortcutBtn} onPress={() => router.push('/(tabs)/devices')}>
             <Ionicons name="bluetooth-outline" size={18} color={Colors.primary} />
             <Text style={st.shortcutT}>Gérer mes appareils</Text>
