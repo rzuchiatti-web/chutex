@@ -18,12 +18,14 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [r, rc] = await Promise.all([
+      const [r, rc, rem] = await Promise.all([
         apiFetch('/api/devices/latest', {}, token).catch(() => ({})),
         apiFetch('/api/ai/recommendations/latest', {}, token).catch(() => ({ recommendation: '' })),
+        apiFetch('/api/reminders', {}, token).catch(() => []),
       ]);
       if (r.bracelet) setVitals(r.bracelet.data);
       if (rc.recommendation) setRec(rc.recommendation);
+      setReminders(rem);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
