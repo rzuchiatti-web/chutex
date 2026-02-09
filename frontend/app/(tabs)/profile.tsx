@@ -153,6 +153,33 @@ export default function ProfileScreen() {
           </View>
         )}
 
+        {/* Activate Intervention Provider */}
+        {!user.is_intervention_provider && (
+          <View style={st.section}>
+            <Text style={st.secTitle}>Devenir intervenant</Text>
+            <Text style={st.secDesc}>Entrez votre code d'activation pour devenir prestataire d'intervention sur site.</Text>
+            <View style={st.linkRow}>
+              <TextInput testID="iv-code-input" style={st.linkInput} placeholder="Code intervenant" placeholderTextColor={Colors.textMuted}
+                value={ivCode} onChangeText={setIvCode} autoCapitalize="characters" blurOnSubmit={false} />
+              <TouchableOpacity testID="iv-activate-btn" style={st.linkBtn} onPress={activateIntervention} disabled={ivActivating}>
+                {ivActivating ? <ActivityIndicator color="#FFF" size="small" /> : <Ionicons name="shield-checkmark" size={18} color="#FFF" />}
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {user.is_intervention_provider && (
+          <View style={[st.section, { backgroundColor: Colors.subtle }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Ionicons name="shield-checkmark" size={20} color={Colors.success} />
+              <View style={{ flex: 1 }}>
+                <Text style={st.secTitle}>Intervenant actif</Text>
+                <Text style={st.secDesc}>Rayon: {user.intervention_radius_km || 30}km</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
         {/* Back Office link */}
         {(user.role === 'admin') && (
           <TouchableOpacity testID="backoffice-btn" style={st.shortcutBtn} onPress={() => router.push('/backoffice')}>
