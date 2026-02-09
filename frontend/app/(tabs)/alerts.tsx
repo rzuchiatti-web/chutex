@@ -59,7 +59,8 @@ export default function AlertsScreen() {
   });
 
   const renderAlert = ({ item }: { item: any }) => (
-    <View testID={`alert-card-${item.id}`} style={[st.alertCard, item.severity === 'critical' && { borderLeftColor: Colors.destructive }]}>
+    <TouchableOpacity testID={`alert-card-${item.id}`} style={[st.alertCard, item.severity === 'critical' && { borderLeftColor: Colors.destructive }]}
+      onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: item.id } })}>
       <View style={st.alertContent}>
         <View style={st.alertTop}>
           <Ionicons name={item.alert_type === 'sos' ? 'alert-circle' : item.alert_type === 'fall' ? 'trending-down' : 'warning'}
@@ -72,19 +73,30 @@ export default function AlertsScreen() {
               {item.severity === 'critical' ? 'Critique' : item.severity === 'high' ? 'Élevé' : item.severity === 'medium' ? 'Moyen' : 'Faible'}
             </Text>
           </View>
+          <View style={{ flex: 1 }} />
+          <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
         </View>
         <Text style={st.alertMessage}>{item.message}</Text>
-        <Text style={st.alertMeta}>{item.beneficiary_name} · {new Date(item.created_at).toLocaleString('fr-FR')}</Text>
-        {item.status === 'active' && (
-          <TouchableOpacity testID={`resolve-alert-${item.id}`} style={st.resolveBtn} onPress={() => resolveAlert(item.id)}>
-            <Ionicons name="checkmark" size={14} color={Colors.success} /><Text style={st.resolveBtnText}>Résoudre</Text>
-          </TouchableOpacity>
-        )}
-        {item.status === 'resolved' && (
-          <View style={st.resolvedBadge}><Ionicons name="checkmark" size={12} color={Colors.success} /><Text style={st.resolvedText}>Résolu</Text></View>
-        )}
+        <Text style={st.alertMeta}>{item.beneficiary_name || user?.name} · {new Date(item.created_at).toLocaleString('fr-FR')}</Text>
+        <View style={st.alertActions}>
+          {item.status === 'active' && (
+            <>
+              <TouchableOpacity testID={`resolve-alert-${item.id}`} style={st.resolveBtn} onPress={(e) => { e.stopPropagation(); resolveAlert(item.id); }}>
+                <Ionicons name="checkmark-circle" size={14} color={Colors.success} /><Text style={st.resolveBtnText}>Clôturer</Text>
+              </TouchableOpacity>
+              {(user?.role === 'guardian' || user?.role === 'teleassistance') && (
+                <TouchableOpacity style={st.intervBtn} onPress={(e) => { e.stopPropagation(); router.push({ pathname: '/alert-detail', params: { alertId: item.id } }); }}>
+                  <Ionicons name="navigate" size={14} color="#FFF" /><Text style={st.intervBtnT}>Intervenir</Text>
+                </TouchableOpacity>
+              )}
+            </>
+          )}
+          {item.status === 'resolved' && (
+            <View style={st.resolvedBadge}><Ionicons name="checkmark" size={12} color={Colors.success} /><Text style={st.resolvedText}>Résolu</Text></View>
+          )}
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
