@@ -1413,6 +1413,24 @@ async def delete_intervention_code(code_id: str, user=Depends(get_current_user))
     await db.intervention_codes.delete_one({"id": code_id})
     return {"status": "deleted"}
 
+@api_router.get("/admin/intervention-providers")
+async def list_intervention_providers(user=Depends(get_current_user)):
+    """List all active intervention providers (users with is_intervention_provider=True)"""
+    if user.get('role') != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
+    providers = await db.users.find({"is_intervention_provider": True}, {"_id": 0, "password_hash": 0}).to_list(100)
+    # Return structured provider list with structure info
+    result = []
+    for p in providers:
+        result.append({
+            "user_id": p["id"],
+            "name": p.get("name", ""),
+            "email": p.get("email", ""),
+            "phone": p.get("phone", ""),
+            "structure_name": p.get("intervention_structure", ""),
+            "radius_km": p.get("intervention_radius_km", 30)
+        })
+    return result
+
 @api_router.put("/admin/intervention-radius")
 async def update_intervention_radius(data: InterventionRadiusUpdate, user=Depends(get_current_user)):
     """Admin updates intervention radius for a structure"""
