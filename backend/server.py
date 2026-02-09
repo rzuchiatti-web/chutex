@@ -1228,8 +1228,10 @@ async def guardian_health_report(bid: str, user=Depends(get_current_user)):
         data_summary += "\n"
     alert_summary = "\n".join([f"- {a['alert_type']} ({a['severity']}): {a['message']} - {a['status']}" for a in alerts[:10]])
     try:
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY, model="gpt-5.2")
-        prompt = f"""Tu es un assistant médical IA. Génère un rapport de santé complet en français pour le patient {ben['name']}.
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"report-{uuid.uuid4().hex[:8]}",
+            system_message="Tu es un assistant médical IA. Génère des rapports de santé structurés et complets en français. Pas de diagnostic médical formel."
+        ).with_model("openai", "gpt-5.2")
+        prompt = f"""Génère un rapport de santé complet pour le patient {ben['name']}.
 
 Informations patient: âge={ben.get('date_of_birth','NC')}, genre={ben.get('gender','NC')}, taille={ben.get('height_cm','NC')}cm, poids={ben.get('weight_kg','NC')}kg
 Groupe sanguin: {ben.get('blood_type','NC')}, Allergies: {ben.get('allergies','NC')}, Pathologies: {ben.get('medical_conditions','NC')}
@@ -1240,9 +1242,9 @@ Dernières mesures:
 Historique alertes:
 {alert_summary}
 
-Génère un rapport structuré avec: 1) Résumé état général 2) Analyse des constantes vitales 3) Tendances observées 4) Recommandations personnalisées 5) Points de vigilance 6) Objectifs santé suggérés"""
-        resp = await asyncio.to_thread(chat.send_message, UserMessage(content=prompt))
-        return {"report": resp.content, "generated_at": datetime.now(timezone.utc).isoformat(), "beneficiary_name": ben['name']}
+Rapport structuré: 1) Résumé état général 2) Analyse constantes vitales 3) Tendances observées 4) Recommandations personnalisées 5) Points de vigilance 6) Objectifs santé suggérés"""
+        resp = await chat.send_message(UserMessage(text=prompt))
+        return {"report": resp, "generated_at": datetime.now(timezone.utc).isoformat(), "beneficiary_name": ben['name']}
     except Exception as e:
         logger.error(f"AI report error: {e}")
         return {"report": f"Rapport IA indisponible: {str(e)}", "generated_at": datetime.now(timezone.utc).isoformat(), "beneficiary_name": ben['name']}
