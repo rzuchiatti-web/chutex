@@ -153,8 +153,8 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        {/* Activate Intervention Provider */}
-        {!user.is_intervention_provider && (
+        {/* Activate Intervention Provider - Only for guardians */}
+        {user.role === 'guardian' && !user.is_intervention_provider && (
           <View style={st.section}>
             <Text style={st.secTitle}>Devenir intervenant</Text>
             <Text style={st.secDesc}>Entrez votre code d'activation pour devenir prestataire d'intervention sur site.</Text>
