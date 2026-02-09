@@ -122,6 +122,33 @@ class InterventionUpdate(BaseModel):
 class ActivationCodeCreate(BaseModel):
     structure_name: str
     max_uses: int = 50
+    raison_sociale: str = ""
+    siret: str = ""
+    tva: str = ""
+    adresse: str = ""
+    telephone: str = ""
+    email_contact: str = ""
+
+class ActivationCodeUpdate(BaseModel):
+    structure_name: Optional[str] = None
+    raison_sociale: Optional[str] = None
+    siret: Optional[str] = None
+    tva: Optional[str] = None
+    adresse: Optional[str] = None
+    telephone: Optional[str] = None
+    email_contact: Optional[str] = None
+    max_uses: Optional[int] = None
+
+class InterventionCodeCreate(BaseModel):
+    structure_name: str
+    max_uses: int = 50
+    raison_sociale: str = ""
+    siret: str = ""
+    tva: str = ""
+    adresse: str = ""
+    telephone: str = ""
+    email_contact: str = ""
+    radius_km: float = 30
 
 class ActivatePrescriberRequest(BaseModel):
     code: str
