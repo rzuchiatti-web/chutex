@@ -50,6 +50,16 @@ export default function ProfileScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivating(false); }
   };
 
+  const activateIntervention = async () => {
+    if (!ivCode.trim()) return Alert.alert('Erreur', 'Entrez un code');
+    setIvActivating(true);
+    try {
+      const r = await apiFetch('/api/intervention/activate', { method: 'POST', body: JSON.stringify({ code: ivCode.trim().toUpperCase() }) }, token);
+      Alert.alert('Activé', `Rôle intervenant activé. Rayon: ${r.radius_km || 30}km`);
+      setIvCode(''); await refreshUser();
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setIvActivating(false); }
+  };
+
   const roleName = user.role === 'beneficiary' ? 'Bénéficiaire' : user.role === 'guardian' ? (user.is_prescriber ? 'Prescripteur' : 'Gardien') : user.role === 'teleassistance' ? 'Téléassistance' : 'Administrateur';
 
   return (
