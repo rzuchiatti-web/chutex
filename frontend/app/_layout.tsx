@@ -9,6 +9,9 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="health-detail" options={{ headerShown: false, presentation: 'card' }} />
+        <Stack.Screen name="backoffice" options={{ headerShown: false, presentation: 'card' }} />
+        <Stack.Screen name="intervention-detail" options={{ headerShown: false, presentation: 'card' }} />
       </Stack>
     </AuthProvider>
   );
