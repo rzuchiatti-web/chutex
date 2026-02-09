@@ -94,6 +94,11 @@ function TeleassistanceDashboard({ token }: { token: string }) {
     try {
       const esc = await apiFetch('/api/teleassistance/escalation/start', { method: 'POST', body: JSON.stringify({ alert_id: alert.id }) }, token);
       setActiveEsc(esc); setCallStep(0); setCallAnswers({}); setCallNotes('');
+      // Trigger real Twilio call to beneficiary
+      try {
+        const callRes = await apiFetch('/api/twilio/call/beneficiary', { method: 'POST', body: JSON.stringify({ alert_id: alert.id }) }, token);
+        Alert.alert('📞 Appel lancé', `Appel en cours vers ${esc.beneficiary_name}...\nSID: ${callRes.call_sid?.slice(0,12)}...`);
+      } catch (callErr: any) { Alert.alert('⚠️ Appel', `Escalade démarrée mais appel échoué: ${callErr.message}`); }
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setProcessing(false); }
   };
 
