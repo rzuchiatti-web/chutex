@@ -15,7 +15,7 @@ export default function BeneficiaryDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [report, setReport] = useState<string>('');
   const [reportLoading, setReportLoading] = useState(false);
-  const [tab, setTab] = useState<'health'|'alerts'|'report'>('health');
+  const [tab, setTab] = useState<'health'|'alerts'|'devices'|'report'>('health');
 
   useEffect(() => {
     (async () => {
