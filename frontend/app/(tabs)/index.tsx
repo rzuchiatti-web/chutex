@@ -376,4 +376,12 @@ const s = StyleSheet.create({
   boBtnT: { flex: 1, fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
   addBenBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: Colors.border, marginBottom: 14 },
   addBenBtnT: { fontSize: 13, fontWeight: '600', color: Colors.primary },
+  escLiveCard: { backgroundColor: Colors.subtle, borderRadius: 14, padding: 14, marginBottom: 8, borderLeftWidth: 3, borderLeftColor: Colors.primary },
+  escLiveTop: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  escPulse: { width: 10, height: 10, borderRadius: 5 },
+  escLiveName: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  escLiveStep: { fontSize: 12, color: Colors.textSecondary, marginTop: 1 },
+  escCallCount: { fontSize: 10, color: Colors.textMuted, backgroundColor: Colors.paper, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+  escTlItem: { fontSize: 11, color: Colors.textMuted, marginLeft: 18, lineHeight: 16 },
+  taStatusT: { fontSize: 9, color: Colors.primary, fontWeight: '600', marginTop: 2 },
 });
