@@ -206,8 +206,10 @@ class TestDevices:
         assert response.status_code == 200
         
         data = response.json()
-        assert "posture_score" in data["data"]
-        print(f"✓ Vest synced: Posture={data['data']['posture_score']}")
+        assert "connected" in data["data"]
+        assert "battery" in data
+        assert "fall_detected" in data["data"]
+        print(f"✓ Vest synced: Connected={data['data']['connected']}, Battery={data['battery']}%, Fall detected={data['data']['fall_detected']}")
 
     def test_get_devices(self, api_client, beneficiary_token):
         """Test GET /api/devices"""
