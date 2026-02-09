@@ -88,6 +88,43 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <Text style={s.aiText} numberOfLines={4}>{rec}</Text>
         </View>
       ) : null}
+
+      {/* Reminders summary */}
+      <View style={s.secRow}><Text style={s.secTitle}>Rappels du jour</Text>
+        <TouchableOpacity testID="go-reminders" onPress={() => router.push('/reminders')}><Text style={s.seeAll}>Gérer →</Text></TouchableOpacity></View>
+      {reminders.length > 0 ? (
+        <View style={s.remGrid}>
+          {reminders.filter((r: any) => r.active).slice(0, 4).map((r: any) => {
+            const today = new Date().toISOString().split('T')[0];
+            const done = r.completions?.includes(today);
+            const typeColor = r.reminder_type === 'hydration' ? '#2196F3' : r.reminder_type === 'medication' ? '#E91E63' : '#FF9800';
+            return (
+              <View key={r.id} style={[s.remCard, done && { opacity: 0.5 }]}>
+                <View style={[s.remDot, { backgroundColor: typeColor }]} />
+                <Text style={[s.remTitle, done && { textDecorationLine: 'line-through' }]} numberOfLines={1}>{r.title}</Text>
+                <Text style={s.remTime}>{r.time}{r.dosage ? ` · ${r.dosage}` : ''}</Text>
+              </View>
+            );
+          })}
+        </View>
+      ) : (
+        <TouchableOpacity style={s.addRemBtn} onPress={() => router.push('/reminders')}>
+          <Ionicons name="alarm-outline" size={18} color={Colors.textMuted} />
+          <Text style={s.addRemBtnT}>Configurer vos rappels quotidiens</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Quick actions */}
+      <View style={s.quickRow}>
+        <TouchableOpacity style={s.quickBtn} onPress={() => router.push('/data-sharing')}>
+          <Ionicons name="shield-checkmark-outline" size={20} color={Colors.textPrimary} />
+          <Text style={s.quickBtnT}>Partage données</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={s.quickBtn} onPress={() => router.push('/link-code')}>
+          <Ionicons name="qr-code-outline" size={20} color={Colors.textPrimary} />
+          <Text style={s.quickBtnT}>Partager code</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
