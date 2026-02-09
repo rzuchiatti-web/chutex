@@ -173,23 +173,29 @@ export default function BackofficeScreen() {
       )}
 
       <Modal visible={showCodeModal} transparent animationType="slide">
-        <View style={bs.modalO}>
-          <View style={bs.modalC}>
-            <Text style={bs.modalT}>Nouveau code d'activation</Text>
-            <Text style={bs.inputL}>Nom de la structure</Text>
-            <TextInput testID="code-structure" style={bs.modalInp} placeholder="Ex: SAAD Aide à Domicile" placeholderTextColor={Colors.textMuted} value={newStructure} onChangeText={setNewStructure} />
-            <Text style={bs.inputL}>Nombre max d'utilisations</Text>
-            <TextInput testID="code-max" style={bs.modalInp} placeholder="50" placeholderTextColor={Colors.textMuted} value={newMaxUses} onChangeText={setNewMaxUses} keyboardType="numeric" />
-            <View style={bs.modalBtns}>
-              <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowCodeModal(false)}>
-                <Text style={bs.cancelBtnT}>Annuler</Text>
-              </TouchableOpacity>
-              <TouchableOpacity testID="confirm-code-btn" style={bs.confirmBtn} onPress={createCode} disabled={creating}>
-                {creating ? <ActivityIndicator color="#FFF" /> : <Text style={bs.confirmBtnT}>Créer</Text>}
-              </TouchableOpacity>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={bs.modalO}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={bs.modalO}>
+              <TouchableWithoutFeedback>
+                <View style={bs.modalC}>
+                  <Text style={bs.modalT}>Nouveau code d'activation</Text>
+                  <Text style={bs.inputL}>Nom de la structure</Text>
+                  <TextInput testID="code-structure" style={bs.modalInp} placeholder="Ex: SAAD Aide à Domicile" placeholderTextColor={Colors.textMuted} value={newStructure} onChangeText={setNewStructure} blurOnSubmit={false} />
+                  <Text style={bs.inputL}>Nombre max d'utilisations</Text>
+                  <TextInput testID="code-max" style={bs.modalInp} placeholder="50" placeholderTextColor={Colors.textMuted} value={newMaxUses} onChangeText={setNewMaxUses} keyboardType="numeric" blurOnSubmit={false} />
+                  <View style={bs.modalBtns}>
+                    <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowCodeModal(false)}>
+                      <Text style={bs.cancelBtnT}>Annuler</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity testID="confirm-code-btn" style={bs.confirmBtn} onPress={createCode} disabled={creating}>
+                      {creating ? <ActivityIndicator color="#FFF" /> : <Text style={bs.confirmBtnT}>Créer</Text>}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
             </View>
-          </View>
-        </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
