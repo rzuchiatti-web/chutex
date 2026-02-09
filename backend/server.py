@@ -21,6 +21,13 @@ JWT_SECRET = os.environ.get('JWT_SECRET', 'vitallink-jwt-secret')
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRY_HOURS = 72
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
+
+# Twilio config
+TWILIO_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
+TWILIO_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', '')
+TWILIO_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER', '')
+twilio_client = TwilioClient(TWILIO_SID, TWILIO_TOKEN) if TWILIO_SID and TWILIO_TOKEN else None
+
 app = FastAPI(title="VitalLink AI API")
 api_router = APIRouter(prefix="/api")
 logging.basicConfig(level=logging.INFO)
