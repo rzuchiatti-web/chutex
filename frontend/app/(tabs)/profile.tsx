@@ -19,7 +19,7 @@ export default function ProfileScreen() {
 
   if (!user || !token) return null;
 
-  const handleLogout = async () => { await logout(); router.replace('/'); };
+  const handleLogout = async () => { await logout(); };
 
   const handleLink = async () => {
     if (!linkEmail.trim()) return Alert.alert('Erreur', 'Entrez un email');
