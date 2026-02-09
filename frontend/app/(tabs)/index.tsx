@@ -6,25 +6,25 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiFetch } from '../../src/services/api';
 import { Colors } from '../../src/constants/colors';
-import { getKeyMetrics } from '../../src/constants/metrics';
 
+/* ───── BENEFICIARY ───── */
 function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
   const [vitals, setVitals] = useState<any>(null);
-  const [recommendation, setRecommendation] = useState('');
+  const [rec, setRec] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [sosLoading, setSosLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
-      const [r, rec] = await Promise.all([
+      const [r, rc] = await Promise.all([
         apiFetch('/api/devices/latest', {}, token).catch(() => ({})),
         apiFetch('/api/ai/recommendations/latest', {}, token).catch(() => ({ recommendation: '' })),
       ]);
       if (r.bracelet) setVitals(r.bracelet.data);
-      if (rec.recommendation) setRecommendation(rec.recommendation);
-    } catch (e) {} finally { setLoading(false); setRefreshing(false); }
+      if (rc.recommendation) setRec(rc.recommendation);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -32,47 +32,46 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const handleSOS = async () => {
     setSosLoading(true);
     try {
-      await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'sos', severity: 'critical', message: 'SOS - Aide requise immédiatement!', device_type: 'bracelet' }) }, token);
-      Alert.alert('SOS Envoyé', 'Vos gardiens ont été alertés.');
+      await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'sos', severity: 'critical', message: 'SOS — Aide requise immédiatement!', device_type: 'bracelet' }) }, token);
+      Alert.alert('SOS Envoyé', 'Vos gardiens et la téléassistance ont été alertés.');
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSosLoading(false); }
   };
 
-  const keyMetrics = getKeyMetrics();
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
 
   return (
     <ScrollView style={s.sv} contentContainerStyle={s.sc} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={Colors.primary} />} showsVerticalScrollIndicator={false}>
       <View style={s.greet}>
         <View><Text style={s.hi}>Bonjour,</Text><Text style={s.name}>{user.name}</Text></View>
-        <View style={s.badge}><View style={[s.dot, { backgroundColor: Colors.success }]} /><Text style={s.badgeT}>En ligne</Text></View>
+        <View style={s.badge}><View style={s.dotOnline} /><Text style={s.badgeT}>En ligne</Text></View>
       </View>
 
-      {/* SOS Button */}
+      {/* SOS */}
       <TouchableOpacity testID="sos-button" style={s.sos} onPress={handleSOS} disabled={sosLoading} activeOpacity={0.8}>
         {sosLoading ? <ActivityIndicator color="#FFF" size="large" /> : (
           <><Ionicons name="alert-circle" size={32} color="#FFF" /><Text style={s.sosT}>SOS</Text><Text style={s.sosSub}>Appuyez en cas d'urgence</Text></>
         )}
       </TouchableOpacity>
 
-      {/* Key Vitals */}
+      {/* Vitals */}
       <View style={s.secRow}><Text style={s.secTitle}>Constantes clés</Text>
-        <TouchableOpacity testID="see-all-health" onPress={() => router.push('/(tabs)/health')}><Text style={s.seeAll}>Tout voir</Text></TouchableOpacity>
-      </View>
+        <TouchableOpacity testID="see-all-health" onPress={() => router.push('/(tabs)/health')}><Text style={s.seeAll}>Tout voir →</Text></TouchableOpacity></View>
       {vitals ? (
         <View style={s.grid}>
           {[
-            { id: 'heart_rate', icon: 'heart', label: 'Pouls', val: vitals.heart_rate, unit: 'bpm', color: '#DC2626' },
-            { id: 'spo2', icon: 'water', label: 'SpO2', val: vitals.spo2, unit: '%', color: '#4A7C59' },
-            { id: 'blood_pressure_systolic', icon: 'pulse', label: 'Tension', val: `${vitals.blood_pressure_systolic}/${vitals.blood_pressure_diastolic}`, unit: 'mmHg', color: '#7C3AED' },
-            { id: 'temperature', icon: 'thermometer', label: 'Temp.', val: vitals.temperature, unit: '°C', color: '#F97316' },
-            { id: 'steps', icon: 'footsteps', label: 'Pas', val: vitals.steps, unit: 'pas', color: '#22C55E' },
-            { id: 'stress', icon: 'flash', label: 'Stress', val: vitals.stress, unit: '', color: '#F59E0B' },
+            { id: 'heart_rate', label: 'Pouls', val: vitals.heart_rate, unit: 'bpm', icon: 'heart' },
+            { id: 'spo2', label: 'SpO2', val: vitals.spo2, unit: '%', icon: 'water' },
+            { id: 'blood_pressure_systolic', label: 'Tension', val: `${vitals.blood_pressure_systolic}/${vitals.blood_pressure_diastolic}`, unit: 'mmHg', icon: 'pulse' },
+            { id: 'temperature', label: 'Temp.', val: vitals.temperature, unit: '°C', icon: 'thermometer' },
+            { id: 'steps', label: 'Pas', val: vitals.steps, unit: 'pas', icon: 'footsteps' },
+            { id: 'stress', label: 'Stress', val: vitals.stress, unit: '', icon: 'flash' },
           ].map(v => (
-            <TouchableOpacity key={v.id} testID={`vital-${v.id}`} style={[s.vCard, { borderLeftColor: v.color, borderLeftWidth: 3 }]}
+            <TouchableOpacity key={v.id} testID={`vital-${v.id}`} style={s.vCard}
               onPress={() => router.push({ pathname: '/health-detail', params: { metricId: v.id } })}>
-              <View style={[s.vIconBg, { backgroundColor: v.color + '15' }]}><Ionicons name={v.icon as any} size={18} color={v.color} /></View>
+              <Ionicons name={v.icon as any} size={16} color={Colors.textMuted} />
               <Text style={s.vLabel}>{v.label}</Text>
-              <View style={s.vRow}><Text style={[s.vVal, { color: v.color }]}>{v.val}</Text><Text style={s.vUnit}>{v.unit}</Text></View>
+              <Text style={s.vVal}>{v.val}</Text>
+              <Text style={s.vUnit}>{v.unit}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -80,20 +79,20 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         <View style={s.empty}><MaterialCommunityIcons name="bluetooth-off" size={28} color={Colors.textMuted} /><Text style={s.emptyT}>Synchronisez vos appareils</Text></View>
       )}
 
-      {/* AI Recommendation */}
-      {recommendation ? (
+      {rec ? (
         <View style={s.aiCard}>
-          <View style={s.aiH}><View style={s.aiIc}><Ionicons name="sparkles" size={18} color={Colors.primary} /></View><Text style={s.aiTitle}>Recommandation IA</Text></View>
-          <Text style={s.aiText} numberOfLines={4}>{recommendation}</Text>
+          <View style={s.aiH}><Ionicons name="sparkles" size={16} color={Colors.textPrimary} /><Text style={s.aiTitle}>Recommandation IA</Text></View>
+          <Text style={s.aiText} numberOfLines={4}>{rec}</Text>
         </View>
       ) : null}
     </ScrollView>
   );
 }
 
+/* ───── GUARDIAN ───── */
 function GuardianHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
-  const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
+  const [bens, setBens] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -104,35 +103,35 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         apiFetch('/api/guardian/beneficiaries', {}, token).catch(() => []),
         apiFetch('/api/alerts', {}, token).catch(() => []),
       ]);
-      setBeneficiaries(b); setAlerts(a);
-    } catch (e) {} finally { setLoading(false); setRefreshing(false); }
+      setBens(b); setAlerts(a);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
-
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
-
   const active = alerts.filter((a: any) => a.status === 'active');
 
   return (
     <ScrollView style={s.sv} contentContainerStyle={s.sc} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={Colors.primary} />} showsVerticalScrollIndicator={false}>
-      <View style={s.greet}><View><Text style={s.hi}>Bonjour,</Text><Text style={s.name}>{user.name}</Text></View>
-        <View style={s.gbadge}><Ionicons name="shield-checkmark" size={14} color={Colors.primary} /><Text style={s.gbadgeT}>Gardien</Text></View></View>
+      <View style={s.greet}>
+        <View><Text style={s.hi}>Bonjour,</Text><Text style={s.name}>{user.name}</Text></View>
+        <View style={s.roleBadge}><Ionicons name="shield-checkmark" size={12} color={Colors.primary} />
+          <Text style={s.roleBadgeT}>{user.is_prescriber ? 'Prescripteur' : 'Gardien'}</Text></View>
+      </View>
 
       <View style={s.statsRow}>
-        <View style={[s.stat, { backgroundColor: Colors.primary + '10' }]}><Text style={[s.statV, { color: Colors.primary }]}>{beneficiaries.length}</Text><Text style={s.statL}>Bénéficiaires</Text></View>
-        <View style={[s.stat, { backgroundColor: active.length > 0 ? Colors.destructive + '10' : Colors.success + '10' }]}>
-          <Text style={[s.statV, { color: active.length > 0 ? Colors.destructive : Colors.success }]}>{active.length}</Text><Text style={s.statL}>Alertes actives</Text></View>
+        <View style={s.stat}><Text style={s.statV}>{bens.length}</Text><Text style={s.statL}>Bénéficiaires</Text></View>
+        <View style={s.stat}><Text style={[s.statV, active.length > 0 && { color: Colors.destructive }]}>{active.length}</Text><Text style={s.statL}>Alertes</Text></View>
       </View>
 
       <Text style={s.secTitle}>Bénéficiaires</Text>
-      {beneficiaries.length > 0 ? beneficiaries.map((b: any) => (
-        <View key={b.id} style={s.benCard} testID={`ben-${b.id}`}>
+      {bens.length > 0 ? bens.map((b: any) => (
+        <View key={b.id} style={s.benCard}>
           <View style={s.benAv}><Text style={s.benAvT}>{b.name?.charAt(0)?.toUpperCase()}</Text></View>
           <View style={s.benInfo}><Text style={s.benName}>{b.name}</Text>
-            <Text style={s.benSt}>{b.latest_vitals ? `❤️ ${b.latest_vitals.heart_rate} bpm • 🌡 ${b.latest_vitals.temperature}°C` : 'Pas de données'}</Text></View>
-          <View style={s.benR}>{b.active_alerts > 0 && <View style={s.alertBadge}><Text style={s.alertBadgeT}>{b.active_alerts}</Text></View>}
-            <View style={[s.dot, { backgroundColor: b.latest_vitals ? Colors.success : Colors.textMuted }]} /></View>
+            <Text style={s.benSt}>{b.latest_vitals ? `${b.latest_vitals.heart_rate} bpm · ${b.latest_vitals.temperature}°C` : 'Pas de données'}</Text></View>
+          <View style={s.benR}>{b.active_alerts > 0 && <View style={s.alertBdg}><Text style={s.alertBdgT}>{b.active_alerts}</Text></View>}
+            <View style={[s.dotOnline, !b.latest_vitals && { backgroundColor: Colors.textMuted }]} /></View>
         </View>
       )) : (
         <View style={s.empty}><Ionicons name="people-outline" size={28} color={Colors.textMuted} /><Text style={s.emptyT}>Aucun bénéficiaire lié</Text><Text style={s.emptySub}>Allez dans Profil pour en ajouter</Text></View>
@@ -141,8 +140,8 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
       {active.length > 0 && <>
         <Text style={[s.secTitle, { marginTop: 16 }]}>Alertes récentes</Text>
         {active.slice(0, 3).map((a: any) => (
-          <View key={a.id} style={[s.alertC, a.severity === 'critical' && s.alertCrit]}>
-            <Ionicons name={a.alert_type === 'sos' ? 'alert-circle' : 'warning'} size={20} color={a.severity === 'critical' ? Colors.destructive : Colors.accent} />
+          <View key={a.id} style={[s.alertRow, a.severity === 'critical' && { borderLeftColor: Colors.destructive }]}>
+            <Ionicons name={a.alert_type === 'sos' ? 'alert-circle' : 'warning'} size={18} color={a.severity === 'critical' ? Colors.destructive : Colors.textMuted} />
             <View style={s.alertInfo}><Text style={s.alertMsg}>{a.message}</Text><Text style={s.alertMeta}>{a.beneficiary_name}</Text></View>
           </View>
         ))}
@@ -151,54 +150,181 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
   );
 }
 
+/* ───── TELEASSISTANCE ───── */
+function TeleassistanceHome({ token, user }: { token: string; user: any }) {
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [subs, setSubs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [a, su] = await Promise.all([
+        apiFetch('/api/alerts', {}, token).catch(() => []),
+        apiFetch('/api/teleassistance/subscribers', {}, token).catch(() => []),
+      ]);
+      setAlerts(a); setSubs(su);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [token]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
+  const active = alerts.filter((a: any) => a.status === 'active');
+
+  return (
+    <ScrollView style={s.sv} contentContainerStyle={s.sc} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={Colors.primary} />} showsVerticalScrollIndicator={false}>
+      <View style={s.greet}>
+        <View><Text style={s.hi}>Plateau d'écoute</Text><Text style={s.name}>{user.name}</Text></View>
+        <View style={s.roleBadge}><Ionicons name="headset" size={12} color={Colors.primary} /><Text style={s.roleBadgeT}>Téléassistance</Text></View>
+      </View>
+
+      <View style={s.statsRow}>
+        <View style={s.stat}><Text style={[s.statV, active.length > 0 && { color: Colors.destructive }]}>{active.length}</Text><Text style={s.statL}>Alertes actives</Text></View>
+        <View style={s.stat}><Text style={s.statV}>{subs.length}</Text><Text style={s.statL}>Abonnés</Text></View>
+        <View style={s.stat}><Text style={s.statV}>{alerts.length}</Text><Text style={s.statL}>Total alertes</Text></View>
+      </View>
+
+      {active.length > 0 && <>
+        <Text style={s.secTitle}>Alertes en attente</Text>
+        {active.slice(0, 5).map((a: any) => (
+          <View key={a.id} style={[s.alertRow, a.severity === 'critical' && { borderLeftColor: Colors.destructive }]}>
+            <Ionicons name={a.alert_type === 'sos' ? 'alert-circle' : 'warning'} size={18} color={a.severity === 'critical' ? Colors.destructive : Colors.textMuted} />
+            <View style={s.alertInfo}><Text style={s.alertMsg}>{a.message}</Text><Text style={s.alertMeta}>{a.beneficiary_name} · {new Date(a.created_at).toLocaleTimeString('fr-FR')}</Text></View>
+            <View style={[s.sevBdg, a.severity === 'critical' && { backgroundColor: Colors.destructive + '12' }]}>
+              <Text style={[s.sevBdgT, a.severity === 'critical' && { color: Colors.destructive }]}>{a.severity}</Text></View>
+          </View>
+        ))}
+      </>}
+
+      <Text style={[s.secTitle, { marginTop: 16 }]}>Abonnés récents</Text>
+      {subs.slice(0, 5).map((su: any) => (
+        <View key={su.id} style={s.benCard}>
+          <View style={s.benAv}><Text style={s.benAvT}>{su.name?.charAt(0)?.toUpperCase()}</Text></View>
+          <View style={s.benInfo}><Text style={s.benName}>{su.name}</Text>
+            <Text style={s.benSt}>{su.latest_vitals ? `${su.latest_vitals.heart_rate} bpm` : 'Pas de données'}</Text></View>
+          {su.active_alerts > 0 && <View style={s.alertBdg}><Text style={s.alertBdgT}>{su.active_alerts}</Text></View>}
+        </View>
+      ))}
+    </ScrollView>
+  );
+}
+
+/* ───── ADMIN ───── */
+function AdminHome({ token, user }: { token: string; user: any }) {
+  const router = useRouter();
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    try { setStats(await apiFetch('/api/backoffice/stats', {}, token)); } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [token]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
+
+  return (
+    <ScrollView style={s.sv} contentContainerStyle={s.sc} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={Colors.primary} />} showsVerticalScrollIndicator={false}>
+      <View style={s.greet}>
+        <View><Text style={s.hi}>Administration</Text><Text style={s.name}>{user.name}</Text></View>
+        <View style={s.roleBadge}><Ionicons name="settings" size={12} color={Colors.primary} /><Text style={s.roleBadgeT}>Admin</Text></View>
+      </View>
+
+      {stats && <>
+        <View style={s.statsRow}>
+          <View style={s.stat}><Text style={s.statV}>{stats.total_users}</Text><Text style={s.statL}>Utilisateurs</Text></View>
+          <View style={s.stat}><Text style={[s.statV, stats.active_alerts > 0 && { color: Colors.destructive }]}>{stats.active_alerts}</Text><Text style={s.statL}>Alertes</Text></View>
+          <View style={s.stat}><Text style={s.statV}>{stats.prescriptions}</Text><Text style={s.statL}>Prescriptions</Text></View>
+        </View>
+
+        <View style={s.grid}>
+          {[
+            { l: 'Bénéficiaires', v: stats.beneficiaries },
+            { l: 'Gardiens', v: stats.guardians },
+            { l: 'Prescripteurs', v: stats.prescribers },
+            { l: 'Codes actifs', v: stats.activation_codes },
+            { l: 'Interventions', v: stats.interventions },
+            { l: 'Souscrites', v: stats.subscribed_prescriptions },
+          ].map(x => (
+            <View key={x.l} style={s.miniStat}><Text style={s.miniStatV}>{x.v}</Text><Text style={s.miniStatL}>{x.l}</Text></View>
+          ))}
+        </View>
+      </>}
+
+      <TouchableOpacity style={s.boBtn} onPress={() => router.push('/backoffice')}>
+        <Ionicons name="settings-outline" size={18} color={Colors.primary} />
+        <Text style={s.boBtnT}>Ouvrir le Back Office complet</Text>
+        <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
+/* ───── MAIN ───── */
 export default function Dashboard() {
   const { user, token } = useAuth();
   if (!user || !token) return null;
   return (
     <SafeAreaView style={s.safe} testID="dashboard-screen">
-      {user.role === 'guardian' ? <GuardianHome token={token} user={user} /> : <BeneficiaryHome token={token} user={user} />}
+      {user.role === 'guardian' ? <GuardianHome token={token} user={user} />
+      : user.role === 'teleassistance' ? <TeleassistanceHome token={token} user={user} />
+      : user.role === 'admin' ? <AdminHome token={token} user={user} />
+      : <BeneficiaryHome token={token} user={user} />}
     </SafeAreaView>
   );
 }
 
 const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.background }, sv: { flex: 1 }, sc: { paddingHorizontal: 18, paddingBottom: 20 },
+  safe: { flex: 1, backgroundColor: Colors.background }, sv: { flex: 1 }, sc: { paddingHorizontal: 20, paddingBottom: 24 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  greet: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, marginBottom: 18 },
-  hi: { fontSize: 14, color: Colors.textSecondary }, name: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
-  badge: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.success + '15', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, gap: 5 },
-  dot: { width: 7, height: 7, borderRadius: 4 }, badgeT: { fontSize: 12, fontWeight: '600', color: Colors.success },
-  gbadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primary + '15', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, gap: 5 },
-  gbadgeT: { fontSize: 12, fontWeight: '600', color: Colors.primary },
-  sos: { backgroundColor: Colors.destructive, borderRadius: 16, paddingVertical: 18, alignItems: 'center', marginBottom: 18, shadowColor: Colors.destructive, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 10, elevation: 6 },
-  sosT: { color: '#FFF', fontSize: 24, fontWeight: '900', marginTop: 2 }, sosSub: { color: '#FFF', fontSize: 12, opacity: 0.8, marginTop: 2 },
-  secRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  secTitle: { fontSize: 17, fontWeight: '700', color: Colors.textPrimary, marginBottom: 10 },
-  seeAll: { fontSize: 13, fontWeight: '600', color: Colors.primary },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 },
-  vCard: { width: '47%', backgroundColor: Colors.paper, borderRadius: 14, padding: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
-  vIconBg: { width: 32, height: 32, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
-  vLabel: { fontSize: 12, color: Colors.textMuted, marginBottom: 2 },
-  vRow: { flexDirection: 'row', alignItems: 'baseline', gap: 3 },
-  vVal: { fontSize: 22, fontWeight: '800' }, vUnit: { fontSize: 11, color: Colors.textMuted },
-  aiCard: { backgroundColor: Colors.paper, borderRadius: 14, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: Colors.primary + '20' },
-  aiH: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 },
-  aiIc: { width: 28, height: 28, borderRadius: 7, backgroundColor: Colors.primary + '15', justifyContent: 'center', alignItems: 'center' },
-  aiTitle: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary }, aiText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
-  empty: { backgroundColor: Colors.paper, borderRadius: 14, padding: 20, alignItems: 'center', marginBottom: 14, borderWidth: 1, borderColor: Colors.border, borderStyle: 'dashed' },
-  emptyT: { fontSize: 14, color: Colors.textMuted, marginTop: 6 }, emptySub: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
-  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 18 },
-  stat: { flex: 1, borderRadius: 14, padding: 14, alignItems: 'center' },
-  statV: { fontSize: 26, fontWeight: '800' }, statL: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
-  benCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.paper, borderRadius: 14, padding: 12, marginBottom: 8, gap: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1 },
-  benAv: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.primary + '15', justifyContent: 'center', alignItems: 'center' },
-  benAvT: { fontSize: 18, fontWeight: '700', color: Colors.primary },
-  benInfo: { flex: 1 }, benName: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary }, benSt: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
+  greet: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, marginBottom: 20 },
+  hi: { fontSize: 13, color: Colors.textMuted, letterSpacing: 0.5, textTransform: 'uppercase' },
+  name: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary, letterSpacing: -0.5 },
+  badge: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, borderWidth: 1, borderColor: Colors.border },
+  dotOnline: { width: 7, height: 7, borderRadius: 4, backgroundColor: Colors.success },
+  badgeT: { fontSize: 11, fontWeight: '600', color: Colors.textSecondary },
+  roleBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, borderWidth: 1, borderColor: Colors.border },
+  roleBadgeT: { fontSize: 11, fontWeight: '600', color: Colors.textPrimary },
+  sos: { backgroundColor: Colors.destructive, borderRadius: 16, paddingVertical: 20, alignItems: 'center', marginBottom: 20 },
+  sosT: { color: '#FFF', fontSize: 24, fontWeight: '900', marginTop: 4 },
+  sosSub: { color: '#FFF', fontSize: 11, opacity: 0.8, marginTop: 2 },
+  secRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  secTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary, marginBottom: 12, letterSpacing: -0.3 },
+  seeAll: { fontSize: 12, fontWeight: '600', color: Colors.textMuted },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
+  vCard: { width: '31%', backgroundColor: Colors.subtle, borderRadius: 12, padding: 12, alignItems: 'center', gap: 2 },
+  vLabel: { fontSize: 10, color: Colors.textMuted, marginTop: 4 },
+  vVal: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
+  vUnit: { fontSize: 10, color: Colors.textMuted },
+  aiCard: { backgroundColor: Colors.subtle, borderRadius: 14, padding: 16, marginBottom: 16 },
+  aiH: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 6 },
+  aiTitle: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
+  aiText: { fontSize: 12, color: Colors.textSecondary, lineHeight: 18 },
+  empty: { backgroundColor: Colors.subtle, borderRadius: 14, padding: 24, alignItems: 'center', marginBottom: 16 },
+  emptyT: { fontSize: 13, color: Colors.textMuted, marginTop: 8 },
+  emptySub: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
+  statsRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },
+  stat: { flex: 1, borderRadius: 12, padding: 14, alignItems: 'center', backgroundColor: Colors.subtle },
+  statV: { fontSize: 28, fontWeight: '800', color: Colors.textPrimary },
+  statL: { fontSize: 10, color: Colors.textMuted, marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 },
+  benCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.subtle, borderRadius: 12, padding: 12, marginBottom: 6, gap: 10 },
+  benAv: { width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
+  benAvT: { fontSize: 16, fontWeight: '700', color: '#FFF' },
+  benInfo: { flex: 1 },
+  benName: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
+  benSt: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
   benR: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  alertBadge: { backgroundColor: Colors.destructive, borderRadius: 9, minWidth: 18, height: 18, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5 },
-  alertBadgeT: { color: '#FFF', fontSize: 10, fontWeight: '700' },
-  alertC: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 8, gap: 10, borderLeftWidth: 3, borderLeftColor: Colors.accent },
-  alertCrit: { borderLeftColor: Colors.destructive, backgroundColor: Colors.destructive + '05' },
-  alertInfo: { flex: 1 }, alertMsg: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
+  alertBdg: { backgroundColor: Colors.destructive, borderRadius: 10, minWidth: 20, height: 20, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5 },
+  alertBdgT: { color: '#FFF', fontSize: 10, fontWeight: '700' },
+  alertRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.subtle, borderRadius: 10, padding: 12, marginBottom: 6, gap: 10, borderLeftWidth: 3, borderLeftColor: Colors.border },
+  alertInfo: { flex: 1 },
+  alertMsg: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
   alertMeta: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
+  sevBdg: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, backgroundColor: Colors.subtle },
+  sevBdgT: { fontSize: 9, fontWeight: '700', color: Colors.textMuted, textTransform: 'uppercase' },
+  miniStat: { width: '31%', backgroundColor: Colors.subtle, borderRadius: 10, padding: 12, alignItems: 'center' },
+  miniStatV: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary },
+  miniStatL: { fontSize: 9, color: Colors.textMuted, marginTop: 2, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.3 },
+  boBtn: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.subtle, borderRadius: 12, padding: 16, marginTop: 12 },
+  boBtnT: { flex: 1, fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
 });

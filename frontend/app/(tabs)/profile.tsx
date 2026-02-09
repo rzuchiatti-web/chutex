@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiFetch } from '../../src/services/api';
@@ -14,6 +14,8 @@ export default function ProfileScreen() {
   const [linking, setLinking] = useState(false);
   const [locMode, setLocMode] = useState(user?.location_sharing || 'alert_only');
   const [savingLoc, setSavingLoc] = useState(false);
+  const [actCode, setActCode] = useState('');
+  const [activating, setActivating] = useState(false);
 
   if (!user || !token) return null;
 
@@ -32,56 +34,62 @@ export default function ProfileScreen() {
     setSavingLoc(true);
     try {
       await apiFetch('/api/location/sharing', { method: 'PUT', body: JSON.stringify({ mode }) }, token);
-      setLocMode(mode); Alert.alert('Sauvegardé', `Partage de localisation: ${mode === 'always' ? 'Toujours' : mode === 'alert_only' ? 'En cas d\'alerte' : 'Jamais'}`);
+      setLocMode(mode);
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSavingLoc(false); }
   };
+
+  const activatePrescriber = async () => {
+    if (!actCode.trim()) return Alert.alert('Erreur', 'Entrez un code');
+    setActivating(true);
+    try {
+      const r = await apiFetch('/api/guardian/activate-prescriber', { method: 'POST', body: JSON.stringify({ code: actCode.trim().toUpperCase() }) }, token);
+      Alert.alert('Activé', `Mode prescripteur activé pour ${r.structure}`);
+      setActCode(''); await refreshUser();
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivating(false); }
+  };
+
+  const roleName = user.role === 'beneficiary' ? 'Bénéficiaire' : user.role === 'guardian' ? (user.is_prescriber ? 'Prescripteur' : 'Gardien') : user.role === 'teleassistance' ? 'Téléassistance' : 'Administrateur';
 
   return (
     <SafeAreaView style={st.safe} testID="profile-screen">
       <ScrollView contentContainerStyle={st.sc} showsVerticalScrollIndicator={false}>
-        <Text style={st.title}>Mon Profil</Text>
+        <Text style={st.pageTitle}>Profil</Text>
 
         <View style={st.userCard}>
           <View style={st.avatar}><Text style={st.avatarT}>{user.name?.charAt(0)?.toUpperCase()}</Text></View>
           <Text style={st.userName}>{user.name}</Text>
-          <View style={st.roleBadge}>
-            <Ionicons name={user.role === 'guardian' ? 'shield-checkmark' : 'heart'} size={13} color={Colors.primary} />
-            <Text style={st.roleT}>{user.role === 'guardian' ? 'Gardien' : 'Bénéficiaire'}</Text>
-          </View>
+          <View style={st.roleBadge}><Text style={st.roleT}>{roleName}</Text></View>
+          {user.is_prescriber && user.prescriber_structure ? <Text style={st.structureT}>{user.prescriber_structure}</Text> : null}
         </View>
 
         <View style={st.section}>
           <Text style={st.secTitle}>Informations</Text>
           {[
             { icon: 'mail-outline', label: 'Email', val: user.email },
-            { icon: 'call-outline', label: 'Téléphone', val: user.phone || 'Non renseigné' },
-            { icon: 'calendar-outline', label: 'Inscrit', val: new Date(user.created_at).toLocaleDateString('fr-FR') },
+            { icon: 'call-outline', label: 'Téléphone', val: user.phone || '—' },
+            { icon: 'calendar-outline', label: 'Inscrit le', val: new Date(user.created_at).toLocaleDateString('fr-FR') },
           ].map((r, i) => (
             <View key={i} style={st.infoRow}>
-              <Ionicons name={r.icon as any} size={18} color={Colors.textMuted} />
+              <Ionicons name={r.icon as any} size={16} color={Colors.textMuted} />
               <View style={st.infoC}><Text style={st.infoL}>{r.label}</Text><Text style={st.infoV}>{r.val}</Text></View>
             </View>
           ))}
         </View>
 
-        {/* Location Sharing (Beneficiary only) */}
+        {/* Beneficiary: Location Sharing */}
         {user.role === 'beneficiary' && (
           <View style={st.section}>
             <Text style={st.secTitle}>Partage de localisation</Text>
-            <Text style={st.secDesc}>Choisissez quand vos gardiens peuvent voir votre position</Text>
             {[
-              { mode: 'always', label: 'Toujours', desc: 'Position partagée en permanence', icon: 'location' },
-              { mode: 'alert_only', label: 'En cas d\'alerte', desc: 'Uniquement lors d\'une alerte active', icon: 'alert-circle' },
-              { mode: 'never', label: 'Jamais', desc: 'Position jamais partagée', icon: 'lock-closed' },
+              { mode: 'always', label: 'Toujours', icon: 'location-outline' },
+              { mode: 'alert_only', label: 'En cas d\'alerte', icon: 'alert-circle-outline' },
+              { mode: 'never', label: 'Jamais', icon: 'lock-closed-outline' },
             ].map(opt => (
               <TouchableOpacity key={opt.mode} testID={`loc-${opt.mode}`}
                 style={[st.locOpt, locMode === opt.mode && st.locOptA]}
                 onPress={() => updateLocSharing(opt.mode)} disabled={savingLoc}>
-                <Ionicons name={opt.icon as any} size={20} color={locMode === opt.mode ? Colors.primary : Colors.textMuted} />
-                <View style={st.locInfo}>
-                  <Text style={[st.locLabel, locMode === opt.mode && st.locLabelA]}>{opt.label}</Text>
-                  <Text style={st.locDesc}>{opt.desc}</Text>
-                </View>
+                <Ionicons name={opt.icon as any} size={18} color={locMode === opt.mode ? Colors.primary : Colors.textMuted} />
+                <Text style={[st.locLabel, locMode === opt.mode && st.locLabelA]}>{opt.label}</Text>
                 <View style={[st.radio, locMode === opt.mode && st.radioA]}>
                   {locMode === opt.mode && <View style={st.radioInner} />}
                 </View>
@@ -93,7 +101,7 @@ export default function ProfileScreen() {
         {/* Guardian: Link Beneficiary */}
         {user.role === 'guardian' && (
           <View style={st.section}>
-            <Text style={st.secTitle}>Lier un Bénéficiaire</Text>
+            <Text style={st.secTitle}>Lier un bénéficiaire</Text>
             <View style={st.linkRow}>
               <TextInput testID="link-email-input" style={st.linkInput} placeholder="email@beneficiaire.com" placeholderTextColor={Colors.textMuted}
                 value={linkEmail} onChangeText={setLinkEmail} keyboardType="email-address" autoCapitalize="none" />
@@ -105,60 +113,93 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        {/* Device Sync */}
+        {/* Guardian: Activate Prescriber Mode */}
+        {user.role === 'guardian' && !user.is_prescriber && (
+          <View style={st.section}>
+            <Text style={st.secTitle}>Mode prescripteur</Text>
+            <Text style={st.secDesc}>Entrez votre code d'activation de structure pour activer le mode prescripteur et envoyer des prescriptions.</Text>
+            <View style={st.linkRow}>
+              <TextInput testID="act-code-input" style={st.linkInput} placeholder="Code (ex: SAAD1234)" placeholderTextColor={Colors.textMuted}
+                value={actCode} onChangeText={setActCode} autoCapitalize="characters" />
+              <TouchableOpacity testID="activate-btn" style={st.linkBtn} onPress={activatePrescriber} disabled={activating}>
+                {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Ionicons name="key" size={18} color="#FFF" />}
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* Guardian: Prescriber active badge */}
+        {user.role === 'guardian' && user.is_prescriber && (
+          <View style={[st.section, { backgroundColor: Colors.subtle }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
+              <View style={{ flex: 1 }}>
+                <Text style={st.secTitle}>Mode prescripteur actif</Text>
+                <Text style={st.secDesc}>Structure : {user.prescriber_structure}</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Back Office link */}
+        {(user.role === 'admin') && (
+          <TouchableOpacity testID="backoffice-btn" style={st.shortcutBtn} onPress={() => router.push('/backoffice')}>
+            <Ionicons name="settings-outline" size={18} color={Colors.primary} />
+            <Text style={st.shortcutT}>Back Office</Text>
+            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+          </TouchableOpacity>
+        )}
+
         {user.role === 'beneficiary' && (
           <TouchableOpacity testID="devices-shortcut" style={st.shortcutBtn} onPress={() => router.push('/(tabs)/devices')}>
-            <MaterialCommunityIcons name="bluetooth-connect" size={20} color={Colors.primary} />
+            <Ionicons name="bluetooth-outline" size={18} color={Colors.primary} />
             <Text style={st.shortcutT}>Gérer mes appareils</Text>
             <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
           </TouchableOpacity>
         )}
 
-        {/* Back Office */}
-        <TouchableOpacity testID="backoffice-btn" style={st.shortcutBtn} onPress={() => router.push('/backoffice')}>
-          <Ionicons name="settings" size={20} color={Colors.primary} />
-          <Text style={st.shortcutT}>Back Office</Text>
-          <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
-        </TouchableOpacity>
-
         <TouchableOpacity testID="logout-btn" style={st.logoutBtn} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={18} color={Colors.destructive} />
+          <Ionicons name="log-out-outline" size={16} color={Colors.destructive} />
           <Text style={st.logoutT}>Se déconnecter</Text>
         </TouchableOpacity>
-        <Text style={st.ver}>VitalLink AI v2.0.0</Text>
+        <Text style={st.ver}>VitalLink AI v3.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const st = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.background }, sc: { paddingHorizontal: 18, paddingBottom: 36 },
-  title: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary, marginTop: 14, marginBottom: 16 },
-  userCard: { backgroundColor: Colors.paper, borderRadius: 18, padding: 22, alignItems: 'center', marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
-  avatar: { width: 64, height: 64, borderRadius: 32, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  avatarT: { fontSize: 26, fontWeight: '800', color: '#FFF' },
+  safe: { flex: 1, backgroundColor: Colors.background },
+  sc: { paddingHorizontal: 20, paddingBottom: 40 },
+  pageTitle: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary, marginTop: 16, marginBottom: 20, letterSpacing: -0.5 },
+  userCard: { backgroundColor: Colors.subtle, borderRadius: 16, padding: 24, alignItems: 'center', marginBottom: 16 },
+  avatar: { width: 60, height: 60, borderRadius: 30, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+  avatarT: { fontSize: 24, fontWeight: '800', color: '#FFF' },
   userName: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
-  roleBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6, backgroundColor: Colors.primary + '10', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16 },
-  roleT: { fontSize: 13, fontWeight: '600', color: Colors.primary },
-  section: { backgroundColor: Colors.paper, borderRadius: 14, padding: 16, marginBottom: 14 },
-  secTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary, marginBottom: 10 },
-  secDesc: { fontSize: 13, color: Colors.textSecondary, marginBottom: 12, lineHeight: 18 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.subtle },
-  infoC: { flex: 1 }, infoL: { fontSize: 11, color: Colors.textMuted }, infoV: { fontSize: 14, fontWeight: '500', color: Colors.textPrimary },
-  locOpt: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, marginBottom: 8 },
-  locOptA: { borderColor: Colors.primary, backgroundColor: Colors.primary + '06' },
-  locInfo: { flex: 1 },
-  locLabel: { fontSize: 14, fontWeight: '600', color: Colors.textSecondary }, locLabelA: { color: Colors.primary },
-  locDesc: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
-  radio: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: Colors.border, justifyContent: 'center', alignItems: 'center' },
-  radioA: { borderColor: Colors.primary }, radioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: Colors.primary },
+  roleBadge: { marginTop: 6, paddingHorizontal: 14, paddingVertical: 4, borderRadius: 20, borderWidth: 1, borderColor: Colors.border },
+  roleT: { fontSize: 12, fontWeight: '600', color: Colors.textSecondary },
+  structureT: { fontSize: 12, color: Colors.textMuted, marginTop: 4 },
+  section: { backgroundColor: Colors.paper, borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
+  secTitle: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginBottom: 8 },
+  secDesc: { fontSize: 12, color: Colors.textMuted, marginBottom: 10, lineHeight: 17 },
+  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: Colors.border },
+  infoC: { flex: 1 },
+  infoL: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
+  infoV: { fontSize: 14, fontWeight: '500', color: Colors.textPrimary, marginTop: 1 },
+  locOpt: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 12, borderRadius: 10, borderWidth: 1, borderColor: Colors.border, marginBottom: 6 },
+  locOptA: { borderColor: Colors.primary },
+  locLabel: { flex: 1, fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
+  locLabelA: { color: Colors.primary },
+  radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: Colors.border, justifyContent: 'center', alignItems: 'center' },
+  radioA: { borderColor: Colors.primary },
+  radioInner: { width: 9, height: 9, borderRadius: 5, backgroundColor: Colors.primary },
   linkRow: { flexDirection: 'row', gap: 8 },
   linkInput: { flex: 1, backgroundColor: Colors.subtle, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
   linkBtn: { width: 44, height: 44, borderRadius: 10, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
-  linkedC: { fontSize: 13, color: Colors.textSecondary, marginTop: 10, fontWeight: '500' },
-  shortcutBtn: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.paper, borderRadius: 14, padding: 14, marginBottom: 10 },
-  shortcutT: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
-  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.destructive + '08', borderWidth: 1, borderColor: Colors.destructive + '20', marginBottom: 16, marginTop: 6 },
-  logoutT: { fontSize: 15, fontWeight: '600', color: Colors.destructive },
-  ver: { textAlign: 'center', fontSize: 12, color: Colors.textMuted },
+  linkedC: { fontSize: 12, color: Colors.textMuted, marginTop: 8 },
+  shortcutBtn: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.subtle, borderRadius: 12, padding: 14, marginBottom: 8 },
+  shortcutT: { flex: 1, fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, borderRadius: 12, borderWidth: 1, borderColor: Colors.destructive + '30', marginBottom: 16, marginTop: 8 },
+  logoutT: { fontSize: 14, fontWeight: '600', color: Colors.destructive },
+  ver: { textAlign: 'center', fontSize: 11, color: Colors.textMuted, letterSpacing: 0.5 },
 });
