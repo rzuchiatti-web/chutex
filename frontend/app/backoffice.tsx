@@ -25,19 +25,21 @@ export default function BackofficeScreen() {
   const [showIvCodeModal, setShowIvCodeModal] = useState(false);
   const [ivStructure, setIvStructure] = useState('');
   const [ivRadius, setIvRadius] = useState('30');
+  const [kpi, setKpi] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const [s, u, a, c, p, ic] = await Promise.all([
+        const [s, u, a, c, p, ic, k] = await Promise.all([
           apiFetch('/api/backoffice/stats', {}, token).catch(() => null),
           apiFetch('/api/backoffice/users', {}, token).catch(() => []),
           apiFetch('/api/backoffice/alerts', {}, token).catch(() => []),
           apiFetch('/api/admin/activation-codes', {}, token).catch(() => []),
           apiFetch('/api/backoffice/prescriptions', {}, token).catch(() => []),
           apiFetch('/api/admin/intervention-codes', {}, token).catch(() => []),
+          apiFetch('/api/backoffice/kpi', {}, token).catch(() => null),
         ]);
-        setStats(s); setUsers(u); setAlerts(a); setCodes(c); setPrescriptions(p); setInterventionCodes(ic);
+        setStats(s); setUsers(u); setAlerts(a); setCodes(c); setPrescriptions(p); setInterventionCodes(ic); setKpi(k);
       } catch {} finally { setLoading(false); }
     })();
   }, []);
