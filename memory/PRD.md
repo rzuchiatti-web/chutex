@@ -1,105 +1,73 @@
-# VitalLink - Product Requirements Document
+# CHUTEX - Product Requirements Document
 
 ## Problem Statement
-Application de monitoring santé et téléassistance automatisée. Permet le suivi de données de santé simulées, la gestion de prescriptions, la liaison gardien/bénéficiaire, et un protocole de téléassistance entièrement automatisé via Twilio.
+Application de téléassistance intelligente par Chutex Innovation. Monitoring santé connecté, gestion de prescriptions, liaison gardien/bénéficiaire, protocole de téléassistance IA automatisé via Twilio.
 
 ## Tech Stack
 - **Frontend**: React Native (Expo) for Web, TypeScript
 - **Backend**: Python, FastAPI
 - **Database**: MongoDB
-- **AI**: GPT-5.2 via Emergent LLM Key (recommendations, health reports)
-- **Telephony**: Twilio Voice API (real automated calls)
+- **AI**: GPT-5.2 via Emergent LLM Key
+- **Telephony**: Twilio Voice API
 
-## User Roles & Test Credentials
-| Role | Email | Password |
-|------|-------|----------|
-| Bénéficiaire | demo@vitallink.fr | demo123 |
-| Gardien | guardian@vitallink.fr | demo123 |
-| Téléassistance | teleassist@vitallink.fr | demo123 |
-| Admin | admin@vitallink.fr | demo123 |
+## Comptes de test
+| Rôle | Email | Mot de passe |
+|------|-------|-------------|
+| Bénéficiaire | robert.martin@email.fr | demo123 |
+| Gardien | claire.martin@email.fr | demo123 |
+| Téléassistance | plateau@chutex.fr | demo123 |
+| Admin | admin@chutex.fr | demo123 |
 
-## Core Features - IMPLEMENTED
+## Features implémentées
 
 ### Bénéficiaire
-- [x] Dashboard santé avec constantes clés (pouls, SpO2, tension, température, pas, stress)
-- [x] Bouton SOS déclenchant le protocole de téléassistance automatique
-- [x] Seuils d'alerte manuels par métrique (min/max/objectif)
-- [x] Recommandations IA personnalisées (GPT-5.2)
-- [x] Historique graphique 7 jours par métrique
-- [x] **Rappels quotidiens** (hydratation, médicaments, activités) - NEW
-- [x] **Partage de données sélectif** (choisir quoi partager aux gardiens) - NEW
-- [x] Partage QR code / code unique aux gardiens
-- [x] Téléconsultation QCM (7 questions)
-- [x] Gestion appareils (sync bracelet, balance, gilet)
-- [x] Historique des alertes avec filtre
+- [x] Dashboard santé (pouls, SpO2, tension, température, pas, stress)
+- [x] Bouton SOS → protocole téléassistance automatique
+- [x] Seuils d'alerte manuels + recommandation IA par métrique
+- [x] Rappels quotidiens (hydratation, médicaments, activités)
+- [x] Partage de données sélectif (gardiens)
+- [x] Partage QR code / code unique
+- [x] Téléconsultation QCM
+- [x] Gestion appareils (bracelet, balance, gilet)
+- [x] Historique alertes cliquables → détail alerte
 
 ### Gardien
-- [x] Dashboard avec liste bénéficiaires + alertes
-- [x] Fiche détaillée bénéficiaire (santé, infos médicales, alertes)
-- [x] **Onglet Appareils** avec niveaux de batterie - NEW
-- [x] **Onglet Interventions** dans le détail bénéficiaire - NEW
-- [x] Rapport santé IA complet
-- [x] Suivi interventions avec carte
-- [x] Espace prescription (si code prescripteur activé)
-- [x] Activation intervenant via code
-- [x] Commission + date versement 1er du mois suivant
+- [x] Dashboard bénéficiaires + alertes
+- [x] Fiche détaillée bénéficiaire (santé, appareils + batterie, interventions)
+- [x] Activation prescripteur dans l'onglet Prescriptions (code structure)
+- [x] Activation Intervenant Care dans l'onglet Interventions
+- [x] Lien vers chutex-innovation.com si pas prescripteur
+- [x] Alertes cliquables avec options Clôturer/Intervenir
+- [x] Rapport santé IA, suivi interventions
 
 ### Backoffice Admin
-- [x] Stats globales (utilisateurs, alertes, prescriptions, interventions)
-- [x] **Tableau de bord KPI** avec graphiques (alertes/jour, types, résolution, interventions) - NEW
-- [x] Liste utilisateurs + codes activation
-- [x] Gestion codes intervenants avec rayon
+- [x] KPI Dashboard avec graphiques (alertes/jour, types, résolution, utilisateurs)
+- [x] Gestion utilisateurs, codes activation, codes intervenants
 - [x] Suivi prescriptions + commissions
-- [x] **Emails envoyés** visibles (collection sent_emails) - NEW
+- [x] Stats globales
 
-### Téléassistance
+### Téléassistance IA
 - [x] Dashboard temps réel (refresh 5s)
-- [x] Protocole d'escalade automatique (bénéficiaire → gardiens → dispatch)
-- [x] Appels Twilio réels automatisés
-- [x] Historique escalades + détails appels
-- [x] **Rapport d'alerte enrichi** avec timeline unifiée - NEW
+- [x] Protocole escalade automatique (Twilio)
+- [x] Détails alertes avec timeline
 
-## Architecture
-```
-Frontend: React Native (Expo) - Port 3000
-Backend: FastAPI - Port 8001
-Database: MongoDB (localhost:27017, DB: vitallink_db)
-```
+### Général
+- [x] Branding CHUTEX complet
+- [x] Logout fonctionnel (redirect page login)
+- [x] Vrais noms français (Robert Martin, Claire Martin, etc.)
+- [x] Seed data automatique au démarrage
 
-## Key Screens
-- Auth (login/register)
-- Home dashboard (role-specific)
-- Health data (bracelet/scale tabs)
-- Alerts (with test triggers)
-- Devices (sync simulation)
-- Profile (with role-specific features)
-- Backoffice (admin only, with KPI tab)
-- Beneficiary detail (guardian view with devices + battery)
-- Alert detail (with escalation tracking + timeline)
-- Intervention detail (UberEats-style tracking)
-- Link code (QR sharing)
-- **Reminders** (hydration, medication, activities) - NEW
-- **Data sharing** (toggle what to share) - NEW
+## MOCKED
+- Emails stockés en DB (pas d'envoi SMTP réel)
+- Données santé simulées
 
-## Mocked Features
-- Email sending (stored in DB, not sent via SMTP)
-- Health data (simulated via device sync)
-
-## API Endpoints (NEW in this session)
-- POST/GET /api/reminders - CRUD rappels
-- PUT /api/reminders/{id}/complete - Marquer rappel fait
-- PUT /api/reminders/{id}/toggle - Activer/désactiver
-- DELETE /api/reminders/{id} - Supprimer
-- GET/PUT /api/settings/data-sharing - Préférences partage
-- GET /api/guardian/beneficiaries/map - Carte gardien
-- GET /api/backoffice/kpi - Données KPI dashboard
-- GET /api/alerts/{id}/report - Rapport alerte enrichi
-- GET /api/emails - Emails envoyés (admin)
-
-## Future/Backlog
-- P1: Intégrer un vrai service d'email (SendGrid/Resend)
-- P1: Carte multi-bénéficiaires interactive pour le gardien
-- P2: Export PDF rapport de santé
-- P2: Navigation GPS pour intervenant
+## Prochaines étapes
+- P0: Intégration vrais produits (SDK appareils connectés)
+- P1: Service email réel (SendGrid/Resend)
+- P1: Backoffice codes avec infos société (raison sociale, TVA, adresse)
+- P1: Admin alertes détaillées + menu bottom tabs dédié
+- P1: Téléassistance: reprise manuelle du processus IA
+- P2: Carte multi-bénéficiaires pour gardien
+- P2: Export PDF rapport santé
 - P3: Notifications SMS
-- P3: Backend refactoring (split server.py en modules)
+- P3: Refactoring backend
