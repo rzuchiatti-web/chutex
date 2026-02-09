@@ -210,6 +210,150 @@ function SubscribersList({ token }: { token: string }) {
   );
 }
 
+/* ===== ADMIN: PRESCRIPTEURS MANAGEMENT ===== */
+function AdminPrescripteurs({ token }: { token: string }) {
+  const [codes, setCodes] = useState<any[]>([]);
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [editCode, setEditCode] = useState<any>(null);
+  const [form, setForm] = useState({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', max_uses: '50' });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [c, p] = await Promise.all([
+          apiFetch('/api/admin/activation-codes', {}, token).catch(() => []),
+          apiFetch('/api/backoffice/prescriptions', {}, token).catch(() => []),
+        ]);
+        setCodes(c); setPrescriptions(p);
+      } catch {} finally { setLoading(false); }
+    })();
+  }, []);
+
+  const saveCode = async () => {
+    if (!form.structure_name) return Alert.alert('Erreur', 'Nom de structure requis');
+    setSaving(true);
+    try {
+      if (editCode) {
+        await apiFetch(`/api/admin/activation-codes/${editCode.id}`, { method: 'PUT', body: JSON.stringify(form) }, token);
+        setCodes(codes.map(c => c.id === editCode.id ? { ...c, ...form } : c));
+      } else {
+        const r = await apiFetch('/api/admin/activation-codes', { method: 'POST', body: JSON.stringify({ ...form, max_uses: parseInt(form.max_uses) || 50 }) }, token);
+        setCodes([r, ...codes]);
+      }
+      setShowModal(false); setEditCode(null);
+      setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', max_uses: '50' });
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+  };
+
+  const toggleCode = async (id: string) => {
+    try {
+      const r = await apiFetch(`/api/admin/activation-codes/${id}/toggle`, { method: 'PUT' }, token);
+      setCodes(codes.map(c => c.id === id ? { ...c, active: r.active } : c));
+    } catch (e: any) { Alert.alert('Erreur', e.message); }
+  };
+
+  const deleteCode = (id: string) => {
+    Alert.alert('Supprimer', 'Supprimer définitivement ce code prescripteur ?', [
+      { text: 'Annuler' },
+      { text: 'Supprimer', style: 'destructive', onPress: async () => {
+        await apiFetch(`/api/admin/activation-codes/${id}`, { method: 'DELETE' }, token);
+        setCodes(codes.filter(c => c.id !== id));
+      }}
+    ]);
+  };
+
+  const openEdit = (c: any) => {
+    setEditCode(c);
+    setForm({ structure_name: c.structure_name || '', raison_sociale: c.raison_sociale || '', siret: c.siret || '', tva: c.tva || '', adresse: c.adresse || '', telephone: c.telephone || '', email_contact: c.email_contact || '', max_uses: String(c.max_uses || 50) });
+    setShowModal(true);
+  };
+
+  if (loading) return <View style={d.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
+
+  return (
+    <ScrollView style={d.sv} contentContainerStyle={d.sc}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{codes.length} structure(s) prescriptrice(s)</Text>
+        <TouchableOpacity testID="add-prescripteur-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}
+          onPress={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', max_uses: '50' }); setShowModal(true); }}>
+          <Ionicons name="add" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
+        </TouchableOpacity>
+      </View>
+
+      {codes.map(c => (
+        <View key={c.id} style={[d.deviceCard, !c.active && { opacity: 0.5 }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.textPrimary }}>{c.structure_name}</Text>
+              {c.raison_sociale ? <Text style={{ fontSize: 11, color: Colors.textMuted }}>{c.raison_sociale}</Text> : null}
+            </View>
+            <View style={{ backgroundColor: Colors.subtle, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 }}>
+              <Text style={{ fontSize: 13, fontWeight: '800', letterSpacing: 1, color: Colors.primary }}>{c.code}</Text>
+            </View>
+          </View>
+          {(c.siret || c.tva || c.adresse) && (
+            <View style={{ marginTop: 8, gap: 2 }}>
+              {c.siret ? <Text style={{ fontSize: 11, color: Colors.textMuted }}>SIRET: {c.siret}</Text> : null}
+              {c.tva ? <Text style={{ fontSize: 11, color: Colors.textMuted }}>TVA: {c.tva}</Text> : null}
+              {c.adresse ? <Text style={{ fontSize: 11, color: Colors.textMuted }}>{c.adresse}</Text> : null}
+              {c.telephone ? <Text style={{ fontSize: 11, color: Colors.textMuted }}>Tél: {c.telephone}</Text> : null}
+            </View>
+          )}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 4 }}>
+            <Text style={{ fontSize: 11, color: Colors.textMuted, flex: 1 }}>Utilisations: {c.uses_count}/{c.max_uses} · {c.active ? 'Actif' : 'Désactivé'}</Text>
+            <TouchableOpacity onPress={() => openEdit(c)} style={{ padding: 6 }}><Ionicons name="create-outline" size={16} color={Colors.primary} /></TouchableOpacity>
+            <TouchableOpacity onPress={() => toggleCode(c.id)} style={{ padding: 6 }}><Ionicons name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={16} color={c.active ? Colors.textMuted : Colors.success} /></TouchableOpacity>
+            <TouchableOpacity onPress={() => deleteCode(c.id)} style={{ padding: 6 }}><Ionicons name="trash-outline" size={16} color={Colors.destructive} /></TouchableOpacity>
+          </View>
+        </View>
+      ))}
+
+      {prescriptions.length > 0 && (
+        <>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginTop: 20, marginBottom: 8 }}>Prescriptions ({prescriptions.length})</Text>
+          {prescriptions.map((p: any) => (
+            <View key={p.id} style={d.deviceCard}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: Colors.textPrimary }}>{p.beneficiary_name}</Text>
+              <Text style={{ fontSize: 12, color: Colors.textMuted }}>{p.beneficiary_email} · {p.subscription_type} · {p.status}</Text>
+              <Text style={{ fontSize: 11, color: Colors.success, marginTop: 4 }}>Commission: {p.commission}€ · Structure: {p.prescriber_structure}</Text>
+            </View>
+          ))}
+        </>
+      )}
+
+      <Modal visible={showModal} transparent animationType="slide">
+        <View style={d.modalO}><View style={d.modalC}>
+          <Text style={d.modalT}>{editCode ? 'Modifier la structure' : 'Nouvelle structure prescriptrice'}</Text>
+          {[
+            { k: 'structure_name', l: 'Nom commercial', p: 'Ex: Résidence Les Oliviers' },
+            { k: 'raison_sociale', l: 'Raison sociale', p: 'Ex: SAS Les Oliviers' },
+            { k: 'siret', l: 'SIRET', p: '12345678900000' },
+            { k: 'tva', l: 'N° TVA', p: 'FR12345678900' },
+            { k: 'adresse', l: 'Adresse', p: '12 rue des Chênes, 75001 Paris' },
+            { k: 'telephone', l: 'Téléphone', p: '+33 1 23 45 67 89' },
+            { k: 'email_contact', l: 'Email contact', p: 'contact@structure.fr' },
+          ].map(f => (
+            <View key={f.k}>
+              <Text style={d.inputL}>{f.l}</Text>
+              <TextInput style={d.modalInp} placeholder={f.p} placeholderTextColor={Colors.textMuted}
+                value={(form as any)[f.k]} onChangeText={(v) => setForm({ ...form, [f.k]: v })} />
+            </View>
+          ))}
+          <View style={d.modalBtns}>
+            <TouchableOpacity style={d.cancelBtn} onPress={() => setShowModal(false)}><Text style={d.cancelBtnT}>Annuler</Text></TouchableOpacity>
+            <TouchableOpacity style={d.submitBtn} onPress={saveCode} disabled={saving}>
+              {saving ? <ActivityIndicator color="#FFF" /> : <Text style={d.submitBtnT}>{editCode ? 'Modifier' : 'Créer'}</Text>}
+            </TouchableOpacity>
+          </View>
+        </View></View>
+      </Modal>
+    </ScrollView>
+  );
+}
+
 /* ===== MAIN ===== */
 export default function DevicesScreen() {
   const { user, token } = useAuth();
