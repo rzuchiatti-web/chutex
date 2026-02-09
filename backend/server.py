@@ -126,6 +126,23 @@ class ActivationCodeCreate(BaseModel):
 class ActivatePrescriberRequest(BaseModel):
     code: str
 
+class LinkCodeRequest(BaseModel):
+    pass  # no body needed to generate
+
+class LinkWithCodeRequest(BaseModel):
+    link_code: str
+
+class InterventionProviderActivate(BaseModel):
+    code: str
+
+class InterventionRadiusUpdate(BaseModel):
+    structure_id: str
+    radius_km: float = 30.0
+
+class TriggerCallRequest(BaseModel):
+    alert_id: str
+    phone_number: str = ""  # optional override
+
 class TeleassistanceCallUpdate(BaseModel):
     alert_id: str
     step: str  # call_beneficiary, doubt_resolution, call_guardian, dispatch_intervention, resolved
