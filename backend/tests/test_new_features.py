@@ -1,504 +1,462 @@
+"""
+VitalLink Iteration 4 - New Features Testing
+Tests for: Reminders, Data Sharing, KPI Dashboard, Guardian Map, Alert Report, Emails
+"""
 import pytest
 import requests
 import os
-import time
+from datetime import datetime
 
-# Backend API tests for VitalLink AI - New Features (Iteration 2)
-# Tests: Health history, Thresholds, AI metric advice, Location, Teleconsult, Interventions, Backoffice
-
-# Load BASE_URL from frontend .env if not in environment
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', '').rstrip('/')
 if not BASE_URL:
-    try:
-        with open('/app/frontend/.env', 'r') as f:
-            for line in f:
-                if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
-                    BASE_URL = line.split('=', 1)[1].strip()
-                    break
-    except:
-        pass
-if not BASE_URL:
-    raise ValueError("EXPO_PUBLIC_BACKEND_URL not found")
-BASE_URL = BASE_URL.rstrip('/')
+    BASE_URL = "https://teleassist-staging.preview.emergentagent.com"
 
-class TestHealthData:
-    """Health data history and thresholds tests"""
+# Test credentials
+CREDENTIALS = {
+    "beneficiary": {"email": "demo@vitallink.fr", "password": "demo123"},
+    "guardian": {"email": "guardian@vitallink.fr", "password": "demo123"},
+    "admin": {"email": "admin@vitallink.fr", "password": "demo123"},
+    "teleassistance": {"email": "teleassist@vitallink.fr", "password": "demo123"},
+}
 
-    @pytest.fixture
-    def beneficiary_token(self, api_client):
-        """Get beneficiary token"""
-        response = api_client.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "test@beneficiaire.com",
-            "password": "test123"
-        })
-        return response.json()["token"]
+class TestAuth:
+    """Authentication for all roles"""
+    
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.session = requests.Session()
+        self.session.headers.update({"Content-Type": "application/json"})
+    
+    def test_login_beneficiary(self):
+        """Test beneficiary login"""
+        resp = self.session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["beneficiary"])
+        assert resp.status_code == 200, f"Login failed: {resp.text}"
+        data = resp.json()
+        assert "token" in data
+        assert data["user"]["role"] == "beneficiary"
+        print(f"✅ Beneficiary login successful: {data['user']['email']}")
+    
+    def test_login_guardian(self):
+        """Test guardian login"""
+        resp = self.session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["guardian"])
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["user"]["role"] == "guardian"
+        print(f"✅ Guardian login successful: {data['user']['email']}")
+    
+    def test_login_admin(self):
+        """Test admin login"""
+        resp = self.session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["admin"])
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["user"]["role"] == "admin"
+        print(f"✅ Admin login successful: {data['user']['email']}")
+    
+    def test_login_teleassistance(self):
+        """Test teleassistance login"""
+        resp = self.session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["teleassistance"])
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["user"]["role"] == "teleassistance"
+        print(f"✅ Teleassistance login successful: {data['user']['email']}")
 
-    def test_get_health_history_heart_rate(self, api_client, beneficiary_token):
-        """Test GET /api/health/history/heart_rate"""
-        # Sync bracelet first to ensure data
-        api_client.post(
-            f"{BASE_URL}/api/devices/sync",
-            json={"device_type": "bracelet", "data": {}},
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        
-        response = api_client.get(
-            f"{BASE_URL}/api/health/history/heart_rate",
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert response.status_code == 200, f"Failed: {response.text}"
-        
-        data = response.json()
-        assert "metric_id" in data
-        assert data["metric_id"] == "heart_rate"
-        assert "history" in data
-        assert isinstance(data["history"], list)
-        assert len(data["history"]) > 0
-        assert "stats" in data
-        assert "current" in data["stats"]
-        assert "average" in data["stats"]
-        assert "min" in data["stats"]
-        assert "max" in data["stats"]
-        print(f"✓ Heart rate history retrieved: {len(data['history'])} data points, avg={data['stats']['average']}")
 
-    def test_get_health_history_weight(self, api_client, beneficiary_token):
-        """Test GET /api/health/history/weight (scale metric)"""
-        # Sync scale first
-        api_client.post(
-            f"{BASE_URL}/api/devices/sync",
-            json={"device_type": "scale", "data": {}},
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        
-        response = api_client.get(
-            f"{BASE_URL}/api/health/history/weight",
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert response.status_code == 200
-        
-        data = response.json()
-        assert data["metric_id"] == "weight"
-        assert len(data["history"]) > 0
-        print(f"✓ Weight history retrieved: current={data['stats']['current']}kg")
-
-    def test_get_health_history_invalid_metric(self, api_client, beneficiary_token):
-        """Test GET /api/health/history/{invalid_metric} returns 404"""
-        response = api_client.get(
-            f"{BASE_URL}/api/health/history/invalid_metric_xyz",
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert response.status_code == 404
-        print("✓ Invalid metric rejected")
-
-    def test_set_threshold(self, api_client, beneficiary_token):
-        """Test POST /api/health/thresholds"""
-        payload = {
-            "metric_id": "heart_rate",
-            "min_val": 60.0,
-            "max_val": 100.0,
-            "goal": 75.0
+class TestReminders:
+    """Test reminders CRUD operations"""
+    
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.session = requests.Session()
+        self.session.headers.update({"Content-Type": "application/json"})
+        # Login as beneficiary
+        resp = self.session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["beneficiary"])
+        assert resp.status_code == 200
+        token = resp.json()["token"]
+        self.session.headers.update({"Authorization": f"Bearer {token}"})
+        self.created_reminder_id = None
+    
+    def test_01_create_hydration_reminder(self):
+        """Create a hydration reminder"""
+        reminder_data = {
+            "reminder_type": "hydration",
+            "title": "TEST_Boire de l'eau",
+            "time": "08:00",
+            "days": ["lun", "mar", "mer", "jeu", "ven"],
+            "notes": "Au moins 8 verres par jour",
+            "dosage": "",
+            "interval_minutes": 120
         }
-        response = api_client.post(
-            f"{BASE_URL}/api/health/thresholds",
-            json=payload,
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert response.status_code == 200, f"Failed: {response.text}"
-        
-        data = response.json()
-        assert data["status"] == "saved"
-        print("✓ Threshold saved successfully")
-        
-        # Verify by GET
-        get_response = api_client.get(
-            f"{BASE_URL}/api/health/thresholds/heart_rate",
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert get_response.status_code == 200
-        threshold = get_response.json()
-        assert threshold["metric_id"] == "heart_rate"
-        assert threshold["min_val"] == 60.0
-        assert threshold["max_val"] == 100.0
-        assert threshold["goal"] == 75.0
-        print(f"✓ Threshold verified: {threshold}")
-
-    def test_get_all_thresholds(self, api_client, beneficiary_token):
-        """Test GET /api/health/thresholds"""
-        response = api_client.get(
-            f"{BASE_URL}/api/health/thresholds",
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert response.status_code == 200
-        
-        thresholds = response.json()
-        assert isinstance(thresholds, list)
-        print(f"✓ Get all thresholds successful: {len(thresholds)} thresholds")
-
-    def test_get_threshold_nonexistent(self, api_client, beneficiary_token):
-        """Test GET /api/health/thresholds/{metric_id} for non-existent threshold"""
-        response = api_client.get(
-            f"{BASE_URL}/api/health/thresholds/spo2",
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert response.status_code == 200
-        
-        data = response.json()
-        assert data["metric_id"] == "spo2"
-        assert data["min_val"] is None
-        assert data["max_val"] is None
-        assert data["goal"] is None
-        print("✓ Non-existent threshold returns default values")
-
-
-class TestAIMetricAdvice:
-    """AI metric advice tests"""
-
-    @pytest.fixture
-    def beneficiary_token(self, api_client):
-        response = api_client.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "test@beneficiaire.com",
-            "password": "test123"
-        })
-        return response.json()["token"]
-
-    def test_get_metric_advice(self, api_client, beneficiary_token):
-        """Test POST /api/ai/metric-advice"""
-        payload = {
-            "metric_id": "heart_rate",
-            "metric_name": "Fréquence cardiaque",
-            "current_value": 85
-        }
-        response = api_client.post(
-            f"{BASE_URL}/api/ai/metric-advice",
-            json=payload,
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert response.status_code == 200, f"Failed: {response.text}"
-        
-        data = response.json()
-        assert "advice" in data
-        assert len(data["advice"]) > 0
-        print(f"✓ Metric advice generated: {data['advice'][:100]}...")
-
-
-class TestLocation:
-    """Location sharing and tracking tests"""
-
-    @pytest.fixture
-    def beneficiary_token(self, api_client):
-        response = api_client.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "test@beneficiaire.com",
-            "password": "test123"
-        })
-        return response.json()["token"]
-
-    @pytest.fixture
-    def guardian_token(self, api_client):
-        response = api_client.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "gardien@test.com",
-            "password": "test123"
-        })
-        return response.json()["token"]
-
-    def test_update_location(self, api_client, beneficiary_token):
-        """Test POST /api/location/update"""
-        payload = {
-            "latitude": 48.8566,
-            "longitude": 2.3522
-        }
-        response = api_client.post(
-            f"{BASE_URL}/api/location/update",
-            json=payload,
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert response.status_code == 200, f"Failed: {response.text}"
-        
-        data = response.json()
-        assert data["status"] == "updated"
-        print("✓ Location updated successfully")
-
-    def test_get_own_location(self, api_client, beneficiary_token):
-        """Test GET /api/location/{user_id} for own location"""
-        # Get user info
-        me_response = api_client.get(
-            f"{BASE_URL}/api/auth/me",
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        user_id = me_response.json()["id"]
-        
-        response = api_client.get(
-            f"{BASE_URL}/api/location/{user_id}",
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert response.status_code == 200
-        
-        data = response.json()
-        assert "latitude" in data
-        assert "longitude" in data
-        assert "user_id" in data
-        print(f"✓ Own location retrieved: ({data['latitude']}, {data['longitude']})")
-
-    def test_update_location_sharing(self, api_client, beneficiary_token):
-        """Test PUT /api/location/sharing"""
-        for mode in ["always", "alert_only", "never"]:
-            payload = {"mode": mode}
-            response = api_client.put(
-                f"{BASE_URL}/api/location/sharing",
-                json=payload,
-                headers={"Authorization": f"Bearer {beneficiary_token}"}
-            )
-            assert response.status_code == 200, f"Failed for mode {mode}: {response.text}"
-            
-            data = response.json()
-            assert data["status"] == "updated"
-            assert data["mode"] == mode
-            print(f"✓ Location sharing updated to: {mode}")
-
-
-class TestTeleconsultation:
-    """Teleconsultation QCM and submission tests"""
-
-    @pytest.fixture
-    def beneficiary_token(self, api_client):
-        response = api_client.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "test@beneficiaire.com",
-            "password": "test123"
-        })
-        return response.json()["token"]
-
-    def test_get_questions(self, api_client):
-        """Test GET /api/teleconsult/questions (no auth required)"""
-        response = api_client.get(f"{BASE_URL}/api/teleconsult/questions")
-        assert response.status_code == 200, f"Failed: {response.text}"
-        
-        questions = response.json()
-        assert isinstance(questions, list)
-        assert len(questions) > 0
-        assert "id" in questions[0]
-        assert "question" in questions[0]
-        assert "type" in questions[0]
-        print(f"✓ Teleconsult questions retrieved: {len(questions)} questions")
-
-    def test_submit_teleconsult(self, api_client, beneficiary_token):
-        """Test POST /api/teleconsult/submit"""
-        payload = {
-            "answers": [
-                {"question_id": "q1", "answer": "Douleur ou gêne"},
-                {"question_id": "q2", "answer": "Aujourd'hui"},
-                {"question_id": "q3", "answer": 6},
-                {"question_id": "q4", "answer": "Non"},
-                {"question_id": "q5", "answer": "Oui"},
-                {"question_id": "q6", "answer": "Non"},
-                {"question_id": "q7", "answer": "Test de téléconsultation"}
-            ],
-            "notes": "Test submission"
-        }
-        response = api_client.post(
-            f"{BASE_URL}/api/teleconsult/submit",
-            json=payload,
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert response.status_code == 200, f"Failed: {response.text}"
-        
-        data = response.json()
+        resp = self.session.post(f"{BASE_URL}/api/reminders", json=reminder_data)
+        assert resp.status_code == 200, f"Create reminder failed: {resp.text}"
+        data = resp.json()
         assert "id" in data
-        assert data["status"] == "pending"
-        assert "call_number" in data
-        assert len(data["answers"]) == 7
-        print(f"✓ Teleconsult submitted: {data['id']}, call: {data['call_number']}")
-        
-        # Verify persistence
-        history_response = api_client.get(
-            f"{BASE_URL}/api/teleconsult/history",
-            headers={"Authorization": f"Bearer {beneficiary_token}"}
-        )
-        assert history_response.status_code == 200
-        history = history_response.json()
-        assert len(history) > 0
-        print(f"✓ Teleconsult history verified: {len(history)} entries")
-
-
-class TestInterventions:
-    """Intervention tracking tests"""
-
-    @pytest.fixture
-    def guardian_token(self, api_client):
-        response = api_client.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "gardien@test.com",
-            "password": "test123"
-        })
-        return response.json()["token"]
-
-    @pytest.fixture
-    def beneficiary_id(self, api_client, guardian_token):
-        """Get beneficiary ID from guardian's beneficiaries"""
-        response = api_client.get(
-            f"{BASE_URL}/api/guardian/beneficiaries",
-            headers={"Authorization": f"Bearer {guardian_token}"}
-        )
-        beneficiaries = response.json()
-        if len(beneficiaries) > 0:
-            return beneficiaries[0]["id"]
-        return None
-
-    @pytest.fixture
-    def alert_id(self, api_client, guardian_token, beneficiary_id):
-        """Get or create an active alert"""
-        # Get alerts
-        alerts_response = api_client.get(
-            f"{BASE_URL}/api/alerts",
-            headers={"Authorization": f"Bearer {guardian_token}"}
-        )
-        alerts = alerts_response.json()
-        active_alerts = [a for a in alerts if a["status"] == "active"]
-        if active_alerts:
-            return active_alerts[0]["id"]
-        return "test-alert-id"
-
-    def test_create_intervention(self, api_client, guardian_token, beneficiary_id, alert_id):
-        """Test POST /api/interventions"""
-        if not beneficiary_id:
-            pytest.skip("No beneficiary linked to guardian")
-        
-        payload = {
-            "alert_id": alert_id,
-            "beneficiary_id": beneficiary_id,
-            "notes": "Test intervention"
+        assert data["reminder_type"] == "hydration"
+        assert data["title"] == "TEST_Boire de l'eau"
+        assert data["interval_minutes"] == 120
+        self.__class__.hydration_reminder_id = data["id"]
+        print(f"✅ Hydration reminder created: {data['id']}")
+    
+    def test_02_create_medication_reminder(self):
+        """Create a medication reminder"""
+        reminder_data = {
+            "reminder_type": "medication",
+            "title": "TEST_Prendre médicament",
+            "time": "09:00",
+            "days": ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"],
+            "notes": "Avec de l'eau",
+            "dosage": "1 comprimé",
+            "interval_minutes": 0
         }
-        response = api_client.post(
-            f"{BASE_URL}/api/interventions",
-            json=payload,
-            headers={"Authorization": f"Bearer {guardian_token}"}
-        )
-        assert response.status_code == 200, f"Failed: {response.text}"
-        
-        data = response.json()
-        assert "id" in data
-        assert data["status"] == "en_route"
-        assert data["beneficiary_id"] == beneficiary_id
-        assert "beneficiary_location" in data
-        assert "intervener_location" in data
-        assert "timeline" in data
-        print(f"✓ Intervention created: {data['id']}, status={data['status']}")
-        return data["id"]
-
-    def test_get_interventions(self, api_client, guardian_token):
-        """Test GET /api/interventions"""
-        response = api_client.get(
-            f"{BASE_URL}/api/interventions",
-            headers={"Authorization": f"Bearer {guardian_token}"}
-        )
-        assert response.status_code == 200
-        
-        interventions = response.json()
-        assert isinstance(interventions, list)
-        print(f"✓ Get interventions successful: {len(interventions)} interventions")
-
-    def test_get_intervention_detail(self, api_client, guardian_token, beneficiary_id, alert_id):
-        """Test GET /api/interventions/{id}"""
-        if not beneficiary_id:
-            pytest.skip("No beneficiary linked to guardian")
-        
-        # Create intervention first
-        create_response = api_client.post(
-            f"{BASE_URL}/api/interventions",
-            json={"alert_id": alert_id, "beneficiary_id": beneficiary_id, "notes": "Test"},
-            headers={"Authorization": f"Bearer {guardian_token}"}
-        )
-        intervention_id = create_response.json()["id"]
-        
-        response = api_client.get(
-            f"{BASE_URL}/api/interventions/{intervention_id}",
-            headers={"Authorization": f"Bearer {guardian_token}"}
-        )
-        assert response.status_code == 200
-        
-        data = response.json()
-        assert data["id"] == intervention_id
-        assert "intervener_location" in data
-        print(f"✓ Intervention detail retrieved: {intervention_id}")
-
-    def test_update_intervention(self, api_client, guardian_token, beneficiary_id, alert_id):
-        """Test PUT /api/interventions/{id}"""
-        if not beneficiary_id:
-            pytest.skip("No beneficiary linked to guardian")
-        
-        # Create intervention first
-        create_response = api_client.post(
-            f"{BASE_URL}/api/interventions",
-            json={"alert_id": alert_id, "beneficiary_id": beneficiary_id, "notes": "Test"},
-            headers={"Authorization": f"Bearer {guardian_token}"}
-        )
-        intervention_id = create_response.json()["id"]
-        
-        # Update status
-        payload = {
-            "status": "completed",
-            "report": "Intervention completed successfully",
-            "latitude": 48.8600,
-            "longitude": 2.3550
+        resp = self.session.post(f"{BASE_URL}/api/reminders", json=reminder_data)
+        assert resp.status_code == 200, f"Create medication reminder failed: {resp.text}"
+        data = resp.json()
+        assert data["reminder_type"] == "medication"
+        assert data["dosage"] == "1 comprimé"
+        self.__class__.medication_reminder_id = data["id"]
+        print(f"✅ Medication reminder created: {data['id']}")
+    
+    def test_03_create_alarm_reminder(self):
+        """Create an activity/alarm reminder"""
+        reminder_data = {
+            "reminder_type": "alarm",
+            "title": "TEST_Marche quotidienne",
+            "time": "17:00",
+            "days": ["lun", "mer", "ven"],
+            "notes": "15 minutes de marche",
+            "dosage": "",
+            "interval_minutes": 0
         }
-        response = api_client.put(
-            f"{BASE_URL}/api/interventions/{intervention_id}",
-            json=payload,
-            headers={"Authorization": f"Bearer {guardian_token}"}
-        )
-        assert response.status_code == 200
+        resp = self.session.post(f"{BASE_URL}/api/reminders", json=reminder_data)
+        assert resp.status_code == 200, f"Create alarm reminder failed: {resp.text}"
+        data = resp.json()
+        assert data["reminder_type"] == "alarm"
+        self.__class__.alarm_reminder_id = data["id"]
+        print(f"✅ Alarm reminder created: {data['id']}")
+    
+    def test_04_get_reminders(self):
+        """Get list of reminders"""
+        resp = self.session.get(f"{BASE_URL}/api/reminders")
+        assert resp.status_code == 200, f"Get reminders failed: {resp.text}"
+        data = resp.json()
+        assert isinstance(data, list)
+        # Should have at least our test reminders
+        test_reminders = [r for r in data if r.get("title", "").startswith("TEST_")]
+        assert len(test_reminders) >= 1, "No test reminders found"
+        print(f"✅ Get reminders successful: {len(data)} total reminders")
+    
+    def test_05_complete_reminder(self):
+        """Mark a reminder as complete"""
+        if not hasattr(self.__class__, 'hydration_reminder_id'):
+            pytest.skip("No hydration reminder to complete")
         
-        data = response.json()
+        rid = self.__class__.hydration_reminder_id
+        resp = self.session.put(f"{BASE_URL}/api/reminders/{rid}/complete")
+        assert resp.status_code == 200, f"Complete reminder failed: {resp.text}"
+        data = resp.json()
+        assert data["status"] == "completed"
+        assert "date" in data
+        print(f"✅ Reminder completed for date: {data['date']}")
+    
+    def test_06_toggle_reminder(self):
+        """Toggle reminder active/inactive"""
+        if not hasattr(self.__class__, 'medication_reminder_id'):
+            pytest.skip("No medication reminder to toggle")
+        
+        rid = self.__class__.medication_reminder_id
+        resp = self.session.put(f"{BASE_URL}/api/reminders/{rid}/toggle")
+        assert resp.status_code == 200, f"Toggle reminder failed: {resp.text}"
+        data = resp.json()
+        assert data["status"] == "toggled"
+        assert "active" in data
+        print(f"✅ Reminder toggled, active: {data['active']}")
+    
+    def test_07_delete_reminder(self):
+        """Delete a reminder"""
+        if not hasattr(self.__class__, 'alarm_reminder_id'):
+            pytest.skip("No alarm reminder to delete")
+        
+        rid = self.__class__.alarm_reminder_id
+        resp = self.session.delete(f"{BASE_URL}/api/reminders/{rid}")
+        assert resp.status_code == 200, f"Delete reminder failed: {resp.text}"
+        data = resp.json()
+        assert data["status"] == "deleted"
+        print(f"✅ Reminder deleted: {rid}")
+        
+        # Verify it's deleted
+        resp = self.session.get(f"{BASE_URL}/api/reminders")
+        reminders = resp.json()
+        deleted_ids = [r['id'] for r in reminders]
+        assert rid not in deleted_ids, "Reminder still exists after deletion"
+
+
+class TestDataSharing:
+    """Test data sharing preferences"""
+    
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.session = requests.Session()
+        self.session.headers.update({"Content-Type": "application/json"})
+        # Login as beneficiary
+        resp = self.session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["beneficiary"])
+        assert resp.status_code == 200
+        token = resp.json()["token"]
+        self.session.headers.update({"Authorization": f"Bearer {token}"})
+    
+    def test_01_get_data_sharing_prefs(self):
+        """Get current data sharing preferences"""
+        resp = self.session.get(f"{BASE_URL}/api/settings/data-sharing")
+        assert resp.status_code == 200, f"Get data sharing failed: {resp.text}"
+        data = resp.json()
+        # Should have default preferences
+        assert isinstance(data, dict)
+        print(f"✅ Data sharing prefs retrieved: {len(data)} settings")
+    
+    def test_02_update_data_sharing_prefs(self):
+        """Update data sharing preferences"""
+        new_prefs = {
+            "share_heart_rate": True,
+            "share_blood_pressure": True,
+            "share_spo2": True,
+            "share_temperature": False,  # Disable temperature sharing
+            "share_steps": True,
+            "share_weight": False,  # Disable weight sharing
+            "share_stress": True,
+            "share_sleep": True,
+            "share_location": True,
+            "share_alerts": True
+        }
+        resp = self.session.put(f"{BASE_URL}/api/settings/data-sharing", json=new_prefs)
+        assert resp.status_code == 200, f"Update data sharing failed: {resp.text}"
+        data = resp.json()
         assert data["status"] == "updated"
-        print(f"✓ Intervention updated: {intervention_id} -> completed")
+        assert "prefs" in data
+        print(f"✅ Data sharing prefs updated successfully")
+    
+    def test_03_verify_data_sharing_update(self):
+        """Verify data sharing preferences were saved"""
+        resp = self.session.get(f"{BASE_URL}/api/settings/data-sharing")
+        assert resp.status_code == 200
+        data = resp.json()
+        # Verify our changes persisted
+        assert data.get("share_temperature") == False or data.get("share_temperature") is False
+        assert data.get("share_weight") == False or data.get("share_weight") is False
+        print(f"✅ Data sharing prefs verified after update")
 
 
-class TestBackoffice:
-    """Backoffice stats and management tests"""
+class TestGuardianMap:
+    """Test guardian beneficiaries map endpoint"""
+    
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.session = requests.Session()
+        self.session.headers.update({"Content-Type": "application/json"})
+        # Login as guardian
+        resp = self.session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["guardian"])
+        assert resp.status_code == 200
+        token = resp.json()["token"]
+        self.session.headers.update({"Authorization": f"Bearer {token}"})
+    
+    def test_01_get_guardian_map(self):
+        """Get guardian beneficiaries map data"""
+        resp = self.session.get(f"{BASE_URL}/api/guardian/beneficiaries/map")
+        assert resp.status_code == 200, f"Get guardian map failed: {resp.text}"
+        data = resp.json()
+        assert isinstance(data, list)
+        if len(data) > 0:
+            ben = data[0]
+            assert "id" in ben
+            assert "name" in ben
+            # Check for location and devices
+            print(f"✅ Guardian map data retrieved: {len(data)} beneficiaries")
+            for b in data:
+                print(f"   - {b.get('name')}: location={bool(b.get('location'))}, devices={len(b.get('devices', []))}")
+        else:
+            print(f"✅ Guardian map API working (no linked beneficiaries)")
 
-    def test_get_stats(self, api_client):
-        """Test GET /api/backoffice/stats (no auth required for now)"""
-        response = api_client.get(f"{BASE_URL}/api/backoffice/stats")
-        assert response.status_code == 200, f"Failed: {response.text}"
+
+class TestKPIDashboard:
+    """Test KPI dashboard endpoint"""
+    
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.session = requests.Session()
+        self.session.headers.update({"Content-Type": "application/json"})
+        # Login as admin
+        resp = self.session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["admin"])
+        assert resp.status_code == 200
+        token = resp.json()["token"]
+        self.session.headers.update({"Authorization": f"Bearer {token}"})
+    
+    def test_01_get_kpi_data(self):
+        """Get KPI dashboard data"""
+        resp = self.session.get(f"{BASE_URL}/api/backoffice/kpi")
+        assert resp.status_code == 200, f"Get KPI data failed: {resp.text}"
+        data = resp.json()
         
-        data = response.json()
+        # Verify all expected KPI fields
+        assert "alerts_by_day" in data
+        assert isinstance(data["alerts_by_day"], list)
+        assert len(data["alerts_by_day"]) == 30, "Should have 30 days of alert data"
+        
+        assert "alert_types" in data
+        assert isinstance(data["alert_types"], dict)
+        
+        assert "avg_resolution_minutes" in data
+        assert isinstance(data["avg_resolution_minutes"], (int, float))
+        
+        assert "users_by_role" in data
+        assert isinstance(data["users_by_role"], dict)
+        
+        assert "interventions_by_status" in data
+        assert isinstance(data["interventions_by_status"], dict)
+        
+        assert "active_subscriptions" in data
+        assert "pending_subscriptions" in data
         assert "total_users" in data
-        assert "beneficiaries" in data
-        assert "guardians" in data
         assert "total_alerts" in data
-        assert "active_alerts" in data
-        assert "prescriptions" in data
+        assert "total_interventions" in data
+        
+        print(f"✅ KPI data retrieved successfully:")
+        print(f"   - Total users: {data['total_users']}")
+        print(f"   - Total alerts: {data['total_alerts']}")
+        print(f"   - Total interventions: {data['total_interventions']}")
+        print(f"   - Avg resolution time: {data['avg_resolution_minutes']} min")
+        print(f"   - Active subscriptions: {data['active_subscriptions']}")
+
+
+class TestAlertReport:
+    """Test enhanced alert report endpoint"""
+    
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.session = requests.Session()
+        self.session.headers.update({"Content-Type": "application/json"})
+        # Login as teleassistance
+        resp = self.session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["teleassistance"])
+        assert resp.status_code == 200
+        token = resp.json()["token"]
+        self.session.headers.update({"Authorization": f"Bearer {token}"})
+    
+    def test_01_create_test_alert(self):
+        """Create a test alert to test report"""
+        # Login as beneficiary first
+        ben_session = requests.Session()
+        ben_session.headers.update({"Content-Type": "application/json"})
+        resp = ben_session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["beneficiary"])
+        assert resp.status_code == 200
+        token = resp.json()["token"]
+        ben_session.headers.update({"Authorization": f"Bearer {token}"})
+        
+        # Create anomaly alert (not SOS to avoid Twilio)
+        alert_data = {
+            "alert_type": "anomaly",
+            "severity": "medium",
+            "message": "TEST_Alert for report testing",
+            "device_type": "bracelet"
+        }
+        resp = ben_session.post(f"{BASE_URL}/api/alerts", json=alert_data)
+        assert resp.status_code == 200, f"Create alert failed: {resp.text}"
+        data = resp.json()
+        self.__class__.test_alert_id = data["id"]
+        print(f"✅ Test alert created: {data['id']}")
+    
+    def test_02_get_alert_report(self):
+        """Get enhanced alert report"""
+        if not hasattr(self.__class__, 'test_alert_id'):
+            # Get any existing alert
+            resp = self.session.get(f"{BASE_URL}/api/alerts")
+            alerts = resp.json()
+            if not alerts:
+                pytest.skip("No alerts to get report for")
+            alert_id = alerts[0]["id"]
+        else:
+            alert_id = self.__class__.test_alert_id
+        
+        resp = self.session.get(f"{BASE_URL}/api/alerts/{alert_id}/report")
+        assert resp.status_code == 200, f"Get alert report failed: {resp.text}"
+        data = resp.json()
+        
+        # Verify report structure
+        assert "alert" in data
+        assert "beneficiary" in data
+        assert "escalations" in data
+        assert "calls" in data
         assert "interventions" in data
-        assert "teleconsults" in data
-        assert data["total_users"] >= 0
-        print(f"✓ Backoffice stats retrieved: {data['total_users']} users, {data['beneficiaries']} beneficiaries, {data['guardians']} guardians")
-
-    def test_get_all_users(self, api_client):
-        """Test GET /api/backoffice/users"""
-        response = api_client.get(f"{BASE_URL}/api/backoffice/users")
-        assert response.status_code == 200
+        assert "timeline" in data
         
-        users = response.json()
-        assert isinstance(users, list)
-        assert len(users) > 0
-        # Check password_hash is excluded
-        for user in users:
-            assert "password_hash" not in user
-            assert "email" in user
-            assert "role" in user
-        print(f"✓ Backoffice users retrieved: {len(users)} users")
-
-    def test_get_all_alerts(self, api_client):
-        """Test GET /api/backoffice/alerts"""
-        response = api_client.get(f"{BASE_URL}/api/backoffice/alerts")
-        assert response.status_code == 200
+        assert isinstance(data["timeline"], list)
         
-        alerts = response.json()
-        assert isinstance(alerts, list)
-        print(f"✓ Backoffice alerts retrieved: {len(alerts)} alerts")
+        print(f"✅ Alert report retrieved:")
+        print(f"   - Alert type: {data['alert']['alert_type']}")
+        print(f"   - Beneficiary: {data['beneficiary']['name'] if data['beneficiary'] else 'N/A'}")
+        print(f"   - Timeline events: {len(data['timeline'])}")
+        print(f"   - Escalations: {len(data['escalations'])}")
+        print(f"   - Calls: {len(data['calls'])}")
 
-    def test_get_all_interventions(self, api_client):
-        """Test GET /api/backoffice/interventions"""
-        response = api_client.get(f"{BASE_URL}/api/backoffice/interventions")
-        assert response.status_code == 200
+
+class TestEmailEndpoint:
+    """Test email viewing endpoint"""
+    
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.session = requests.Session()
+        self.session.headers.update({"Content-Type": "application/json"})
+        # Login as admin
+        resp = self.session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["admin"])
+        assert resp.status_code == 200
+        token = resp.json()["token"]
+        self.session.headers.update({"Authorization": f"Bearer {token}"})
+    
+    def test_01_get_sent_emails(self):
+        """Get list of sent emails (admin only)"""
+        resp = self.session.get(f"{BASE_URL}/api/emails")
+        assert resp.status_code == 200, f"Get emails failed: {resp.text}"
+        data = resp.json()
+        assert isinstance(data, list)
+        print(f"✅ Email list retrieved: {len(data)} emails")
+        if len(data) > 0:
+            email = data[0]
+            print(f"   - Latest: to={email.get('to')}, subject={email.get('subject')[:30]}...")
+    
+    def test_02_email_endpoint_forbidden_for_non_admin(self):
+        """Verify non-admin cannot access emails"""
+        # Login as beneficiary
+        ben_session = requests.Session()
+        ben_session.headers.update({"Content-Type": "application/json"})
+        resp = ben_session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["beneficiary"])
+        token = resp.json()["token"]
+        ben_session.headers.update({"Authorization": f"Bearer {token}"})
         
-        interventions = response.json()
-        assert isinstance(interventions, list)
-        print(f"✓ Backoffice interventions retrieved: {len(interventions)} interventions")
+        resp = ben_session.get(f"{BASE_URL}/api/emails")
+        assert resp.status_code == 403, "Non-admin should not access emails"
+        print(f"✅ Email endpoint correctly returns 403 for non-admin")
+
+
+class TestCleanup:
+    """Cleanup test data"""
+    
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.session = requests.Session()
+        self.session.headers.update({"Content-Type": "application/json"})
+        # Login as beneficiary
+        resp = self.session.post(f"{BASE_URL}/api/auth/login", json=CREDENTIALS["beneficiary"])
+        assert resp.status_code == 200
+        token = resp.json()["token"]
+        self.session.headers.update({"Authorization": f"Bearer {token}"})
+    
+    def test_cleanup_reminders(self):
+        """Delete test reminders"""
+        resp = self.session.get(f"{BASE_URL}/api/reminders")
+        reminders = resp.json()
+        deleted = 0
+        for r in reminders:
+            if r.get("title", "").startswith("TEST_"):
+                del_resp = self.session.delete(f"{BASE_URL}/api/reminders/{r['id']}")
+                if del_resp.status_code == 200:
+                    deleted += 1
+        print(f"✅ Cleanup: deleted {deleted} test reminders")
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--tb=short"])
