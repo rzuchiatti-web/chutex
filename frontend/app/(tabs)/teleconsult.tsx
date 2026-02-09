@@ -208,6 +208,17 @@ function TeleassistanceDashboard({ token }: { token: string }) {
 
         {isCallingGuardian && (
           <>
+            <TouchableOpacity testID="call-guardian-real" style={[s.actionBtn, { backgroundColor: Colors.primary }]} onPress={async () => {
+              if (!activeEsc?.current_target?.id) return;
+              try {
+                const r = await apiFetch('/api/twilio/call/guardian', { method: 'POST', body: JSON.stringify({
+                  alert_id: activeEsc.alert_id, guardian_id: activeEsc.current_target.id, phone_number: activeEsc.current_target.phone || ''
+                }) }, token);
+                Alert.alert('📞 Appel gardien', `Appel en cours vers ${activeEsc.current_target.name}...`);
+              } catch (e: any) { Alert.alert('Appel échoué', e.message); }
+            }} disabled={processing}>
+              <Ionicons name="call" size={16} color="#FFF" /><Text style={s.actionBtnT}>Appeler {activeEsc?.current_target?.name}</Text>
+            </TouchableOpacity>
             <TouchableOpacity testID="guardian-answered" style={[s.actionBtn, { backgroundColor: Colors.success }]} onPress={() => advanceStep('answered')} disabled={processing}>
               <Ionicons name="checkmark-circle" size={16} color="#FFF" /><Text style={s.actionBtnT}>Gardien prend en charge</Text>
             </TouchableOpacity>
