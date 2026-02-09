@@ -221,6 +221,22 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         )}
 
+        {user.role === 'beneficiary' && (
+          <TouchableOpacity testID="ecg-link" style={st.shortcutBtn} onPress={() => router.push('/ecg')}>
+            <Ionicons name="pulse-outline" size={18} color={Colors.primary} />
+            <Text style={st.shortcutT}>Électrocardiogramme (ECG)</Text>
+            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+          </TouchableOpacity>
+        )}
+
+        {user.role === 'beneficiary' && (
+          <TouchableOpacity testID="geofence-link" style={st.shortcutBtn} onPress={() => router.push('/geofencing')}>
+            <Ionicons name="locate-outline" size={18} color={Colors.primary} />
+            <Text style={st.shortcutT}>Zones de sécurité (Géofencing)</Text>
+            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity testID="logout-btn" style={st.logoutBtn} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={16} color={Colors.destructive} />
           <Text style={st.logoutT}>Se déconnecter</Text>
