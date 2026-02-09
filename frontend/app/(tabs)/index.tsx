@@ -116,6 +116,16 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
       {/* Quick actions */}
       <View style={s.quickRow}>
+        <TouchableOpacity style={s.quickBtn} onPress={() => router.push('/ecg')}>
+          <Ionicons name="pulse-outline" size={20} color={Colors.textPrimary} />
+          <Text style={s.quickBtnT}>Lancer ECG</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={s.quickBtn} onPress={() => router.push('/geofencing')}>
+          <Ionicons name="locate-outline" size={20} color={Colors.textPrimary} />
+          <Text style={s.quickBtnT}>Zones sécurité</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={s.quickRow}>
         <TouchableOpacity style={s.quickBtn} onPress={() => router.push('/data-sharing')}>
           <Ionicons name="shield-checkmark-outline" size={20} color={Colors.textPrimary} />
           <Text style={s.quickBtnT}>Partage données</Text>
