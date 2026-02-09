@@ -1720,6 +1720,166 @@ async def get_sent_emails(user=Depends(get_current_user)):
     if user.get('role') != 'admin': raise HTTPException(status_code=403)
     return await db.sent_emails.find({}, {"_id": 0}).sort("sent_at", -1).to_list(100)
 
+# ==================== GEOFENCING ====================
+class GeofenceCreate(BaseModel):
+    name: str = "Zone de sécurité"
+    latitude: float
+    longitude: float
+    radius_meters: float = 500
+    active: bool = True
+
+@api_router.post("/geofence")
+async def create_geofence(data: GeofenceCreate, user=Depends(get_current_user)):
+    zone = {"id": str(uuid.uuid4()), "user_id": user['id'], "name": data.name,
+            "latitude": data.latitude, "longitude": data.longitude,
+            "radius_meters": data.radius_meters, "active": data.active,
+            "created_at": datetime.now(timezone.utc).isoformat()}
+    await db.geofences.insert_one(zone)
+    zone.pop('_id', None)
+    return zone
+
+@api_router.get("/geofence")
+async def get_geofences(user=Depends(get_current_user)):
+    return await db.geofences.find({"user_id": user['id']}, {"_id": 0}).to_list(20)
+
+@api_router.put("/geofence/{gid}/toggle")
+async def toggle_geofence(gid: str, user=Depends(get_current_user)):
+    gf = await db.geofences.find_one({"id": gid, "user_id": user['id']}, {"_id": 0})
+    if not gf: raise HTTPException(status_code=404)
+    new_active = not gf.get('active', True)
+    await db.geofences.update_one({"id": gid}, {"$set": {"active": new_active}})
+    return {"active": new_active}
+
+@api_router.delete("/geofence/{gid}")
+async def delete_geofence(gid: str, user=Depends(get_current_user)):
+    await db.geofences.delete_one({"id": gid, "user_id": user['id']})
+    return {"status": "deleted"}
+
+@api_router.post("/geofence/check")
+async def check_geofence(user=Depends(get_current_user)):
+    """Check if user's current location is within their geofences"""
+    import math
+    loc = await db.locations.find_one({"user_id": user['id']}, {"_id": 0})
+    if not loc or not loc.get('latitude'): return {"in_zone": True, "violations": []}
+    zones = await db.geofences.find({"user_id": user['id'], "active": True}, {"_id": 0}).to_list(20)
+    violations = []
+    for z in zones:
+        dlat = math.radians(loc['latitude'] - z['latitude'])
+        dlon = math.radians(loc['longitude'] - z['longitude'])
+        a = math.sin(dlat/2)**2 + math.cos(math.radians(z['latitude'])) * math.cos(math.radians(loc['latitude'])) * math.sin(dlon/2)**2
+        dist = 6371000 * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        if dist > z['radius_meters']:
+            violations.append({"zone_name": z['name'], "distance_m": round(dist), "radius_m": z['radius_meters']})
+            # Auto-create alert
+            existing = await db.alerts.find_one({"beneficiary_id": user['id'], "alert_type": "geofence", "status": "active"})
+            if not existing:
+                alert = {"id": str(uuid.uuid4()), "beneficiary_id": user['id'], "alert_type": "geofence",
+                         "severity": "high", "message": f"Sortie de zone: {z['name']} ({round(dist)}m / {z['radius_meters']}m)",
+                         "status": "active", "created_at": datetime.now(timezone.utc).isoformat(),
+                         "resolved_at": None, "resolved_by": None, "teleassistance_status": "pending",
+                         "location": {"latitude": loc['latitude'], "longitude": loc['longitude']}}
+                await db.alerts.insert_one(alert)
+                logger.info(f"Geofence alert: {user['name']} left zone {z['name']}")
+    return {"in_zone": len(violations) == 0, "violations": violations}
+
+# ==================== ECG ====================
+@api_router.post("/ecg/start")
+async def start_ecg(user=Depends(get_current_user)):
+    """Start an ECG recording (simulated)"""
+    ecg_id = str(uuid.uuid4())
+    # Simulate ECG data
+    import math
+    duration_sec = 30
+    sample_rate = 250
+    samples = []
+    for i in range(duration_sec * sample_rate):
+        t = i / sample_rate
+        # Simulate PQRST waveform
+        p = 0.15 * math.sin(2 * math.pi * 1.2 * t) if (t % 0.8) < 0.1 else 0
+        qrs = 1.2 * math.sin(2 * math.pi * 8 * t) * math.exp(-((t % 0.8 - 0.2) ** 2) / 0.001) if abs((t % 0.8) - 0.2) < 0.05 else 0
+        tw = 0.3 * math.sin(2 * math.pi * 1.5 * t) if 0.3 < (t % 0.8) < 0.5 else 0
+        noise = random.uniform(-0.02, 0.02)
+        samples.append(round(p + qrs + tw + noise, 4))
+
+    bpm = random.randint(58, 95)
+    rhythm = random.choice(["sinusal", "sinusal", "sinusal", "arythmie légère"])
+    pr_interval = random.randint(120, 200)
+    qrs_duration = random.randint(80, 120)
+    qt_interval = random.randint(350, 450)
+    interpretation = "Rythme sinusal normal" if rhythm == "sinusal" else "Arythmie légère détectée - consultez votre médecin"
+    status = "normal" if rhythm == "sinusal" else "attention"
+
+    ecg_record = {
+        "id": ecg_id, "user_id": user['id'], "created_at": datetime.now(timezone.utc).isoformat(),
+        "duration_sec": duration_sec, "sample_rate": sample_rate,
+        "bpm": bpm, "rhythm": rhythm, "pr_interval_ms": pr_interval,
+        "qrs_duration_ms": qrs_duration, "qt_interval_ms": qt_interval,
+        "interpretation": interpretation, "status": status,
+        "samples": samples[:500],  # Store first 500 samples for display
+    }
+    await db.ecg_records.insert_one(ecg_record)
+    ecg_record.pop('_id', None)
+    return ecg_record
+
+@api_router.get("/ecg/history")
+async def get_ecg_history(user=Depends(get_current_user)):
+    records = await db.ecg_records.find({"user_id": user['id']}, {"_id": 0, "samples": 0}).sort("created_at", -1).to_list(50)
+    return records
+
+@api_router.get("/ecg/{ecg_id}")
+async def get_ecg_detail(ecg_id: str, user=Depends(get_current_user)):
+    record = await db.ecg_records.find_one({"id": ecg_id}, {"_id": 0})
+    if not record: raise HTTPException(status_code=404, detail="ECG non trouvé")
+    return record
+
+# ==================== SEDENTARITY ALERTS ====================
+class SedentaritySettings(BaseModel):
+    enabled: bool = True
+    max_inactive_hours: float = 4
+    check_start_hour: int = 8  # Don't check before 8am
+    check_end_hour: int = 22  # Don't check after 10pm
+
+@api_router.put("/settings/sedentarity")
+async def update_sedentarity(data: SedentaritySettings, user=Depends(get_current_user)):
+    await db.users.update_one({"id": user['id']}, {"$set": {"sedentarity_settings": data.dict()}})
+    return data.dict()
+
+@api_router.get("/settings/sedentarity")
+async def get_sedentarity(user=Depends(get_current_user)):
+    u = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    return u.get('sedentarity_settings', {"enabled": True, "max_inactive_hours": 4, "check_start_hour": 8, "check_end_hour": 22})
+
+@api_router.post("/sedentarity/check")
+async def check_sedentarity(user=Depends(get_current_user)):
+    """Check sedentarity and create alert if needed"""
+    settings = await get_sedentarity(user)
+    if not settings.get('enabled', True): return {"alert_created": False, "reason": "disabled"}
+    now = datetime.now(timezone.utc)
+    hour = now.hour
+    if hour < settings.get('check_start_hour', 8) or hour > settings.get('check_end_hour', 22):
+        return {"alert_created": False, "reason": "outside_hours"}
+    # Check last activity
+    last_reading = await db.device_readings.find_one(
+        {"user_id": user['id'], "data.steps": {"$exists": True}}, {"_id": 0},
+        sort=[("timestamp", -1)]
+    )
+    max_hours = settings.get('max_inactive_hours', 4)
+    if last_reading:
+        last_time = datetime.fromisoformat(last_reading['timestamp'].replace('Z', '+00:00'))
+        hours_inactive = (now - last_time).total_seconds() / 3600
+        if hours_inactive > max_hours:
+            existing = await db.alerts.find_one({"beneficiary_id": user['id'], "alert_type": "sedentarity", "status": "active"})
+            if not existing:
+                alert = {"id": str(uuid.uuid4()), "beneficiary_id": user['id'], "alert_type": "sedentarity",
+                         "severity": "low", "message": f"Aucune activité détectée depuis {round(hours_inactive, 1)}h (seuil: {max_hours}h)",
+                         "status": "active", "created_at": now.isoformat(),
+                         "resolved_at": None, "resolved_by": None, "teleassistance_status": "pending"}
+                await db.alerts.insert_one(alert)
+                return {"alert_created": True, "hours_inactive": round(hours_inactive, 1)}
+            return {"alert_created": False, "reason": "alert_already_active", "hours_inactive": round(hours_inactive, 1)}
+        return {"alert_created": False, "reason": "active_recently", "hours_inactive": round(hours_inactive, 1)}
+    return {"alert_created": False, "reason": "no_readings"}
+
 # ==================== SEED DATA ====================
 @app.on_event("startup")
 async def seed_demo_data():
