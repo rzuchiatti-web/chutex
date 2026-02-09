@@ -12,6 +12,19 @@ export default function TabLayout() {
   if (!user) return null;
 
   const r = user.role;
+  // Admin gets dedicated backoffice tabs
+  if (r === 'admin') {
+    return (
+      <Tabs screenOptions={{ headerShown: false, tabBarStyle: st.tabBar, tabBarItemStyle: st.tabItem, tabBarLabelStyle: st.tabLabel, tabBarActiveTintColor: Colors.primary, tabBarInactiveTintColor: Colors.textMuted }}>
+        <Tabs.Screen name="index" options={{ title: 'Dashboard', tabBarIcon: ({ color }) => <Ionicons name="grid-outline" size={20} color={color} /> }} />
+        <Tabs.Screen name="alerts" options={{ title: 'Alertes', tabBarIcon: ({ color }) => <Ionicons name="notifications-outline" size={20} color={color} /> }} />
+        <Tabs.Screen name="devices" options={{ title: 'Prescripteurs', tabBarIcon: ({ color }) => <Ionicons name="document-text-outline" size={20} color={color} /> }} />
+        <Tabs.Screen name="teleconsult" options={{ title: 'Intervenants', tabBarIcon: ({ color }) => <Ionicons name="shield-checkmark-outline" size={20} color={color} /> }} />
+        <Tabs.Screen name="health" options={{ title: 'Analyse', tabBarIcon: ({ color }) => <Ionicons name="analytics-outline" size={20} color={color} /> }} />
+        <Tabs.Screen name="profile" options={{ title: 'Profil', tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={20} color={color} /> }} />
+      </Tabs>
+    );
+  }
   const isBen = r === 'beneficiary';
   const isG = r === 'guardian';
   const isTA = r === 'teleassistance';
