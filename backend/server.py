@@ -1103,6 +1103,31 @@ async def get_escalation(eid: str, user=Depends(get_current_user)):
 async def get_escalations(user=Depends(get_current_user)):
     return await db.escalations.find({}, {"_id": 0}).sort("created_at", -1).to_list(50)
 
+# ==================== MANUAL TAKEOVER ====================
+@api_router.post("/teleassistance/escalation/{eid}/takeover")
+async def manual_takeover(eid: str, user=Depends(get_current_user)):
+    """Operator takes manual control of an escalation"""
+    esc = await db.escalations.find_one({"id": eid}, {"_id": 0})
+    if not esc: raise HTTPException(status_code=404, detail="Escalade non trouvée")
+    now = datetime.now(timezone.utc).isoformat()
+    esc['status'] = 'manual_control'
+    esc['manual_operator'] = user.get('name', user['id'])
+    esc.setdefault('timeline', []).append({"step": "manual_takeover", "time": now, "note": f"Reprise en main manuelle par {user.get('name','Opérateur')}"})
+    await db.escalations.update_one({"id": eid}, {"$set": {"status": "manual_control", "manual_operator": user.get('name', user['id']), "timeline": esc['timeline']}})
+    await db.alerts.update_one({"id": esc['alert_id']}, {"$set": {"teleassistance_status": "manual_control"}})
+    return {"status": "manual_control", "operator": user.get('name', '')}
+
+@api_router.post("/teleassistance/escalation/{eid}/resolve")
+async def resolve_escalation(eid: str, user=Depends(get_current_user)):
+    """Operator resolves an escalation"""
+    esc = await db.escalations.find_one({"id": eid}, {"_id": 0})
+    if not esc: raise HTTPException(status_code=404, detail="Escalade non trouvée")
+    now = datetime.now(timezone.utc).isoformat()
+    esc.setdefault('timeline', []).append({"step": "resolved", "time": now, "note": f"Résolu par {user.get('name','Opérateur')}"})
+    await db.escalations.update_one({"id": eid}, {"$set": {"status": "resolved", "resolved_at": now, "timeline": esc['timeline']}})
+    await db.alerts.update_one({"id": esc['alert_id']}, {"$set": {"status": "resolved", "resolved_at": now, "resolved_by": user['id'], "teleassistance_status": "resolved"}})
+    return {"status": "resolved"}
+
 # ==================== TWILIO REAL CALLS ====================
 @api_router.post("/twilio/call/beneficiary")
 async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_current_user)):
