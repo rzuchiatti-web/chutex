@@ -1347,14 +1347,16 @@ async def activate_intervention_provider(data: InterventionProviderActivate, use
     return {"status": "activated", "structure": code['structure_name'], "radius_km": code.get('default_radius_km', 30)}
 
 @api_router.post("/admin/intervention-codes")
-async def create_intervention_code(data: ActivationCodeCreate, user=Depends(get_current_user)):
+async def create_intervention_code(data: InterventionCodeCreate, user=Depends(get_current_user)):
     """Admin creates an intervention provider code"""
     if user.get('role') != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
     code_val = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
     now = datetime.now(timezone.utc).isoformat()
     code = {"id": str(uuid.uuid4()), "code": code_val, "structure_name": data.structure_name,
             "max_uses": data.max_uses, "uses_count": 0, "active": True, "created_at": now,
-            "default_radius_km": 30, "base_location": {"latitude": 48.8566, "longitude": 2.3522}}
+            "default_radius_km": data.radius_km, "base_location": {"latitude": 48.8566, "longitude": 2.3522},
+            "raison_sociale": data.raison_sociale, "siret": data.siret, "tva": data.tva,
+            "adresse": data.adresse, "telephone": data.telephone, "email_contact": data.email_contact}
     await db.intervention_codes.insert_one(code)
     return {k: v for k, v in code.items() if k != '_id'}
 
@@ -1362,6 +1364,29 @@ async def create_intervention_code(data: ActivationCodeCreate, user=Depends(get_
 async def list_intervention_codes(user=Depends(get_current_user)):
     if user.get('role') != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
     return await db.intervention_codes.find({}, {"_id": 0}).sort("created_at", -1).to_list(50)
+
+@api_router.put("/admin/intervention-codes/{code_id}")
+async def update_intervention_code(code_id: str, data: ActivationCodeUpdate, user=Depends(get_current_user)):
+    if user.get('role') != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
+    update = {k: v for k, v in data.dict().items() if v is not None}
+    if update:
+        await db.intervention_codes.update_one({"id": code_id}, {"$set": update})
+    return {"status": "updated"}
+
+@api_router.put("/admin/intervention-codes/{code_id}/toggle")
+async def toggle_intervention_code(code_id: str, user=Depends(get_current_user)):
+    if user.get('role') != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
+    code_doc = await db.intervention_codes.find_one({"id": code_id}, {"_id": 0})
+    if not code_doc: raise HTTPException(status_code=404)
+    new_active = not code_doc.get('active', True)
+    await db.intervention_codes.update_one({"id": code_id}, {"$set": {"active": new_active}})
+    return {"status": "toggled", "active": new_active}
+
+@api_router.delete("/admin/intervention-codes/{code_id}")
+async def delete_intervention_code(code_id: str, user=Depends(get_current_user)):
+    if user.get('role') != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
+    await db.intervention_codes.delete_one({"id": code_id})
+    return {"status": "deleted"}
 
 @api_router.put("/admin/intervention-radius")
 async def update_intervention_radius(data: InterventionRadiusUpdate, user=Depends(get_current_user)):
