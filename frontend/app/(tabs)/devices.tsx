@@ -183,6 +183,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           </View>
         </View></View>
       </Modal>
+        </>
+      )}
     </ScrollView>
   );
 }
