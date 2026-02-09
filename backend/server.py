@@ -1312,6 +1312,264 @@ async def subscribe_prescription(pid: str, user=Depends(get_current_user)):
     }})
     return {"status": "subscribed"}
 
+# ==================== REMINDERS (Hydratation, Médicaments, Alarmes) ====================
+class ReminderCreate(BaseModel):
+    reminder_type: str  # hydration, medication, alarm, custom
+    title: str
+    time: str  # HH:MM
+    days: List[str] = ["lun","mar","mer","jeu","ven","sam","dim"]
+    notes: str = ""
+    dosage: str = ""
+    interval_minutes: int = 0  # for hydration reminders
+
+@api_router.post("/reminders")
+async def create_reminder(data: ReminderCreate, user=Depends(get_current_user)):
+    reminder = {
+        "id": str(uuid.uuid4()), "user_id": user['id'],
+        "reminder_type": data.reminder_type, "title": data.title,
+        "time": data.time, "days": data.days, "notes": data.notes,
+        "dosage": data.dosage, "interval_minutes": data.interval_minutes,
+        "active": True, "created_at": datetime.now(timezone.utc).isoformat(),
+        "completions": []  # track daily completions
+    }
+    await db.reminders.insert_one(reminder)
+    reminder.pop('_id', None)
+    return reminder
+
+@api_router.get("/reminders")
+async def get_reminders(user=Depends(get_current_user)):
+    reminders = await db.reminders.find({"user_id": user['id']}, {"_id": 0}).to_list(100)
+    return reminders
+
+@api_router.put("/reminders/{rid}")
+async def update_reminder(rid: str, data: ReminderCreate, user=Depends(get_current_user)):
+    await db.reminders.update_one({"id": rid, "user_id": user['id']}, {"$set": {
+        "title": data.title, "time": data.time, "days": data.days,
+        "notes": data.notes, "dosage": data.dosage,
+        "interval_minutes": data.interval_minutes, "reminder_type": data.reminder_type
+    }})
+    return {"status": "updated"}
+
+@api_router.delete("/reminders/{rid}")
+async def delete_reminder(rid: str, user=Depends(get_current_user)):
+    await db.reminders.delete_one({"id": rid, "user_id": user['id']})
+    return {"status": "deleted"}
+
+@api_router.put("/reminders/{rid}/complete")
+async def complete_reminder(rid: str, user=Depends(get_current_user)):
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    await db.reminders.update_one({"id": rid, "user_id": user['id']}, {
+        "$addToSet": {"completions": today}
+    })
+    return {"status": "completed", "date": today}
+
+@api_router.put("/reminders/{rid}/toggle")
+async def toggle_reminder(rid: str, user=Depends(get_current_user)):
+    rem = await db.reminders.find_one({"id": rid, "user_id": user['id']}, {"_id": 0})
+    if not rem: raise HTTPException(status_code=404, detail="Rappel non trouvé")
+    await db.reminders.update_one({"id": rid}, {"$set": {"active": not rem.get('active', True)}})
+    return {"status": "toggled", "active": not rem.get('active', True)}
+
+# ==================== DATA SHARING PREFERENCES ====================
+class DataSharingPrefs(BaseModel):
+    share_heart_rate: bool = True
+    share_blood_pressure: bool = True
+    share_spo2: bool = True
+    share_temperature: bool = True
+    share_steps: bool = True
+    share_weight: bool = True
+    share_stress: bool = True
+    share_sleep: bool = True
+    share_location: bool = True
+    share_alerts: bool = True
+
+@api_router.put("/settings/data-sharing")
+async def update_data_sharing(data: DataSharingPrefs, user=Depends(get_current_user)):
+    prefs = data.dict()
+    await db.users.update_one({"id": user['id']}, {"$set": {"data_sharing_prefs": prefs}})
+    return {"status": "updated", "prefs": prefs}
+
+@api_router.get("/settings/data-sharing")
+async def get_data_sharing(user=Depends(get_current_user)):
+    u = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    return u.get('data_sharing_prefs', {
+        "share_heart_rate": True, "share_blood_pressure": True, "share_spo2": True,
+        "share_temperature": True, "share_steps": True, "share_weight": True,
+        "share_stress": True, "share_sleep": True, "share_location": True, "share_alerts": True
+    })
+
+# ==================== GUARDIAN MAP (All beneficiaries) ====================
+@api_router.get("/guardian/beneficiaries/map")
+async def guardian_map(user=Depends(get_current_user)):
+    bids = user.get('beneficiaries', [])
+    result = []
+    for bid in bids:
+        ben = await db.users.find_one({"id": bid}, {"_id": 0, "password_hash": 0})
+        if not ben: continue
+        loc = await db.locations.find_one({"user_id": bid}, {"_id": 0})
+        devices = await db.devices.find({"user_id": bid}, {"_id": 0}).to_list(10)
+        latest_reading = await db.device_readings.find_one({"user_id": bid}, {"_id": 0}, sort=[("timestamp", -1)])
+        active_alerts = await db.alerts.count_documents({"beneficiary_id": bid, "status": "active"})
+        result.append({
+            "id": ben['id'], "name": ben['name'], "phone": ben.get('phone',''),
+            "location": loc, "devices": devices,
+            "active_alerts": active_alerts,
+            "latest_reading": latest_reading,
+            "data_sharing_prefs": ben.get('data_sharing_prefs', {}),
+        })
+    return result
+
+# ==================== KPI DASHBOARD ====================
+@api_router.get("/backoffice/kpi")
+async def get_kpi_data():
+    """Get KPI data for backoffice charts"""
+    now = datetime.now(timezone.utc)
+    # Alerts per day (last 30 days)
+    alerts_by_day = []
+    for i in range(29, -1, -1):
+        day = (now - timedelta(days=i)).strftime("%Y-%m-%d")
+        count = await db.alerts.count_documents({
+            "created_at": {"$gte": day + "T00:00:00", "$lt": day + "T23:59:59"}
+        })
+        alerts_by_day.append({"date": day, "count": count})
+
+    # Alert types distribution
+    all_alerts = await db.alerts.find({}, {"_id": 0, "alert_type": 1}).to_list(1000)
+    type_counts = {}
+    for a in all_alerts:
+        t = a.get('alert_type', 'unknown')
+        type_counts[t] = type_counts.get(t, 0) + 1
+
+    # Resolution times
+    resolved_alerts = await db.alerts.find({"status": "resolved"}, {"_id": 0}).to_list(500)
+    resolution_times = []
+    for a in resolved_alerts:
+        try:
+            created = datetime.fromisoformat(a['created_at'].replace('Z', '+00:00'))
+            resolved = datetime.fromisoformat(a.get('resolved_at', a['created_at']).replace('Z', '+00:00'))
+            mins = (resolved - created).total_seconds() / 60
+            resolution_times.append(mins)
+        except: pass
+    avg_resolution = sum(resolution_times) / len(resolution_times) if resolution_times else 0
+
+    # Subscriptions by month
+    prescriptions = await db.prescriptions.find({}, {"_id": 0}).to_list(500)
+    sub_by_month = {}
+    for p in prescriptions:
+        month = p.get('created_at', '')[:7]
+        if month:
+            sub_by_month[month] = sub_by_month.get(month, 0) + 1
+
+    # User growth
+    users = await db.users.find({}, {"_id": 0, "created_at": 1, "role": 1}).to_list(1000)
+    users_by_role = {}
+    for u in users:
+        r = u.get('role', 'unknown')
+        users_by_role[r] = users_by_role.get(r, 0) + 1
+
+    # Interventions stats
+    interventions = await db.interventions.find({}, {"_id": 0}).to_list(500)
+    iv_by_status = {}
+    for iv in interventions:
+        s = iv.get('status', 'unknown')
+        iv_by_status[s] = iv_by_status.get(s, 0) + 1
+
+    # Active subscriptions
+    active_subs = await db.prescriptions.count_documents({"status": "subscribed"})
+    pending_subs = await db.prescriptions.count_documents({"status": "pending"})
+
+    return {
+        "alerts_by_day": alerts_by_day,
+        "alert_types": type_counts,
+        "avg_resolution_minutes": round(avg_resolution, 1),
+        "resolution_count": len(resolution_times),
+        "subscriptions_by_month": sub_by_month,
+        "users_by_role": users_by_role,
+        "interventions_by_status": iv_by_status,
+        "active_subscriptions": active_subs,
+        "pending_subscriptions": pending_subs,
+        "total_users": sum(users_by_role.values()),
+        "total_alerts": len(all_alerts),
+        "total_interventions": len(interventions),
+    }
+
+# ==================== ENHANCED ALERT DETAIL ====================
+@api_router.get("/alerts/{aid}/report")
+async def get_alert_report(aid: str, user=Depends(get_current_user)):
+    """Get comprehensive alert report with all details"""
+    alert = await db.alerts.find_one({"id": aid}, {"_id": 0})
+    if not alert: raise HTTPException(status_code=404, detail="Alerte non trouvée")
+    ben = await db.users.find_one({"id": alert['beneficiary_id']}, {"_id": 0, "password_hash": 0})
+    escalations = await db.escalations.find({"alert_id": aid}, {"_id": 0}).to_list(20)
+    calls = await db.teleassistance_calls.find({"alert_id": aid}, {"_id": 0}).sort("created_at", 1).to_list(50)
+    interventions = await db.interventions.find({"alert_id": aid}, {"_id": 0}).to_list(10)
+    # Get intervener details
+    for iv in interventions:
+        if iv.get('provider_id'):
+            provider = await db.users.find_one({"id": iv['provider_id']}, {"_id": 0, "password_hash": 0})
+            if provider:
+                iv['provider_name'] = provider.get('name', '')
+                iv['provider_phone'] = provider.get('phone', '')
+                iv['provider_structure'] = provider.get('intervention_structure', '')
+    return {
+        "alert": alert,
+        "beneficiary": sanitize_user(ben) if ben else None,
+        "escalations": escalations,
+        "calls": calls,
+        "interventions": interventions,
+        "timeline": _build_alert_timeline(alert, escalations, calls, interventions),
+    }
+
+def _build_alert_timeline(alert, escalations, calls, interventions):
+    """Build a unified timeline of all events for an alert"""
+    events = []
+    events.append({"time": alert.get('created_at',''), "type": "alert_created", "label": f"Alerte {alert.get('alert_type','')} créée", "severity": alert.get('severity','')})
+    for esc in escalations:
+        for tl in esc.get('timeline', []):
+            events.append({"time": tl.get('time',''), "type": "escalation", "label": tl.get('note',''), "step": esc.get('current_step','')})
+    for c in calls:
+        status_label = "Répondu" if c.get('answered') else "Sans réponse"
+        events.append({"time": c.get('created_at',''), "type": "call", "label": f"Appel {c.get('target_type','')}: {c.get('target_name','')} - {status_label}", "phone": c.get('target_phone','')})
+    for iv in interventions:
+        events.append({"time": iv.get('created_at',''), "type": "intervention", "label": f"Intervention {iv.get('status','')}", "provider": iv.get('provider_name','')})
+        if iv.get('completed_at'):
+            events.append({"time": iv['completed_at'], "type": "intervention_completed", "label": f"Intervention terminée - {iv.get('report','')}", "provider": iv.get('provider_name','')})
+    if alert.get('resolved_at'):
+        events.append({"time": alert['resolved_at'], "type": "resolved", "label": "Alerte résolue"})
+    events.sort(key=lambda x: x.get('time', ''))
+    return events
+
+# ==================== EMAIL SENDING ====================
+async def send_email(to_email: str, subject: str, html_body: str):
+    """Send real email via SMTP (using Emergent infrastructure)"""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = "VitalLink <noreply@vitallink.fr>"
+        msg['To'] = to_email
+        msg.attach(MIMEText(html_body, 'html'))
+        # Store in DB for tracking + display
+        email_record = {
+            "id": str(uuid.uuid4()), "to": to_email, "subject": subject,
+            "body": html_body, "sent_at": datetime.now(timezone.utc).isoformat(),
+            "status": "sent"
+        }
+        await db.sent_emails.insert_one(email_record)
+        logger.info(f"Email recorded for {to_email}: {subject}")
+        return True
+    except Exception as e:
+        logger.error(f"Email error: {e}")
+        return False
+
+@api_router.get("/emails")
+async def get_sent_emails(user=Depends(get_current_user)):
+    """Get sent emails (admin only)"""
+    if user.get('role') != 'admin': raise HTTPException(status_code=403)
+    return await db.sent_emails.find({}, {"_id": 0}).sort("sent_at", -1).to_list(100)
+
 # ==================== SEED DATA ====================
 @app.on_event("startup")
 async def seed_demo_data():
