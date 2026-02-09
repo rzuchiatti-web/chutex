@@ -12,6 +12,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
   const [vitals, setVitals] = useState<any>(null);
   const [rec, setRec] = useState('');
+  const [reminders, setReminders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [sosLoading, setSosLoading] = useState(false);
