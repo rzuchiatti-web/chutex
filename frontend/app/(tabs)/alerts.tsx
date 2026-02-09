@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiFetch } from '../../src/services/api';
 import { Colors } from '../../src/constants/colors';
+import { useRouter } from 'expo-router';
 
 export default function AlertsScreen() {
   const { token, user } = useAuth();
