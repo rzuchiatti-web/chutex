@@ -23,16 +23,16 @@ function RootNav() {
       <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
-        <Stack.Screen name="(tabs)" redirect={!user} />
-        <Stack.Screen name="health-detail" options={{ presentation: 'card' }} redirect={!user} />
-        <Stack.Screen name="backoffice" options={{ presentation: 'card' }} redirect={!user} />
-        <Stack.Screen name="intervention-detail" options={{ presentation: 'card' }} redirect={!user} />
-        <Stack.Screen name="subscriber-detail" options={{ presentation: 'card' }} redirect={!user} />
-        <Stack.Screen name="alert-detail" options={{ presentation: 'card' }} redirect={!user} />
-        <Stack.Screen name="beneficiary-detail" options={{ presentation: 'card' }} redirect={!user} />
-        <Stack.Screen name="reminders" options={{ presentation: 'card' }} redirect={!user} />
-        <Stack.Screen name="data-sharing" options={{ presentation: 'card' }} redirect={!user} />
-        <Stack.Screen name="link-code" options={{ presentation: 'modal' }} redirect={!user} />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="health-detail" options={{ presentation: 'card' }} />
+        <Stack.Screen name="backoffice" options={{ presentation: 'card' }} />
+        <Stack.Screen name="intervention-detail" options={{ presentation: 'card' }} />
+        <Stack.Screen name="subscriber-detail" options={{ presentation: 'card' }} />
+        <Stack.Screen name="alert-detail" options={{ presentation: 'card' }} />
+        <Stack.Screen name="beneficiary-detail" options={{ presentation: 'card' }} />
+        <Stack.Screen name="reminders" options={{ presentation: 'card' }} />
+        <Stack.Screen name="data-sharing" options={{ presentation: 'card' }} />
+        <Stack.Screen name="link-code" options={{ presentation: 'modal' }} />
       </Stack>
     </>
   );
