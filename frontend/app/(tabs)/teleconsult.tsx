@@ -246,7 +246,6 @@ function TeleassistanceDashboard({ token }: { token: string }) {
   }
 
   /* DASHBOARD */
-  const [tab, setTab] = useState<'en_cours'|'historique'|'interventions'>('en_cours');
   const activeAlerts = alerts;
   const activeEscs = escalations.filter(e => !['resolved','cancelled'].includes(e.status));
   const historyEscs = escalations.filter(e => ['resolved','dispatched','cancelled'].includes(e.status));
