@@ -1649,8 +1649,8 @@ async def seed_demo_data():
                     await db.devices.insert_one({"id": str(uuid.uuid4()), "user_id": uid, "device_type": dt, "name": nm, "connected": False, "battery": random.randint(60, 95), "last_sync": None})
             logger.info(f"Seed: created {acct['email']} ({acct['role']})")
     # Link guardian to beneficiary if not linked
-    ben = await db.users.find_one({"email": "demo@chutex.fr"}, {"_id": 0})
-    guard = await db.users.find_one({"email": "guardian@chutex.fr"}, {"_id": 0})
+    ben = await db.users.find_one({"email": "robert.martin@email.fr"}, {"_id": 0})
+    guard = await db.users.find_one({"email": "claire.martin@email.fr"}, {"_id": 0})
     if ben and guard:
         if guard['id'] not in ben.get('guardians', []):
             await db.users.update_one({"id": ben['id']}, {"$addToSet": {"guardians": guard['id']}})
