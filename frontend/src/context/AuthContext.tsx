@@ -95,9 +95,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    await AsyncStorage.removeItem('vl_token');
+    try {
+      await AsyncStorage.removeItem('vl_token');
+    } catch (e) {
+      // ignore AsyncStorage errors on web
+    }
     setUser(null);
     setToken(null);
+    // Force reload on web to clear all state
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
   };
 
   const refreshUser = async () => {
