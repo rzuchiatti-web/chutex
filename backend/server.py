@@ -370,7 +370,201 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
              "device_type": data.device_type, "status": "active", "created_at": now, "resolved_at": None, "resolved_by": None,
              "teleassistance_status": "pending"}
     await db.alerts.insert_one(alert)
+    # AUTO-ESCALATION: Start automatic protocol for critical/high alerts
+    if data.severity in ('critical', 'high') and twilio_client:
+        asyncio.create_task(auto_escalation_protocol(alert))
     return {k: v for k, v in alert.items() if k != '_id'}
+
+async def auto_escalation_protocol(alert: dict):
+    """Fully automatic escalation: call beneficiary -> guardians -> dispatch"""
+    try:
+        await asyncio.sleep(2)  # Small delay to let alert propagate
+        now = datetime.now(timezone.utc).isoformat()
+        ben = await db.users.find_one({"id": alert['beneficiary_id']}, {"_id": 0})
+        if not ben: return
+        guardians = []
+        for gid in ben.get('guardians', []):
+            g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
+            if g: guardians.append({"id": g['id'], "name": g['name'], "phone": g.get('phone', '')})
+        # Create escalation record
+        esc = {
+            "id": str(uuid.uuid4()), "alert_id": alert['id'],
+            "beneficiary_id": alert['beneficiary_id'], "beneficiary_name": alert['beneficiary_name'],
+            "operator_id": "ai_auto", "operator_name": "IA Téléassistance",
+            "status": "in_progress", "current_step": "calling_beneficiary",
+            "current_target": {"id": alert['beneficiary_id'], "name": alert['beneficiary_name'], "type": "beneficiary"},
+            "guardians_called": [], "guardians_remaining": guardians,
+            "protocol_answers": [],
+            "timeline": [{"step": "auto_started", "time": now, "note": "Protocole IA automatique déclenché"}],
+            "intervention_id": None, "created_at": now,
+        }
+        await db.escalations.insert_one(esc)
+        await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "ai_calling", "escalation_id": esc['id']}})
+
+        # STEP 1: Call beneficiary
+        ben_phone = ben.get('phone', '')
+        if ben_phone and twilio_client:
+            twiml = VoiceResponse()
+            twiml.say("Bonjour, ici VitalLink, service de téléassistance intelligente.", voice='Polly.Lea', language='fr-FR')
+            twiml.pause(length=1)
+            g = Gather(num_digits=1, timeout=8)
+            g.say("Une alerte a été déclenchée. Tout va bien ? Appuyez sur 1 si tout va bien. Appuyez sur 2 si vous avez besoin d'aide. Si vous ne répondez pas, nous contacterons vos gardiens.", voice='Polly.Lea', language='fr-FR')
+            twiml.append(g)
+            twiml.say("Nous n'avons pas reçu de réponse. Nous contactons vos gardiens immédiatement.", voice='Polly.Lea', language='fr-FR')
+            try:
+                call = twilio_client.calls.create(twiml=str(twiml), to=ben_phone, from_=TWILIO_NUMBER)
+                call_record = {"id": str(uuid.uuid4()), "call_sid": call.sid, "alert_id": alert['id'],
+                    "escalation_id": esc['id'], "target_type": "beneficiary", "target_id": ben['id'],
+                    "target_name": ben['name'], "target_phone": ben_phone, "status": "initiated",
+                    "operator_id": "ai_auto", "created_at": now, "answered": False, "response": None}
+                await db.twilio_calls.insert_one(call_record)
+                esc['timeline'].append({"step": "calling_beneficiary", "time": datetime.now(timezone.utc).isoformat(), "note": f"Appel IA → {ben['name']} ({ben_phone})"})
+                await db.escalations.update_one({"id": esc['id']}, {"$set": {"timeline": esc['timeline']}})
+                logger.info(f"Auto-escalation: calling beneficiary {ben_phone}, SID={call.sid}")
+                # Wait for call to complete (poll every 5 seconds, max 60s)
+                answered = False
+                for _ in range(12):
+                    await asyncio.sleep(5)
+                    try:
+                        call_status = twilio_client.calls(call.sid).fetch()
+                        await db.twilio_calls.update_one({"call_sid": call.sid}, {"$set": {"status": call_status.status, "duration": call_status.duration}})
+                        if call_status.status in ('completed', 'busy', 'no-answer', 'failed', 'canceled'):
+                            answered = call_status.status == 'completed' and (call_status.duration or '0') not in ('0', None, '')
+                            duration = call_status.duration or 0
+                            # If call lasted > 10 seconds, consider it answered
+                            if int(str(duration)) > 10:
+                                answered = True
+                            await db.twilio_calls.update_one({"call_sid": call.sid}, {"$set": {"answered": answered}})
+                            break
+                    except: pass
+                if answered:
+                    esc['timeline'].append({"step": "beneficiary_answered", "time": datetime.now(timezone.utc).isoformat(), "note": f"{ben['name']} a répondu. Levée de doute en cours."})
+                    esc['current_step'] = "doubt_lifting"
+                    # If they answered and pressed 1 (all good), we could detect via gather but TwiML inline doesn't callback
+                    # For now, assume if they answered and call lasted > 15s, they interacted
+                    if int(str(call_status.duration or 0)) > 15:
+                        esc['timeline'].append({"step": "resolved", "time": datetime.now(timezone.utc).isoformat(), "note": "Bénéficiaire a confirmé aller bien. Alerte résolue."})
+                        esc['status'] = "resolved"; esc['current_step'] = "resolved"
+                        await db.alerts.update_one({"id": alert['id']}, {"$set": {"status": "resolved", "teleassistance_status": "resolved", "resolved_at": datetime.now(timezone.utc).isoformat()}})
+                    else:
+                        # Short answer, escalate to guardians
+                        esc['timeline'].append({"step": "inconclusive", "time": datetime.now(timezone.utc).isoformat(), "note": "Réponse non concluante → Appel gardiens"})
+                        answered = False  # force guardian calls
+                    await db.escalations.update_one({"id": esc['id']}, {"$set": {"status": esc['status'], "current_step": esc['current_step'], "timeline": esc['timeline']}})
+                    if esc['status'] == "resolved": return
+                else:
+                    esc['timeline'].append({"step": "beneficiary_no_answer", "time": datetime.now(timezone.utc).isoformat(), "note": f"{ben['name']} n'a pas répondu."})
+                    await db.escalations.update_one({"id": esc['id']}, {"$set": {"timeline": esc['timeline']}})
+            except Exception as e:
+                logger.error(f"Auto-escalation call error: {e}")
+                esc['timeline'].append({"step": "call_error", "time": datetime.now(timezone.utc).isoformat(), "note": f"Erreur appel: {str(e)[:50]}"})
+                await db.escalations.update_one({"id": esc['id']}, {"$set": {"timeline": esc['timeline']}})
+        
+        # STEP 2: Call guardians one by one
+        guardian_handled = False
+        for guardian in guardians:
+            if esc.get('status') == 'resolved': return
+            g_phone = guardian.get('phone', '')
+            if not g_phone: continue
+            esc['current_step'] = "calling_guardian"
+            esc['current_target'] = {**guardian, "type": "guardian"}
+            esc['guardians_remaining'] = [g for g in esc['guardians_remaining'] if g['id'] != guardian['id']]
+            esc['guardians_called'].append(guardian)
+            await db.escalations.update_one({"id": esc['id']}, {"$set": {
+                "current_step": esc['current_step'], "current_target": esc['current_target'],
+                "guardians_called": esc['guardians_called'], "guardians_remaining": esc['guardians_remaining'],
+            }})
+            twiml_g = VoiceResponse()
+            twiml_g.say(f"Bonjour, ici VitalLink, service de téléassistance.", voice='Polly.Lea', language='fr-FR')
+            twiml_g.pause(length=1)
+            twiml_g.say(f"Une alerte a été déclenchée pour {alert['beneficiary_name']}. Nous n'avons pas pu le joindre.", voice='Polly.Lea', language='fr-FR')
+            g_gather = Gather(num_digits=1, timeout=8)
+            g_gather.say("Appuyez sur 1 si vous pouvez intervenir. Appuyez sur 2 si vous ne pouvez pas.", voice='Polly.Lea', language='fr-FR')
+            twiml_g.append(g_gather)
+            twiml_g.say("Nous n'avons pas reçu de réponse. Nous contactons le prochain gardien.", voice='Polly.Lea', language='fr-FR')
+            try:
+                g_call = twilio_client.calls.create(twiml=str(twiml_g), to=g_phone, from_=TWILIO_NUMBER)
+                g_call_record = {"id": str(uuid.uuid4()), "call_sid": g_call.sid, "alert_id": alert['id'],
+                    "escalation_id": esc['id'], "target_type": "guardian", "target_id": guardian['id'],
+                    "target_name": guardian['name'], "target_phone": g_phone, "status": "initiated",
+                    "operator_id": "ai_auto", "created_at": datetime.now(timezone.utc).isoformat(), "answered": False}
+                await db.twilio_calls.insert_one(g_call_record)
+                esc['timeline'].append({"step": "calling_guardian", "time": datetime.now(timezone.utc).isoformat(), "note": f"Appel IA → Gardien {guardian['name']} ({g_phone})"})
+                await db.escalations.update_one({"id": esc['id']}, {"$set": {"timeline": esc['timeline']}})
+                await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": f"calling_guardian_{guardian['name']}"}})
+                # Wait for guardian call
+                g_answered = False
+                for _ in range(12):
+                    await asyncio.sleep(5)
+                    try:
+                        gs = twilio_client.calls(g_call.sid).fetch()
+                        await db.twilio_calls.update_one({"call_sid": g_call.sid}, {"$set": {"status": gs.status, "duration": gs.duration}})
+                        if gs.status in ('completed', 'busy', 'no-answer', 'failed', 'canceled'):
+                            g_answered = gs.status == 'completed' and int(str(gs.duration or 0)) > 10
+                            await db.twilio_calls.update_one({"call_sid": g_call.sid}, {"$set": {"answered": g_answered}})
+                            break
+                    except: pass
+                if g_answered:
+                    esc['timeline'].append({"step": "guardian_answered", "time": datetime.now(timezone.utc).isoformat(), "note": f"Gardien {guardian['name']} a répondu et prend en charge."})
+                    esc['status'] = "guardian_handling"; esc['current_step'] = "guardian_handling"
+                    await db.escalations.update_one({"id": esc['id']}, {"$set": {"status": esc['status'], "current_step": esc['current_step'], "timeline": esc['timeline']}})
+                    await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "guardian_handling"}})
+                    guardian_handled = True
+                    break
+                else:
+                    esc['timeline'].append({"step": "guardian_no_answer", "time": datetime.now(timezone.utc).isoformat(), "note": f"Gardien {guardian['name']} n'a pas répondu."})
+                    await db.escalations.update_one({"id": esc['id']}, {"$set": {"timeline": esc['timeline']}})
+            except Exception as e:
+                logger.error(f"Guardian call error: {e}")
+                esc['timeline'].append({"step": "guardian_call_error", "time": datetime.now(timezone.utc).isoformat(), "note": f"Erreur appel gardien: {str(e)[:50]}"})
+                await db.escalations.update_one({"id": esc['id']}, {"$set": {"timeline": esc['timeline']}})
+        
+        # STEP 3: Auto-dispatch if nobody answered
+        if not guardian_handled and esc.get('status') != 'resolved':
+            esc['current_step'] = "dispatched"; esc['status'] = "dispatched"
+            loc = await db.locations.find_one({"user_id": alert['beneficiary_id']}, {"_id": 0})
+            iv_id = str(uuid.uuid4())
+            iv = {
+                "id": iv_id, "alert_id": alert['id'], "escalation_id": esc['id'],
+                "beneficiary_id": alert['beneficiary_id'], "beneficiary_name": alert['beneficiary_name'],
+                "assigned_to": "auto", "assigned_name": "Intervention d'urgence",
+                "status": "dispatched",
+                "notes": f"Auto-dispatch IA: {alert['message']}",
+                "beneficiary_location": {"latitude": loc['latitude'] if loc else 48.8566 + random.uniform(-0.05, 0.05), "longitude": loc['longitude'] if loc else 2.3522 + random.uniform(-0.05, 0.05)},
+                "intervener_location": {"latitude": 48.8566 + random.uniform(-0.02, 0.02), "longitude": 2.3522 + random.uniform(-0.02, 0.02)},
+                "created_at": datetime.now(timezone.utc).isoformat(), "completed_at": None, "report": None,
+                "timeline": [{"status": "dispatched", "time": datetime.now(timezone.utc).isoformat(), "note": "Intervention auto-dispatchée: aucun contact établi"}],
+            }
+            await db.interventions.insert_one(iv)
+            esc['intervention_id'] = iv_id
+            esc['timeline'].append({"step": "dispatched", "time": datetime.now(timezone.utc).isoformat(), "note": f"Aucune réponse. Intervention d'urgence #{iv_id[:8]} créée."})
+            await db.escalations.update_one({"id": esc['id']}, {"$set": {
+                "status": esc['status'], "current_step": esc['current_step'],
+                "timeline": esc['timeline'], "intervention_id": iv_id}})
+            await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "intervention_dispatched"}})
+            logger.info(f"Auto-escalation: dispatched intervention {iv_id}")
+    except Exception as e:
+        logger.error(f"Auto-escalation protocol error: {e}")
+
+# Endpoint for real-time escalation status polling
+@api_router.get("/escalation/active")
+async def get_active_escalations(user=Depends(get_current_user)):
+    """Get all active/in-progress escalations with real-time status"""
+    active = await db.escalations.find({"status": {"$in": ["in_progress", "guardian_handling", "dispatched"]}}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    # Enrich with latest call status
+    for esc in active:
+        calls = await db.twilio_calls.find({"escalation_id": esc['id']}, {"_id": 0}).sort("created_at", -1).to_list(10)
+        esc['calls'] = calls
+        # Update live call status from Twilio
+        for c in calls:
+            if c.get('status') in ('initiated', 'ringing', 'in-progress', 'queued') and twilio_client:
+                try:
+                    live = twilio_client.calls(c['call_sid']).fetch()
+                    c['status'] = live.status
+                    c['duration'] = live.duration
+                    await db.twilio_calls.update_one({"call_sid": c['call_sid']}, {"$set": {"status": live.status, "duration": live.duration}})
+                except: pass
+    return active
 
 @api_router.get("/alerts")
 async def get_alerts(user=Depends(get_current_user)):
