@@ -1,25 +1,15 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
+import { Tabs, Redirect } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../../src/constants/colors';
 import { useAuth } from '../../src/context/AuthContext';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useEffect, useRef } from 'react';
 
 export default function TabLayout() {
   const { user, loading } = useAuth();
-  const router = useRouter();
-  const rd = useRef(false);
 
-  useEffect(() => {
-    if (!loading && !user && !rd.current) {
-      rd.current = true;
-      router.replace('/');
-    }
-  }, [user, loading]);
-
-  if (loading || !user) return <View style={st.l}><ActivityIndicator size="large" color={Colors.primary} /></View>;
+  if (loading) return <View style={st.l}><ActivityIndicator size="large" color={Colors.primary} /></View>;
+  if (!user) return <Redirect href="/" />;
 
   const r = user.role;
   const isBen = r === 'beneficiary';
