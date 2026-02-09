@@ -178,7 +178,8 @@ async def get_current_user(authorization: str = Header(None)):
 SAFE_FIELDS = ['id','email','name','phone','role','created_at','beneficiaries','guardians','location_sharing',
     'date_of_birth','gender','address','height_cm','weight_kg','blood_type','allergies','medical_conditions',
     'emergency_contact_name','emergency_contact_phone','doctor_name','guardian_type','structure_name','siret',
-    'profession','relationship','is_prescriber','prescriber_structure','prescriber_code_used']
+    'profession','relationship','is_prescriber','prescriber_structure','prescriber_code_used',
+    'is_intervention_provider','intervention_structure','intervention_radius_km','intervention_location']
 
 def sanitize_user(u):
     r = {}
