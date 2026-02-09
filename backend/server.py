@@ -447,7 +447,9 @@ async def process_teleassistance_call(data: TeleassistanceCallUpdate, user=Depen
         ).with_model("openai", "gpt-5.2")
         ai_analysis = await chat.send_message(UserMessage(text=f"Appel pour {alert['beneficiary_name']}, alerte: {alert['message']}. Réponses: {data.answers}. Résolution: {data.resolution}. Notes: {data.notes}"))
     except: ai_analysis = "Analyse non disponible."
-    return {k: v for k, v in call_log.items() if k != '_id', **{"ai_analysis": ai_analysis}}
+    result = {k: v for k, v in call_log.items() if k != '_id'}
+    result["ai_analysis"] = ai_analysis
+    return result
 
 @api_router.get("/teleassistance/calls")
 async def get_teleassistance_calls(user=Depends(get_current_user)):
