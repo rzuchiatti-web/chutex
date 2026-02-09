@@ -784,8 +784,40 @@ https://chutex-innovation.com""",
              "sent_at": now,
          }}
     await db.prescriptions.insert_one(p)
-    # Log the email (in production, replace with real email service)
-    logger.info(f"📧 Email prescription envoyé à {data.beneficiary_email}: {structure} invite {data.beneficiary_name}")
+    # Send real email notification
+    await send_email(
+        data.beneficiary_email,
+        f"{structure} vous invite à souscrire à VitalLink",
+        f"""<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#fafafa;">
+        <div style="background:#000;color:#fff;padding:20px;text-align:center;">
+            <h1 style="margin:0;font-size:24px;letter-spacing:2px;">VITALLINK</h1>
+            <p style="margin:5px 0 0;font-size:12px;">Santé connectée, protégée par l'IA</p>
+        </div>
+        <div style="background:#fff;padding:30px;border:1px solid #eee;">
+            <h2>Bonjour {data.beneficiary_name},</h2>
+            <p>L'entreprise <strong>{structure}</strong> vous invite à souscrire à un abonnement
+            <strong>{'Téléassistance' if data.subscription_type == 'teleassistance' else 'Standard'}</strong> VitalLink.</p>
+            <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:20px 0;">
+                <h3 style="margin-top:0;">Vos avantages :</h3>
+                <ul>
+                    <li>Suivi santé connecté 24/7</li>
+                    <li>Bracelet santé avec détection de chute</li>
+                    {'<li>Téléassistance IA avec appels automatiques</li>' if data.subscription_type == 'teleassistance' else '<li>Alertes santé personnalisées</li>'}
+                    <li>Gardiens notifiés en cas d'urgence</li>
+                </ul>
+            </div>
+            <a href="https://chutex-innovation.com" style="display:inline-block;background:#000;color:#fff;padding:12px 30px;text-decoration:none;border-radius:4px;font-weight:bold;">
+                Souscrire maintenant
+            </a>
+            <p style="margin-top:20px;color:#666;font-size:13px;">Prescrit par : {user['name']} ({structure})</p>
+            {f'<p style="color:#666;font-size:13px;">Notes : {data.notes}</p>' if data.notes else ''}
+        </div>
+        <div style="text-align:center;padding:15px;color:#999;font-size:11px;">
+            VitalLink par Chutex Innovation - https://chutex-innovation.com
+        </div>
+    </div>"""
+    )
+    logger.info(f"Email prescription envoyé à {data.beneficiary_email}: {structure} invite {data.beneficiary_name}")
     return {k: v for k, v in p.items() if k != '_id'}
 
 @api_router.get("/guardian/prescriptions")
