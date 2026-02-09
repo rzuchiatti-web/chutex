@@ -937,7 +937,9 @@ async def create_activation_code(data: ActivationCodeCreate, user=Depends(get_cu
     if user['role'] != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
     code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
     doc = {"id": str(uuid.uuid4()), "code": code, "structure_name": data.structure_name, "max_uses": data.max_uses,
-           "uses_count": 0, "active": True, "created_at": datetime.now(timezone.utc).isoformat(), "created_by": user['id']}
+           "uses_count": 0, "active": True, "created_at": datetime.now(timezone.utc).isoformat(), "created_by": user['id'],
+           "raison_sociale": data.raison_sociale, "siret": data.siret, "tva": data.tva,
+           "adresse": data.adresse, "telephone": data.telephone, "email_contact": data.email_contact}
     await db.activation_codes.insert_one(doc)
     return {k: v for k, v in doc.items() if k != '_id'}
 
@@ -946,11 +948,28 @@ async def get_activation_codes(user=Depends(get_current_user)):
     if user['role'] != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
     return await db.activation_codes.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
 
-@api_router.delete("/admin/activation-codes/{code_id}")
-async def deactivate_code(code_id: str, user=Depends(get_current_user)):
+@api_router.put("/admin/activation-codes/{code_id}")
+async def update_activation_code(code_id: str, data: ActivationCodeUpdate, user=Depends(get_current_user)):
     if user['role'] != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
-    await db.activation_codes.update_one({"id": code_id}, {"$set": {"active": False}})
-    return {"status": "deactivated"}
+    update = {k: v for k, v in data.dict().items() if v is not None}
+    if update:
+        await db.activation_codes.update_one({"id": code_id}, {"$set": update})
+    return {"status": "updated"}
+
+@api_router.put("/admin/activation-codes/{code_id}/toggle")
+async def toggle_activation_code(code_id: str, user=Depends(get_current_user)):
+    if user['role'] != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
+    code_doc = await db.activation_codes.find_one({"id": code_id}, {"_id": 0})
+    if not code_doc: raise HTTPException(status_code=404)
+    new_active = not code_doc.get('active', True)
+    await db.activation_codes.update_one({"id": code_id}, {"$set": {"active": new_active}})
+    return {"status": "toggled", "active": new_active}
+
+@api_router.delete("/admin/activation-codes/{code_id}")
+async def delete_activation_code(code_id: str, user=Depends(get_current_user)):
+    if user['role'] != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
+    await db.activation_codes.delete_one({"id": code_id})
+    return {"status": "deleted"}
 
 # ==================== BACKOFFICE ROUTES ====================
 @api_router.get("/backoffice/stats")
