@@ -120,7 +120,7 @@ export default function ProfileScreen() {
             <Text style={st.secDesc}>Entrez votre code d'activation de structure pour activer le mode prescripteur et envoyer des prescriptions.</Text>
             <View style={st.linkRow}>
               <TextInput testID="act-code-input" style={st.linkInput} placeholder="Code (ex: SAAD1234)" placeholderTextColor={Colors.textMuted}
-                value={actCode} onChangeText={setActCode} autoCapitalize="characters" />
+                value={actCode} onChangeText={setActCode} autoCapitalize="characters" blurOnSubmit={false} />
               <TouchableOpacity testID="activate-btn" style={st.linkBtn} onPress={activatePrescriber} disabled={activating}>
                 {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Ionicons name="key" size={18} color="#FFF" />}
               </TouchableOpacity>
