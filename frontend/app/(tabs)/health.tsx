@@ -9,8 +9,12 @@ import { Colors } from '../../src/constants/colors';
 import { BRACELET_METRICS, SCALE_METRICS, getMetricCategories } from '../../src/constants/metrics';
 
 export default function HealthScreen() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const router = useRouter();
+
+  // Admin sees KPI Analysis
+  if (user?.role === 'admin') return <AdminAnalyse token={token || ''} />;
+
   const [latestData, setLatestData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
