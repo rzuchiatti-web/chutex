@@ -9,7 +9,7 @@ export default function TabLayout() {
   const { user, loading } = useAuth();
 
   if (loading) return <View style={st.l}><ActivityIndicator size="large" color={Colors.primary} /></View>;
-  if (!user) return <Redirect href="/" />;
+  if (!user) return null;
 
   const r = user.role;
   const isBen = r === 'beneficiary';
