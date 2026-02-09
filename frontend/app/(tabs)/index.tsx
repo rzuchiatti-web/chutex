@@ -159,22 +159,28 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
 
 /* ───── TELEASSISTANCE ───── */
 function TeleassistanceHome({ token, user }: { token: string; user: any }) {
+  const router = useRouter();
   const [alerts, setAlerts] = useState<any[]>([]);
   const [subs, setSubs] = useState<any[]>([]);
+  const [activeEscalations, setActiveEscalations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
-      const [a, su] = await Promise.all([
+      const [a, su, esc] = await Promise.all([
         apiFetch('/api/alerts', {}, token).catch(() => []),
         apiFetch('/api/teleassistance/subscribers', {}, token).catch(() => []),
+        apiFetch('/api/escalation/active', {}, token).catch(() => []),
       ]);
-      setAlerts(a); setSubs(su);
+      setAlerts(a); setSubs(su); setActiveEscalations(esc);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+  // Auto-refresh every 5 seconds
+  useEffect(() => { const iv = setInterval(fetchData, 5000); return () => clearInterval(iv); }, [fetchData]);
+
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
   const active = alerts.filter((a: any) => a.status === 'active');
 
@@ -187,30 +193,64 @@ function TeleassistanceHome({ token, user }: { token: string; user: any }) {
 
       <View style={s.statsRow}>
         <View style={s.stat}><Text style={[s.statV, active.length > 0 && { color: Colors.destructive }]}>{active.length}</Text><Text style={s.statL}>Alertes actives</Text></View>
+        <View style={s.stat}><Text style={[s.statV, activeEscalations.length > 0 && { color: Colors.primary }]}>{activeEscalations.length}</Text><Text style={s.statL}>Escalades</Text></View>
         <View style={s.stat}><Text style={s.statV}>{subs.length}</Text><Text style={s.statL}>Abonnés</Text></View>
-        <View style={s.stat}><Text style={s.statV}>{alerts.length}</Text><Text style={s.statL}>Total alertes</Text></View>
       </View>
+
+      {/* Active escalations with live status */}
+      {activeEscalations.length > 0 && <>
+        <Text style={s.secTitle}>🔴 Protocoles IA en cours</Text>
+        {activeEscalations.map((esc: any) => (
+          <TouchableOpacity key={esc.id} style={s.escLiveCard} onPress={() => router.push({pathname: '/alert-detail', params: {alertId: esc.alert_id}})}>
+            <View style={s.escLiveTop}>
+              <View style={[s.escPulse, {backgroundColor: esc.status === 'dispatched' ? Colors.destructive : Colors.primary}]} />
+              <View style={{flex:1}}>
+                <Text style={s.escLiveName}>{esc.beneficiary_name}</Text>
+                <Text style={s.escLiveStep}>
+                  {esc.current_step === 'calling_beneficiary' ? '📞 Appel bénéficiaire...' :
+                   esc.current_step === 'doubt_lifting' ? '🔍 Levée de doute...' :
+                   esc.current_step === 'calling_guardian' ? `📞 Appel gardien ${esc.current_target?.name}...` :
+                   esc.current_step === 'dispatched' ? '🚨 Intervention dispatchée' :
+                   esc.current_step === 'guardian_handling' ? '✅ Gardien prend en charge' :
+                   esc.current_step}
+                </Text>
+              </View>
+              {esc.calls?.length > 0 && <Text style={s.escCallCount}>{esc.calls.length} appels</Text>}
+            </View>
+            {esc.timeline?.slice(-2).map((t: any, i: number) => (
+              <Text key={i} style={s.escTlItem}>• {t.note}</Text>
+            ))}
+          </TouchableOpacity>
+        ))}
+      </>}
 
       {active.length > 0 && <>
         <Text style={s.secTitle}>Alertes en attente</Text>
         {active.slice(0, 5).map((a: any) => (
-          <View key={a.id} style={[s.alertRow, a.severity === 'critical' && { borderLeftColor: Colors.destructive }]}>
+          <TouchableOpacity key={a.id} style={[s.alertRow, a.severity === 'critical' && { borderLeftColor: Colors.destructive }]}
+            onPress={() => router.push({pathname: '/alert-detail', params: {alertId: a.id}})}>
             <Ionicons name={a.alert_type === 'sos' ? 'alert-circle' : 'warning'} size={18} color={a.severity === 'critical' ? Colors.destructive : Colors.textMuted} />
             <View style={s.alertInfo}><Text style={s.alertMsg}>{a.message}</Text><Text style={s.alertMeta}>{a.beneficiary_name} · {new Date(a.created_at).toLocaleTimeString('fr-FR')}</Text></View>
-            <View style={[s.sevBdg, a.severity === 'critical' && { backgroundColor: Colors.destructive + '12' }]}>
-              <Text style={[s.sevBdgT, a.severity === 'critical' && { color: Colors.destructive }]}>{a.severity}</Text></View>
-          </View>
+            <View style={{alignItems:'flex-end'}}>
+              <View style={[s.sevBdg, a.severity === 'critical' && { backgroundColor: Colors.destructive + '12' }]}>
+                <Text style={[s.sevBdgT, a.severity === 'critical' && { color: Colors.destructive }]}>{a.severity}</Text></View>
+              {a.teleassistance_status && a.teleassistance_status !== 'pending' && (
+                <Text style={s.taStatusT}>{a.teleassistance_status === 'ai_calling' ? '📞 IA en appel' : a.teleassistance_status}</Text>
+              )}
+            </View>
+          </TouchableOpacity>
         ))}
       </>}
 
-      <Text style={[s.secTitle, { marginTop: 16 }]}>Abonnés récents</Text>
-      {subs.slice(0, 5).map((su: any) => (
-        <View key={su.id} style={s.benCard}>
+      <Text style={[s.secTitle, { marginTop: 16 }]}>Abonnés</Text>
+      {subs.slice(0, 10).map((su: any) => (
+        <TouchableOpacity key={su.id} style={s.benCard} onPress={() => router.push({pathname: '/subscriber-detail', params: {subscriberId: su.id}})}>
           <View style={s.benAv}><Text style={s.benAvT}>{su.name?.charAt(0)?.toUpperCase()}</Text></View>
           <View style={s.benInfo}><Text style={s.benName}>{su.name}</Text>
             <Text style={s.benSt}>{su.latest_vitals ? `${su.latest_vitals.heart_rate} bpm` : 'Pas de données'}</Text></View>
           {su.active_alerts > 0 && <View style={s.alertBdg}><Text style={s.alertBdgT}>{su.active_alerts}</Text></View>}
-        </View>
+          <Ionicons name="chevron-forward" size={14} color={Colors.textMuted} />
+        </TouchableOpacity>
       ))}
     </ScrollView>
   );
