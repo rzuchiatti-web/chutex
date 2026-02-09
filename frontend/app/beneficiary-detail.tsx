@@ -130,6 +130,49 @@ export default function BeneficiaryDetailScreen() {
           </TouchableOpacity>
         ))}
 
+        {tab === 'devices' && (
+          <>
+            <Text style={s.secTitle}>Appareils connectés</Text>
+            {(data.devices || []).length > 0 ? data.devices.map((d: any) => {
+              const batteryColor = (d.battery || 0) > 50 ? Colors.success : (d.battery || 0) > 20 ? '#FF9800' : Colors.destructive;
+              const icons: any = { bracelet: 'watch-outline', scale: 'scale-outline', vest: 'shirt-outline' };
+              return (
+                <View key={d.id} style={s.deviceCard}>
+                  <Ionicons name={icons[d.device_type] || 'hardware-chip-outline'} size={24} color={Colors.textPrimary} />
+                  <View style={{flex: 1}}>
+                    <Text style={s.deviceName}>{d.name}</Text>
+                    <Text style={s.deviceMeta}>{d.connected ? 'Connecté' : 'Déconnecté'} · Sync: {d.last_sync ? new Date(d.last_sync).toLocaleString('fr-FR') : 'Jamais'}</Text>
+                  </View>
+                  <View style={s.batteryCol}>
+                    <View style={s.batteryOuter}>
+                      <View style={[s.batteryInner, { width: `${d.battery || 0}%`, backgroundColor: batteryColor }]} />
+                    </View>
+                    <Text style={[s.batteryText, { color: batteryColor }]}>{d.battery || 0}%</Text>
+                  </View>
+                </View>
+              );
+            }) : <View style={s.emptyC}><Text style={s.emptyT}>Aucun appareil</Text></View>}
+
+            {/* Interventions */}
+            {(data.interventions || []).length > 0 && (
+              <>
+                <Text style={[s.secTitle, {marginTop: 20}]}>Interventions</Text>
+                {data.interventions.map((iv: any) => (
+                  <TouchableOpacity key={iv.id} style={s.ivCard}
+                    onPress={() => router.push({pathname: '/intervention-detail', params: {interventionId: iv.id}})}>
+                    <Ionicons name="navigate-circle-outline" size={20} color={Colors.primary} />
+                    <View style={{flex: 1}}>
+                      <Text style={s.ivStatus}>{iv.status}</Text>
+                      <Text style={s.ivDate}>{new Date(iv.created_at).toLocaleString('fr-FR')}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+                  </TouchableOpacity>
+                ))}
+              </>
+            )}
+          </>
+        )}
+
         {tab === 'report' && (
           <View style={s.reportCard}>
             <View style={s.reportHeader}>
