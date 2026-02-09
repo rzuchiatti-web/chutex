@@ -26,12 +26,12 @@ function DeviceManagement({ token }: { token: string }) {
     setSyncingDevice(deviceType);
     try {
       const res = await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: {} }) }, token);
-      Alert.alert('Synchronis\u00e9', `${deviceType === 'bracelet' ? 'Bracelet' : deviceType === 'scale' ? 'Balance' : 'Gilet'} synchronis\u00e9.${res.anomalies?.length ? `\n\u26a0\ufe0f ${res.anomalies.length} anomalie(s)` : ''}`);
+      Alert.alert('Synchronisé', `${deviceType === 'bracelet' ? 'Bracelet' : deviceType === 'scale' ? 'Balance' : 'Gilet'} synchronisé.${res.anomalies?.length ? `\n⚠️ ${res.anomalies.length} anomalie(s)` : ''}`);
       fetchDevices();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSyncingDevice(null); }
   };
 
-  const getDeviceName = (type: string) => type === 'bracelet' ? 'Bracelet Sant\u00e9' : type === 'scale' ? 'Balance Connect\u00e9e' : 'Gilet Anti-Chute';
+  const getDeviceName = (type: string) => type === 'bracelet' ? 'Bracelet Santé' : type === 'scale' ? 'Balance Connectée' : 'Gilet Anti-Chute';
   const getDeviceIcon = (type: string) => type === 'bracelet' ? 'watch' : type === 'scale' ? 'scale-bathroom' : 'tshirt-crew';
 
   if (loading) return <View style={d.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
@@ -40,7 +40,7 @@ function DeviceManagement({ token }: { token: string }) {
     <ScrollView style={d.sv} contentContainerStyle={d.sc}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchDevices(); }} tintColor={Colors.primary} />}
       showsVerticalScrollIndicator={false}>
-      <Text style={d.infoText}>Appuyez sur \u00abSynchroniser\u00bb pour simuler la connexion Bluetooth.</Text>
+      <Text style={d.infoText}>Appuyez sur «Synchroniser» pour simuler la connexion Bluetooth.</Text>
       {devices.map((device) => (
         <View key={device.id} style={d.deviceCard} testID={`device-card-${device.device_type}`}>
           <View style={d.deviceHeader}>
@@ -48,7 +48,7 @@ function DeviceManagement({ token }: { token: string }) {
             <View style={d.deviceInfo}>
               <Text style={d.deviceName}>{getDeviceName(device.device_type)}</Text>
               <View style={d.deviceMeta}><View style={[d.connDot, { backgroundColor: device.connected ? Colors.success : Colors.textMuted }]} />
-                <Text style={[d.connText, { color: device.connected ? Colors.success : Colors.textMuted }]}>{device.connected ? 'Connect\u00e9' : 'D\u00e9connect\u00e9'}</Text></View>
+                <Text style={[d.connText, { color: device.connected ? Colors.success : Colors.textMuted }]}>{device.connected ? 'Connecté' : 'Déconnecté'}</Text></View>
             </View>
             <Text style={d.batteryT}>{device.battery}%</Text>
           </View>
@@ -86,7 +86,7 @@ function PrescriptionManagement({ token }: { token: string }) {
         subscription_type: formData.type, notes: formData.notes,
       }) }, token);
       setShowForm(false); setFormData({ name: '', email: '', phone: '', type: 'standard', notes: '' }); fetchPrescriptions();
-      Alert.alert('Succ\u00e8s', 'Prescription cr\u00e9\u00e9e');
+      Alert.alert('Succès', 'Prescription créée');
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSubmitting(false); }
   };
 
@@ -96,7 +96,7 @@ function PrescriptionManagement({ token }: { token: string }) {
     <ScrollView style={d.sv} contentContainerStyle={d.sc} showsVerticalScrollIndicator={false}>
       <View style={d.commCard}>
         <Text style={d.commLabel}>Total Commissions</Text>
-        <Text style={d.commVal}>{totalComm.toFixed(2)} \u20ac</Text>
+        <Text style={d.commVal}>{totalComm.toFixed(2)} €</Text>
         <Text style={d.commCount}>{prescriptions.length} prescription(s)</Text>
       </View>
 
@@ -111,8 +111,8 @@ function PrescriptionManagement({ token }: { token: string }) {
               <View style={[d.prescStatus, p.status === 'subscribed' && { backgroundColor: Colors.success + '12' }]}>
                 <Text style={[d.prescStatusText, p.status === 'subscribed' && { color: Colors.success }]}>{p.status === 'pending' ? 'En attente' : 'Actif'}</Text></View></View>
             <Text style={d.prescEmail}>{p.beneficiary_email}</Text>
-            <View style={d.prescFooter}><Text style={d.prescType}>{p.subscription_type === 'standard' ? 'Standard (15\u20ac)' : 'T\u00e9l\u00e9assistance (25\u20ac)'}</Text>
-              <Text style={d.prescComm}>+{p.commission}\u20ac</Text></View>
+            <View style={d.prescFooter}><Text style={d.prescType}>{p.subscription_type === 'standard' ? 'Standard (15€)' : 'Téléassistance (25€)'}</Text>
+              <Text style={d.prescComm}>+{p.commission}€</Text></View>
           </View>
         ))
       ) : <View style={d.emptyC}><Ionicons name="document-text-outline" size={28} color={Colors.textMuted} /><Text style={d.emptyT}>Aucune prescription</Text></View>}
@@ -120,18 +120,18 @@ function PrescriptionManagement({ token }: { token: string }) {
       <Modal visible={showForm} transparent animationType="slide">
         <View style={d.modalO}><View style={d.modalC}>
           <Text style={d.modalT}>Nouvelle Prescription</Text>
-          <Text style={d.inputL}>Nom du b\u00e9n\u00e9ficiaire</Text>
+          <Text style={d.inputL}>Nom du bénéficiaire</Text>
           <TextInput testID="presc-name-input" style={d.modalInp} placeholder="Nom complet" placeholderTextColor={Colors.textMuted}
             value={formData.name} onChangeText={(v) => setFormData({ ...formData, name: v })} />
           <Text style={d.inputL}>Email</Text>
           <TextInput testID="presc-email-input" style={d.modalInp} placeholder="email@exemple.com" placeholderTextColor={Colors.textMuted}
             value={formData.email} onChangeText={(v) => setFormData({ ...formData, email: v })} keyboardType="email-address" autoCapitalize="none" />
-          <Text style={d.inputL}>T\u00e9l\u00e9phone</Text>
+          <Text style={d.inputL}>Téléphone</Text>
           <TextInput testID="presc-phone-input" style={d.modalInp} placeholder="06 12 34 56 78" placeholderTextColor={Colors.textMuted}
             value={formData.phone} onChangeText={(v) => setFormData({ ...formData, phone: v })} keyboardType="phone-pad" />
           <Text style={d.inputL}>Type d'abonnement</Text>
           <View style={d.typeSelector}>
-            {[{id:'standard',l:'Standard (15\u20ac)'},{id:'teleassistance',l:'T\u00e9l\u00e9assist. (25\u20ac)'}].map(t => (
+            {[{id:'standard',l:'Standard (15€)'},{id:'teleassistance',l:'Téléassist. (25€)'}].map(t => (
               <TouchableOpacity key={t.id} testID={`presc-type-${t.id}`} style={[d.typeBtn, formData.type === t.id && d.typeBtnA]} onPress={() => setFormData({ ...formData, type: t.id })}>
                 <Text style={[d.typeBtnT, formData.type === t.id && d.typeBtnTA]}>{t.l}</Text></TouchableOpacity>
             ))}
@@ -139,7 +139,7 @@ function PrescriptionManagement({ token }: { token: string }) {
           <View style={d.modalBtns}>
             <TouchableOpacity style={d.cancelBtn} onPress={() => setShowForm(false)}><Text style={d.cancelBtnT}>Annuler</Text></TouchableOpacity>
             <TouchableOpacity testID="presc-submit-btn" style={d.submitBtn} onPress={submitPrescription} disabled={submitting}>
-              {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={d.submitBtnT}>Cr\u00e9er</Text>}</TouchableOpacity>
+              {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={d.submitBtnT}>Créer</Text>}</TouchableOpacity>
           </View>
         </View></View>
       </Modal>
@@ -155,7 +155,7 @@ function SubscribersList({ token }: { token: string }) {
   if (loading) return <View style={d.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
   return (
     <ScrollView style={d.sv} contentContainerStyle={d.sc}>
-      <Text style={d.subCount}>{subs.length} abonn\u00e9(s)</Text>
+      <Text style={d.subCount}>{subs.length} abonné(s)</Text>
       {subs.map(su => (
         <View key={su.id} style={d.subCard}>
           <View style={d.subAv}><Text style={d.subAvT}>{su.name?.charAt(0)?.toUpperCase()}</Text></View>
@@ -163,7 +163,7 @@ function SubscribersList({ token }: { token: string }) {
           {su.active_alerts > 0 && <View style={d.alertBdg}><Text style={d.alertBdgT}>{su.active_alerts}</Text></View>}
         </View>
       ))}
-      {subs.length === 0 && <View style={d.emptyC}><Text style={d.emptyT}>Aucun abonn\u00e9</Text></View>}
+      {subs.length === 0 && <View style={d.emptyC}><Text style={d.emptyT}>Aucun abonné</Text></View>}
     </ScrollView>
   );
 }
@@ -175,7 +175,7 @@ export default function DevicesScreen() {
   return (
     <SafeAreaView style={d.safeArea} testID="devices-screen">
       <View style={d.header}>
-        <Text style={d.title}>{user.role === 'guardian' ? 'Prescriptions' : (user.role === 'teleassistance' || user.role === 'admin') ? 'Abonn\u00e9s' : 'Mes Appareils'}</Text>
+        <Text style={d.title}>{user.role === 'guardian' ? 'Prescriptions' : (user.role === 'teleassistance' || user.role === 'admin') ? 'Abonnés' : 'Mes Appareils'}</Text>
       </View>
       {user.role === 'guardian' ? <PrescriptionManagement token={token} />
         : (user.role === 'teleassistance' || user.role === 'admin') ? <SubscribersList token={token} />

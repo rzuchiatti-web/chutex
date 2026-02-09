@@ -33,8 +33,8 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
     <ScrollView contentContainerStyle={s.sc}>
       <View style={s.successCard}>
         <Ionicons name="checkmark-circle" size={48} color={Colors.success} />
-        <Text style={s.successT}>Demande envoy\u00e9e</Text>
-        <Text style={s.successSub}>Un m\u00e9decin vous rappellera sous peu</Text>
+        <Text style={s.successT}>Demande envoyée</Text>
+        <Text style={s.successSub}>Un médecin vous rappellera sous peu</Text>
         <View style={s.callCard}><Ionicons name="call" size={18} color={Colors.textPrimary} /><Text style={s.callNum}>{callInfo.call_number}</Text></View>
         <TouchableOpacity testID="new-consult-btn" style={s.newBtn} onPress={() => { setSubmitted(false); setStep(0); setAnswers({}); }}>
           <Text style={s.newBtnT}>Nouvelle consultation</Text></TouchableOpacity>
@@ -45,7 +45,7 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
   return (
     <ScrollView contentContainerStyle={s.sc} showsVerticalScrollIndicator={false}>
       <View style={s.prog}>{questions.map((_, i) => <View key={i} style={[s.progDot, i <= step && { backgroundColor: Colors.primary }]} />)}</View>
-      <Text style={s.stepL}>\u00c9tape {step + 1} / {questions.length}</Text>
+      <Text style={s.stepL}>Étape {step + 1} / {questions.length}</Text>
       {q && <View style={s.qCard}><Text style={s.qText}>{q.question}</Text>
         {q.type === 'choice' && q.options?.map((o: string, i: number) => (
           <TouchableOpacity key={i} testID={`opt-${i}`} style={[s.optBtn, answers[q.id] === o && s.optBtnA]} onPress={() => setAnswers({ ...answers, [q.id]: o })}>
@@ -54,9 +54,9 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
         {q.type === 'scale' && <View style={s.scaleC}><Text style={s.scaleV}>{painLevel}</Text><View style={s.scaleR}>
           {[0,1,2,3,4,5,6,7,8,9,10].map(n => <TouchableOpacity key={n} testID={`sc-${n}`} style={[s.scaleB, painLevel === n && { backgroundColor: Colors.primary }]}
             onPress={() => { setPainLevel(n); setAnswers({ ...answers, [q.id]: n.toString() }); }}><Text style={[s.scaleBT, painLevel === n && { color: '#FFF' }]}>{n}</Text></TouchableOpacity>)}</View></View>}
-        {q.type === 'text' && <TextInput testID="qcm-text" style={s.textInp} placeholder="D\u00e9crivez..." placeholderTextColor={Colors.textMuted} value={freeText} onChangeText={v => { setFreeText(v); setAnswers({ ...answers, [q.id]: v }); }} multiline />}
+        {q.type === 'text' && <TextInput testID="qcm-text" style={s.textInp} placeholder="Décrivez..." placeholderTextColor={Colors.textMuted} value={freeText} onChangeText={v => { setFreeText(v); setAnswers({ ...answers, [q.id]: v }); }} multiline />}
       </View>}
-      <View style={s.navR}>{step > 0 && <TouchableOpacity style={s.prevB} onPress={() => setStep(step - 1)}><Ionicons name="chevron-back" size={16} color={Colors.textSecondary} /><Text style={s.prevBT}>Pr\u00e9c\u00e9dent</Text></TouchableOpacity>}
+      <View style={s.navR}>{step > 0 && <TouchableOpacity style={s.prevB} onPress={() => setStep(step - 1)}><Ionicons name="chevron-back" size={16} color={Colors.textSecondary} /><Text style={s.prevBT}>Précédent</Text></TouchableOpacity>}
         <View style={{ flex: 1 }} />{step < questions.length - 1 ? <TouchableOpacity style={s.nextB} onPress={() => setStep(step + 1)}><Text style={s.nextBT}>Suivant</Text><Ionicons name="chevron-forward" size={16} color="#FFF" /></TouchableOpacity>
           : <TouchableOpacity testID="submit-qcm" style={s.submitB} onPress={submitQCM}><Ionicons name="send" size={14} color="#FFF" /><Text style={s.submitBT}>Envoyer</Text></TouchableOpacity>}</View>
     </ScrollView>);
@@ -106,7 +106,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
         body: JSON.stringify({ escalation_id: activeEsc.id, response, answers: ans, notes: callNotes }) }, token);
       setActiveEsc(updated);
       if (['resolved', 'dispatched', 'guardian_handling'].includes(updated.status)) {
-        Alert.alert('Termin\u00e9', getStepMessage(updated));
+        Alert.alert('Terminé', getStepMessage(updated));
         setActiveEsc(null); fetchData();
       }
       setCallAnswers({}); setCallNotes(''); setCallStep(0);
@@ -114,9 +114,9 @@ function TeleassistanceDashboard({ token }: { token: string }) {
   };
 
   const getStepMessage = (esc: any) => {
-    if (esc.status === 'resolved') return 'Lev\u00e9e de doute r\u00e9ussie. Alerte r\u00e9solue.';
+    if (esc.status === 'resolved') return 'Levée de doute réussie. Alerte résolue.';
     if (esc.status === 'guardian_handling') return `Gardien ${esc.current_target?.name} prend en charge.`;
-    if (esc.status === 'dispatched') return `Intervention #${esc.intervention_id?.slice(0,8)} cr\u00e9\u00e9e et dispatch\u00e9e.`;
+    if (esc.status === 'dispatched') return `Intervention #${esc.intervention_id?.slice(0,8)} créée et dispatchée.`;
     return '';
   };
 
@@ -139,9 +139,9 @@ function TeleassistanceDashboard({ token }: { token: string }) {
             <Ionicons name={isDispatchNeeded ? 'warning' : 'call'} size={28} color="#FFF" />
           </View>
           <Text style={s.escTitle}>
-            {isCallingBen ? 'Appel b\u00e9n\u00e9ficiaire' : isDoubt ? 'Lev\u00e9e de doute' : isCallingGuardian ? `Appel gardien` : isDispatchNeeded ? 'Dispatcher intervention' : step}
+            {isCallingBen ? 'Appel bénéficiaire' : isDoubt ? 'Levée de doute' : isCallingGuardian ? `Appel gardien` : isDispatchNeeded ? 'Dispatcher intervention' : step}
           </Text>
-          <Text style={s.escSub}>{target?.name} \u2014 {activeEsc.beneficiary_name}</Text>
+          <Text style={s.escSub}>{target?.name} — {activeEsc.beneficiary_name}</Text>
         </View>
 
         {/* Timeline */}
@@ -158,7 +158,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
         {/* Doubt Lifting Questions */}
         {isDoubt && protocol.length > 0 && (
           <View style={s.qCard}>
-            <Text style={s.qLabel}>Protocole de lev\u00e9e de doute</Text>
+            <Text style={s.qLabel}>Protocole de levée de doute</Text>
             {protocol.map((q: any, qi: number) => (
               <View key={q.id} style={s.qItem}>
                 <Text style={s.qText}>{q.question}</Text>
@@ -174,7 +174,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
         )}
 
         {/* Notes */}
-        <TextInput testID="esc-notes" style={s.textInp} placeholder="Notes de l'op\u00e9rateur..." placeholderTextColor={Colors.textMuted} value={callNotes} onChangeText={setCallNotes} multiline />
+        <TextInput testID="esc-notes" style={s.textInp} placeholder="Notes de l'opérateur..." placeholderTextColor={Colors.textMuted} value={callNotes} onChangeText={setCallNotes} multiline />
 
         {/* Action Buttons based on step */}
         <Text style={s.actionTitle}>Actions</Text>
@@ -182,10 +182,10 @@ function TeleassistanceDashboard({ token }: { token: string }) {
         {isCallingBen && (
           <>
             <TouchableOpacity testID="ben-answered" style={[s.actionBtn, { backgroundColor: Colors.primary }]} onPress={() => advanceStep('answered')} disabled={processing}>
-              <Ionicons name="call" size={16} color="#FFF" /><Text style={s.actionBtnT}>B\u00e9n\u00e9ficiaire a r\u00e9pondu</Text>
+              <Ionicons name="call" size={16} color="#FFF" /><Text style={s.actionBtnT}>Bénéficiaire a répondu</Text>
             </TouchableOpacity>
             <TouchableOpacity testID="ben-no-answer" style={[s.actionBtn, { backgroundColor: Colors.textSecondary }]} onPress={() => advanceStep('no_answer')} disabled={processing}>
-              <Ionicons name="call-outline" size={16} color="#FFF" /><Text style={s.actionBtnT}>Pas de r\u00e9ponse \u2192 Appeler gardien</Text>
+              <Ionicons name="call-outline" size={16} color="#FFF" /><Text style={s.actionBtnT}>Pas de réponse → Appeler gardien</Text>
             </TouchableOpacity>
           </>
         )}
@@ -193,10 +193,10 @@ function TeleassistanceDashboard({ token }: { token: string }) {
         {isDoubt && (
           <>
             <TouchableOpacity testID="doubt-resolved" style={[s.actionBtn, { backgroundColor: Colors.success }]} onPress={() => advanceStep('resolved')} disabled={processing}>
-              <Ionicons name="checkmark-circle" size={16} color="#FFF" /><Text style={s.actionBtnT}>Tout va bien \u2014 R\u00e9solu</Text>
+              <Ionicons name="checkmark-circle" size={16} color="#FFF" /><Text style={s.actionBtnT}>Tout va bien — Résolu</Text>
             </TouchableOpacity>
             <TouchableOpacity testID="doubt-not-resolved" style={[s.actionBtn, { backgroundColor: Colors.textSecondary }]} onPress={() => advanceStep('not_resolved')} disabled={processing}>
-              <Ionicons name="alert-circle" size={16} color="#FFF" /><Text style={s.actionBtnT}>Non concluant \u2192 Escalader</Text>
+              <Ionicons name="alert-circle" size={16} color="#FFF" /><Text style={s.actionBtnT}>Non concluant → Escalader</Text>
             </TouchableOpacity>
           </>
         )}
@@ -207,7 +207,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
               <Ionicons name="checkmark-circle" size={16} color="#FFF" /><Text style={s.actionBtnT}>Gardien prend en charge</Text>
             </TouchableOpacity>
             <TouchableOpacity testID="guardian-no-answer" style={[s.actionBtn, { backgroundColor: Colors.textSecondary }]} onPress={() => advanceStep('no_answer')} disabled={processing}>
-              <Ionicons name="call-outline" size={16} color="#FFF" /><Text style={s.actionBtnT}>Pas de r\u00e9ponse \u2192 Gardien suivant</Text>
+              <Ionicons name="call-outline" size={16} color="#FFF" /><Text style={s.actionBtnT}>Pas de réponse → Gardien suivant</Text>
             </TouchableOpacity>
           </>
         )}
@@ -243,7 +243,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
         <View key={a.id} style={[s.taAlertCard, a.severity === 'critical' && { borderLeftColor: Colors.destructive }]}>
           <View style={s.taAlertTop}>
             <Ionicons name={a.alert_type === 'sos' ? 'alert-circle' : 'warning'} size={18} color={a.severity === 'critical' ? Colors.destructive : Colors.textMuted} />
-            <View style={s.taAlertInfo}><Text style={s.taAlertMsg}>{a.message}</Text><Text style={s.taAlertMeta}>{a.beneficiary_name} \u00b7 {new Date(a.created_at).toLocaleTimeString('fr-FR')}</Text></View>
+            <View style={s.taAlertInfo}><Text style={s.taAlertMsg}>{a.message}</Text><Text style={s.taAlertMeta}>{a.beneficiary_name} · {new Date(a.created_at).toLocaleTimeString('fr-FR')}</Text></View>
             <View style={[s.taBadge, a.teleassistance_status !== 'pending' && { backgroundColor: Colors.primary + '12' }]}>
               <Text style={[s.taBadgeT, a.teleassistance_status !== 'pending' && { color: Colors.primary }]}>{a.teleassistance_status || 'pending'}</Text>
             </View>
@@ -259,7 +259,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
           <View style={[s.escLogDot, { backgroundColor: e.status === 'resolved' ? Colors.success : e.status === 'dispatched' ? Colors.destructive : Colors.primary }]} />
           <View style={s.escLogInfo}>
             <Text style={s.escLogName}>{e.beneficiary_name}</Text>
-            <Text style={s.escLogRes}>{e.status === 'resolved' ? 'R\u00e9solu' : e.status === 'dispatched' ? 'Intervention dispatch\u00e9e' : e.status === 'guardian_handling' ? 'Gardien' : 'En cours'}</Text>
+            <Text style={s.escLogRes}>{e.status === 'resolved' ? 'Résolu' : e.status === 'dispatched' ? 'Intervention dispatchée' : e.status === 'guardian_handling' ? 'Gardien' : 'En cours'}</Text>
           </View>
           <Text style={s.escLogDate}>{new Date(e.created_at).toLocaleString('fr-FR')}</Text>
           {e.intervention_id && (
@@ -285,7 +285,7 @@ function GuardianInterventions({ token }: { token: string }) {
       {ivs.length > 0 ? ivs.map(iv => (
         <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} style={s.ivCard} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
           <View style={[s.ivDot, { backgroundColor: iv.status === 'completed' ? Colors.success : Colors.primary }]} />
-          <View style={s.ivInfo}><Text style={s.ivName}>{iv.beneficiary_name}</Text><Text style={s.ivSt}>{iv.status === 'en_route' ? 'En route' : iv.status === 'dispatched' ? 'Dispatch\u00e9' : iv.status === 'completed' ? 'Termin\u00e9' : iv.status}</Text></View>
+          <View style={s.ivInfo}><Text style={s.ivName}>{iv.beneficiary_name}</Text><Text style={s.ivSt}>{iv.status === 'en_route' ? 'En route' : iv.status === 'dispatched' ? 'Dispatché' : iv.status === 'completed' ? 'Terminé' : iv.status}</Text></View>
           <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} /></TouchableOpacity>
       )) : <View style={s.emptyC}><MaterialCommunityIcons name="map-marker-radius" size={28} color={Colors.textMuted} /><Text style={s.emptyT}>Aucune intervention</Text></View>}
     </ScrollView>);
@@ -312,9 +312,9 @@ export default function TeleconsultScreen() {
   return (
     <SafeAreaView style={s.safe} testID="teleconsult-screen">
       <View style={s.header}>
-        <Text style={s.title}>{r === 'teleassistance' ? 'T\u00e9l\u00e9assistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Gestion' : 'T\u00e9l\u00e9consultation'}</Text>
-        {r === 'teleassistance' && <Text style={s.subtitle}>Plateau d'\u00e9coute \u2014 Protocole d'escalade</Text>}
-        {r === 'beneficiary' && <Text style={s.subtitle}>Questionnaire pr\u00e9-consultation</Text>}
+        <Text style={s.title}>{r === 'teleassistance' ? 'Téléassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Gestion' : 'Téléconsultation'}</Text>
+        {r === 'teleassistance' && <Text style={s.subtitle}>Plateau d'écoute — Protocole d'escalade</Text>}
+        {r === 'beneficiary' && <Text style={s.subtitle}>Questionnaire pré-consultation</Text>}
       </View>
       {r === 'teleassistance' ? <TeleassistanceDashboard token={token} />
         : r === 'guardian' ? <GuardianInterventions token={token} />

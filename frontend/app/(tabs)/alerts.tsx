@@ -42,10 +42,10 @@ export default function AlertsScreen() {
     setTrigLoading(true);
     try {
       await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({
-        alert_type: type, severity, message: type === 'sos' ? 'SOS - Urgence!' : type === 'fall' ? 'Chute d\u00e9tect\u00e9e' : 'Anomalie cardiaque d\u00e9tect\u00e9e',
+        alert_type: type, severity, message: type === 'sos' ? 'SOS - Urgence!' : type === 'fall' ? 'Chute détectée' : 'Anomalie cardiaque détectée',
         device_type: 'bracelet',
       }) }, token);
-      Alert.alert('Alerte test cr\u00e9\u00e9e', `Type: ${type}, S\u00e9v\u00e9rit\u00e9: ${severity}`);
+      Alert.alert('Alerte test créée', `Type: ${type}, Sévérité: ${severity}`);
       fetchAlerts();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setTrigLoading(false); }
   };
@@ -67,19 +67,19 @@ export default function AlertsScreen() {
           </Text>
           <View style={[st.sevBdg, item.severity === 'critical' && { backgroundColor: Colors.destructive + '12' }]}>
             <Text style={[st.sevBdgT, item.severity === 'critical' && { color: Colors.destructive }]}>
-              {item.severity === 'critical' ? 'Critique' : item.severity === 'high' ? '\u00c9lev\u00e9' : item.severity === 'medium' ? 'Moyen' : 'Faible'}
+              {item.severity === 'critical' ? 'Critique' : item.severity === 'high' ? 'Élevé' : item.severity === 'medium' ? 'Moyen' : 'Faible'}
             </Text>
           </View>
         </View>
         <Text style={st.alertMessage}>{item.message}</Text>
-        <Text style={st.alertMeta}>{item.beneficiary_name} \u00b7 {new Date(item.created_at).toLocaleString('fr-FR')}</Text>
+        <Text style={st.alertMeta}>{item.beneficiary_name} · {new Date(item.created_at).toLocaleString('fr-FR')}</Text>
         {item.status === 'active' && (
           <TouchableOpacity testID={`resolve-alert-${item.id}`} style={st.resolveBtn} onPress={() => resolveAlert(item.id)}>
-            <Ionicons name="checkmark" size={14} color={Colors.success} /><Text style={st.resolveBtnText}>R\u00e9soudre</Text>
+            <Ionicons name="checkmark" size={14} color={Colors.success} /><Text style={st.resolveBtnText}>Résoudre</Text>
           </TouchableOpacity>
         )}
         {item.status === 'resolved' && (
-          <View style={st.resolvedBadge}><Ionicons name="checkmark" size={12} color={Colors.success} /><Text style={st.resolvedText}>R\u00e9solu</Text></View>
+          <View style={st.resolvedBadge}><Ionicons name="checkmark" size={12} color={Colors.success} /><Text style={st.resolvedText}>Résolu</Text></View>
         )}
       </View>
     </View>
@@ -96,7 +96,7 @@ export default function AlertsScreen() {
         {(['all', 'active', 'resolved'] as const).map((f) => (
           <TouchableOpacity key={f} testID={`filter-${f}`} style={[st.filterTab, filter === f && st.filterTabActive]} onPress={() => setFilter(f)}>
             <Text style={[st.filterText, filter === f && st.filterTextActive]}>
-              {f === 'all' ? 'Toutes' : f === 'active' ? 'Actives' : 'R\u00e9solues'}
+              {f === 'all' ? 'Toutes' : f === 'active' ? 'Actives' : 'Résolues'}
             </Text>
           </TouchableOpacity>
         ))}

@@ -7,9 +7,9 @@ import { useAuth } from '../src/context/AuthContext';
 import { Colors } from '../src/constants/colors';
 
 const ROLES = [
-  { id: 'beneficiary', label: 'B\u00e9n\u00e9ficiaire', icon: 'heart-outline', desc: 'Patient / porteur bracelet' },
+  { id: 'beneficiary', label: 'Bénéficiaire', icon: 'heart-outline', desc: 'Patient / porteur bracelet' },
   { id: 'guardian', label: 'Gardien', icon: 'shield-checkmark-outline', desc: 'Proche ou professionnel' },
-  { id: 'teleassistance', label: 'T\u00e9l\u00e9assistance', icon: 'headset-outline', desc: 'Op\u00e9rateur plateau' },
+  { id: 'teleassistance', label: 'Téléassistance', icon: 'headset-outline', desc: 'Opérateur plateau' },
   { id: 'admin', label: 'Admin', icon: 'settings-outline', desc: 'Back-office' },
 ];
 
@@ -70,7 +70,7 @@ export default function AuthScreen() {
         <ScrollView contentContainerStyle={a.sc} keyboardShouldPersistTaps="handled">
           <View style={a.header}>
             <Text style={a.appName}>VITALLINK</Text>
-            <Text style={a.subtitle}>Sant\u00e9 connect\u00e9e, prot\u00e9g\u00e9e par l'IA</Text>
+            <Text style={a.subtitle}>Santé connectée, protégée par l'IA</Text>
           </View>
           <View style={a.tabs}>
             <TouchableOpacity testID="auth-tab-login" style={[a.tab, a.tabA]} onPress={() => setIsLogin(true)}><Text style={[a.tabT, a.tabTA]}>Connexion</Text></TouchableOpacity>
@@ -79,7 +79,7 @@ export default function AuthScreen() {
           {error ? <View style={a.err}><Ionicons name="alert-circle" size={14} color={Colors.destructive} /><Text style={a.errT}>{error}</Text></View> : null}
           <Input k="email" label="Email" ph="email@exemple.com" kb="email-address" />
           <Text style={a.label}>Mot de passe</Text>
-          <View style={a.inpC}><TextInput testID="auth-input-password" style={[a.inp, {flex:1}]} placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" placeholderTextColor={Colors.textMuted}
+          <View style={a.inpC}><TextInput testID="auth-input-password" style={[a.inp, {flex:1}]} placeholder="••••••••" placeholderTextColor={Colors.textMuted}
             value={form.password} onChangeText={v => u('password', v)} secureTextEntry={!showPw} />
             <TouchableOpacity onPress={() => setShowPw(!showPw)} style={a.eye}><Ionicons name={showPw ? 'eye-off-outline' : 'eye-outline'} size={18} color={Colors.textMuted} /></TouchableOpacity></View>
           <TouchableOpacity testID="auth-submit-btn" style={[a.btn, submitting && a.btnD]} onPress={handleSubmit} disabled={submitting}>
@@ -104,7 +104,7 @@ export default function AuthScreen() {
           </View>
 
           <View style={a.prog}>{Array.from({length: totalSteps}).map((_, i) => <View key={i} style={[a.progDot, i <= step && {backgroundColor: Colors.primary}]} />)}</View>
-          <Text style={a.stepL}>\u00c9tape {step + 1} / {totalSteps}</Text>
+          <Text style={a.stepL}>Étape {step + 1} / {totalSteps}</Text>
 
           {error ? <View style={a.err}><Ionicons name="alert-circle" size={14} color={Colors.destructive} /><Text style={a.errT}>{error}</Text></View> : null}
 
@@ -122,9 +122,9 @@ export default function AuthScreen() {
               </View>
               <Input k="name" label="Nom complet" ph="Jean Dupont" />
               <Input k="email" label="Email" ph="email@exemple.com" kb="email-address" />
-              <Input k="phone" label="T\u00e9l\u00e9phone" ph="06 12 34 56 78" kb="phone-pad" />
+              <Input k="phone" label="Téléphone" ph="06 12 34 56 78" kb="phone-pad" />
               <Text style={a.label}>Mot de passe</Text>
-              <View style={a.inpC}><TextInput testID="reg-password" style={[a.inp, {flex:1}]} placeholder="Min. 6 caract\u00e8res" placeholderTextColor={Colors.textMuted}
+              <View style={a.inpC}><TextInput testID="reg-password" style={[a.inp, {flex:1}]} placeholder="Min. 6 caractères" placeholderTextColor={Colors.textMuted}
                 value={form.password} onChangeText={v => u('password', v)} secureTextEntry={!showPw} />
                 <TouchableOpacity onPress={() => setShowPw(!showPw)} style={a.eye}><Ionicons name={showPw ? 'eye-off-outline' : 'eye-outline'} size={18} color={Colors.textMuted} /></TouchableOpacity></View>
             </>
@@ -138,7 +138,7 @@ export default function AuthScreen() {
               <View style={a.optRow}>
                 {['Homme','Femme','Autre'].map(g => <TouchableOpacity key={g} testID={`gender-${g}`} style={[a.optBtn, form.gender === g && a.optBtnA]} onPress={() => u('gender', g)}><Text style={[a.optBtnT, form.gender === g && a.optBtnTA]}>{g}</Text></TouchableOpacity>)}
               </View>
-              <Input k="address" label="Adresse" ph="123 rue de la Sant\u00e9, 75014 Paris" />
+              <Input k="address" label="Adresse" ph="123 rue de la Santé, 75014 Paris" />
               <View style={a.row}><View style={a.half}><Input k="height_cm" label="Taille (cm)" ph="170" kb="numeric" /></View>
                 <View style={a.half}><Input k="weight_kg" label="Poids (kg)" ph="70" kb="numeric" /></View></View>
               <Text style={a.label}>Groupe sanguin</Text>
@@ -150,13 +150,13 @@ export default function AuthScreen() {
 
           {step === 2 && form.role === 'beneficiary' && (
             <>
-              <Text style={a.secTitle}>Informations m\u00e9dicales</Text>
-              <Input k="allergies" label="Allergies connues" ph="Ex: p\u00e9nicilline, arachides..." ml />
-              <Input k="medical_conditions" label="Pathologies" ph="Ex: diab\u00e8te, hypertension..." ml />
-              <Input k="doctor_name" label="M\u00e9decin traitant" ph="Dr. Dupont" />
+              <Text style={a.secTitle}>Informations médicales</Text>
+              <Input k="allergies" label="Allergies connues" ph="Ex: pénicilline, arachides..." ml />
+              <Input k="medical_conditions" label="Pathologies" ph="Ex: diabète, hypertension..." ml />
+              <Input k="doctor_name" label="Médecin traitant" ph="Dr. Dupont" />
               <Text style={a.secTitle}>Contact d'urgence</Text>
               <Input k="emergency_contact_name" label="Nom du contact" ph="Marie Dupont" />
-              <Input k="emergency_contact_phone" label="T\u00e9l\u00e9phone urgence" ph="06 98 76 54 32" kb="phone-pad" />
+              <Input k="emergency_contact_phone" label="Téléphone urgence" ph="06 98 76 54 32" kb="phone-pad" />
             </>
           )}
 
@@ -169,11 +169,11 @@ export default function AuthScreen() {
                     <Text style={[a.optBtnT, form.guardian_type === t.id && a.optBtnTA]}>{t.l}</Text></TouchableOpacity>
                 ))}
               </View>
-              {form.guardian_type === 'particular' && <Input k="relationship" label="Lien avec le b\u00e9n\u00e9ficiaire" ph="Fils, fille, voisin..." />}
+              {form.guardian_type === 'particular' && <Input k="relationship" label="Lien avec le bénéficiaire" ph="Fils, fille, voisin..." />}
               {form.guardian_type === 'professional' && (
                 <>
                   <Input k="structure_name" label="Nom de la structure" ph="SAAD Exemple" />
-                  <Input k="siret" label="N\u00b0 SIRET" ph="123 456 789 00001" kb="numeric" />
+                  <Input k="siret" label="N° SIRET" ph="123 456 789 00001" kb="numeric" />
                   <Input k="profession" label="Profession" ph="Aide-soignant, infirmier..." />
                 </>
               )}
@@ -190,8 +190,8 @@ export default function AuthScreen() {
 
           {step === 1 && (form.role === 'teleassistance' || form.role === 'admin') && (
             <>
-              <Text style={a.secTitle}>Informations compl\u00e9mentaires</Text>
-              <Input k="address" label="Adresse / Lieu de travail" ph="Si\u00e8ge social" />
+              <Text style={a.secTitle}>Informations complémentaires</Text>
+              <Input k="address" label="Adresse / Lieu de travail" ph="Siège social" />
             </>
           )}
 

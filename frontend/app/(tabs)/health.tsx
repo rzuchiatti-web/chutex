@@ -45,7 +45,7 @@ export default function HealthScreen() {
 
   return (
     <SafeAreaView style={h.safe} testID="health-screen">
-      <View style={h.header}><Text style={h.title}>Donn\u00e9es de Sant\u00e9</Text></View>
+      <View style={h.header}><Text style={h.title}>Données de Santé</Text></View>
 
       <View style={h.tabs}>
         <TouchableOpacity testID="tab-bracelet" style={[h.tab, activeTab === 'bracelet' && h.tabA]} onPress={() => setActiveTab('bracelet')}>
@@ -69,7 +69,7 @@ export default function HealthScreen() {
               <MaterialCommunityIcons name="tshirt-crew" size={18} color={vestDevice.connected ? Colors.primary : Colors.textMuted} />
               <View style={h.vestInfo}><Text style={h.vestName}>Gilet Anti-Chute</Text>
                 <Text style={[h.vestSt, { color: vestDevice.connected ? Colors.success : Colors.textMuted }]}>
-                  {vestDevice.connected ? 'Connect\u00e9' : 'D\u00e9connect\u00e9'} \u00b7 {vestDevice.battery}%</Text></View>
+                  {vestDevice.connected ? 'Connecté' : 'Déconnecté'} · {vestDevice.battery}%</Text></View>
             </View>
           )}
 
@@ -84,7 +84,7 @@ export default function HealthScreen() {
                     <View style={h.metricIc}>{renderIcon(m)}</View>
                     <View style={h.metricInfo}><Text style={h.metricName}>{m.name}</Text><Text style={h.metricUnit}>{m.unit}</Text></View>
                     <Text style={[h.metricVal, val !== undefined && { color: Colors.textPrimary }]}>
-                      {val !== undefined ? (typeof val === 'number' ? (Number.isInteger(val) ? val : val.toFixed(1)) : val) : '\u2014'}
+                      {val !== undefined ? (typeof val === 'number' ? (Number.isInteger(val) ? val : val.toFixed(1)) : val) : '—'}
                     </Text>
                     <Ionicons name="chevron-forward" size={14} color={Colors.textMuted} />
                   </TouchableOpacity>
@@ -96,7 +96,7 @@ export default function HealthScreen() {
           {Object.keys(latestData).length === 0 && (
             <View style={h.emptyC}>
               <MaterialCommunityIcons name="bluetooth-off" size={32} color={Colors.textMuted} />
-              <Text style={h.emptyT}>Aucune donn\u00e9e disponible</Text>
+              <Text style={h.emptyT}>Aucune donnée disponible</Text>
               <Text style={h.emptySub}>Synchronisez vos appareils dans l'onglet Appareils</Text>
             </View>
           )}
