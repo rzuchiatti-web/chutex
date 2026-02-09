@@ -37,7 +37,7 @@ export default function LinkScreen() {
 
   const shareCode = async () => {
     try {
-      await Share.share({ message: `Mon code VitalLink pour me lier comme gardien : ${generatedCode}\nOuvrez l'app VitalLink et entrez ce code.` });
+      await Share.share({ message: `Mon code Chutex pour me lier comme gardien : ${generatedCode}\nOuvrez l'app Chutex et entrez ce code.` });
     } catch {}
   };
 
@@ -81,7 +81,7 @@ export default function LinkScreen() {
             <Text style={s.codeLabel}>Votre code unique</Text>
             <Text style={s.codeValue}>{generatedCode}</Text>
             <View style={s.qrContainer}>
-              <QRCode value={`vitallink://link/${generatedCode}`} size={180} backgroundColor="white" color="black" />
+              <QRCode value={`chutex://link/${generatedCode}`} size={180} backgroundColor="white" color="black" />
             </View>
             <Text style={s.qrHint}>Montrez ce QR code à votre gardien ou partagez le code</Text>
             <Text style={s.expiry}>Expire dans 24h</Text>

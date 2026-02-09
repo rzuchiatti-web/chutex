@@ -225,7 +225,7 @@ export default function ProfileScreen() {
           <Ionicons name="log-out-outline" size={16} color={Colors.destructive} />
           <Text style={st.logoutT}>Se déconnecter</Text>
         </TouchableOpacity>
-        <Text style={st.ver}>VitalLink AI v3.0</Text>
+        <Text style={st.ver}>Chutex AI v3.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
