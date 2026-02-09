@@ -207,8 +207,8 @@ class VitalLinkTester:
         
         try:
             # Test activate prescriber
-            if "activation_code" in self.test_data:
-                activate_data = {"code": self.test_data["activation_code"]}
+            if guardian_activation_code:
+                activate_data = {"code": guardian_activation_code}
                 response = self.session.post(f"{BASE_URL}/guardian/activate-prescriber", json=activate_data, headers=headers)
                 
                 if response.status_code == 200:
