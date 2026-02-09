@@ -59,6 +59,19 @@ export default function BackofficeScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
+  const createIvCode = async () => {
+    if (!ivStructure) return Alert.alert('Erreur', 'Nom de structure requis');
+    setCreating(true);
+    try {
+      const r = await apiFetch('/api/admin/intervention-codes', { method: 'POST', body: JSON.stringify({ structure_name: ivStructure, max_uses: 50 }) }, token);
+      if (ivRadius && parseFloat(ivRadius) !== 30) {
+        await apiFetch('/api/admin/intervention-radius', { method: 'PUT', body: JSON.stringify({ structure_id: r.id, radius_km: parseFloat(ivRadius) || 30 }) }, token);
+      }
+      setInterventionCodes([r, ...interventionCodes]); setShowIvCodeModal(false); setIvStructure('');
+      Alert.alert('Code créé', `Code intervenant: ${r.code}\nStructure: ${r.structure_name}`);
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setCreating(false); }
+  };
+
   const TABS = [
     { id: 'stats', label: 'Stats' },
     { id: 'users', label: 'Utilisateurs' },
