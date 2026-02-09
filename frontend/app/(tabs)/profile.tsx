@@ -16,6 +16,8 @@ export default function ProfileScreen() {
   const [savingLoc, setSavingLoc] = useState(false);
   const [actCode, setActCode] = useState('');
   const [activating, setActivating] = useState(false);
+  const [ivCode, setIvCode] = useState('');
+  const [ivActivating, setIvActivating] = useState(false);
 
   if (!user || !token) return null;
 

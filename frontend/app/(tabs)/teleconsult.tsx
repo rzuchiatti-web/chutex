@@ -88,6 +88,8 @@ function TeleassistanceDashboard({ token }: { token: string }) {
   }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+  // Auto-refresh every 5 seconds for real-time monitoring
+  useEffect(() => { const iv = setInterval(fetchData, 5000); return () => clearInterval(iv); }, [fetchData]);
 
   const startEscalation = async (alert: any) => {
     setProcessing(true);
