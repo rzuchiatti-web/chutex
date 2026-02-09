@@ -244,6 +244,32 @@ export default function BackofficeScreen() {
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       </Modal>
+
+      <Modal visible={showIvCodeModal} transparent animationType="slide">
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={bs.modalO}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={bs.modalO}>
+              <TouchableWithoutFeedback>
+                <View style={bs.modalC}>
+                  <Text style={bs.modalT}>Nouveau code intervenant</Text>
+                  <Text style={bs.inputL}>Nom de la structure</Text>
+                  <TextInput testID="iv-structure" style={bs.modalInp} placeholder="Ex: Ambulances du Sud" placeholderTextColor={Colors.textMuted} value={ivStructure} onChangeText={setIvStructure} blurOnSubmit={false} />
+                  <Text style={bs.inputL}>Rayon d'intervention (km)</Text>
+                  <TextInput testID="iv-radius" style={bs.modalInp} placeholder="30" placeholderTextColor={Colors.textMuted} value={ivRadius} onChangeText={setIvRadius} keyboardType="numeric" blurOnSubmit={false} />
+                  <View style={bs.modalBtns}>
+                    <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowIvCodeModal(false)}>
+                      <Text style={bs.cancelBtnT}>Annuler</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity testID="confirm-iv-code-btn" style={bs.confirmBtn} onPress={createIvCode} disabled={creating}>
+                      {creating ? <ActivityIndicator color="#FFF" /> : <Text style={bs.confirmBtnT}>Créer</Text>}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
