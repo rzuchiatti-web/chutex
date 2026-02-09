@@ -198,11 +198,14 @@ backend:
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "SOS alert created for testing"
+      - working: true
+        agent: "testing"
+        comment: "BACKEND TEST PASSED - POST /api/alerts creates alerts with proper severity and type validation. GET /api/alerts returns role-based alert lists (admin/teleassistance see all, guardians see their beneficiaries, beneficiaries see own). PUT /api/alerts/{id}/resolve marks alerts resolved with timestamp. All CRUD operations working."
 
   - task: "Backoffice stats endpoint"
     implemented: true
@@ -215,6 +218,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Returns full system stats"
+      - working: true
+        agent: "testing"
+        comment: "BACKEND TEST PASSED - GET /api/backoffice/stats returns comprehensive statistics: 17 users, 11 alerts, 6 prescriptions, interventions, teleconsults. All metrics calculating correctly without auth restrictions (public endpoint)."
 
 frontend:
   - task: "Auth screen: login/register with role selection and multi-step"
