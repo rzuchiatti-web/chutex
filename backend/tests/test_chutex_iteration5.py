@@ -12,8 +12,8 @@ BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://teleassist-staging
 TEST_ACCOUNTS = [
     {"email": "robert.martin@email.fr", "password": "demo123", "expected_role": "beneficiary", "expected_name": "Robert Martin"},
     {"email": "claire.martin@email.fr", "password": "demo123", "expected_role": "guardian", "expected_name": "Claire Martin"},
-    {"email": "admin@chutex.fr", "password": "demo123", "expected_role": "admin", "expected_name": "Admin Chutex"},
-    {"email": "plateau@chutex.fr", "password": "demo123", "expected_role": "teleassistance", "expected_name": "Plateau Chutex"},
+    {"email": "admin@chutex.fr", "password": "demo123", "expected_role": "admin", "expected_name": "Directeur Chutex"},
+    {"email": "plateau@chutex.fr", "password": "demo123", "expected_role": "teleassistance", "expected_name": "Plateau Écoute Chutex"},
 ]
 
 class TestNewAccountsLogin:
@@ -69,6 +69,7 @@ class TestRemindersAPI:
         response = requests.post(f"{BASE_URL}/api/reminders",
             json={
                 "reminder_type": "hydration",
+                "title": "Test Hydration Reminder",
                 "time": "08:00",
                 "days": ["lundi", "mardi", "mercredi"],
                 "message": "Test reminder",
