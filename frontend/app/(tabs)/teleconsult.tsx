@@ -472,4 +472,16 @@ const s = StyleSheet.create({
   adminInfo: { flex: 1 },
   adminLabel: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   adminDesc: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
+  // Intervention Care
+  secTitle: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginTop: 16, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
+  careCard: { backgroundColor: Colors.subtle, borderRadius: 14, padding: 24, marginBottom: 16, alignItems: 'center', borderWidth: 1, borderColor: Colors.border },
+  careTitle: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, marginTop: 10 },
+  careDesc: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', lineHeight: 19, marginTop: 8, marginBottom: 16 },
+  careRow: { flexDirection: 'row', gap: 8, width: '100%' },
+  careInput: { flex: 1, backgroundColor: Colors.paper, borderRadius: 10, padding: 14, fontSize: 15, fontWeight: '600', color: Colors.text, borderWidth: 1, borderColor: Colors.border, textAlign: 'center', letterSpacing: 2 },
+  careBtn: { paddingHorizontal: 20, borderRadius: 10, backgroundColor: Colors.primary, justifyContent: 'center' },
+  careBtnT: { fontSize: 14, fontWeight: '700', color: '#FFF' },
+  careActive: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.success + '12', borderRadius: 10, padding: 14, marginBottom: 14 },
+  careActiveT: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  careActiveSub: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
 });
