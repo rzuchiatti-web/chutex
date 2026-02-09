@@ -104,7 +104,7 @@ export default function ProfileScreen() {
             <Text style={st.secTitle}>Lier un bénéficiaire</Text>
             <View style={st.linkRow}>
               <TextInput testID="link-email-input" style={st.linkInput} placeholder="email@beneficiaire.com" placeholderTextColor={Colors.textMuted}
-                value={linkEmail} onChangeText={setLinkEmail} keyboardType="email-address" autoCapitalize="none" />
+                value={linkEmail} onChangeText={setLinkEmail} keyboardType="email-address" autoCapitalize="none" blurOnSubmit={false} />
               <TouchableOpacity testID="link-btn" style={st.linkBtn} onPress={handleLink} disabled={linking}>
                 {linking ? <ActivityIndicator color="#FFF" size="small" /> : <Ionicons name="link" size={18} color="#FFF" />}
               </TouchableOpacity>
