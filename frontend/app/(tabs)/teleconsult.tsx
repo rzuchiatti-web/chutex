@@ -599,4 +599,11 @@ const s = StyleSheet.create({
   careActive: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.success + '12', borderRadius: 10, padding: 14, marginBottom: 14 },
   careActiveT: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   careActiveSub: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
+  modalO: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalC: { backgroundColor: Colors.paper, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, maxHeight: '85%' },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: Colors.text, marginBottom: 12 },
+  modalInput: { backgroundColor: Colors.subtle, borderRadius: 8, padding: 12, fontSize: 14, color: Colors.text, borderWidth: 1, borderColor: Colors.border },
+  modalBtns: { flexDirection: 'row', gap: 12, marginTop: 16 },
+  cancelBtn: { flex: 1, padding: 14, borderRadius: 10, borderWidth: 1, borderColor: Colors.border, alignItems: 'center' },
+  confirmBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: Colors.primary, alignItems: 'center' },
 });
