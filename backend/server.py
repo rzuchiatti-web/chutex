@@ -801,6 +801,291 @@ async def get_escalation(eid: str, user=Depends(get_current_user)):
 async def get_escalations(user=Depends(get_current_user)):
     return await db.escalations.find({}, {"_id": 0}).sort("created_at", -1).to_list(50)
 
+# ==================== TWILIO REAL CALLS ====================
+@api_router.post("/twilio/call/beneficiary")
+async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_current_user)):
+    """Initiate a real phone call to beneficiary for doubt-lifting"""
+    if not twilio_client:
+        raise HTTPException(status_code=500, detail="Twilio non configuré")
+    alert = await db.alerts.find_one({"id": data.alert_id}, {"_id": 0})
+    if not alert: raise HTTPException(status_code=404, detail="Alerte non trouvée")
+    ben = await db.users.find_one({"id": alert['beneficiary_id']}, {"_id": 0})
+    if not ben: raise HTTPException(status_code=404, detail="Bénéficiaire non trouvé")
+    phone = data.phone_number or ben.get('phone', '')
+    if not phone: raise HTTPException(status_code=400, detail="Pas de numéro de téléphone")
+    try:
+        # Get the public URL for TwiML callback
+        base_url = os.environ.get('TWILIO_CALLBACK_URL', '')
+        if not base_url:
+            # Use ngrok or fallback to TwiML directly
+            twiml = VoiceResponse()
+            twiml.say("Bonjour, ici VitalLink, service de téléassistance.", voice='Polly.Lea', language='fr-FR')
+            twiml.pause(length=1)
+            g = Gather(num_digits=1, action='', timeout=10)
+            g.say("Une alerte a été déclenchée sur votre bracelet. Tout va bien ? Appuyez sur 1 si tout va bien. Appuyez sur 2 si vous avez besoin d'aide.", voice='Polly.Lea', language='fr-FR')
+            twiml.append(g)
+            twiml.say("Nous n'avons pas reçu de réponse. Nous allons contacter vos gardiens. Restez en sécurité.", voice='Polly.Lea', language='fr-FR')
+            call = twilio_client.calls.create(
+                twiml=str(twiml),
+                to=phone,
+                from_=TWILIO_NUMBER,
+                status_callback_event=['completed'],
+            )
+        else:
+            call = twilio_client.calls.create(
+                url=f"{base_url}/api/twilio/twiml/beneficiary?alert_id={data.alert_id}",
+                to=phone,
+                from_=TWILIO_NUMBER,
+                status_callback=f"{base_url}/api/twilio/status",
+                status_callback_event=['completed'],
+            )
+        now = datetime.now(timezone.utc).isoformat()
+        call_record = {
+            "id": str(uuid.uuid4()), "call_sid": call.sid, "alert_id": data.alert_id,
+            "target_type": "beneficiary", "target_id": ben['id'], "target_name": ben['name'],
+            "target_phone": phone, "status": "initiated", "operator_id": user['id'],
+            "created_at": now, "answered": False, "response": None,
+        }
+        await db.twilio_calls.insert_one(call_record)
+        logger.info(f"Twilio call initiated: {call.sid} to {phone}")
+        return {"call_sid": call.sid, "call_id": call_record['id'], "status": "initiated", "phone": phone}
+    except Exception as e:
+        logger.error(f"Twilio call error: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur appel: {str(e)}")
+
+@api_router.post("/twilio/call/guardian")
+async def twilio_call_guardian(alert_id: str = "", guardian_id: str = "", phone_number: str = "", user=Depends(get_current_user)):
+    """Call a guardian"""
+    if not twilio_client:
+        raise HTTPException(status_code=500, detail="Twilio non configuré")
+    guardian = await db.users.find_one({"id": guardian_id}, {"_id": 0}) if guardian_id else None
+    phone = phone_number or (guardian.get('phone','') if guardian else '')
+    if not phone: raise HTTPException(status_code=400, detail="Pas de numéro")
+    alert = await db.alerts.find_one({"id": alert_id}, {"_id": 0}) if alert_id else None
+    ben_name = alert.get('beneficiary_name','un bénéficiaire') if alert else 'un bénéficiaire'
+    try:
+        twiml = VoiceResponse()
+        twiml.say(f"Bonjour, ici VitalLink, service de téléassistance.", voice='Polly.Lea', language='fr-FR')
+        twiml.pause(length=1)
+        twiml.say(f"Une alerte a été déclenchée pour {ben_name}. Nous n'avons pas pu le joindre.", voice='Polly.Lea', language='fr-FR')
+        g = Gather(num_digits=1, timeout=10)
+        g.say("Appuyez sur 1 si vous pouvez intervenir. Appuyez sur 2 si vous ne pouvez pas.", voice='Polly.Lea', language='fr-FR')
+        twiml.append(g)
+        twiml.say("Nous n'avons pas reçu de réponse. Nous contactons le prochain gardien.", voice='Polly.Lea', language='fr-FR')
+        call = twilio_client.calls.create(twiml=str(twiml), to=phone, from_=TWILIO_NUMBER)
+        now = datetime.now(timezone.utc).isoformat()
+        call_record = {
+            "id": str(uuid.uuid4()), "call_sid": call.sid, "alert_id": alert_id,
+            "target_type": "guardian", "target_id": guardian_id, "target_name": guardian.get('name','') if guardian else '',
+            "target_phone": phone, "status": "initiated", "operator_id": user['id'],
+            "created_at": now, "answered": False, "response": None,
+        }
+        await db.twilio_calls.insert_one(call_record)
+        return {"call_sid": call.sid, "call_id": call_record['id'], "status": "initiated", "phone": phone}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur appel: {str(e)}")
+
+@api_router.get("/twilio/call/{call_sid}/status")
+async def get_call_status(call_sid: str, user=Depends(get_current_user)):
+    """Check Twilio call status"""
+    try:
+        if twilio_client:
+            call = twilio_client.calls(call_sid).fetch()
+            await db.twilio_calls.update_one({"call_sid": call_sid}, {"$set": {
+                "status": call.status, "duration": call.duration, "answered": call.status in ('in-progress','completed')
+            }})
+            return {"call_sid": call_sid, "status": call.status, "duration": call.duration}
+        return {"call_sid": call_sid, "status": "unknown"}
+    except Exception as e:
+        return {"call_sid": call_sid, "status": "error", "error": str(e)}
+
+@api_router.get("/twilio/calls")
+async def list_calls(user=Depends(get_current_user)):
+    return await db.twilio_calls.find({}, {"_id": 0}).sort("created_at", -1).to_list(50)
+
+# ==================== QR CODE LINKING ====================
+@api_router.post("/beneficiary/generate-link-code")
+async def generate_link_code(user=Depends(get_current_user)):
+    """Generate a unique code for beneficiary to share with guardian"""
+    code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    now = datetime.now(timezone.utc).isoformat()
+    link = {"id": str(uuid.uuid4()), "code": code, "beneficiary_id": user['id'], "beneficiary_name": user['name'],
+            "used": False, "used_by": None, "created_at": now, "expires_at": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()}
+    await db.link_codes.insert_one(link)
+    return {"code": code, "expires_in": "24h", "qr_data": f"vitallink://link/{code}"}
+
+@api_router.post("/guardian/link-with-code")
+async def link_with_code(data: LinkWithCodeRequest, user=Depends(get_current_user)):
+    """Guardian uses a link code to connect with beneficiary"""
+    link = await db.link_codes.find_one({"code": data.link_code.upper(), "used": False}, {"_id": 0})
+    if not link: raise HTTPException(status_code=404, detail="Code invalide ou expiré")
+    if link['expires_at'] < datetime.now(timezone.utc).isoformat():
+        raise HTTPException(status_code=400, detail="Code expiré")
+    ben = await db.users.find_one({"id": link['beneficiary_id']}, {"_id": 0})
+    if not ben: raise HTTPException(status_code=404, detail="Bénéficiaire non trouvé")
+    # Link them
+    await db.users.update_one({"id": user['id']}, {"$addToSet": {"beneficiaries": ben['id']}})
+    await db.users.update_one({"id": ben['id']}, {"$addToSet": {"guardians": user['id']}})
+    await db.link_codes.update_one({"code": data.link_code.upper()}, {"$set": {"used": True, "used_by": user['id']}})
+    return {"status": "linked", "beneficiary": {"id": ben['id'], "name": ben['name']}}
+
+# ==================== SUBSCRIBER DETAIL ====================
+@api_router.get("/teleassistance/subscriber/{uid}")
+async def get_subscriber_detail(uid: str, user=Depends(get_current_user)):
+    """Get detailed info for a subscriber (beneficiary)"""
+    ben = await db.users.find_one({"id": uid}, {"_id": 0, "password_hash": 0})
+    if not ben: raise HTTPException(status_code=404, detail="Abonné non trouvé")
+    alerts = await db.alerts.find({"beneficiary_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    escalations = await db.escalations.find({"beneficiary_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    interventions = await db.interventions.find({"beneficiary_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    latest = await db.device_readings.find({"user_id": uid}, {"_id": 0}).sort("timestamp", -1).to_list(5)
+    calls = await db.twilio_calls.find({"$or": [{"target_id": uid}, {"alert_id": {"$in": [a['id'] for a in alerts]}}]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    guardians = []
+    for gid in ben.get('guardians', []):
+        g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
+        if g: guardians.append({"id": g['id'], "name": g['name'], "phone": g.get('phone',''), "role": g.get('role','guardian')})
+    return {
+        "user": sanitize_user(ben), "alerts": alerts, "escalations": escalations,
+        "interventions": interventions, "latest_readings": latest, "calls": calls,
+        "guardians": guardians, "stats": {
+            "total_alerts": len(alerts), "active_alerts": sum(1 for a in alerts if a['status'] == 'active'),
+            "resolved_alerts": sum(1 for a in alerts if a['status'] == 'resolved'),
+            "total_escalations": len(escalations), "total_interventions": len(interventions),
+        }
+    }
+
+@api_router.get("/alerts/{aid}/detail")
+async def get_alert_detail(aid: str, user=Depends(get_current_user)):
+    """Get detailed info for an alert"""
+    alert = await db.alerts.find_one({"id": aid}, {"_id": 0})
+    if not alert: raise HTTPException(status_code=404, detail="Alerte non trouvée")
+    escalations = await db.escalations.find({"alert_id": aid}, {"_id": 0}).to_list(10)
+    interventions = await db.interventions.find({"alert_id": aid}, {"_id": 0}).to_list(10)
+    calls = await db.twilio_calls.find({"alert_id": aid}, {"_id": 0}).to_list(20)
+    ben = await db.users.find_one({"id": alert['beneficiary_id']}, {"_id": 0, "password_hash": 0})
+    return {
+        "alert": alert, "escalations": escalations, "interventions": interventions,
+        "calls": calls, "beneficiary": sanitize_user(ben) if ben else None,
+    }
+
+# ==================== GUARDIAN BENEFICIARY DETAIL ====================
+@api_router.get("/guardian/beneficiary/{bid}/detail")
+async def guardian_beneficiary_detail(bid: str, user=Depends(get_current_user)):
+    """Guardian gets full detail on their beneficiary"""
+    ben = await db.users.find_one({"id": bid}, {"_id": 0, "password_hash": 0})
+    if not ben: raise HTTPException(status_code=404, detail="Bénéficiaire non trouvé")
+    if bid not in user.get('beneficiaries', []):
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    alerts = await db.alerts.find({"beneficiary_id": bid}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    readings = await db.device_readings.find({"user_id": bid}, {"_id": 0}).sort("timestamp", -1).to_list(20)
+    thresholds = await db.thresholds.find({"user_id": bid}, {"_id": 0}).to_list(100)
+    location = await db.locations.find_one({"user_id": bid}, {"_id": 0})
+    interventions = await db.interventions.find({"beneficiary_id": bid}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    return {
+        "beneficiary": sanitize_user(ben), "alerts": alerts, "readings": readings,
+        "thresholds": thresholds, "location": location, "interventions": interventions,
+        "stats": {
+            "total_alerts": len(alerts), "active_alerts": sum(1 for a in alerts if a['status'] == 'active'),
+        }
+    }
+
+@api_router.get("/guardian/beneficiary/{bid}/health-report")
+async def guardian_health_report(bid: str, user=Depends(get_current_user)):
+    """Generate AI health report for a beneficiary"""
+    ben = await db.users.find_one({"id": bid}, {"_id": 0, "password_hash": 0})
+    if not ben: raise HTTPException(status_code=404, detail="Bénéficiaire non trouvé")
+    readings = await db.device_readings.find({"user_id": bid}, {"_id": 0}).sort("timestamp", -1).to_list(10)
+    alerts = await db.alerts.find({"beneficiary_id": bid}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    data_summary = ""
+    for r in readings[:5]:
+        data_summary += f"[{r.get('device_type','')} {r.get('timestamp','')}] "
+        for k,v in r.get('data',{}).items():
+            data_summary += f"{k}={v} "
+        data_summary += "\n"
+    alert_summary = "\n".join([f"- {a['alert_type']} ({a['severity']}): {a['message']} - {a['status']}" for a in alerts[:10]])
+    try:
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, model="gpt-5.2")
+        prompt = f"""Tu es un assistant médical IA. Génère un rapport de santé complet en français pour le patient {ben['name']}.
+
+Informations patient: âge={ben.get('date_of_birth','NC')}, genre={ben.get('gender','NC')}, taille={ben.get('height_cm','NC')}cm, poids={ben.get('weight_kg','NC')}kg
+Groupe sanguin: {ben.get('blood_type','NC')}, Allergies: {ben.get('allergies','NC')}, Pathologies: {ben.get('medical_conditions','NC')}
+
+Dernières mesures:
+{data_summary}
+
+Historique alertes:
+{alert_summary}
+
+Génère un rapport structuré avec: 1) Résumé état général 2) Analyse des constantes vitales 3) Tendances observées 4) Recommandations personnalisées 5) Points de vigilance 6) Objectifs santé suggérés"""
+        resp = await asyncio.to_thread(chat.send_message, UserMessage(content=prompt))
+        return {"report": resp.content, "generated_at": datetime.now(timezone.utc).isoformat(), "beneficiary_name": ben['name']}
+    except Exception as e:
+        logger.error(f"AI report error: {e}")
+        return {"report": f"Rapport IA indisponible: {str(e)}", "generated_at": datetime.now(timezone.utc).isoformat(), "beneficiary_name": ben['name']}
+
+# ==================== INTERVENTION PROVIDER ROLE ====================
+@api_router.post("/guardian/activate-intervention-provider")
+async def activate_intervention_provider(data: InterventionProviderActivate, user=Depends(get_current_user)):
+    """Guardian activates as intervention provider with code"""
+    code = await db.intervention_codes.find_one({"code": data.code.upper(), "active": True}, {"_id": 0})
+    if not code: raise HTTPException(status_code=404, detail="Code invalide")
+    await db.users.update_one({"id": user['id']}, {"$set": {
+        "is_intervention_provider": True,
+        "intervention_structure": code['structure_name'],
+        "intervention_radius_km": code.get('default_radius_km', 30),
+        "intervention_location": code.get('base_location', {"latitude": 48.8566, "longitude": 2.3522}),
+    }})
+    await db.intervention_codes.update_one({"code": data.code.upper()}, {"$inc": {"uses_count": 1}})
+    return {"status": "activated", "structure": code['structure_name'], "radius_km": code.get('default_radius_km', 30)}
+
+@api_router.post("/admin/intervention-codes")
+async def create_intervention_code(data: ActivationCodeCreate, user=Depends(get_current_user)):
+    """Admin creates an intervention provider code"""
+    if user.get('role') != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
+    code_val = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    now = datetime.now(timezone.utc).isoformat()
+    code = {"id": str(uuid.uuid4()), "code": code_val, "structure_name": data.structure_name,
+            "max_uses": data.max_uses, "uses_count": 0, "active": True, "created_at": now,
+            "default_radius_km": 30, "base_location": {"latitude": 48.8566, "longitude": 2.3522}}
+    await db.intervention_codes.insert_one(code)
+    return {k: v for k, v in code.items() if k != '_id'}
+
+@api_router.get("/admin/intervention-codes")
+async def list_intervention_codes(user=Depends(get_current_user)):
+    if user.get('role') != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
+    return await db.intervention_codes.find({}, {"_id": 0}).sort("created_at", -1).to_list(50)
+
+@api_router.put("/admin/intervention-radius")
+async def update_intervention_radius(data: InterventionRadiusUpdate, user=Depends(get_current_user)):
+    """Admin updates intervention radius for a structure"""
+    if user.get('role') != 'admin': raise HTTPException(status_code=403, detail="Admin requis")
+    await db.intervention_codes.update_one({"id": data.structure_id}, {"$set": {"default_radius_km": data.radius_km}})
+    # Update all providers with this structure
+    providers = await db.users.find({"is_intervention_provider": True}, {"_id": 0}).to_list(100)
+    for p in providers:
+        code = await db.intervention_codes.find_one({"structure_name": p.get('intervention_structure','')}, {"_id": 0})
+        if code and code['id'] == data.structure_id:
+            await db.users.update_one({"id": p['id']}, {"$set": {"intervention_radius_km": data.radius_km}})
+    return {"status": "updated", "radius_km": data.radius_km}
+
+# ==================== PRESCRIPTION DETAIL + EMAIL ====================
+@api_router.get("/prescriptions/{pid}")
+async def get_prescription_detail(pid: str, user=Depends(get_current_user)):
+    """Get prescription detail"""
+    presc = await db.prescriptions.find_one({"id": pid}, {"_id": 0})
+    if not presc: raise HTTPException(status_code=404, detail="Prescription non trouvée")
+    return presc
+
+@api_router.put("/prescriptions/{pid}/subscribe")
+async def subscribe_prescription(pid: str, user=Depends(get_current_user)):
+    """Mark prescription as subscribed"""
+    now = datetime.now(timezone.utc).isoformat()
+    await db.prescriptions.update_one({"id": pid}, {"$set": {
+        "status": "subscribed", "subscribed_at": now, "subscribed_by": user['id'],
+        "commission_payment_date": (datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)).replace(day=1).isoformat()
+    }})
+    return {"status": "subscribed"}
+
 # ==================== SETUP ====================
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
