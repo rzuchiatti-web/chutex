@@ -38,73 +38,55 @@ export default function HealthScreen() {
 
   const renderIcon = (metric: any) => {
     if (metric.iconLib === 'MaterialCommunityIcons') {
-      return <MaterialCommunityIcons name={metric.icon as any} size={20} color={metric.color} />;
+      return <MaterialCommunityIcons name={metric.icon as any} size={18} color={Colors.textMuted} />;
     }
-    return <Ionicons name={metric.icon as any} size={20} color={metric.color} />;
+    return <Ionicons name={metric.icon as any} size={18} color={Colors.textMuted} />;
   };
 
   return (
-    <SafeAreaView style={s.safe} testID="health-screen">
-      <View style={s.header}>
-        <Text style={s.title}>Données de Santé</Text>
-      </View>
+    <SafeAreaView style={h.safe} testID="health-screen">
+      <View style={h.header}><Text style={h.title}>Donn\u00e9es de Sant\u00e9</Text></View>
 
-      {/* Device Tabs */}
-      <View style={s.tabs}>
-        <TouchableOpacity testID="tab-bracelet" style={[s.tab, activeTab === 'bracelet' && s.tabA]} onPress={() => setActiveTab('bracelet')}>
-          <MaterialCommunityIcons name="watch" size={16} color={activeTab === 'bracelet' ? '#FFF' : Colors.textMuted} />
-          <Text style={[s.tabT, activeTab === 'bracelet' && s.tabTA]}>Bracelet</Text>
+      <View style={h.tabs}>
+        <TouchableOpacity testID="tab-bracelet" style={[h.tab, activeTab === 'bracelet' && h.tabA]} onPress={() => setActiveTab('bracelet')}>
+          <MaterialCommunityIcons name="watch" size={14} color={activeTab === 'bracelet' ? '#FFF' : Colors.textMuted} />
+          <Text style={[h.tabT, activeTab === 'bracelet' && h.tabTA]}>Bracelet</Text>
         </TouchableOpacity>
-        <TouchableOpacity testID="tab-scale" style={[s.tab, activeTab === 'scale' && s.tabA]} onPress={() => setActiveTab('scale')}>
-          <MaterialCommunityIcons name="scale-bathroom" size={16} color={activeTab === 'scale' ? '#FFF' : Colors.textMuted} />
-          <Text style={[s.tabT, activeTab === 'scale' && s.tabTA]}>Balance</Text>
+        <TouchableOpacity testID="tab-scale" style={[h.tab, activeTab === 'scale' && h.tabA]} onPress={() => setActiveTab('scale')}>
+          <MaterialCommunityIcons name="scale-bathroom" size={14} color={activeTab === 'scale' ? '#FFF' : Colors.textMuted} />
+          <Text style={[h.tabT, activeTab === 'scale' && h.tabTA]}>Balance</Text>
         </TouchableOpacity>
       </View>
 
       {loading ? (
-        <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>
+        <View style={h.center}><ActivityIndicator size="large" color={Colors.primary} /></View>
       ) : (
-        <ScrollView
-          contentContainerStyle={s.sc}
+        <ScrollView contentContainerStyle={h.sc}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={Colors.primary} />}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Vest Status (shown at top when on bracelet tab) */}
+          showsVerticalScrollIndicator={false}>
           {activeTab === 'bracelet' && vestDevice && (
-            <View style={s.vestCard}>
-              <MaterialCommunityIcons name="tshirt-crew" size={22} color={vestDevice.connected ? Colors.primary : Colors.textMuted} />
-              <View style={s.vestInfo}>
-                <Text style={s.vestName}>Gilet Anti-Chute</Text>
-                <Text style={[s.vestSt, { color: vestDevice.connected ? Colors.success : Colors.textMuted }]}>
-                  {vestDevice.connected ? 'Connecté' : 'Déconnecté'} • {vestDevice.battery}%
-                </Text>
-              </View>
-              <Ionicons name="battery-half" size={18} color={vestDevice.battery > 30 ? Colors.success : Colors.destructive} />
+            <View style={h.vestCard}>
+              <MaterialCommunityIcons name="tshirt-crew" size={18} color={vestDevice.connected ? Colors.primary : Colors.textMuted} />
+              <View style={h.vestInfo}><Text style={h.vestName}>Gilet Anti-Chute</Text>
+                <Text style={[h.vestSt, { color: vestDevice.connected ? Colors.success : Colors.textMuted }]}>
+                  {vestDevice.connected ? 'Connect\u00e9' : 'D\u00e9connect\u00e9'} \u00b7 {vestDevice.battery}%</Text></View>
             </View>
           )}
 
-          {/* Metric Categories */}
           {Object.entries(categories).map(([catName, metrics]) => (
             <View key={catName}>
-              <Text style={s.catTitle}>{catName}</Text>
+              <Text style={h.catTitle}>{catName}</Text>
               {metrics.map((m) => {
                 const val = latestData[m.id];
                 return (
-                  <TouchableOpacity
-                    key={m.id}
-                    testID={`metric-${m.id}`}
-                    style={s.metricRow}
-                    onPress={() => router.push({ pathname: '/health-detail', params: { metricId: m.id } })}
-                  >
-                    <View style={[s.metricIc, { backgroundColor: m.color + '15' }]}>{renderIcon(m)}</View>
-                    <View style={s.metricInfo}>
-                      <Text style={s.metricName}>{m.name}</Text>
-                      <Text style={s.metricUnit}>{m.unit}</Text>
-                    </View>
-                    <Text style={[s.metricVal, { color: val !== undefined ? m.color : Colors.textMuted }]}>
-                      {val !== undefined ? (typeof val === 'number' ? (Number.isInteger(val) ? val : val.toFixed(1)) : val) : '—'}
+                  <TouchableOpacity key={m.id} testID={`metric-${m.id}`} style={h.metricRow}
+                    onPress={() => router.push({ pathname: '/health-detail', params: { metricId: m.id } })}>
+                    <View style={h.metricIc}>{renderIcon(m)}</View>
+                    <View style={h.metricInfo}><Text style={h.metricName}>{m.name}</Text><Text style={h.metricUnit}>{m.unit}</Text></View>
+                    <Text style={[h.metricVal, val !== undefined && { color: Colors.textPrimary }]}>
+                      {val !== undefined ? (typeof val === 'number' ? (Number.isInteger(val) ? val : val.toFixed(1)) : val) : '\u2014'}
                     </Text>
-                    <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+                    <Ionicons name="chevron-forward" size={14} color={Colors.textMuted} />
                   </TouchableOpacity>
                 );
               })}
@@ -112,10 +94,10 @@ export default function HealthScreen() {
           ))}
 
           {Object.keys(latestData).length === 0 && (
-            <View style={s.emptyC}>
-              <MaterialCommunityIcons name="bluetooth-off" size={36} color={Colors.textMuted} />
-              <Text style={s.emptyT}>Aucune donnée disponible</Text>
-              <Text style={s.emptySub}>Synchronisez vos appareils dans l'onglet Appareils</Text>
+            <View style={h.emptyC}>
+              <MaterialCommunityIcons name="bluetooth-off" size={32} color={Colors.textMuted} />
+              <Text style={h.emptyT}>Aucune donn\u00e9e disponible</Text>
+              <Text style={h.emptySub}>Synchronisez vos appareils dans l'onglet Appareils</Text>
             </View>
           )}
         </ScrollView>
@@ -124,26 +106,29 @@ export default function HealthScreen() {
   );
 }
 
-const s = StyleSheet.create({
+const h = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.background },
-  header: { paddingHorizontal: 18, paddingTop: 14, paddingBottom: 6 },
-  title: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary },
-  tabs: { flexDirection: 'row', marginHorizontal: 18, backgroundColor: Colors.subtle, borderRadius: 12, padding: 3, marginBottom: 10 },
-  tab: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, gap: 6 },
-  tabA: { backgroundColor: Colors.primary, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 3, elevation: 2 },
-  tabT: { fontSize: 14, fontWeight: '600', color: Colors.textMuted }, tabTA: { color: '#FFF' },
+  header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
+  title: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, letterSpacing: -0.5 },
+  tabs: { flexDirection: 'row', marginHorizontal: 20, backgroundColor: Colors.subtle, borderRadius: 10, padding: 3, marginBottom: 10 },
+  tab: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 9, borderRadius: 8, gap: 5 },
+  tabA: { backgroundColor: Colors.primary },
+  tabT: { fontSize: 13, fontWeight: '600', color: Colors.textMuted },
+  tabTA: { color: '#FFF' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  sc: { paddingHorizontal: 18, paddingBottom: 20 },
-  vestCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 14, gap: 10, borderWidth: 1, borderColor: Colors.border },
-  vestInfo: { flex: 1 }, vestName: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
-  vestSt: { fontSize: 12, marginTop: 2 },
-  catTitle: { fontSize: 15, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 8, marginLeft: 2 },
-  metricRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 6, gap: 10 },
-  metricIc: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  metricInfo: { flex: 1 }, metricName: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
-  metricUnit: { fontSize: 11, color: Colors.textMuted, marginTop: 1 },
-  metricVal: { fontSize: 16, fontWeight: '700', marginRight: 4 },
+  sc: { paddingHorizontal: 20, paddingBottom: 24 },
+  vestCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.subtle, borderRadius: 10, padding: 10, marginBottom: 12, gap: 10, borderWidth: 1, borderColor: Colors.border },
+  vestInfo: { flex: 1 },
+  vestName: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
+  vestSt: { fontSize: 11, marginTop: 2 },
+  catTitle: { fontSize: 12, fontWeight: '700', color: Colors.textMuted, marginTop: 14, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 },
+  metricRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.subtle, borderRadius: 10, padding: 12, marginBottom: 4, gap: 10 },
+  metricIc: { width: 32, height: 32, borderRadius: 8, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.paper, borderWidth: 1, borderColor: Colors.border },
+  metricInfo: { flex: 1 },
+  metricName: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
+  metricUnit: { fontSize: 10, color: Colors.textMuted, marginTop: 1 },
+  metricVal: { fontSize: 16, fontWeight: '800', color: Colors.textMuted, marginRight: 4 },
   emptyC: { alignItems: 'center', paddingVertical: 40 },
-  emptyT: { fontSize: 16, fontWeight: '600', color: Colors.textMuted, marginTop: 10 },
-  emptySub: { fontSize: 13, color: Colors.textMuted, marginTop: 4, textAlign: 'center' },
+  emptyT: { fontSize: 14, fontWeight: '600', color: Colors.textMuted, marginTop: 10 },
+  emptySub: { fontSize: 12, color: Colors.textMuted, marginTop: 4, textAlign: 'center' },
 });
