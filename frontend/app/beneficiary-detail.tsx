@@ -63,6 +63,7 @@ export default function BeneficiaryDetailScreen() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.tabScroll} contentContainerStyle={s.tabScrollC}>
         <TouchableOpacity style={[s.tabBtn, tab==='health' && s.tabBtnA]} onPress={() => setTab('health')}><Text style={[s.tabBtnT, tab==='health' && s.tabBtnTA]}>Santé</Text></TouchableOpacity>
         <TouchableOpacity style={[s.tabBtn, tab==='alerts' && s.tabBtnA]} onPress={() => setTab('alerts')}><Text style={[s.tabBtnT, tab==='alerts' && s.tabBtnTA]}>Alertes ({data.alerts.length})</Text></TouchableOpacity>
+        <TouchableOpacity style={[s.tabBtn, tab==='devices' && s.tabBtnA]} onPress={() => setTab('devices')}><Text style={[s.tabBtnT, tab==='devices' && s.tabBtnTA]}>Appareils</Text></TouchableOpacity>
         <TouchableOpacity style={[s.tabBtn, tab==='report' && s.tabBtnA]} onPress={() => { if (!report) generateReport(); else setTab('report'); }}>
           {reportLoading ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={[s.tabBtnT, tab==='report' && s.tabBtnTA]}>Rapport IA</Text>}
         </TouchableOpacity>
