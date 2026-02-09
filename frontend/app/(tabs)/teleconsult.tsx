@@ -74,7 +74,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
   const [callAnswers, setCallAnswers] = useState<any>({});
   const [callNotes, setCallNotes] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [tab, setTab] = useState<'alerts'|'escalations'>('alerts');
+  const [tab, setTab] = useState<'en_cours'|'historique'|'interventions'>('en_cours');
 
   const fetchData = useCallback(async () => {
     try {
