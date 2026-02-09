@@ -168,12 +168,53 @@ export default function BackofficeScreen() {
               </View>
               <Text style={bs.prescMeta}>{p.beneficiary_email} · {p.beneficiary_phone}</Text>
               <Text style={bs.prescMeta}>Par: {p.guardian_name} ({p.prescriber_structure})</Text>
+              {p.email_content && <View style={{marginTop:6,padding:8,backgroundColor:Colors.paper,borderRadius:8,borderWidth:0.5,borderColor:Colors.border}}>
+                <Text style={{fontSize:10,fontWeight:'600',color:Colors.textMuted,marginBottom:2}}>EMAIL ENVOYÉ</Text>
+                <Text style={{fontSize:11,color:Colors.textSecondary}} numberOfLines={3}>{p.email_content.body?.slice(0,150)}...</Text>
+              </View>}
               <View style={bs.prescFoot}>
                 <Text style={bs.prescType}>{p.subscription_type}</Text>
                 <Text style={bs.prescComm}>+{p.commission}€</Text>
               </View>
+              {p.commission_payment_date && <Text style={{fontSize:10,color:Colors.textMuted,marginTop:2}}>Commission: 1er {new Date(p.commission_payment_date).toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}</Text>}
             </View>
           ))}
+
+          {tab === 'interventions' && (
+            <>
+              <TouchableOpacity style={bs.createBtn} onPress={() => setShowIvCodeModal(true)}>
+                <Ionicons name="add" size={18} color="#FFF" />
+                <Text style={bs.createBtnT}>Créer un code intervenant</Text>
+              </TouchableOpacity>
+              <Text style={{fontSize:11,color:Colors.textMuted,marginBottom:10}}>Les intervenants activent ce code dans leur profil gardien pour recevoir les interventions d'urgence dans un rayon défini.</Text>
+              {interventionCodes.map(c => (
+                <View key={c.id} style={bs.codeC}>
+                  <View style={bs.codeTop}>
+                    <Text style={bs.codeVal}>{c.code}</Text>
+                    <View style={[bs.codeBdg, c.active && { backgroundColor: Colors.success + '15' }]}>
+                      <Text style={[bs.codeBdgT, c.active && { color: Colors.success }]}>{c.active ? 'Actif' : 'Désactivé'}</Text>
+                    </View>
+                  </View>
+                  <Text style={bs.codeSt}>{c.structure_name}</Text>
+                  <Text style={bs.codeMeta}>Rayon: {c.default_radius_km || 30} km · Utilisations: {c.uses_count}/{c.max_uses}</Text>
+                </View>
+              ))}
+              {interventionCodes.length === 0 && <View style={{alignItems:'center',paddingVertical:20}}><Text style={{color:Colors.textMuted,fontSize:13}}>Aucun code intervenant</Text></View>}
+              
+              {/* Intervention providers list */}
+              <Text style={{fontSize:14,fontWeight:'700',color:Colors.textPrimary,marginTop:16,marginBottom:8}}>Intervenants actifs</Text>
+              {users.filter((u: any) => u.is_intervention_provider).length > 0 ? users.filter((u: any) => u.is_intervention_provider).map((u: any) => (
+                <View key={u.id} style={bs.userR}>
+                  <View style={bs.userAv}><Text style={bs.userAvT}>{u.name?.charAt(0)?.toUpperCase()}</Text></View>
+                  <View style={bs.userInfo}>
+                    <Text style={bs.userName}>{u.name}</Text>
+                    <Text style={bs.userEmail}>{u.intervention_structure} · {u.intervention_radius_km || 30}km</Text>
+                  </View>
+                  <View style={[bs.roleBdg, {borderColor: Colors.success}]}><Text style={[bs.roleBdgT, {color: Colors.success}]}>ACTIF</Text></View>
+                </View>
+              )) : <Text style={{color:Colors.textMuted,fontSize:12}}>Aucun intervenant inscrit</Text>}
+            </>
+          )}
 
         </ScrollView>
       )}
