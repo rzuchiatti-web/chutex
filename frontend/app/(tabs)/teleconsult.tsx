@@ -616,6 +616,7 @@ const s = StyleSheet.create({
   // Teleassistance
   escHeader: { alignItems: 'center', marginBottom: 16 },
   escPulse: { width: 56, height: 56, borderRadius: 28, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+  escPulseSmall: { width: 24, height: 24, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   escTitle: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   escSub: { fontSize: 13, color: Colors.textMuted, textAlign: 'center', marginTop: 2 },
   tlCard: { backgroundColor: Colors.subtle, borderRadius: 12, padding: 14, marginBottom: 14 },
