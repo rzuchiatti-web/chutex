@@ -1312,6 +1312,57 @@ async def subscribe_prescription(pid: str, user=Depends(get_current_user)):
     }})
     return {"status": "subscribed"}
 
+# ==================== SEED DATA ====================
+@app.on_event("startup")
+async def seed_demo_data():
+    """Create demo accounts if they don't exist"""
+    demo_accounts = [
+        {"email": "admin@vitallink.fr", "name": "Admin VitalLink", "phone": "+33600000001", "role": "admin"},
+        {"email": "demo@vitallink.fr", "name": "Jean Dupont", "phone": "+33651245918", "role": "beneficiary",
+         "date_of_birth": "15/03/1955", "gender": "Homme", "address": "12 rue de la Santé, 75014 Paris",
+         "height_cm": 175, "weight_kg": 72, "blood_type": "A+", "allergies": "Pénicilline",
+         "medical_conditions": "Hypertension légère", "emergency_contact_name": "Marie Dupont",
+         "emergency_contact_phone": "+33630686585", "doctor_name": "Dr. Martin"},
+        {"email": "guardian@vitallink.fr", "name": "Marie Dupont", "phone": "+33630686585", "role": "guardian",
+         "guardian_type": "particular", "relationship": "Fille"},
+        {"email": "teleassist@vitallink.fr", "name": "Sophie Martin", "phone": "+33477101011", "role": "teleassistance"},
+    ]
+    for acct in demo_accounts:
+        existing = await db.users.find_one({"email": acct["email"]})
+        if not existing:
+            uid = str(uuid.uuid4())
+            user = {
+                "id": uid, "email": acct["email"], "password_hash": hash_password("demo123"),
+                "name": acct["name"], "phone": acct.get("phone", ""), "role": acct["role"],
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "beneficiaries": [], "guardians": [], "location_sharing": "alert_only",
+                "date_of_birth": acct.get("date_of_birth", ""), "gender": acct.get("gender", ""),
+                "address": acct.get("address", ""),
+                "height_cm": acct.get("height_cm"), "weight_kg": acct.get("weight_kg"),
+                "blood_type": acct.get("blood_type", ""), "allergies": acct.get("allergies", ""),
+                "medical_conditions": acct.get("medical_conditions", ""),
+                "emergency_contact_name": acct.get("emergency_contact_name", ""),
+                "emergency_contact_phone": acct.get("emergency_contact_phone", ""),
+                "doctor_name": acct.get("doctor_name", ""),
+                "guardian_type": acct.get("guardian_type", ""), "structure_name": acct.get("structure_name", ""),
+                "siret": "", "profession": "", "relationship": acct.get("relationship", ""),
+                "is_prescriber": False, "prescriber_structure": "", "prescriber_code_used": "",
+            }
+            await db.users.insert_one(user)
+            # Create devices for beneficiary
+            if acct["role"] == "beneficiary":
+                for dt, nm in [("bracelet","Bracelet Santé"),("scale","Balance Connectée"),("vest","Gilet Anti-Chute")]:
+                    await db.devices.insert_one({"id": str(uuid.uuid4()), "user_id": uid, "device_type": dt, "name": nm, "connected": False, "battery": random.randint(60, 95), "last_sync": None})
+            logger.info(f"Seed: created {acct['email']} ({acct['role']})")
+    # Link guardian to beneficiary if not linked
+    ben = await db.users.find_one({"email": "demo@vitallink.fr"}, {"_id": 0})
+    guard = await db.users.find_one({"email": "guardian@vitallink.fr"}, {"_id": 0})
+    if ben and guard:
+        if guard['id'] not in ben.get('guardians', []):
+            await db.users.update_one({"id": ben['id']}, {"$addToSet": {"guardians": guard['id']}})
+            await db.users.update_one({"id": guard['id']}, {"$addToSet": {"beneficiaries": ben['id']}})
+            logger.info("Seed: linked guardian <-> beneficiary")
+
 # ==================== SETUP ====================
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
