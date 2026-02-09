@@ -6,7 +6,20 @@ import time
 # Backend API tests for VitalLink AI - New Features (Iteration 2)
 # Tests: Health history, Thresholds, AI metric advice, Location, Teleconsult, Interventions, Backoffice
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', '').rstrip('/')
+# Load BASE_URL from frontend .env if not in environment
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL')
+if not BASE_URL:
+    try:
+        with open('/app/frontend/.env', 'r') as f:
+            for line in f:
+                if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
+                    BASE_URL = line.split('=', 1)[1].strip()
+                    break
+    except:
+        pass
+if not BASE_URL:
+    raise ValueError("EXPO_PUBLIC_BACKEND_URL not found")
+BASE_URL = BASE_URL.rstrip('/')
 
 class TestHealthData:
     """Health data history and thresholds tests"""
