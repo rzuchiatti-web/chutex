@@ -667,6 +667,114 @@ async def get_bo_interventions(): return await db.interventions.find({}, {"_id":
 @api_router.get("/backoffice/prescriptions")
 async def get_bo_prescriptions(): return await db.prescriptions.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
 
+# ==================== ESCALATION FLOW ====================
+@api_router.post("/teleassistance/escalation/start")
+async def start_escalation(data: EscalationStart, user=Depends(get_current_user)):
+    alert = await db.alerts.find_one({"id": data.alert_id}, {"_id": 0})
+    if not alert: raise HTTPException(status_code=404, detail="Alerte non trouvée")
+    ben = await db.users.find_one({"id": alert['beneficiary_id']}, {"_id": 0, "password_hash": 0})
+    guardians = []
+    if ben:
+        for gid in ben.get('guardians', []):
+            g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
+            if g: guardians.append({"id": g['id'], "name": g['name'], "phone": g.get('phone', '')})
+    now = datetime.now(timezone.utc).isoformat()
+    esc = {
+        "id": str(uuid.uuid4()), "alert_id": data.alert_id,
+        "beneficiary_id": alert['beneficiary_id'], "beneficiary_name": alert['beneficiary_name'],
+        "operator_id": user['id'], "operator_name": user['name'],
+        "status": "in_progress", "current_step": "calling_beneficiary",
+        "current_target": {"id": alert['beneficiary_id'], "name": alert['beneficiary_name'], "type": "beneficiary"},
+        "guardians_called": [], "guardians_remaining": guardians,
+        "protocol_answers": [],
+        "timeline": [{"step": "started", "time": now, "note": f"Escalade démarrée par {user['name']}"}],
+        "intervention_id": None, "created_at": now,
+    }
+    await db.escalations.insert_one(esc)
+    await db.alerts.update_one({"id": data.alert_id}, {"$set": {"teleassistance_status": "in_progress"}})
+    return {k: v for k, v in esc.items() if k != '_id'}
+
+@api_router.post("/teleassistance/escalation/step")
+async def advance_escalation(data: EscalationStepRequest, user=Depends(get_current_user)):
+    esc = await db.escalations.find_one({"id": data.escalation_id}, {"_id": 0})
+    if not esc: raise HTTPException(status_code=404, detail="Escalade non trouvée")
+    now = datetime.now(timezone.utc).isoformat()
+    step = esc['current_step']
+    if data.answers: esc['protocol_answers'].extend(data.answers)
+    if data.response == "resolved":
+        esc['status'] = "resolved"; esc['current_step'] = "resolved"
+        esc['timeline'].append({"step": "resolved", "time": now, "note": data.notes or "Levée de doute réussie"})
+        await db.alerts.update_one({"id": esc['alert_id']}, {"$set": {"status": "resolved", "resolved_at": now, "resolved_by": user['id'], "teleassistance_status": "resolved"}})
+    elif step == "calling_beneficiary":
+        if data.response == "answered":
+            esc['current_step'] = "doubt_lifting"
+            esc['timeline'].append({"step": "beneficiary_answered", "time": now, "note": "Bénéficiaire a répondu"})
+        elif data.response == "no_answer":
+            if esc['guardians_remaining']:
+                g = esc['guardians_remaining'].pop(0); esc['guardians_called'].append(g)
+                esc['current_step'] = "calling_guardian"; esc['current_target'] = {**g, "type": "guardian"}
+                esc['timeline'].append({"step": "beneficiary_no_answer", "time": now, "note": f"Pas de réponse → Appel gardien {g['name']}"})
+            else:
+                esc['current_step'] = "dispatch_needed"
+                esc['timeline'].append({"step": "no_guardians", "time": now, "note": "Aucun gardien → Intervention requise"})
+    elif step == "doubt_lifting":
+        if data.response == "not_resolved":
+            if esc['guardians_remaining']:
+                g = esc['guardians_remaining'].pop(0); esc['guardians_called'].append(g)
+                esc['current_step'] = "calling_guardian"; esc['current_target'] = {**g, "type": "guardian"}
+                esc['timeline'].append({"step": "escalate_guardian", "time": now, "note": f"Non concluant → Appel gardien {g['name']}"})
+            else:
+                esc['current_step'] = "dispatch_needed"
+                esc['timeline'].append({"step": "escalate_dispatch", "time": now, "note": "Aucun gardien → Intervention"})
+    elif step == "calling_guardian":
+        if data.response == "answered":
+            esc['status'] = "guardian_handling"; esc['current_step'] = "guardian_handling"
+            esc['timeline'].append({"step": "guardian_answered", "time": now, "note": f"Gardien {esc['current_target']['name']} prend en charge"})
+        elif data.response == "no_answer":
+            if esc['guardians_remaining']:
+                g = esc['guardians_remaining'].pop(0); esc['guardians_called'].append(g)
+                esc['current_target'] = {**g, "type": "guardian"}
+                esc['timeline'].append({"step": "guardian_no_answer", "time": now, "note": f"{esc['guardians_called'][-1]['name']} injoignable → Gardien suivant {g['name']}"})
+            else:
+                esc['current_step'] = "dispatch_needed"
+                esc['timeline'].append({"step": "all_guardians_failed", "time": now, "note": "Tous gardiens injoignables → Intervention"})
+    # Auto-dispatch if needed
+    if esc['current_step'] == "dispatch_needed" or data.response == "dispatch":
+        alert = await db.alerts.find_one({"id": esc['alert_id']}, {"_id": 0})
+        loc = await db.locations.find_one({"user_id": esc['beneficiary_id']}, {"_id": 0})
+        iv_id = str(uuid.uuid4())
+        iv = {
+            "id": iv_id, "alert_id": esc['alert_id'], "escalation_id": esc['id'],
+            "beneficiary_id": esc['beneficiary_id'], "beneficiary_name": esc['beneficiary_name'],
+            "assigned_to": user['id'], "assigned_name": "Structure partenaire",
+            "status": "dispatched",
+            "notes": f"Auto-dispatch: {alert['message'] if alert else 'Alerte'}",
+            "beneficiary_location": {"latitude": loc['latitude'] if loc else 48.8566 + random.uniform(-0.05, 0.05), "longitude": loc['longitude'] if loc else 2.3522 + random.uniform(-0.05, 0.05)},
+            "intervener_location": {"latitude": 48.8566 + random.uniform(-0.02, 0.02), "longitude": 2.3522 + random.uniform(-0.02, 0.02)},
+            "created_at": now, "completed_at": None, "report": None,
+            "timeline": [{"status": "dispatched", "time": now, "note": "Intervention auto-dispatchée via téléassistance"}],
+        }
+        await db.interventions.insert_one(iv)
+        esc['intervention_id'] = iv_id; esc['status'] = "dispatched"; esc['current_step'] = "dispatched"
+        esc['timeline'].append({"step": "dispatched", "time": now, "note": f"Intervention #{iv_id[:8]} créée"})
+        await db.alerts.update_one({"id": esc['alert_id']}, {"$set": {"teleassistance_status": "intervention_dispatched"}})
+    await db.escalations.update_one({"id": esc['id']}, {"$set": {
+        "status": esc['status'], "current_step": esc['current_step'], "current_target": esc['current_target'],
+        "guardians_called": esc['guardians_called'], "guardians_remaining": esc['guardians_remaining'],
+        "protocol_answers": esc['protocol_answers'], "timeline": esc['timeline'], "intervention_id": esc.get('intervention_id'),
+    }})
+    return {k: v for k, v in esc.items() if k != '_id'}
+
+@api_router.get("/teleassistance/escalation/{eid}")
+async def get_escalation(eid: str, user=Depends(get_current_user)):
+    esc = await db.escalations.find_one({"id": eid}, {"_id": 0})
+    if not esc: raise HTTPException(status_code=404, detail="Escalade non trouvée")
+    return esc
+
+@api_router.get("/teleassistance/escalations")
+async def get_escalations(user=Depends(get_current_user)):
+    return await db.escalations.find({}, {"_id": 0}).sort("created_at", -1).to_list(50)
+
 # ==================== SETUP ====================
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
