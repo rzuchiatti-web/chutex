@@ -124,17 +124,24 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         <View style={s.stat}><Text style={[s.statV, active.length > 0 && { color: Colors.destructive }]}>{active.length}</Text><Text style={s.statL}>Alertes</Text></View>
       </View>
 
+      {/* Add beneficiary button */}
+      <TouchableOpacity style={s.addBenBtn} onPress={() => router.push('/link-code')}>
+        <Ionicons name="qr-code-outline" size={16} color={Colors.primary} />
+        <Text style={s.addBenBtnT}>Ajouter un bénéficiaire (code / QR)</Text>
+      </TouchableOpacity>
+
       <Text style={s.secTitle}>Bénéficiaires</Text>
       {bens.length > 0 ? bens.map((b: any) => (
-        <View key={b.id} style={s.benCard}>
+        <TouchableOpacity key={b.id} style={s.benCard} onPress={() => router.push({pathname: '/beneficiary-detail', params: {beneficiaryId: b.id}})}>
           <View style={s.benAv}><Text style={s.benAvT}>{b.name?.charAt(0)?.toUpperCase()}</Text></View>
           <View style={s.benInfo}><Text style={s.benName}>{b.name}</Text>
             <Text style={s.benSt}>{b.latest_vitals ? `${b.latest_vitals.heart_rate} bpm · ${b.latest_vitals.temperature}°C` : 'Pas de données'}</Text></View>
           <View style={s.benR}>{b.active_alerts > 0 && <View style={s.alertBdg}><Text style={s.alertBdgT}>{b.active_alerts}</Text></View>}
-            <View style={[s.dotOnline, !b.latest_vitals && { backgroundColor: Colors.textMuted }]} /></View>
-        </View>
+            <Ionicons name="chevron-forward" size={14} color={Colors.textMuted} /></View>
+        </TouchableOpacity>
       )) : (
-        <View style={s.empty}><Ionicons name="people-outline" size={28} color={Colors.textMuted} /><Text style={s.emptyT}>Aucun bénéficiaire lié</Text><Text style={s.emptySub}>Allez dans Profil pour en ajouter</Text></View>
+        <View style={s.empty}><Ionicons name="people-outline" size={28} color={Colors.textMuted} /><Text style={s.emptyT}>Aucun bénéficiaire lié</Text>
+          <TouchableOpacity style={{marginTop:10}} onPress={() => router.push('/link-code')}><Text style={{color: Colors.primary, fontWeight:'600', fontSize:13}}>Ajouter via code / QR</Text></TouchableOpacity></View>
       )}
 
       {active.length > 0 && <>
