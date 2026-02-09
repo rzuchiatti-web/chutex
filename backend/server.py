@@ -747,16 +747,45 @@ async def get_beneficiaries(user=Depends(get_current_user)):
 async def create_prescription(data: PrescriptionCreate, user=Depends(get_current_user)):
     if user['role'] != 'guardian': raise HTTPException(status_code=403, detail="Réservé aux gardiens")
     if not user.get('is_prescriber'): raise HTTPException(status_code=403, detail="Mode prescripteur non activé. Entrez un code d'activation.")
+    now = datetime.now(timezone.utc).isoformat()
+    structure = user.get('prescriber_structure', 'VitalLink')
+    commission = 15.0 if data.subscription_type == "standard" else 25.0
+    # Calculate commission payment date (1st of next month)
+    next_month = (datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)).replace(day=1)
     p = {"id": str(uuid.uuid4()), "guardian_id": user['id'], "guardian_name": user['name'],
-         "prescriber_structure": user.get('prescriber_structure', ''),
+         "prescriber_structure": structure,
          "beneficiary_name": data.beneficiary_name, "beneficiary_email": data.beneficiary_email,
          "beneficiary_phone": data.beneficiary_phone, "subscription_type": data.subscription_type,
          "notes": data.notes, "status": "pending", "beneficiary_id": None, "subscribed_at": None,
-         "commission": 15.0 if data.subscription_type == "standard" else 25.0,
+         "commission": commission, "commission_payment_date": next_month.isoformat(),
          "tracking_phone": data.beneficiary_phone, "tracking_email": data.beneficiary_email,
-         "created_at": datetime.now(timezone.utc).isoformat(),
-         "notification_sent": True, "notification_type": "sms_email"}
+         "created_at": now, "notification_sent": True, "notification_type": "email",
+         "email_content": {
+             "to": data.beneficiary_email,
+             "subject": f"{structure} vous invite à souscrire à VitalLink",
+             "body": f"""Bonjour {data.beneficiary_name},
+
+L'entreprise {structure} vous invite à souscrire à un abonnement {'Téléassistance' if data.subscription_type == 'teleassistance' else 'Standard'} VitalLink via le lien suivant :
+
+https://chutex-innovation.com
+
+En souscrivant, vous bénéficierez de :
+- Suivi santé connecté 24/7
+- Bracelet santé avec détection de chute
+{'- Téléassistance IA avec appels automatiques' if data.subscription_type == 'teleassistance' else '- Alertes santé personnalisées'}
+- Gardiens notifiés en cas d'urgence
+
+Prescrit par : {user['name']} ({structure})
+{f'Notes : {data.notes}' if data.notes else ''}
+
+Cordialement,
+L'équipe VitalLink
+https://chutex-innovation.com""",
+             "sent_at": now,
+         }}
     await db.prescriptions.insert_one(p)
+    # Log the email (in production, replace with real email service)
+    logger.info(f"📧 Email prescription envoyé à {data.beneficiary_email}: {structure} invite {data.beneficiary_name}")
     return {k: v for k, v in p.items() if k != '_id'}
 
 @api_router.get("/guardian/prescriptions")
