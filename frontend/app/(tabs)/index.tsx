@@ -334,4 +334,6 @@ const s = StyleSheet.create({
   miniStatL: { fontSize: 9, color: Colors.textMuted, marginTop: 2, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.3 },
   boBtn: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.subtle, borderRadius: 12, padding: 16, marginTop: 12 },
   boBtnT: { flex: 1, fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
+  addBenBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: Colors.border, marginBottom: 14 },
+  addBenBtnT: { fontSize: 13, fontWeight: '600', color: Colors.primary },
 });
