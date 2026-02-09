@@ -232,6 +232,101 @@ export default function BackofficeScreen() {
             </>
           )}
 
+          {/* KPI Dashboard */}
+          {tab === 'kpi' && kpi && (
+            <>
+              {/* Key metrics */}
+              <View style={bs.grid}>
+                {[
+                  { l: 'Utilisateurs', v: kpi.total_users, c: Colors.primary },
+                  { l: 'Alertes totales', v: kpi.total_alerts, c: Colors.destructive },
+                  { l: 'Interventions', v: kpi.total_interventions, c: '#FF9800' },
+                  { l: 'Abonnés actifs', v: kpi.active_subscriptions, c: Colors.success },
+                  { l: 'En attente', v: kpi.pending_subscriptions, c: Colors.textMuted },
+                  { l: 'Résolution moy.', v: `${kpi.avg_resolution_minutes}min`, c: Colors.primary },
+                ].map(x => (
+                  <View key={x.l} style={bs.miniStat}>
+                    <Text style={[bs.miniStatV, { color: x.c }]}>{x.v}</Text>
+                    <Text style={bs.miniStatL}>{x.l}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Users by role */}
+              <Text style={bs.kpiTitle}>Répartition utilisateurs</Text>
+              <View style={bs.kpiChart}>
+                {Object.entries(kpi.users_by_role || {}).map(([role, count]: [string, any]) => {
+                  const maxVal = Math.max(...Object.values(kpi.users_by_role).map(Number));
+                  const pct = maxVal > 0 ? (count / maxVal) * 100 : 0;
+                  const roleLabels: any = { beneficiary: 'Bénéficiaires', guardian: 'Gardiens', admin: 'Admins', teleassistance: 'Téléassistance' };
+                  return (
+                    <View key={role} style={bs.kpiBarRow}>
+                      <Text style={bs.kpiBarLabel}>{roleLabels[role] || role}</Text>
+                      <View style={bs.kpiBarBg}>
+                        <View style={[bs.kpiBar, { width: `${pct}%`, backgroundColor: Colors.primary }]} />
+                      </View>
+                      <Text style={bs.kpiBarVal}>{count}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+
+              {/* Alert types */}
+              <Text style={bs.kpiTitle}>Types d'alertes</Text>
+              <View style={bs.kpiChart}>
+                {Object.entries(kpi.alert_types || {}).map(([type, count]: [string, any]) => {
+                  const maxVal = Math.max(...Object.values(kpi.alert_types).map(Number));
+                  const pct = maxVal > 0 ? (count / maxVal) * 100 : 0;
+                  const colors: any = { sos: Colors.destructive, fall: '#FF9800', anomaly: '#9C27B0', inactivity: '#607D8B' };
+                  return (
+                    <View key={type} style={bs.kpiBarRow}>
+                      <Text style={bs.kpiBarLabel}>{type}</Text>
+                      <View style={bs.kpiBarBg}>
+                        <View style={[bs.kpiBar, { width: `${pct}%`, backgroundColor: colors[type] || Colors.primary }]} />
+                      </View>
+                      <Text style={bs.kpiBarVal}>{count}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+
+              {/* Interventions by status */}
+              <Text style={bs.kpiTitle}>Interventions par statut</Text>
+              <View style={bs.kpiChart}>
+                {Object.entries(kpi.interventions_by_status || {}).map(([status, count]: [string, any]) => {
+                  const maxVal = Math.max(...Object.values(kpi.interventions_by_status).map(Number));
+                  const pct = maxVal > 0 ? (count / maxVal) * 100 : 0;
+                  const colors: any = { completed: Colors.success, dispatched: Colors.primary, en_route: '#FF9800', cancelled: Colors.textMuted };
+                  return (
+                    <View key={status} style={bs.kpiBarRow}>
+                      <Text style={bs.kpiBarLabel}>{status}</Text>
+                      <View style={bs.kpiBarBg}>
+                        <View style={[bs.kpiBar, { width: `${pct}%`, backgroundColor: colors[status] || Colors.primary }]} />
+                      </View>
+                      <Text style={bs.kpiBarVal}>{count}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+
+              {/* Alerts last 7 days mini chart */}
+              <Text style={bs.kpiTitle}>Alertes (7 derniers jours)</Text>
+              <View style={bs.miniChart}>
+                {(kpi.alerts_by_day || []).slice(-7).map((d: any, i: number) => {
+                  const maxD = Math.max(...(kpi.alerts_by_day || []).slice(-7).map((x: any) => x.count), 1);
+                  const h = Math.max((d.count / maxD) * 60, 2);
+                  return (
+                    <View key={i} style={bs.miniChartCol}>
+                      <View style={[bs.miniChartBar, { height: h, backgroundColor: d.count > 0 ? Colors.primary : Colors.border }]} />
+                      <Text style={bs.miniChartLabel}>{d.date.slice(8)}</Text>
+                      <Text style={bs.miniChartVal}>{d.count}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </>
+          )}
+
         </ScrollView>
       )}
 
