@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 
 export default function AlertsScreen() {
   const { token, user } = useAuth();
+  const router = useRouter();
   const [alerts, setAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
