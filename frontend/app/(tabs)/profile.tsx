@@ -168,7 +168,7 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        {user.is_intervention_provider && (
+        {user.role === 'guardian' && user.is_intervention_provider && (
           <View style={[st.section, { backgroundColor: Colors.subtle }]}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Ionicons name="shield-checkmark" size={20} color={Colors.success} />
