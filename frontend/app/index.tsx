@@ -73,6 +73,9 @@ export default function AuthScreen() {
       hasRedirected.current = true;
       router.replace('/(tabs)');
     }
+    if (!loading && !user) {
+      hasRedirected.current = false;
+    }
   }, [user, loading]);
 
   if (loading) return <View style={a.loadC}><ActivityIndicator size="large" color={Colors.primary} /></View>;
@@ -113,8 +116,8 @@ export default function AuthScreen() {
         <TouchableWithoutFeedback onPress={dismissKeyboard}>
           <ScrollView contentContainerStyle={a.sc} keyboardShouldPersistTaps="handled">
             <View style={a.header}>
-              <Text style={a.appName}>VITALLINK</Text>
-              <Text style={a.subtitle}>Santé connectée, protégée par l'IA</Text>
+              <Text style={a.appName}>CHUTEX</Text>
+              <Text style={a.subtitle}>Téléassistance intelligente par Chutex Innovation</Text>
             </View>
             <View style={a.tabs}>
               <TouchableOpacity testID="auth-tab-login" style={[a.tab, a.tabA]} onPress={() => setIsLogin(true)}><Text style={[a.tabT, a.tabTA]}>Connexion</Text></TouchableOpacity>
@@ -140,7 +143,7 @@ export default function AuthScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={a.flex}>
         <TouchableWithoutFeedback onPress={dismissKeyboard}>
           <ScrollView contentContainerStyle={a.sc} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-            <View style={a.header}><Text style={a.appName}>VITALLINK</Text></View>
+            <View style={a.header}><Text style={a.appName}>CHUTEX</Text></View>
             <View style={a.tabs}>
               <TouchableOpacity testID="auth-tab-login" style={a.tab} onPress={() => setIsLogin(true)}><Text style={a.tabT}>Connexion</Text></TouchableOpacity>
               <TouchableOpacity testID="auth-tab-register" style={[a.tab, a.tabA]}><Text style={[a.tabT, a.tabTA]}>Inscription</Text></TouchableOpacity>
