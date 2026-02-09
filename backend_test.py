@@ -194,13 +194,14 @@ class VitalLinkTester:
             self.log_result("Guardian Prescriber", "FAIL", "No guardian token available")
             return
             
-        # First create an activation code as admin
-        if "admin" in self.tokens and "activation_code" not in self.test_data:
+        # Create a dedicated activation code as admin for guardian prescriber test
+        guardian_activation_code = None
+        if "admin" in self.tokens:
             admin_headers = {"Authorization": f"Bearer {self.tokens['admin']}"}
-            code_data = {"structure_name": "Test Prescriber Structure", "max_uses": 5}
+            code_data = {"structure_name": "Guardian Prescriber Test Structure", "max_uses": 5}
             response = self.session.post(f"{BASE_URL}/admin/activation-codes", json=code_data, headers=admin_headers)
             if response.status_code == 200:
-                self.test_data["activation_code"] = response.json().get("code")
+                guardian_activation_code = response.json().get("code")
             
         headers = {"Authorization": f"Bearer {self.tokens['guardian']}"}
         
