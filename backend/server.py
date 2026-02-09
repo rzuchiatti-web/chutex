@@ -1237,9 +1237,13 @@ async def guardian_beneficiary_detail(bid: str, user=Depends(get_current_user)):
     thresholds = await db.thresholds.find({"user_id": bid}, {"_id": 0}).to_list(100)
     location = await db.locations.find_one({"user_id": bid}, {"_id": 0})
     interventions = await db.interventions.find({"beneficiary_id": bid}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    devices = await db.devices.find({"user_id": bid}, {"_id": 0}).to_list(10)
+    reminders = await db.reminders.find({"user_id": bid}, {"_id": 0}).to_list(50)
+    data_sharing = ben.get('data_sharing_prefs', {})
     return {
         "beneficiary": sanitize_user(ben), "alerts": alerts, "readings": readings,
         "thresholds": thresholds, "location": location, "interventions": interventions,
+        "devices": devices, "reminders": reminders, "data_sharing_prefs": data_sharing,
         "stats": {
             "total_alerts": len(alerts), "active_alerts": sum(1 for a in alerts if a['status'] == 'active'),
         }
