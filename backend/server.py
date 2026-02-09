@@ -16,8 +16,8 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ.get('DB_NAME', 'vitallink_db')]
-JWT_SECRET = os.environ.get('JWT_SECRET', 'vitallink-jwt-secret')
+db = client[os.environ.get('DB_NAME', 'chutex_db')]
+JWT_SECRET = os.environ.get('JWT_SECRET', 'chutex-jwt-secret')
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRY_HOURS = 72
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
@@ -28,7 +28,7 @@ TWILIO_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', '')
 TWILIO_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER', '')
 twilio_client = TwilioClient(TWILIO_SID, TWILIO_TOKEN) if TWILIO_SID and TWILIO_TOKEN else None
 
-app = FastAPI(title="VitalLink AI API")
+app = FastAPI(title="Chutex Teleassistance API")
 api_router = APIRouter(prefix="/api")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -405,7 +405,7 @@ async def auto_escalation_protocol(alert: dict):
         ben_phone = ben.get('phone', '')
         if ben_phone and twilio_client:
             twiml = VoiceResponse()
-            twiml.say("Bonjour, ici VitalLink, service de téléassistance intelligente.", voice='Polly.Lea', language='fr-FR')
+            twiml.say("Bonjour, ici Chutex, service de téléassistance intelligente.", voice='Polly.Lea', language='fr-FR')
             twiml.pause(length=1)
             g = Gather(num_digits=1, timeout=8)
             g.say("Une alerte a été déclenchée. Tout va bien ? Appuyez sur 1 si tout va bien. Appuyez sur 2 si vous avez besoin d'aide. Si vous ne répondez pas, nous contacterons vos gardiens.", voice='Polly.Lea', language='fr-FR')
@@ -475,7 +475,7 @@ async def auto_escalation_protocol(alert: dict):
                 "guardians_called": esc['guardians_called'], "guardians_remaining": esc['guardians_remaining'],
             }})
             twiml_g = VoiceResponse()
-            twiml_g.say(f"Bonjour, ici VitalLink, service de téléassistance.", voice='Polly.Lea', language='fr-FR')
+            twiml_g.say(f"Bonjour, ici Chutex, service de téléassistance.", voice='Polly.Lea', language='fr-FR')
             twiml_g.pause(length=1)
             twiml_g.say(f"Une alerte a été déclenchée pour {alert['beneficiary_name']}. Nous n'avons pas pu le joindre.", voice='Polly.Lea', language='fr-FR')
             g_gather = Gather(num_digits=1, timeout=8)
@@ -632,7 +632,7 @@ async def get_metric_advice(body: dict, user=Depends(get_current_user)):
 
 # ==================== TELEASSISTANCE AI CALL PROTOCOL ====================
 DOUBT_QUESTIONS = [
-    {"id": "d1", "question": "Bonjour, ici le service VitalLink. Comment vous sentez-vous ?", "options": ["Bien, fausse alerte", "Un peu mal", "Très mal", "Je ne peux pas répondre"]},
+    {"id": "d1", "question": "Bonjour, ici le service Chutex. Comment vous sentez-vous ?", "options": ["Bien, fausse alerte", "Un peu mal", "Très mal", "Je ne peux pas répondre"]},
     {"id": "d2", "question": "Pouvez-vous vous déplacer ?", "options": ["Oui, sans difficulté", "Avec difficulté", "Non, je ne peux pas"]},
     {"id": "d3", "question": "Avez-vous des douleurs ?", "options": ["Non", "Légères", "Modérées", "Sévères"]},
     {"id": "d4", "question": "Avez-vous besoin qu'on contacte vos proches ?", "options": ["Non, tout va bien", "Oui, par précaution", "Oui, c'est urgent"]},
@@ -748,7 +748,7 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
     if user['role'] != 'guardian': raise HTTPException(status_code=403, detail="Réservé aux gardiens")
     if not user.get('is_prescriber'): raise HTTPException(status_code=403, detail="Mode prescripteur non activé. Entrez un code d'activation.")
     now = datetime.now(timezone.utc).isoformat()
-    structure = user.get('prescriber_structure', 'VitalLink')
+    structure = user.get('prescriber_structure', 'Chutex')
     commission = 15.0 if data.subscription_type == "standard" else 25.0
     # Calculate commission payment date (1st of next month)
     next_month = (datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)).replace(day=1)
@@ -762,10 +762,10 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
          "created_at": now, "notification_sent": True, "notification_type": "email",
          "email_content": {
              "to": data.beneficiary_email,
-             "subject": f"{structure} vous invite à souscrire à VitalLink",
+             "subject": f"{structure} vous invite à souscrire à Chutex",
              "body": f"""Bonjour {data.beneficiary_name},
 
-L'entreprise {structure} vous invite à souscrire à un abonnement {'Téléassistance' if data.subscription_type == 'teleassistance' else 'Standard'} VitalLink via le lien suivant :
+L'entreprise {structure} vous invite à souscrire à un abonnement {'Téléassistance' if data.subscription_type == 'teleassistance' else 'Standard'} Chutex via le lien suivant :
 
 https://chutex-innovation.com
 
@@ -779,7 +779,7 @@ Prescrit par : {user['name']} ({structure})
 {f'Notes : {data.notes}' if data.notes else ''}
 
 Cordialement,
-L'équipe VitalLink
+L'équipe Chutex
 https://chutex-innovation.com""",
              "sent_at": now,
          }}
@@ -787,16 +787,16 @@ https://chutex-innovation.com""",
     # Send real email notification
     await send_email(
         data.beneficiary_email,
-        f"{structure} vous invite à souscrire à VitalLink",
+        f"{structure} vous invite à souscrire à Chutex",
         f"""<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#fafafa;">
         <div style="background:#000;color:#fff;padding:20px;text-align:center;">
-            <h1 style="margin:0;font-size:24px;letter-spacing:2px;">VITALLINK</h1>
+            <h1 style="margin:0;font-size:24px;letter-spacing:2px;">CHUTEX</h1>
             <p style="margin:5px 0 0;font-size:12px;">Santé connectée, protégée par l'IA</p>
         </div>
         <div style="background:#fff;padding:30px;border:1px solid #eee;">
             <h2>Bonjour {data.beneficiary_name},</h2>
             <p>L'entreprise <strong>{structure}</strong> vous invite à souscrire à un abonnement
-            <strong>{'Téléassistance' if data.subscription_type == 'teleassistance' else 'Standard'}</strong> VitalLink.</p>
+            <strong>{'Téléassistance' if data.subscription_type == 'teleassistance' else 'Standard'}</strong> Chutex.</p>
             <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin:20px 0;">
                 <h3 style="margin-top:0;">Vos avantages :</h3>
                 <ul>
@@ -813,7 +813,7 @@ https://chutex-innovation.com""",
             {f'<p style="color:#666;font-size:13px;">Notes : {data.notes}</p>' if data.notes else ''}
         </div>
         <div style="text-align:center;padding:15px;color:#999;font-size:11px;">
-            VitalLink par Chutex Innovation - https://chutex-innovation.com
+            Chutex par Chutex Innovation - https://chutex-innovation.com
         </div>
     </div>"""
     )
@@ -1075,7 +1075,7 @@ async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_cur
         if not base_url:
             # Use ngrok or fallback to TwiML directly
             twiml = VoiceResponse()
-            twiml.say("Bonjour, ici VitalLink, service de téléassistance.", voice='Polly.Lea', language='fr-FR')
+            twiml.say("Bonjour, ici Chutex, service de téléassistance.", voice='Polly.Lea', language='fr-FR')
             twiml.pause(length=1)
             g = Gather(num_digits=1, action='', timeout=10)
             g.say("Une alerte a été déclenchée sur votre bracelet. Tout va bien ? Appuyez sur 1 si tout va bien. Appuyez sur 2 si vous avez besoin d'aide.", voice='Polly.Lea', language='fr-FR')
@@ -1121,7 +1121,7 @@ async def twilio_call_guardian(alert_id: str = "", guardian_id: str = "", phone_
     ben_name = alert.get('beneficiary_name','un bénéficiaire') if alert else 'un bénéficiaire'
     try:
         twiml = VoiceResponse()
-        twiml.say(f"Bonjour, ici VitalLink, service de téléassistance.", voice='Polly.Lea', language='fr-FR')
+        twiml.say(f"Bonjour, ici Chutex, service de téléassistance.", voice='Polly.Lea', language='fr-FR')
         twiml.pause(length=1)
         twiml.say(f"Une alerte a été déclenchée pour {ben_name}. Nous n'avons pas pu le joindre.", voice='Polly.Lea', language='fr-FR')
         g = Gather(num_digits=1, timeout=10)
@@ -1168,7 +1168,7 @@ async def generate_link_code(user=Depends(get_current_user)):
     link = {"id": str(uuid.uuid4()), "code": code, "beneficiary_id": user['id'], "beneficiary_name": user['name'],
             "used": False, "used_by": None, "created_at": now, "expires_at": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()}
     await db.link_codes.insert_one(link)
-    return {"code": code, "expires_in": "24h", "qr_data": f"vitallink://link/{code}"}
+    return {"code": code, "expires_in": "24h", "qr_data": f"chutex://link/{code}"}
 
 @api_router.post("/guardian/link-with-code")
 async def link_with_code(data: LinkWithCodeRequest, user=Depends(get_current_user)):
@@ -1584,7 +1584,7 @@ async def send_email(to_email: str, subject: str, html_body: str):
     try:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = subject
-        msg['From'] = "VitalLink <noreply@vitallink.fr>"
+        msg['From'] = "Chutex <noreply@chutex.fr>"
         msg['To'] = to_email
         msg.attach(MIMEText(html_body, 'html'))
         # Store in DB for tracking + display
@@ -1611,15 +1611,15 @@ async def get_sent_emails(user=Depends(get_current_user)):
 async def seed_demo_data():
     """Create demo accounts if they don't exist"""
     demo_accounts = [
-        {"email": "admin@vitallink.fr", "name": "Admin VitalLink", "phone": "+33600000001", "role": "admin"},
-        {"email": "demo@vitallink.fr", "name": "Jean Dupont", "phone": "+33651245918", "role": "beneficiary",
+        {"email": "admin@chutex.fr", "name": "Admin Chutex", "phone": "+33600000001", "role": "admin"},
+        {"email": "demo@chutex.fr", "name": "Jean Dupont", "phone": "+33651245918", "role": "beneficiary",
          "date_of_birth": "15/03/1955", "gender": "Homme", "address": "12 rue de la Santé, 75014 Paris",
          "height_cm": 175, "weight_kg": 72, "blood_type": "A+", "allergies": "Pénicilline",
          "medical_conditions": "Hypertension légère", "emergency_contact_name": "Marie Dupont",
          "emergency_contact_phone": "+33630686585", "doctor_name": "Dr. Martin"},
-        {"email": "guardian@vitallink.fr", "name": "Marie Dupont", "phone": "+33630686585", "role": "guardian",
+        {"email": "guardian@chutex.fr", "name": "Marie Dupont", "phone": "+33630686585", "role": "guardian",
          "guardian_type": "particular", "relationship": "Fille"},
-        {"email": "teleassist@vitallink.fr", "name": "Sophie Martin", "phone": "+33477101011", "role": "teleassistance"},
+        {"email": "teleassist@chutex.fr", "name": "Sophie Martin", "phone": "+33477101011", "role": "teleassistance"},
     ]
     for acct in demo_accounts:
         existing = await db.users.find_one({"email": acct["email"]})
@@ -1649,8 +1649,8 @@ async def seed_demo_data():
                     await db.devices.insert_one({"id": str(uuid.uuid4()), "user_id": uid, "device_type": dt, "name": nm, "connected": False, "battery": random.randint(60, 95), "last_sync": None})
             logger.info(f"Seed: created {acct['email']} ({acct['role']})")
     # Link guardian to beneficiary if not linked
-    ben = await db.users.find_one({"email": "demo@vitallink.fr"}, {"_id": 0})
-    guard = await db.users.find_one({"email": "guardian@vitallink.fr"}, {"_id": 0})
+    ben = await db.users.find_one({"email": "demo@chutex.fr"}, {"_id": 0})
+    guard = await db.users.find_one({"email": "guardian@chutex.fr"}, {"_id": 0})
     if ben and guard:
         if guard['id'] not in ben.get('guardians', []):
             await db.users.update_one({"id": ben['id']}, {"$addToSet": {"guardians": guard['id']}})
