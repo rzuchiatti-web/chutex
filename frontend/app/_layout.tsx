@@ -27,6 +27,10 @@ function RootNav() {
             <Stack.Screen name="health-detail" options={{ headerShown: false, presentation: 'card' }} />
             <Stack.Screen name="backoffice" options={{ headerShown: false, presentation: 'card' }} />
             <Stack.Screen name="intervention-detail" options={{ headerShown: false, presentation: 'card' }} />
+            <Stack.Screen name="subscriber-detail" options={{ headerShown: false, presentation: 'card' }} />
+            <Stack.Screen name="alert-detail" options={{ headerShown: false, presentation: 'card' }} />
+            <Stack.Screen name="beneficiary-detail" options={{ headerShown: false, presentation: 'card' }} />
+            <Stack.Screen name="link-code" options={{ headerShown: false, presentation: 'modal' }} />
             <Stack.Screen name="index" options={{ headerShown: false }} />
           </>
         ) : (
@@ -34,7 +38,7 @@ function RootNav() {
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           </>
-        )}
+        )}}
       </Stack>
     </>
   );
