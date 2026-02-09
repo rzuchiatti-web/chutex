@@ -64,18 +64,31 @@ function DeviceManagement({ token }: { token: string }) {
 }
 
 /* ===== GUARDIAN: PRESCRIPTIONS ===== */
-function PrescriptionManagement({ token }: { token: string }) {
+function PrescriptionManagement({ token, user }: { token: string; user: any }) {
+  const { refreshUser } = useAuth();
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', type: 'standard', notes: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [actCode, setActCode] = useState('');
+  const [activating, setActivating] = useState(false);
 
   const fetchPrescriptions = useCallback(async () => {
     try { setPrescriptions(await apiFetch('/api/guardian/prescriptions', {}, token)); } catch (e) { console.error(e); } finally { setLoading(false); }
   }, [token]);
 
-  useEffect(() => { fetchPrescriptions(); }, [fetchPrescriptions]);
+  useEffect(() => { if (user?.is_prescriber) fetchPrescriptions(); else setLoading(false); }, [fetchPrescriptions, user]);
+
+  const activatePrescriber = async () => {
+    if (!actCode.trim()) return Alert.alert('Erreur', 'Entrez un code prescripteur');
+    setActivating(true);
+    try {
+      await apiFetch('/api/guardian/activate-prescriber', { method: 'POST', body: JSON.stringify({ code: actCode.trim().toUpperCase() }) }, token);
+      Alert.alert('Activé', 'Votre espace prescripteur est maintenant actif !');
+      setActCode(''); await refreshUser();
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivating(false); }
+  };
 
   const submitPrescription = async () => {
     if (!formData.name || !formData.email) return Alert.alert('Erreur', 'Nom et email requis');
