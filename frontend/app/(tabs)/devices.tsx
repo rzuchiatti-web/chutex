@@ -107,11 +107,38 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
   return (
     <ScrollView style={d.sv} contentContainerStyle={d.sc} showsVerticalScrollIndicator={false}>
-      <View style={d.commCard}>
-        <Text style={d.commLabel}>Total Commissions</Text>
-        <Text style={d.commVal}>{totalComm.toFixed(2)} €</Text>
-        <Text style={d.commCount}>{prescriptions.length} prescription(s)</Text>
-      </View>
+      {/* Prescriber activation - show prominently if not yet a prescriber */}
+      {!user?.is_prescriber ? (
+        <View style={d.activateCard}>
+          <Ionicons name="medical-outline" size={40} color={Colors.primary} />
+          <Text style={d.activateTitle}>Espace Prescripteur</Text>
+          <Text style={d.activateDesc}>
+            Activez votre espace prescripteur avec le code fourni par votre structure partenaire Chutex pour prescrire des abonnements à vos bénéficiaires.
+          </Text>
+          <View style={d.activateRow}>
+            <TextInput testID="prescriber-code-input" style={d.activateInput} placeholder="CODE PRESCRIPTEUR"
+              placeholderTextColor={Colors.textMuted} value={actCode} onChangeText={setActCode} autoCapitalize="characters" />
+            <TouchableOpacity testID="activate-prescriber-btn" style={d.activateBtn} onPress={activatePrescriber} disabled={activating}>
+              {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={d.activateBtnT}>Activer</Text>}
+            </TouchableOpacity>
+          </View>
+          <View style={d.divider}><View style={d.divLine} /><Text style={d.divText}>ou</Text><View style={d.divLine} /></View>
+          <TouchableOpacity style={d.chutexLink} onPress={() => Linking.openURL('https://chutex-innovation.com')}>
+            <Text style={d.chutexLinkT}>Devenir prescripteur sur chutex-innovation.com</Text>
+            <Ionicons name="open-outline" size={14} color={Colors.primary} />
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <>
+          <View style={d.commCard}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <Ionicons name="checkmark-circle" size={18} color={Colors.success} />
+              <Text style={{ fontSize: 12, color: Colors.success, fontWeight: '700' }}>Prescripteur actif — {user.prescriber_structure}</Text>
+            </View>
+            <Text style={d.commLabel}>Total Commissions</Text>
+            <Text style={d.commVal}>{totalComm.toFixed(2)} €</Text>
+            <Text style={d.commCount}>{prescriptions.length} prescription(s)</Text>
+          </View>
 
       <TouchableOpacity testID="new-prescription-btn" style={d.newPrescBtn} onPress={() => setShowForm(true)}>
         <Ionicons name="add" size={18} color="#FFF" /><Text style={d.newPrescBtnText}>Nouvelle Prescription</Text>
