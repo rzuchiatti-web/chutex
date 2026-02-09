@@ -292,14 +292,56 @@ function TeleassistanceDashboard({ token }: { token: string }) {
 }
 
 /* ===== GUARDIAN: INTERVENTIONS ===== */
-function GuardianInterventions({ token }: { token: string }) {
+function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const router = useRouter();
+  const { refreshUser } = useAuth();
   const [ivs, setIvs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [ivCode, setIvCode] = useState('');
+  const [activating, setActivating] = useState(false);
+
   useEffect(() => { (async () => { try { setIvs(await apiFetch('/api/interventions', {}, token)); } catch {} finally { setLoading(false); } })(); }, []);
+
+  const activateCare = async () => {
+    if (!ivCode.trim()) return Alert.alert('Erreur', 'Entrez un code intervenant');
+    setActivating(true);
+    try {
+      await apiFetch('/api/guardian/activate-intervention-provider', { method: 'POST', body: JSON.stringify({ code: ivCode.trim().toUpperCase() }) }, token);
+      Alert.alert('Activé', 'Vous êtes maintenant intervenant Care Chutex. La téléassistance peut vous missionner.');
+      setIvCode(''); await refreshUser();
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivating(false); }
+  };
+
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
   return (
     <ScrollView contentContainerStyle={s.sc}>
+      {/* Intervention Care activation */}
+      {!user?.is_intervention_provider ? (
+        <View style={s.careCard}>
+          <Ionicons name="shield-checkmark-outline" size={36} color={Colors.primary} />
+          <Text style={s.careTitle}>Devenir Intervenant Care</Text>
+          <Text style={s.careDesc}>
+            Activez votre espace Intervenant Care pour être missionné par le plateau de téléassistance IA Chutex en cas de levée de doute auprès de vos bénéficiaires.
+          </Text>
+          <View style={s.careRow}>
+            <TextInput testID="care-code-input" style={s.careInput} placeholder="CODE INTERVENANT" placeholderTextColor={Colors.textMuted}
+              value={ivCode} onChangeText={setIvCode} autoCapitalize="characters" />
+            <TouchableOpacity testID="care-activate-btn" style={s.careBtn} onPress={activateCare} disabled={activating}>
+              {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={s.careBtnT}>Activer</Text>}
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <View style={s.careActive}>
+          <Ionicons name="shield-checkmark" size={22} color={Colors.success} />
+          <View style={{ flex: 1 }}>
+            <Text style={s.careActiveT}>Intervenant Care actif</Text>
+            <Text style={s.careActiveSub}>{user.intervention_structure} · Rayon: {user.intervention_radius_km || 30}km</Text>
+          </View>
+        </View>
+      )}
+
+      <Text style={s.secTitle}>Interventions</Text>
       {ivs.length > 0 ? ivs.map(iv => (
         <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} style={s.ivCard} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
           <View style={[s.ivDot, { backgroundColor: iv.status === 'completed' ? Colors.success : Colors.primary }]} />
