@@ -110,6 +110,80 @@ export default function HealthScreen() {
   );
 }
 
+/* ===== ADMIN: KPI ANALYSE ===== */
+function AdminAnalyse({ token }: { token: string }) {
+  const [kpi, setKpi] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { (async () => { try { setKpi(await apiFetch('/api/backoffice/kpi', {}, token)); } catch {} finally { setLoading(false); } })(); }, []);
+  if (loading) return <SafeAreaView style={h.safe}><View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (!kpi) return <SafeAreaView style={h.safe}><View style={h.emptyC}><Text style={h.emptyT}>Données indisponibles</Text></View></SafeAreaView>;
+
+  const Bar = ({ label, value, max, color }: { label: string; value: number; max: number; color: string }) => {
+    const pct = max > 0 ? Math.max((value / max) * 100, 2) : 2;
+    return <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+      <Text style={{ width: 100, fontSize: 11, color: Colors.textMuted, textAlign: 'right' }}>{label}</Text>
+      <View style={{ flex: 1, height: 16, backgroundColor: Colors.border, borderRadius: 8, overflow: 'hidden' }}>
+        <View style={{ height: '100%', width: `${pct}%`, backgroundColor: color, borderRadius: 8 }} /></View>
+      <Text style={{ width: 30, fontSize: 12, fontWeight: '700', color: Colors.textPrimary }}>{value}</Text>
+    </View>;
+  };
+
+  return (
+    <SafeAreaView style={h.safe}>
+      <View style={h.header}><Text style={h.title}>Analyse</Text></View>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
+        {/* Key metrics */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+          {[
+            { l: 'Utilisateurs', v: kpi.total_users, c: Colors.primary },
+            { l: 'Alertes', v: kpi.total_alerts, c: Colors.destructive },
+            { l: 'Interventions', v: kpi.total_interventions, c: '#FF9800' },
+            { l: 'Abonnés actifs', v: kpi.active_subscriptions, c: Colors.success },
+            { l: 'En attente', v: kpi.pending_subscriptions, c: Colors.textMuted },
+            { l: 'Résolution moy.', v: `${kpi.avg_resolution_minutes}min`, c: Colors.primary },
+          ].map(x => (
+            <View key={x.l} style={{ width: '31%', backgroundColor: Colors.subtle, borderRadius: 12, padding: 14, alignItems: 'center' }}>
+              <Text style={{ fontSize: 22, fontWeight: '800', color: x.c as string }}>{x.v}</Text>
+              <Text style={{ fontSize: 9, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2, textAlign: 'center' }}>{x.l}</Text>
+            </View>
+          ))}
+        </View>
+
+        <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Utilisateurs par rôle</Text>
+        <View style={{ backgroundColor: Colors.subtle, borderRadius: 12, padding: 14, marginBottom: 16 }}>
+          {Object.entries(kpi.users_by_role || {}).map(([role, count]: [string, any]) => {
+            const max = Math.max(...Object.values(kpi.users_by_role).map(Number));
+            const labels: any = { beneficiary: 'Bénéficiaires', guardian: 'Gardiens', admin: 'Admins', teleassistance: 'Téléassistance' };
+            return <Bar key={role} label={labels[role] || role} value={count} max={max} color={Colors.primary} />;
+          })}
+        </View>
+
+        <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Types d'alertes</Text>
+        <View style={{ backgroundColor: Colors.subtle, borderRadius: 12, padding: 14, marginBottom: 16 }}>
+          {Object.entries(kpi.alert_types || {}).map(([type, count]: [string, any]) => {
+            const max = Math.max(...Object.values(kpi.alert_types).map(Number));
+            const colors: any = { sos: Colors.destructive, fall: '#FF9800', anomaly: '#9C27B0', inactivity: '#607D8B' };
+            return <Bar key={type} label={type} value={count} max={max} color={colors[type] || Colors.primary} />;
+          })}
+        </View>
+
+        <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Alertes (7 derniers jours)</Text>
+        <View style={{ flexDirection: 'row', backgroundColor: Colors.subtle, borderRadius: 12, padding: 14, gap: 4, alignItems: 'flex-end', justifyContent: 'space-between', height: 120, marginBottom: 16 }}>
+          {(kpi.alerts_by_day || []).slice(-7).map((d: any, i: number) => {
+            const maxD = Math.max(...(kpi.alerts_by_day || []).slice(-7).map((x: any) => x.count), 1);
+            const h = Math.max((d.count / maxD) * 60, 2);
+            return <View key={i} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}>
+              <View style={{ width: '80%', height: h, borderRadius: 4, backgroundColor: d.count > 0 ? Colors.primary : Colors.border }} />
+              <Text style={{ fontSize: 9, color: Colors.textMuted }}>{d.date.slice(8)}</Text>
+              <Text style={{ fontSize: 10, fontWeight: '700', color: Colors.textPrimary }}>{d.count}</Text>
+            </View>;
+          })}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
 const h = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.background },
   header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
