@@ -1,0 +1,167 @@
+{
+  "project_context": {
+    "app_name": "VitalLink AI",
+    "app_description": "AI-powered health monitoring system connecting elderly beneficiaries with guardians.",
+    "tech_stack": "React (Web), Tailwind CSS, Shadcn UI, Framer Motion, Recharts",
+    "target_platforms": ["Mobile Web (PWA)", "Desktop Dashboard"],
+    "design_philosophy": "Calm for the cared, Clarity for the carer."
+  },
+  "typography": {
+    "font_family": {
+      "heading": "DM Sans, sans-serif",
+      "body": "Inter, sans-serif",
+      "mono": "JetBrains Mono, monospace",
+      "numeric": "Barlow, sans-serif"
+    },
+    "scale": {
+      "display": "text-5xl md:text-6xl font-bold tracking-tight",
+      "h1": "text-4xl font-bold tracking-tight",
+      "h2": "text-3xl font-semibold tracking-tight",
+      "h3": "text-2xl font-semibold",
+      "body_lg": "text-lg leading-relaxed",
+      "body_base": "text-base leading-relaxed text-muted-foreground",
+      "caption": "text-sm text-muted-foreground",
+      "tiny": "text-xs font-medium tracking-wider uppercase"
+    }
+  },
+  "colors": {
+    "palette_name": "Organic Precision",
+    "mode": "light",
+    "primary": {
+      "DEFAULT": "#4A7C59", 
+      "foreground": "#FFFFFF",
+      "hover": "#3D664A",
+      "description": "Sage Green - Calming, trust-building, medical but not sterile."
+    },
+    "secondary": {
+      "DEFAULT": "#E7E5E4", 
+      "foreground": "#1C1917",
+      "description": "Warm Stone - Physical, grounded background elements."
+    },
+    "accent": {
+      "DEFAULT": "#F59E0B", 
+      "foreground": "#FFFFFF",
+      "description": "Warm Amber - Notifications, non-critical alerts."
+    },
+    "destructive": {
+      "DEFAULT": "#DC2626", 
+      "foreground": "#FFFFFF",
+      "description": "Alert Red - SOS, Critical Anomalies."
+    },
+    "info": {
+      "DEFAULT": "#0EA5E9",
+      "foreground": "#FFFFFF",
+      "description": "Safe Blue - Medical status, connectivity."
+    },
+    "background": {
+      "DEFAULT": "#FAFAF9", 
+      "paper": "#FFFFFF",
+      "subtle": "#F5F5F4"
+    },
+    "text": {
+      "primary": "#1C1917", 
+      "secondary": "#57534E",
+      "muted": "#A8A29E"
+    }
+  },
+  "layout": {
+    "spacing_scale": "generous",
+    "container": {
+      "max_width": "max-w-7xl",
+      "padding": "px-4 md:px-8"
+    },
+    "grid_systems": {
+      "beneficiary_dashboard": "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3",
+      "guardian_dashboard": "grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]"
+    },
+    "border_radius": {
+      "card": "rounded-2xl",
+      "button": "rounded-full",
+      "input": "rounded-xl"
+    }
+  },
+  "components": {
+    "buttons": {
+      "default": "h-12 px-6 rounded-full font-medium transition-transform active:scale-95",
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20",
+      "ghost": "hover:bg-secondary/50 text-foreground"
+    },
+    "cards": {
+      "base": "bg-white border border-stone-200 shadow-sm hover:shadow-md transition-shadow duration-300 p-6 rounded-2xl",
+      "interactive": "cursor-pointer hover:border-primary/50 group"
+    },
+    "inputs": {
+      "base": "h-12 bg-stone-50 border-stone-200 focus:ring-2 focus:ring-primary/20 rounded-xl"
+    },
+    "status_indicators": {
+      "online": "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]",
+      "offline": "h-2.5 w-2.5 rounded-full bg-stone-400",
+      "alert": "h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-xl bg-white/80 border border-white/20 shadow-sm",
+    "shadows": {
+      "soft": "shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]",
+      "floating": "shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+    },
+    "gradients": {
+      "subtle_warm": "bg-gradient-to-br from-stone-50 to-stone-100",
+      "alert_glow": "bg-gradient-to-r from-red-500/10 to-transparent"
+    }
+  },
+  "motion": {
+    "reduced_motion": "true",
+    "transitions": "transition-all duration-300 ease-out",
+    "animation_presets": {
+      "fade_in": { "initial": { "opacity": 0 }, "animate": { "opacity": 1 } },
+      "slide_up": { "initial": { "y": 20, "opacity": 0 }, "animate": { "y": 0, "opacity": 1 } },
+      "scale_in": { "initial": { "scale": 0.95, "opacity": 0 }, "animate": { "scale": 1, "opacity": 1 } }
+    }
+  },
+  "image_urls": {
+    "beneficiaries": [
+      {
+        "url": "https://images.unsplash.com/photo-1758874960056-07aa3d0afa3b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHwxfHxlbGRlcmx5JTIwcGVyc29uJTIwaGFwcHklMjBoZWFsdGh5JTIwaG9tZXxlbnwwfHx8fDE3NzA2MzI4OTR8MA&ixlib=rb-4.1.0&q=85",
+        "alt": "Happy elderly woman in kitchen",
+        "category": "hero"
+      }
+    ],
+    "professionals": [
+      {
+        "url": "https://images.unsplash.com/photo-1758691462353-36b215702253?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwxfHxkb2N0b3IlMjBsb29raW5nJTIwYXQlMjB0YWJsZXQlMjBtZWRpY2FsfGVufDB8fHx8MTc3MDYzMjg5NXww&ixlib=rb-4.1.0&q=85",
+        "alt": "Doctor reviewing scans on tablet",
+        "category": "guardian_dashboard"
+      }
+    ],
+    "devices": [
+      {
+        "url": "https://images.unsplash.com/photo-1585595666499-400018927746?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwyfHxzbWFydHdhdGNoJTIwaGVhbHRoJTIwbW9uaXRvciUyMHdyaXN0fGVufDB8fHx8MTc3MDYzMjg5Nnww&ixlib=rb-4.1.0&q=85",
+        "alt": "Health smartwatch device",
+        "category": "device_management"
+      }
+    ]
+  },
+  "libraries": {
+    "maps": "react-map-gl (Mapbox) or react-leaflet",
+    "charts": "recharts (via Shadcn)",
+    "icons": "lucide-react",
+    "animations": "framer-motion",
+    "date_handling": "date-fns",
+    "notifications": "sonner"
+  },
+  "accessibility": {
+    "contrast_ratio": "AAA (Target 7:1 for text)",
+    "touch_target_size": "min-h-[48px] min-w-[48px]",
+    "font_scaling": "Ensure all text respects user font scaling preferences",
+    "focus_states": "ring-2 ring-offset-2 ring-primary"
+  },
+  "universal_guidelines": [
+    "Do NOT use standard 'AI' emojis (🤖, 🧠). Use clean Lucide icons instead.",
+    "For the Map Interface: Use a full-screen map with a floating bottom sheet (beneficiary details) to mimic the Uber experience.",
+    "For Alerts: Use a 'Heartbeat' animation on the SOS button using Tailwind `animate-pulse`.",
+    "Beneficiary View: Minimize data density. Show ONLY what matters now (e.g., 'Take Pill', 'Heart Rate OK').",
+    "Guardian View: Maximize data density without clutter. Use small sparklines for trends.",
+    "All interactive elements MUST have data-testid attributes (kebab-case)."
+  ]
+}
