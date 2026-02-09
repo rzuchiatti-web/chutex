@@ -1,14 +1,16 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header, Request, Response
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-import os, logging, uuid, random, string
+import os, logging, uuid, random, string, math, asyncio
 from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 from datetime import datetime, timezone, timedelta
 import jwt, bcrypt
 from emergentintegrations.llm.chat import LlmChat, UserMessage
+from twilio.rest import Client as TwilioClient
+from twilio.twiml.voice_response import VoiceResponse, Gather
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
