@@ -45,12 +45,35 @@ Application mobile de santé boostée par l'IA connectant des bénéficiaires (p
 - Gardien: `/api/guardian/link`, `/api/guardian/beneficiaries`, `/api/guardian/prescriptions`
 - Admin: `/api/admin/stats`
 
+## Fonctionnalités V2 (implémentées)
+
+### Données de santé détaillées
+- 15 métriques bracelet (FC, VFC, stress, VO2Max, SpO2, tension, glycémie, sommeil 4 métriques, température, calories, pas)
+- 50+ métriques balance (composition, muscles, hydratation, protéines, métabolisme, segmentation bras/jambes/tronc, évaluation, contrôle)
+- Page détail par métrique: graphique 7 jours, moyenne/min/max, plage normale, description, conseil IA, éditeur de seuils
+
+### Téléconsultation 24/7
+- QCM de pré-consultation (7 questions: motif, durée, douleur, fièvre, médicaments, allergies, texte libre)
+- Numéro d'appel 24/7 après soumission
+
+### Suivi d'interventions
+- Création d'intervention depuis une alerte
+- Carte interactive Leaflet en temps réel
+- Statuts: en route → sur place → terminé
+- Rapport d'intervention
+- Chronologie des événements
+
+### Back Office
+- Statistiques globales (utilisateurs, alertes, prescriptions, interventions, téléconsultations)
+- Gestion des utilisateurs
+- Gestion des alertes
+
+### Localisation
+- 3 modes de partage: Toujours / En cas d'alerte / Jamais
+- Configurable par le bénéficiaire
+
 ## Fonctionnalités futures
-- Téléconsultation 24/7 (formulaire pré-information + numéro d'appel)
-- Carte interactive style Uber pour suivi d'interventions en direct
-- Plateau d'écoute IA de téléassistance avec protocole de questions
-- Rapport d'intervention par les intervenants
-- Système de souscription et abonnement en ligne
-- Back-office complet d'administration
 - Notifications push en temps réel
 - Intégration Bluetooth réelle avec les dispositifs physiques
+- Système de souscription et abonnement en ligne
+- Plateau d'écoute IA de téléassistance avec protocole vocal
