@@ -21,6 +21,15 @@ export default function AlertDetailScreen() {
     })();
   }, [alertId]);
 
+  // Auto-refresh for real-time escalation status
+  useEffect(() => {
+    if (!alertId) return;
+    const iv = setInterval(async () => {
+      try { setData(await apiFetch(`/api/alerts/${alertId}/detail`, {}, token)); } catch {}
+    }, 5000);
+    return () => clearInterval(iv);
+  }, [alertId, token]);
+
   if (loading) return <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
   if (!data) return <SafeAreaView style={s.safe}><View style={s.center}><Text>Erreur</Text></View></SafeAreaView>;
 
