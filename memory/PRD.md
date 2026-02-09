@@ -10,30 +10,54 @@ Application de monitoring santé et téléassistance automatisée. Permet le sui
 - **AI**: GPT-5.2 via Emergent LLM Key (recommendations, health reports)
 - **Telephony**: Twilio Voice API (real automated calls)
 
-## User Roles
-1. **Bénéficiaire**: Patient monitored (demo@vitallink.fr / demo123)
-2. **Gardien**: Family/caregiver guardian (guardian@vitallink.fr / demo123)
-3. **Téléassistance**: Operator monitoring alerts (teleassist@vitallink.fr / demo123)
-4. **Admin**: Back-office administrator (admin@vitallink.fr / demo123)
+## User Roles & Test Credentials
+| Role | Email | Password |
+|------|-------|----------|
+| Bénéficiaire | demo@vitallink.fr | demo123 |
+| Gardien | guardian@vitallink.fr | demo123 |
+| Téléassistance | teleassist@vitallink.fr | demo123 |
+| Admin | admin@vitallink.fr | demo123 |
 
 ## Core Features - IMPLEMENTED
-- [x] Multi-role authentication (JWT)
-- [x] Clinical black-and-white UI design
-- [x] Beneficiary health dashboard with simulated data (bracelet, scale, vest)
-- [x] AI-powered health recommendations (GPT-5.2)
-- [x] Alert system (SOS, fall detection, anomaly)
-- [x] Fully automated teleassistance escalation protocol (Twilio)
-- [x] Guardian-beneficiary linking (email + QR code)
-- [x] Prescription management with commissions
-- [x] Admin backoffice (stats, users, codes, prescriptions, interventions)
-- [x] Intervention provider role activation via codes
-- [x] UberEats-style intervention tracking (map + ETA + progress steps)
-- [x] Comprehensive beneficiary detail for guardians (health, alerts, AI report)
-- [x] Alert detail with escalation timeline and call logs
-- [x] Real-time auto-refresh on teleconsult dashboard (5s polling)
-- [x] Auto-refresh on alert detail and intervention detail
-- [x] Health metric detail with charts, thresholds, and AI advice
-- [x] Seed data on startup
+
+### Bénéficiaire
+- [x] Dashboard santé avec constantes clés (pouls, SpO2, tension, température, pas, stress)
+- [x] Bouton SOS déclenchant le protocole de téléassistance automatique
+- [x] Seuils d'alerte manuels par métrique (min/max/objectif)
+- [x] Recommandations IA personnalisées (GPT-5.2)
+- [x] Historique graphique 7 jours par métrique
+- [x] **Rappels quotidiens** (hydratation, médicaments, activités) - NEW
+- [x] **Partage de données sélectif** (choisir quoi partager aux gardiens) - NEW
+- [x] Partage QR code / code unique aux gardiens
+- [x] Téléconsultation QCM (7 questions)
+- [x] Gestion appareils (sync bracelet, balance, gilet)
+- [x] Historique des alertes avec filtre
+
+### Gardien
+- [x] Dashboard avec liste bénéficiaires + alertes
+- [x] Fiche détaillée bénéficiaire (santé, infos médicales, alertes)
+- [x] **Onglet Appareils** avec niveaux de batterie - NEW
+- [x] **Onglet Interventions** dans le détail bénéficiaire - NEW
+- [x] Rapport santé IA complet
+- [x] Suivi interventions avec carte
+- [x] Espace prescription (si code prescripteur activé)
+- [x] Activation intervenant via code
+- [x] Commission + date versement 1er du mois suivant
+
+### Backoffice Admin
+- [x] Stats globales (utilisateurs, alertes, prescriptions, interventions)
+- [x] **Tableau de bord KPI** avec graphiques (alertes/jour, types, résolution, interventions) - NEW
+- [x] Liste utilisateurs + codes activation
+- [x] Gestion codes intervenants avec rayon
+- [x] Suivi prescriptions + commissions
+- [x] **Emails envoyés** visibles (collection sent_emails) - NEW
+
+### Téléassistance
+- [x] Dashboard temps réel (refresh 5s)
+- [x] Protocole d'escalade automatique (bénéficiaire → gardiens → dispatch)
+- [x] Appels Twilio réels automatisés
+- [x] Historique escalades + détails appels
+- [x] **Rapport d'alerte enrichi** avec timeline unifiée - NEW
 
 ## Architecture
 ```
@@ -49,18 +73,33 @@ Database: MongoDB (localhost:27017, DB: vitallink_db)
 - Alerts (with test triggers)
 - Devices (sync simulation)
 - Profile (with role-specific features)
-- Backoffice (admin only)
-- Beneficiary detail (guardian view)
-- Alert detail (with escalation tracking)
+- Backoffice (admin only, with KPI tab)
+- Beneficiary detail (guardian view with devices + battery)
+- Alert detail (with escalation tracking + timeline)
 - Intervention detail (UberEats-style tracking)
 - Link code (QR sharing)
+- **Reminders** (hydration, medication, activities) - NEW
+- **Data sharing** (toggle what to share) - NEW
 
 ## Mocked Features
-- Email sending (simulated, stored in DB)
+- Email sending (stored in DB, not sent via SMTP)
 - Health data (simulated via device sync)
 
+## API Endpoints (NEW in this session)
+- POST/GET /api/reminders - CRUD rappels
+- PUT /api/reminders/{id}/complete - Marquer rappel fait
+- PUT /api/reminders/{id}/toggle - Activer/désactiver
+- DELETE /api/reminders/{id} - Supprimer
+- GET/PUT /api/settings/data-sharing - Préférences partage
+- GET /api/guardian/beneficiaries/map - Carte gardien
+- GET /api/backoffice/kpi - Données KPI dashboard
+- GET /api/alerts/{id}/report - Rapport alerte enrichi
+- GET /api/emails - Emails envoyés (admin)
+
 ## Future/Backlog
-- P1: Real email sending (Twilio SendGrid integration)
-- P2: Enhanced Guardian Dashboard PDF export
-- P3: SMS notifications
-- P3: Backend refactoring (split server.py into modules)
+- P1: Intégrer un vrai service d'email (SendGrid/Resend)
+- P1: Carte multi-bénéficiaires interactive pour le gardien
+- P2: Export PDF rapport de santé
+- P2: Navigation GPS pour intervenant
+- P3: Notifications SMS
+- P3: Backend refactoring (split server.py en modules)
