@@ -16,11 +16,15 @@ export default function BackofficeScreen() {
   const [codes, setCodes] = useState<any[]>([]);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'stats'|'users'|'alerts'|'codes'|'prescriptions'>('stats');
+  const [tab, setTab] = useState<'stats'|'users'|'alerts'|'codes'|'prescriptions'|'interventions'>('stats');
   const [showCodeModal, setShowCodeModal] = useState(false);
   const [newStructure, setNewStructure] = useState('');
   const [newMaxUses, setNewMaxUses] = useState('50');
   const [creating, setCreating] = useState(false);
+  const [interventionCodes, setInterventionCodes] = useState<any[]>([]);
+  const [showIvCodeModal, setShowIvCodeModal] = useState(false);
+  const [ivStructure, setIvStructure] = useState('');
+  const [ivRadius, setIvRadius] = useState('30');
 
   useEffect(() => {
     (async () => {
