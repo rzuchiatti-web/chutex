@@ -124,6 +124,15 @@ class TeleassistanceCallUpdate(BaseModel):
     notes: str = ""
     resolution: str = ""  # resolved, escalate_guardian, dispatch_intervention
 
+class EscalationStart(BaseModel):
+    alert_id: str
+
+class EscalationStepRequest(BaseModel):
+    escalation_id: str
+    response: str  # answered, no_answer, resolved, not_resolved, dispatch
+    answers: List[dict] = []
+    notes: str = ""
+
 # ==================== AUTH ====================
 def hash_password(p): return bcrypt.hashpw(p.encode(), bcrypt.gensalt()).decode()
 def verify_password(p, h): return bcrypt.checkpw(p.encode(), h.encode())
