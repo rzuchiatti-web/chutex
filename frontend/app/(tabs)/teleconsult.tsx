@@ -487,13 +487,13 @@ export default function TeleconsultScreen() {
   return (
     <SafeAreaView style={s.safe} testID="teleconsult-screen">
       <View style={s.header}>
-        <Text style={s.title}>{r === 'teleassistance' ? 'Téléassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Gestion' : 'Téléconsultation'}</Text>
+        <Text style={s.title}>{r === 'teleassistance' ? 'Téléassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Intervenants' : 'Téléconsultation'}</Text>
         {r === 'teleassistance' && <Text style={s.subtitle}>Plateau d'écoute — Protocole d'escalade</Text>}
         {r === 'beneficiary' && <Text style={s.subtitle}>Questionnaire pré-consultation</Text>}
       </View>
       {r === 'teleassistance' ? <TeleassistanceDashboard token={token} />
         : r === 'guardian' ? <GuardianInterventions token={token} user={user} />
-        : r === 'admin' ? <AdminManagement token={token} />
+        : r === 'admin' ? <AdminIntervenants token={token} />
         : <BeneficiaryTeleconsult token={token} />}
     </SafeAreaView>
   );
