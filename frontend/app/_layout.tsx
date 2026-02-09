@@ -18,11 +18,21 @@ function RootNav() {
     );
   }
 
+  if (!user) {
+    return (
+      <>
+        <StatusBar style="dark" />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+        </Stack>
+      </>
+    );
+  }
+
   return (
     <>
       <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="health-detail" options={{ presentation: 'card' }} />
         <Stack.Screen name="backoffice" options={{ presentation: 'card' }} />
@@ -30,6 +40,8 @@ function RootNav() {
         <Stack.Screen name="subscriber-detail" options={{ presentation: 'card' }} />
         <Stack.Screen name="alert-detail" options={{ presentation: 'card' }} />
         <Stack.Screen name="beneficiary-detail" options={{ presentation: 'card' }} />
+        <Stack.Screen name="reminders" options={{ presentation: 'card' }} />
+        <Stack.Screen name="data-sharing" options={{ presentation: 'card' }} />
         <Stack.Screen name="link-code" options={{ presentation: 'modal' }} />
       </Stack>
     </>
