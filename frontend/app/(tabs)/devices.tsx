@@ -219,7 +219,7 @@ export default function DevicesScreen() {
       <View style={d.header}>
         <Text style={d.title}>{user.role === 'guardian' ? 'Prescriptions' : (user.role === 'teleassistance' || user.role === 'admin') ? 'Abonnés' : 'Mes Appareils'}</Text>
       </View>
-      {user.role === 'guardian' ? <PrescriptionManagement token={token} />
+      {user.role === 'guardian' ? <PrescriptionManagement token={token} user={user} />
         : (user.role === 'teleassistance' || user.role === 'admin') ? <SubscribersList token={token} />
         : <DeviceManagement token={token} />}
     </SafeAreaView>
