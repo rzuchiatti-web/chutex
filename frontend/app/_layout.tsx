@@ -32,6 +32,8 @@ function RootNav() {
         <Stack.Screen name="beneficiary-detail" options={{ presentation: 'card' }} />
         <Stack.Screen name="reminders" options={{ presentation: 'card' }} />
         <Stack.Screen name="data-sharing" options={{ presentation: 'card' }} />
+        <Stack.Screen name="ecg" options={{ presentation: 'card' }} />
+        <Stack.Screen name="geofencing" options={{ presentation: 'card' }} />
         <Stack.Screen name="link-code" options={{ presentation: 'modal' }} />
       </Stack>
     </>
