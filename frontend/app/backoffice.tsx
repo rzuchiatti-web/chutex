@@ -17,15 +17,19 @@ export default function BackofficeScreen() {
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'stats'|'kpi'|'users'|'alerts'|'codes'|'prescriptions'|'interventions'>('stats');
-  const [showCodeModal, setShowCodeModal] = useState(false);
-  const [newStructure, setNewStructure] = useState('');
-  const [newMaxUses, setNewMaxUses] = useState('50');
-  const [creating, setCreating] = useState(false);
   const [interventionCodes, setInterventionCodes] = useState<any[]>([]);
-  const [showIvCodeModal, setShowIvCodeModal] = useState(false);
-  const [ivStructure, setIvStructure] = useState('');
-  const [ivRadius, setIvRadius] = useState('30');
   const [kpi, setKpi] = useState<any>(null);
+
+  // Code modal state
+  const [showCodeModal, setShowCodeModal] = useState(false);
+  const [editingCode, setEditingCode] = useState<any>(null);
+  const [codeForm, setCodeForm] = useState({ structure_name: '', max_uses: '50', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '' });
+  const [creating, setCreating] = useState(false);
+
+  // Intervention code modal state
+  const [showIvCodeModal, setShowIvCodeModal] = useState(false);
+  const [editingIvCode, setEditingIvCode] = useState<any>(null);
+  const [ivForm, setIvForm] = useState({ structure_name: '', max_uses: '50', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' });
 
   useEffect(() => {
     (async () => {
@@ -44,34 +48,114 @@ export default function BackofficeScreen() {
     })();
   }, []);
 
-  const createCode = async () => {
-    if (!newStructure) return Alert.alert('Erreur', 'Nom de structure requis');
+  const resetCodeForm = () => setCodeForm({ structure_name: '', max_uses: '50', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '' });
+  const resetIvForm = () => setIvForm({ structure_name: '', max_uses: '50', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' });
+
+  // ===== Activation Codes CRUD =====
+  const openCreateCode = () => { setEditingCode(null); resetCodeForm(); setShowCodeModal(true); };
+  const openEditCode = (c: any) => {
+    setEditingCode(c);
+    setCodeForm({
+      structure_name: c.structure_name || '', max_uses: String(c.max_uses || 50),
+      raison_sociale: c.raison_sociale || '', siret: c.siret || '', tva: c.tva || '',
+      adresse: c.adresse || '', telephone: c.telephone || '', email_contact: c.email_contact || '',
+    });
+    setShowCodeModal(true);
+  };
+
+  const saveCode = async () => {
+    if (!codeForm.structure_name) return Alert.alert('Erreur', 'Nom de structure requis');
     setCreating(true);
     try {
-      const r = await apiFetch('/api/admin/activation-codes', { method: 'POST', body: JSON.stringify({ structure_name: newStructure, max_uses: parseInt(newMaxUses) || 50 }) }, token);
-      setCodes([r, ...codes]); setShowCodeModal(false); setNewStructure('');
-      Alert.alert('Code créé', `Code: ${r.code}\nStructure: ${r.structure_name}`);
+      if (editingCode) {
+        await apiFetch(`/api/admin/activation-codes/${editingCode.id}`, {
+          method: 'PUT', body: JSON.stringify({ ...codeForm, max_uses: parseInt(codeForm.max_uses) || 50 }),
+        }, token);
+        setCodes(codes.map(c => c.id === editingCode.id ? { ...c, ...codeForm, max_uses: parseInt(codeForm.max_uses) || 50 } : c));
+        Alert.alert('Code modifie');
+      } else {
+        const r = await apiFetch('/api/admin/activation-codes', {
+          method: 'POST', body: JSON.stringify({ ...codeForm, max_uses: parseInt(codeForm.max_uses) || 50 }),
+        }, token);
+        setCodes([r, ...codes]);
+        Alert.alert('Code cree', `Code: ${r.code}\nStructure: ${r.structure_name}`);
+      }
+      setShowCodeModal(false);
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setCreating(false); }
   };
 
-  const deactivateCode = async (id: string) => {
+  const toggleCode = async (id: string) => {
     try {
-      await apiFetch(`/api/admin/activation-codes/${id}`, { method: 'DELETE' }, token);
-      setCodes(codes.map(c => c.id === id ? { ...c, active: false } : c));
+      const r = await apiFetch(`/api/admin/activation-codes/${id}/toggle`, { method: 'PUT' }, token);
+      setCodes(codes.map(c => c.id === id ? { ...c, active: r.active } : c));
     } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
-  const createIvCode = async () => {
-    if (!ivStructure) return Alert.alert('Erreur', 'Nom de structure requis');
+  const deleteCode = (id: string) => {
+    Alert.alert('Confirmer', 'Supprimer ce code ?', [
+      { text: 'Annuler', style: 'cancel' },
+      { text: 'Supprimer', style: 'destructive', onPress: async () => {
+        try {
+          await apiFetch(`/api/admin/activation-codes/${id}`, { method: 'DELETE' }, token);
+          setCodes(codes.filter(c => c.id !== id));
+        } catch (e: any) { Alert.alert('Erreur', e.message); }
+      }},
+    ]);
+  };
+
+  // ===== Intervention Codes CRUD =====
+  const openCreateIvCode = () => { setEditingIvCode(null); resetIvForm(); setShowIvCodeModal(true); };
+  const openEditIvCode = (c: any) => {
+    setEditingIvCode(c);
+    setIvForm({
+      structure_name: c.structure_name || '', max_uses: String(c.max_uses || 50),
+      raison_sociale: c.raison_sociale || '', siret: c.siret || '', tva: c.tva || '',
+      adresse: c.adresse || '', telephone: c.telephone || '', email_contact: c.email_contact || '',
+      radius_km: String(c.default_radius_km || 30),
+    });
+    setShowIvCodeModal(true);
+  };
+
+  const saveIvCode = async () => {
+    if (!ivForm.structure_name) return Alert.alert('Erreur', 'Nom de structure requis');
     setCreating(true);
     try {
-      const r = await apiFetch('/api/admin/intervention-codes', { method: 'POST', body: JSON.stringify({ structure_name: ivStructure, max_uses: 50 }) }, token);
-      if (ivRadius && parseFloat(ivRadius) !== 30) {
-        await apiFetch('/api/admin/intervention-radius', { method: 'PUT', body: JSON.stringify({ structure_id: r.id, radius_km: parseFloat(ivRadius) || 30 }) }, token);
+      if (editingIvCode) {
+        await apiFetch(`/api/admin/intervention-codes/${editingIvCode.id}`, {
+          method: 'PUT', body: JSON.stringify({ ...ivForm, max_uses: parseInt(ivForm.max_uses) || 50 }),
+        }, token);
+        setInterventionCodes(interventionCodes.map(c => c.id === editingIvCode.id ? { ...c, ...ivForm, max_uses: parseInt(ivForm.max_uses) || 50, default_radius_km: parseFloat(ivForm.radius_km) || 30 } : c));
+        Alert.alert('Code modifie');
+      } else {
+        const body: any = { ...ivForm, max_uses: parseInt(ivForm.max_uses) || 50, radius_km: parseFloat(ivForm.radius_km) || 30 };
+        delete body.radius_km;
+        const r = await apiFetch('/api/admin/intervention-codes', {
+          method: 'POST', body: JSON.stringify({ structure_name: ivForm.structure_name, max_uses: parseInt(ivForm.max_uses) || 50, radius_km: parseFloat(ivForm.radius_km) || 30, raison_sociale: ivForm.raison_sociale, siret: ivForm.siret, tva: ivForm.tva, adresse: ivForm.adresse, telephone: ivForm.telephone, email_contact: ivForm.email_contact }),
+        }, token);
+        setInterventionCodes([r, ...interventionCodes]);
+        Alert.alert('Code cree', `Code intervenant: ${r.code}`);
       }
-      setInterventionCodes([r, ...interventionCodes]); setShowIvCodeModal(false); setIvStructure('');
-      Alert.alert('Code créé', `Code intervenant: ${r.code}\nStructure: ${r.structure_name}`);
+      setShowIvCodeModal(false);
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setCreating(false); }
+  };
+
+  const toggleIvCode = async (id: string) => {
+    try {
+      const r = await apiFetch(`/api/admin/intervention-codes/${id}/toggle`, { method: 'PUT' }, token);
+      setInterventionCodes(interventionCodes.map(c => c.id === id ? { ...c, active: r.active } : c));
+    } catch (e: any) { Alert.alert('Erreur', e.message); }
+  };
+
+  const deleteIvCode = (id: string) => {
+    Alert.alert('Confirmer', 'Supprimer ce code intervenant ?', [
+      { text: 'Annuler', style: 'cancel' },
+      { text: 'Supprimer', style: 'destructive', onPress: async () => {
+        try {
+          await apiFetch(`/api/admin/intervention-codes/${id}`, { method: 'DELETE' }, token);
+          setInterventionCodes(interventionCodes.filter(c => c.id !== id));
+        } catch (e: any) { Alert.alert('Erreur', e.message); }
+      }},
+    ]);
   };
 
   const TABS = [
@@ -85,9 +169,9 @@ export default function BackofficeScreen() {
   ] as const;
 
   return (
-    <SafeAreaView style={bs.safe} testID="backoffice-screen">
+    <SafeAreaView style={bs.safe} data-testid="backoffice-screen">
       <View style={bs.topBar}>
-        <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={bs.backBtn}>
+        <TouchableOpacity data-testid="back-btn" onPress={() => router.back()} style={bs.backBtn}>
           <Ionicons name="chevron-back" size={22} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={bs.topTitle}>Back Office</Text>
@@ -96,7 +180,7 @@ export default function BackofficeScreen() {
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={bs.tabScroll} contentContainerStyle={bs.tabScrollC}>
         {TABS.map(t => (
-          <TouchableOpacity key={t.id} testID={`bo-${t.id}`} style={[bs.tabBtn, tab === t.id && bs.tabBtnA]} onPress={() => setTab(t.id)}>
+          <TouchableOpacity key={t.id} data-testid={`bo-${t.id}`} style={[bs.tabBtn, tab === t.id && bs.tabBtnA]} onPress={() => setTab(t.id)}>
             <Text style={[bs.tabBtnT, tab === t.id && bs.tabBtnTA]}>{t.label}</Text>
           </TouchableOpacity>
         ))}
@@ -105,75 +189,83 @@ export default function BackofficeScreen() {
       {loading ? <View style={bs.center}><ActivityIndicator size="large" color={Colors.primary} /></View> : (
         <ScrollView contentContainerStyle={bs.sc} showsVerticalScrollIndicator={false}>
 
+          {/* STATS */}
           {tab === 'stats' && stats && (
             <View style={bs.grid}>
               {[
-                { l: 'Utilisateurs', v: stats.total_users },
-                { l: 'Bénéficiaires', v: stats.beneficiaries },
-                { l: 'Gardiens', v: stats.guardians },
-                { l: 'Prescripteurs', v: stats.prescribers },
-                { l: 'Alertes actives', v: stats.active_alerts },
-                { l: 'Total alertes', v: stats.total_alerts },
-                { l: 'Prescriptions', v: stats.prescriptions },
-                { l: 'Souscrites', v: stats.subscribed_prescriptions },
-                { l: 'Interventions', v: stats.interventions },
-                { l: 'Téléconsults', v: stats.teleconsults },
-                { l: 'Appels TA', v: stats.teleassistance_calls },
-                { l: 'Codes actifs', v: stats.activation_codes },
+                { l: 'Utilisateurs', v: stats.total_users }, { l: 'Beneficiaires', v: stats.beneficiaries },
+                { l: 'Gardiens', v: stats.guardians }, { l: 'Prescripteurs', v: stats.prescribers },
+                { l: 'Alertes actives', v: stats.active_alerts }, { l: 'Total alertes', v: stats.total_alerts },
+                { l: 'Prescriptions', v: stats.prescriptions }, { l: 'Souscrites', v: stats.subscribed_prescriptions },
+                { l: 'Interventions', v: stats.interventions }, { l: 'Teleconsults', v: stats.teleconsults },
+                { l: 'Appels TA', v: stats.teleassistance_calls }, { l: 'Codes actifs', v: stats.activation_codes },
               ].map(st => (
-                <View key={st.l} style={bs.statC}>
-                  <Text style={bs.statV}>{st.v}</Text>
-                  <Text style={bs.statL}>{st.l}</Text>
-                </View>
+                <View key={st.l} style={bs.statC}><Text style={bs.statV}>{st.v}</Text><Text style={bs.statL}>{st.l}</Text></View>
               ))}
             </View>
           )}
 
+          {/* USERS */}
           {tab === 'users' && users.map(u => (
             <View key={u.id} style={bs.userR}>
               <View style={bs.userAv}><Text style={bs.userAvT}>{u.name?.charAt(0)?.toUpperCase()}</Text></View>
               <View style={bs.userInfo}>
                 <Text style={bs.userName}>{u.name}</Text>
                 <Text style={bs.userEmail}>{u.email}</Text>
-                {u.is_prescriber && <Text style={bs.prescTag}>Prescripteur — {u.prescriber_structure}</Text>}
+                {u.is_prescriber && <Text style={bs.prescTag}>Prescripteur - {u.prescriber_structure}</Text>}
               </View>
               <View style={bs.roleBdg}><Text style={bs.roleBdgT}>{u.role}</Text></View>
             </View>
           ))}
 
+          {/* ALERTS */}
           {tab === 'alerts' && alerts.slice(0, 30).map(a => (
             <View key={a.id} style={[bs.alertR, a.severity === 'critical' && { borderLeftColor: Colors.destructive }]}>
-              <View style={bs.alertI}><Text style={bs.alertM}>{a.message}</Text>
-                <Text style={bs.alertMt}>{a.beneficiary_name} · {a.alert_type} · {new Date(a.created_at).toLocaleString('fr-FR')}</Text></View>
+              <View style={bs.alertI}>
+                <Text style={bs.alertM}>{a.message}</Text>
+                <Text style={bs.alertMt}>{a.beneficiary_name} - {a.alert_type} - {new Date(a.created_at).toLocaleString('fr-FR')}</Text>
+              </View>
               <View style={[bs.stBdg, a.status === 'active' && { backgroundColor: Colors.destructive + '12' }]}>
                 <Text style={[bs.stBdgT, a.status === 'active' && { color: Colors.destructive }]}>{a.status}</Text>
               </View>
             </View>
           ))}
 
+          {/* ACTIVATION CODES */}
           {tab === 'codes' && (
             <>
-              <TouchableOpacity testID="create-code-btn" style={bs.createBtn} onPress={() => setShowCodeModal(true)}>
-                <Ionicons name="add" size={18} color="#FFF" />
-                <Text style={bs.createBtnT}>Créer un code d'activation</Text>
+              <TouchableOpacity data-testid="create-code-btn" style={bs.createBtn} onPress={openCreateCode}>
+                <Ionicons name="add" size={18} color="#FFF" /><Text style={bs.createBtnT}>Creer un code d'activation</Text>
               </TouchableOpacity>
               {codes.map(c => (
-                <View key={c.id} style={[bs.codeC, !c.active && { opacity: 0.4 }]}>
+                <View key={c.id} style={[bs.codeC, !c.active && { opacity: 0.5 }]} data-testid={`code-card-${c.id}`}>
                   <View style={bs.codeTop}>
                     <Text style={bs.codeVal}>{c.code}</Text>
                     <View style={[bs.codeBdg, c.active && { backgroundColor: Colors.success + '15' }]}>
-                      <Text style={[bs.codeBdgT, c.active && { color: Colors.success }]}>{c.active ? 'Actif' : 'Désactivé'}</Text>
+                      <Text style={[bs.codeBdgT, c.active && { color: Colors.success }]}>{c.active ? 'Actif' : 'Desactive'}</Text>
                     </View>
                   </View>
                   <Text style={bs.codeSt}>{c.structure_name}</Text>
-                  <Text style={bs.codeMeta}>Utilisations: {c.uses_count}/{c.max_uses} · {new Date(c.created_at).toLocaleDateString('fr-FR')}</Text>
-                  {c.active && <TouchableOpacity testID={`deactivate-${c.id}`} style={bs.deactBtn} onPress={() => deactivateCode(c.id)}>
-                    <Text style={bs.deactBtnT}>Désactiver</Text></TouchableOpacity>}
+                  {c.raison_sociale ? <Text style={bs.codeMeta}>{c.raison_sociale}{c.siret ? ` - SIRET: ${c.siret}` : ''}</Text> : null}
+                  <Text style={bs.codeMeta}>Utilisations: {c.uses_count}/{c.max_uses} - {new Date(c.created_at).toLocaleDateString('fr-FR')}</Text>
+                  <View style={bs.codeActions}>
+                    <TouchableOpacity data-testid={`edit-code-${c.id}`} style={bs.actionBtn} onPress={() => openEditCode(c)}>
+                      <Ionicons name="create-outline" size={14} color={Colors.primary} /><Text style={[bs.actionBtnT, { color: Colors.primary }]}>Modifier</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity data-testid={`toggle-code-${c.id}`} style={bs.actionBtn} onPress={() => toggleCode(c.id)}>
+                      <Ionicons name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={14} color={c.active ? '#FF9800' : Colors.success} />
+                      <Text style={[bs.actionBtnT, { color: c.active ? '#FF9800' : Colors.success }]}>{c.active ? 'Desactiver' : 'Activer'}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity data-testid={`delete-code-${c.id}`} style={bs.actionBtn} onPress={() => deleteCode(c.id)}>
+                      <Ionicons name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>Supprimer</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               ))}
             </>
           )}
 
+          {/* PRESCRIPTIONS */}
           {tab === 'prescriptions' && prescriptions.map(p => (
             <View key={p.id} style={bs.prescC}>
               <View style={bs.prescTop}>
@@ -182,96 +274,99 @@ export default function BackofficeScreen() {
                   <Text style={[bs.stBdgT, p.status === 'subscribed' && { color: Colors.success }]}>{p.status === 'subscribed' ? 'Souscrit' : 'En attente'}</Text>
                 </View>
               </View>
-              <Text style={bs.prescMeta}>{p.beneficiary_email} · {p.beneficiary_phone}</Text>
+              <Text style={bs.prescMeta}>{p.beneficiary_email} - {p.beneficiary_phone}</Text>
               <Text style={bs.prescMeta}>Par: {p.guardian_name} ({p.prescriber_structure})</Text>
-              {p.email_content && <View style={{marginTop:6,padding:8,backgroundColor:Colors.paper,borderRadius:8,borderWidth:0.5,borderColor:Colors.border}}>
-                <Text style={{fontSize:10,fontWeight:'600',color:Colors.textMuted,marginBottom:2}}>EMAIL ENVOYÉ</Text>
-                <Text style={{fontSize:11,color:Colors.textSecondary}} numberOfLines={3}>{p.email_content.body?.slice(0,150)}...</Text>
-              </View>}
+              {p.email_content && (
+                <View style={{ marginTop: 6, padding: 8, backgroundColor: Colors.paper, borderRadius: 8, borderWidth: 0.5, borderColor: Colors.border }}>
+                  <Text style={{ fontSize: 10, fontWeight: '600', color: Colors.textMuted, marginBottom: 2 }}>EMAIL ENVOYE</Text>
+                  <Text style={{ fontSize: 11, color: Colors.textSecondary }} numberOfLines={3}>{p.email_content.body?.slice(0, 150)}...</Text>
+                </View>
+              )}
               <View style={bs.prescFoot}>
                 <Text style={bs.prescType}>{p.subscription_type}</Text>
-                <Text style={bs.prescComm}>+{p.commission}€</Text>
+                <Text style={bs.prescComm}>+{p.commission}EUR</Text>
               </View>
-              {p.commission_payment_date && <Text style={{fontSize:10,color:Colors.textMuted,marginTop:2}}>Commission: 1er {new Date(p.commission_payment_date).toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}</Text>}
             </View>
           ))}
 
+          {/* INTERVENTION CODES */}
           {tab === 'interventions' && (
             <>
-              <TouchableOpacity style={bs.createBtn} onPress={() => setShowIvCodeModal(true)}>
-                <Ionicons name="add" size={18} color="#FFF" />
-                <Text style={bs.createBtnT}>Créer un code intervenant</Text>
+              <TouchableOpacity data-testid="create-iv-code-btn" style={bs.createBtn} onPress={openCreateIvCode}>
+                <Ionicons name="add" size={18} color="#FFF" /><Text style={bs.createBtnT}>Creer un code intervenant</Text>
               </TouchableOpacity>
-              <Text style={{fontSize:11,color:Colors.textMuted,marginBottom:10}}>Les intervenants activent ce code dans leur profil gardien pour recevoir les interventions d'urgence dans un rayon défini.</Text>
+              <Text style={{ fontSize: 11, color: Colors.textMuted, marginBottom: 10 }}>Les intervenants activent ce code dans leur profil gardien pour recevoir les interventions d'urgence dans un rayon defini.</Text>
               {interventionCodes.map(c => (
-                <View key={c.id} style={bs.codeC}>
+                <View key={c.id} style={[bs.codeC, !c.active && { opacity: 0.5 }]} data-testid={`iv-code-card-${c.id}`}>
                   <View style={bs.codeTop}>
                     <Text style={bs.codeVal}>{c.code}</Text>
                     <View style={[bs.codeBdg, c.active && { backgroundColor: Colors.success + '15' }]}>
-                      <Text style={[bs.codeBdgT, c.active && { color: Colors.success }]}>{c.active ? 'Actif' : 'Désactivé'}</Text>
+                      <Text style={[bs.codeBdgT, c.active && { color: Colors.success }]}>{c.active ? 'Actif' : 'Desactive'}</Text>
                     </View>
                   </View>
                   <Text style={bs.codeSt}>{c.structure_name}</Text>
-                  <Text style={bs.codeMeta}>Rayon: {c.default_radius_km || 30} km · Utilisations: {c.uses_count}/{c.max_uses}</Text>
+                  {c.raison_sociale ? <Text style={bs.codeMeta}>{c.raison_sociale}{c.siret ? ` - SIRET: ${c.siret}` : ''}</Text> : null}
+                  <Text style={bs.codeMeta}>Rayon: {c.default_radius_km || 30} km - Utilisations: {c.uses_count}/{c.max_uses}</Text>
+                  <View style={bs.codeActions}>
+                    <TouchableOpacity data-testid={`edit-iv-code-${c.id}`} style={bs.actionBtn} onPress={() => openEditIvCode(c)}>
+                      <Ionicons name="create-outline" size={14} color={Colors.primary} /><Text style={[bs.actionBtnT, { color: Colors.primary }]}>Modifier</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity data-testid={`toggle-iv-code-${c.id}`} style={bs.actionBtn} onPress={() => toggleIvCode(c.id)}>
+                      <Ionicons name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={14} color={c.active ? '#FF9800' : Colors.success} />
+                      <Text style={[bs.actionBtnT, { color: c.active ? '#FF9800' : Colors.success }]}>{c.active ? 'Desactiver' : 'Activer'}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity data-testid={`delete-iv-code-${c.id}`} style={bs.actionBtn} onPress={() => deleteIvCode(c.id)}>
+                      <Ionicons name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>Supprimer</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               ))}
-              {interventionCodes.length === 0 && <View style={{alignItems:'center',paddingVertical:20}}><Text style={{color:Colors.textMuted,fontSize:13}}>Aucun code intervenant</Text></View>}
-              
-              {/* Intervention providers list */}
-              <Text style={{fontSize:14,fontWeight:'700',color:Colors.textPrimary,marginTop:16,marginBottom:8}}>Intervenants actifs</Text>
+              {interventionCodes.length === 0 && <View style={{ alignItems: 'center', paddingVertical: 20 }}><Text style={{ color: Colors.textMuted, fontSize: 13 }}>Aucun code intervenant</Text></View>}
+
+              <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginTop: 16, marginBottom: 8 }}>Intervenants actifs</Text>
               {users.filter((u: any) => u.is_intervention_provider).length > 0 ? users.filter((u: any) => u.is_intervention_provider).map((u: any) => (
                 <View key={u.id} style={bs.userR}>
                   <View style={bs.userAv}><Text style={bs.userAvT}>{u.name?.charAt(0)?.toUpperCase()}</Text></View>
                   <View style={bs.userInfo}>
                     <Text style={bs.userName}>{u.name}</Text>
-                    <Text style={bs.userEmail}>{u.intervention_structure} · {u.intervention_radius_km || 30}km</Text>
+                    <Text style={bs.userEmail}>{u.intervention_structure} - {u.intervention_radius_km || 30}km</Text>
                   </View>
-                  <View style={[bs.roleBdg, {borderColor: Colors.success}]}><Text style={[bs.roleBdgT, {color: Colors.success}]}>ACTIF</Text></View>
+                  <View style={[bs.roleBdg, { borderColor: Colors.success }]}><Text style={[bs.roleBdgT, { color: Colors.success }]}>ACTIF</Text></View>
                 </View>
-              )) : <Text style={{color:Colors.textMuted,fontSize:12}}>Aucun intervenant inscrit</Text>}
+              )) : <Text style={{ color: Colors.textMuted, fontSize: 12 }}>Aucun intervenant inscrit</Text>}
             </>
           )}
 
-          {/* KPI Dashboard */}
+          {/* KPI DASHBOARD */}
           {tab === 'kpi' && kpi && (
             <>
-              {/* Key metrics */}
               <View style={bs.grid}>
                 {[
                   { l: 'Utilisateurs', v: kpi.total_users, c: Colors.primary },
                   { l: 'Alertes totales', v: kpi.total_alerts, c: Colors.destructive },
                   { l: 'Interventions', v: kpi.total_interventions, c: '#FF9800' },
-                  { l: 'Abonnés actifs', v: kpi.active_subscriptions, c: Colors.success },
+                  { l: 'Abonnes actifs', v: kpi.active_subscriptions, c: Colors.success },
                   { l: 'En attente', v: kpi.pending_subscriptions, c: Colors.textMuted },
-                  { l: 'Résolution moy.', v: `${kpi.avg_resolution_minutes}min`, c: Colors.primary },
+                  { l: 'Resolution moy.', v: `${kpi.avg_resolution_minutes}min`, c: Colors.primary },
                 ].map(x => (
-                  <View key={x.l} style={bs.miniStat}>
-                    <Text style={[bs.miniStatV, { color: x.c }]}>{x.v}</Text>
-                    <Text style={bs.miniStatL}>{x.l}</Text>
-                  </View>
+                  <View key={x.l} style={bs.miniStat}><Text style={[bs.miniStatV, { color: x.c }]}>{x.v}</Text><Text style={bs.miniStatL}>{x.l}</Text></View>
                 ))}
               </View>
-
-              {/* Users by role */}
-              <Text style={bs.kpiTitle}>Répartition utilisateurs</Text>
+              <Text style={bs.kpiTitle}>Repartition utilisateurs</Text>
               <View style={bs.kpiChart}>
                 {Object.entries(kpi.users_by_role || {}).map(([role, count]: [string, any]) => {
                   const maxVal = Math.max(...Object.values(kpi.users_by_role).map(Number));
                   const pct = maxVal > 0 ? (count / maxVal) * 100 : 0;
-                  const roleLabels: any = { beneficiary: 'Bénéficiaires', guardian: 'Gardiens', admin: 'Admins', teleassistance: 'Téléassistance' };
+                  const roleLabels: any = { beneficiary: 'Beneficiaires', guardian: 'Gardiens', admin: 'Admins', teleassistance: 'Teleassistance' };
                   return (
                     <View key={role} style={bs.kpiBarRow}>
                       <Text style={bs.kpiBarLabel}>{roleLabels[role] || role}</Text>
-                      <View style={bs.kpiBarBg}>
-                        <View style={[bs.kpiBar, { width: `${pct}%`, backgroundColor: Colors.primary }]} />
-                      </View>
+                      <View style={bs.kpiBarBg}><View style={[bs.kpiBar, { width: `${pct}%`, backgroundColor: Colors.primary }]} /></View>
                       <Text style={bs.kpiBarVal}>{count}</Text>
                     </View>
                   );
                 })}
               </View>
-
-              {/* Alert types */}
               <Text style={bs.kpiTitle}>Types d'alertes</Text>
               <View style={bs.kpiChart}>
                 {Object.entries(kpi.alert_types || {}).map(([type, count]: [string, any]) => {
@@ -281,35 +376,12 @@ export default function BackofficeScreen() {
                   return (
                     <View key={type} style={bs.kpiBarRow}>
                       <Text style={bs.kpiBarLabel}>{type}</Text>
-                      <View style={bs.kpiBarBg}>
-                        <View style={[bs.kpiBar, { width: `${pct}%`, backgroundColor: colors[type] || Colors.primary }]} />
-                      </View>
+                      <View style={bs.kpiBarBg}><View style={[bs.kpiBar, { width: `${pct}%`, backgroundColor: colors[type] || Colors.primary }]} /></View>
                       <Text style={bs.kpiBarVal}>{count}</Text>
                     </View>
                   );
                 })}
               </View>
-
-              {/* Interventions by status */}
-              <Text style={bs.kpiTitle}>Interventions par statut</Text>
-              <View style={bs.kpiChart}>
-                {Object.entries(kpi.interventions_by_status || {}).map(([status, count]: [string, any]) => {
-                  const maxVal = Math.max(...Object.values(kpi.interventions_by_status).map(Number));
-                  const pct = maxVal > 0 ? (count / maxVal) * 100 : 0;
-                  const colors: any = { completed: Colors.success, dispatched: Colors.primary, en_route: '#FF9800', cancelled: Colors.textMuted };
-                  return (
-                    <View key={status} style={bs.kpiBarRow}>
-                      <Text style={bs.kpiBarLabel}>{status}</Text>
-                      <View style={bs.kpiBarBg}>
-                        <View style={[bs.kpiBar, { width: `${pct}%`, backgroundColor: colors[status] || Colors.primary }]} />
-                      </View>
-                      <Text style={bs.kpiBarVal}>{count}</Text>
-                    </View>
-                  );
-                })}
-              </View>
-
-              {/* Alerts last 7 days mini chart */}
               <Text style={bs.kpiTitle}>Alertes (7 derniers jours)</Text>
               <View style={bs.miniChart}>
                 {(kpi.alerts_by_day || []).slice(-7).map((d: any, i: number) => {
@@ -330,25 +402,30 @@ export default function BackofficeScreen() {
         </ScrollView>
       )}
 
+      {/* ===== Activation Code Modal ===== */}
       <Modal visible={showCodeModal} transparent animationType="slide">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={bs.modalO}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={bs.modalO}>
               <TouchableWithoutFeedback>
                 <View style={bs.modalC}>
-                  <Text style={bs.modalT}>Nouveau code d'activation</Text>
-                  <Text style={bs.inputL}>Nom de la structure</Text>
-                  <TextInput testID="code-structure" style={bs.modalInp} placeholder="Ex: SAAD Aide à Domicile" placeholderTextColor={Colors.textMuted} value={newStructure} onChangeText={setNewStructure} blurOnSubmit={false} />
-                  <Text style={bs.inputL}>Nombre max d'utilisations</Text>
-                  <TextInput testID="code-max" style={bs.modalInp} placeholder="50" placeholderTextColor={Colors.textMuted} value={newMaxUses} onChangeText={setNewMaxUses} keyboardType="numeric" blurOnSubmit={false} />
-                  <View style={bs.modalBtns}>
-                    <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowCodeModal(false)}>
-                      <Text style={bs.cancelBtnT}>Annuler</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity testID="confirm-code-btn" style={bs.confirmBtn} onPress={createCode} disabled={creating}>
-                      {creating ? <ActivityIndicator color="#FFF" /> : <Text style={bs.confirmBtnT}>Créer</Text>}
-                    </TouchableOpacity>
-                  </View>
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    <Text style={bs.modalT}>{editingCode ? 'Modifier le code' : "Nouveau code d'activation"}</Text>
+                    <FormField label="Nom de structure *" value={codeForm.structure_name} onChange={(v) => setCodeForm({ ...codeForm, structure_name: v })} placeholder="Ex: SAAD Aide a Domicile" testId="code-structure" />
+                    <FormField label="Max utilisations" value={codeForm.max_uses} onChange={(v) => setCodeForm({ ...codeForm, max_uses: v })} placeholder="50" keyboard="numeric" testId="code-max" />
+                    <FormField label="Raison sociale" value={codeForm.raison_sociale} onChange={(v) => setCodeForm({ ...codeForm, raison_sociale: v })} placeholder="Raison sociale" testId="code-raison" />
+                    <FormField label="SIRET" value={codeForm.siret} onChange={(v) => setCodeForm({ ...codeForm, siret: v })} placeholder="123 456 789 00012" testId="code-siret" />
+                    <FormField label="TVA" value={codeForm.tva} onChange={(v) => setCodeForm({ ...codeForm, tva: v })} placeholder="FR00123456789" testId="code-tva" />
+                    <FormField label="Adresse" value={codeForm.adresse} onChange={(v) => setCodeForm({ ...codeForm, adresse: v })} placeholder="Adresse" testId="code-adresse" />
+                    <FormField label="Telephone" value={codeForm.telephone} onChange={(v) => setCodeForm({ ...codeForm, telephone: v })} placeholder="+33..." testId="code-phone" />
+                    <FormField label="Email contact" value={codeForm.email_contact} onChange={(v) => setCodeForm({ ...codeForm, email_contact: v })} placeholder="contact@..." testId="code-email" />
+                    <View style={bs.modalBtns}>
+                      <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowCodeModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
+                      <TouchableOpacity data-testid="confirm-code-btn" style={bs.confirmBtn} onPress={saveCode} disabled={creating}>
+                        {creating ? <ActivityIndicator color="#FFF" /> : <Text style={bs.confirmBtnT}>{editingCode ? 'Enregistrer' : 'Creer'}</Text>}
+                      </TouchableOpacity>
+                    </View>
+                  </ScrollView>
                 </View>
               </TouchableWithoutFeedback>
             </View>
@@ -356,25 +433,30 @@ export default function BackofficeScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
+      {/* ===== Intervention Code Modal ===== */}
       <Modal visible={showIvCodeModal} transparent animationType="slide">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={bs.modalO}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={bs.modalO}>
               <TouchableWithoutFeedback>
                 <View style={bs.modalC}>
-                  <Text style={bs.modalT}>Nouveau code intervenant</Text>
-                  <Text style={bs.inputL}>Nom de la structure</Text>
-                  <TextInput testID="iv-structure" style={bs.modalInp} placeholder="Ex: Ambulances du Sud" placeholderTextColor={Colors.textMuted} value={ivStructure} onChangeText={setIvStructure} blurOnSubmit={false} />
-                  <Text style={bs.inputL}>Rayon d'intervention (km)</Text>
-                  <TextInput testID="iv-radius" style={bs.modalInp} placeholder="30" placeholderTextColor={Colors.textMuted} value={ivRadius} onChangeText={setIvRadius} keyboardType="numeric" blurOnSubmit={false} />
-                  <View style={bs.modalBtns}>
-                    <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowIvCodeModal(false)}>
-                      <Text style={bs.cancelBtnT}>Annuler</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity testID="confirm-iv-code-btn" style={bs.confirmBtn} onPress={createIvCode} disabled={creating}>
-                      {creating ? <ActivityIndicator color="#FFF" /> : <Text style={bs.confirmBtnT}>Créer</Text>}
-                    </TouchableOpacity>
-                  </View>
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    <Text style={bs.modalT}>{editingIvCode ? 'Modifier le code' : 'Nouveau code intervenant'}</Text>
+                    <FormField label="Nom de structure *" value={ivForm.structure_name} onChange={(v) => setIvForm({ ...ivForm, structure_name: v })} placeholder="Ex: Ambulances du Sud" testId="iv-structure" />
+                    <FormField label="Rayon d'intervention (km)" value={ivForm.radius_km} onChange={(v) => setIvForm({ ...ivForm, radius_km: v })} placeholder="30" keyboard="numeric" testId="iv-radius" />
+                    <FormField label="Max utilisations" value={ivForm.max_uses} onChange={(v) => setIvForm({ ...ivForm, max_uses: v })} placeholder="50" keyboard="numeric" testId="iv-max" />
+                    <FormField label="Raison sociale" value={ivForm.raison_sociale} onChange={(v) => setIvForm({ ...ivForm, raison_sociale: v })} placeholder="Raison sociale" testId="iv-raison" />
+                    <FormField label="SIRET" value={ivForm.siret} onChange={(v) => setIvForm({ ...ivForm, siret: v })} placeholder="123 456 789 00012" testId="iv-siret" />
+                    <FormField label="Adresse" value={ivForm.adresse} onChange={(v) => setIvForm({ ...ivForm, adresse: v })} placeholder="Adresse" testId="iv-adresse" />
+                    <FormField label="Telephone" value={ivForm.telephone} onChange={(v) => setIvForm({ ...ivForm, telephone: v })} placeholder="+33..." testId="iv-phone" />
+                    <FormField label="Email contact" value={ivForm.email_contact} onChange={(v) => setIvForm({ ...ivForm, email_contact: v })} placeholder="contact@..." testId="iv-email" />
+                    <View style={bs.modalBtns}>
+                      <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowIvCodeModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
+                      <TouchableOpacity data-testid="confirm-iv-code-btn" style={bs.confirmBtn} onPress={saveIvCode} disabled={creating}>
+                        {creating ? <ActivityIndicator color="#FFF" /> : <Text style={bs.confirmBtnT}>{editingIvCode ? 'Enregistrer' : 'Creer'}</Text>}
+                      </TouchableOpacity>
+                    </View>
+                  </ScrollView>
                 </View>
               </TouchableWithoutFeedback>
             </View>
@@ -382,6 +464,16 @@ export default function BackofficeScreen() {
         </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
+  );
+}
+
+function FormField({ label, value, onChange, placeholder, keyboard, testId }: { label: string; value: string; onChange: (v: string) => void; placeholder: string; keyboard?: string; testId?: string }) {
+  return (
+    <>
+      <Text style={bs.inputL}>{label}</Text>
+      <TextInput data-testid={testId} style={bs.modalInp} placeholder={placeholder} placeholderTextColor={Colors.textMuted}
+        value={value} onChangeText={onChange} keyboardType={keyboard as any || 'default'} blurOnSubmit={false} />
+    </>
   );
 }
 
@@ -425,9 +517,10 @@ const bs = StyleSheet.create({
   codeBdg: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: Colors.subtle },
   codeBdgT: { fontSize: 10, fontWeight: '700', color: Colors.textMuted },
   codeSt: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
-  codeMeta: { fontSize: 11, color: Colors.textMuted, marginTop: 4 },
-  deactBtn: { marginTop: 8, alignSelf: 'flex-start', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 6, backgroundColor: Colors.destructive + '10' },
-  deactBtnT: { fontSize: 12, fontWeight: '600', color: Colors.destructive },
+  codeMeta: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
+  codeActions: { flexDirection: 'row', gap: 8, marginTop: 10, flexWrap: 'wrap' },
+  actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, borderWidth: 1, borderColor: Colors.border },
+  actionBtnT: { fontSize: 11, fontWeight: '600' },
   prescC: { backgroundColor: Colors.subtle, borderRadius: 12, padding: 12, marginBottom: 6 },
   prescTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   prescName: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
@@ -436,11 +529,11 @@ const bs = StyleSheet.create({
   prescType: { fontSize: 12, fontWeight: '500', color: Colors.textSecondary },
   prescComm: { fontSize: 14, fontWeight: '700', color: Colors.success },
   modalO: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalC: { backgroundColor: Colors.paper, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
+  modalC: { backgroundColor: Colors.paper, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, maxHeight: '85%' },
   modalT: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginBottom: 16 },
   inputL: { fontSize: 12, fontWeight: '600', color: Colors.textMuted, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
-  modalInp: { backgroundColor: Colors.subtle, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 14, fontSize: 15, color: Colors.textPrimary, marginBottom: 14, borderWidth: 1, borderColor: Colors.border },
-  modalBtns: { flexDirection: 'row', gap: 10, marginTop: 4 },
+  modalInp: { backgroundColor: Colors.subtle, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: Colors.textPrimary, marginBottom: 10, borderWidth: 1, borderColor: Colors.border },
+  modalBtns: { flexDirection: 'row', gap: 10, marginTop: 8 },
   cancelBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.subtle, alignItems: 'center' },
   cancelBtnT: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
   confirmBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center' },
