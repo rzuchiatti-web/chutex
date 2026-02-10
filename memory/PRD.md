@@ -1,64 +1,73 @@
-# CHUTEX - Product Requirements Document
+# CHUTEX - Teleassistance & Telesante Application
 
 ## Problem Statement
-Application de téléassistance intelligente par Chutex Innovation. Monitoring santé connecté, gestion de prescriptions, liaison gardien/bénéficiaire, protocole de téléassistance IA automatisé.
+Application de teleassistance et telesante "CHUTEX" pour le suivi des personnes agees/vulnerables avec 3 roles : beneficiaire, gardien, administrateur.
 
-## Tech Stack
-- Frontend: React Native (Expo) for Web, TypeScript
-- Backend: Python, FastAPI  
-- Database: MongoDB
-- AI: GPT-5.2 via Emergent LLM Key
-- Telephony: Twilio Voice API
+## Core Requirements
+- **Beneficiaire**: Dashboard sante, alertes, teleconsultation, ECG, geofencing, alertes sedentarite
+- **Gardien**: Suivi beneficiaires, interventions, prescriptions, itineraire vers beneficiaire
+- **Admin**: Gestion codes prescripteurs/intervenants, KPI, statistiques
+- **Teleassistance IA**: Plateforme de gestion des alertes avec escalade automatique
 
-## Comptes de test
-| Rôle | Email | MdP |
-|------|-------|-----|
-| Bénéficiaire | robert.martin@email.fr | demo123 |
-| Gardien | claire.martin@email.fr | demo123 |
-| Téléassistance | plateau@chutex.fr | demo123 |
-| Admin | admin@chutex.fr | demo123 |
+## Architecture
+- **Frontend**: React Native / Expo / Expo Router (TypeScript)
+- **Backend**: FastAPI (Python) - Structure modulaire
+- **Database**: MongoDB
+- **Auth**: JWT
 
-## Features implémentées
+### Backend Structure (Post-Refactoring)
+```
+/app/backend/
+├── server.py          # App entry + seed data
+├── database.py        # MongoDB connection & config
+├── models.py          # Pydantic models
+├── auth.py            # JWT auth utilities
+├── utils.py           # Data generators, anomaly check, email mock
+└── routes/
+    ├── auth_routes.py
+    ├── device_routes.py
+    ├── health_routes.py
+    ├── alert_routes.py
+    ├── guardian_routes.py
+    ├── admin_routes.py
+    ├── teleassistance_routes.py
+    └── misc_routes.py
+```
 
-### Bénéficiaire
-- [x] Dashboard santé (pouls, SpO2, tension, température, pas, stress)
-- [x] Bouton SOS → protocole téléassistance automatique
-- [x] Seuils d'alerte manuels + recommandation IA par métrique
-- [x] Rappels quotidiens (hydratation, médicaments, activités)
-- [x] Partage de données sélectif (gardiens)
-- [x] Partage QR code / code unique
-- [x] Téléconsultation QCM
-- [x] Gestion appareils (bracelet, balance, gilet)
-- [x] Historique alertes cliquables → détail + Clôturer/Intervenir
-- [x] **ECG** — Lancement depuis l'app, résultat simulé (BPM, rythme, intervalles PR/QRS/QT, tracé, interprétation), historique
-- [x] **Géofencing** — Zones de sécurité avec rayon, alerte auto si sortie de zone
-- [x] **Alertes de sédentarité** — Config max heures inactif + plages horaires, alerte auto
+## Test Credentials
+- Beneficiaire: robert.martin@email.fr / demo123
+- Gardien: claire.martin@email.fr / demo123
+- Admin: admin@chutex.fr / demo123
+- Teleassistance: plateau@chutex.fr / demo123
 
-### Gardien
-- [x] Dashboard bénéficiaires + alertes
-- [x] Activation prescripteur + Intervention Care
-- [x] Fiche détaillée bénéficiaire (santé, appareils + batterie, interventions)
-- [x] Alertes cliquables avec Clôturer/Intervenir
-- [x] Rapport santé IA, suivi interventions
+## Implemented Features
+- Full auth (register/login/JWT)
+- Beneficiary dashboard with vitals, AI recommendations, reminders
+- Guardian dashboard with beneficiary monitoring
+- Alert system with create/resolve/escalation
+- Teleconsultation questionnaire flow
+- Prescription system with email notifications (MOCKED)
+- Admin backoffice with full CRUD for codes
+- Teleassistance IA platform with auto-escalation
+- ECG simulation and history
+- Geofencing with zone violation detection
+- Sedentarity alerts
+- Data sharing preferences
+- QR/Link code for guardian-beneficiary linking
 
-### Admin (6 bottom tabs)
-- [x] Dashboard, Alertes, Prescripteurs (CRUD codes + infos société), Intervenants (CRUD codes), Analyse (KPI), Profil
+## Mocked Integrations
+- Email sending (logs to console)
+- AI recommendations (uses Emergent LLM key when available)
+- Twilio calls (configured but optional)
 
-### Téléassistance IA
-- [x] Dashboard (En cours / Historique / Interventions), reprise manuelle, résolution
-- [x] Refresh auto 5s, alertes cliquables
+## Completed This Session (Feb 2026)
+1. P0 - Refactored guardian's beneficiary detail page (single scrollable page)
+2. P1 - Added "Lancer l'itineraire" button for guardians
+3. P2 - Enhanced backoffice CRUD (edit/toggle/delete) for activation & intervention codes
+4. P2 - "Cloturer" button on alert cards (already existed)
+5. P3 - Complete backend refactoring from monolithic server.py to modular structure
 
-## MOCKED
-- ECG simulé (PQRST waveform)
-- Géofencing utilise position stockée
-- Emails en DB
-- Données santé simulées
-
-## Prochaines étapes
-- P1: Fiche bénéficiaire gardien: toutes données sur une page
-- P1: Bouton itinéraire GPS (Google Maps/Waze)
-- P1: Carte multi-bénéficiaires gardien
-- P1: Service email réel
-- P2: Export PDF rapport santé
-- P3: Notifications SMS
-- P3: Intégration vrais produits SDK
+## Backlog
+- P2: Fix logout workaround (currently uses page reload)
+- P3: Real email integration (currently mocked)
+- P3: Persistent database setup (currently resets on restart but uses MongoDB)
