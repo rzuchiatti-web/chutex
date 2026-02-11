@@ -180,6 +180,8 @@ async def get_shopify_auth_url(request: Request, user=Depends(get_current_user))
     if not SHOPIFY_CLIENT_ID or not SHOPIFY_STORE_URL:
         raise HTTPException(status_code=400, detail="Shopify Client ID ou Store URL non configure")
     base_url = str(request.base_url).rstrip('/')
+    if base_url.startswith('http://') and 'localhost' not in base_url:
+        base_url = base_url.replace('http://', 'https://', 1)
     redirect_uri = f"{base_url}/api/shopify/oauth/callback"
     nonce = uuid.uuid4().hex[:16]
     await db.settings.update_one(
