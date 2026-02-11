@@ -19,5 +19,10 @@ TWILIO_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
 TWILIO_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', '')
 TWILIO_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER', '')
 
+SHOPIFY_STORE_URL = os.environ.get('SHOPIFY_STORE_URL', '')
+SHOPIFY_CLIENT_ID = os.environ.get('SHOPIFY_CLIENT_ID', '')
+SHOPIFY_SHARED_SECRET = os.environ.get('SHOPIFY_SHARED_SECRET', '')
+SHOPIFY_ACCESS_TOKEN = os.environ.get('SHOPIFY_ACCESS_TOKEN', '')
+
 from twilio.rest import Client as TwilioClient
 twilio_client = TwilioClient(TWILIO_SID, TWILIO_TOKEN) if TWILIO_SID and TWILIO_TOKEN else None
