@@ -157,14 +157,115 @@ async def delete_subscription(sub_id: str, user=Depends(get_current_user)):
     return {"status": "deleted"}
 
 
+# ==================== SHOPIFY STATUS & OAUTH ====================
+@router.get("/admin/shopify/status")
+async def shopify_status(user=Depends(get_current_user)):
+    """Check Shopify connection status"""
+    if user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    token_doc = await db.settings.find_one({"key": "shopify_access_token"}, {"_id": 0})
+    token = token_doc.get('value', '') if token_doc else SHOPIFY_ACCESS_TOKEN
+    return {
+        "connected": bool(token),
+        "store_url": SHOPIFY_STORE_URL,
+        "has_client_id": bool(SHOPIFY_CLIENT_ID),
+    }
+
+
+@router.get("/admin/shopify/auth-url")
+async def get_shopify_auth_url(request: Request, user=Depends(get_current_user)):
+    """Generate Shopify OAuth authorization URL"""
+    if user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    if not SHOPIFY_CLIENT_ID or not SHOPIFY_STORE_URL:
+        raise HTTPException(status_code=400, detail="Shopify Client ID ou Store URL non configure")
+    base_url = str(request.base_url).rstrip('/')
+    redirect_uri = f"{base_url}/api/shopify/oauth/callback"
+    nonce = uuid.uuid4().hex[:16]
+    await db.settings.update_one(
+        {"key": "shopify_oauth_nonce"}, {"$set": {"value": nonce}}, upsert=True
+    )
+    auth_url = (
+        f"https://{SHOPIFY_STORE_URL}/admin/oauth/authorize"
+        f"?client_id={SHOPIFY_CLIENT_ID}"
+        f"&scope=read_orders,read_customers"
+        f"&redirect_uri={redirect_uri}"
+        f"&state={nonce}"
+    )
+    return {"auth_url": auth_url, "redirect_uri": redirect_uri}
+
+
+@router.get("/shopify/oauth/callback")
+async def shopify_oauth_callback(request: Request):
+    """Handle Shopify OAuth callback - exchange code for permanent access token"""
+    code = request.query_params.get('code', '')
+    state = request.query_params.get('state', '')
+    shop = request.query_params.get('shop', '')
+
+    if not code:
+        from starlette.responses import HTMLResponse
+        return HTMLResponse("<h2>Erreur: pas de code d'autorisation</h2>")
+
+    nonce_doc = await db.settings.find_one({"key": "shopify_oauth_nonce"}, {"_id": 0})
+    expected_nonce = nonce_doc.get('value', '') if nonce_doc else ''
+    if state and expected_nonce and state != expected_nonce:
+        from starlette.responses import HTMLResponse
+        return HTMLResponse("<h2>Erreur: nonce invalide</h2>")
+
+    try:
+        token_url = f"https://{SHOPIFY_STORE_URL}/admin/oauth/access_token"
+        payload = {
+            "client_id": SHOPIFY_CLIENT_ID,
+            "client_secret": SHOPIFY_CLIENT_SECRET,
+            "code": code,
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(token_url, json=payload, timeout=30)
+            if resp.status_code != 200:
+                from starlette.responses import HTMLResponse
+                return HTMLResponse(f"<h2>Erreur Shopify: {resp.text}</h2>")
+            data = resp.json()
+            access_token = data.get('access_token', '')
+
+        if access_token:
+            await db.settings.update_one(
+                {"key": "shopify_access_token"},
+                {"$set": {"value": access_token, "updated_at": datetime.now(timezone.utc).isoformat()}},
+                upsert=True,
+            )
+            logger.info("Shopify OAuth: access token saved successfully")
+            from starlette.responses import HTMLResponse
+            return HTMLResponse(
+                "<html><body style='font-family:sans-serif;text-align:center;padding:60px'>"
+                "<h1 style='color:#96BF48'>Shopify connecte !</h1>"
+                "<p>Le token d'acces a ete enregistre. Vous pouvez fermer cette page et retourner au backoffice.</p>"
+                "<script>setTimeout(()=>window.close(),3000)</script>"
+                "</body></html>"
+            )
+        else:
+            from starlette.responses import HTMLResponse
+            return HTMLResponse("<h2>Erreur: pas de token dans la reponse</h2>")
+    except Exception as e:
+        logger.error(f"Shopify OAuth error: {e}")
+        from starlette.responses import HTMLResponse
+        return HTMLResponse(f"<h2>Erreur: {e}</h2>")
+
+
+async def get_shopify_token():
+    """Get Shopify access token from DB or env"""
+    token_doc = await db.settings.find_one({"key": "shopify_access_token"}, {"_id": 0})
+    return token_doc.get('value', '') if token_doc else SHOPIFY_ACCESS_TOKEN
+
+
 # ==================== SHOPIFY SYNC ====================
 @router.post("/admin/shopify/sync")
 async def sync_shopify_orders(user=Depends(get_current_user)):
     """Manually trigger Shopify order sync"""
     if user['role'] != 'admin':
         raise HTTPException(status_code=403, detail="Admin requis")
-    if not SHOPIFY_ACCESS_TOKEN:
-        raise HTTPException(status_code=400, detail="Token d'acces Shopify non configure. Ajoutez SHOPIFY_ACCESS_TOKEN dans le .env")
+    token = await get_shopify_token()
+    if not token:
+        raise HTTPException(status_code=400, detail="Shopify non connecte. Cliquez sur 'Connecter Shopify' pour autoriser l'acces.")
 
     results = {"synced": 0, "skipped": 0, "errors": [], "details": []}
     try:
