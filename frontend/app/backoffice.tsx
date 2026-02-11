@@ -243,7 +243,7 @@ export default function BackofficeScreen() {
                 { l: 'Utilisateurs', v: stats.total_users }, { l: 'Beneficiaires', v: stats.beneficiaries },
                 { l: 'Gardiens', v: stats.guardians }, { l: 'Prescripteurs', v: stats.prescribers },
                 { l: 'Alertes actives', v: stats.active_alerts }, { l: 'Total alertes', v: stats.total_alerts },
-                { l: 'Prescriptions', v: stats.prescriptions }, { l: 'Souscrites', v: stats.subscribed_prescriptions },
+                { l: 'Abon. Standard', v: stats.subscriptions_standard || 0 }, { l: 'Abon. Care', v: stats.subscriptions_care || 0 },
                 { l: 'Interventions', v: stats.interventions }, { l: 'Teleconsults', v: stats.teleconsults },
                 { l: 'Appels TA', v: stats.teleassistance_calls }, { l: 'Codes actifs', v: stats.activation_codes },
               ].map(st => (
