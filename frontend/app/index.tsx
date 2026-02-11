@@ -13,28 +13,50 @@ const ROLES = [
   { id: 'admin', label: 'Admin', icon: 'settings-outline', desc: 'Back-office' },
 ];
 
-/* Stable input component — defined OUTSIDE parent to avoid focus loss */
-const FormInput = React.memo(({ testID, label, placeholder, value, onChangeText, keyboardType, secureTextEntry, autoCapitalize, multiline, rightElement }: any) => (
-  <View style={a.fieldWrap}>
-    {label ? <Text style={a.label}>{label}</Text> : null}
-    <View style={a.inpC}>
-      <TextInput
-        testID={testID}
-        style={[a.inp, multiline && { minHeight: 70, textAlignVertical: 'top' }]}
-        placeholder={placeholder || label}
-        placeholderTextColor={Colors.textMuted}
-        value={value}
-        onChangeText={onChangeText}
-        keyboardType={keyboardType || 'default'}
-        secureTextEntry={secureTextEntry}
-        autoCapitalize={autoCapitalize || 'sentences'}
-        multiline={multiline}
-        blurOnSubmit={!multiline}
-      />
-      {rightElement}
+/* Stable input component — uses native HTML input on web for proper focus */
+const FormInput = React.memo(({ testID, label, placeholder, value, onChangeText, keyboardType, secureTextEntry, autoCapitalize, multiline, rightElement }: any) => {
+  if (Platform.OS === 'web') {
+    const inputType = secureTextEntry ? 'password' : keyboardType === 'email-address' ? 'email' : keyboardType === 'phone-pad' ? 'tel' : keyboardType === 'numeric' ? 'number' : 'text';
+    return (
+      <View style={a.fieldWrap}>
+        {label ? <Text style={a.label}>{label}</Text> : null}
+        <View style={a.inpC}>
+          <input
+            data-testid={testID}
+            type={inputType}
+            style={{ flex: 1, fontSize: 14, color: Colors.textPrimary, border: 'none', outline: 'none', background: 'transparent', padding: '10px 0', fontFamily: 'inherit', width: '100%' } as any}
+            placeholder={placeholder || label}
+            value={value || ''}
+            onChange={(e: any) => onChangeText(e.target.value)}
+            autoCapitalize={autoCapitalize || 'sentences'}
+          />
+          {rightElement}
+        </View>
+      </View>
+    );
+  }
+  return (
+    <View style={a.fieldWrap}>
+      {label ? <Text style={a.label}>{label}</Text> : null}
+      <View style={a.inpC}>
+        <TextInput
+          testID={testID}
+          style={[a.inp, multiline && { minHeight: 70, textAlignVertical: 'top' }]}
+          placeholder={placeholder || label}
+          placeholderTextColor={Colors.textMuted}
+          value={value}
+          onChangeText={onChangeText}
+          keyboardType={keyboardType || 'default'}
+          secureTextEntry={secureTextEntry}
+          autoCapitalize={autoCapitalize || 'sentences'}
+          multiline={multiline}
+          blurOnSubmit={!multiline}
+        />
+        {rightElement}
+      </View>
     </View>
-  </View>
-));
+  );
+});
 
 export default function AuthScreen() {
   const { user, loading, login, register } = useAuth();
