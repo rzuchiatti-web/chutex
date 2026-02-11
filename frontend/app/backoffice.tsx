@@ -260,10 +260,60 @@ export default function BackofficeScreen() {
                 <Text style={bs.userName}>{u.name}</Text>
                 <Text style={bs.userEmail}>{u.email}</Text>
                 {u.is_prescriber && <Text style={bs.prescTag}>Prescripteur - {u.prescriber_structure}</Text>}
+                {u.subscription_type && u.subscription_type !== 'none' && <Text style={[bs.prescTag, { color: u.subscription_type === 'care' ? '#9C27B0' : Colors.primary }]}>Abonnement {u.subscription_type.toUpperCase()}</Text>}
               </View>
               <View style={bs.roleBdg}><Text style={bs.roleBdgT}>{u.role}</Text></View>
             </View>
           ))}
+
+          {/* SUBSCRIPTIONS */}
+          {tab === 'subscriptions' && (
+            <>
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+                <TouchableOpacity data-testid="create-sub-btn" style={[bs.createBtn, { flex: 1, marginBottom: 0 }]} onPress={() => { setSubForm({ beneficiary_phone: '', subscription_type: 'standard', notes: '' }); setShowSubModal(true); }}>
+                  <Ionicons name="add" size={18} color="#FFF" /><Text style={bs.createBtnT}>Nouvel abonnement</Text>
+                </TouchableOpacity>
+                <TouchableOpacity data-testid="sync-shopify-btn" style={[bs.createBtn, { flex: 1, marginBottom: 0, backgroundColor: '#96BF48' }]} onPress={syncShopify} disabled={syncing}>
+                  {syncing ? <ActivityIndicator color="#FFF" size="small" /> : <><Ionicons name="sync" size={18} color="#FFF" /><Text style={bs.createBtnT}>Sync Shopify</Text></>}
+                </TouchableOpacity>
+              </View>
+              <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12 }}>
+                <View style={[bs.miniStat, { backgroundColor: Colors.primary + '10' }]}>
+                  <Text style={[bs.miniStatV, { color: Colors.primary }]}>{subscriptions.length}</Text>
+                  <Text style={bs.miniStatL}>Total</Text>
+                </View>
+                <View style={[bs.miniStat, { backgroundColor: Colors.success + '10' }]}>
+                  <Text style={[bs.miniStatV, { color: Colors.success }]}>{subscriptions.filter(s => s.subscription_type === 'standard').length}</Text>
+                  <Text style={bs.miniStatL}>Standard</Text>
+                </View>
+                <View style={[bs.miniStat, { backgroundColor: '#9C27B0' + '10' }]}>
+                  <Text style={[bs.miniStatV, { color: '#9C27B0' }]}>{subscriptions.filter(s => s.subscription_type === 'care').length}</Text>
+                  <Text style={bs.miniStatL}>Care</Text>
+                </View>
+              </View>
+              {subscriptions.map(s => (
+                <View key={s.id} style={bs.codeC} data-testid={`sub-card-${s.id}`}>
+                  <View style={bs.codeTop}>
+                    <Text style={[bs.codeVal, { fontSize: 14 }]}>{s.beneficiary_name || s.beneficiary_phone}</Text>
+                    <View style={[bs.codeBdg, { backgroundColor: s.subscription_type === 'care' ? '#9C27B0' + '15' : Colors.success + '15' }]}>
+                      <Text style={[bs.codeBdgT, { color: s.subscription_type === 'care' ? '#9C27B0' : Colors.success }]}>{s.subscription_type?.toUpperCase()}</Text>
+                    </View>
+                  </View>
+                  <Text style={bs.codeMeta}>Tel: {s.beneficiary_phone}</Text>
+                  {s.beneficiary_email && <Text style={bs.codeMeta}>Email: {s.beneficiary_email}</Text>}
+                  {s.buyer_name && <Text style={bs.codeMeta}>Acheteur: {s.buyer_name} ({s.buyer_email})</Text>}
+                  <Text style={bs.codeMeta}>Source: {s.source === 'shopify' || s.source === 'shopify_webhook' ? 'Shopify' : 'Manuel'}{s.shopify_order_number ? ` #${s.shopify_order_number}` : ''} - {new Date(s.created_at).toLocaleDateString('fr-FR')}</Text>
+                  {s.notes ? <Text style={[bs.codeMeta, { fontStyle: 'italic' }]}>{s.notes}</Text> : null}
+                  <View style={bs.codeActions}>
+                    <TouchableOpacity data-testid={`delete-sub-${s.id}`} style={bs.actionBtn} onPress={() => deleteSub(s.id)}>
+                      <Ionicons name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>Supprimer</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+              {subscriptions.length === 0 && <View style={{ alignItems: 'center', paddingVertical: 20 }}><Text style={{ color: Colors.textMuted, fontSize: 13 }}>Aucun abonnement</Text></View>}
+            </>
+          )}
 
           {/* ALERTS */}
           {tab === 'alerts' && alerts.slice(0, 30).map(a => (
