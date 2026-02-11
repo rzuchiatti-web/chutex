@@ -33,11 +33,26 @@ function parseVestData(raw: string) {
 export default function VestConnectScreen() {
   const { token } = useAuth();
   const router = useRouter();
-  const [status, setStatus] = useState<'idle'|'scanning'|'connecting'|'connected'|'error'>('idle');
+  const [bleStatus, setBleStatus] = useState<'idle'|'scanning'|'connecting'|'connected'>('idle');
   const [device, setDevice] = useState<any>(null);
   const [battery, setBattery] = useState(0);
+  const [vestData, setVestData] = useState<any>(null);
   const [dataLog, setDataLog] = useState<string[]>([]);
   const [sosTriggered, setSosTriggered] = useState(false);
+
+  // Load stored vest data on mount
+  useEffect(() => {
+    apiFetch('/api/vest/status', {}, token).then(v => {
+      setVestData(v);
+      if (v?.battery) setBattery(v.battery);
+    }).catch(() => {});
+    if (Platform.OS === 'web' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  const isPaired = vestData?.device?.ble_device_id;
+  const isActive = vestData?.connected;
 
   const addLog = useCallback((msg: string) => {
     setDataLog(prev => [`${new Date().toLocaleTimeString('fr-FR')} - ${msg}`, ...prev].slice(0, 20));
@@ -53,11 +68,11 @@ export default function VestConnectScreen() {
         setSosTriggered(true);
         addLog('ALERTE CHUTE DETECTEE !');
         if (Platform.OS === 'web' && 'Notification' in window && Notification.permission === 'granted') {
-          new Notification('CHUTEX - Chute detectee !', { body: 'Une chute a ete detectee par le gilet. Les gardiens sont alertes.' });
+          new Notification('CHUTEX - Chute detectee !', { body: 'Une chute a ete detectee par le gilet.' });
         }
       }
     } catch (e: any) {
-      addLog(`Erreur envoi: ${e.message}`);
+      addLog(`Erreur: ${e.message}`);
     }
   }, [token, addLog]);
 
@@ -75,19 +90,12 @@ export default function VestConnectScreen() {
     sendToBackend(raw, parsed);
   }, [addLog, sendToBackend]);
 
-  // Request notification permission on mount
-  useEffect(() => {
-    if (Platform.OS === 'web' && 'Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-  }, []);
-
   const connectVest = async () => {
     if (Platform.OS !== 'web' || !('bluetooth' in navigator)) {
-      Alert.alert('Bluetooth', 'Ouvrez l\'app dans Chrome (Android) ou Bluefy (iPhone) pour connecter le gilet.');
+      Alert.alert('Bluetooth', 'Ouvrez l\'app dans Chrome (Android) ou Bluefy (iPhone).');
       return;
     }
-    setStatus('scanning');
+    setBleStatus('scanning');
     addLog('Recherche du gilet...');
     try {
       const nav = navigator as any;
@@ -96,17 +104,15 @@ export default function VestConnectScreen() {
         optionalServices: BLE_SERVICES.map(s => s.uuid),
       });
       setDevice(bleDevice);
-      addLog(`Gilet trouve: ${bleDevice.name || bleDevice.id}`);
-      setStatus('connecting');
+      addLog(`Trouve: ${bleDevice.name || bleDevice.id}`);
+      setBleStatus('connecting');
 
       bleDevice.addEventListener('gattserverdisconnected', () => {
-        setStatus('idle');
-        addLog('Gilet deconnecte');
+        setBleStatus('idle');
+        addLog('BLE deconnecte');
       });
 
       const server = await bleDevice.gatt.connect();
-      addLog('Connecte');
-
       let subscribed = false;
       for (const svc of BLE_SERVICES) {
         try {
@@ -115,47 +121,28 @@ export default function VestConnectScreen() {
           await notifyChar.startNotifications();
           notifyChar.addEventListener('characteristicvaluechanged', handleBleData);
           subscribed = true;
-          addLog('En ecoute des donnees...');
-
+          addLog('Gilet appaire et en ecoute');
           if (svc.write) {
             try {
               const writeChar = await service.getCharacteristic(svc.write);
               const now = new Date();
               const timeStr = `time&${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
               await writeChar.writeValue(new TextEncoder().encode(timeStr));
-              addLog('Heure synchronisee');
             } catch {}
           }
           break;
         } catch { continue; }
       }
-      if (subscribed) {
-        setStatus('connected');
-        addLog('Gilet connecte et pret !');
-      } else {
-        setStatus('error');
-        addLog('Service BLE non trouve');
-      }
+      setBleStatus(subscribed ? 'connected' : 'idle');
+      if (!subscribed) addLog('Service BLE non trouve');
     } catch (e: any) {
-      if (e.name === 'NotFoundError') {
-        addLog('Aucun appareil selectionne');
-        setStatus('idle');
-      } else {
-        addLog(`Erreur: ${e.message}`);
-        setStatus('error');
-      }
+      if (e.name === 'NotFoundError') addLog('Aucun appareil selectionne');
+      else addLog(`Erreur: ${e.message}`);
+      setBleStatus('idle');
     }
   };
 
-  const disconnectVest = () => {
-    if (device?.gatt?.connected) device.gatt.disconnect();
-    setStatus('idle');
-    setDevice(null);
-    addLog('Deconnecte');
-  };
-
-  const stColor = status === 'connected' ? Colors.success : status === 'error' ? Colors.destructive : status === 'scanning' || status === 'connecting' ? '#FF9800' : Colors.textMuted;
-  const stText = { idle: 'Non connecte', scanning: 'Recherche...', connecting: 'Connexion...', connected: 'Connecte', error: 'Erreur' }[status];
+  const stColor = isActive || bleStatus === 'connected' ? Colors.success : Colors.textMuted;
 
   return (
     <SafeAreaView style={s.safe} data-testid="vest-connect-screen">
@@ -168,15 +155,23 @@ export default function VestConnectScreen() {
       </View>
 
       <ScrollView contentContainerStyle={s.sc} showsVerticalScrollIndicator={false}>
-        {/* Connection Card */}
+
+        {/* Main Status Card */}
         <View style={[s.card, { borderColor: stColor, borderWidth: 1.5 }]}>
           <View style={s.cardRow}>
             <Ionicons name="shield-checkmark" size={32} color={stColor} />
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={s.cardTitle}>{device?.name || 'Gilet Anti-Chute'}</Text>
-              <Text style={[s.cardStatus, { color: stColor }]}>{stText}</Text>
+              <Text style={s.cardTitle}>{vestData?.device?.ble_device_id ? 'Gilet Anti-Chute' : 'Gilet non appaire'}</Text>
+              <Text style={[s.cardStatus, { color: stColor }]}>
+                {isActive || bleStatus === 'connected' ? 'Actif' : isPaired ? 'Eteint' : 'Non configure'}
+              </Text>
+              {vestData?.last_sync && (
+                <Text style={{ fontSize: 11, color: Colors.textMuted, marginTop: 2 }}>
+                  Derniere activite: {new Date(vestData.last_sync).toLocaleString('fr-FR', {hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'})}
+                </Text>
+              )}
             </View>
-            {status === 'connected' && (
+            {battery > 0 && (
               <View style={{ alignItems: 'center' }}>
                 <Ionicons name={battery > 50 ? "battery-full" : battery > 20 ? "battery-half" : "battery-dead"} size={28} color={battery > 20 ? Colors.success : Colors.destructive} />
                 <Text style={{ fontSize: 14, fontWeight: '800', color: Colors.textPrimary }}>{battery}%</Text>
@@ -184,18 +179,16 @@ export default function VestConnectScreen() {
             )}
           </View>
 
-          {status === 'idle' || status === 'error' ? (
-            <TouchableOpacity data-testid="connect-vest-btn" style={s.connectBtn} onPress={connectVest}>
-              <Ionicons name="bluetooth" size={18} color="#FFF" />
-              <Text style={s.connectBtnT}>Connecter le gilet</Text>
+          {/* Show BLE connect only if never paired */}
+          {!isPaired && bleStatus !== 'connected' && (
+            <TouchableOpacity data-testid="connect-vest-btn" style={s.connectBtn} onPress={connectVest}
+              disabled={bleStatus === 'scanning' || bleStatus === 'connecting'}>
+              {bleStatus === 'scanning' || bleStatus === 'connecting' ? (
+                <><ActivityIndicator color="#FFF" size="small" /><Text style={s.connectBtnT}>Recherche...</Text></>
+              ) : (
+                <><Ionicons name="bluetooth" size={18} color="#FFF" /><Text style={s.connectBtnT}>Appairer le gilet</Text></>
+              )}
             </TouchableOpacity>
-          ) : status === 'connected' ? (
-            <TouchableOpacity data-testid="disconnect-vest-btn" style={[s.connectBtn, { backgroundColor: Colors.destructive }]} onPress={disconnectVest}>
-              <Ionicons name="close-circle" size={18} color="#FFF" />
-              <Text style={s.connectBtnT}>Deconnecter</Text>
-            </TouchableOpacity>
-          ) : (
-            <ActivityIndicator color={stColor} style={{ marginTop: 12 }} />
           )}
         </View>
 
@@ -205,18 +198,26 @@ export default function VestConnectScreen() {
             <Ionicons name="warning" size={24} color="#FFF" />
             <View style={{ flex: 1, marginLeft: 10 }}>
               <Text style={s.sosTitle}>CHUTE DETECTEE</Text>
-              <Text style={s.sosDesc}>Les gardiens et le plateau d'ecoute ont ete alertes automatiquement.</Text>
+              <Text style={s.sosDesc}>Les gardiens et le plateau d'ecoute ont ete alertes.</Text>
             </View>
           </View>
         )}
 
-        {/* Status Info */}
-        {status === 'connected' && (
+        {/* Info when paired */}
+        {isPaired && (
           <View style={s.card}>
             <View style={s.infoRow}>
-              <Ionicons name="bluetooth" size={18} color={Colors.success} />
-              <Text style={s.infoLabel}>Connectivite</Text>
-              <Text style={[s.infoValue, { color: Colors.success }]}>Connecte</Text>
+              <Ionicons name="hardware-chip" size={18} color={Colors.textMuted} />
+              <Text style={s.infoLabel}>Identifiant</Text>
+              <Text style={s.infoValue}>{vestData?.device?.ble_device_id}</Text>
+            </View>
+            <View style={s.divider} />
+            <View style={s.infoRow}>
+              <Ionicons name="radio" size={18} color={isActive || bleStatus === 'connected' ? Colors.success : Colors.textMuted} />
+              <Text style={s.infoLabel}>Statut</Text>
+              <Text style={[s.infoValue, { color: isActive || bleStatus === 'connected' ? Colors.success : Colors.textMuted }]}>
+                {isActive || bleStatus === 'connected' ? 'Actif - En fonctionnement' : 'Eteint'}
+              </Text>
             </View>
             <View style={s.divider} />
             <View style={s.infoRow}>
@@ -224,17 +225,33 @@ export default function VestConnectScreen() {
               <Text style={s.infoLabel}>Batterie</Text>
               <Text style={[s.infoValue, { color: battery > 20 ? Colors.textPrimary : Colors.destructive }]}>{battery}%</Text>
             </View>
+
+            {/* BLE reconnect button (small, secondary) */}
+            {bleStatus !== 'connected' && (
+              <>
+                <View style={s.divider} />
+                <TouchableOpacity style={s.reconnectBtn} onPress={connectVest}
+                  disabled={bleStatus === 'scanning' || bleStatus === 'connecting'}>
+                  {bleStatus === 'scanning' || bleStatus === 'connecting' ? (
+                    <ActivityIndicator color={Colors.primary} size="small" />
+                  ) : (
+                    <><Ionicons name="bluetooth" size={14} color={Colors.primary} /><Text style={s.reconnectBtnT}>Reconnecter en Bluetooth</Text></>
+                  )}
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         )}
 
         {/* Journal */}
-        <View style={s.card}>
-          <Text style={s.sectionTitle}>Journal</Text>
-          {dataLog.length === 0 && <Text style={s.logEmpty}>En attente de connexion...</Text>}
-          {dataLog.map((log, i) => (
-            <Text key={i} style={[s.logItem, log.includes('CHUTE') || log.includes('SOS') ? { color: Colors.destructive, fontWeight: '700' } : {}]}>{log}</Text>
-          ))}
-        </View>
+        {dataLog.length > 0 && (
+          <View style={s.card}>
+            <Text style={s.sectionTitle}>Journal</Text>
+            {dataLog.map((log, i) => (
+              <Text key={i} style={[s.logItem, log.includes('CHUTE') || log.includes('SOS') ? { color: Colors.destructive, fontWeight: '700' } : {}]}>{log}</Text>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -250,17 +267,18 @@ const s = StyleSheet.create({
   card: { backgroundColor: Colors.subtle, borderRadius: 14, padding: 16 },
   cardRow: { flexDirection: 'row', alignItems: 'center' },
   cardTitle: { fontSize: 17, fontWeight: '700', color: Colors.textPrimary },
-  cardStatus: { fontSize: 13, fontWeight: '600', marginTop: 2 },
+  cardStatus: { fontSize: 14, fontWeight: '700', marginTop: 2 },
   connectBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: Colors.primary, paddingVertical: 14, borderRadius: 12, marginTop: 14 },
   connectBtnT: { color: '#FFF', fontSize: 15, fontWeight: '700' },
   sosCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.destructive, borderRadius: 14, padding: 16 },
   sosTitle: { color: '#FFF', fontSize: 16, fontWeight: '900', letterSpacing: 1 },
   sosDesc: { color: '#FFF', fontSize: 12, marginTop: 2, opacity: 0.9 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 },
+  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
   infoLabel: { flex: 1, fontSize: 14, color: Colors.textSecondary },
-  infoValue: { fontSize: 16, fontWeight: '700' },
+  infoValue: { fontSize: 14, fontWeight: '700' },
   divider: { height: 1, backgroundColor: Colors.border },
+  reconnectBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, marginTop: 4 },
+  reconnectBtnT: { fontSize: 13, fontWeight: '600', color: Colors.primary },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: Colors.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
-  logEmpty: { fontSize: 13, color: Colors.textMuted, textAlign: 'center', paddingVertical: 12 },
   logItem: { fontSize: 11, color: Colors.textSecondary, marginBottom: 4, fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' },
 });
