@@ -292,8 +292,8 @@ export default function BackofficeScreen() {
                 <TouchableOpacity data-testid="create-sub-btn" style={[bs.createBtn, { flex: 1, marginBottom: 0 }]} onPress={() => { setSubForm({ beneficiary_phone: '', subscription_type: 'standard', notes: '' }); setShowSubModal(true); }}>
                   <Ionicons name="add" size={18} color="#FFF" /><Text style={bs.createBtnT}>Nouvel abonnement</Text>
                 </TouchableOpacity>
-                <TouchableOpacity data-testid="sync-shopify-btn" style={[bs.createBtn, { flex: 1, marginBottom: 0, backgroundColor: '#96BF48' }]} onPress={syncShopify} disabled={syncing}>
-                  {syncing ? <ActivityIndicator color="#FFF" size="small" /> : <><Ionicons name="sync" size={18} color="#FFF" /><Text style={bs.createBtnT}>Sync Shopify</Text></>}
+                <TouchableOpacity data-testid="sync-shopify-btn" style={[bs.createBtn, { flex: 1, marginBottom: 0, backgroundColor: shopifyConnected ? '#96BF48' : '#FF9800' }]} onPress={syncShopify} disabled={syncing}>
+                  {syncing ? <ActivityIndicator color="#FFF" size="small" /> : <><Ionicons name={shopifyConnected ? "sync" : "link"} size={18} color="#FFF" /><Text style={bs.createBtnT}>{shopifyConnected ? 'Sync Shopify' : 'Connecter Shopify'}</Text></>}
                 </TouchableOpacity>
               </View>
               <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12 }}>
