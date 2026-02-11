@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone
-import uuid, random
+import uuid, random, re
 
 from database import db
 from auth import get_current_user
@@ -10,11 +10,36 @@ from utils import generate_bracelet_data, generate_scale_data, generate_vest_dat
 router = APIRouter()
 
 
+def normalize_phone(phone: str) -> str:
+    cleaned = re.sub(r'[\s\-\.\(\)]', '', phone.strip())
+    if cleaned.startswith('0') and len(cleaned) == 10:
+        cleaned = '+33' + cleaned[1:]
+    return cleaned
+
+
 @router.post("/devices/sync")
 async def sync_device(data: DeviceSyncRequest, user=Depends(get_current_user)):
     device = await db.devices.find_one({"user_id": user['id'], "device_type": data.device_type}, {"_id": 0})
     if not device:
         raise HTTPException(status_code=404, detail="Appareil non trouve")
+
+    # Check subscription for bracelet
+    if data.device_type == "bracelet":
+        sub = await db.subscriptions.find_one(
+            {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
+        )
+        if not sub:
+            phone = user.get('phone', '')
+            if phone:
+                sub = await db.subscriptions.find_one(
+                    {"beneficiary_phone": normalize_phone(phone), "status": "active"}, {"_id": 0}
+                )
+        if not sub:
+            raise HTTPException(
+                status_code=403,
+                detail="Abonnement requis pour utiliser le bracelet Elio. Veuillez souscrire a un abonnement Standard ou Care."
+            )
+
     generators = {
         "bracelet": lambda: generate_bracelet_data(data.data if data.data else None),
         "scale": lambda: generate_scale_data(data.data if data.data else None),
