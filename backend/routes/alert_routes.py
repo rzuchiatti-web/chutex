@@ -67,6 +67,34 @@ async def get_alert_report(aid: str, user=Depends(get_current_user)):
     }
 
 
+@router.get("/alerts/{aid}/detail")
+async def get_alert_detail(aid: str, user=Depends(get_current_user)):
+    """Full alert detail page data - used by frontend alert-detail.tsx"""
+    alert = await db.alerts.find_one({"id": aid}, {"_id": 0})
+    if not alert:
+        raise HTTPException(status_code=404, detail="Alerte non trouvee")
+    ben = await db.users.find_one({"id": alert['beneficiary_id']}, {"_id": 0, "password_hash": 0})
+    guardians = []
+    if ben:
+        for gid in ben.get('guardians', []):
+            g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
+            if g:
+                guardians.append({"id": g['id'], "name": g['name'], "phone": g.get('phone', ''), "email": g.get('email', '')})
+    escalations = await db.escalations.find({"alert_id": aid}, {"_id": 0}).sort("created_at", -1).to_list(10)
+    calls = await db.twilio_calls.find({"alert_id": aid}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    interventions = await db.interventions.find({"alert_id": aid}, {"_id": 0}).sort("created_at", -1).to_list(10)
+    location = await db.locations.find_one({"user_id": alert['beneficiary_id']}, {"_id": 0})
+    timeline = _build_alert_timeline(alert, escalations, calls, interventions)
+    return {
+        "alert": alert,
+        "beneficiary": {"id": ben['id'], "name": ben['name'], "phone": ben.get('phone', ''), "email": ben.get('email', ''),
+                         "blood_type": ben.get('blood_type', ''), "medical_conditions": ben.get('medical_conditions', ''),
+                         "allergies": ben.get('allergies', '')} if ben else None,
+        "guardians": guardians, "escalations": escalations, "calls": calls, "interventions": interventions,
+        "location": location, "timeline": timeline,
+    }
+
+
 def _build_alert_timeline(alert, escalations, calls, interventions):
     timeline = [{"time": alert['created_at'], "event": "alert_created", "detail": f"Alerte {alert['alert_type']} ({alert['severity']})"}]
     for esc in escalations:

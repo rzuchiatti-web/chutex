@@ -24,6 +24,33 @@ GUARDIAN_PROTOCOL = [
 ]
 
 
+@router.get("/teleassistance/subscriber/{subscriber_id}")
+async def get_subscriber_detail(subscriber_id: str, user=Depends(get_current_user)):
+    """Full subscriber detail page data - used by frontend subscriber-detail.tsx"""
+    sub = await db.users.find_one({"id": subscriber_id}, {"_id": 0, "password_hash": 0})
+    if not sub:
+        raise HTTPException(status_code=404, detail="Abonne non trouve")
+    alerts = await db.alerts.find({"beneficiary_id": subscriber_id}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    escalations = await db.escalations.find({"beneficiary_id": subscriber_id}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    calls = await db.twilio_calls.find({"target_id": subscriber_id}, {"_id": 0}).sort("created_at", -1).to_list(30)
+    interventions = await db.interventions.find({"beneficiary_id": subscriber_id}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    readings = await db.device_readings.find({"user_id": subscriber_id}, {"_id": 0}).sort("timestamp", -1).to_list(10)
+    guardians = []
+    for gid in sub.get('guardians', []):
+        g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
+        if g:
+            guardians.append({"id": g['id'], "name": g['name'], "phone": g.get('phone', ''), "email": g.get('email', '')})
+    active_alerts = sum(1 for a in alerts if a['status'] == 'active')
+    return {
+        "user": sub, "alerts": alerts, "escalations": escalations, "calls": calls,
+        "interventions": interventions, "latest_readings": readings, "guardians": guardians,
+        "stats": {
+            "active_alerts": active_alerts, "total_alerts": len(alerts),
+            "total_escalations": len(escalations), "total_interventions": len(interventions),
+        },
+    }
+
+
 @router.get("/teleassistance/protocol/beneficiary")
 async def get_beneficiary_protocol():
     return DOUBT_QUESTIONS
@@ -272,6 +299,45 @@ async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_cur
         return {"call_sid": call.sid, "call_id": call_record['id'], "status": "initiated", "phone": phone}
     except Exception as e:
         logger.error(f"Twilio call error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/twilio/call/guardian")
+async def twilio_call_guardian(request: Request, user=Depends(get_current_user)):
+    """Trigger a real Twilio call to a guardian"""
+    body = await request.json()
+    alert_id = body.get('alert_id', '')
+    guardian_id = body.get('guardian_id', '')
+    phone_number = body.get('phone_number', '')
+
+    if not twilio_client:
+        raise HTTPException(status_code=500, detail="Twilio non configure")
+    alert = await db.alerts.find_one({"id": alert_id}, {"_id": 0})
+    guardian = await db.users.find_one({"id": guardian_id}, {"_id": 0})
+    phone = phone_number or (guardian.get('phone', '') if guardian else '')
+    if not phone:
+        raise HTTPException(status_code=400, detail="Pas de numero de telephone")
+    ben_name = alert.get('beneficiary_name', 'un beneficiaire') if alert else 'un beneficiaire'
+    try:
+        twiml = VoiceResponse()
+        twiml.say(f"Bonjour, ici Chutex, service de teleassistance. Une alerte a ete declenchee pour {ben_name}.", voice='Polly.Lea', language='fr-FR')
+        twiml.pause(length=1)
+        g = Gather(num_digits=1, timeout=10)
+        g.say("Appuyez sur 1 si vous pouvez intervenir. Appuyez sur 2 pour transferer.", voice='Polly.Lea', language='fr-FR')
+        twiml.append(g)
+        call = twilio_client.calls.create(twiml=str(twiml), to=phone, from_=TWILIO_NUMBER)
+        now = datetime.now(timezone.utc).isoformat()
+        call_record = {
+            "id": str(uuid.uuid4()), "call_sid": call.sid, "alert_id": alert_id,
+            "target_type": "guardian", "target_id": guardian_id,
+            "target_name": guardian['name'] if guardian else 'Gardien',
+            "target_phone": phone, "status": "initiated", "operator_id": user['id'],
+            "created_at": now, "answered": False, "response": None,
+        }
+        await db.twilio_calls.insert_one(call_record)
+        return {"call_sid": call.sid, "call_id": call_record['id'], "status": "initiated", "phone": phone}
+    except Exception as e:
+        logger.error(f"Twilio guardian call error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
