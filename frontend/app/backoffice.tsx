@@ -16,9 +16,10 @@ export default function BackofficeScreen() {
   const [codes, setCodes] = useState<any[]>([]);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'stats'|'kpi'|'users'|'alerts'|'codes'|'prescriptions'|'interventions'>('stats');
+  const [tab, setTab] = useState<'stats'|'kpi'|'users'|'alerts'|'codes'|'prescriptions'|'interventions'|'subscriptions'>('stats');
   const [interventionCodes, setInterventionCodes] = useState<any[]>([]);
   const [kpi, setKpi] = useState<any>(null);
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
 
   // Code modal state
   const [showCodeModal, setShowCodeModal] = useState(false);
@@ -30,6 +31,11 @@ export default function BackofficeScreen() {
   const [showIvCodeModal, setShowIvCodeModal] = useState(false);
   const [editingIvCode, setEditingIvCode] = useState<any>(null);
   const [ivForm, setIvForm] = useState({ structure_name: '', max_uses: '50', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' });
+
+  // Subscription modal state
+  const [showSubModal, setShowSubModal] = useState(false);
+  const [subForm, setSubForm] = useState({ beneficiary_phone: '', subscription_type: 'standard', notes: '' });
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     (async () => {
