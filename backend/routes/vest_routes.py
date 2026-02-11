@@ -194,6 +194,16 @@ async def get_vest_history(user=Depends(get_current_user), limit: int = 50):
     return readings
 
 
+@router.post("/vest/unpair")
+async def unpair_vest(user=Depends(get_current_user)):
+    """Remove vest pairing from user account"""
+    await db.devices.update_one(
+        {"user_id": user['id'], "device_type": "vest"},
+        {"$set": {"connected": False, "ble_device_id": "", "last_sync": None, "battery": 0}}
+    )
+    return {"status": "unpaired"}
+
+
 # BLE Protocol constants for frontend reference
 @router.get("/vest/ble-config")
 async def get_vest_ble_config():
