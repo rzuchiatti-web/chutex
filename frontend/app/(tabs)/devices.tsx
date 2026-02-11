@@ -1,37 +1,58 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  ActivityIndicator, RefreshControl, Alert, TextInput, Modal, Linking,
+  ActivityIndicator, RefreshControl, Alert, TextInput, Modal, Linking, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiFetch } from '../../src/services/api';
 import { Colors } from '../../src/constants/colors';
 
 /* ===== BENEFICIARY: DEVICE MANAGEMENT ===== */
 function DeviceManagement({ token }: { token: string }) {
+  const router = useRouter();
   const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [syncingDevice, setSyncingDevice] = useState<string | null>(null);
+  const [vestStatus, setVestStatus] = useState<any>(null);
+  const [subscription, setSubscription] = useState<any>(null);
 
   const fetchDevices = useCallback(async () => {
-    try { setDevices(await apiFetch('/api/devices', {}, token)); } catch (e) { console.error(e); } finally { setLoading(false); setRefreshing(false); }
+    try {
+      const [devs, vs, sub] = await Promise.all([
+        apiFetch('/api/devices', {}, token),
+        apiFetch('/api/vest/status', {}, token).catch(() => null),
+        apiFetch('/api/subscriptions/my', {}, token).catch(() => null),
+      ]);
+      setDevices(devs);
+      setVestStatus(vs);
+      setSubscription(sub);
+    } catch (e) { console.error(e); } finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
   useEffect(() => { fetchDevices(); }, [fetchDevices]);
 
   const syncDevice = async (deviceType: string) => {
+    if (deviceType === 'vest') {
+      router.push('/vest-connect');
+      return;
+    }
+    if (deviceType === 'bracelet' && !subscription?.can_use_bracelet) {
+      Alert.alert('Abonnement requis', 'Un abonnement Standard ou Care est necessaire pour utiliser le bracelet Elio.');
+      return;
+    }
     setSyncingDevice(deviceType);
     try {
       const res = await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: {} }) }, token);
-      Alert.alert('Synchronisé', `${deviceType === 'bracelet' ? 'Bracelet' : deviceType === 'scale' ? 'Balance' : 'Gilet'} synchronisé.${res.anomalies?.length ? `\n⚠️ ${res.anomalies.length} anomalie(s)` : ''}`);
+      Alert.alert('Synchronise', `${deviceType === 'bracelet' ? 'Bracelet' : 'Balance'} synchronise.${res.anomalies?.length ? `\n${res.anomalies.length} anomalie(s)` : ''}`);
       fetchDevices();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSyncingDevice(null); }
   };
 
-  const getDeviceName = (type: string) => type === 'bracelet' ? 'Bracelet Santé' : type === 'scale' ? 'Balance Connectée' : 'Gilet Anti-Chute';
+  const getDeviceName = (type: string) => type === 'bracelet' ? 'Bracelet Elio' : type === 'scale' ? 'Balance Connectee' : 'Gilet Anti-Chute S-AIRBAG';
   const getDeviceIcon = (type: string) => type === 'bracelet' ? 'watch' : type === 'scale' ? 'scale-bathroom' : 'tshirt-crew';
 
   if (loading) return <View style={d.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
@@ -40,25 +61,64 @@ function DeviceManagement({ token }: { token: string }) {
     <ScrollView style={d.sv} contentContainerStyle={d.sc}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchDevices(); }} tintColor={Colors.primary} />}
       showsVerticalScrollIndicator={false}>
-      <Text style={d.infoText}>Appuyez sur «Synchroniser» pour simuler la connexion Bluetooth.</Text>
-      {devices.map((device) => (
-        <View key={device.id} style={d.deviceCard} testID={`device-card-${device.device_type}`}>
-          <View style={d.deviceHeader}>
-            <View style={d.deviceIconBg}><MaterialCommunityIcons name={getDeviceIcon(device.device_type) as any} size={24} color={Colors.textPrimary} /></View>
-            <View style={d.deviceInfo}>
-              <Text style={d.deviceName}>{getDeviceName(device.device_type)}</Text>
-              <View style={d.deviceMeta}><View style={[d.connDot, { backgroundColor: device.connected ? Colors.success : Colors.textMuted }]} />
-                <Text style={[d.connText, { color: device.connected ? Colors.success : Colors.textMuted }]}>{device.connected ? 'Connecté' : 'Déconnecté'}</Text></View>
-            </View>
-            <Text style={d.batteryT}>{device.battery}%</Text>
-          </View>
-          <TouchableOpacity testID={`sync-${device.device_type}-btn`} style={d.syncBtn}
-            onPress={() => syncDevice(device.device_type)} disabled={syncingDevice === device.device_type}>
-            {syncingDevice === device.device_type ? <ActivityIndicator color={Colors.primary} size="small" /> : (
-              <><MaterialCommunityIcons name="bluetooth-connect" size={16} color={Colors.primary} /><Text style={d.syncBtnText}>Synchroniser</Text></>)}
-          </TouchableOpacity>
+
+      {/* Subscription Status */}
+      {subscription && (
+        <View style={[d.infoText, { flexDirection: 'row', alignItems: 'center', gap: 8, borderColor: subscription.has_subscription ? Colors.success : Colors.border }]}>
+          <Ionicons name={subscription.has_subscription ? "checkmark-circle" : "alert-circle"} size={16} color={subscription.has_subscription ? Colors.success : Colors.textMuted} />
+          <Text style={{ fontSize: 12, color: subscription.has_subscription ? Colors.success : Colors.textSecondary, flex: 1, fontWeight: '600' }}>
+            {subscription.has_subscription
+              ? `Abonnement ${subscription.subscription_type?.toUpperCase()} actif${subscription.has_teleassistance ? ' - Teleassistance incluse' : ''}`
+              : 'Pas d\'abonnement - Gilet et balance disponibles'}
+          </Text>
         </View>
-      ))}
+      )}
+
+      {devices.map((device) => {
+        const isVest = device.device_type === 'vest';
+        const isBracelet = device.device_type === 'bracelet';
+        const vestConnected = isVest && vestStatus?.connected;
+        const vestBattery = isVest && vestStatus?.device?.battery ? vestStatus.device.battery : device.battery;
+        const needsSub = isBracelet && !subscription?.can_use_bracelet;
+
+        return (
+          <View key={device.id} style={[d.deviceCard, needsSub && { opacity: 0.6 }]} testID={`device-card-${device.device_type}`}>
+            <View style={d.deviceHeader}>
+              <View style={d.deviceIconBg}><MaterialCommunityIcons name={getDeviceIcon(device.device_type) as any} size={24} color={Colors.textPrimary} /></View>
+              <View style={d.deviceInfo}>
+                <Text style={d.deviceName}>{getDeviceName(device.device_type)}</Text>
+                <View style={d.deviceMeta}>
+                  <View style={[d.connDot, { backgroundColor: (isVest ? vestConnected : device.connected) ? Colors.success : Colors.textMuted }]} />
+                  <Text style={[d.connText, { color: (isVest ? vestConnected : device.connected) ? Colors.success : Colors.textMuted }]}>
+                    {(isVest ? vestConnected : device.connected) ? 'Connecte' : 'Deconnecte'}
+                  </Text>
+                  {needsSub && <Text style={{ fontSize: 10, color: Colors.destructive, marginLeft: 6 }}>Abonnement requis</Text>}
+                </View>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={d.batteryT}>{isVest ? vestBattery : device.battery}%</Text>
+                <Ionicons name={((isVest ? vestBattery : device.battery) > 50) ? "battery-full" : ((isVest ? vestBattery : device.battery) > 20) ? "battery-half" : "battery-dead"} size={16} color={((isVest ? vestBattery : device.battery) > 20) ? Colors.success : Colors.destructive} />
+              </View>
+            </View>
+
+            {isVest ? (
+              <TouchableOpacity testID="connect-vest-ble-btn" style={[d.syncBtn, vestConnected && { borderColor: Colors.success }]}
+                onPress={() => router.push('/vest-connect')}>
+                <Ionicons name="bluetooth" size={16} color={vestConnected ? Colors.success : Colors.primary} />
+                <Text style={[d.syncBtnText, vestConnected && { color: Colors.success }]}>
+                  {vestConnected ? 'Gilet connecte - Voir details' : 'Connecter via Bluetooth'}
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity testID={`sync-${device.device_type}-btn`} style={[d.syncBtn, needsSub && { opacity: 0.5 }]}
+                onPress={() => syncDevice(device.device_type)} disabled={syncingDevice === device.device_type || needsSub}>
+                {syncingDevice === device.device_type ? <ActivityIndicator color={Colors.primary} size="small" /> : (
+                  <><MaterialCommunityIcons name="bluetooth-connect" size={16} color={Colors.primary} /><Text style={d.syncBtnText}>Synchroniser</Text></>)}
+              </TouchableOpacity>
+            )}
+          </View>
+        );
+      })}
     </ScrollView>
   );
 }
