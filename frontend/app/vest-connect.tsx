@@ -92,7 +92,8 @@ export default function VestConnectScreen() {
     try {
       const nav = navigator as any;
       const bleDevice = await nav.bluetooth.requestDevice({
-        filters: BLE_SERVICES.map(s => ({ services: [s.uuid] })),
+        acceptAllDevices: true,
+        optionalServices: BLE_SERVICES.map(s => s.uuid),
       });
       setDevice(bleDevice);
       addLog(`Gilet trouve: ${bleDevice.name || bleDevice.id}`);
