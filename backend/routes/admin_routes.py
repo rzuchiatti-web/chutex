@@ -149,6 +149,9 @@ async def get_bo_stats():
         "prescriptions": await db.prescriptions.count_documents({}), "subscribed_prescriptions": await db.prescriptions.count_documents({"status": "subscribed"}),
         "interventions": await db.interventions.count_documents({}), "teleconsults": await db.teleconsults.count_documents({}),
         "teleassistance_calls": await db.teleassistance_calls.count_documents({}), "activation_codes": await db.activation_codes.count_documents({"active": True}),
+        "subscriptions_total": await db.subscriptions.count_documents({"status": "active"}),
+        "subscriptions_standard": await db.subscriptions.count_documents({"status": "active", "subscription_type": "standard"}),
+        "subscriptions_care": await db.subscriptions.count_documents({"status": "active", "subscription_type": "care"}),
     }
 
 
