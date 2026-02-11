@@ -271,7 +271,7 @@ async def sync_shopify_orders(user=Depends(get_current_user)):
     try:
         api_url = f"https://{SHOPIFY_STORE_URL}/admin/api/2024-01/orders.json?status=any&limit=50"
         headers = {
-            "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN,
+            "X-Shopify-Access-Token": token,
             "Content-Type": "application/json",
         }
         async with httpx.AsyncClient() as client:
