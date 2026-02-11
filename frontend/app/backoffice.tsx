@@ -36,6 +36,7 @@ export default function BackofficeScreen() {
   const [showSubModal, setShowSubModal] = useState(false);
   const [subForm, setSubForm] = useState({ beneficiary_phone: '', subscription_type: 'standard', notes: '' });
   const [syncing, setSyncing] = useState(false);
+  const [shopifyConnected, setShopifyConnected] = useState(false);
 
   useEffect(() => {
     (async () => {
