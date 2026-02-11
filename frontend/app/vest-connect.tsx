@@ -300,6 +300,8 @@ const s = StyleSheet.create({
   divider: { height: 1, backgroundColor: Colors.border },
   reconnectBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, marginTop: 4 },
   reconnectBtnT: { fontSize: 13, fontWeight: '600', color: Colors.primary },
+  unpairBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, marginTop: 4 },
+  unpairBtnT: { fontSize: 13, fontWeight: '600', color: Colors.destructive },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: Colors.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
   logItem: { fontSize: 11, color: Colors.textSecondary, marginBottom: 4, fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' },
 });
