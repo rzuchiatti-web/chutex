@@ -136,10 +136,8 @@ export default function AuthScreen() {
 
   return (
     <SafeAreaView style={a.safe}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={a.flex}>
-        <TouchableWithoutFeedback onPress={dismissKeyboard}>
-          <ScrollView contentContainerStyle={a.sc} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-            <View style={a.header}><Text style={a.appName}>CHUTEX</Text></View>
+      <ScrollView contentContainerStyle={a.sc} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <View style={a.header}><Text style={a.appName}>CHUTEX</Text></View>
             <View style={a.tabs}>
               <TouchableOpacity testID="auth-tab-login" style={a.tab} onPress={() => setIsLogin(true)}><Text style={a.tabT}>Connexion</Text></TouchableOpacity>
               <TouchableOpacity testID="auth-tab-register" style={[a.tab, a.tabA]}><Text style={[a.tabT, a.tabTA]}>Inscription</Text></TouchableOpacity>
@@ -252,8 +250,6 @@ export default function AuthScreen() {
               )}
             </View>
           </ScrollView>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
