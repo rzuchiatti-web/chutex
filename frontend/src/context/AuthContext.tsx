@@ -102,10 +102,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     setUser(null);
     setToken(null);
-    // Force reload on web to clear all state
-    if (typeof window !== 'undefined') {
-      window.location.href = '/';
-    }
   };
 
   const refreshUser = async () => {
