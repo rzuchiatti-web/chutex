@@ -164,17 +164,23 @@ async def get_vest_status(user=Depends(get_current_user)):
         {"_id": 0},
         sort=[("timestamp", -1)]
     )
-    latest_sensor = await db.device_readings.find_one(
-        {"user_id": user['id'], "device_type": "vest", "data_type": 3},
-        {"_id": 0},
-        sort=[("timestamp", -1)]
-    )
+    # Check if vest is really connected (data received in last 5 minutes)
+    is_connected = False
+    bat = 0
+    if device and device.get('last_sync'):
+        try:
+            last_sync = datetime.fromisoformat(device['last_sync'].replace('Z', '+00:00'))
+            diff = (datetime.now(timezone.utc) - last_sync).total_seconds()
+            is_connected = diff < 300  # 5 minutes
+            bat = device.get('battery', 0)
+        except:
+            pass
     return {
         "device": device,
         "latest_reading": latest,
-        "latest_sensor": latest_sensor,
-        "connected": device.get('connected', False) if device else False,
-        "battery": device.get('battery', 0) if device else 0,
+        "connected": is_connected,
+        "battery": bat,
+        "last_sync": device.get('last_sync') if device else None,
     }
 
 
