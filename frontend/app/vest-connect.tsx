@@ -131,6 +131,7 @@ export default function VestConnectScreen() {
 
       bleDevice.addEventListener('gattserverdisconnected', () => {
         setBleStatus('idle');
+        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
         addLog('BLE deconnecte');
       });
 
