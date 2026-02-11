@@ -147,9 +147,8 @@ export default function VestConnectScreen() {
           if (svc.write) {
             try {
               const writeChar = await service.getCharacteristic(svc.write);
-              const now = new Date();
-              const timeStr = `time&${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
-              await writeChar.writeValue(new TextEncoder().encode(timeStr));
+              startPolling(writeChar);
+              addLog('Interrogation automatique activee (30s)');
             } catch {}
           }
           break;
