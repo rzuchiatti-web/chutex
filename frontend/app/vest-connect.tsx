@@ -85,7 +85,7 @@ export default function VestConnectScreen() {
       return;
     }
     setStatus('scanning');
-    addLog('Recherche du gilet S-AIRBAG...');
+    addLog('Recherche du gilet Elder Gilet Airbag...');
     try {
       const nav = navigator as any;
       const bleDevice = await nav.bluetooth.requestDevice({

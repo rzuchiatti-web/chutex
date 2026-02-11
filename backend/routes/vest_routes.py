@@ -193,7 +193,7 @@ async def get_vest_history(user=Depends(get_current_user), limit: int = 50):
 async def get_vest_ble_config():
     """Return BLE configuration for the S-AIRBAG vest"""
     return {
-        "device_name_prefix": "S-AIRBAG",
+        "device_name_prefix": "Elder",
         "services": [
             {
                 "uuid": "0000ffe0-0000-1000-8000-00805f9b34fb",
