@@ -31,6 +31,7 @@ Application de teleassistance et telesante "CHUTEX" pour le suivi des personnes 
     ├── guardian_routes.py
     ├── admin_routes.py
     ├── teleassistance_routes.py
+    ├── subscription_routes.py
     └── misc_routes.py
 ```
 
@@ -78,10 +79,37 @@ Application de teleassistance et telesante "CHUTEX" pour le suivi des personnes 
 - P2: Enhanced backoffice CRUD for codes
 - P3: Backend refactoring (monolithic -> modular)
 
-### Session 3 (Feb 2026) - Current
+### Session 3 (Feb 2026)
 - Fixed missing endpoints: /alerts/{id}/detail, /teleassistance/subscriber/{id}, /twilio/call/guardian
 - Fixed logout: removed window.location.href hack, proper state-based navigation
 - Conditional _layout.tsx navigation for auth/unauth
 
+### Session 4 (Feb 11, 2026) - Current
+- **Subscription Management System**:
+  - Backend: subscription_routes.py with full CRUD, subscription check, Shopify sync/webhook endpoints
+  - Subscription types: Standard (bracelet + app) and Care (Standard + teleassistance IA)
+  - Bracelet sync requires active subscription (vest/scale don't)
+  - Phone number used as linking field between Shopify orders and beneficiaries
+  - Admin can create/update/delete subscriptions manually
+  - Shopify webhook endpoint ready (POST /api/shopify/webhook/order-created)
+  - Shopify manual sync endpoint (POST /api/admin/shopify/sync)
+  - Phone normalization for French numbers
+  - Demo seed: Robert Martin has Care subscription
+- **Frontend Backoffice Updates**:
+  - New "Abonnements" tab with subscription list, counters, CRUD
+  - "Nouvel abonnement" modal with Standard/Care type selection
+  - "Sync Shopify" button (green)
+  - Stats page shows Abon. Standard and Abon. Care counts
+  - Users list shows subscription badge
+- **Testing**: 100% backend pass (14/14), frontend UI verified
+
+## 3rd Party Integrations
+- **Twilio**: Real phone calls for alert escalation
+- **Shopify Admin API**: Subscription management via orders (requires SHOPIFY_ACCESS_TOKEN)
+  - Store URL: b7at4t-4z.myshopify.com
+  - Products: "Bracelet Elio" = Standard, "Care" = Care subscription
+
 ## Backlog
-- P3: Real email integration (currently mocked)
+- Configure SHOPIFY_ACCESS_TOKEN when user obtains it (OAuth flow)
+- Real email integration (currently mocked)
+- Set up Shopify webhooks for automatic subscription creation on order
