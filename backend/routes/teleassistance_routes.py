@@ -103,8 +103,11 @@ async def get_all_subscribers():
     for b in bens:
         latest = await db.device_readings.find_one({"user_id": b['id'], "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
         ac = await db.alerts.count_documents({"beneficiary_id": b['id'], "status": "active"})
+        sub = await db.subscriptions.find_one({"beneficiary_id": b['id'], "status": "active"}, {"_id": 0})
         b['latest_vitals'] = latest['data'] if latest else None
         b['active_alerts'] = ac
+        b['subscription_type'] = sub.get('subscription_type', 'none') if sub else 'none'
+        b['has_subscription'] = sub is not None
     return bens
 
 
