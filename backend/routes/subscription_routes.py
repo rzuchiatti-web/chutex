@@ -1,0 +1,345 @@
+from fastapi import APIRouter, Depends, HTTPException, Request
+from datetime import datetime, timezone
+import uuid, logging, httpx, hashlib, hmac, re
+
+from database import db, SHOPIFY_STORE_URL, SHOPIFY_ACCESS_TOKEN, SHOPIFY_SHARED_SECRET
+from auth import get_current_user
+from models import SubscriptionCreate, SubscriptionUpdate
+
+logger = logging.getLogger(__name__)
+router = APIRouter()
+
+
+def normalize_phone(phone: str) -> str:
+    """Normalize phone number for matching: remove spaces, dashes, dots, keep + prefix"""
+    cleaned = re.sub(r'[\s\-\.\(\)]', '', phone.strip())
+    if cleaned.startswith('0') and len(cleaned) == 10:
+        cleaned = '+33' + cleaned[1:]
+    return cleaned
+
+
+# ==================== SUBSCRIPTION CHECK ====================
+@router.get("/subscriptions/my")
+async def get_my_subscription(user=Depends(get_current_user)):
+    """Get current user's subscription status"""
+    sub = await db.subscriptions.find_one(
+        {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
+    )
+    if not sub:
+        phone = user.get('phone', '')
+        if phone:
+            sub = await db.subscriptions.find_one(
+                {"beneficiary_phone": normalize_phone(phone), "status": "active"}, {"_id": 0}
+            )
+    return {
+        "has_subscription": sub is not None,
+        "subscription": sub,
+        "subscription_type": sub.get('subscription_type', 'none') if sub else 'none',
+        "can_use_bracelet": sub is not None,
+        "has_teleassistance": sub.get('subscription_type') == 'care' if sub else False,
+    }
+
+
+@router.get("/subscriptions/check/{user_id}")
+async def check_subscription(user_id: str, user=Depends(get_current_user)):
+    """Check subscription status for a given user (admin/teleassistance)"""
+    target = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
+    if not target:
+        raise HTTPException(status_code=404, detail="Utilisateur non trouve")
+    sub = await db.subscriptions.find_one(
+        {"beneficiary_id": user_id, "status": "active"}, {"_id": 0}
+    )
+    if not sub:
+        phone = target.get('phone', '')
+        if phone:
+            sub = await db.subscriptions.find_one(
+                {"beneficiary_phone": normalize_phone(phone), "status": "active"}, {"_id": 0}
+            )
+    return {
+        "user_id": user_id,
+        "user_name": target.get('name', ''),
+        "has_subscription": sub is not None,
+        "subscription": sub,
+        "subscription_type": sub.get('subscription_type', 'none') if sub else 'none',
+        "can_use_bracelet": sub is not None,
+        "has_teleassistance": sub.get('subscription_type') == 'care' if sub else False,
+    }
+
+
+# ==================== ADMIN SUBSCRIPTION MANAGEMENT ====================
+@router.get("/admin/subscriptions")
+async def get_all_subscriptions(user=Depends(get_current_user)):
+    if user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    subs = await db.subscriptions.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    for s in subs:
+        if s.get('beneficiary_id'):
+            u = await db.users.find_one({"id": s['beneficiary_id']}, {"_id": 0, "password_hash": 0})
+            if u:
+                s['beneficiary_name'] = u.get('name', '')
+                s['beneficiary_email'] = u.get('email', '')
+    return subs
+
+
+@router.post("/admin/subscriptions")
+async def create_subscription(data: SubscriptionCreate, user=Depends(get_current_user)):
+    if user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    phone = normalize_phone(data.beneficiary_phone)
+    existing = await db.subscriptions.find_one(
+        {"beneficiary_phone": phone, "status": "active"}, {"_id": 0}
+    )
+    if existing:
+        if data.subscription_type == 'care' and existing.get('subscription_type') == 'standard':
+            await db.subscriptions.update_one(
+                {"id": existing['id']},
+                {"$set": {"subscription_type": "care", "updated_at": datetime.now(timezone.utc).isoformat()}}
+            )
+            ben = await db.users.find_one({"id": existing.get('beneficiary_id')}, {"_id": 0})
+            if ben:
+                await db.users.update_one({"id": ben['id']}, {"$set": {"subscription_type": "care"}})
+            return {**existing, "subscription_type": "care", "upgraded": True}
+        raise HTTPException(status_code=400, detail="Abonnement actif existe deja pour ce numero")
+
+    now = datetime.now(timezone.utc).isoformat()
+    beneficiary = await db.users.find_one({"phone": {"$regex": phone[-9:]}}, {"_id": 0, "password_hash": 0})
+    sub = {
+        "id": str(uuid.uuid4()),
+        "beneficiary_phone": phone,
+        "beneficiary_id": beneficiary['id'] if beneficiary else "",
+        "subscription_type": data.subscription_type,
+        "status": "active",
+        "source": "manual",
+        "shopify_order_id": data.shopify_order_id,
+        "notes": data.notes,
+        "created_at": now,
+        "updated_at": now,
+        "created_by": user['id'],
+    }
+    await db.subscriptions.insert_one(sub)
+    if beneficiary:
+        await db.users.update_one(
+            {"id": beneficiary['id']},
+            {"$set": {"subscription_type": data.subscription_type, "has_subscription": True}}
+        )
+    return {k: v for k, v in sub.items() if k != '_id'}
+
+
+@router.put("/admin/subscriptions/{sub_id}")
+async def update_subscription(sub_id: str, data: SubscriptionUpdate, user=Depends(get_current_user)):
+    if user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    update = {k: v for k, v in data.dict().items() if v is not None}
+    update['updated_at'] = datetime.now(timezone.utc).isoformat()
+    await db.subscriptions.update_one({"id": sub_id}, {"$set": update})
+    sub = await db.subscriptions.find_one({"id": sub_id}, {"_id": 0})
+    if sub and sub.get('beneficiary_id'):
+        new_type = update.get('subscription_type', sub.get('subscription_type'))
+        new_status = update.get('status', sub.get('status'))
+        await db.users.update_one(
+            {"id": sub['beneficiary_id']},
+            {"$set": {"subscription_type": new_type if new_status == 'active' else 'none', "has_subscription": new_status == 'active'}}
+        )
+    return {"status": "updated"}
+
+
+@router.delete("/admin/subscriptions/{sub_id}")
+async def delete_subscription(sub_id: str, user=Depends(get_current_user)):
+    if user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    sub = await db.subscriptions.find_one({"id": sub_id}, {"_id": 0})
+    if sub and sub.get('beneficiary_id'):
+        await db.users.update_one(
+            {"id": sub['beneficiary_id']},
+            {"$set": {"subscription_type": "none", "has_subscription": False}}
+        )
+    await db.subscriptions.delete_one({"id": sub_id})
+    return {"status": "deleted"}
+
+
+# ==================== SHOPIFY SYNC ====================
+@router.post("/admin/shopify/sync")
+async def sync_shopify_orders(user=Depends(get_current_user)):
+    """Manually trigger Shopify order sync"""
+    if user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    if not SHOPIFY_ACCESS_TOKEN:
+        raise HTTPException(status_code=400, detail="Token d'acces Shopify non configure. Ajoutez SHOPIFY_ACCESS_TOKEN dans le .env")
+
+    results = {"synced": 0, "skipped": 0, "errors": [], "details": []}
+    try:
+        api_url = f"https://{SHOPIFY_STORE_URL}/admin/api/2024-01/orders.json?status=any&limit=50"
+        headers = {
+            "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN,
+            "Content-Type": "application/json",
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(api_url, headers=headers, timeout=30)
+            if resp.status_code != 200:
+                raise HTTPException(status_code=resp.status_code, detail=f"Erreur Shopify API: {resp.text}")
+            orders = resp.json().get('orders', [])
+
+        now = datetime.now(timezone.utc).isoformat()
+        for order in orders:
+            order_id = str(order.get('id', ''))
+            existing = await db.subscriptions.find_one({"shopify_order_id": order_id})
+            if existing:
+                results['skipped'] += 1
+                continue
+
+            customer = order.get('customer', {})
+            line_items = order.get('line_items', [])
+
+            for item in line_items:
+                product_name = (item.get('title', '') or '').lower()
+                is_bracelet = 'elio' in product_name or 'bracelet' in product_name
+                is_care = 'care' in product_name
+
+                if not is_bracelet and not is_care:
+                    continue
+
+                sub_type = 'care' if is_care else 'standard'
+                ben_phone = ''
+                for prop in item.get('properties', []):
+                    prop_name = (prop.get('name', '') or '').lower()
+                    if 'phone' in prop_name or 'telephone' in prop_name or 'tel' in prop_name or 'numero' in prop_name:
+                        ben_phone = prop.get('value', '')
+                        break
+
+                if not ben_phone:
+                    ben_phone = customer.get('phone', '') or ''
+                    if not ben_phone:
+                        addr = customer.get('default_address', {}) or {}
+                        ben_phone = addr.get('phone', '') or ''
+
+                if not ben_phone:
+                    results['errors'].append(f"Commande #{order.get('order_number')}: Pas de telephone beneficiaire")
+                    continue
+
+                norm_phone = normalize_phone(ben_phone)
+                existing_sub = await db.subscriptions.find_one({"beneficiary_phone": norm_phone, "status": "active"})
+                if existing_sub:
+                    if sub_type == 'care' and existing_sub.get('subscription_type') == 'standard':
+                        await db.subscriptions.update_one(
+                            {"id": existing_sub['id']},
+                            {"$set": {"subscription_type": "care", "updated_at": now, "shopify_order_id": order_id}}
+                        )
+                        results['details'].append(f"#{order.get('order_number')}: Upgrade standard -> care ({norm_phone})")
+                        results['synced'] += 1
+                    else:
+                        results['skipped'] += 1
+                    continue
+
+                beneficiary = await db.users.find_one({"phone": {"$regex": norm_phone[-9:]}}, {"_id": 0, "password_hash": 0})
+                sub = {
+                    "id": str(uuid.uuid4()),
+                    "beneficiary_phone": norm_phone,
+                    "beneficiary_id": beneficiary['id'] if beneficiary else "",
+                    "subscription_type": sub_type,
+                    "status": "active",
+                    "source": "shopify",
+                    "shopify_order_id": order_id,
+                    "shopify_order_number": str(order.get('order_number', '')),
+                    "buyer_email": customer.get('email', ''),
+                    "buyer_name": f"{customer.get('first_name', '')} {customer.get('last_name', '')}".strip(),
+                    "notes": "",
+                    "created_at": now,
+                    "updated_at": now,
+                    "created_by": "shopify_sync",
+                }
+                await db.subscriptions.insert_one(sub)
+                if beneficiary:
+                    await db.users.update_one(
+                        {"id": beneficiary['id']},
+                        {"$set": {"subscription_type": sub_type, "has_subscription": True}}
+                    )
+                results['synced'] += 1
+                results['details'].append(f"#{order.get('order_number')}: {sub_type} pour {norm_phone}")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Shopify sync error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return results
+
+
+# ==================== SHOPIFY WEBHOOK ====================
+@router.post("/shopify/webhook/order-created")
+async def shopify_order_webhook(request: Request):
+    """Webhook called by Shopify when an order is created"""
+    body = await request.body()
+    if SHOPIFY_SHARED_SECRET:
+        hmac_header = request.headers.get('X-Shopify-Hmac-Sha256', '')
+        computed = hmac.new(SHOPIFY_SHARED_SECRET.encode(), body, hashlib.sha256).hexdigest()
+        import base64
+        computed_b64 = base64.b64encode(bytes.fromhex(computed)).decode()
+        if not hmac.compare_digest(computed_b64, hmac_header):
+            logger.warning("Shopify webhook: invalid HMAC")
+            raise HTTPException(status_code=401, detail="Invalid HMAC")
+
+    import json
+    order = json.loads(body)
+    order_id = str(order.get('id', ''))
+    customer = order.get('customer', {}) or {}
+    line_items = order.get('line_items', [])
+    now = datetime.now(timezone.utc).isoformat()
+
+    for item in line_items:
+        product_name = (item.get('title', '') or '').lower()
+        is_bracelet = 'elio' in product_name or 'bracelet' in product_name
+        is_care = 'care' in product_name
+
+        if not is_bracelet and not is_care:
+            continue
+
+        sub_type = 'care' if is_care else 'standard'
+        ben_phone = ''
+        for prop in item.get('properties', []):
+            prop_name = (prop.get('name', '') or '').lower()
+            if 'phone' in prop_name or 'telephone' in prop_name or 'tel' in prop_name or 'numero' in prop_name:
+                ben_phone = prop.get('value', '')
+                break
+        if not ben_phone:
+            ben_phone = customer.get('phone', '') or ''
+
+        if not ben_phone:
+            logger.warning(f"Webhook order #{order.get('order_number')}: no beneficiary phone")
+            continue
+
+        norm_phone = normalize_phone(ben_phone)
+        existing = await db.subscriptions.find_one({"beneficiary_phone": norm_phone, "status": "active"})
+        if existing:
+            if sub_type == 'care' and existing.get('subscription_type') == 'standard':
+                await db.subscriptions.update_one(
+                    {"id": existing['id']},
+                    {"$set": {"subscription_type": "care", "updated_at": now}}
+                )
+            continue
+
+        beneficiary = await db.users.find_one({"phone": {"$regex": norm_phone[-9:]}}, {"_id": 0, "password_hash": 0})
+        sub = {
+            "id": str(uuid.uuid4()),
+            "beneficiary_phone": norm_phone,
+            "beneficiary_id": beneficiary['id'] if beneficiary else "",
+            "subscription_type": sub_type,
+            "status": "active",
+            "source": "shopify_webhook",
+            "shopify_order_id": order_id,
+            "shopify_order_number": str(order.get('order_number', '')),
+            "buyer_email": customer.get('email', ''),
+            "buyer_name": f"{customer.get('first_name', '')} {customer.get('last_name', '')}".strip(),
+            "notes": "",
+            "created_at": now,
+            "updated_at": now,
+            "created_by": "shopify_webhook",
+        }
+        await db.subscriptions.insert_one(sub)
+        if beneficiary:
+            await db.users.update_one(
+                {"id": beneficiary['id']},
+                {"$set": {"subscription_type": sub_type, "has_subscription": True}}
+            )
+
+    return {"status": "ok"}
