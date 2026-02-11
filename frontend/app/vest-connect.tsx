@@ -89,7 +89,12 @@ export default function VestConnectScreen() {
     try {
       const nav = navigator as any;
       const bleDevice = await nav.bluetooth.requestDevice({
-        filters: [{ namePrefix: 'S-AIRBAG' }],
+        filters: [
+          { namePrefix: 'Elder' },
+          { namePrefix: 'S-AIRBAG' },
+          { namePrefix: 'Gilet' },
+          { namePrefix: 'Airbag' },
+        ],
         optionalServices: BLE_SERVICES.map(s => s.uuid),
       });
       setDevice(bleDevice);
