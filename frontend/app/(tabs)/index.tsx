@@ -67,8 +67,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <View style={{ flex: 1 }}>
               <Text style={s.vestTitle}>Gilet Anti-Chute</Text>
               <Text style={[s.vestStatus, { color: vestData.connected ? Colors.success : Colors.textMuted }]}>
-                {vestData.connected ? 'Connecte' : 'Deconnecte'}
-                {vestData.device?.last_sync ? ` · ${new Date(vestData.device.last_sync).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}` : ''}
+                {vestData.connected ? 'Actif' : vestData.device?.ble_device_id ? 'Eteint' : 'Non configure'}
+                {vestData.last_sync ? ` · ${new Date(vestData.last_sync).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}` : ''}
               </Text>
             </View>
             {vestData.battery > 0 && (
