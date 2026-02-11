@@ -50,7 +50,7 @@ export default function VestConnectScreen() {
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, []);
 
-  const isPaired = !!vestData?.device?.ble_device_id;
+  const isPaired = vestData?.battery > 0 || !!vestData?.device?.ble_device_id;
   const isActive = vestData?.connected;
 
   const writeTime = useCallback(async (c?: any) => {
