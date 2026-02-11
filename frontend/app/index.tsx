@@ -13,26 +13,25 @@ const ROLES = [
   { id: 'admin', label: 'Admin', icon: 'settings-outline', desc: 'Back-office' },
 ];
 
-/* Stable input component — uses native HTML input on web for proper focus */
+/* Stable input component — uses native HTML on web for proper focus */
 const FormInput = React.memo(({ testID, label, placeholder, value, onChangeText, keyboardType, secureTextEntry, autoCapitalize, multiline, rightElement }: any) => {
   if (Platform.OS === 'web') {
     const inputType = secureTextEntry ? 'password' : keyboardType === 'email-address' ? 'email' : keyboardType === 'phone-pad' ? 'tel' : keyboardType === 'numeric' ? 'number' : 'text';
     return (
-      <View style={a.fieldWrap}>
-        {label ? <Text style={a.label}>{label}</Text> : null}
-        <View style={a.inpC}>
+      <div style={{ marginBottom: 14 }}>
+        {label ? <div style={{ fontSize: 11, fontWeight: '600', color: Colors.textMuted, marginBottom: 4, marginLeft: 2, textTransform: 'uppercase' as any, letterSpacing: 0.5 }}>{label}</div> : null}
+        <div style={{ display: 'flex', flexDirection: 'row' as any, alignItems: 'center', backgroundColor: Colors.subtle, borderRadius: 10, border: `1px solid ${Colors.border}`, paddingLeft: 12, paddingRight: 12, minHeight: 46 }}>
           <input
             data-testid={testID}
             type={inputType}
-            style={{ flex: 1, fontSize: 14, color: Colors.textPrimary, border: 'none', outline: 'none', background: 'transparent', padding: '10px 0', fontFamily: 'inherit', width: '100%' } as any}
+            style={{ flex: 1, fontSize: 14, color: Colors.textPrimary, border: 'none', outline: 'none', background: 'transparent', padding: '10px 0', fontFamily: 'inherit', width: '100%' }}
             placeholder={placeholder || label}
             value={value || ''}
             onChange={(e: any) => onChangeText(e.target.value)}
-            autoCapitalize={autoCapitalize || 'sentences'}
           />
           {rightElement}
-        </View>
-      </View>
+        </div>
+      </div>
     );
   }
   return (
