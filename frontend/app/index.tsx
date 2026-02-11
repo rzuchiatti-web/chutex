@@ -112,26 +112,22 @@ export default function AuthScreen() {
   /* LOGIN */
   if (isLogin) return (
     <SafeAreaView style={a.safe}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={a.flex}>
-        <TouchableWithoutFeedback onPress={dismissKeyboard}>
-          <ScrollView contentContainerStyle={a.sc} keyboardShouldPersistTaps="handled">
-            <View style={a.header}>
-              <Text style={a.appName}>CHUTEX</Text>
-              <Text style={a.subtitle}>Téléassistance intelligente par Chutex Innovation</Text>
-            </View>
-            <View style={a.tabs}>
-              <TouchableOpacity testID="auth-tab-login" style={[a.tab, a.tabA]} onPress={() => setIsLogin(true)}><Text style={[a.tabT, a.tabTA]}>Connexion</Text></TouchableOpacity>
-              <TouchableOpacity testID="auth-tab-register" style={a.tab} onPress={() => { setIsLogin(false); setStep(0); }}><Text style={a.tabT}>Inscription</Text></TouchableOpacity>
-            </View>
-            {error ? <View style={a.err}><Ionicons name="alert-circle" size={14} color={Colors.destructive} /><Text style={a.errT}>{error}</Text></View> : null}
-            <FormInput testID="reg-email" label="Email" placeholder="email@exemple.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-            <FormInput testID="auth-input-password" label="Mot de passe" placeholder="••••••••" value={password} onChangeText={setPassword}
-              secureTextEntry={!showPw} rightElement={<TouchableOpacity onPress={() => setShowPw(!showPw)} style={a.eye}><Ionicons name={showPw ? 'eye-off-outline' : 'eye-outline'} size={18} color={Colors.textMuted} /></TouchableOpacity>} />
-            <TouchableOpacity testID="auth-submit-btn" style={[a.btn, submitting && a.btnD]} onPress={handleSubmit} disabled={submitting}>
-              {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={a.btnT}>Se connecter</Text>}</TouchableOpacity>
-          </ScrollView>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+      <ScrollView contentContainerStyle={a.sc} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <View style={a.header}>
+          <Text style={a.appName}>CHUTEX</Text>
+          <Text style={a.subtitle}>Téléassistance intelligente par Chutex Innovation</Text>
+        </View>
+        <View style={a.tabs}>
+          <TouchableOpacity testID="auth-tab-login" style={[a.tab, a.tabA]} onPress={() => setIsLogin(true)}><Text style={[a.tabT, a.tabTA]}>Connexion</Text></TouchableOpacity>
+          <TouchableOpacity testID="auth-tab-register" style={a.tab} onPress={() => { setIsLogin(false); setStep(0); }}><Text style={a.tabT}>Inscription</Text></TouchableOpacity>
+        </View>
+        {error ? <View style={a.err}><Ionicons name="alert-circle" size={14} color={Colors.destructive} /><Text style={a.errT}>{error}</Text></View> : null}
+        <FormInput testID="reg-email" label="Email" placeholder="email@exemple.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+        <FormInput testID="auth-input-password" label="Mot de passe" placeholder="••••••••" value={password} onChangeText={setPassword}
+          secureTextEntry={!showPw} rightElement={<TouchableOpacity onPress={() => setShowPw(!showPw)} style={a.eye}><Ionicons name={showPw ? 'eye-off-outline' : 'eye-outline'} size={18} color={Colors.textMuted} /></TouchableOpacity>} />
+        <TouchableOpacity testID="auth-submit-btn" style={[a.btn, submitting && a.btnD]} onPress={handleSubmit} disabled={submitting}>
+          {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={a.btnT}>Se connecter</Text>}</TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 
