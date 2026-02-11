@@ -167,6 +167,7 @@ export default function BackofficeScreen() {
 
   const TABS = [
     { id: 'stats', label: 'Stats' },
+    { id: 'subscriptions', label: 'Abonnements' },
     { id: 'users', label: 'Utilisateurs' },
     { id: 'alerts', label: 'Alertes' },
     { id: 'codes', label: 'Codes' },
