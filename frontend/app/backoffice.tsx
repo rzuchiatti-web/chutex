@@ -560,6 +560,42 @@ export default function BackofficeScreen() {
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* ===== Subscription Modal ===== */}
+      <Modal visible={showSubModal} transparent animationType="slide">
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={bs.modalO}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={bs.modalO}>
+              <TouchableWithoutFeedback>
+                <View style={bs.modalC}>
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    <Text style={bs.modalT}>Nouvel abonnement</Text>
+                    <FormField label="Telephone du beneficiaire *" value={subForm.beneficiary_phone} onChange={(v) => setSubForm({ ...subForm, beneficiary_phone: v })} placeholder="+33 6 12 34 56 78" keyboard="phone-pad" testId="sub-phone" />
+                    <Text style={bs.inputL}>Type d'abonnement</Text>
+                    <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+                      {[{ id: 'standard', label: 'Standard', desc: 'Bracelet + App' }, { id: 'care', label: 'Care', desc: 'Standard + Teleassistance' }].map(t => (
+                        <TouchableOpacity key={t.id} data-testid={`sub-type-${t.id}`}
+                          style={[{ flex: 1, padding: 14, borderRadius: 12, borderWidth: 1.5, borderColor: subForm.subscription_type === t.id ? (t.id === 'care' ? '#9C27B0' : Colors.primary) : Colors.border, backgroundColor: subForm.subscription_type === t.id ? (t.id === 'care' ? '#9C27B0' + '08' : Colors.primary + '08') : Colors.subtle, alignItems: 'center' }]}
+                          onPress={() => setSubForm({ ...subForm, subscription_type: t.id })}>
+                          <Text style={{ fontSize: 16, fontWeight: '700', color: subForm.subscription_type === t.id ? (t.id === 'care' ? '#9C27B0' : Colors.primary) : Colors.textSecondary }}>{t.label}</Text>
+                          <Text style={{ fontSize: 10, color: Colors.textMuted, marginTop: 2 }}>{t.desc}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                    <FormField label="Notes" value={subForm.notes} onChange={(v) => setSubForm({ ...subForm, notes: v })} placeholder="Notes optionnelles" testId="sub-notes" />
+                    <View style={bs.modalBtns}>
+                      <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowSubModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
+                      <TouchableOpacity data-testid="confirm-sub-btn" style={bs.confirmBtn} onPress={saveSub} disabled={creating}>
+                        {creating ? <ActivityIndicator color="#FFF" /> : <Text style={bs.confirmBtnT}>Creer</Text>}
+                      </TouchableOpacity>
+                    </View>
+                  </ScrollView>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
