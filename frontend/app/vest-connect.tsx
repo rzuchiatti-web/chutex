@@ -274,7 +274,9 @@ export default function VestConnectScreen() {
                 setBleStatus('idle');
                 setDevice(null);
                 writeCharRef.current = null;
-                addLog('Gilet deappaire');
+                addLog('Gilet deconnecte');
+                // Force reload the page to reset everything
+                if (Platform.OS === 'web') window.location.reload();
               } catch (e: any) { addLog(`Erreur: ${e.message}`); }
             }}>
               <Ionicons name="trash-outline" size={14} color={Colors.destructive} />
