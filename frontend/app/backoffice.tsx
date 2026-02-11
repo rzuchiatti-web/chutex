@@ -88,6 +88,10 @@ export default function BackofficeScreen() {
   };
 
   const syncShopify = async () => {
+    if (!shopifyConnected) {
+      connectShopify();
+      return;
+    }
     setSyncing(true);
     try {
       const r = await apiFetch('/api/admin/shopify/sync', { method: 'POST' }, token);
@@ -98,6 +102,18 @@ export default function BackofficeScreen() {
         setSubscriptions(fresh);
       }
     } catch (e: any) { Alert.alert('Erreur Shopify', e.message); } finally { setSyncing(false); }
+  };
+
+  const connectShopify = async () => {
+    try {
+      const r = await apiFetch('/api/admin/shopify/auth-url', {}, token);
+      if (r?.auth_url && Platform.OS === 'web') {
+        window.open(r.auth_url, '_blank');
+        Alert.alert('Shopify', 'Une fenetre Shopify s\'est ouverte. Autorisez l\'acces puis revenez ici et cliquez sur "Sync Shopify".');
+      } else {
+        Alert.alert('Shopify', `Ouvrez ce lien dans votre navigateur:\n${r?.auth_url}`);
+      }
+    } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
   // ===== Activation Codes CRUD =====
