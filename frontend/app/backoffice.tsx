@@ -58,6 +58,45 @@ export default function BackofficeScreen() {
   const resetCodeForm = () => setCodeForm({ structure_name: '', max_uses: '50', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '' });
   const resetIvForm = () => setIvForm({ structure_name: '', max_uses: '50', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' });
 
+  // ===== Subscription CRUD =====
+  const saveSub = async () => {
+    if (!subForm.beneficiary_phone) return Alert.alert('Erreur', 'Telephone du beneficiaire requis');
+    setCreating(true);
+    try {
+      const r = await apiFetch('/api/admin/subscriptions', {
+        method: 'POST', body: JSON.stringify(subForm),
+      }, token);
+      setSubscriptions([r, ...subscriptions]);
+      setShowSubModal(false);
+      Alert.alert('Abonnement cree', `Type: ${r.subscription_type}\nTel: ${r.beneficiary_phone}`);
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setCreating(false); }
+  };
+
+  const deleteSub = (id: string) => {
+    Alert.alert('Confirmer', 'Supprimer cet abonnement ?', [
+      { text: 'Annuler', style: 'cancel' },
+      { text: 'Supprimer', style: 'destructive', onPress: async () => {
+        try {
+          await apiFetch(`/api/admin/subscriptions/${id}`, { method: 'DELETE' }, token);
+          setSubscriptions(subscriptions.filter(s => s.id !== id));
+        } catch (e: any) { Alert.alert('Erreur', e.message); }
+      }},
+    ]);
+  };
+
+  const syncShopify = async () => {
+    setSyncing(true);
+    try {
+      const r = await apiFetch('/api/admin/shopify/sync', { method: 'POST' }, token);
+      const msg = `Synchronises: ${r.synced}\nIgnores: ${r.skipped}${r.errors?.length ? `\nErreurs: ${r.errors.join(', ')}` : ''}`;
+      Alert.alert('Sync Shopify', msg);
+      if (r.synced > 0) {
+        const fresh = await apiFetch('/api/admin/subscriptions', {}, token).catch(() => []);
+        setSubscriptions(fresh);
+      }
+    } catch (e: any) { Alert.alert('Erreur Shopify', e.message); } finally { setSyncing(false); }
+  };
+
   // ===== Activation Codes CRUD =====
   const openCreateCode = () => { setEditingCode(null); resetCodeForm(); setShowCodeModal(true); };
   const openEditCode = (c: any) => {
