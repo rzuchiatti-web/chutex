@@ -15,6 +15,7 @@ from routes.guardian_routes import router as guardian_router
 from routes.admin_routes import router as admin_router
 from routes.teleassistance_routes import router as teleassistance_router
 from routes.misc_routes import router as misc_router
+from routes.subscription_routes import router as subscription_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ api_router.include_router(guardian_router)
 api_router.include_router(admin_router)
 api_router.include_router(teleassistance_router)
 api_router.include_router(misc_router)
+api_router.include_router(subscription_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
