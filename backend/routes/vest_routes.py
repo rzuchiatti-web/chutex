@@ -164,14 +164,14 @@ async def get_vest_status(user=Depends(get_current_user)):
         {"_id": 0},
         sort=[("timestamp", -1)]
     )
-    # Check if vest is really connected (data received in last 5 minutes)
+    # Check if vest is really connected (data received in last 60 seconds)
     is_connected = False
     bat = 0
     if device and device.get('last_sync'):
         try:
             last_sync = datetime.fromisoformat(device['last_sync'].replace('Z', '+00:00'))
             diff = (datetime.now(timezone.utc) - last_sync).total_seconds()
-            is_connected = diff < 300  # 5 minutes
+            is_connected = diff < 60  # 1 minute
             bat = device.get('battery', 0)
         except:
             pass
