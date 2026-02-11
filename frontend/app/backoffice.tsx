@@ -52,6 +52,8 @@ export default function BackofficeScreen() {
           apiFetch('/api/admin/subscriptions', {}, token).catch(() => []),
         ]);
         setStats(s); setUsers(u); setAlerts(a); setCodes(c); setPrescriptions(p); setInterventionCodes(ic); setKpi(k); setSubscriptions(subs);
+        // Check Shopify connection
+        apiFetch('/api/admin/shopify/status', {}, token).then(r => setShopifyConnected(r?.connected)).catch(() => {});
       } catch {} finally { setLoading(false); }
     })();
   }, []);
