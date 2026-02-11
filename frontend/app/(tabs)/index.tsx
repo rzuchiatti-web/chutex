@@ -13,20 +13,23 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [vitals, setVitals] = useState<any>(null);
   const [rec, setRec] = useState('');
   const [reminders, setReminders] = useState<any[]>([]);
+  const [vestData, setVestData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [sosLoading, setSosLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
-      const [r, rc, rem] = await Promise.all([
+      const [r, rc, rem, vest] = await Promise.all([
         apiFetch('/api/devices/latest', {}, token).catch(() => ({})),
         apiFetch('/api/ai/recommendations/latest', {}, token).catch(() => ({ recommendation: '' })),
         apiFetch('/api/reminders', {}, token).catch(() => []),
+        apiFetch('/api/vest/status', {}, token).catch(() => null),
       ]);
       if (r.bracelet) setVitals(r.bracelet.data);
       if (rc.recommendation) setRec(rc.recommendation);
       setReminders(rem);
+      setVestData(vest);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
