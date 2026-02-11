@@ -208,3 +208,16 @@ class SedentaritySettings(BaseModel):
     max_inactive_minutes: int = 60
     start_hour: int = 8
     end_hour: int = 20
+
+
+class SubscriptionCreate(BaseModel):
+    beneficiary_phone: str
+    subscription_type: str = "standard"
+    shopify_order_id: str = ""
+    notes: str = ""
+
+
+class SubscriptionUpdate(BaseModel):
+    subscription_type: Optional[str] = None
+    status: Optional[str] = None
+    notes: Optional[str] = None
