@@ -125,7 +125,11 @@ export default function VestConnectScreen() {
       if (device?.gatt?.connected) device.gatt.disconnect();
       if (pollRef.current) clearInterval(pollRef.current);
       await apiFetch('/api/vest/unpair', { method: 'POST' }, token);
-      if (Platform.OS === 'web') window.location.reload();
+      setVestData(null);
+      setBattery(0);
+      setBleStatus('idle');
+      setDevice(null);
+      writeCharRef.current = null;
     } catch {}
   };
 
@@ -217,18 +221,6 @@ export default function VestConnectScreen() {
             <Text style={s.lastSync}>Derniere activite : {new Date(vestData.last_sync).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
           )}
         </View>
-
-        {/* BLE reconnect */}
-        {bleStatus !== 'connected' && (
-          <TouchableOpacity style={s.reconnectBtn} onPress={connectVest}
-            disabled={bleStatus === 'scanning' || bleStatus === 'connecting'}>
-            {bleStatus === 'scanning' || bleStatus === 'connecting' ? (
-              <><ActivityIndicator color={Colors.primary} size="small" /><Text style={s.reconnectBtnT}>Connexion...</Text></>
-            ) : (
-              <><Ionicons name="bluetooth" size={16} color={Colors.primary} /><Text style={s.reconnectBtnT}>Reconnecter en Bluetooth</Text></>
-            )}
-          </TouchableOpacity>
-        )}
 
         {/* Unpair */}
         <TouchableOpacity style={s.unpairBtn} onPress={unpairVest}>
