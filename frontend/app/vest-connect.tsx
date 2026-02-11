@@ -94,6 +94,24 @@ export default function VestConnectScreen() {
     sendToBackend(raw, parsed);
   }, [addLog, sendToBackend]);
 
+  const writeTimeCommand = useCallback(async (writeChar?: any) => {
+    const char = writeChar || writeCharRef.current;
+    if (!char) return;
+    try {
+      const now = new Date();
+      const timeStr = `time&${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
+      await char.writeValue(new TextEncoder().encode(timeStr));
+    } catch {}
+  }, []);
+
+  const startPolling = useCallback((writeChar: any) => {
+    writeCharRef.current = writeChar;
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    // Send time command immediately, then every 30 seconds
+    writeTimeCommand(writeChar);
+    pollIntervalRef.current = setInterval(() => writeTimeCommand(), 30000);
+  }, [writeTimeCommand]);
+
   const connectVest = async () => {
     if (Platform.OS !== 'web' || !('bluetooth' in navigator)) {
       Alert.alert('Bluetooth', 'Ouvrez l\'app dans Chrome (Android) ou Bluefy (iPhone).');
