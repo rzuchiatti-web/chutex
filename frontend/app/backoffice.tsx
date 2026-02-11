@@ -40,7 +40,7 @@ export default function BackofficeScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const [s, u, a, c, p, ic, k] = await Promise.all([
+        const [s, u, a, c, p, ic, k, subs] = await Promise.all([
           apiFetch('/api/backoffice/stats', {}, token).catch(() => null),
           apiFetch('/api/backoffice/users', {}, token).catch(() => []),
           apiFetch('/api/backoffice/alerts', {}, token).catch(() => []),
@@ -48,8 +48,9 @@ export default function BackofficeScreen() {
           apiFetch('/api/backoffice/prescriptions', {}, token).catch(() => []),
           apiFetch('/api/admin/intervention-codes', {}, token).catch(() => []),
           apiFetch('/api/backoffice/kpi', {}, token).catch(() => null),
+          apiFetch('/api/admin/subscriptions', {}, token).catch(() => []),
         ]);
-        setStats(s); setUsers(u); setAlerts(a); setCodes(c); setPrescriptions(p); setInterventionCodes(ic); setKpi(k);
+        setStats(s); setUsers(u); setAlerts(a); setCodes(c); setPrescriptions(p); setInterventionCodes(ic); setKpi(k); setSubscriptions(subs);
       } catch {} finally { setLoading(false); }
     })();
   }, []);
