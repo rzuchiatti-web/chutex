@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from datetime import datetime, timezone
 import uuid, logging, httpx, hashlib, hmac, re
 
-from database import db, SHOPIFY_STORE_URL, SHOPIFY_ACCESS_TOKEN, SHOPIFY_SHARED_SECRET
+from database import db, SHOPIFY_STORE_URL, SHOPIFY_ACCESS_TOKEN, SHOPIFY_SHARED_SECRET, SHOPIFY_CLIENT_ID, SHOPIFY_CLIENT_SECRET
 from auth import get_current_user
 from models import SubscriptionCreate, SubscriptionUpdate
 
