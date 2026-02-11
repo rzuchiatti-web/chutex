@@ -40,34 +40,48 @@ Application de teleassistance et telesante "CHUTEX" pour le suivi des personnes 
 - Admin: admin@chutex.fr / demo123
 - Teleassistance: plateau@chutex.fr / demo123
 
-## Implemented Features
+## Implemented Features (Complete)
 - Full auth (register/login/JWT)
 - Beneficiary dashboard with vitals, AI recommendations, reminders
 - Guardian dashboard with beneficiary monitoring
 - Alert system with create/resolve/escalation
 - Teleconsultation questionnaire flow
 - Prescription system with email notifications (MOCKED)
-- Admin backoffice with full CRUD for codes
+- Admin backoffice with full CRUD for codes (edit/toggle/delete)
 - Teleassistance IA platform with auto-escalation
 - ECG simulation and history
 - Geofencing with zone violation detection
 - Sedentarity alerts
 - Data sharing preferences
 - QR/Link code for guardian-beneficiary linking
+- Guardian "Lancer l'itineraire" button
+- Single scrollable beneficiary detail page (no tabs)
+- Alert detail page with timeline
+- Subscriber detail page for teleassistance
+- Smooth logout without page reload
 
 ## Mocked Integrations
 - Email sending (logs to console)
 - AI recommendations (uses Emergent LLM key when available)
-- Twilio calls (configured but optional)
 
-## Completed This Session (Feb 2026)
-1. P0 - Refactored guardian's beneficiary detail page (single scrollable page)
-2. P1 - Added "Lancer l'itineraire" button for guardians
-3. P2 - Enhanced backoffice CRUD (edit/toggle/delete) for activation & intervention codes
-4. P2 - "Cloturer" button on alert cards (already existed)
-5. P3 - Complete backend refactoring from monolithic server.py to modular structure
+## Session History
+
+### Session 1 (Initial)
+- Full app build with all core features
+- Branding as CHUTEX
+- Admin interface with tabs
+- Teleassistance dashboard
+
+### Session 2 (Feb 2026)
+- P0: Refactored beneficiary detail to single scrollable page
+- P1: Added "Lancer l'itineraire" for guardians
+- P2: Enhanced backoffice CRUD for codes
+- P3: Backend refactoring (monolithic -> modular)
+
+### Session 3 (Feb 2026) - Current
+- Fixed missing endpoints: /alerts/{id}/detail, /teleassistance/subscriber/{id}, /twilio/call/guardian
+- Fixed logout: removed window.location.href hack, proper state-based navigation
+- Conditional _layout.tsx navigation for auth/unauth
 
 ## Backlog
-- P2: Fix logout workaround (currently uses page reload)
 - P3: Real email integration (currently mocked)
-- P3: Persistent database setup (currently resets on restart but uses MongoDB)
