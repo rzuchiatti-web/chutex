@@ -59,6 +59,29 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         )}
       </TouchableOpacity>
 
+      {/* Vest Status Card */}
+      {vestData && (
+        <TouchableOpacity style={s.vestCard} onPress={() => router.push('/vest-connect')} data-testid="vest-status-card">
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Ionicons name="shield-checkmark" size={24} color={vestData.connected ? Colors.success : Colors.textMuted} />
+            <View style={{ flex: 1 }}>
+              <Text style={s.vestTitle}>Gilet Anti-Chute</Text>
+              <Text style={[s.vestStatus, { color: vestData.connected ? Colors.success : Colors.textMuted }]}>
+                {vestData.connected ? 'Connecte' : 'Deconnecte'}
+                {vestData.device?.last_sync ? ` · ${new Date(vestData.device.last_sync).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}` : ''}
+              </Text>
+            </View>
+            {vestData.battery > 0 && (
+              <View style={{ alignItems: 'center' }}>
+                <Ionicons name={vestData.battery > 50 ? "battery-full" : vestData.battery > 20 ? "battery-half" : "battery-dead"} size={22} color={vestData.battery > 20 ? Colors.success : Colors.destructive} />
+                <Text style={{ fontSize: 13, fontWeight: '800', color: Colors.textPrimary }}>{vestData.battery}%</Text>
+              </View>
+            )}
+            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+          </View>
+        </TouchableOpacity>
+      )}
+
       {/* Vitals */}
       <View style={s.secRow}><Text style={s.secTitle}>Constantes clés</Text>
         <TouchableOpacity testID="see-all-health" onPress={() => router.push('/(tabs)/health')}><Text style={s.seeAll}>Tout voir →</Text></TouchableOpacity></View>
