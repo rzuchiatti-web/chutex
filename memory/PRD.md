@@ -113,3 +113,12 @@ Application de teleassistance et telesante "CHUTEX" pour le suivi des personnes 
 - Configure SHOPIFY_ACCESS_TOKEN when user obtains it (OAuth flow)
 - Real email integration (currently mocked)
 - Set up Shopify webhooks for automatic subscription creation on order
+- LeFu Energy balance CF586BLE integration (waiting for AppKey/AppSecret from manufacturer)
+
+## Hardware Integrations
+- **S-AIRBAG Vest (CF586BLE)**: BLE integration complete
+  - Frontend: vest-connect.tsx (Web Bluetooth API)
+  - Backend: vest_routes.py (data ingestion, SOS alerts, sensor data storage)
+  - Protocol: @&key=value&# format, 3 data types (normal, SOS/fault, sensors)
+  - Auto-escalation on SOS detection via teleassistance
+- **LeFu Energy Scale (CF586BLE+WiFi)**: Pending manufacturer API credentials
