@@ -40,6 +40,9 @@ export default function VestConnectScreen() {
   const [dataLog, setDataLog] = useState<string[]>([]);
   const [sosTriggered, setSosTriggered] = useState(false);
 
+  const writeCharRef = useRef<any>(null);
+  const pollIntervalRef = useRef<any>(null);
+
   // Load stored vest data on mount
   useEffect(() => {
     apiFetch('/api/vest/status', {}, token).then(v => {
@@ -49,6 +52,7 @@ export default function VestConnectScreen() {
     if (Platform.OS === 'web' && 'Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
+    return () => { if (pollIntervalRef.current) clearInterval(pollIntervalRef.current); };
   }, []);
 
   const isPaired = vestData?.device?.ble_device_id;
