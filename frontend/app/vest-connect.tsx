@@ -240,6 +240,27 @@ export default function VestConnectScreen() {
                 </TouchableOpacity>
               </>
             )}
+
+            <View style={s.divider} />
+            <TouchableOpacity style={s.unpairBtn} onPress={() => {
+              Alert.alert('Deappairer le gilet', 'Voulez-vous dissocier ce gilet de votre compte ?', [
+                { text: 'Annuler' },
+                { text: 'Deappairer', style: 'destructive', onPress: async () => {
+                  try {
+                    if (device?.gatt?.connected) device.gatt.disconnect();
+                    await apiFetch('/api/vest/unpair', { method: 'POST' }, token);
+                    setVestData(null);
+                    setBattery(0);
+                    setBleStatus('idle');
+                    setDevice(null);
+                    addLog('Gilet deappaire');
+                  } catch (e: any) { Alert.alert('Erreur', e.message); }
+                }},
+              ]);
+            }}>
+              <Ionicons name="trash-outline" size={14} color={Colors.destructive} />
+              <Text style={s.unpairBtnT}>Deconnecter le gilet</Text>
+            </TouchableOpacity>
           </View>
         )}
 
