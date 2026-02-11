@@ -87,6 +87,29 @@ async def seed_demo_data():
             await db.users.update_one({"id": guard['id']}, {"$addToSet": {"beneficiaries": ben['id']}})
             logger.info("Seed: linked guardian <-> beneficiary")
 
+    # Seed demo subscription for Robert Martin (Care)
+    if ben:
+        existing_sub = await db.subscriptions.find_one({"beneficiary_id": ben['id']})
+        if not existing_sub:
+            await db.subscriptions.insert_one({
+                "id": str(uuid.uuid4()),
+                "beneficiary_phone": ben.get('phone', '+33651245918'),
+                "beneficiary_id": ben['id'],
+                "subscription_type": "care",
+                "status": "active",
+                "source": "manual",
+                "shopify_order_id": "",
+                "notes": "Compte demo - Abonnement Care",
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "created_by": "seed",
+            })
+            await db.users.update_one(
+                {"id": ben['id']},
+                {"$set": {"subscription_type": "care", "has_subscription": True}}
+            )
+            logger.info("Seed: created Care subscription for Robert Martin")
+
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
