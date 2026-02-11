@@ -33,7 +33,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
-  useEffect(() => { fetchData(); const iv = setInterval(fetchData, 30000); return () => clearInterval(iv); }, [fetchData]); = async () => {
+  useEffect(() => { fetchData(); const iv = setInterval(fetchData, 30000); return () => clearInterval(iv); }, [fetchData]);
+
+  const handleSOS = async () => {
     setSosLoading(true);
     try {
       await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'sos', severity: 'critical', message: 'SOS — Aide requise immédiatement!', device_type: 'bracelet' }) }, token);
