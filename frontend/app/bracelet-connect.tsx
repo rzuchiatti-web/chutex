@@ -110,27 +110,26 @@ export default function BraceletConnectScreen() {
 
   const startPolling = useCallback(() => {
     if (pollRef.current) clearInterval(pollRef.current);
-    // Start realtime mode + request battery + start health measurements
-    sendCommand(0x09, [1, 1]); // realtime steps + HR
-    setTimeout(() => sendCommand(0x0D), 300); // battery
-    setTimeout(() => sendCommand(0x28, [2, 1]), 600); // start continuous HR
-    setTimeout(() => sendCommand(0x28, [3, 1]), 900); // start SpO2
-    setTimeout(() => sendCommand(0x28, [1, 1]), 1200); // start HRV (blood pressure)
-    // Poll every 5 seconds
+    // Immediately request everything
+    sendCommand(0x0D); // battery
+    setTimeout(() => sendCommand(0x09, [1, 1]), 200); // realtime steps + HR + temp
+    setTimeout(() => sendCommand(0x28, [2, 1]), 400); // HR continu
+    setTimeout(() => sendCommand(0x28, [3, 1]), 600); // SpO2
+    setTimeout(() => sendCommand(0x28, [1, 1]), 800); // HRV / tension
+    setTimeout(() => sendCommand(0x53, [0]), 1000); // sleep
+    // Every 10 seconds: steps + HR + temp
+    // Every 30 seconds: battery + SpO2 + tension
     let tick = 0;
     pollRef.current = setInterval(() => {
       tick++;
-      sendCommand(0x09, [1, 1]); // realtime steps + HR every 5s
-      if (tick % 6 === 0) sendCommand(0x0D); // battery every 30s
-      if (tick % 12 === 0) { // restart health measurements every 60s
-        sendCommand(0x28, [2, 1]);
-        setTimeout(() => sendCommand(0x28, [3, 1]), 300);
-        setTimeout(() => sendCommand(0x28, [1, 1]), 600);
+      sendCommand(0x09, [1, 1]); // steps + HR + temp
+      if (tick % 3 === 0) { // every 30s: all health measurements
+        sendCommand(0x0D); // battery
+        setTimeout(() => sendCommand(0x28, [2, 1]), 200); // HR
+        setTimeout(() => sendCommand(0x28, [3, 1]), 400); // SpO2
+        setTimeout(() => sendCommand(0x28, [1, 1]), 600); // HRV/tension
       }
-      if (tick === 3) { // read sleep data once after 15s
-        sendCommand(0x53, [0]); // get latest sleep data
-      }
-    }, 5000);
+    }, 10000);
   }, [sendCommand]);
 
   const [measuring, setMeasuring] = useState(false);
