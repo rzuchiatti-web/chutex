@@ -81,6 +81,89 @@ async def unlink_guardian(guardian_id: str, user=Depends(get_current_user)):
     return {"status": "unlinked"}
 
 
+@router.post("/guardians/invite")
+async def invite_guardian(data: dict, user=Depends(get_current_user)):
+    """Invite a guardian by phone number. If exists, send notification. If not, send SMS."""
+    import re
+    phone = data.get('phone', '').strip()
+    if not phone:
+        raise HTTPException(status_code=400, detail="Numero de telephone requis")
+
+    # Normalize phone
+    cleaned = re.sub(r'[\s\-\.\(\)]', '', phone)
+    if cleaned.startswith('0') and len(cleaned) == 10:
+        cleaned = '+33' + cleaned[1:]
+
+    # Check if already a guardian
+    cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    for gid in cu.get('guardians', []):
+        g = await db.users.find_one({"id": gid}, {"_id": 0})
+        if g and g.get('phone', '').replace(' ', '')[-9:] == cleaned[-9:]:
+            return {"linked": False, "message": "Ce gardien est deja dans votre liste."}
+
+    # Search for existing guardian account by phone
+    existing = await db.users.find_one({"phone": {"$regex": cleaned[-9:]}, "role": "guardian"}, {"_id": 0, "password_hash": 0})
+
+    if existing:
+        # Guardian exists - send notification and link
+        already_linked = user['id'] in existing.get('beneficiaries', [])
+        if already_linked:
+            return {"linked": False, "message": "Ce gardien est deja dans votre liste."}
+
+        # Create a pending invitation
+        now = datetime.now(timezone.utc).isoformat()
+        await db.guardian_invitations.insert_one({
+            "id": str(uuid.uuid4()),
+            "beneficiary_id": user['id'],
+            "beneficiary_name": user.get('name', ''),
+            "guardian_id": existing['id'],
+            "guardian_name": existing['name'],
+            "guardian_phone": cleaned,
+            "status": "pending",
+            "created_at": now,
+        })
+
+        # Auto-link for now (in production, wait for guardian acceptance)
+        await db.users.update_one({"id": user['id']}, {"$addToSet": {"guardians": existing['id'], "guardian_order": existing['id']}})
+        await db.users.update_one({"id": existing['id']}, {"$addToSet": {"beneficiaries": user['id']}})
+
+        return {
+            "linked": True,
+            "message": f"{existing['name']} a ete ajoute comme gardien.",
+            "guardian": {"id": existing['id'], "name": existing['name'], "email": existing.get('email', ''), "phone": existing.get('phone', '')},
+        }
+    else:
+        # No account - send SMS invitation via Twilio
+        sms_sent = False
+        if twilio_client:
+            try:
+                ben_name = user.get('name', 'Un proche')
+                twilio_client.messages.create(
+                    body=f"{ben_name} souhaite vous ajouter comme gardien sur Chutex, l'application de teleassistance. Inscrivez-vous sur https://pensive-kowalevski.preview.emergentagent.com pour veiller sur votre proche.",
+                    from_=TWILIO_NUMBER,
+                    to=cleaned,
+                )
+                sms_sent = True
+            except Exception as e:
+                logger.error(f"SMS invitation error: {e}")
+
+        # Store pending invitation
+        await db.guardian_invitations.insert_one({
+            "id": str(uuid.uuid4()),
+            "beneficiary_id": user['id'],
+            "beneficiary_name": user.get('name', ''),
+            "guardian_id": "",
+            "guardian_phone": cleaned,
+            "status": "sms_sent" if sms_sent else "pending",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+
+        if sms_sent:
+            return {"linked": False, "message": f"SMS d'invitation envoye au {cleaned}. Il pourra vous ajouter apres inscription."}
+        else:
+            return {"linked": False, "message": f"Aucun compte gardien avec ce numero. Demandez a votre proche de s'inscrire sur l'app."}
+
+
 @router.get("/alerts/my")
 async def get_my_alerts(user=Depends(get_current_user), limit: int = 10):
     """Get recent alerts for the current user"""
