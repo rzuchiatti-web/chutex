@@ -554,14 +554,15 @@ function AdminIntervenants({ token }: { token: string }) {
 /* ===== MAIN ===== */
 export default function TeleconsultScreen() {
   const { user, token } = useAuth();
+  const { colors } = useTheme();
   if (!user || !token) return null;
   const r = user.role;
   return (
-    <SafeAreaView style={s.safe} testID="teleconsult-screen">
+    <SafeAreaView style={[s.safe, { backgroundColor: colors.background }]} testID="teleconsult-screen">
       <View style={s.header}>
-        <Text style={s.title}>{r === 'teleassistance' ? 'Téléassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Intervenants' : 'Téléconsultation'}</Text>
-        {r === 'teleassistance' && <Text style={s.subtitle}>Plateau d'écoute — Protocole d'escalade</Text>}
-        {r === 'beneficiary' && <Text style={s.subtitle}>Questionnaire pré-consultation</Text>}
+        <Text style={[s.title, { color: colors.textPrimary }]}>{r === 'teleassistance' ? 'Téléassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Intervenants' : 'Téléconsultation'}</Text>
+        {r === 'teleassistance' && <Text style={[s.subtitle, { color: colors.textMuted }]}>Plateau d'écoute — Protocole d'escalade</Text>}
+        {r === 'beneficiary' && <Text style={[s.subtitle, { color: colors.textMuted }]}>Questionnaire pré-consultation</Text>}
       </View>
       {r === 'teleassistance' ? <TeleassistanceDashboard token={token} />
         : r === 'guardian' ? <GuardianInterventions token={token} user={user} />
