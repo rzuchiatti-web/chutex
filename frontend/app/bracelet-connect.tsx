@@ -158,85 +158,108 @@ export default function BraceletConnectScreen() {
     setTimeout(() => setMeasuring(false), 5000);
   }, [sendCommand]);
 
-  const connectBracelet = async () => {
-    if (Platform.OS !== 'web' || !('bluetooth' in navigator)) return;
-    setBleStatus('scanning');
-    setErrorMsg('');
-    try {
-      const nav = navigator as any;
-      const bd = await nav.bluetooth.requestDevice({
-        acceptAllDevices: true,
-        optionalServices: [
-          BLE_SERVICE_UUID,
-          'generic_access', 'heart_rate', 'battery_service', 'health_thermometer', 'device_information',
-          '0000ffe0-0000-1000-8000-00805f9b34fb', '0000fee7-0000-1000-8000-00805f9b34fb',
-          '0000ffc0-0000-1000-8000-00805f9b34fb', '0000ffa0-0000-1000-8000-00805f9b34fb',
-          '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
-          '00001800-0000-1000-8000-00805f9b34fb', '00001801-0000-1000-8000-00805f9b34fb',
-          '0000180d-0000-1000-8000-00805f9b34fb', '0000180f-0000-1000-8000-00805f9b34fb',
-          '0000180a-0000-1000-8000-00805f9b34fb', '00001809-0000-1000-8000-00805f9b34fb',
-        ],
-      });
-      setDevice(bd);
-      setBleStatus('connecting');
-      setErrorMsg('Appareil selectionne, connexion GATT...');
-      bd.addEventListener('gattserverdisconnected', () => {
-        setBleStatus('idle');
-        if (pollRef.current) clearInterval(pollRef.current);
-      });
-      const server = await bd.gatt.connect();
-      setErrorMsg('GATT connecte, recherche service fff0...');
+  // Native BLE polling
+  const startNativePolling = useCallback((dev: any) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    const writeNative = async (cmd: number, payload: number[] = []) => {
       try {
-        let notifyChar: any = null;
-        let wChar: any = null;
-        let errors: string[] = [];
-        
-        const tryService = async (uuid: string) => {
-          try {
-            const svc = await server.getPrimaryService(uuid);
-            const chars = await svc.getCharacteristics();
-            for (const c of chars) {
-              if ((c.properties.notify || c.properties.indicate) && !notifyChar) notifyChar = c;
-              if ((c.properties.write || c.properties.writeWithoutResponse) && !wChar) wChar = c;
-            }
-            errors.push(`${uuid.substring(4,8)}: OK (${chars.length} chars)`);
-          } catch (e: any) {
-            errors.push(`${uuid.substring(4,8)}: ${e?.message?.substring(0,30) || 'fail'}`);
-          }
-        };
-        
-        setErrorMsg('Recherche services BLE...');
-        await tryService('0000fff0-0000-1000-8000-00805f9b34fb');
-        await tryService('0000ffe0-0000-1000-8000-00805f9b34fb');
-        await tryService('0000ffc0-0000-1000-8000-00805f9b34fb');
-        await tryService('0000fee7-0000-1000-8000-00805f9b34fb');
-        await tryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
-        await tryService('0000180d-0000-1000-8000-00805f9b34fb');
-        await tryService('0000180f-0000-1000-8000-00805f9b34fb');
-        await tryService('00001800-0000-1000-8000-00805f9b34fb');
-        await tryService('00001801-0000-1000-8000-00805f9b34fb');
-        await tryService('0000180a-0000-1000-8000-00805f9b34fb');
-        await tryService('00001809-0000-1000-8000-00805f9b34fb');
-        await tryService('0000ffa0-0000-1000-8000-00805f9b34fb');
-        
-        if (notifyChar) {
-          await notifyChar.startNotifications();
-          notifyChar.addEventListener('characteristicvaluechanged', handleBleData);
-          writeCharRef.current = wChar;
-          setBleStatus('connected');
-          setErrorMsg('');
-          startPolling();
-        } else {
-          setErrorMsg(errors.join(' | '));
-          setBleStatus('idle');
-        }
-      } catch (innerErr: any) {
-        setErrorMsg(`Erreur: ${innerErr?.message || String(innerErr)}`);
-        setBleStatus('idle');
+        const pkt = buildCmd(cmd, payload);
+        const b64 = bytesToBase64(Array.from(pkt));
+        await dev.writeCharacteristicWithResponseForService(BLE_SERVICE_UUID, BLE_WRITE_UUID, b64);
+      } catch {}
+    };
+    // Time sync first
+    const now = new Date();
+    writeNative(0x01, [now.getFullYear() & 0xFF, (now.getFullYear() >> 8) & 0xFF, now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]);
+    setTimeout(() => writeNative(0x0D), 500);
+    setTimeout(() => writeNative(0x09, [1, 1]), 1000);
+    setTimeout(() => writeNative(0x28, [1, 1]), 1500);
+    setTimeout(() => writeNative(0x28, [3, 1]), 2000);
+    let tick = 0;
+    pollRef.current = setInterval(() => {
+      tick++;
+      writeNative(0x09, [1, 1]);
+      if (tick % 3 === 0) {
+        writeNative(0x0D);
+        setTimeout(() => writeNative(0x28, [1, 1]), 200);
+        setTimeout(() => writeNative(0x28, [3, 1]), 400);
       }
-    } catch (e: any) {
-      setErrorMsg(`Erreur BLE: ${e?.message || e?.name || 'inconnue'} - ${String(e)}`);
-      setBleStatus('idle');
+    }, 10000);
+  }, []);
+
+  const connectBracelet = async () => {
+    setBleStatus('scanning');
+    setErrorMsg('Recherche du bracelet...');
+
+    if (Platform.OS === 'web') {
+      if (!('bluetooth' in navigator)) { setErrorMsg('Web Bluetooth non disponible'); setBleStatus('idle'); return; }
+      try {
+        const nav = navigator as any;
+        const bd = await nav.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: [BLE_SERVICE_UUID, 'generic_access', 'heart_rate', 'battery_service', '0000ffe0-0000-1000-8000-00805f9b34fb', '0000fee7-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0000180d-0000-1000-8000-00805f9b34fb', '0000180f-0000-1000-8000-00805f9b34fb', '0000180a-0000-1000-8000-00805f9b34fb', '00001809-0000-1000-8000-00805f9b34fb'],
+        });
+        setDevice(bd);
+        setBleStatus('connecting');
+        bd.addEventListener('gattserverdisconnected', () => { setBleStatus('idle'); if (pollRef.current) clearInterval(pollRef.current); });
+        const server = await bd.gatt.connect();
+        let notifyChar: any = null, wChar: any = null;
+        for (const uuid of [BLE_SERVICE_UUID, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0000180d-0000-1000-8000-00805f9b34fb']) {
+          try { const svc = await server.getPrimaryService(uuid); const chars = await svc.getCharacteristics(); for (const c of chars) { if ((c.properties.notify || c.properties.indicate) && !notifyChar) notifyChar = c; if ((c.properties.write || c.properties.writeWithoutResponse) && !wChar) wChar = c; } if (notifyChar) break; } catch {}
+        }
+        if (notifyChar) { await notifyChar.startNotifications(); notifyChar.addEventListener('characteristicvaluechanged', handleBleData); writeCharRef.current = wChar; setBleStatus('connected'); setErrorMsg(''); startPolling(); }
+        else { setErrorMsg('Aucun service BLE compatible'); setBleStatus('idle'); }
+      } catch (e: any) { setErrorMsg(`Erreur: ${e?.message || String(e)}`); setBleStatus('idle'); }
+    } else {
+      // Native BLE via react-native-ble-plx
+      const manager = getBleManager();
+      if (!manager) { setErrorMsg('BLE non disponible'); setBleStatus('idle'); return; }
+      try {
+        if (Platform.OS === 'android') {
+          await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          ]);
+        }
+        setErrorMsg('Scan BLE...');
+        let found = false;
+        manager.startDeviceScan(null, null, async (error: any, dev: any) => {
+          if (error) { setErrorMsg(`Scan: ${error.message}`); setBleStatus('idle'); return; }
+          if (!dev) return;
+          const name = dev.name || dev.localName || '';
+          if (name.includes('2208') || name.includes('J22') || name.includes('JStyle')) {
+            if (found) return;
+            found = true;
+            manager.stopDeviceScan();
+            setErrorMsg(`Trouve: ${name}`);
+            setBleStatus('connecting');
+            try {
+              const connected = await dev.connect();
+              const discovered = await connected.discoverAllServicesAndCharacteristics();
+              setDevice(discovered);
+              discovered.monitorCharacteristicForService(BLE_SERVICE_UUID, BLE_NOTIFY_UUID, (err: any, char: any) => {
+                if (err || !char?.value) return;
+                const bytes = base64ToBytes(char.value);
+                const parsed = parseResponse(new DataView(bytes.buffer));
+                const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+                if (parsed.battery) setVitals(v => ({ ...v, battery: parsed.battery }));
+                if (parsed.heart_rate > 0 && parsed.heart_rate < 255) setVitals(v => ({ ...v, heart_rate: parsed.heart_rate }));
+                if (parsed.spo2 > 0) setVitals(v => ({ ...v, spo2: parsed.spo2 }));
+                if (parsed.temperature > 30) setVitals(v => ({ ...v, temperature: parsed.temperature }));
+                if (parsed.steps) setVitals(v => ({ ...v, steps: parsed.steps }));
+                if (parsed.systolic) setVitals(v => ({ ...v, systolic: parsed.systolic, diastolic: parsed.diastolic || 0 }));
+                sendToBackend(parsed, hex);
+              });
+              writeCharRef.current = discovered;
+              setBleStatus('connected');
+              setErrorMsg('');
+              startNativePolling(discovered);
+            } catch (e: any) { setErrorMsg(`Connexion: ${e.message}`); setBleStatus('idle'); }
+          }
+        });
+        setTimeout(() => { if (!found) { manager.stopDeviceScan(); setErrorMsg('Bracelet non trouve'); setBleStatus('idle'); } }, 15000);
+      } catch (e: any) { setErrorMsg(`Erreur: ${e?.message}`); setBleStatus('idle'); }
     }
   };
 
