@@ -106,12 +106,18 @@ export default function AuthScreen() {
 
   const handleSubmit = async () => {
     setError('');
-    if (!email || !password) return setError('Email et mot de passe requis');
+    if (!email || !password) return setError('Identifiant et mot de passe requis');
     if (!isLogin && !name) return setError('Nom requis');
     setSubmitting(true);
     try {
+      // Support login by email or phone
+      let loginId = email.trim();
+      if (!loginId.includes('@') && !loginId.startsWith('+')) {
+        // Normalize French phone number
+        if (loginId.startsWith('0') && loginId.length >= 10) loginId = '+33' + loginId.substring(1).replace(/\s/g, '');
+      }
       if (isLogin) {
-        await login(email.trim().toLowerCase(), password);
+        await login(loginId.toLowerCase(), password);
       } else {
         const regData: any = {
           email: email.trim().toLowerCase(), password, name, phone, role,
