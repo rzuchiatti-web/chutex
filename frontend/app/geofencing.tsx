@@ -138,7 +138,7 @@ export default function GeofencingScreen() {
 }
 
 const s = StyleSheet.create({
-  c: { flex: 1, backgroundColor: themeColors.background },
+  c: { flex: 1, backgroundColor: Colors.background },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: Colors.border, backgroundColor: Colors.paper },
   backBtn: { padding: 4, marginRight: 12 },
   headerT: { flex: 1, fontSize: 18, fontWeight: '700', color: Colors.text, letterSpacing: 0.5 },

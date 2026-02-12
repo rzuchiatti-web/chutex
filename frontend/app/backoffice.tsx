@@ -237,7 +237,7 @@ export default function BackofficeScreen() {
   ] as const;
 
   return (
-    <SafeAreaView style={bs.safe} data-testid="backoffice-screen">
+    <SafeAreaView style={[bs.safe, { backgroundColor: themeColors.background }]} data-testid="backoffice-screen">
       <View style={bs.topBar}>
         <TouchableOpacity data-testid="back-btn" onPress={() => router.back()} style={bs.backBtn}>
           <Ionicons name="chevron-back" size={22} color={Colors.textPrimary} />
@@ -632,7 +632,7 @@ function FormField({ label, value, onChange, placeholder, keyboard, testId }: { 
 }
 
 const bs = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: themeColors.background },
+  safe: { flex: 1, backgroundColor: Colors.background },
   topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, gap: 8 },
   backBtn: { width: 36, height: 36, borderRadius: 10, backgroundColor: Colors.subtle, justifyContent: 'center', alignItems: 'center' },
   topTitle: { flex: 1, fontSize: 18, fontWeight: '700', color: Colors.textPrimary, textAlign: 'center' },
