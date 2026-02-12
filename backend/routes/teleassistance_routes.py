@@ -400,106 +400,212 @@ async def twilio_status(request: Request):
     return {"status": "ok"}
 
 
-# ==================== AUTO ESCALATION ====================
+# ==================== AUTO ESCALATION WITH ELEVENLABS ====================
 async def auto_escalation_protocol(alert: dict):
-    """Fully automatic escalation: call beneficiary -> guardians -> dispatch"""
+    """Full AI escalation: ElevenLabs voice + speech recognition + guardian cascade"""
     try:
         await asyncio.sleep(2)
         now = datetime.now(timezone.utc).isoformat()
         ben = await db.users.find_one({"id": alert['beneficiary_id']}, {"_id": 0})
         if not ben:
             return
+
+        # Get guardians ordered by priority
         guardians = []
         for gid in ben.get('guardians', []):
             g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
             if g:
                 guardians.append({"id": g['id'], "name": g['name'], "phone": g.get('phone', '')})
+
+        # Determine alert type for the right message
+        alert_type = alert.get('alert_type', 'sos')
+        if alert_type == 'sos' or 'chute' in alert.get('message', '').lower() or 'fall' in alert.get('message', '').lower():
+            message_key = 'fall_detected'
+        elif 'inactiv' in alert.get('message', '').lower():
+            message_key = 'inactivity_alert'
+        else:
+            message_key = 'sos_manual'
+
+        # Create escalation record
         esc = {
             "id": str(uuid.uuid4()), "alert_id": alert['id'],
-            "beneficiary_id": alert['beneficiary_id'], "beneficiary_name": alert['beneficiary_name'],
-            "operator_id": "ai_auto", "operator_name": "IA Teleassistance",
+            "beneficiary_id": alert['beneficiary_id'], "beneficiary_name": alert.get('beneficiary_name', ''),
+            "operator_id": "ai_auto", "operator_name": "IA Teleassistance ElevenLabs",
             "status": "in_progress", "current_step": "calling_beneficiary",
-            "current_target": {"id": alert['beneficiary_id'], "name": alert['beneficiary_name'], "type": "beneficiary"},
+            "current_target": {"id": alert['beneficiary_id'], "name": alert.get('beneficiary_name', ''), "type": "beneficiary"},
             "guardians_called": [], "guardians_remaining": guardians,
             "protocol_answers": [],
-            "timeline": [{"step": "auto_started", "time": now, "note": "Protocole IA automatique declenche"}],
+            "timeline": [{"step": "auto_started", "time": now, "note": "Protocole IA automatique declenche (ElevenLabs)"}],
             "intervention_id": None, "created_at": now,
         }
         await db.escalations.insert_one(esc)
         await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "ai_calling", "escalation_id": esc['id']}})
 
+        # Build base URL for audio
+        base_url = "https://pensive-kowalevski.preview.emergentagent.com"
+
+        # STEP 1: Call beneficiary with ElevenLabs voice + speech recognition
         ben_phone = ben.get('phone', '')
+        ben_confirmed_ok = False
         if ben_phone and twilio_client:
             twiml = VoiceResponse()
-            twiml.say("Bonjour, ici Chutex, service de teleassistance intelligente.", voice='Polly.Lea', language='fr-FR')
-            g = Gather(num_digits=1, timeout=8)
-            g.say("Une alerte a ete declenchee. Appuyez sur 1 si tout va bien. Appuyez sur 2 pour de l'aide.", voice='Polly.Lea', language='fr-FR')
-            twiml.append(g)
+            # Play ElevenLabs audio
+            twiml.play(f"{base_url}/api/elevenlabs/audio/{message_key}")
+            # Listen for voice response (speech recognition in French)
+            gather = Gather(
+                input='speech',
+                language='fr-FR',
+                timeout=10,
+                speech_timeout=5,
+                action=f"{base_url}/api/twilio/speech-response",
+            )
+            twiml.append(gather)
+            # No response -> play no_response message
+            twiml.play(f"{base_url}/api/elevenlabs/audio/no_response")
+
             try:
                 call = twilio_client.calls.create(twiml=str(twiml), to=ben_phone, from_=TWILIO_NUMBER)
-                await db.twilio_calls.insert_one({
+                call_record = {
                     "id": str(uuid.uuid4()), "call_sid": call.sid, "alert_id": alert['id'],
                     "escalation_id": esc['id'], "target_type": "beneficiary", "target_id": ben['id'],
                     "target_name": ben['name'], "target_phone": ben_phone, "status": "initiated",
                     "operator_id": "ai_auto", "created_at": now, "answered": False, "response": None,
-                })
-                esc['timeline'].append({"step": "calling_beneficiary", "time": datetime.now(timezone.utc).isoformat(), "note": f"Appel IA -> {ben['name']}"})
+                    "voice_engine": "elevenlabs",
+                }
+                await db.twilio_calls.insert_one(call_record)
+                esc['timeline'].append({"step": "calling_beneficiary", "time": datetime.now(timezone.utc).isoformat(), "note": f"Appel IA ElevenLabs -> {ben['name']} ({ben_phone})"})
                 await db.escalations.update_one({"id": esc['id']}, {"$set": {"timeline": esc['timeline']}})
-                answered = False
+
+                # Wait for call to complete (max 60s)
                 for _ in range(12):
                     await asyncio.sleep(5)
                     try:
                         cs = twilio_client.calls(call.sid).fetch()
                         await db.twilio_calls.update_one({"call_sid": call.sid}, {"$set": {"status": cs.status, "duration": cs.duration}})
                         if cs.status in ('completed', 'busy', 'no-answer', 'failed', 'canceled'):
-                            answered = cs.status == 'completed' and int(str(cs.duration or 0)) > 15
-                            await db.twilio_calls.update_one({"call_sid": call.sid}, {"$set": {"answered": answered}})
+                            # Check if speech response was recorded
+                            speech_rec = await db.speech_responses.find_one({"call_sid": call.sid}, {"_id": 0})
+                            if speech_rec and speech_rec.get('confirmed_ok'):
+                                ben_confirmed_ok = True
+                                await db.twilio_calls.update_one({"call_sid": call.sid}, {"$set": {"answered": True, "response": speech_rec.get('text', '')}})
+                            elif cs.status == 'completed' and int(str(cs.duration or 0)) > 20:
+                                # Call was long enough, beneficiary likely spoke but we didn't catch confirmation
+                                pass
                             break
                     except:
                         pass
-                if answered:
-                    esc['timeline'].append({"step": "resolved", "time": datetime.now(timezone.utc).isoformat(), "note": "Beneficiaire a confirme aller bien."})
+
+                if ben_confirmed_ok:
+                    esc['timeline'].append({"step": "resolved", "time": datetime.now(timezone.utc).isoformat(), "note": "Beneficiaire a confirme aller bien par la voix."})
                     esc['status'] = "resolved"
-                    esc['current_step'] = "resolved"
                     await db.alerts.update_one({"id": alert['id']}, {"$set": {"status": "resolved", "teleassistance_status": "resolved", "resolved_at": datetime.now(timezone.utc).isoformat()}})
                     await db.escalations.update_one({"id": esc['id']}, {"$set": {"status": "resolved", "current_step": "resolved", "timeline": esc['timeline']}})
                     return
                 else:
-                    esc['timeline'].append({"step": "beneficiary_no_answer", "time": datetime.now(timezone.utc).isoformat(), "note": f"{ben['name']} n'a pas repondu."})
+                    esc['timeline'].append({"step": "beneficiary_no_confirm", "time": datetime.now(timezone.utc).isoformat(), "note": f"{ben['name']} n'a pas confirme aller bien. Escalade aux gardiens."})
                     await db.escalations.update_one({"id": esc['id']}, {"$set": {"timeline": esc['timeline']}})
             except Exception as e:
-                logger.error(f"Auto-escalation call error: {e}")
+                logger.error(f"Auto-escalation beneficiary call error: {e}")
+                esc['timeline'].append({"step": "call_error", "time": datetime.now(timezone.utc).isoformat(), "note": f"Erreur appel: {str(e)[:100]}"})
+                await db.escalations.update_one({"id": esc['id']}, {"$set": {"timeline": esc['timeline']}})
 
-        # Call guardians
-        guardian_handled = False
+        # STEP 2: Call guardians one by one until someone intervenes via the app
         for guardian in guardians:
             if esc.get('status') == 'resolved':
                 return
+
+            # Check if a guardian already intervened via the app
+            intervention = await db.interventions.find_one({"alert_id": alert['id'], "status": {"$in": ["accepted", "en_route", "on_site"]}}, {"_id": 0})
+            if intervention:
+                esc['timeline'].append({"step": "guardian_intervened_app", "time": datetime.now(timezone.utc).isoformat(), "note": f"Gardien {intervention.get('guardian_name', '')} intervient via l'app."})
+                esc['status'] = "guardian_handling"
+                await db.escalations.update_one({"id": esc['id']}, {"$set": {"status": "guardian_handling", "current_step": "guardian_handling", "timeline": esc['timeline']}})
+                return
+
             g_phone = guardian.get('phone', '')
             if not g_phone or not twilio_client:
                 continue
+
             esc['current_step'] = "calling_guardian"
             esc['current_target'] = {**guardian, "type": "guardian"}
             await db.escalations.update_one({"id": esc['id']}, {"$set": {"current_step": "calling_guardian", "current_target": esc['current_target']}})
+
             try:
+                ben_name = alert.get('beneficiary_name', 'votre proche')
+                # Generate guardian-specific ElevenLabs message
+                guardian_msg = f"Bonjour, ici le plateau d'ecoute Chutex. Une alerte a ete declenchee pour {ben_name}. Nous n'avons pas pu confirmer que tout va bien. Veuillez ouvrir l'application Chutex et cliquer sur Intervenir. Merci."
+                from services.elevenlabs_service import generate_speech
+                audio = generate_speech(guardian_msg)
+
+                # Store audio temporarily
+                import base64
+                audio_key = f"guardian_call_{esc['id']}_{guardian['id']}"
+                if audio:
+                    await db.audio_cache.update_one(
+                        {"key": audio_key},
+                        {"$set": {"key": audio_key, "audio_b64": base64.b64encode(audio).decode(), "text": guardian_msg}},
+                        upsert=True
+                    )
+
                 twiml_g = VoiceResponse()
-                twiml_g.say(f"Bonjour, ici Chutex. Une alerte pour {alert['beneficiary_name']}.", voice='Polly.Lea', language='fr-FR')
+                if audio:
+                    twiml_g.play(f"{base_url}/api/elevenlabs/audio/{audio_key}")
+                else:
+                    twiml_g.say(f"Bonjour, ici Chutex. Alerte pour {ben_name}. Ouvrez l'application Chutex.", voice='Polly.Lea', language='fr-FR')
+                twiml_g.pause(length=3)
+                twiml_g.say("Merci. Au revoir.", voice='Polly.Lea', language='fr-FR')
+
                 g_call = twilio_client.calls.create(twiml=str(twiml_g), to=g_phone, from_=TWILIO_NUMBER)
                 await db.twilio_calls.insert_one({
                     "id": str(uuid.uuid4()), "call_sid": g_call.sid, "alert_id": alert['id'],
                     "escalation_id": esc['id'], "target_type": "guardian", "target_id": guardian['id'],
                     "target_name": guardian['name'], "target_phone": g_phone, "status": "initiated",
                     "operator_id": "ai_auto", "created_at": datetime.now(timezone.utc).isoformat(), "answered": False,
+                    "voice_engine": "elevenlabs",
                 })
-                g_answered = False
-                for _ in range(12):
+                esc['guardians_called'].append(guardian)
+                esc['timeline'].append({"step": "calling_guardian", "time": datetime.now(timezone.utc).isoformat(), "note": f"Appel IA -> Gardien {guardian['name']} ({g_phone})"})
+                await db.escalations.update_one({"id": esc['id']}, {"$set": {
+                    "guardians_called": esc['guardians_called'], "timeline": esc['timeline']
+                }})
+
+                # Wait for guardian to answer
+                for _ in range(10):
                     await asyncio.sleep(5)
                     try:
                         gs = twilio_client.calls(g_call.sid).fetch()
                         if gs.status in ('completed', 'busy', 'no-answer', 'failed', 'canceled'):
-                            g_answered = gs.status == 'completed' and int(str(gs.duration or 0)) > 10
+                            g_answered = gs.status == 'completed' and int(str(gs.duration or 0)) > 5
+                            await db.twilio_calls.update_one({"call_sid": g_call.sid}, {"$set": {"answered": g_answered, "status": gs.status}})
+                            if g_answered:
+                                esc['timeline'].append({"step": "guardian_notified", "time": datetime.now(timezone.utc).isoformat(), "note": f"Gardien {guardian['name']} a decroche. En attente d'intervention via l'app."})
+                                await db.escalations.update_one({"id": esc['id']}, {"$set": {"timeline": esc['timeline']}})
                             break
                     except:
+                        pass
+
+                # Wait 30s for guardian to intervene via app
+                for _ in range(6):
+                    await asyncio.sleep(5)
+                    intervention = await db.interventions.find_one({"alert_id": alert['id'], "status": {"$in": ["accepted", "en_route", "on_site"]}}, {"_id": 0})
+                    if intervention:
+                        esc['timeline'].append({"step": "guardian_intervened_app", "time": datetime.now(timezone.utc).isoformat(), "note": f"Gardien {intervention.get('guardian_name', '')} intervient via l'app."})
+                        esc['status'] = "guardian_handling"
+                        await db.escalations.update_one({"id": esc['id']}, {"$set": {"status": "guardian_handling", "current_step": "guardian_handling", "timeline": esc['timeline']}})
+                        return
+
+            except Exception as e:
+                logger.error(f"Guardian call error: {e}")
+
+        # STEP 3: No guardian responded - dispatch emergency
+        esc['timeline'].append({"step": "no_guardian_response", "time": datetime.now(timezone.utc).isoformat(), "note": "Aucun gardien n'a repondu. Situation critique."})
+        esc['status'] = "dispatched"
+        esc['current_step'] = "dispatched"
+        await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "dispatched", "severity": "critical"}})
+        await db.escalations.update_one({"id": esc['id']}, {"$set": {"status": "dispatched", "current_step": "dispatched", "timeline": esc['timeline']}})
+
+    except Exception as e:
+        logger.error(f"Auto-escalation protocol error: {e}")
                         pass
                 if g_answered:
                     esc['timeline'].append({"step": "guardian_answered", "time": datetime.now(timezone.utc).isoformat(), "note": f"Gardien {guardian['name']} prend en charge."})
