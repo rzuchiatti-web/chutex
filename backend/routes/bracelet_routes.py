@@ -51,6 +51,21 @@ def parse_bracelet_response(data: bytes) -> dict:
     elif cmd == 0x0D:
         result["battery"] = data[1]
 
+    # 0x51/0x52: Step data (historical / today)
+    elif cmd in (0x51, 0x52):
+        steps = data[1] | (data[2] << 8) | (data[3] << 16)
+        cals = data[4] | (data[5] << 8)
+        dist = data[6] | (data[7] << 8)
+        result.update({"steps": steps, "calories": cals, "distance": dist})
+
+    # 0x54/0x55: Heart rate data (historical / today)
+    elif cmd in (0x54, 0x55):
+        result["heart_rate"] = data[1]
+        if data[2] > 0:
+            result["heart_rate_min"] = data[2]
+        if data[3] > 0:
+            result["heart_rate_max"] = data[3]
+
     # 0x53: Sleep data response
     elif cmd == 0x53:
         # Sleep data packets contain minute-by-minute sleep stages
