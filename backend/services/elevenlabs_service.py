@@ -8,9 +8,9 @@ logger = logging.getLogger(__name__)
 
 ELEVENLABS_API_KEY = os.environ.get('ELEVENLABS_API_KEY', '')
 
-# French voice - "Alice" clear, professional, works great with multilingual French
-FRENCH_VOICE_ID = "Xb7hH8MSUJpSbSDYk0k2"  # Alice - Clear, Engaging
-FALLBACK_VOICE_ID = "EXAVITQu4vr4xnSDxMaL"  # Sarah - Mature, Reassuring
+# French voice - "Sarah" Mature, Reassuring - best for French with multilingual model
+FRENCH_VOICE_ID = "EXAVITQu4vr4xnSDxMaL"  # Sarah - Mature, Reassuring
+FALLBACK_VOICE_ID = "Xb7hH8MSUJpSbSDYk0k2"  # Alice - Clear, Engaging
 
 eleven_client = ElevenLabs(api_key=ELEVENLABS_API_KEY) if ELEVENLABS_API_KEY else None
 
@@ -28,9 +28,9 @@ def generate_speech(text: str, voice_id: str = None) -> bytes:
             voice_id=vid,
             model_id="eleven_multilingual_v2",
             voice_settings=VoiceSettings(
-                stability=0.7,
-                similarity_boost=0.8,
-                style=0.3,
+                stability=0.5,
+                similarity_boost=0.9,
+                style=0.6,
                 use_speaker_boost=True,
             )
         )
