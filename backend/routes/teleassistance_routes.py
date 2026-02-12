@@ -582,8 +582,8 @@ async def auto_escalation_protocol(alert: dict):
                 await db.escalations.update_one({"id": esc['id']}, {"$set": {"status": "guardian_handling", "current_step": "guardian_handling", "timeline": esc['timeline']}})
                 return
 
-            g_phone = guardian.get('phone', '')
-            if not g_phone or not twilio_client:
+            g_phone = norm_phone(guardian.get('phone', ''))
+            if not g_phone or len(g_phone) < 10 or not twilio_client:
                 continue
 
             esc['current_step'] = "calling_guardian"
