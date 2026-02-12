@@ -27,7 +27,25 @@ export default function SleepScreen() {
 
   if (loading) return <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
 
-  const stages = sleep?.stages || [];
+  // No sleep data available
+  if (!sleep || !sleep.stages || sleep.stages.length === 0) {
+    return (
+      <SafeAreaView style={s.safe}>
+        <View style={s.topBar}>
+          <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+          <Text style={s.topTitle}>Sommeil</Text>
+          <View style={{ width: 36 }} />
+        </View>
+        <View style={s.center}>
+          <Ionicons name="moon-outline" size={80} color={Colors.textMuted} />
+          <Text style={{ fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 20 }}>Aucune donnee de sommeil</Text>
+          <Text style={{ fontSize: 14, color: Colors.textMuted, textAlign: 'center', marginTop: 8, lineHeight: 20, paddingHorizontal: 20 }}>Portez votre bracelet Elio pendant la nuit pour enregistrer votre sommeil. Les donnees apparaitront ici automatiquement.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const stages = sleep.stages;
   const qualityColor = (sleep?.sleep_quality || 0) >= 80 ? Colors.success : (sleep?.sleep_quality || 0) >= 60 ? '#FF9800' : Colors.destructive;
 
   return (
