@@ -18,6 +18,44 @@ export default function ProfileScreen() {
   const [activating, setActivating] = useState(false);
   const [ivCode, setIvCode] = useState('');
   const [ivActivating, setIvActivating] = useState(false);
+  const [subscription, setSubscription] = useState<any>(null);
+  const [guardians, setGuardians] = useState<any[]>([]);
+  const [showAddGuardian, setShowAddGuardian] = useState(false);
+  const [guardianPhone, setGuardianPhone] = useState('');
+  const [addingGuardian, setAddingGuardian] = useState(false);
+  const [addResult, setAddResult] = useState<any>(null);
+
+  useEffect(() => {
+    if (user?.role === 'beneficiary' && token) {
+      apiFetch('/api/subscriptions/my', {}, token).then(setSub => setSubscription(setSub)).catch(() => {});
+      apiFetch('/api/guardians/my', {}, token).then(g => setGuardians(Array.isArray(g) ? g : [])).catch(() => {});
+    }
+  }, [user, token]);
+
+  const moveGuardian = async (gid: string, dir: 'up' | 'down') => {
+    const idx = guardians.findIndex(g => g.id === gid);
+    if (idx < 0 || (dir === 'up' && idx === 0) || (dir === 'down' && idx === guardians.length - 1)) return;
+    const newList = [...guardians];
+    const swap = dir === 'up' ? idx - 1 : idx + 1;
+    [newList[idx], newList[swap]] = [newList[swap], newList[idx]];
+    setGuardians(newList);
+    await apiFetch('/api/guardians/reorder', { method: 'POST', body: JSON.stringify({ order: newList.map(g => g.id) }) }, token).catch(() => {});
+  };
+
+  const removeGuardian = async (gid: string) => {
+    await apiFetch(`/api/guardians/${gid}/unlink`, { method: 'POST' }, token).catch(() => {});
+    setGuardians(guardians.filter(g => g.id !== gid));
+  };
+
+  const addGuardian = async () => {
+    if (!guardianPhone.trim()) return;
+    setAddingGuardian(true); setAddResult(null);
+    try {
+      const r = await apiFetch('/api/guardians/invite', { method: 'POST', body: JSON.stringify({ phone: guardianPhone.trim() }) }, token);
+      setAddResult(r);
+      if (r?.linked) { setGuardians([...guardians, r.guardian]); setGuardianPhone(''); setTimeout(() => { setShowAddGuardian(false); setAddResult(null); }, 2000); }
+    } catch (e: any) { setAddResult({ error: e.message }); } finally { setAddingGuardian(false); }
+  };
 
   if (!user || !token) return null;
 
