@@ -28,7 +28,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         apiFetch('/api/vest/status', {}, token).catch(() => null),
         apiFetch('/api/bracelet/status', {}, token).catch(() => null),
       ]);
-      // Use real bracelet data if available, fallback to simulated
+      // Use real bracelet data only, no simulated fallback
       if (brac && (brac.heart_rate > 0 || brac.steps > 0)) {
         setVitals({
           heart_rate: brac.heart_rate || 0,
@@ -39,8 +39,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           steps: brac.steps || 0,
           stress: 0,
         });
-      } else if (r.bracelet) {
-        setVitals(r.bracelet.data);
       }
       if (rc.recommendation) setRec(rc.recommendation);
       setReminders(rem);
