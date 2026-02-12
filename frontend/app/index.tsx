@@ -149,8 +149,8 @@ export default function AuthScreen() {
           <TouchableOpacity testID="auth-tab-register" style={a.tab} onPress={() => { setIsLogin(false); setStep(0); }}><Text style={a.tabT}>Inscription</Text></TouchableOpacity>
         </View>
         {error ? <View style={a.err}><Ionicons name="alert-circle" size={14} color={Colors.destructive} /><Text style={a.errT}>{error}</Text></View> : null}
-        <FormInput testID="reg-email" label="Email" placeholder="email@exemple.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-        <FormInput testID="auth-input-password" label="Mot de passe" placeholder="••••••••" value={password} onChangeText={setPassword}
+        <FormInput testID="reg-email" label="Email ou telephone" placeholder="email@exemple.com ou 06 12 34 56 78" value={email} onChangeText={setEmail} autoCapitalize="none" />
+        <FormInput testID="auth-input-password" label="Mot de passe" placeholder="Votre mot de passe" value={password} onChangeText={setPassword}
           secureTextEntry={!showPw} rightElement={<TouchableOpacity onPress={() => setShowPw(!showPw)} style={a.eye}><Ionicons name={showPw ? 'eye-off-outline' : 'eye-outline'} size={18} color={Colors.textMuted} /></TouchableOpacity>} />
         <TouchableOpacity testID="auth-submit-btn" style={[a.btn, submitting && a.btnD]} onPress={handleSubmit} disabled={submitting}>
           {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={a.btnT}>Se connecter</Text>}</TouchableOpacity>
