@@ -7,9 +7,10 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
 
-// BLE service UUIDs for generic health devices
-const BLE_SERVICE = 'generic_access';
-const NOTIFY_UUIDS = ['00002a37-0000-1000-8000-00805f9b34fb', '0000ffe4-0000-1000-8000-00805f9b34fb', '6e400003-b5a3-f393-e0a9-e50e24dcca9e'];
+// BLE UUIDs extracted from J-Style 2208A SDK APK
+const BLE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
+const BLE_NOTIFY_UUID = '0000fff6-0000-1000-8000-00805f9b34fb';
+const BLE_WRITE_UUID = '0000fff7-0000-1000-8000-00805f9b34fb';
 
 function calcCrc(data: number[]) { return data.reduce((s, b) => s + b, 0) & 0xFF; }
 
@@ -110,14 +111,7 @@ export default function BraceletConnectScreen() {
       const nav = navigator as any;
       const bd = await nav.bluetooth.requestDevice({
         acceptAllDevices: true,
-        optionalServices: [
-          'generic_access', 'heart_rate', 'battery_service', 'health_thermometer',
-          '0000ffe0-0000-1000-8000-00805f9b34fb', '0000fff0-0000-1000-8000-00805f9b34fb',
-          '0000fee7-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb',
-          '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0000180d-0000-1000-8000-00805f9b34fb',
-          '0000180f-0000-1000-8000-00805f9b34fb', '0000180a-0000-1000-8000-00805f9b34fb',
-          '00001800-0000-1000-8000-00805f9b34fb', '00001801-0000-1000-8000-00805f9b34fb',
-        ],
+        optionalServices: [BLE_SERVICE_UUID],
       });
       setDevice(bd);
       setBleStatus('connecting');
@@ -126,33 +120,16 @@ export default function BraceletConnectScreen() {
         if (pollRef.current) clearInterval(pollRef.current);
       });
       const server = await bd.gatt.connect();
-      let subscribed = false;
-      let foundServices: string[] = [];
-      try {
-        const services = await server.getPrimaryServices();
-        for (const service of services) {
-          foundServices.push(service.uuid);
-          try {
-            const chars = await service.getCharacteristics();
-            for (const char of chars) {
-              if (char.properties.notify || char.properties.indicate) {
-                try {
-                  await char.startNotifications();
-                  char.addEventListener('characteristicvaluechanged', handleBleData);
-                  subscribed = true;
-                } catch {}
-              }
-              if (char.properties.write || char.properties.writeWithoutResponse) {
-                writeCharRef.current = char;
-              }
-            }
-          } catch { continue; }
-        }
-      } catch {}
-      console.log('BLE services found:', foundServices);
-      setBleStatus(subscribed ? 'connected' : 'idle');
-      if (subscribed) startPolling();
-    } catch {
+      const service = await server.getPrimaryService(BLE_SERVICE_UUID);
+      const notifyChar = await service.getCharacteristic(BLE_NOTIFY_UUID);
+      await notifyChar.startNotifications();
+      notifyChar.addEventListener('characteristicvaluechanged', handleBleData);
+      const wChar = await service.getCharacteristic(BLE_WRITE_UUID);
+      writeCharRef.current = wChar;
+      setBleStatus('connected');
+      startPolling();
+    } catch (e: any) {
+      console.error('BLE connect error:', e);
       setBleStatus('idle');
     }
   };
