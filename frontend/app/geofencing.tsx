@@ -59,10 +59,10 @@ export default function GeofencingScreen() {
     catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
-  if (loading) return <SafeAreaView style={s.c}><ActivityIndicator size="large" color={Colors.primary} /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}><ActivityIndicator size="large" color={Colors.primary} /></SafeAreaView>;
 
   return (
-    <SafeAreaView style={s.c}>
+    <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}>
       <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="arrow-back" size={22} color={Colors.text} /></TouchableOpacity>
         <Text style={s.headerT}>Zones de sécurité</Text>

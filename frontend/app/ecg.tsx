@@ -35,7 +35,7 @@ export default function ECGScreen() {
   const statusColor = (s: string) => s === 'normal' ? Colors.success : s === 'attention' ? '#FF9800' : Colors.destructive;
 
   return (
-    <SafeAreaView style={s.c}>
+    <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}>
       <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="arrow-back" size={22} color={Colors.text} /></TouchableOpacity>
         <Text style={s.headerT}>Électrocardiogramme</Text>

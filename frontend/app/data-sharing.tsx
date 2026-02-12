@@ -47,7 +47,7 @@ export default function DataSharingScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
   };
 
-  if (loading) return <SafeAreaView style={s.c}><ActivityIndicator size="large" color={Colors.primary} /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}><ActivityIndicator size="large" color={Colors.primary} /></SafeAreaView>;
 
   const allOn = SHARING_ITEMS.every(i => prefs[i.key] !== false);
   const toggleAll = () => {
@@ -58,7 +58,7 @@ export default function DataSharingScreen() {
   };
 
   return (
-    <SafeAreaView style={s.c}>
+    <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}>
       <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
           <Ionicons name="arrow-back" size={22} color={Colors.text} />

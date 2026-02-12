@@ -90,7 +90,7 @@ export default function RemindersScreen() {
   const isCompleted = (r: any) => r.completions?.includes(today);
   const typeInfo = (t: string) => TYPES.find(x => x.key === t) || TYPES[3];
 
-  if (loading) return <SafeAreaView style={s.c}><ActivityIndicator size="large" color={Colors.primary} /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}><ActivityIndicator size="large" color={Colors.primary} /></SafeAreaView>;
 
   const grouped = {
     hydration: reminders.filter(r => r.reminder_type === 'hydration'),
@@ -100,7 +100,7 @@ export default function RemindersScreen() {
   };
 
   return (
-    <SafeAreaView style={s.c}>
+    <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}>
       <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
           <Ionicons name="arrow-back" size={22} color={Colors.text} />
