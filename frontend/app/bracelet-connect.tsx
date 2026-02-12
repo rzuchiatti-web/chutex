@@ -206,6 +206,7 @@ export default function BraceletConnectScreen() {
         <TouchableOpacity style={s.pairBtn} onPress={connectBracelet} disabled={bleStatus !== 'idle'}>
           {bleStatus !== 'idle' ? <><ActivityIndicator color="#FFF" size="small" /><Text style={s.pairBtnT}>Recherche...</Text></> : <><Ionicons name="bluetooth" size={20} color="#FFF" /><Text style={s.pairBtnT}>Appairer le bracelet</Text></>}
         </TouchableOpacity>
+        {errorMsg ? <Text style={{ fontSize: 12, color: Colors.destructive, textAlign: 'center', marginTop: 12 }}>{errorMsg}</Text> : null}
       </View>
     </SafeAreaView>
   );
