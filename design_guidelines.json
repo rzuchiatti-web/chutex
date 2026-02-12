@@ -1,167 +1,173 @@
 {
-  "project_context": {
-    "app_name": "VitalLink AI",
-    "app_description": "AI-powered health monitoring system connecting elderly beneficiaries with guardians.",
-    "tech_stack": "React (Web), Tailwind CSS, Shadcn UI, Framer Motion, Recharts",
-    "target_platforms": ["Mobile Web (PWA)", "Desktop Dashboard"],
-    "design_philosophy": "Calm for the cared, Clarity for the carer."
+  "identity": {
+    "name": "CHUTEX",
+    "vibe": "Futuristic Clinical",
+    "core_principles": [
+      "Clarity First: Vital signs must be legible at a glance.",
+      "Reassurance: Design should feel safe and professional.",
+      "Premium Tech: Use glassmorphism and subtle gradients to elevate beyond basic medical apps.",
+      "Accessibility: High contrast and large touch targets for elderly users."
+    ]
   },
   "typography": {
-    "font_family": {
-      "heading": "DM Sans, sans-serif",
-      "body": "Inter, sans-serif",
-      "mono": "JetBrains Mono, monospace",
-      "numeric": "Barlow, sans-serif"
-    },
+    "font_family_headings": "System",
+    "font_family_body": "System",
     "scale": {
-      "display": "text-5xl md:text-6xl font-bold tracking-tight",
-      "h1": "text-4xl font-bold tracking-tight",
-      "h2": "text-3xl font-semibold tracking-tight",
-      "h3": "text-2xl font-semibold",
-      "body_lg": "text-lg leading-relaxed",
-      "body_base": "text-base leading-relaxed text-muted-foreground",
-      "caption": "text-sm text-muted-foreground",
-      "tiny": "text-xs font-medium tracking-wider uppercase"
+      "h1": { "size": 32, "lineHeight": 40, "weight": "700", "letterSpacing": -0.5 },
+      "h2": { "size": 24, "lineHeight": 32, "weight": "600", "letterSpacing": -0.25 },
+      "h3": { "size": 20, "lineHeight": 28, "weight": "600" },
+      "body_lg": { "size": 18, "lineHeight": 28, "weight": "400" },
+      "body_md": { "size": 16, "lineHeight": 24, "weight": "400" },
+      "body_sm": { "size": 14, "lineHeight": 20, "weight": "400" },
+      "caption": { "size": 12, "lineHeight": 16, "weight": "500", "textTransform": "uppercase" }
     }
   },
   "colors": {
-    "palette_name": "Organic Precision",
-    "mode": "light",
-    "primary": {
-      "DEFAULT": "#4A7C59", 
-      "foreground": "#FFFFFF",
-      "hover": "#3D664A",
-      "description": "Sage Green - Calming, trust-building, medical but not sterile."
+    "light": {
+      "background": "#F8FAFC",
+      "surface": "#FFFFFF",
+      "surface_highlight": "#F1F5F9",
+      "text_primary": "#0F172A",
+      "text_secondary": "#475569",
+      "text_muted": "#94A3B8",
+      "primary": "#0891B2",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#E2E8F0",
+      "accent": "#06B6D4",
+      "border": "#E2E8F0",
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "danger": "#EF4444",
+      "info": "#3B82F6"
     },
-    "secondary": {
-      "DEFAULT": "#E7E5E4", 
-      "foreground": "#1C1917",
-      "description": "Warm Stone - Physical, grounded background elements."
+    "dark": {
+      "background": "#0B1120",
+      "surface": "#1E293B",
+      "surface_highlight": "#334155",
+      "text_primary": "#F8FAFC",
+      "text_secondary": "#CBD5E1",
+      "text_muted": "#64748B",
+      "primary": "#06B6D4",
+      "primary_foreground": "#000000",
+      "secondary": "#1E293B",
+      "accent": "#22D3EE",
+      "border": "#334155",
+      "success": "#34D399",
+      "warning": "#FBBF24",
+      "danger": "#F87171",
+      "info": "#60A5FA"
     },
-    "accent": {
-      "DEFAULT": "#F59E0B", 
-      "foreground": "#FFFFFF",
-      "description": "Warm Amber - Notifications, non-critical alerts."
-    },
-    "destructive": {
-      "DEFAULT": "#DC2626", 
-      "foreground": "#FFFFFF",
-      "description": "Alert Red - SOS, Critical Anomalies."
-    },
-    "info": {
-      "DEFAULT": "#0EA5E9",
-      "foreground": "#FFFFFF",
-      "description": "Safe Blue - Medical status, connectivity."
-    },
-    "background": {
-      "DEFAULT": "#FAFAF9", 
-      "paper": "#FFFFFF",
-      "subtle": "#F5F5F4"
-    },
-    "text": {
-      "primary": "#1C1917", 
-      "secondary": "#57534E",
-      "muted": "#A8A29E"
+    "gradients": {
+      "primary_linear": ["#0891B2", "#06B6D4"],
+      "sos_pulse": ["#EF4444", "#DC2626"]
     }
   },
-  "layout": {
-    "spacing_scale": "generous",
-    "container": {
-      "max_width": "max-w-7xl",
-      "padding": "px-4 md:px-8"
+  "layout_system": {
+    "spacing": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "xl": 32,
+      "xxl": 48
     },
-    "grid_systems": {
-      "beneficiary_dashboard": "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3",
-      "guardian_dashboard": "grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]"
+    "radius": {
+      "sm": 8,
+      "md": 12,
+      "lg": 16,
+      "xl": 24,
+      "full": 9999
     },
-    "border_radius": {
-      "card": "rounded-2xl",
-      "button": "rounded-full",
-      "input": "rounded-xl"
+    "shadows": {
+      "small": {
+        "shadowColor": "#000",
+        "shadowOffset": { "width": 0, "height": 1 },
+        "shadowOpacity": 0.05,
+        "shadowRadius": 2,
+        "elevation": 2
+      },
+      "medium": {
+        "shadowColor": "#000",
+        "shadowOffset": { "width": 0, "height": 4 },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 6,
+        "elevation": 4
+      },
+      "glow": {
+        "shadowColor": "#06B6D4",
+        "shadowOffset": { "width": 0, "height": 0 },
+        "shadowOpacity": 0.3,
+        "shadowRadius": 10,
+        "elevation": 6
+      }
     }
   },
   "components": {
     "buttons": {
-      "default": "h-12 px-6 rounded-full font-medium transition-transform active:scale-95",
-      "primary": "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20",
-      "ghost": "hover:bg-secondary/50 text-foreground"
+      "primary": {
+        "borderRadius": 9999,
+        "paddingVertical": 16,
+        "paddingHorizontal": 32,
+        "backgroundColor": "primary",
+        "alignItems": "center",
+        "justifyContent": "center"
+      },
+      "outline": {
+        "borderRadius": 9999,
+        "paddingVertical": 16,
+        "paddingHorizontal": 32,
+        "borderWidth": 1,
+        "borderColor": "border",
+        "backgroundColor": "transparent"
+      }
     },
     "cards": {
-      "base": "bg-white border border-stone-200 shadow-sm hover:shadow-md transition-shadow duration-300 p-6 rounded-2xl",
-      "interactive": "cursor-pointer hover:border-primary/50 group"
-    },
-    "inputs": {
-      "base": "h-12 bg-stone-50 border-stone-200 focus:ring-2 focus:ring-primary/20 rounded-xl"
-    },
-    "status_indicators": {
-      "online": "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]",
-      "offline": "h-2.5 w-2.5 rounded-full bg-stone-400",
-      "alert": "h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]"
-    }
-  },
-  "visual_enhancers": {
-    "glassmorphism": "backdrop-blur-xl bg-white/80 border border-white/20 shadow-sm",
-    "shadows": {
-      "soft": "shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]",
-      "floating": "shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
-    },
-    "gradients": {
-      "subtle_warm": "bg-gradient-to-br from-stone-50 to-stone-100",
-      "alert_glow": "bg-gradient-to-r from-red-500/10 to-transparent"
+      "base": {
+        "backgroundColor": "surface",
+        "borderRadius": 16,
+        "padding": 24,
+        "shadow": "medium"
+      },
+      "glass": {
+        "backgroundColor": "rgba(255, 255, 255, 0.1)",
+        "borderRadius": 16,
+        "borderWidth": 1,
+        "borderColor": "rgba(255, 255, 255, 0.2)"
+      }
     }
   },
   "motion": {
-    "reduced_motion": "true",
-    "transitions": "transition-all duration-300 ease-out",
-    "animation_presets": {
-      "fade_in": { "initial": { "opacity": 0 }, "animate": { "opacity": 1 } },
-      "slide_up": { "initial": { "y": 20, "opacity": 0 }, "animate": { "y": 0, "opacity": 1 } },
-      "scale_in": { "initial": { "scale": 0.95, "opacity": 0 }, "animate": { "scale": 1, "opacity": 1 } }
+    "transitions": {
+      "fast": 200,
+      "normal": 300,
+      "slow": 500
+    },
+    "types": ["LayoutAnimation", "Reanimated.SharedTransition"]
+  },
+  "media": {
+    "images": {
+      "beneficiary_hero": "https://images.unsplash.com/photo-1745031608165-a8623bee161e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHw0fHxlbGRlcmx5JTIwaGFwcHklMjBhY3RpdmUlMjBoZWFsdGh5fGVufDB8fHx8MTc3MDkyNzQ2NXww&ixlib=rb-4.1.0&q=85",
+      "teleassistance_hero": "https://images.unsplash.com/photo-1758691463203-cce9d415b2b5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHw0fHxkb2N0b3IlMjB0YWJsZXQlMjBtZWRpY2FsfGVufDB8fHx8MTc3MDkyNzQ3M3ww&ixlib=rb-4.1.0&q=85",
+      "guardian_hero": "https://images.unsplash.com/photo-1767858898311-b827bd68e2b5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwyfHxmYW1pbHklMjBjYXJpbmclMjBob21lfGVufDB8fHx8MTc3MDkyNzQ3N3ww&ixlib=rb-4.1.0&q=85",
+      "device_hero": "https://images.unsplash.com/photo-1767903622388-4949aad2bd93?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHwyfHxzbWFydCUyMHdhdGNoJTIwaGVhbHRoJTIwdHJhY2tlciUyMHdyaXN0fGVufDB8fHx8MTc3MDkyNzQ4MHww&ixlib=rb-4.1.0&q=85"
     }
   },
-  "image_urls": {
-    "beneficiaries": [
-      {
-        "url": "https://images.unsplash.com/photo-1758874960056-07aa3d0afa3b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHwxfHxlbGRlcmx5JTIwcGVyc29uJTIwaGFwcHklMjBoZWFsdGh5JTIwaG9tZXxlbnwwfHx8fDE3NzA2MzI4OTR8MA&ixlib=rb-4.1.0&q=85",
-        "alt": "Happy elderly woman in kitchen",
-        "category": "hero"
-      }
-    ],
-    "professionals": [
-      {
-        "url": "https://images.unsplash.com/photo-1758691462353-36b215702253?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwxfHxkb2N0b3IlMjBsb29raW5nJTIwYXQlMjB0YWJsZXQlMjBtZWRpY2FsfGVufDB8fHx8MTc3MDYzMjg5NXww&ixlib=rb-4.1.0&q=85",
-        "alt": "Doctor reviewing scans on tablet",
-        "category": "guardian_dashboard"
-      }
-    ],
-    "devices": [
-      {
-        "url": "https://images.unsplash.com/photo-1585595666499-400018927746?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwyfHxzbWFydHdhdGNoJTIwaGVhbHRoJTIwbW9uaXRvciUyMHdyaXN0fGVufDB8fHx8MTc3MDYzMjg5Nnww&ixlib=rb-4.1.0&q=85",
-        "alt": "Health smartwatch device",
-        "category": "device_management"
-      }
-    ]
-  },
-  "libraries": {
-    "maps": "react-map-gl (Mapbox) or react-leaflet",
-    "charts": "recharts (via Shadcn)",
-    "icons": "lucide-react",
-    "animations": "framer-motion",
-    "date_handling": "date-fns",
-    "notifications": "sonner"
-  },
-  "accessibility": {
-    "contrast_ratio": "AAA (Target 7:1 for text)",
-    "touch_target_size": "min-h-[48px] min-w-[48px]",
-    "font_scaling": "Ensure all text respects user font scaling preferences",
-    "focus_states": "ring-2 ring-offset-2 ring-primary"
-  },
-  "universal_guidelines": [
-    "Do NOT use standard 'AI' emojis (🤖, 🧠). Use clean Lucide icons instead.",
-    "For the Map Interface: Use a full-screen map with a floating bottom sheet (beneficiary details) to mimic the Uber experience.",
-    "For Alerts: Use a 'Heartbeat' animation on the SOS button using Tailwind `animate-pulse`.",
-    "Beneficiary View: Minimize data density. Show ONLY what matters now (e.g., 'Take Pill', 'Heart Rate OK').",
-    "Guardian View: Maximize data density without clutter. Use small sparklines for trends.",
-    "All interactive elements MUST have data-testid attributes (kebab-case)."
+  "instructions_to_main_agent": [
+    "TECH STACK: This is a React Native Expo project. Use <View>, <Text>, <Pressable>, NOT <div>, <span>, <button>.",
+    "STYLING: Use StyleSheet.create(). Do not use className='...'.",
+    "ICONS: Use @expo/vector-icons (Ionicons, MaterialCommunityIcons).",
+    "THEME: Implement a ThemeContext to toggle between 'light' and 'dark' using the colors defined in this file.",
+    "NAVIGATION: Use Expo Router (app/ directory).",
+    "CHARTS: Use react-native-chart-kit for health data.",
+    "DATA: Mock all data for now, but structure it realistically (e.g., heart rate array for graph).",
+    "ACCESSIBILITY: Ensure all text is readable. Use `accessibilityLabel` on buttons.",
+    "TESTING: Add `testID` prop to all interactive elements."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not use gradients for text to ensure readability.",
+    "Use generous padding (minimum 16px) inside cards.",
+    "Avoid centering text in long paragraphs; left align is better for readability.",
+    "Use 'Pressable' with a visual feedback (opacity change) for all buttons.",
+    "Ensure the SOS button is the most prominent element on the Beneficiary Dashboard."
   ]
 }
