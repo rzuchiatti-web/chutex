@@ -15,6 +15,10 @@ export default function SubscriptionScreen() {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showAddGuardian, setShowAddGuardian] = useState(false);
+  const [guardianPhone, setGuardianPhone] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [addResult, setAddResult] = useState<any>(null);
 
   const fetchData = useCallback(async () => {
     try {
