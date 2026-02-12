@@ -435,11 +435,12 @@ function AdminPrescripteurs({ token }: { token: string }) {
 /* ===== MAIN ===== */
 export default function DevicesScreen() {
   const { user, token } = useAuth();
+  const { colors } = useTheme();
   if (!user || !token) return null;
   return (
-    <SafeAreaView style={d.safeArea} testID="devices-screen">
+    <SafeAreaView style={[d.safeArea, { backgroundColor: colors.background }]} testID="devices-screen">
       <View style={d.header}>
-        <Text style={d.title}>{user.role === 'admin' ? 'Prescripteurs' : user.role === 'guardian' ? 'Prescriptions' : user.role === 'teleassistance' ? 'Abonnés' : 'Mes Appareils'}</Text>
+        <Text style={[d.title, { color: colors.textPrimary }]}>{user.role === 'admin' ? 'Prescripteurs' : user.role === 'guardian' ? 'Prescriptions' : user.role === 'teleassistance' ? 'Abonnés' : 'Mes Appareils'}</Text>
       </View>
       {user.role === 'admin' ? <AdminPrescripteurs token={token} />
         : user.role === 'guardian' ? <PrescriptionManagement token={token} user={user} />
