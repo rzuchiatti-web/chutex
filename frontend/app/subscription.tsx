@@ -59,6 +59,24 @@ export default function SubscriptionScreen() {
     } catch {}
   };
 
+  const addGuardian = async () => {
+    if (!guardianPhone.trim()) return;
+    setAdding(true);
+    setAddResult(null);
+    try {
+      const r = await apiFetch('/api/guardians/invite', {
+        method: 'POST',
+        body: JSON.stringify({ phone: guardianPhone.trim() }),
+      }, token);
+      setAddResult(r);
+      if (r?.linked) {
+        setGuardians([...guardians, r.guardian]);
+        setGuardianPhone('');
+        setTimeout(() => { setShowAddGuardian(false); setAddResult(null); }, 2000);
+      }
+    } catch (e: any) { setAddResult({ error: e.message }); } finally { setAdding(false); }
+  };
+
   if (loading) return <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
 
   const isCare = sub?.subscription_type === 'care';
