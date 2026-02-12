@@ -53,6 +53,8 @@ export default function BraceletConnectScreen() {
   const writeCharRef = useRef<any>(null);
   const pollRef = useRef<any>(null);
 
+  const [errorMsg, setErrorMsg] = useState('');
+
   useEffect(() => {
     apiFetch('/api/bracelet/status', {}, token).then(d => {
       setBraceletData(d);
@@ -107,6 +109,7 @@ export default function BraceletConnectScreen() {
   const connectBracelet = async () => {
     if (Platform.OS !== 'web' || !('bluetooth' in navigator)) return;
     setBleStatus('scanning');
+    setErrorMsg('');
     try {
       const nav = navigator as any;
       const bd = await nav.bluetooth.requestDevice({
@@ -115,21 +118,59 @@ export default function BraceletConnectScreen() {
       });
       setDevice(bd);
       setBleStatus('connecting');
+      setErrorMsg('Appareil selectionne, connexion GATT...');
       bd.addEventListener('gattserverdisconnected', () => {
         setBleStatus('idle');
         if (pollRef.current) clearInterval(pollRef.current);
       });
       const server = await bd.gatt.connect();
-      const service = await server.getPrimaryService(BLE_SERVICE_UUID);
-      const notifyChar = await service.getCharacteristic(BLE_NOTIFY_UUID);
-      await notifyChar.startNotifications();
-      notifyChar.addEventListener('characteristicvaluechanged', handleBleData);
-      const wChar = await service.getCharacteristic(BLE_WRITE_UUID);
-      writeCharRef.current = wChar;
-      setBleStatus('connected');
-      startPolling();
+      setErrorMsg('GATT connecte, recherche service fff0...');
+      try {
+        const service = await server.getPrimaryService(BLE_SERVICE_UUID);
+        setErrorMsg('Service fff0 trouve, acces aux caracteristiques...');
+        const notifyChar = await service.getCharacteristic(BLE_NOTIFY_UUID);
+        await notifyChar.startNotifications();
+        notifyChar.addEventListener('characteristicvaluechanged', handleBleData);
+        const wChar = await service.getCharacteristic(BLE_WRITE_UUID);
+        writeCharRef.current = wChar;
+        setBleStatus('connected');
+        setErrorMsg('');
+        startPolling();
+      } catch (svcErr: any) {
+        setErrorMsg(`Service fff0 non trouve. Scan de tous les services...`);
+        // Fallback: try all services
+        try {
+          const services = await server.getPrimaryServices();
+          const svcList = services.map((s: any) => s.uuid).join(', ');
+          setErrorMsg(`Services trouves: ${svcList}`);
+          let subscribed = false;
+          for (const svc of services) {
+            try {
+              const chars = await svc.getCharacteristics();
+              for (const c of chars) {
+                if (c.properties.notify || c.properties.indicate) {
+                  await c.startNotifications();
+                  c.addEventListener('characteristicvaluechanged', handleBleData);
+                  subscribed = true;
+                }
+                if (c.properties.write || c.properties.writeWithoutResponse) {
+                  writeCharRef.current = c;
+                }
+              }
+            } catch { continue; }
+          }
+          if (subscribed) {
+            setBleStatus('connected');
+            startPolling();
+          } else {
+            setErrorMsg(`Services: ${svcList} - Aucune caracteristique notify trouvee`);
+          }
+        } catch (e2: any) {
+          setErrorMsg(`Erreur scan services: ${e2.message}`);
+        }
+      }
     } catch (e: any) {
-      console.error('BLE connect error:', e);
+      setErrorMsg(`Erreur: ${e.message}`);
       setBleStatus('idle');
     }
   };
