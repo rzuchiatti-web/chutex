@@ -168,27 +168,28 @@ export default function BraceletConnectScreen() {
       const server = await bd.gatt.connect();
       setErrorMsg('GATT connecte, recherche service fff0...');
       try {
-        // Try all available services since fff0 may not be directly accessible
-        const services = await server.getPrimaryServices();
-        const svcUuids = services.map((s: any) => s.uuid);
-        setErrorMsg(`Services: ${svcUuids.join(', ')}`);
-        
+        // Try service fff0 first (from SDK APK)
         let notifyChar: any = null;
         let wChar: any = null;
         
-        for (const svc of services) {
+        const tryService = async (uuid: string) => {
           try {
+            const svc = await server.getPrimaryService(uuid);
             const chars = await svc.getCharacteristics();
             for (const c of chars) {
-              if ((c.properties.notify || c.properties.indicate) && !notifyChar) {
-                notifyChar = c;
-              }
-              if ((c.properties.write || c.properties.writeWithoutResponse) && !wChar) {
-                wChar = c;
-              }
+              if ((c.properties.notify || c.properties.indicate) && !notifyChar) notifyChar = c;
+              if ((c.properties.write || c.properties.writeWithoutResponse) && !wChar) wChar = c;
             }
-          } catch { continue; }
-        }
+          } catch {}
+        };
+        
+        // Try known service UUIDs in order
+        await tryService(BLE_SERVICE_UUID);
+        if (!notifyChar) await tryService('0000ffe0-0000-1000-8000-00805f9b34fb');
+        if (!notifyChar) await tryService('0000ffc0-0000-1000-8000-00805f9b34fb');
+        if (!notifyChar) await tryService('0000fee7-0000-1000-8000-00805f9b34fb');
+        if (!notifyChar) await tryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
+        if (!notifyChar) await tryService('0000180d-0000-1000-8000-00805f9b34fb');
         
         if (notifyChar) {
           await notifyChar.startNotifications();
@@ -198,7 +199,7 @@ export default function BraceletConnectScreen() {
           setErrorMsg('');
           startPolling();
         } else {
-          setErrorMsg(`Services: ${svcUuids.join(', ')} - Aucune caracteristique notify`);
+          setErrorMsg('Aucun service BLE compatible trouve');
           setBleStatus('idle');
         }
       } catch (innerErr: any) {
