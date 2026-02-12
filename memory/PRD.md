@@ -1,7 +1,7 @@
 # CHUTEX - Teleassistance & Telesante Application
 
 ## Problem Statement
-Application de teleassistance et telesante "CHUTEX" pour le suivi des personnes agees/vulnerables avec 3 roles : beneficiaire, gardien, administrateur.
+Application de teleassistance et telesante "CHUTEX" pour le suivi des personnes agees/vulnerables avec 4 roles : beneficiaire, gardien, administrateur, teleassistance.
 
 ## Core Requirements
 - **Beneficiaire**: Dashboard sante, alertes, teleconsultation, ECG, geofencing, alertes sedentarite
@@ -13,9 +13,9 @@ Application de teleassistance et telesante "CHUTEX" pour le suivi des personnes 
 - **Frontend**: React Native / Expo / Expo Router (TypeScript)
 - **Backend**: FastAPI (Python) - Structure modulaire
 - **Database**: MongoDB
-- **Auth**: JWT
+- **Auth**: JWT (email ou telephone)
 
-### Backend Structure (Post-Refactoring)
+### Backend Structure
 ```
 /app/backend/
 ├── server.py          # App entry + seed data
@@ -32,6 +32,8 @@ Application de teleassistance et telesante "CHUTEX" pour le suivi des personnes 
     ├── admin_routes.py
     ├── teleassistance_routes.py
     ├── subscription_routes.py
+    ├── vest_routes.py
+    ├── bracelet_routes.py
     └── misc_routes.py
 ```
 
@@ -41,8 +43,10 @@ Application de teleassistance et telesante "CHUTEX" pour le suivi des personnes 
 - Admin: admin@chutex.fr / demo123
 - Teleassistance: plateau@chutex.fr / demo123
 
-## Implemented Features (Complete)
-- Full auth (register/login/JWT)
+## Implemented Features
+
+### Core (Sessions 1-4)
+- Full auth (register/login/JWT) with email + phone support
 - Beneficiary dashboard with vitals, AI recommendations, reminders
 - Guardian dashboard with beneficiary monitoring
 - Alert system with create/resolve/escalation
@@ -56,69 +60,50 @@ Application de teleassistance et telesante "CHUTEX" pour le suivi des personnes 
 - Data sharing preferences
 - QR/Link code for guardian-beneficiary linking
 - Guardian "Lancer l'itineraire" button
-- Single scrollable beneficiary detail page (no tabs)
-- Alert detail page with timeline
-- Subscriber detail page for teleassistance
-- Smooth logout without page reload
+- Subscription management (Standard/Care) with Shopify sync endpoints
 
-## Mocked Integrations
-- Email sending (logs to console)
-- AI recommendations (uses Emergent LLM key when available)
+### Hardware Integrations
+- S-AIRBAG Vest: BLE integration complete (Web Bluetooth API)
+- J-Style 2208A Bracelet: Partially integrated (heart rate, temperature via BLE)
+- Native BLE: react-native-ble-plx configured for EAS builds (untested)
 
-## Session History
+### Session 5 (Feb 12, 2026) - UI/UX REDESIGN
+- **Complete UI/UX Redesign**: Futuristic clinical theme inspired by Whoop + Withings
+- **Dark/Light Mode**: Full theme system with user toggle (ThemeContext)
+  - Default: Dark mode (deep navy #0B1120 background)
+  - Light mode: Clean clinical white (#F0F4F8)
+  - Cyan/Teal primary color (#22D3EE dark / #0891B2 light)
+- **Redesigned Screens** (full theme support):
+  - Login/Auth screen with animated logo, pill buttons, modern inputs
+  - Beneficiary Dashboard: SOS pulse animation, device cards, vitals grid, AI card, quick actions
+  - Guardian Dashboard: stats cards, beneficiary list, alert feed
+  - Teleassistance Dashboard: live escalation cards, alert queue, subscriber list
+  - Admin Dashboard: KPI grid, mini stats, backoffice link
+  - Profile: user card, theme toggle switch, location sharing, guardians, shortcuts
+  - Alerts: filter pills, severity badges, action buttons
+  - Health: metric cards with icons, ECG/Sleep quick links
+- **Partially themed screens** (background only): devices, teleconsult, backoffice, vest-connect, bracelet-connect, ecg, sleep, geofencing, health-detail, alert-detail, beneficiary-detail, subscriber-detail, intervention-detail, data-sharing, link-code, reminders, subscription
+- **Testing**: 100% backend (17/17), 100% frontend - all 4 roles verified
 
-### Session 1 (Initial)
-- Full app build with all core features
-- Branding as CHUTEX
-- Admin interface with tabs
-- Teleassistance dashboard
-
-### Session 2 (Feb 2026)
-- P0: Refactored beneficiary detail to single scrollable page
-- P1: Added "Lancer l'itineraire" for guardians
-- P2: Enhanced backoffice CRUD for codes
-- P3: Backend refactoring (monolithic -> modular)
-
-### Session 3 (Feb 2026)
-- Fixed missing endpoints: /alerts/{id}/detail, /teleassistance/subscriber/{id}, /twilio/call/guardian
-- Fixed logout: removed window.location.href hack, proper state-based navigation
-- Conditional _layout.tsx navigation for auth/unauth
-
-### Session 4 (Feb 11, 2026) - Current
-- **Subscription Management System**:
-  - Backend: subscription_routes.py with full CRUD, subscription check, Shopify sync/webhook endpoints
-  - Subscription types: Standard (bracelet + app) and Care (Standard + teleassistance IA)
-  - Bracelet sync requires active subscription (vest/scale don't)
-  - Phone number used as linking field between Shopify orders and beneficiaries
-  - Admin can create/update/delete subscriptions manually
-  - Shopify webhook endpoint ready (POST /api/shopify/webhook/order-created)
-  - Shopify manual sync endpoint (POST /api/admin/shopify/sync)
-  - Phone normalization for French numbers
-  - Demo seed: Robert Martin has Care subscription
-- **Frontend Backoffice Updates**:
-  - New "Abonnements" tab with subscription list, counters, CRUD
-  - "Nouvel abonnement" modal with Standard/Care type selection
-  - "Sync Shopify" button (green)
-  - Stats page shows Abon. Standard and Abon. Care counts
-  - Users list shows subscription badge
-- **Testing**: 100% backend pass (14/14), frontend UI verified
+## Design System
+- Colors: `/app/frontend/src/constants/colors.ts` (LightTheme + DarkTheme)
+- Theme: `/app/frontend/src/context/ThemeContext.tsx`
+- Design guidelines: `/app/design_guidelines.json`
 
 ## 3rd Party Integrations
-- **Twilio**: Real phone calls for alert escalation
-- **Shopify Admin API**: Subscription management via orders (requires SHOPIFY_ACCESS_TOKEN)
-  - Store URL: b7at4t-4z.myshopify.com
-  - Products: "Bracelet Elio" = Standard, "Care" = Care subscription
+- **Twilio**: Phone calls for alert escalation
+- **ElevenLabs**: AI voice generation (Sarah voice)
+- **Shopify Admin API**: Subscription management (BLOCKED - plan limitation)
 
-## Backlog
-- Configure SHOPIFY_ACCESS_TOKEN when user obtains it (OAuth flow)
-- Real email integration (currently mocked)
-- Set up Shopify webhooks for automatic subscription creation on order
-- LeFu Energy balance CF586BLE integration (waiting for AppKey/AppSecret from manufacturer)
+## Backlog / Next Tasks
+- P0: Complete theme support for remaining secondary screens (devices, teleconsult, backoffice, etc.)
+- P1: Guardian invitation frontend flow (backend ready, UI missing)
+- P1: Finalize native Android build testing (Build #10 untested)
+- P2: Complete J-Style bracelet data integration (SpO2, BP, battery, sleep/hypnogram)
+- P3: iOS build (Apple Developer credentials needed)
+- P3: Lefu Smart Scale integration (manufacturer API credentials pending)
+- BLOCKED: Shopify full integration (user plan insufficient)
 
-## Hardware Integrations
-- **S-AIRBAG Vest (CF586BLE)**: BLE integration complete
-  - Frontend: vest-connect.tsx (Web Bluetooth API)
-  - Backend: vest_routes.py (data ingestion, SOS alerts, sensor data storage)
-  - Protocol: @&key=value&# format, 3 data types (normal, SOS/fault, sensors)
-  - Auto-escalation on SOS detection via teleassistance
-- **LeFu Energy Scale (CF586BLE+WiFi)**: Pending manufacturer API credentials
+## Mocked
+- Email sending (logs to console)
+- Sleep hypnogram (simulated data pending native bracelet integration)
