@@ -119,11 +119,17 @@ async def push_bracelet_data(request_body: dict, user=Depends(get_current_user))
         update_fields['last_spo2'] = parsed['spo2']
     if 'temperature' in parsed and parsed['temperature'] > 30:
         update_fields['last_temperature'] = parsed['temperature']
-    if 'steps' in parsed:
+    if 'steps' in parsed and parsed['steps'] > 0:
         update_fields['last_steps'] = parsed['steps']
+    if 'calories' in parsed and parsed['calories'] > 0:
+        update_fields['last_calories'] = parsed['calories']
     if 'systolic' in parsed and parsed['systolic'] > 0:
         update_fields['last_systolic'] = parsed['systolic']
         update_fields['last_diastolic'] = parsed.get('diastolic', 0)
+    if 'hrv' in parsed and parsed['hrv'] > 0:
+        update_fields['last_hrv'] = parsed['hrv']
+    if 'stress' in parsed and parsed['stress'] > 0:
+        update_fields['last_stress'] = parsed['stress']
 
     await db.devices.update_one(
         {"user_id": user['id'], "device_type": "bracelet"},
