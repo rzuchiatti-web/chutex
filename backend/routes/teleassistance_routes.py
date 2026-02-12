@@ -656,35 +656,3 @@ async def auto_escalation_protocol(alert: dict):
 
     except Exception as e:
         logger.error(f"Auto-escalation protocol error: {e}")
-                        pass
-                if g_answered:
-                    esc['timeline'].append({"step": "guardian_answered", "time": datetime.now(timezone.utc).isoformat(), "note": f"Gardien {guardian['name']} prend en charge."})
-                    esc['status'] = "guardian_handling"
-                    await db.escalations.update_one({"id": esc['id']}, {"$set": {"status": "guardian_handling", "timeline": esc['timeline']}})
-                    guardian_handled = True
-                    break
-            except Exception as e:
-                logger.error(f"Guardian call error: {e}")
-
-        if not guardian_handled and esc.get('status') != 'resolved':
-            esc['status'] = "dispatched"
-            esc['current_step'] = "dispatched"
-            loc = await db.locations.find_one({"user_id": alert['beneficiary_id']}, {"_id": 0})
-            iv_id = str(uuid.uuid4())
-            iv = {
-                "id": iv_id, "alert_id": alert['id'], "escalation_id": esc['id'],
-                "beneficiary_id": alert['beneficiary_id'], "beneficiary_name": alert['beneficiary_name'],
-                "assigned_to": "auto", "assigned_name": "Intervention d'urgence",
-                "status": "dispatched", "notes": f"Auto-dispatch IA: {alert['message']}",
-                "beneficiary_location": {"latitude": loc['latitude'] if loc else 48.8566, "longitude": loc['longitude'] if loc else 2.3522},
-                "intervener_location": {"latitude": 48.8566 + random.uniform(-0.02, 0.02), "longitude": 2.3522 + random.uniform(-0.02, 0.02)},
-                "created_at": datetime.now(timezone.utc).isoformat(), "completed_at": None, "report": None,
-                "timeline": [{"status": "dispatched", "time": datetime.now(timezone.utc).isoformat(), "note": "Intervention auto-dispatchee"}],
-            }
-            await db.interventions.insert_one(iv)
-            esc['intervention_id'] = iv_id
-            esc['timeline'].append({"step": "dispatched", "time": datetime.now(timezone.utc).isoformat(), "note": f"Intervention #{iv_id[:8]} creee."})
-            await db.escalations.update_one({"id": esc['id']}, {"$set": {"status": "dispatched", "current_step": "dispatched", "timeline": esc['timeline'], "intervention_id": iv_id}})
-            await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "intervention_dispatched"}})
-    except Exception as e:
-        logger.error(f"Auto-escalation protocol error: {e}")
