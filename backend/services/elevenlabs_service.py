@@ -8,9 +8,9 @@ logger = logging.getLogger(__name__)
 
 ELEVENLABS_API_KEY = os.environ.get('ELEVENLABS_API_KEY', '')
 
-# French voice - "Charlotte" is a warm French female voice
-FRENCH_VOICE_ID = "XB0fDUnXU5powFXDhCwa"  # Charlotte - French
-FALLBACK_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"  # Rachel - multilingual
+# French voice - "Alice" clear, professional, works great with multilingual French
+FRENCH_VOICE_ID = "Xb7hH8MSUJpSbSDYk0k2"  # Alice - Clear, Engaging
+FALLBACK_VOICE_ID = "EXAVITQu4vr4xnSDxMaL"  # Sarah - Mature, Reassuring
 
 eleven_client = ElevenLabs(api_key=ELEVENLABS_API_KEY) if ELEVENLABS_API_KEY else None
 
