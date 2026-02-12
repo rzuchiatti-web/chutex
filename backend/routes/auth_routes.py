@@ -51,9 +51,22 @@ async def register(data: UserRegister):
 
 @router.post("/auth/login")
 async def login(data: UserLogin):
-    user = await db.users.find_one({"email": data.email}, {"_id": 0})
+    identifier = data.email.strip()
+    # Search by email first
+    user = await db.users.find_one({"email": identifier}, {"_id": 0})
+    if not user:
+        # Try by phone number
+        import re
+        cleaned = re.sub(r'[\s\-\.\(\)]', '', identifier)
+        if cleaned.startswith('0') and len(cleaned) == 10:
+            cleaned = '+33' + cleaned[1:]
+        if cleaned.startswith('+'):
+            user = await db.users.find_one({"phone": {"$regex": cleaned[-9:]}}, {"_id": 0})
+        if not user:
+            # Try partial match
+            user = await db.users.find_one({"phone": identifier}, {"_id": 0})
     if not user or not verify_password(data.password, user['password_hash']):
-        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+        raise HTTPException(status_code=401, detail="Identifiant ou mot de passe incorrect")
     return {"token": create_token(user['id'], user['role']), "user": sanitize_user(user)}
 
 
