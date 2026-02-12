@@ -170,7 +170,7 @@ export default function BraceletConnectScreen() {
         }
       }
     } catch (e: any) {
-      setErrorMsg(`Erreur: ${e.message}`);
+      setErrorMsg(`Erreur BLE: ${e?.message || e?.name || 'inconnue'} - ${String(e)}`);
       setBleStatus('idle');
     }
   };
