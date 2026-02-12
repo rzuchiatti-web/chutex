@@ -110,24 +110,25 @@ export default function BraceletConnectScreen() {
 
   const startPolling = useCallback(() => {
     if (pollRef.current) clearInterval(pollRef.current);
-    // Immediately request everything
+    // Immediately request ALL stored data
     sendCommand(0x0D); // battery
-    setTimeout(() => sendCommand(0x09, [1, 1]), 200); // realtime steps + HR + temp
-    setTimeout(() => sendCommand(0x28, [2, 1]), 400); // HR continu
-    setTimeout(() => sendCommand(0x28, [3, 1]), 600); // SpO2
-    setTimeout(() => sendCommand(0x28, [1, 1]), 800); // HRV / tension
-    setTimeout(() => sendCommand(0x53, [0]), 1000); // sleep
-    // Every 10 seconds: steps + HR + temp
-    // Every 30 seconds: battery + SpO2 + tension
+    setTimeout(() => sendCommand(0x52, [0]), 200); // today's steps
+    setTimeout(() => sendCommand(0x55, [0]), 400); // today's heart rate
+    setTimeout(() => sendCommand(0x53, [0]), 600); // sleep data
+    setTimeout(() => sendCommand(0x28, [1, 1]), 800); // start HRV measurement (gives HR, temp, then after 1-2min: BP, stress, HRV)
+    setTimeout(() => sendCommand(0x28, [3, 1]), 1000); // start SpO2 measurement
+    setTimeout(() => sendCommand(0x09, [1, 1]), 1200); // realtime mode
+    // Every 10s: realtime + read stored data
     let tick = 0;
     pollRef.current = setInterval(() => {
       tick++;
-      sendCommand(0x09, [1, 1]); // steps + HR + temp
-      if (tick % 3 === 0) { // every 30s: all health measurements
+      sendCommand(0x09, [1, 1]); // realtime
+      sendCommand(0x52, [0]); // today's steps
+      if (tick % 3 === 0) { // every 30s
         sendCommand(0x0D); // battery
-        setTimeout(() => sendCommand(0x28, [2, 1]), 200); // HR
-        setTimeout(() => sendCommand(0x28, [3, 1]), 400); // SpO2
-        setTimeout(() => sendCommand(0x28, [1, 1]), 600); // HRV/tension
+        sendCommand(0x55, [0]); // today's HR
+        sendCommand(0x28, [1, 1]); // HRV (tension, stress)
+        setTimeout(() => sendCommand(0x28, [3, 1]), 300); // SpO2
       }
     }, 10000);
   }, [sendCommand]);
