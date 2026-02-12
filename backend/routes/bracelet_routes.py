@@ -51,6 +51,16 @@ def parse_bracelet_response(data: bytes) -> dict:
     elif cmd == 0x0D:
         result["battery"] = data[1]
 
+    # 0x53: Sleep data response
+    elif cmd == 0x53:
+        # Sleep data packets contain minute-by-minute sleep stages
+        # Each byte after cmd represents a sleep stage: 01=Deep, 02=Light, 03=REM, other=Awake
+        stages = []
+        for i in range(1, 15):
+            if data[i] != 0xFF and data[i] != 0x00:
+                stages.append(data[i])
+        result["sleep_stages"] = stages
+
     return result
 
 
