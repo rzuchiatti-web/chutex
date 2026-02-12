@@ -147,7 +147,16 @@ export default function BraceletConnectScreen() {
       const nav = navigator as any;
       const bd = await nav.bluetooth.requestDevice({
         acceptAllDevices: true,
-        optionalServices: [BLE_SERVICE_UUID],
+        optionalServices: [
+          BLE_SERVICE_UUID,
+          'generic_access', 'heart_rate', 'battery_service', 'health_thermometer', 'device_information',
+          '0000ffe0-0000-1000-8000-00805f9b34fb', '0000fee7-0000-1000-8000-00805f9b34fb',
+          '0000ffc0-0000-1000-8000-00805f9b34fb', '0000ffa0-0000-1000-8000-00805f9b34fb',
+          '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+          '00001800-0000-1000-8000-00805f9b34fb', '00001801-0000-1000-8000-00805f9b34fb',
+          '0000180d-0000-1000-8000-00805f9b34fb', '0000180f-0000-1000-8000-00805f9b34fb',
+          '0000180a-0000-1000-8000-00805f9b34fb', '00001809-0000-1000-8000-00805f9b34fb',
+        ],
       });
       setDevice(bd);
       setBleStatus('connecting');
