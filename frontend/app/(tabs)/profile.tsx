@@ -148,6 +148,81 @@ export default function ProfileScreen() {
           </View>
         )}
 
+        {/* Beneficiary: Subscription */}
+        {user.role === 'beneficiary' && (
+          <View style={[st.section, { backgroundColor: subscription?.subscription_type === 'care' ? '#7B1FA2' + '10' : subscription?.has_subscription ? Colors.primary + '10' : Colors.subtle }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <Ionicons name="shield-checkmark" size={22} color={subscription?.subscription_type === 'care' ? '#7B1FA2' : subscription?.has_subscription ? Colors.primary : Colors.textMuted} />
+              <View style={{ flex: 1 }}>
+                <Text style={st.secTitle}>{subscription?.subscription_type === 'care' ? 'Abonnement Care' : subscription?.has_subscription ? 'Abonnement Standard' : 'Aucun abonnement'}</Text>
+                <Text style={st.secDesc}>{subscription?.subscription_type === 'care' ? 'Bracelet + App + Teleassistance IA' : subscription?.has_subscription ? 'Bracelet + App complete' : 'Gilet et balance uniquement'}</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Beneficiary: Guardians */}
+        {user.role === 'beneficiary' && (
+          <View style={st.section}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <Text style={st.secTitle}>Mes gardiens ({guardians.length})</Text>
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 8 }}
+                onPress={() => { setShowAddGuardian(true); setAddResult(null); setGuardianPhone(''); }}>
+                <Ionicons name="add" size={14} color="#FFF" /><Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>Ajouter</Text>
+              </TouchableOpacity>
+            </View>
+            {guardians.map((g, idx) => (
+              <View key={g.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: Colors.paper, borderRadius: 10, padding: 10, marginBottom: 6, borderWidth: idx === 0 ? 1.5 : 0, borderColor: idx === 0 ? Colors.success : 'transparent' }}>
+                <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: idx === 0 ? Colors.success : Colors.primary, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFF' }}>{idx + 1}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{g.name}</Text>
+                  <Text style={{ fontSize: 11, color: Colors.textMuted }}>{g.phone || g.email}</Text>
+                </View>
+                {idx > 0 && <TouchableOpacity onPress={() => moveGuardian(g.id, 'up')} style={{ padding: 4 }}><Ionicons name="chevron-up" size={16} color={Colors.primary} /></TouchableOpacity>}
+                {idx < guardians.length - 1 && <TouchableOpacity onPress={() => moveGuardian(g.id, 'down')} style={{ padding: 4 }}><Ionicons name="chevron-down" size={16} color={Colors.primary} /></TouchableOpacity>}
+                <TouchableOpacity onPress={() => removeGuardian(g.id)} style={{ padding: 4 }}><Ionicons name="close" size={16} color={Colors.destructive} /></TouchableOpacity>
+              </View>
+            ))}
+            {guardians.length === 0 && <Text style={{ fontSize: 13, color: Colors.textMuted, textAlign: 'center', paddingVertical: 12 }}>Aucun gardien. Ajoutez un proche.</Text>}
+          </View>
+        )}
+
+        {/* Add Guardian Modal */}
+        {showAddGuardian && (
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20, zIndex: 100 }}>
+            <View style={{ backgroundColor: Colors.background, borderRadius: 16, padding: 20 }}>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: Colors.textPrimary }}>Ajouter un gardien</Text>
+              <Text style={{ fontSize: 13, color: Colors.textMuted, marginTop: 4, lineHeight: 18 }}>Renseignez le numero de telephone. S'il a un compte, il sera lie. Sinon, un SMS d'invitation sera envoye.</Text>
+              {Platform.OS === 'web' ? (
+                <div style={{ marginTop: 12, marginBottom: 12 }}>
+                  <input data-testid="add-guardian-phone" type="tel" placeholder="+33 6 12 34 56 78" value={guardianPhone}
+                    onChange={(e: any) => setGuardianPhone(e.target.value)}
+                    style={{ width: '100%', fontSize: 16, padding: '14px 12px', borderRadius: 12, border: `1.5px solid ${Colors.border}`, outline: 'none', backgroundColor: Colors.subtle, fontFamily: 'inherit', boxSizing: 'border-box' as any }} />
+                </div>
+              ) : (
+                <TextInput testID="add-guardian-phone" style={{ fontSize: 16, backgroundColor: Colors.subtle, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, paddingHorizontal: 12, paddingVertical: 14, marginVertical: 12 }}
+                  placeholder="+33 6 12 34 56 78" placeholderTextColor={Colors.textMuted} value={guardianPhone} onChangeText={setGuardianPhone} keyboardType="phone-pad" />
+              )}
+              {addResult && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 10, marginBottom: 8, backgroundColor: addResult.error ? Colors.destructive + '10' : addResult.linked ? Colors.success + '10' : '#FF9800' + '10' }}>
+                  <Ionicons name={addResult.error ? "alert-circle" : addResult.linked ? "checkmark-circle" : "send"} size={16} color={addResult.error ? Colors.destructive : addResult.linked ? Colors.success : '#FF9800'} />
+                  <Text style={{ flex: 1, fontSize: 12, fontWeight: '600', color: addResult.error ? Colors.destructive : addResult.linked ? Colors.success : '#FF9800' }}>{addResult.error || addResult.message}</Text>
+                </View>
+              )}
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.subtle, alignItems: 'center' }} onPress={() => setShowAddGuardian(false)}>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.textSecondary }}>Annuler</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center' }} onPress={addGuardian} disabled={addingGuardian || !guardianPhone.trim()}>
+                  {addingGuardian ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFF' }}>Ajouter</Text>}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
+
         {/* Guardian: Link Beneficiary */}
         {user.role === 'guardian' && (
           <View style={st.section}>
