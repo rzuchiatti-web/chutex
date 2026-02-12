@@ -176,6 +176,35 @@ async def get_my_alerts(user=Depends(get_current_user), limit: int = 10):
     return alerts
 
 
+@router.get("/guardian/invitations")
+async def get_guardian_invitations(user=Depends(get_current_user)):
+    """Get pending invitations for the current guardian"""
+    invitations = await db.guardian_invitations.find(
+        {"guardian_id": user['id'], "status": "pending"}, {"_id": 0}
+    ).sort("created_at", -1).to_list(50)
+    return invitations
+
+
+@router.post("/guardian/invitations/{inv_id}/accept")
+async def accept_invitation(inv_id: str, user=Depends(get_current_user)):
+    """Guardian accepts a beneficiary invitation"""
+    inv = await db.guardian_invitations.find_one({"id": inv_id, "guardian_id": user['id']}, {"_id": 0})
+    if not inv:
+        raise HTTPException(status_code=404, detail="Invitation non trouvee")
+    # Link guardian <-> beneficiary
+    await db.users.update_one({"id": inv['beneficiary_id']}, {"$addToSet": {"guardians": user['id'], "guardian_order": user['id']}})
+    await db.users.update_one({"id": user['id']}, {"$addToSet": {"beneficiaries": inv['beneficiary_id']}})
+    await db.guardian_invitations.update_one({"id": inv_id}, {"$set": {"status": "accepted"}})
+    return {"status": "accepted", "message": f"Vous etes maintenant gardien de {inv['beneficiary_name']}."}
+
+
+@router.post("/guardian/invitations/{inv_id}/reject")
+async def reject_invitation(inv_id: str, user=Depends(get_current_user)):
+    """Guardian rejects a beneficiary invitation"""
+    await db.guardian_invitations.update_one({"id": inv_id, "guardian_id": user['id']}, {"$set": {"status": "rejected"}})
+    return {"status": "rejected"}
+
+
 @router.post("/guardian/prescriptions")
 async def create_prescription(data: PrescriptionCreate, user=Depends(get_current_user)):
     if user['role'] != 'guardian':
