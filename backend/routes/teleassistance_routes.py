@@ -313,11 +313,13 @@ async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_cur
         raise HTTPException(status_code=400, detail="Pas de numero de telephone")
     try:
         twiml = VoiceResponse()
-        twiml.say("Bonjour, ici Chutex, service de teleassistance.", voice='Polly.Lea', language='fr-FR')
-        twiml.pause(length=1)
-        g = Gather(num_digits=1, timeout=10)
-        g.say("Une alerte a ete declenchee. Appuyez sur 1 si tout va bien. Appuyez sur 2 pour de l'aide.", voice='Polly.Lea', language='fr-FR')
+        # Use ElevenLabs AI voice instead of Polly
+        audio_url = f"https://pensive-kowalevski.preview.emergentagent.com/api/elevenlabs/audio/fall_detected"
+        twiml.play(audio_url)
+        g = Gather(num_digits=1, timeout=15, action="/api/twilio/gather-response")
         twiml.append(g)
+        # If no response, play no_response message
+        twiml.play(f"https://pensive-kowalevski.preview.emergentagent.com/api/elevenlabs/audio/no_response")
         call = twilio_client.calls.create(twiml=str(twiml), to=phone, from_=TWILIO_NUMBER)
         now = datetime.now(timezone.utc).isoformat()
         call_record = {
