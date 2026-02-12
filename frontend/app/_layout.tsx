@@ -2,18 +2,18 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
+import { ThemeProvider, useTheme } from '../src/context/ThemeContext';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { Colors } from '../src/constants/colors';
-import { Redirect } from 'expo-router';
 
 function RootNav() {
   const { user, loading } = useAuth();
+  const { colors, isDark } = useTheme();
 
   if (loading) {
     return (
-      <View style={st.loading}>
-        <StatusBar style="dark" />
-        <ActivityIndicator size="large" color={Colors.primary} />
+      <View style={[st.loading, { backgroundColor: colors.background }]}>
+        <StatusBar style={isDark ? 'light' : 'dark'} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -21,8 +21,8 @@ function RootNav() {
   if (!user) {
     return (
       <>
-        <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false }}>
+        <StatusBar style={isDark ? 'light' : 'dark'} />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
           <Stack.Screen name="index" />
         </Stack>
       </>
@@ -31,8 +31,8 @@ function RootNav() {
 
   return (
     <>
-      <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false }}>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="health-detail" options={{ presentation: 'card' }} />
         <Stack.Screen name="backoffice" options={{ presentation: 'card' }} />
@@ -56,12 +56,14 @@ function RootNav() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootNav />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <RootNav />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
 const st = StyleSheet.create({
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.background },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });
