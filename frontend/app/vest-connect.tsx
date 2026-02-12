@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
+import { isBleAvailable, getBleManager, bytesToBase64, base64ToBytes } from '../src/services/ble';
 
 const BLE_SERVICES = [
   { uuid: '0000ffe0-0000-1000-8000-00805f9b34fb', notify: '0000ffe4-0000-1000-8000-00805f9b34fb' },
