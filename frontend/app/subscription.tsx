@@ -1,0 +1,230 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useAuth } from '../src/context/AuthContext';
+import { apiFetch } from '../src/services/api';
+import { Colors } from '../src/constants/colors';
+
+export default function SubscriptionScreen() {
+  const { token, user } = useAuth();
+  const router = useRouter();
+  const [sub, setSub] = useState<any>(null);
+  const [guardians, setGuardians] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [s, g, a] = await Promise.all([
+        apiFetch('/api/subscriptions/my', {}, token).catch(() => null),
+        apiFetch('/api/guardians/my', {}, token).catch(() => []),
+        apiFetch('/api/alerts/my?limit=10', {}, token).catch(() => []),
+      ]);
+      setSub(s);
+      setGuardians(Array.isArray(g) ? g : []);
+      setAlerts(Array.isArray(a) ? a : []);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [token]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const moveGuardian = async (guardianId: string, direction: 'up' | 'down') => {
+    const idx = guardians.findIndex(g => g.id === guardianId);
+    if (idx < 0) return;
+    if (direction === 'up' && idx === 0) return;
+    if (direction === 'down' && idx === guardians.length - 1) return;
+    const newOrder = [...guardians];
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    [newOrder[idx], newOrder[swapIdx]] = [newOrder[swapIdx], newOrder[idx]];
+    setGuardians(newOrder);
+    try {
+      await apiFetch('/api/guardians/reorder', {
+        method: 'POST',
+        body: JSON.stringify({ order: newOrder.map(g => g.id) }),
+      }, token);
+    } catch {}
+  };
+
+  const removeGuardian = async (guardianId: string) => {
+    try {
+      await apiFetch(`/api/guardians/${guardianId}/unlink`, { method: 'POST' }, token);
+      setGuardians(guardians.filter(g => g.id !== guardianId));
+    } catch {}
+  };
+
+  if (loading) return <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+
+  const isCare = sub?.subscription_type === 'care';
+  const hasSubscription = sub?.has_subscription;
+
+  return (
+    <SafeAreaView style={s.safe}>
+      <View style={s.topBar}>
+        <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}>
+          <Ionicons name="chevron-back" size={22} color={Colors.textPrimary} />
+        </TouchableOpacity>
+        <Text style={s.topTitle}>Mon Abonnement</Text>
+        <View style={{ width: 36 }} />
+      </View>
+
+      <ScrollView contentContainerStyle={s.sc} showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />}>
+
+        {/* Subscription Card */}
+        <View style={[s.subCard, { backgroundColor: isCare ? '#7B1FA2' : hasSubscription ? Colors.primary : Colors.textMuted }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={s.subIcon}>
+              <Ionicons name={hasSubscription ? "shield-checkmark" : "shield-outline"} size={32} color="#FFF" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.subType}>
+                {isCare ? 'Abonnement Care' : hasSubscription ? 'Abonnement Standard' : 'Aucun abonnement'}
+              </Text>
+              <Text style={s.subDesc}>
+                {isCare ? 'Bracelet + App + Teleassistance IA' : hasSubscription ? 'Bracelet + App complete' : 'Gilet et balance uniquement'}
+              </Text>
+            </View>
+          </View>
+          {isCare && (
+            <View style={s.careFeature}>
+              <Ionicons name="call" size={16} color="#FFF" />
+              <Text style={s.careFeatureT}>Teleassistance IA active</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Guardians */}
+        <View style={s.card}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <Text style={s.sectionTitle}>Mes gardiens</Text>
+            <Text style={s.guardianCount}>{guardians.length} gardien{guardians.length > 1 ? 's' : ''}</Text>
+          </View>
+
+          {guardians.length === 0 ? (
+            <View style={s.emptyState}>
+              <Ionicons name="people-outline" size={40} color={Colors.textMuted} />
+              <Text style={s.emptyText}>Aucun gardien configure</Text>
+              <Text style={s.emptyDesc}>Demandez a un proche de s'inscrire en tant que gardien et de vous ajouter.</Text>
+            </View>
+          ) : (
+            guardians.map((g, idx) => (
+              <View key={g.id} style={[s.guardianRow, idx === 0 && { borderColor: Colors.success, borderWidth: 1.5 }]} data-testid={`guardian-${g.id}`}>
+                <View style={[s.orderBadge, idx === 0 && { backgroundColor: Colors.success }]}>
+                  <Text style={s.orderBadgeT}>{idx + 1}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.guardianName}>{g.name}</Text>
+                  <Text style={s.guardianPhone}>{g.phone || g.email || 'Pas de telephone'}</Text>
+                  {idx === 0 && <Text style={s.firstGuardian}>Appele en premier</Text>}
+                </View>
+                <View style={{ flexDirection: 'row', gap: 4 }}>
+                  {idx > 0 && (
+                    <TouchableOpacity style={s.orderBtn} onPress={() => moveGuardian(g.id, 'up')} data-testid={`move-up-${g.id}`}>
+                      <Ionicons name="chevron-up" size={18} color={Colors.primary} />
+                    </TouchableOpacity>
+                  )}
+                  {idx < guardians.length - 1 && (
+                    <TouchableOpacity style={s.orderBtn} onPress={() => moveGuardian(g.id, 'down')} data-testid={`move-down-${g.id}`}>
+                      <Ionicons name="chevron-down" size={18} color={Colors.primary} />
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity style={[s.orderBtn, { backgroundColor: Colors.destructive + '10' }]} onPress={() => removeGuardian(g.id)} data-testid={`remove-${g.id}`}>
+                    <Ionicons name="close" size={18} color={Colors.destructive} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))
+          )}
+
+          {isCare && guardians.length > 0 && (
+            <View style={s.protocolInfo}>
+              <Ionicons name="information-circle" size={16} color={Colors.primary} />
+              <Text style={s.protocolText}>
+                En cas d'alerte, l'IA vous appelle d'abord. Si pas de reponse, elle appelle vos gardiens dans l'ordre ci-dessus.
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Recent Alerts */}
+        <View style={s.card}>
+          <Text style={s.sectionTitle}>Dernieres alertes</Text>
+          {alerts.length === 0 ? (
+            <Text style={s.emptyText}>Aucune alerte recente</Text>
+          ) : (
+            alerts.slice(0, 5).map(a => (
+              <View key={a.id} style={s.alertRow}>
+                <Ionicons name={a.alert_type === 'sos' ? 'alert-circle' : a.alert_type === 'anomaly' ? 'pulse' : 'warning'} size={18}
+                  color={a.status === 'active' ? Colors.destructive : a.status === 'resolved' ? Colors.success : Colors.textMuted} />
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                  <Text style={s.alertMsg}>{a.message?.substring(0, 60) || a.alert_type}</Text>
+                  <Text style={s.alertDate}>{new Date(a.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
+                </View>
+                <View style={[s.alertStatus, { backgroundColor: a.status === 'active' ? Colors.destructive + '15' : a.status === 'resolved' ? Colors.success + '15' : Colors.textMuted + '15' }]}>
+                  <Text style={[s.alertStatusT, { color: a.status === 'active' ? Colors.destructive : a.status === 'resolved' ? Colors.success : Colors.textMuted }]}>
+                    {a.status === 'active' ? 'Active' : a.status === 'resolved' ? 'Resolue' : a.status}
+                  </Text>
+                </View>
+              </View>
+            ))
+          )}
+        </View>
+
+        {/* SOS Button */}
+        <TouchableOpacity style={s.sosBtn} onPress={async () => {
+          try {
+            await apiFetch('/api/alerts/sos', { method: 'POST' }, token);
+          } catch {}
+        }} data-testid="subscription-sos-btn">
+          <Ionicons name="alert-circle" size={24} color="#FFF" />
+          <Text style={s.sosBtnT}>SOS Urgence</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const s = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: Colors.background },
+  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, gap: 8 },
+  backBtn: { width: 36, height: 36, borderRadius: 10, backgroundColor: Colors.subtle, justifyContent: 'center', alignItems: 'center' },
+  topTitle: { flex: 1, fontSize: 18, fontWeight: '700', color: Colors.textPrimary, textAlign: 'center' },
+  sc: { paddingHorizontal: 16, paddingBottom: 40, gap: 14 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  card: { backgroundColor: Colors.subtle, borderRadius: 14, padding: 16 },
+  sectionTitle: { fontSize: 13, fontWeight: '700', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
+  // Subscription card
+  subCard: { borderRadius: 16, padding: 20 },
+  subIcon: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
+  subType: { fontSize: 20, fontWeight: '900', color: '#FFF' },
+  subDesc: { fontSize: 13, color: '#FFF', opacity: 0.8, marginTop: 2 },
+  careFeature: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 10, padding: 10, marginTop: 14 },
+  careFeatureT: { fontSize: 13, fontWeight: '700', color: '#FFF' },
+  // Guardians
+  guardianCount: { fontSize: 12, color: Colors.textMuted },
+  guardianRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: 'transparent' },
+  orderBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
+  orderBadgeT: { fontSize: 13, fontWeight: '800', color: '#FFF' },
+  guardianName: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
+  guardianPhone: { fontSize: 12, color: Colors.textMuted, marginTop: 1 },
+  firstGuardian: { fontSize: 10, fontWeight: '700', color: Colors.success, marginTop: 2 },
+  orderBtn: { width: 32, height: 32, borderRadius: 8, backgroundColor: Colors.primary + '10', justifyContent: 'center', alignItems: 'center' },
+  protocolInfo: { flexDirection: 'row', gap: 8, backgroundColor: Colors.primary + '08', borderRadius: 10, padding: 12, marginTop: 8 },
+  protocolText: { flex: 1, fontSize: 12, color: Colors.primary, lineHeight: 18 },
+  // Empty
+  emptyState: { alignItems: 'center', paddingVertical: 20 },
+  emptyText: { fontSize: 14, color: Colors.textMuted, textAlign: 'center', marginTop: 8 },
+  emptyDesc: { fontSize: 12, color: Colors.textMuted, textAlign: 'center', marginTop: 4, lineHeight: 18 },
+  // Alerts
+  alertRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  alertMsg: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
+  alertDate: { fontSize: 11, color: Colors.textMuted, marginTop: 1 },
+  alertStatus: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  alertStatusT: { fontSize: 10, fontWeight: '700' },
+  // SOS
+  sosBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: Colors.destructive, borderRadius: 14, paddingVertical: 16 },
+  sosBtnT: { fontSize: 17, fontWeight: '800', color: '#FFF' },
+});
