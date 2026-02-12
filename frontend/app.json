@@ -53,14 +53,6 @@
           "resizeMode": "contain",
           "backgroundColor": "#000"
         }
-      ],
-      [
-        "react-native-ble-plx",
-        {
-          "isBackgroundEnabled": true,
-          "modes": ["central"],
-          "bluetoothAlwaysPermission": "Allow Chutex to connect to bluetooth devices"
-        }
       ]
     ],
     "experiments": {
