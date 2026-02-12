@@ -505,7 +505,7 @@ async def auto_escalation_protocol(alert: dict):
         base_url = "https://pensive-kowalevski.preview.emergentagent.com"
 
         # STEP 1: Call beneficiary with ElevenLabs voice + speech recognition
-        ben_phone = ben.get('phone', '')
+        ben_phone = norm_phone(ben.get('phone', ''))
         ben_confirmed_ok = False
         if ben_phone and twilio_client:
             twiml = VoiceResponse()
