@@ -476,6 +476,16 @@ async def auto_escalation_protocol(alert: dict):
         else:
             message_key = 'sos_manual'
 
+        # Helper to normalize phone numbers
+        def norm_phone(p):
+            import re
+            cleaned = re.sub(r'[\s\-\.\(\)]', '', (p or '').strip())
+            if cleaned.startswith('0') and len(cleaned) == 10:
+                cleaned = '+33' + cleaned[1:]
+            if not cleaned.startswith('+'):
+                cleaned = '+33' + cleaned
+            return cleaned
+
         # Create escalation record
         esc = {
             "id": str(uuid.uuid4()), "alert_id": alert['id'],
