@@ -110,25 +110,29 @@ export default function BraceletConnectScreen() {
 
   const startPolling = useCallback(() => {
     if (pollRef.current) clearInterval(pollRef.current);
-    // Immediately request ALL stored data
-    sendCommand(0x0D); // battery
-    setTimeout(() => sendCommand(0x52, [0]), 200); // today's steps
-    setTimeout(() => sendCommand(0x55, [0]), 400); // today's heart rate
-    setTimeout(() => sendCommand(0x53, [0]), 600); // sleep data
-    setTimeout(() => sendCommand(0x28, [1, 1]), 800); // start HRV measurement (gives HR, temp, then after 1-2min: BP, stress, HRV)
-    setTimeout(() => sendCommand(0x28, [3, 1]), 1000); // start SpO2 measurement
-    setTimeout(() => sendCommand(0x09, [1, 1]), 1200); // realtime mode
+    // STEP 1: Set device time (required handshake - bracelet ignores commands without this)
+    const now = new Date();
+    const year = now.getFullYear();
+    sendCommand(0x01, [year & 0xFF, (year >> 8) & 0xFF, now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]);
+    // STEP 2: After time sync, request all data
+    setTimeout(() => sendCommand(0x0D), 500); // battery
+    setTimeout(() => sendCommand(0x52, [0]), 1000); // today's steps
+    setTimeout(() => sendCommand(0x55, [0]), 1500); // today's heart rate
+    setTimeout(() => sendCommand(0x53, [0]), 2000); // sleep data
+    setTimeout(() => sendCommand(0x28, [1, 1]), 2500); // start HRV (HR, temp, then BP, stress)
+    setTimeout(() => sendCommand(0x28, [3, 1]), 3000); // start SpO2
+    setTimeout(() => sendCommand(0x09, [1, 1]), 3500); // realtime mode
     // Every 10s: realtime + read stored data
     let tick = 0;
     pollRef.current = setInterval(() => {
       tick++;
       sendCommand(0x09, [1, 1]); // realtime
-      sendCommand(0x52, [0]); // today's steps
       if (tick % 3 === 0) { // every 30s
         sendCommand(0x0D); // battery
+        sendCommand(0x52, [0]); // today's steps
         sendCommand(0x55, [0]); // today's HR
-        sendCommand(0x28, [1, 1]); // HRV (tension, stress)
-        setTimeout(() => sendCommand(0x28, [3, 1]), 300); // SpO2
+        setTimeout(() => sendCommand(0x28, [1, 1]), 200); // HRV
+        setTimeout(() => sendCommand(0x28, [3, 1]), 400); // SpO2
       }
     }, 10000);
   }, [sendCommand]);
