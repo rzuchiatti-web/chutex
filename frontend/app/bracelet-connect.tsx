@@ -241,7 +241,7 @@ export default function BraceletConnectScreen() {
   if (!isPaired && bleStatus !== 'connecting' && bleStatus !== 'scanning') return (
     <SafeAreaView style={s.safe}>
       <View style={s.topBar}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Bracelet Elio</Text>
         <View style={{ width: 36 }} />
       </View>
@@ -265,7 +265,7 @@ export default function BraceletConnectScreen() {
   if (bleStatus === 'scanning' || bleStatus === 'connecting') return (
     <SafeAreaView style={s.safe}>
       <View style={s.topBar}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Bracelet Elio</Text>
         <View style={{ width: 36 }} />
       </View>
@@ -282,7 +282,7 @@ export default function BraceletConnectScreen() {
   return (
     <SafeAreaView style={s.safe}>
       <View style={s.topBar}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Bracelet Elio</Text>
         <View style={[s.dot, { backgroundColor: stColor }]} />
       </View>
