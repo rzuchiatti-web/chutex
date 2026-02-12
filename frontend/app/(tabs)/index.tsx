@@ -144,9 +144,15 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <Ionicons name="pulse-outline" size={20} color={Colors.textPrimary} />
           <Text style={s.quickBtnT}>Lancer ECG</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={s.quickBtn} onPress={() => router.push('/sleep')}>
+          <Ionicons name="moon-outline" size={20} color={Colors.textPrimary} />
+          <Text style={s.quickBtnT}>Sommeil</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={s.quickRow}>
         <TouchableOpacity style={s.quickBtn} onPress={() => router.push('/geofencing')}>
           <Ionicons name="locate-outline" size={20} color={Colors.textPrimary} />
-          <Text style={s.quickBtnT}>Zones sécurité</Text>
+          <Text style={s.quickBtnT}>Zones securite</Text>
         </TouchableOpacity>
       </View>
       <View style={s.quickRow}>
