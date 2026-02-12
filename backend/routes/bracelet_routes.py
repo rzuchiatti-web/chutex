@@ -159,7 +159,7 @@ async def get_bracelet_status(user=Depends(get_current_user)):
         "systolic": device.get('last_systolic', 0) if device else 0,
         "diastolic": device.get('last_diastolic', 0) if device else 0,
         "last_sync": device.get('last_sync') if device else None,
-        "paired": bool(device and device.get('ble_device_id')),
+        "paired": bool(device and device.get('last_sync')),
     }
 
 
