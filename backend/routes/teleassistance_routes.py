@@ -270,7 +270,34 @@ async def get_active_escalations(user=Depends(get_current_user)):
     return active
 
 
-# ==================== TWILIO REAL CALLS ====================
+# ==================== ELEVENLABS AUDIO ENDPOINT ====================
+@router.get("/elevenlabs/audio/{message_key}")
+async def get_elevenlabs_audio(message_key: str):
+    """Serve pre-generated ElevenLabs audio for Twilio to play"""
+    from starlette.responses import Response
+    text = MESSAGES.get(message_key, '')
+    if not text:
+        raise HTTPException(status_code=404, detail="Message not found")
+    # Check cache in DB
+    cached = await db.audio_cache.find_one({"key": message_key}, {"_id": 0})
+    if cached and cached.get('audio_b64'):
+        import base64
+        audio = base64.b64decode(cached['audio_b64'])
+        return Response(content=audio, media_type="audio/mpeg")
+    # Generate and cache
+    audio_b64 = generate_speech_base64(text)
+    if audio_b64:
+        await db.audio_cache.update_one(
+            {"key": message_key},
+            {"$set": {"key": message_key, "audio_b64": audio_b64, "text": text}},
+            upsert=True
+        )
+        import base64
+        return Response(content=base64.b64decode(audio_b64), media_type="audio/mpeg")
+    raise HTTPException(status_code=500, detail="Audio generation failed")
+
+
+# ==================== TWILIO REAL CALLS WITH ELEVENLABS ====================
 @router.post("/twilio/call/beneficiary")
 async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_current_user)):
     if not twilio_client:
