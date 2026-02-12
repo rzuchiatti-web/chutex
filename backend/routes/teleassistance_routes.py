@@ -7,6 +7,7 @@ from auth import get_current_user
 from models import TeleassistanceCallUpdate, EscalationStart, EscalationStepRequest, TriggerCallRequest
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from twilio.twiml.voice_response import VoiceResponse, Gather
+from services.elevenlabs_service import generate_speech_base64, MESSAGES
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
