@@ -13,6 +13,7 @@ import { getMetricById } from '../src/constants/metrics';
 const W = Dimensions.get('window').width;
 
 export default function HealthDetailScreen() {
+  const { colors: themeColors } = useTheme();
   const { metricId } = useLocalSearchParams<{ metricId: string }>();
   const { token } = useAuth();
   const router = useRouter();

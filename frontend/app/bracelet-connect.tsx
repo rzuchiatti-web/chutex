@@ -45,6 +45,7 @@ function parseResponse(data: DataView) {
 }
 
 export default function BraceletConnectScreen() {
+  const { colors: themeColors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
   const [bleStatus, setBleStatus] = useState<'idle'|'scanning'|'connecting'|'connected'>('idle');

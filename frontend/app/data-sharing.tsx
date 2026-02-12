@@ -21,6 +21,7 @@ const SHARING_ITEMS = [
 ];
 
 export default function DataSharingScreen() {
+  const { colors: themeColors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
   const [prefs, setPrefs] = useState<any>({});

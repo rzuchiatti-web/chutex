@@ -17,6 +17,7 @@ const STEPS = [
 ];
 
 export default function InterventionDetailScreen() {
+  const { colors: themeColors } = useTheme();
   const { interventionId } = useLocalSearchParams<{ interventionId: string }>();
   const { token, user } = useAuth();
   const router = useRouter();

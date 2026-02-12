@@ -10,6 +10,7 @@ import { useTheme } from '../src/context/ThemeContext';
 import QRCode from 'react-native-qrcode-svg';
 
 export default function LinkScreen() {
+  const { colors: themeColors } = useTheme();
   const { user, token, refreshUser } = useAuth();
   const router = useRouter();
   const [mode, setMode] = useState<'choose'|'generate'|'enter'>('choose');

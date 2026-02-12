@@ -9,6 +9,7 @@ import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
 
 export default function AlertDetailScreen() {
+  const { colors: themeColors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
   const { alertId } = useLocalSearchParams<{ alertId: string }>();

@@ -13,6 +13,7 @@ const STAGE_LABELS: Record<number, string> = { 0: 'Eveil', 1: 'Profond', 2: 'Leg
 const STAGE_HEIGHTS: Record<number, number> = { 0: 15, 1: 100, 2: 55, 3: 80 };
 
 export default function SleepScreen() {
+  const { colors: themeColors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
   const [sleep, setSleep] = useState<any>(null);

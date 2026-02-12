@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 const W = Dimensions.get('window').width;
 
 export default function ECGScreen() {
+  const { colors: themeColors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
   const [recording, setRecording] = useState(false);

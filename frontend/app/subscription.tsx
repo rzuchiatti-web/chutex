@@ -9,6 +9,7 @@ import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
 
 export default function SubscriptionScreen() {
+  const { colors: themeColors } = useTheme();
   const { token, user } = useAuth();
   const router = useRouter();
   const [sub, setSub] = useState<any>(null);

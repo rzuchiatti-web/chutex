@@ -32,6 +32,7 @@ function parseVestData(raw: string) {
 }
 
 export default function VestConnectScreen() {
+  const { colors: themeColors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
   const [bleStatus, setBleStatus] = useState<'idle'|'scanning'|'connecting'|'connected'>('idle');

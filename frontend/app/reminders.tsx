@@ -19,6 +19,7 @@ const DAYS = [
 ];
 
 export default function RemindersScreen() {
+  const { colors: themeColors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
   const [reminders, setReminders] = useState<any[]>([]);

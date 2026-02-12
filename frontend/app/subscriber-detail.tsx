@@ -9,6 +9,7 @@ import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
 
 export default function SubscriberDetailScreen() {
+  const { colors: themeColors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
   const { subscriberId } = useLocalSearchParams<{ subscriberId: string }>();

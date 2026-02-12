@@ -8,6 +8,7 @@ import { useTheme } from '../src/context/ThemeContext';
 import { useRouter } from 'expo-router';
 
 export default function GeofencingScreen() {
+  const { colors: themeColors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
   const [zones, setZones] = useState<any[]>([]);
