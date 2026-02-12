@@ -48,6 +48,20 @@ export const LightTheme = {
   overlay: 'rgba(0, 0, 0, 0.5)',
 
   skeleton: '#E8EDF2',
+
+  // Backward-compatible aliases
+  subtle: '#F7F9FC',
+  paper: '#FFFFFF',
+  elevated: '#FFFFFF',
+  card: '#FFFFFF',
+  destructive: '#EF4444',
+  destructiveLight: '#FEE2E2',
+  text: '#0B1426',
+  textPrimary: '#0B1426',
+  secondary: '#E2E8F0',
+  secondaryDark: '#CBD5E1',
+  accent: '#06D6A0',
+  accentLight: '#D1FAE5',
 };
 
 export const DarkTheme = {
@@ -97,6 +111,20 @@ export const DarkTheme = {
   overlay: 'rgba(0, 0, 0, 0.7)',
 
   skeleton: '#1C2940',
+
+  // Backward-compatible aliases
+  subtle: '#1C2940',
+  paper: '#151F32',
+  elevated: '#1C2940',
+  card: '#151F32',
+  destructive: '#F87171',
+  destructiveLight: '#450A0A',
+  text: '#F1F5F9',
+  textPrimary: '#F1F5F9',
+  secondary: '#1E293B',
+  secondaryDark: '#334155',
+  accent: '#34D399',
+  accentLight: '#064E3B',
 };
 
 export type ThemeColors = typeof LightTheme;
