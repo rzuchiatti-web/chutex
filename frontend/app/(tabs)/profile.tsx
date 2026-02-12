@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
+import { useTheme } from '../../src/context/ThemeContext';
 import { apiFetch } from '../../src/services/api';
-import { Colors } from '../../src/constants/colors';
 
 export default function ProfileScreen() {
   const { user, token, logout, refreshUser } = useAuth();
+  const { colors, isDark, toggle } = useTheme();
   const router = useRouter();
   const [linkEmail, setLinkEmail] = useState('');
   const [linking, setLinking] = useState(false);
@@ -27,7 +28,7 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     if (user?.role === 'beneficiary' && token) {
-      apiFetch('/api/subscriptions/my', {}, token).then(setSub => setSubscription(setSub)).catch(() => {});
+      apiFetch('/api/subscriptions/my', {}, token).then(s => setSubscription(s)).catch(() => {});
       apiFetch('/api/guardians/my', {}, token).then(g => setGuardians(Array.isArray(g) ? g : [])).catch(() => {});
     }
   }, [user, token]);
@@ -66,157 +67,189 @@ export default function ProfileScreen() {
     setLinking(true);
     try {
       const r = await apiFetch('/api/guardian/link', { method: 'POST', body: JSON.stringify({ beneficiary_email: linkEmail.trim().toLowerCase() }) }, token);
-      Alert.alert('Succès', `${r.beneficiary.name} lié`); setLinkEmail(''); await refreshUser();
+      Alert.alert('Succes', `${r.beneficiary.name} lie`); setLinkEmail(''); await refreshUser();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setLinking(false); }
   };
 
   const updateLocSharing = async (mode: string) => {
     setSavingLoc(true);
-    try {
-      await apiFetch('/api/location/sharing', { method: 'PUT', body: JSON.stringify({ mode }) }, token);
-      setLocMode(mode);
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSavingLoc(false); }
+    try { await apiFetch('/api/location/sharing', { method: 'PUT', body: JSON.stringify({ mode }) }, token); setLocMode(mode); } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSavingLoc(false); }
   };
 
   const activatePrescriber = async () => {
     if (!actCode.trim()) return Alert.alert('Erreur', 'Entrez un code');
     setActivating(true);
-    try {
-      const r = await apiFetch('/api/guardian/activate-prescriber', { method: 'POST', body: JSON.stringify({ code: actCode.trim().toUpperCase() }) }, token);
-      Alert.alert('Activé', `Mode prescripteur activé pour ${r.structure}`);
-      setActCode(''); await refreshUser();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivating(false); }
+    try { const r = await apiFetch('/api/guardian/activate-prescriber', { method: 'POST', body: JSON.stringify({ code: actCode.trim().toUpperCase() }) }, token); Alert.alert('Active', `Mode prescripteur active pour ${r.structure}`); setActCode(''); await refreshUser(); } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivating(false); }
   };
 
   const activateIntervention = async () => {
     if (!ivCode.trim()) return Alert.alert('Erreur', 'Entrez un code');
     setIvActivating(true);
-    try {
-      const r = await apiFetch('/api/guardian/activate-intervention-provider', { method: 'POST', body: JSON.stringify({ code: ivCode.trim().toUpperCase() }) }, token);
-      Alert.alert('Activé', `Rôle intervenant activé. Rayon: ${r.radius_km || 30}km`);
-      setIvCode(''); await refreshUser();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setIvActivating(false); }
+    try { const r = await apiFetch('/api/guardian/activate-intervention-provider', { method: 'POST', body: JSON.stringify({ code: ivCode.trim().toUpperCase() }) }, token); Alert.alert('Active', `Role intervenant active. Rayon: ${r.radius_km || 30}km`); setIvCode(''); await refreshUser(); } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setIvActivating(false); }
   };
 
-  const roleName = user.role === 'beneficiary' ? 'Bénéficiaire' : user.role === 'guardian' ? (user.is_prescriber ? 'Prescripteur' : 'Gardien') : user.role === 'teleassistance' ? 'Téléassistance' : 'Administrateur';
+  const roleName = user.role === 'beneficiary' ? 'Beneficiaire' : user.role === 'guardian' ? (user.is_prescriber ? 'Prescripteur' : 'Gardien') : user.role === 'teleassistance' ? 'Teleassistance' : 'Administrateur';
+
+  const Section = ({ children, style }: any) => (
+    <View style={[{ backgroundColor: colors.surface, borderRadius: 16, padding: 18, marginBottom: 12, borderWidth: 1, borderColor: colors.border }, style]}>{children}</View>
+  );
+
+  const InputRow = ({ placeholder, value, onChangeText, btnIcon, onPress, loading: btnLoading, testIDs }: any) => (
+    <View style={{ flexDirection: 'row', gap: 10 }}>
+      {Platform.OS === 'web' ? (
+        <div style={{ flex: 1 }}>
+          <input data-testid={testIDs?.[0]} type="text" placeholder={placeholder} value={value}
+            onChange={(e: any) => onChangeText(e.target.value)}
+            style={{ width: '100%', fontSize: 14, padding: '12px 14px', borderRadius: 12, border: `1.5px solid ${colors.border}`, outline: 'none', backgroundColor: colors.surfaceHighlight, fontFamily: 'system-ui', color: colors.textPrimary, boxSizing: 'border-box' as any }} />
+        </div>
+      ) : (
+        <TextInput testID={testIDs?.[0]} style={{ flex: 1, backgroundColor: colors.surfaceHighlight, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, color: colors.textPrimary, borderWidth: 1.5, borderColor: colors.border }} placeholder={placeholder} placeholderTextColor={colors.textMuted} value={value} onChangeText={onChangeText} autoCapitalize="none" />
+      )}
+      <TouchableOpacity testID={testIDs?.[1]} style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center' }} onPress={onPress} disabled={btnLoading}>
+        {btnLoading ? <ActivityIndicator color="#FFF" size="small" /> : <Ionicons name={btnIcon} size={20} color={isDark ? '#000' : '#FFF'} />}
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
-    <SafeAreaView style={st.safe} testID="profile-screen">
-      <ScrollView contentContainerStyle={st.sc} showsVerticalScrollIndicator={false}>
-        <Text style={st.pageTitle}>Profil</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} testID="profile-screen">
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+        <Text style={{ fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginTop: 16, marginBottom: 24, letterSpacing: -0.5 }}>Profil</Text>
 
-        <View style={st.userCard}>
-          <View style={st.avatar}><Text style={st.avatarT}>{user.name?.charAt(0)?.toUpperCase()}</Text></View>
-          <Text style={st.userName}>{user.name}</Text>
-          <View style={st.roleBadge}><Text style={st.roleT}>{roleName}</Text></View>
-          {user.is_prescriber && user.prescriber_structure ? <Text style={st.structureT}>{user.prescriber_structure}</Text> : null}
+        {/* User Card */}
+        <View style={{ backgroundColor: colors.surface, borderRadius: 20, padding: 28, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: colors.border }}>
+          <View style={{ width: 68, height: 68, borderRadius: 34, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 14 }}>
+            <Text style={{ fontSize: 28, fontWeight: '800', color: isDark ? '#000' : '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
+          </View>
+          <Text style={{ fontSize: 22, fontWeight: '700', color: colors.textPrimary }}>{user.name}</Text>
+          <View style={{ marginTop: 8, paddingHorizontal: 16, paddingVertical: 5, borderRadius: 9999, borderWidth: 1.5, borderColor: colors.primary + '40', backgroundColor: colors.primaryGlow }}>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: colors.primary }}>{roleName}</Text>
+          </View>
+          {user.is_prescriber && user.prescriber_structure ? <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 6 }}>{user.prescriber_structure}</Text> : null}
         </View>
 
-        <View style={st.section}>
-          <Text style={st.secTitle}>Informations</Text>
+        {/* Theme Toggle */}
+        <Section>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <Ionicons name={isDark ? 'moon' : 'sunny'} size={20} color={colors.primary} />
+              <Text style={{ fontSize: 15, fontWeight: '600', color: colors.textPrimary }}>Mode {isDark ? 'sombre' : 'clair'}</Text>
+            </View>
+            <TouchableOpacity data-testid="theme-toggle-profile" onPress={toggle} style={{ width: 52, height: 28, borderRadius: 14, backgroundColor: isDark ? colors.primary : colors.border, justifyContent: 'center', padding: 3 }}>
+              <View style={[{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#FFF' }, isDark ? { alignSelf: 'flex-end' } : { alignSelf: 'flex-start' }]} />
+            </TouchableOpacity>
+          </View>
+        </Section>
+
+        {/* Info */}
+        <Section>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary, marginBottom: 10 }}>Informations</Text>
           {[
             { icon: 'mail-outline', label: 'Email', val: user.email },
-            { icon: 'call-outline', label: 'Téléphone', val: user.phone || '—' },
+            { icon: 'call-outline', label: 'Telephone', val: user.phone || '--' },
             { icon: 'calendar-outline', label: 'Inscrit le', val: new Date(user.created_at).toLocaleDateString('fr-FR') },
           ].map((r, i) => (
-            <View key={i} style={st.infoRow}>
-              <Ionicons name={r.icon as any} size={16} color={Colors.textMuted} />
-              <View style={st.infoC}><Text style={st.infoL}>{r.label}</Text><Text style={st.infoV}>{r.val}</Text></View>
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: i < 2 ? 0.5 : 0, borderBottomColor: colors.border }}>
+              <Ionicons name={r.icon as any} size={16} color={colors.textMuted} />
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 10, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 }}>{r.label}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '500', color: colors.textPrimary, marginTop: 2 }}>{r.val}</Text>
+              </View>
             </View>
           ))}
-        </View>
+        </Section>
 
         {/* Beneficiary: Location Sharing */}
         {user.role === 'beneficiary' && (
-          <View style={st.section}>
-            <Text style={st.secTitle}>Partage de localisation</Text>
+          <Section>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary, marginBottom: 10 }}>Partage de localisation</Text>
             {[
               { mode: 'always', label: 'Toujours', icon: 'location-outline' },
               { mode: 'alert_only', label: 'En cas d\'alerte', icon: 'alert-circle-outline' },
               { mode: 'never', label: 'Jamais', icon: 'lock-closed-outline' },
             ].map(opt => (
               <TouchableOpacity key={opt.mode} testID={`loc-${opt.mode}`}
-                style={[st.locOpt, locMode === opt.mode && st.locOptA]}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1.5, borderColor: locMode === opt.mode ? colors.primary : colors.border, marginBottom: 6, backgroundColor: locMode === opt.mode ? colors.primaryGlow : 'transparent' }}
                 onPress={() => updateLocSharing(opt.mode)} disabled={savingLoc}>
-                <Ionicons name={opt.icon as any} size={18} color={locMode === opt.mode ? Colors.primary : Colors.textMuted} />
-                <Text style={[st.locLabel, locMode === opt.mode && st.locLabelA]}>{opt.label}</Text>
-                <View style={[st.radio, locMode === opt.mode && st.radioA]}>
-                  {locMode === opt.mode && <View style={st.radioInner} />}
+                <Ionicons name={opt.icon as any} size={18} color={locMode === opt.mode ? colors.primary : colors.textMuted} />
+                <Text style={{ flex: 1, fontSize: 14, fontWeight: '600', color: locMode === opt.mode ? colors.primary : colors.textSecondary }}>{opt.label}</Text>
+                <View style={[{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: locMode === opt.mode ? colors.primary : colors.border, justifyContent: 'center', alignItems: 'center' }]}>
+                  {locMode === opt.mode && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary }} />}
                 </View>
               </TouchableOpacity>
             ))}
-          </View>
+          </Section>
         )}
 
         {/* Beneficiary: Subscription */}
         {user.role === 'beneficiary' && (
-          <View style={[st.section, { backgroundColor: subscription?.subscription_type === 'care' ? '#7B1FA2' + '10' : subscription?.has_subscription ? Colors.primary + '10' : Colors.subtle }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Ionicons name="shield-checkmark" size={22} color={subscription?.subscription_type === 'care' ? '#7B1FA2' : subscription?.has_subscription ? Colors.primary : Colors.textMuted} />
+          <Section style={{ backgroundColor: subscription?.subscription_type === 'care' ? colors.care + '12' : subscription?.has_subscription ? colors.primaryGlow : colors.surface }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Ionicons name="shield-checkmark" size={24} color={subscription?.subscription_type === 'care' ? colors.care : subscription?.has_subscription ? colors.primary : colors.textMuted} />
               <View style={{ flex: 1 }}>
-                <Text style={st.secTitle}>{subscription?.subscription_type === 'care' ? 'Abonnement Care' : subscription?.has_subscription ? 'Abonnement Standard' : 'Aucun abonnement'}</Text>
-                <Text style={st.secDesc}>{subscription?.subscription_type === 'care' ? 'Bracelet + App + Teleassistance IA' : subscription?.has_subscription ? 'Bracelet + App complete' : 'Gilet et balance uniquement'}</Text>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>{subscription?.subscription_type === 'care' ? 'Abonnement Care' : subscription?.has_subscription ? 'Abonnement Standard' : 'Aucun abonnement'}</Text>
+                <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 2 }}>{subscription?.subscription_type === 'care' ? 'Bracelet + App + Teleassistance IA' : subscription?.has_subscription ? 'Bracelet + App complete' : 'Gilet et balance uniquement'}</Text>
               </View>
             </View>
-          </View>
+          </Section>
         )}
 
         {/* Beneficiary: Guardians */}
         {user.role === 'beneficiary' && (
-          <View style={st.section}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <Text style={st.secTitle}>Mes gardiens ({guardians.length})</Text>
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 8 }}
+          <Section>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>Mes gardiens ({guardians.length})</Text>
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.primary, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 9999 }}
                 onPress={() => { setShowAddGuardian(true); setAddResult(null); setGuardianPhone(''); }}>
-                <Ionicons name="add" size={14} color="#FFF" /><Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>Ajouter</Text>
+                <Ionicons name="add" size={14} color={isDark ? '#000' : '#FFF'} /><Text style={{ fontSize: 12, fontWeight: '700', color: isDark ? '#000' : '#FFF' }}>Ajouter</Text>
               </TouchableOpacity>
             </View>
             {guardians.map((g, idx) => (
-              <View key={g.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: Colors.paper, borderRadius: 10, padding: 10, marginBottom: 6, borderWidth: idx === 0 ? 1.5 : 0, borderColor: idx === 0 ? Colors.success : 'transparent' }}>
-                <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: idx === 0 ? Colors.success : Colors.primary, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFF' }}>{idx + 1}</Text>
+              <View key={g.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.surfaceHighlight, borderRadius: 12, padding: 12, marginBottom: 6, borderWidth: idx === 0 ? 1.5 : 0, borderColor: idx === 0 ? colors.success : 'transparent' }}>
+                <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: idx === 0 ? colors.success : colors.primary, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#FFF' }}>{idx + 1}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{g.name}</Text>
-                  <Text style={{ fontSize: 11, color: Colors.textMuted }}>{g.phone || g.email}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: colors.textPrimary }}>{g.name}</Text>
+                  <Text style={{ fontSize: 11, color: colors.textMuted }}>{g.phone || g.email}</Text>
                 </View>
-                {idx > 0 && <TouchableOpacity onPress={() => moveGuardian(g.id, 'up')} style={{ padding: 4 }}><Ionicons name="chevron-up" size={16} color={Colors.primary} /></TouchableOpacity>}
-                {idx < guardians.length - 1 && <TouchableOpacity onPress={() => moveGuardian(g.id, 'down')} style={{ padding: 4 }}><Ionicons name="chevron-down" size={16} color={Colors.primary} /></TouchableOpacity>}
-                <TouchableOpacity onPress={() => removeGuardian(g.id)} style={{ padding: 4 }}><Ionicons name="close" size={16} color={Colors.destructive} /></TouchableOpacity>
+                {idx > 0 && <TouchableOpacity onPress={() => moveGuardian(g.id, 'up')} style={{ padding: 4 }}><Ionicons name="chevron-up" size={16} color={colors.primary} /></TouchableOpacity>}
+                {idx < guardians.length - 1 && <TouchableOpacity onPress={() => moveGuardian(g.id, 'down')} style={{ padding: 4 }}><Ionicons name="chevron-down" size={16} color={colors.primary} /></TouchableOpacity>}
+                <TouchableOpacity onPress={() => removeGuardian(g.id)} style={{ padding: 4 }}><Ionicons name="close" size={16} color={colors.danger} /></TouchableOpacity>
               </View>
             ))}
-            {guardians.length === 0 && <Text style={{ fontSize: 13, color: Colors.textMuted, textAlign: 'center', paddingVertical: 12 }}>Aucun gardien. Ajoutez un proche.</Text>}
-          </View>
+            {guardians.length === 0 && <Text style={{ fontSize: 13, color: colors.textMuted, textAlign: 'center', paddingVertical: 12 }}>Aucun gardien. Ajoutez un proche.</Text>}
+          </Section>
         )}
 
         {/* Add Guardian Modal */}
         {showAddGuardian && (
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20, zIndex: 100 }}>
-            <View style={{ backgroundColor: Colors.background, borderRadius: 16, padding: 20 }}>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: Colors.textPrimary }}>Ajouter un gardien</Text>
-              <Text style={{ fontSize: 13, color: Colors.textMuted, marginTop: 4, lineHeight: 18 }}>Renseignez le numero de telephone. S'il a un compte, il sera lie. Sinon, un SMS d'invitation sera envoye.</Text>
-              {Platform.OS === 'web' ? (
-                <div style={{ marginTop: 12, marginBottom: 12 }}>
-                  <input data-testid="add-guardian-phone" type="tel" placeholder="+33 6 12 34 56 78" value={guardianPhone}
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.overlay, justifyContent: 'center', padding: 24, zIndex: 100 }}>
+            <View style={{ backgroundColor: colors.surface, borderRadius: 20, padding: 24, borderWidth: 1, borderColor: colors.border }}>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: colors.textPrimary }}>Ajouter un gardien</Text>
+              <Text style={{ fontSize: 13, color: colors.textMuted, marginTop: 6, lineHeight: 19 }}>Renseignez le numero de telephone. S'il a un compte, il sera lie. Sinon, un SMS d'invitation sera envoye.</Text>
+              <View style={{ marginTop: 16, marginBottom: 16 }}>
+                {Platform.OS === 'web' ? (
+                  <div><input data-testid="add-guardian-phone" type="tel" placeholder="+33 6 12 34 56 78" value={guardianPhone}
                     onChange={(e: any) => setGuardianPhone(e.target.value)}
-                    style={{ width: '100%', fontSize: 16, padding: '14px 12px', borderRadius: 12, border: `1.5px solid ${Colors.border}`, outline: 'none', backgroundColor: Colors.subtle, fontFamily: 'inherit', boxSizing: 'border-box' as any }} />
-                </div>
-              ) : (
-                <TextInput testID="add-guardian-phone" style={{ fontSize: 16, backgroundColor: Colors.subtle, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, paddingHorizontal: 12, paddingVertical: 14, marginVertical: 12 }}
-                  placeholder="+33 6 12 34 56 78" placeholderTextColor={Colors.textMuted} value={guardianPhone} onChangeText={setGuardianPhone} keyboardType="phone-pad" />
-              )}
+                    style={{ width: '100%', fontSize: 16, padding: '14px 14px', borderRadius: 14, border: `1.5px solid ${colors.border}`, outline: 'none', backgroundColor: colors.surfaceHighlight, fontFamily: 'system-ui', color: colors.textPrimary, boxSizing: 'border-box' as any }} /></div>
+                ) : (
+                  <TextInput testID="add-guardian-phone" style={{ fontSize: 16, backgroundColor: colors.surfaceHighlight, borderRadius: 14, borderWidth: 1.5, borderColor: colors.border, paddingHorizontal: 14, paddingVertical: 14, color: colors.textPrimary }}
+                    placeholder="+33 6 12 34 56 78" placeholderTextColor={colors.textMuted} value={guardianPhone} onChangeText={setGuardianPhone} keyboardType="phone-pad" />
+                )}
+              </View>
               {addResult && (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 10, marginBottom: 8, backgroundColor: addResult.error ? Colors.destructive + '10' : addResult.linked ? Colors.success + '10' : '#FF9800' + '10' }}>
-                  <Ionicons name={addResult.error ? "alert-circle" : addResult.linked ? "checkmark-circle" : "send"} size={16} color={addResult.error ? Colors.destructive : addResult.linked ? Colors.success : '#FF9800'} />
-                  <Text style={{ flex: 1, fontSize: 12, fontWeight: '600', color: addResult.error ? Colors.destructive : addResult.linked ? Colors.success : '#FF9800' }}>{addResult.error || addResult.message}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 14, borderRadius: 12, marginBottom: 12, backgroundColor: addResult.error ? colors.dangerLight : addResult.linked ? colors.successLight : colors.warningLight }}>
+                  <Ionicons name={addResult.error ? 'alert-circle' : addResult.linked ? 'checkmark-circle' : 'send'} size={16} color={addResult.error ? colors.danger : addResult.linked ? colors.success : colors.warning} />
+                  <Text style={{ flex: 1, fontSize: 12, fontWeight: '600', color: addResult.error ? colors.danger : addResult.linked ? colors.success : colors.warning }}>{addResult.error || addResult.message}</Text>
                 </View>
               )}
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.subtle, alignItems: 'center' }} onPress={() => setShowAddGuardian(false)}>
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.textSecondary }}>Annuler</Text>
+              <View style={{ flexDirection: 'row', gap: 12 }}>
+                <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: colors.surfaceHighlight, alignItems: 'center' }} onPress={() => setShowAddGuardian(false)}>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textSecondary }}>Annuler</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center' }} onPress={addGuardian} disabled={addingGuardian || !guardianPhone.trim()}>
-                  {addingGuardian ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFF' }}>Ajouter</Text>}
+                <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: colors.primary, alignItems: 'center' }} onPress={addGuardian} disabled={addingGuardian || !guardianPhone.trim()}>
+                  {addingGuardian ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 15, fontWeight: '700', color: isDark ? '#000' : '#FFF' }}>Ajouter</Text>}
                 </TouchableOpacity>
               </View>
             </View>
@@ -225,173 +258,84 @@ export default function ProfileScreen() {
 
         {/* Guardian: Link Beneficiary */}
         {user.role === 'guardian' && (
-          <View style={st.section}>
-            <Text style={st.secTitle}>Lier un bénéficiaire</Text>
-            <View style={st.linkRow}>
-              <TextInput testID="link-email-input" style={st.linkInput} placeholder="email@beneficiaire.com" placeholderTextColor={Colors.textMuted}
-                value={linkEmail} onChangeText={setLinkEmail} keyboardType="email-address" autoCapitalize="none" blurOnSubmit={false} />
-              <TouchableOpacity testID="link-btn" style={st.linkBtn} onPress={handleLink} disabled={linking}>
-                {linking ? <ActivityIndicator color="#FFF" size="small" /> : <Ionicons name="link" size={18} color="#FFF" />}
-              </TouchableOpacity>
-            </View>
-            {user.beneficiaries?.length > 0 && <Text style={st.linkedC}>{user.beneficiaries.length} bénéficiaire(s) lié(s)</Text>}
-          </View>
+          <Section>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary, marginBottom: 10 }}>Lier un beneficiaire</Text>
+            <InputRow placeholder="email@beneficiaire.com" value={linkEmail} onChangeText={setLinkEmail} btnIcon="link" onPress={handleLink} loading={linking} testIDs={['link-email-input', 'link-btn']} />
+            {user.beneficiaries?.length > 0 && <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 10 }}>{user.beneficiaries.length} beneficiaire(s) lie(s)</Text>}
+          </Section>
         )}
 
-        {/* Guardian: Activate Prescriber Mode */}
+        {/* Guardian: Activate Prescriber */}
         {user.role === 'guardian' && !user.is_prescriber && (
-          <View style={st.section}>
-            <Text style={st.secTitle}>Mode prescripteur</Text>
-            <Text style={st.secDesc}>Entrez votre code d'activation de structure pour activer le mode prescripteur et envoyer des prescriptions.</Text>
-            <View style={st.linkRow}>
-              <TextInput testID="act-code-input" style={st.linkInput} placeholder="Code (ex: SAAD1234)" placeholderTextColor={Colors.textMuted}
-                value={actCode} onChangeText={setActCode} autoCapitalize="characters" blurOnSubmit={false} />
-              <TouchableOpacity testID="activate-btn" style={st.linkBtn} onPress={activatePrescriber} disabled={activating}>
-                {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Ionicons name="key" size={18} color="#FFF" />}
-              </TouchableOpacity>
-            </View>
-          </View>
+          <Section>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary, marginBottom: 4 }}>Mode prescripteur</Text>
+            <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 12, lineHeight: 17 }}>Entrez votre code d'activation pour envoyer des prescriptions.</Text>
+            <InputRow placeholder="Code (ex: SAAD1234)" value={actCode} onChangeText={setActCode} btnIcon="key" onPress={activatePrescriber} loading={activating} testIDs={['act-code-input', 'activate-btn']} />
+          </Section>
         )}
 
-        {/* Guardian: Prescriber active badge */}
         {user.role === 'guardian' && user.is_prescriber && (
-          <View style={[st.section, { backgroundColor: Colors.subtle }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
+          <Section style={{ backgroundColor: colors.successLight }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <Ionicons name="checkmark-circle" size={22} color={colors.success} />
               <View style={{ flex: 1 }}>
-                <Text style={st.secTitle}>Mode prescripteur actif</Text>
-                <Text style={st.secDesc}>Structure : {user.prescriber_structure}</Text>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>Mode prescripteur actif</Text>
+                <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 2 }}>Structure : {user.prescriber_structure}</Text>
               </View>
             </View>
-          </View>
+          </Section>
         )}
 
-        {/* Activate Intervention Provider - Only for guardians */}
         {user.role === 'guardian' && !user.is_intervention_provider && (
-          <View style={st.section}>
-            <Text style={st.secTitle}>Devenir intervenant</Text>
-            <Text style={st.secDesc}>Entrez votre code d'activation pour devenir prestataire d'intervention sur site.</Text>
-            <View style={st.linkRow}>
-              <TextInput testID="iv-code-input" style={st.linkInput} placeholder="Code intervenant" placeholderTextColor={Colors.textMuted}
-                value={ivCode} onChangeText={setIvCode} autoCapitalize="characters" blurOnSubmit={false} />
-              <TouchableOpacity testID="iv-activate-btn" style={st.linkBtn} onPress={activateIntervention} disabled={ivActivating}>
-                {ivActivating ? <ActivityIndicator color="#FFF" size="small" /> : <Ionicons name="shield-checkmark" size={18} color="#FFF" />}
-              </TouchableOpacity>
-            </View>
-          </View>
+          <Section>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary, marginBottom: 4 }}>Devenir intervenant</Text>
+            <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 12, lineHeight: 17 }}>Entrez votre code pour devenir prestataire d'intervention.</Text>
+            <InputRow placeholder="Code intervenant" value={ivCode} onChangeText={setIvCode} btnIcon="shield-checkmark" onPress={activateIntervention} loading={ivActivating} testIDs={['iv-code-input', 'iv-activate-btn']} />
+          </Section>
         )}
 
         {user.role === 'guardian' && user.is_intervention_provider && (
-          <View style={[st.section, { backgroundColor: Colors.subtle }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Ionicons name="shield-checkmark" size={20} color={Colors.success} />
+          <Section style={{ backgroundColor: colors.successLight }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <Ionicons name="shield-checkmark" size={22} color={colors.success} />
               <View style={{ flex: 1 }}>
-                <Text style={st.secTitle}>Intervenant actif</Text>
-                <Text style={st.secDesc}>Rayon: {user.intervention_radius_km || 30}km</Text>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>Intervenant actif</Text>
+                <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 2 }}>Rayon: {user.intervention_radius_km || 30}km</Text>
               </View>
             </View>
-          </View>
+          </Section>
         )}
 
-        {/* Back Office link */}
+        {/* Shortcuts */}
         {(user.role === 'admin') && (
-          <TouchableOpacity testID="backoffice-btn" style={st.shortcutBtn} onPress={() => router.push('/backoffice')}>
-            <Ionicons name="settings-outline" size={18} color={Colors.primary} />
-            <Text style={st.shortcutT}>Back Office</Text>
-            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+          <TouchableOpacity testID="backoffice-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 14, padding: 16, marginBottom: 8, borderWidth: 1, borderColor: colors.border }} onPress={() => router.push('/backoffice')}>
+            <Ionicons name="settings-outline" size={20} color={colors.primary} />
+            <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: colors.textPrimary }}>Back Office</Text>
+            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
           </TouchableOpacity>
         )}
 
-        {user.role === 'beneficiary' && (
-          <TouchableOpacity testID="share-link" style={st.shortcutBtn} onPress={() => router.push('/link-code')}>
-            <Ionicons name="qr-code-outline" size={18} color={Colors.primary} />
-            <Text style={st.shortcutT}>Partager mon profil (Code / QR)</Text>
-            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+        {user.role === 'beneficiary' && [
+          { testID: 'share-link', icon: 'qr-code-outline', label: 'Partager mon profil (Code / QR)', route: '/link-code' },
+          { testID: 'devices-shortcut', icon: 'bluetooth-outline', label: 'Gerer mes appareils', route: '/(tabs)/devices' },
+          { testID: 'data-sharing-link', icon: 'shield-checkmark-outline', label: 'Gerer le partage de donnees', route: '/data-sharing' },
+          { testID: 'reminders-link', icon: 'alarm-outline', label: 'Mes rappels quotidiens', route: '/reminders' },
+          { testID: 'ecg-link', icon: 'pulse-outline', label: 'Electrocardiogramme (ECG)', route: '/ecg' },
+          { testID: 'geofence-link', icon: 'locate-outline', label: 'Zones de securite', route: '/geofencing' },
+        ].map(s => (
+          <TouchableOpacity key={s.testID} testID={s.testID} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 14, padding: 16, marginBottom: 8, borderWidth: 1, borderColor: colors.border }} onPress={() => router.push(s.route as any)}>
+            <Ionicons name={s.icon as any} size={20} color={colors.primary} />
+            <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: colors.textPrimary }}>{s.label}</Text>
+            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
           </TouchableOpacity>
-        )}
+        ))}
 
-        {user.role === 'beneficiary' && (
-          <TouchableOpacity testID="devices-shortcut" style={st.shortcutBtn} onPress={() => router.push('/(tabs)/devices')}>
-            <Ionicons name="bluetooth-outline" size={18} color={Colors.primary} />
-            <Text style={st.shortcutT}>Gérer mes appareils</Text>
-            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
-          </TouchableOpacity>
-        )}
-
-        {user.role === 'beneficiary' && (
-          <TouchableOpacity testID="data-sharing-link" style={st.shortcutBtn} onPress={() => router.push('/data-sharing')}>
-            <Ionicons name="shield-checkmark-outline" size={18} color={Colors.primary} />
-            <Text style={st.shortcutT}>Gérer le partage de données</Text>
-            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
-          </TouchableOpacity>
-        )}
-
-        {user.role === 'beneficiary' && (
-          <TouchableOpacity testID="reminders-link" style={st.shortcutBtn} onPress={() => router.push('/reminders')}>
-            <Ionicons name="alarm-outline" size={18} color={Colors.primary} />
-            <Text style={st.shortcutT}>Mes rappels quotidiens</Text>
-            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
-          </TouchableOpacity>
-        )}
-
-        {user.role === 'beneficiary' && (
-          <TouchableOpacity testID="ecg-link" style={st.shortcutBtn} onPress={() => router.push('/ecg')}>
-            <Ionicons name="pulse-outline" size={18} color={Colors.primary} />
-            <Text style={st.shortcutT}>Électrocardiogramme (ECG)</Text>
-            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
-          </TouchableOpacity>
-        )}
-
-        {user.role === 'beneficiary' && (
-          <TouchableOpacity testID="geofence-link" style={st.shortcutBtn} onPress={() => router.push('/geofencing')}>
-            <Ionicons name="locate-outline" size={18} color={Colors.primary} />
-            <Text style={st.shortcutT}>Zones de sécurité (Géofencing)</Text>
-            <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
-          </TouchableOpacity>
-        )}
-
-        <TouchableOpacity testID="logout-btn" style={st.logoutBtn} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={16} color={Colors.destructive} />
-          <Text style={st.logoutT}>Se déconnecter</Text>
+        <TouchableOpacity testID="logout-btn" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 16, borderRadius: 9999, borderWidth: 1.5, borderColor: colors.danger + '30', marginBottom: 16, marginTop: 12 }} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={16} color={colors.danger} />
+          <Text style={{ fontSize: 15, fontWeight: '600', color: colors.danger }}>Se deconnecter</Text>
         </TouchableOpacity>
-        <Text style={st.ver}>Chutex AI v3.0</Text>
+        <Text style={{ textAlign: 'center', fontSize: 11, color: colors.textMuted, letterSpacing: 0.5, marginBottom: 8 }}>Chutex AI v3.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const st = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.background },
-  sc: { paddingHorizontal: 20, paddingBottom: 40 },
-  pageTitle: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary, marginTop: 16, marginBottom: 20, letterSpacing: -0.5 },
-  userCard: { backgroundColor: Colors.subtle, borderRadius: 16, padding: 24, alignItems: 'center', marginBottom: 16 },
-  avatar: { width: 60, height: 60, borderRadius: 30, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
-  avatarT: { fontSize: 24, fontWeight: '800', color: '#FFF' },
-  userName: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
-  roleBadge: { marginTop: 6, paddingHorizontal: 14, paddingVertical: 4, borderRadius: 20, borderWidth: 1, borderColor: Colors.border },
-  roleT: { fontSize: 12, fontWeight: '600', color: Colors.textSecondary },
-  structureT: { fontSize: 12, color: Colors.textMuted, marginTop: 4 },
-  section: { backgroundColor: Colors.paper, borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
-  secTitle: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginBottom: 8 },
-  secDesc: { fontSize: 12, color: Colors.textMuted, marginBottom: 10, lineHeight: 17 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: Colors.border },
-  infoC: { flex: 1 },
-  infoL: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
-  infoV: { fontSize: 14, fontWeight: '500', color: Colors.textPrimary, marginTop: 1 },
-  locOpt: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 12, borderRadius: 10, borderWidth: 1, borderColor: Colors.border, marginBottom: 6 },
-  locOptA: { borderColor: Colors.primary },
-  locLabel: { flex: 1, fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
-  locLabelA: { color: Colors.primary },
-  radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: Colors.border, justifyContent: 'center', alignItems: 'center' },
-  radioA: { borderColor: Colors.primary },
-  radioInner: { width: 9, height: 9, borderRadius: 5, backgroundColor: Colors.primary },
-  linkRow: { flexDirection: 'row', gap: 8 },
-  linkInput: { flex: 1, backgroundColor: Colors.subtle, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
-  linkBtn: { width: 44, height: 44, borderRadius: 10, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
-  linkedC: { fontSize: 12, color: Colors.textMuted, marginTop: 8 },
-  shortcutBtn: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.subtle, borderRadius: 12, padding: 14, marginBottom: 8 },
-  shortcutT: { flex: 1, fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
-  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, borderRadius: 12, borderWidth: 1, borderColor: Colors.destructive + '30', marginBottom: 16, marginTop: 8 },
-  logoutT: { fontSize: 14, fontWeight: '600', color: Colors.destructive },
-  ver: { textAlign: 'center', fontSize: 11, color: Colors.textMuted, letterSpacing: 0.5 },
-});

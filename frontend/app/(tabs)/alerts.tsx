@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity,
-  ActivityIndicator, RefreshControl, Alert,
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
+import { useTheme } from '../../src/context/ThemeContext';
 import { apiFetch } from '../../src/services/api';
-import { Colors } from '../../src/constants/colors';
 import { useRouter } from 'expo-router';
 
 export default function AlertsScreen() {
   const { token, user } = useAuth();
+  const { colors } = useTheme();
   const router = useRouter();
   const [alerts, setAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,131 +18,113 @@ export default function AlertsScreen() {
   const [trigLoading, setTrigLoading] = useState(false);
 
   const fetchAlerts = useCallback(async () => {
-    try {
-      const data = await apiFetch('/api/alerts', {}, token);
-      setAlerts(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+    try { setAlerts(await apiFetch('/api/alerts', {}, token)); } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
   useEffect(() => { fetchAlerts(); }, [fetchAlerts]);
 
   const resolveAlert = async (alertId: string) => {
-    try {
-      await apiFetch(`/api/alerts/${alertId}/resolve`, { method: 'PUT' }, token);
-      fetchAlerts();
-    } catch (e: any) { console.error(e); }
+    try { await apiFetch(`/api/alerts/${alertId}/resolve`, { method: 'PUT' }, token); fetchAlerts(); } catch {}
   };
 
   const triggerTestAlert = async (type: string, severity: string) => {
     setTrigLoading(true);
     try {
-      await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({
-        alert_type: type, severity, message: type === 'sos' ? 'SOS - Urgence!' : type === 'fall' ? 'Chute détectée' : 'Anomalie cardiaque détectée',
-        device_type: 'bracelet',
-      }) }, token);
-      Alert.alert('Alerte test créée', `Type: ${type}, Sévérité: ${severity}`);
+      await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: type, severity, message: type === 'sos' ? 'SOS - Urgence!' : type === 'fall' ? 'Chute detectee' : 'Anomalie cardiaque detectee', device_type: 'bracelet' }) }, token);
+      Alert.alert('Alerte test creee', `Type: ${type}`);
       fetchAlerts();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setTrigLoading(false); }
   };
 
-  const filtered = alerts.filter((a) => {
-    if (filter === 'active') return a.status === 'active';
-    if (filter === 'resolved') return a.status === 'resolved';
-    return true;
-  });
+  const filtered = alerts.filter((a) => filter === 'active' ? a.status === 'active' : filter === 'resolved' ? a.status === 'resolved' : true);
+  const activeCount = alerts.filter(a => a.status === 'active').length;
 
   const renderAlert = ({ item }: { item: any }) => (
-    <TouchableOpacity testID={`alert-card-${item.id}`} style={[st.alertCard, item.severity === 'critical' && { borderLeftColor: Colors.destructive }]}
+    <TouchableOpacity testID={`alert-card-${item.id}`} style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: colors.border, borderLeftWidth: 3, borderLeftColor: item.severity === 'critical' ? colors.danger : colors.border }}
       onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: item.id } })}>
-      <View style={st.alertContent}>
-        <View style={st.alertTop}>
-          <Ionicons name={item.alert_type === 'sos' ? 'alert-circle' : item.alert_type === 'fall' ? 'trending-down' : 'warning'}
-            size={16} color={item.severity === 'critical' ? Colors.destructive : Colors.textMuted} />
-          <Text style={st.alertType}>
-            {item.alert_type === 'sos' ? 'SOS' : item.alert_type === 'fall' ? 'Chute' : item.alert_type === 'anomaly' ? 'Anomalie' : 'Alerte'}
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6, gap: 8 }}>
+        <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: item.severity === 'critical' ? colors.dangerGlow : colors.surfaceHighlight, justifyContent: 'center', alignItems: 'center' }}>
+          <Ionicons name={item.alert_type === 'sos' ? 'alert-circle' : item.alert_type === 'fall' ? 'trending-down' : 'warning'} size={16} color={item.severity === 'critical' ? colors.danger : colors.textMuted} />
+        </View>
+        <Text style={{ fontSize: 14, fontWeight: '700', color: colors.textPrimary, flex: 1 }}>
+          {item.alert_type === 'sos' ? 'SOS' : item.alert_type === 'fall' ? 'Chute' : item.alert_type === 'anomaly' ? 'Anomalie' : 'Alerte'}
+        </Text>
+        <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: item.severity === 'critical' ? colors.dangerGlow : colors.surfaceHighlight }}>
+          <Text style={{ fontSize: 9, fontWeight: '700', color: item.severity === 'critical' ? colors.danger : colors.textMuted, textTransform: 'uppercase' }}>
+            {item.severity === 'critical' ? 'Critique' : item.severity === 'high' ? 'Eleve' : item.severity === 'medium' ? 'Moyen' : 'Faible'}
           </Text>
-          <View style={[st.sevBdg, item.severity === 'critical' && { backgroundColor: Colors.destructive + '12' }]}>
-            <Text style={[st.sevBdgT, item.severity === 'critical' && { color: Colors.destructive }]}>
-              {item.severity === 'critical' ? 'Critique' : item.severity === 'high' ? 'Élevé' : item.severity === 'medium' ? 'Moyen' : 'Faible'}
-            </Text>
-          </View>
-          <View style={{ flex: 1 }} />
-          <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
         </View>
-        <Text style={st.alertMessage}>{item.message}</Text>
-        <Text style={st.alertMeta}>{item.beneficiary_name || user?.name} · {new Date(item.created_at).toLocaleString('fr-FR')}</Text>
-        <View style={st.alertActions}>
-          {item.status === 'active' && (
-            <>
-              <TouchableOpacity testID={`resolve-alert-${item.id}`} style={st.resolveBtn} onPress={(e) => { e.stopPropagation(); resolveAlert(item.id); }}>
-                <Ionicons name="checkmark-circle" size={14} color={Colors.success} /><Text style={st.resolveBtnText}>Clôturer</Text>
+      </View>
+      <Text style={{ fontSize: 13, color: colors.textSecondary, lineHeight: 19 }}>{item.message}</Text>
+      <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 4 }}>{item.beneficiary_name || user?.name} - {new Date(item.created_at).toLocaleString('fr-FR')}</Text>
+      <View style={{ flexDirection: 'row', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+        {item.status === 'active' && (
+          <>
+            <TouchableOpacity testID={`resolve-alert-${item.id}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 9999, borderWidth: 1.5, borderColor: colors.success + '40' }} onPress={() => resolveAlert(item.id)}>
+              <Ionicons name="checkmark-circle" size={14} color={colors.success} /><Text style={{ fontSize: 12, fontWeight: '600', color: colors.success }}>Cloturer</Text>
+            </TouchableOpacity>
+            {(user?.role === 'guardian' || user?.role === 'teleassistance') && (
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 9999, backgroundColor: colors.primary }} onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: item.id } })}>
+                <Ionicons name="navigate" size={14} color="#FFF" /><Text style={{ fontSize: 12, fontWeight: '600', color: '#FFF' }}>Intervenir</Text>
               </TouchableOpacity>
-              {(user?.role === 'guardian' || user?.role === 'teleassistance') && (
-                <TouchableOpacity style={st.intervBtn} onPress={(e) => { e.stopPropagation(); router.push({ pathname: '/alert-detail', params: { alertId: item.id } }); }}>
-                  <Ionicons name="navigate" size={14} color="#FFF" /><Text style={st.intervBtnT}>Intervenir</Text>
-                </TouchableOpacity>
-              )}
-            </>
-          )}
-          {item.status === 'resolved' && (
-            <View style={st.resolvedBadge}><Ionicons name="checkmark" size={12} color={Colors.success} /><Text style={st.resolvedText}>Résolu</Text></View>
-          )}
-        </View>
+            )}
+          </>
+        )}
+        {item.status === 'resolved' && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Ionicons name="checkmark" size={14} color={colors.success} /><Text style={{ fontSize: 12, color: colors.success, fontWeight: '600' }}>Resolu</Text></View>
+        )}
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={st.safeArea} testID="alerts-screen">
-      <View style={st.header}>
-        <Text style={st.title}>Alertes</Text>
-        <Text style={st.subtitle}>{alerts.filter(a => a.status === 'active').length} active(s)</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} testID="alerts-screen">
+      <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}>
+        <Text style={{ fontSize: 28, fontWeight: '800', color: colors.textPrimary, letterSpacing: -0.5 }}>Alertes</Text>
+        <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 4 }}>{activeCount} active(s)</Text>
       </View>
 
-      <View style={st.filterRow}>
+      <View style={{ flexDirection: 'row', paddingHorizontal: 20, gap: 8, marginBottom: 12 }}>
         {(['all', 'active', 'resolved'] as const).map((f) => (
-          <TouchableOpacity key={f} testID={`filter-${f}`} style={[st.filterTab, filter === f && st.filterTabActive]} onPress={() => setFilter(f)}>
-            <Text style={[st.filterText, filter === f && st.filterTextActive]}>
-              {f === 'all' ? 'Toutes' : f === 'active' ? 'Actives' : 'Résolues'}
+          <TouchableOpacity key={f} testID={`filter-${f}`} style={[{ paddingHorizontal: 16, paddingVertical: 9, borderRadius: 9999, borderWidth: 1.5, borderColor: filter === f ? colors.primary : colors.border }, filter === f && { backgroundColor: colors.primary }]} onPress={() => setFilter(f)}>
+            <Text style={[{ fontSize: 13, fontWeight: '600' }, filter === f ? { color: '#FFF' } : { color: colors.textMuted }]}>
+              {f === 'all' ? 'Toutes' : f === 'active' ? 'Actives' : 'Resolues'}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Test alert triggers for beneficiary */}
       {user?.role === 'beneficiary' && (
-        <View style={st.testRow}>
-          <Text style={st.testLabel}>Test:</Text>
-          <TouchableOpacity testID="test-sos" style={[st.testBtn, {backgroundColor: Colors.destructive}]} onPress={() => triggerTestAlert('sos', 'critical')} disabled={trigLoading}>
-            <Text style={st.testBtnT}>SOS</Text></TouchableOpacity>
-          <TouchableOpacity testID="test-fall" style={st.testBtn} onPress={() => triggerTestAlert('fall', 'high')} disabled={trigLoading}>
-            <Text style={st.testBtnT}>Chute</Text></TouchableOpacity>
-          <TouchableOpacity testID="test-anomaly" style={st.testBtn} onPress={() => triggerTestAlert('anomaly', 'medium')} disabled={trigLoading}>
-            <Text style={st.testBtnT}>Anomalie</Text></TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, gap: 6, marginBottom: 12 }}>
+          <Text style={{ fontSize: 11, fontWeight: '600', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 }}>Test:</Text>
+          <TouchableOpacity testID="test-sos" style={{ paddingHorizontal: 12, paddingVertical: 7, borderRadius: 9999, backgroundColor: colors.danger }} onPress={() => triggerTestAlert('sos', 'critical')} disabled={trigLoading}>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>SOS</Text>
+          </TouchableOpacity>
+          <TouchableOpacity testID="test-fall" style={{ paddingHorizontal: 12, paddingVertical: 7, borderRadius: 9999, backgroundColor: colors.primary }} onPress={() => triggerTestAlert('fall', 'high')} disabled={trigLoading}>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>Chute</Text>
+          </TouchableOpacity>
+          <TouchableOpacity testID="test-anomaly" style={{ paddingHorizontal: 12, paddingVertical: 7, borderRadius: 9999, backgroundColor: colors.warning }} onPress={() => triggerTestAlert('anomaly', 'medium')} disabled={trigLoading}>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFF' }}>Anomalie</Text>
+          </TouchableOpacity>
         </View>
       )}
 
       {loading ? (
-        <View style={st.center}><ActivityIndicator size="large" color={Colors.primary} /></View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={colors.primary} /></View>
       ) : (
         <FlatList
           data={filtered}
           renderItem={renderAlert}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={st.listContent}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAlerts(); }} tintColor={Colors.primary} />
-          }
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAlerts(); }} tintColor={colors.primary} />}
           ListEmptyComponent={
-            <View style={st.emptyCard}>
-              <Ionicons name="checkmark-circle" size={40} color={Colors.textMuted} />
-              <Text style={st.emptyTitle}>Aucune alerte</Text>
-              <Text style={st.emptyText}>Tout va bien pour le moment</Text>
+            <View style={{ alignItems: 'center', paddingVertical: 60 }}>
+              <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: colors.surfaceHighlight, justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+                <Ionicons name="checkmark-circle" size={32} color={colors.success} />
+              </View>
+              <Text style={{ fontSize: 17, fontWeight: '700', color: colors.textPrimary }}>Aucune alerte</Text>
+              <Text style={{ fontSize: 13, color: colors.textMuted, marginTop: 4 }}>Tout va bien pour le moment</Text>
             </View>
           }
         />
@@ -152,42 +132,3 @@ export default function AlertsScreen() {
     </SafeAreaView>
   );
 }
-
-const st = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Colors.background },
-  header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
-  title: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary, letterSpacing: -0.5 },
-  subtitle: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
-  filterRow: { flexDirection: 'row', paddingHorizontal: 20, gap: 8, marginBottom: 8 },
-  filterTab: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: Colors.subtle },
-  filterTabActive: { backgroundColor: Colors.primary },
-  filterText: { fontSize: 13, fontWeight: '600', color: Colors.textMuted },
-  filterTextActive: { color: '#FFF' },
-  testRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, gap: 6, marginBottom: 10 },
-  testLabel: { fontSize: 11, fontWeight: '600', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
-  testBtn: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, backgroundColor: Colors.primary },
-  testBtnT: { fontSize: 11, fontWeight: '700', color: '#FFF' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  listContent: { paddingHorizontal: 20, paddingBottom: 24 },
-  alertCard: {
-    backgroundColor: Colors.subtle, borderRadius: 12,
-    padding: 14, marginBottom: 8, borderLeftWidth: 3, borderLeftColor: Colors.border,
-  },
-  alertContent: {},
-  alertTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 4, gap: 6 },
-  alertType: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, flex: 1 },
-  sevBdg: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, backgroundColor: Colors.subtle, borderWidth: 1, borderColor: Colors.border },
-  sevBdgT: { fontSize: 9, fontWeight: '700', color: Colors.textMuted, textTransform: 'uppercase' },
-  alertMessage: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
-  alertMeta: { fontSize: 11, color: Colors.textMuted, marginTop: 4 },
-  alertActions: { flexDirection: 'row', gap: 8, marginTop: 8, flexWrap: 'wrap' },
-  resolveBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: Colors.success + '30' },
-  resolveBtnText: { fontSize: 12, fontWeight: '600', color: Colors.success },
-  intervBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, backgroundColor: Colors.primary },
-  intervBtnT: { fontSize: 12, fontWeight: '600', color: '#FFF' },
-  resolvedBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },
-  resolvedText: { fontSize: 11, color: Colors.success, fontWeight: '600' },
-  emptyCard: { alignItems: 'center', paddingVertical: 60 },
-  emptyTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary, marginTop: 12 },
-  emptyText: { fontSize: 13, color: Colors.textMuted, marginTop: 4 },
-});
