@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform, PermissionsAndroid } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
+import { isBleAvailable, getBleManager, bytesToBase64, base64ToBytes } from '../src/services/ble';
 
 // BLE UUIDs extracted from J-Style 2208A SDK APK
 const BLE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
