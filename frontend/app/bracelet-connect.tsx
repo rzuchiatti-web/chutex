@@ -366,4 +366,6 @@ const s = StyleSheet.create({
   vitalUnit: { fontSize: 10, color: Colors.textMuted },
   unpairBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 14 },
   unpairBtnT: { fontSize: 14, fontWeight: '600', color: Colors.destructive },
+  measureBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8 },
+  measureBtnT: { fontSize: 12, fontWeight: '700', color: '#FFF' },
 });
