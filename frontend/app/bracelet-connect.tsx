@@ -126,48 +126,54 @@ export default function BraceletConnectScreen() {
       const server = await bd.gatt.connect();
       setErrorMsg('GATT connecte, recherche service fff0...');
       try {
-        const service = await server.getPrimaryService(BLE_SERVICE_UUID);
-        setErrorMsg('Service fff0 trouve, acces aux caracteristiques...');
-        const notifyChar = await service.getCharacteristic(BLE_NOTIFY_UUID);
-        await notifyChar.startNotifications();
-        notifyChar.addEventListener('characteristicvaluechanged', handleBleData);
-        const wChar = await service.getCharacteristic(BLE_WRITE_UUID);
-        writeCharRef.current = wChar;
-        setBleStatus('connected');
-        setErrorMsg('');
-        startPolling();
-      } catch (svcErr: any) {
-        setErrorMsg(`Service fff0 non trouve. Scan de tous les services...`);
-        // Fallback: try all services
+        const svcErr_msg = '';
+        let service: any = null;
         try {
+          service = await server.getPrimaryService(BLE_SERVICE_UUID);
+        } catch {
           const services = await server.getPrimaryServices();
-          const svcList = services.map((s: any) => s.uuid).join(', ');
-          setErrorMsg(`Services trouves: ${svcList}`);
-          let subscribed = false;
           for (const svc of services) {
-            try {
-              const chars = await svc.getCharacteristics();
-              for (const c of chars) {
-                if (c.properties.notify || c.properties.indicate) {
-                  await c.startNotifications();
-                  c.addEventListener('characteristicvaluechanged', handleBleData);
-                  subscribed = true;
-                }
-                if (c.properties.write || c.properties.writeWithoutResponse) {
-                  writeCharRef.current = c;
-                }
-              }
-            } catch { continue; }
+            if (svc.uuid === BLE_SERVICE_UUID || svc.uuid.includes('fff0')) {
+              service = svc;
+              break;
+            }
           }
-          if (subscribed) {
-            setBleStatus('connected');
-            startPolling();
-          } else {
-            setErrorMsg(`Services: ${svcList} - Aucune caracteristique notify trouvee`);
-          }
-        } catch (e2: any) {
-          setErrorMsg(`Erreur scan services: ${e2.message}`);
         }
+        if (!service) {
+          setErrorMsg('Service BLE fff0 non accessible');
+          setBleStatus('idle');
+          return;
+        }
+        setErrorMsg('Service trouve, acces caracteristiques...');
+        let notifyChar: any = null;
+        let wChar: any = null;
+        try {
+          notifyChar = await service.getCharacteristic(BLE_NOTIFY_UUID);
+        } catch {
+          // Try to find notify characteristic by scanning all
+          const chars = await service.getCharacteristics();
+          for (const c of chars) {
+            if (c.properties.notify || c.properties.indicate) notifyChar = c;
+            if (c.properties.write || c.properties.writeWithoutResponse) wChar = c;
+          }
+        }
+        if (!wChar) {
+          try { wChar = await service.getCharacteristic(BLE_WRITE_UUID); } catch {}
+        }
+        if (notifyChar) {
+          await notifyChar.startNotifications();
+          notifyChar.addEventListener('characteristicvaluechanged', handleBleData);
+          writeCharRef.current = wChar;
+          setBleStatus('connected');
+          setErrorMsg('');
+          startPolling();
+        } else {
+          setErrorMsg('Caracteristique notify non trouvee dans service fff0');
+          setBleStatus('idle');
+        }
+      } catch (innerErr: any) {
+        setErrorMsg(`Erreur service: ${innerErr?.message || String(innerErr)}`);
+        setBleStatus('idle');
       }
     } catch (e: any) {
       setErrorMsg(`Erreur BLE: ${e?.message || e?.name || 'inconnue'} - ${String(e)}`);
