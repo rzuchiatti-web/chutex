@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone, timedelta
 import uuid, random, logging
 
-from database import db, EMERGENT_LLM_KEY
+from database import db, EMERGENT_LLM_KEY, twilio_client, TWILIO_NUMBER
 from auth import get_current_user, sanitize_user
 from models import (
     LinkBeneficiaryRequest, PrescriptionCreate, ActivatePrescriberRequest,
