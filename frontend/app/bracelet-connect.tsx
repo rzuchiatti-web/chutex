@@ -96,14 +96,24 @@ export default function BraceletConnectScreen() {
 
   const startPolling = useCallback(() => {
     if (pollRef.current) clearInterval(pollRef.current);
-    // Request battery + start realtime mode immediately
-    sendCommand(0x0D); // battery
-    setTimeout(() => sendCommand(0x09, [1, 1]), 500); // start realtime steps + HR
-    // Poll every 30s
+    // Start realtime mode + request battery + start health measurements
+    sendCommand(0x09, [1, 1]); // realtime steps + HR
+    setTimeout(() => sendCommand(0x0D), 300); // battery
+    setTimeout(() => sendCommand(0x28, [2, 1]), 600); // start continuous HR
+    setTimeout(() => sendCommand(0x28, [3, 1]), 900); // start SpO2
+    setTimeout(() => sendCommand(0x28, [1, 1]), 1200); // start HRV (blood pressure)
+    // Poll every 5 seconds
+    let tick = 0;
     pollRef.current = setInterval(() => {
-      sendCommand(0x0D);
-      setTimeout(() => sendCommand(0x09, [1, 1]), 500);
-    }, 30000);
+      tick++;
+      sendCommand(0x09, [1, 1]); // realtime steps + HR every 5s
+      if (tick % 6 === 0) sendCommand(0x0D); // battery every 30s
+      if (tick % 12 === 0) { // restart health measurements every 60s
+        sendCommand(0x28, [2, 1]);
+        setTimeout(() => sendCommand(0x28, [3, 1]), 300);
+        setTimeout(() => sendCommand(0x28, [1, 1]), 600);
+      }
+    }, 5000);
   }, [sendCommand]);
 
   const connectBracelet = async () => {
