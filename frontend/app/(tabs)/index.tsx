@@ -96,6 +96,33 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </View>
       </TouchableOpacity>
 
+      {/* Bracelet Status Card */}
+      <TouchableOpacity style={[s.vestCard, { borderColor: braceletData?.connected ? Colors.primary : braceletData?.paired ? Colors.border : Colors.border, backgroundColor: braceletData?.connected ? '#E3F2FD' : Colors.subtle }]} onPress={() => router.push('/bracelet-connect')} data-testid="bracelet-status-card">
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Ionicons name={braceletData?.paired ? "watch" : "watch-outline"} size={24} color={braceletData?.connected ? Colors.primary : braceletData?.paired ? Colors.textMuted : Colors.textMuted} />
+          <View style={{ flex: 1 }}>
+            <Text style={s.vestTitle}>Bracelet Elio</Text>
+            <Text style={[s.vestStatus, { color: braceletData?.connected ? Colors.primary : Colors.textMuted }]}>
+              {braceletData?.connected ? 'Actif' : braceletData?.paired ? 'Eteint' : 'Appuyer pour configurer'}
+              {braceletData?.last_sync ? ` · ${new Date(braceletData.last_sync).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}` : ''}
+            </Text>
+          </View>
+          {braceletData?.battery > 0 && (
+            <View style={{ alignItems: 'center' }}>
+              <Ionicons name={braceletData.battery > 50 ? "battery-full" : braceletData.battery > 20 ? "battery-half" : "battery-dead"} size={22} color={braceletData.battery > 20 ? Colors.success : Colors.destructive} />
+              <Text style={{ fontSize: 13, fontWeight: '800', color: Colors.textPrimary }}>{braceletData.battery}%</Text>
+            </View>
+          )}
+          {braceletData?.heart_rate > 0 && (
+            <View style={{ alignItems: 'center' }}>
+              <Ionicons name="heart" size={16} color="#E53935" />
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#E53935' }}>{braceletData.heart_rate}</Text>
+            </View>
+          )}
+          <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+        </View>
+      </TouchableOpacity>
+
       {/* Vitals */}
       <View style={s.secRow}><Text style={s.secTitle}>Constantes clés</Text>
         <TouchableOpacity testID="see-all-health" onPress={() => router.push('/(tabs)/health')}><Text style={s.seeAll}>Tout voir →</Text></TouchableOpacity></View>
