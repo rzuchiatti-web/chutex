@@ -110,7 +110,9 @@ def gen_data(sim, custom=None):
 
 
 def generate_bracelet_data(c=None):
-    return gen_data(BRACELET_SIM, c)
+    d = gen_data(BRACELET_SIM, c)
+    d['sleep'] = generate_sleep_hypnogram()
+    return d
 
 
 def generate_scale_data(c=None):
