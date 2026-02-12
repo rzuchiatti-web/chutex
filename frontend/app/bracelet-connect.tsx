@@ -119,6 +119,26 @@ export default function BraceletConnectScreen() {
     }, 5000);
   }, [sendCommand]);
 
+  const [measuring, setMeasuring] = useState(false);
+
+  const measureNow = useCallback(async () => {
+    setMeasuring(true);
+    // Send all measurement commands
+    await sendCommand(0x0D); // battery
+    await new Promise(r => setTimeout(r, 200));
+    await sendCommand(0x09, [1, 1]); // realtime steps + HR
+    await new Promise(r => setTimeout(r, 200));
+    await sendCommand(0x28, [2, 1]); // HR continu
+    await new Promise(r => setTimeout(r, 200));
+    await sendCommand(0x28, [3, 1]); // SpO2
+    await new Promise(r => setTimeout(r, 200));
+    await sendCommand(0x28, [1, 1]); // HRV / tension
+    await new Promise(r => setTimeout(r, 200));
+    await sendCommand(0x53, [0]); // sleep
+    // Wait 5s for responses
+    setTimeout(() => setMeasuring(false), 5000);
+  }, [sendCommand]);
+
   const connectBracelet = async () => {
     if (Platform.OS !== 'web' || !('bluetooth' in navigator)) return;
     setBleStatus('scanning');
