@@ -105,15 +105,22 @@ async def invite_guardian(data: dict, user=Depends(get_current_user)):
     existing = await db.users.find_one({"phone": {"$regex": cleaned[-9:]}, "role": "guardian"}, {"_id": 0, "password_hash": 0})
 
     if existing:
-        # Guardian exists - send notification and link
+        # Guardian exists - create PENDING invitation (not auto-link)
         already_linked = user['id'] in existing.get('beneficiaries', [])
         if already_linked:
             return {"linked": False, "message": "Ce gardien est deja dans votre liste."}
 
-        # Create a pending invitation
+        # Check if invitation already pending
+        pending = await db.guardian_invitations.find_one({
+            "beneficiary_id": user['id'], "guardian_id": existing['id'], "status": "pending"
+        })
+        if pending:
+            return {"linked": False, "message": f"Invitation deja envoyee a {existing['name']}. En attente de validation."}
+
         now = datetime.now(timezone.utc).isoformat()
+        inv_id = str(uuid.uuid4())
         await db.guardian_invitations.insert_one({
-            "id": str(uuid.uuid4()),
+            "id": inv_id,
             "beneficiary_id": user['id'],
             "beneficiary_name": user.get('name', ''),
             "guardian_id": existing['id'],
@@ -123,14 +130,10 @@ async def invite_guardian(data: dict, user=Depends(get_current_user)):
             "created_at": now,
         })
 
-        # Auto-link for now (in production, wait for guardian acceptance)
-        await db.users.update_one({"id": user['id']}, {"$addToSet": {"guardians": existing['id'], "guardian_order": existing['id']}})
-        await db.users.update_one({"id": existing['id']}, {"$addToSet": {"beneficiaries": user['id']}})
-
         return {
-            "linked": True,
-            "message": f"{existing['name']} a ete ajoute comme gardien.",
-            "guardian": {"id": existing['id'], "name": existing['name'], "email": existing.get('email', ''), "phone": existing.get('phone', '')},
+            "linked": False,
+            "invitation_sent": True,
+            "message": f"Demande envoyee a {existing['name']}. Il doit accepter dans son app.",
         }
     else:
         # No account - send SMS invitation via Twilio
