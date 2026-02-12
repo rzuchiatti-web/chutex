@@ -400,6 +400,56 @@ async def twilio_status(request: Request):
     return {"status": "ok"}
 
 
+@router.post("/twilio/speech-response")
+async def twilio_speech_response(request: Request):
+    """Handle Twilio speech recognition response from beneficiary"""
+    form = await request.form()
+    call_sid = form.get('CallSid', '')
+    speech_result = form.get('SpeechResult', '')
+    confidence = form.get('Confidence', '0')
+
+    logger.info(f"Speech response from {call_sid}: '{speech_result}' (confidence: {confidence})")
+
+    # Analyze speech for confirmation
+    speech_lower = speech_result.lower() if speech_result else ''
+    positive_words = ['bien', 'va bien', 'oui', 'ca va', 'ça va', 'ok', 'pas de probleme', 'tout va bien', 'je vais bien', 'rien']
+    negative_words = ['aide', 'aidez', 'mal', 'secours', 'tombe', 'urgence', 'non', 'pas bien', 'help']
+
+    confirmed_ok = any(w in speech_lower for w in positive_words)
+    needs_help = any(w in speech_lower for w in negative_words)
+
+    # Store speech response
+    await db.speech_responses.insert_one({
+        "call_sid": call_sid,
+        "text": speech_result,
+        "confidence": float(confidence) if confidence else 0,
+        "confirmed_ok": confirmed_ok and not needs_help,
+        "needs_help": needs_help,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
+
+    # Update call record
+    await db.twilio_calls.update_one(
+        {"call_sid": call_sid},
+        {"$set": {"response": speech_result, "answered": True, "speech_confirmed_ok": confirmed_ok and not needs_help}}
+    )
+
+    base_url = "https://pensive-kowalevski.preview.emergentagent.com"
+    resp = VoiceResponse()
+    if confirmed_ok and not needs_help:
+        resp.play(f"{base_url}/api/elevenlabs/audio/confirmed_ok")
+    elif needs_help:
+        resp.play(f"{base_url}/api/elevenlabs/audio/help_requested")
+    else:
+        # Unclear response, ask again
+        resp.play(f"{base_url}/api/elevenlabs/audio/fall_detected")
+        gather = Gather(input='speech', language='fr-FR', timeout=8, speech_timeout=5, action=f"{base_url}/api/twilio/speech-response")
+        resp.append(gather)
+
+    from starlette.responses import Response as StarletteResponse
+    return StarletteResponse(content=str(resp), media_type="application/xml")
+
+
 # ==================== AUTO ESCALATION WITH ELEVENLABS ====================
 async def auto_escalation_protocol(alert: dict):
     """Full AI escalation: ElevenLabs voice + speech recognition + guardian cascade"""
