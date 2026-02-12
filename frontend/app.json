@@ -16,8 +16,10 @@
         "NSBluetoothAlwaysUsageDescription": "Chutex utilise le Bluetooth pour se connecter a votre bracelet Elio et votre gilet anti-chute afin de surveiller votre sante en temps reel.",
         "NSBluetoothPeripheralUsageDescription": "Chutex utilise le Bluetooth pour se connecter a votre bracelet Elio et votre gilet anti-chute.",
         "UIBackgroundModes": [
+          "bluetooth-central",
           "bluetooth-central"
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
