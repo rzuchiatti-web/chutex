@@ -58,11 +58,8 @@
         "react-native-ble-plx",
         {
           "isBackgroundEnabled": true,
-          "modes": [
-            "peripheral",
-            "central"
-          ],
-          "bluetoothAlwaysPermission": "Chutex utilise le Bluetooth pour surveiller votre sante en temps reel."
+          "modes": ["central"],
+          "bluetoothAlwaysPermission": "Allow Chutex to connect to bluetooth devices"
         }
       ]
     ],
