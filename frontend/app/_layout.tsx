@@ -45,6 +45,7 @@ function RootNav() {
         <Stack.Screen name="ecg" options={{ presentation: 'card' }} />
         <Stack.Screen name="geofencing" options={{ presentation: 'card' }} />
         <Stack.Screen name="vest-connect" options={{ presentation: 'card' }} />
+        <Stack.Screen name="sleep" options={{ presentation: 'card' }} />
         <Stack.Screen name="link-code" options={{ presentation: 'modal' }} />
       </Stack>
     </>
