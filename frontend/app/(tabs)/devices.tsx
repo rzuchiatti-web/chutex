@@ -85,7 +85,9 @@ function DeviceManagement({ token }: { token: string }) {
         const isVest = device.device_type === 'vest';
         const isBracelet = device.device_type === 'bracelet';
         const vestConnected = isVest && vestStatus?.connected;
-        const vestBattery = isVest && vestStatus?.device?.battery ? vestStatus.device.battery : device.battery;
+        const braceletConnected = isBracelet && braceletStatus?.connected;
+        const realBattery = isVest ? (vestStatus?.battery || device.battery) : isBracelet ? (braceletStatus?.battery || device.battery) : device.battery;
+        const realConnected = isVest ? vestConnected : isBracelet ? braceletConnected : device.connected;
         const needsSub = isBracelet && !subscription?.can_use_bracelet;
 
         return (
@@ -95,16 +97,16 @@ function DeviceManagement({ token }: { token: string }) {
               <View style={d.deviceInfo}>
                 <Text style={d.deviceName}>{getDeviceName(device.device_type)}</Text>
                 <View style={d.deviceMeta}>
-                  <View style={[d.connDot, { backgroundColor: (isVest ? vestConnected : device.connected) ? Colors.success : Colors.textMuted }]} />
-                  <Text style={[d.connText, { color: (isVest ? vestConnected : device.connected) ? Colors.success : Colors.textMuted }]}>
-                    {(isVest ? vestConnected : device.connected) ? 'Connecte' : 'Deconnecte'}
+                  <View style={[d.connDot, { backgroundColor: realConnected ? Colors.success : Colors.textMuted }]} />
+                  <Text style={[d.connText, { color: realConnected ? Colors.success : Colors.textMuted }]}>
+                    {realConnected ? 'Actif' : (isVest || isBracelet) && realBattery > 0 ? 'Eteint' : 'Deconnecte'}
                   </Text>
                   {needsSub && <Text style={{ fontSize: 10, color: Colors.destructive, marginLeft: 6 }}>Abonnement requis</Text>}
                 </View>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={d.batteryT}>{isVest ? vestBattery : device.battery}%</Text>
-                <Ionicons name={((isVest ? vestBattery : device.battery) > 50) ? "battery-full" : ((isVest ? vestBattery : device.battery) > 20) ? "battery-half" : "battery-dead"} size={16} color={((isVest ? vestBattery : device.battery) > 20) ? Colors.success : Colors.destructive} />
+                <Text style={d.batteryT}>{realBattery}%</Text>
+                <Ionicons name={(realBattery > 50) ? "battery-full" : (realBattery > 20) ? "battery-half" : "battery-dead"} size={16} color={(realBattery > 20) ? Colors.success : Colors.destructive} />
               </View>
             </View>
 
