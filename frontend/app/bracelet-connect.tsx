@@ -63,8 +63,8 @@ export default function BraceletConnectScreen() {
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, []);
 
-  const isPaired = braceletData?.paired || vitals.battery > 0;
-  const isActive = braceletData?.connected;
+  const isPaired = braceletData?.paired || braceletData?.connected || vitals.steps > 0 || vitals.heart_rate > 0;
+  const isActive = braceletData?.connected || bleStatus === 'connected';
 
   const sendToBackend = useCallback(async (parsed: Record<string, any>, rawHex: string) => {
     try {
