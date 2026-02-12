@@ -168,9 +168,9 @@ export default function BraceletConnectScreen() {
       const server = await bd.gatt.connect();
       setErrorMsg('GATT connecte, recherche service fff0...');
       try {
-        // Try service fff0 first (from SDK APK)
         let notifyChar: any = null;
         let wChar: any = null;
+        let errors: string[] = [];
         
         const tryService = async (uuid: string) => {
           try {
@@ -180,16 +180,25 @@ export default function BraceletConnectScreen() {
               if ((c.properties.notify || c.properties.indicate) && !notifyChar) notifyChar = c;
               if ((c.properties.write || c.properties.writeWithoutResponse) && !wChar) wChar = c;
             }
-          } catch {}
+            errors.push(`${uuid.substring(4,8)}: OK (${chars.length} chars)`);
+          } catch (e: any) {
+            errors.push(`${uuid.substring(4,8)}: ${e?.message?.substring(0,30) || 'fail'}`);
+          }
         };
         
-        // Try known service UUIDs in order
-        await tryService(BLE_SERVICE_UUID);
-        if (!notifyChar) await tryService('0000ffe0-0000-1000-8000-00805f9b34fb');
-        if (!notifyChar) await tryService('0000ffc0-0000-1000-8000-00805f9b34fb');
-        if (!notifyChar) await tryService('0000fee7-0000-1000-8000-00805f9b34fb');
-        if (!notifyChar) await tryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
-        if (!notifyChar) await tryService('0000180d-0000-1000-8000-00805f9b34fb');
+        setErrorMsg('Recherche services BLE...');
+        await tryService('0000fff0-0000-1000-8000-00805f9b34fb');
+        await tryService('0000ffe0-0000-1000-8000-00805f9b34fb');
+        await tryService('0000ffc0-0000-1000-8000-00805f9b34fb');
+        await tryService('0000fee7-0000-1000-8000-00805f9b34fb');
+        await tryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
+        await tryService('0000180d-0000-1000-8000-00805f9b34fb');
+        await tryService('0000180f-0000-1000-8000-00805f9b34fb');
+        await tryService('00001800-0000-1000-8000-00805f9b34fb');
+        await tryService('00001801-0000-1000-8000-00805f9b34fb');
+        await tryService('0000180a-0000-1000-8000-00805f9b34fb');
+        await tryService('00001809-0000-1000-8000-00805f9b34fb');
+        await tryService('0000ffa0-0000-1000-8000-00805f9b34fb');
         
         if (notifyChar) {
           await notifyChar.startNotifications();
@@ -199,7 +208,7 @@ export default function BraceletConnectScreen() {
           setErrorMsg('');
           startPolling();
         } else {
-          setErrorMsg('Aucun service BLE compatible trouve');
+          setErrorMsg(errors.join(' | '));
           setBleStatus('idle');
         }
       } catch (innerErr: any) {
