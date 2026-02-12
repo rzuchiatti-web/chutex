@@ -197,6 +197,10 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </TouchableOpacity>
       </View>
       <View style={s.quickRow}>
+        <TouchableOpacity style={s.quickBtn} onPress={() => router.push('/subscription')}>
+          <Ionicons name="card-outline" size={20} color={Colors.textPrimary} />
+          <Text style={s.quickBtnT}>Mon Abonnement</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={s.quickBtn} onPress={() => router.push('/data-sharing')}>
           <Ionicons name="shield-checkmark-outline" size={20} color={Colors.textPrimary} />
           <Text style={s.quickBtnT}>Partage données</Text>
