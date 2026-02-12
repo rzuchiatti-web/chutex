@@ -108,7 +108,17 @@ export default function BraceletConnectScreen() {
     setBleStatus('scanning');
     try {
       const nav = navigator as any;
-      const bd = await nav.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: ['generic_access', 'heart_rate', 'battery_service', '0000ffe0-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e'] });
+      const bd = await nav.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: [
+          'generic_access', 'heart_rate', 'battery_service', 'health_thermometer',
+          '0000ffe0-0000-1000-8000-00805f9b34fb', '0000fff0-0000-1000-8000-00805f9b34fb',
+          '0000fee7-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb',
+          '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0000180d-0000-1000-8000-00805f9b34fb',
+          '0000180f-0000-1000-8000-00805f9b34fb', '0000180a-0000-1000-8000-00805f9b34fb',
+          '00001800-0000-1000-8000-00805f9b34fb', '00001801-0000-1000-8000-00805f9b34fb',
+        ],
+      });
       setDevice(bd);
       setBleStatus('connecting');
       bd.addEventListener('gattserverdisconnected', () => {
@@ -117,22 +127,29 @@ export default function BraceletConnectScreen() {
       });
       const server = await bd.gatt.connect();
       let subscribed = false;
-      const services = await server.getPrimaryServices();
-      for (const service of services) {
-        try {
-          const chars = await service.getCharacteristics();
-          for (const char of chars) {
-            if (char.properties.notify) {
-              await char.startNotifications();
-              char.addEventListener('characteristicvaluechanged', handleBleData);
-              subscribed = true;
+      let foundServices: string[] = [];
+      try {
+        const services = await server.getPrimaryServices();
+        for (const service of services) {
+          foundServices.push(service.uuid);
+          try {
+            const chars = await service.getCharacteristics();
+            for (const char of chars) {
+              if (char.properties.notify || char.properties.indicate) {
+                try {
+                  await char.startNotifications();
+                  char.addEventListener('characteristicvaluechanged', handleBleData);
+                  subscribed = true;
+                } catch {}
+              }
+              if (char.properties.write || char.properties.writeWithoutResponse) {
+                writeCharRef.current = char;
+              }
             }
-            if (char.properties.write || char.properties.writeWithoutResponse) {
-              writeCharRef.current = char;
-            }
-          }
-        } catch { continue; }
-      }
+          } catch { continue; }
+        }
+      } catch {}
+      console.log('BLE services found:', foundServices);
       setBleStatus(subscribed ? 'connected' : 'idle');
       if (subscribed) startPolling();
     } catch {
