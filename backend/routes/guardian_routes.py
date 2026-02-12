@@ -45,6 +45,51 @@ async def get_beneficiaries(user=Depends(get_current_user)):
     return result
 
 
+# ==================== BENEFICIARY: MY GUARDIANS ====================
+@router.get("/guardians/my")
+async def get_my_guardians(user=Depends(get_current_user)):
+    """Get list of guardians for the current beneficiary, ordered"""
+    cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    guardian_order = cu.get('guardian_order', cu.get('guardians', []))
+    guardians = []
+    for gid in guardian_order:
+        g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
+        if g:
+            guardians.append({"id": g['id'], "name": g['name'], "email": g.get('email', ''), "phone": g.get('phone', '')})
+    # Add any guardians not in the order list
+    for gid in cu.get('guardians', []):
+        if gid not in guardian_order:
+            g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
+            if g:
+                guardians.append({"id": g['id'], "name": g['name'], "email": g.get('email', ''), "phone": g.get('phone', '')})
+    return guardians
+
+
+@router.post("/guardians/reorder")
+async def reorder_guardians(data: dict, user=Depends(get_current_user)):
+    """Reorder guardians for escalation priority"""
+    order = data.get('order', [])
+    await db.users.update_one({"id": user['id']}, {"$set": {"guardian_order": order}})
+    return {"status": "ok"}
+
+
+@router.post("/guardians/{guardian_id}/unlink")
+async def unlink_guardian(guardian_id: str, user=Depends(get_current_user)):
+    """Remove a guardian from beneficiary"""
+    await db.users.update_one({"id": user['id']}, {"$pull": {"guardians": guardian_id, "guardian_order": guardian_id}})
+    await db.users.update_one({"id": guardian_id}, {"$pull": {"beneficiaries": user['id']}})
+    return {"status": "unlinked"}
+
+
+@router.get("/alerts/my")
+async def get_my_alerts(user=Depends(get_current_user), limit: int = 10):
+    """Get recent alerts for the current user"""
+    alerts = await db.alerts.find(
+        {"beneficiary_id": user['id']}, {"_id": 0}
+    ).sort("created_at", -1).to_list(limit)
+    return alerts
+
+
 @router.post("/guardian/prescriptions")
 async def create_prescription(data: PrescriptionCreate, user=Depends(get_current_user)):
     if user['role'] != 'guardian':
