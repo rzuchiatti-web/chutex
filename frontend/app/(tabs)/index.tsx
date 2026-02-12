@@ -14,22 +14,38 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [rec, setRec] = useState('');
   const [reminders, setReminders] = useState<any[]>([]);
   const [vestData, setVestData] = useState<any>(null);
+  const [braceletData, setBraceletData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [sosLoading, setSosLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
-      const [r, rc, rem, vest] = await Promise.all([
+      const [r, rc, rem, vest, brac] = await Promise.all([
         apiFetch('/api/devices/latest', {}, token).catch(() => ({})),
         apiFetch('/api/ai/recommendations/latest', {}, token).catch(() => ({ recommendation: '' })),
         apiFetch('/api/reminders', {}, token).catch(() => []),
         apiFetch('/api/vest/status', {}, token).catch(() => null),
+        apiFetch('/api/bracelet/status', {}, token).catch(() => null),
       ]);
-      if (r.bracelet) setVitals(r.bracelet.data);
+      // Use real bracelet data if available, fallback to simulated
+      if (brac && (brac.heart_rate > 0 || brac.steps > 0)) {
+        setVitals({
+          heart_rate: brac.heart_rate || 0,
+          spo2: brac.spo2 || 0,
+          blood_pressure_systolic: brac.systolic || 0,
+          blood_pressure_diastolic: brac.diastolic || 0,
+          temperature: brac.temperature || 0,
+          steps: brac.steps || 0,
+          stress: 0,
+        });
+      } else if (r.bracelet) {
+        setVitals(r.bracelet.data);
+      }
       if (rc.recommendation) setRec(rc.recommendation);
       setReminders(rem);
       setVestData(vest);
+      setBraceletData(brac);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
