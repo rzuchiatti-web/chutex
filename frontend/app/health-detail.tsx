@@ -7,6 +7,7 @@ import { LineChart } from 'react-native-chart-kit';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
+import { useTheme } from '../src/context/ThemeContext';
 import { getMetricById } from '../src/constants/metrics';
 
 const W = Dimensions.get('window').width;

@@ -7,6 +7,7 @@ import { WebView } from 'react-native-webview';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
+import { useTheme } from '../src/context/ThemeContext';
 
 const STEPS = [
   { key: 'dispatched', label: 'Dispatchée', icon: 'send' },

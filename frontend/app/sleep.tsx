@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
+import { useTheme } from '../src/context/ThemeContext';
 
 const STAGE_COLORS: Record<number, string> = { 0: '#EF5350', 1: '#1565C0', 2: '#42A5F5', 3: '#AB47BC' };
 const STAGE_LABELS: Record<number, string> = { 0: 'Eveil', 1: 'Profond', 2: 'Leger', 3: 'REM' };

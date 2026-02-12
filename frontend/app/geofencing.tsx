@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
+import { useTheme } from '../src/context/ThemeContext';
 import { useRouter } from 'expo-router';
 
 export default function GeofencingScreen() {

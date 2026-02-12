@@ -6,6 +6,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
+import { useTheme } from '../src/context/ThemeContext';
 
 export default function SubscriberDetailScreen() {
   const { token } = useAuth();

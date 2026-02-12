@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
+import { useTheme } from '../src/context/ThemeContext';
 import { isBleAvailable, getBleManager, bytesToBase64, base64ToBytes } from '../src/services/ble';
 
 const BLE_SERVICES = [
