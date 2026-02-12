@@ -84,40 +84,88 @@ export default function VestConnectScreen() {
   }, [sendToBackend]);
 
   const connectVest = async () => {
-    if (Platform.OS !== 'web' || !('bluetooth' in navigator)) return;
     setBleStatus('scanning');
-    try {
-      const nav = navigator as any;
-      const bd = await nav.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: BLE_SERVICES.map(s => s.uuid) });
-      setDevice(bd);
-      setBleStatus('connecting');
-      bd.addEventListener('gattserverdisconnected', () => {
-        setBleStatus('idle');
-        if (pollRef.current) clearInterval(pollRef.current);
-      });
-      const server = await bd.gatt.connect();
-      let ok = false;
-      for (const svc of BLE_SERVICES) {
-        try {
-          const service = await server.getPrimaryService(svc.uuid);
-          const nc = await service.getCharacteristic(svc.notify);
-          await nc.startNotifications();
-          nc.addEventListener('characteristicvaluechanged', handleBleData);
-          ok = true;
-          if (svc.write) {
+
+    if (Platform.OS === 'web') {
+      if (!('bluetooth' in navigator)) return;
+      try {
+        const nav = navigator as any;
+        const bd = await nav.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: BLE_SERVICES.map(s => s.uuid) });
+        setDevice(bd);
+        setBleStatus('connecting');
+        bd.addEventListener('gattserverdisconnected', () => { setBleStatus('idle'); if (pollRef.current) clearInterval(pollRef.current); });
+        const server = await bd.gatt.connect();
+        let ok = false;
+        for (const svc of BLE_SERVICES) {
+          try {
+            const service = await server.getPrimaryService(svc.uuid);
+            const nc = await service.getCharacteristic(svc.notify);
+            await nc.startNotifications();
+            nc.addEventListener('characteristicvaluechanged', handleBleData);
+            ok = true;
+            if (svc.write) {
+              try { const wc = await service.getCharacteristic(svc.write); writeTime(wc); pollRef.current = setInterval(() => writeTime(), 30000); } catch {}
+            }
+            break;
+          } catch { continue; }
+        }
+        setBleStatus(ok ? 'connected' : 'idle');
+      } catch { setBleStatus('idle'); }
+    } else {
+      // Native BLE
+      const manager = getBleManager();
+      if (!manager) { setBleStatus('idle'); return; }
+      try {
+        if (Platform.OS === 'android') {
+          const { PermissionsAndroid } = require('react-native');
+          await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          ]);
+        }
+        let found = false;
+        manager.startDeviceScan(null, null, async (error: any, dev: any) => {
+          if (error || !dev) return;
+          const name = dev.name || dev.localName || '';
+          if (name.includes('Elder') || name.includes('AIRBAG') || name.includes('Gilet') || name.includes('Airbag')) {
+            if (found) return;
+            found = true;
+            manager.stopDeviceScan();
+            setBleStatus('connecting');
             try {
-              const wc = await service.getCharacteristic(svc.write);
-              writeCharRef.current = wc;
-              writeTime(wc);
-              pollRef.current = setInterval(() => writeTime(), 30000);
-            } catch {}
+              const connected = await dev.connect();
+              const discovered = await connected.discoverAllServicesAndCharacteristics();
+              setDevice(discovered);
+              for (const svc of BLE_SERVICES) {
+                try {
+                  discovered.monitorCharacteristicForService(svc.uuid, svc.notify, (err: any, char: any) => {
+                    if (err || !char?.value) return;
+                    const bytes = base64ToBytes(char.value);
+                    const raw = new TextDecoder('utf-8').decode(bytes);
+                    handleBleData({ target: { value: new DataView(bytes.buffer) } });
+                  });
+                  if (svc.write) {
+                    const writeNative = async () => {
+                      try {
+                        const now = new Date();
+                        const t = `time&${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
+                        const encoded = bytesToBase64(Array.from(new TextEncoder().encode(t)));
+                        await discovered.writeCharacteristicWithResponseForService(svc.uuid, svc.write, encoded);
+                      } catch {}
+                    };
+                    writeNative();
+                    pollRef.current = setInterval(writeNative, 30000);
+                  }
+                  setBleStatus('connected');
+                  break;
+                } catch { continue; }
+              }
+            } catch { setBleStatus('idle'); }
           }
-          break;
-        } catch { continue; }
-      }
-      setBleStatus(ok ? 'connected' : 'idle');
-    } catch {
-      setBleStatus('idle');
+        });
+        setTimeout(() => { if (!found) { manager.stopDeviceScan(); setBleStatus('idle'); } }, 15000);
+      } catch { setBleStatus('idle'); }
     }
   };
 
