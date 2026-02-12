@@ -46,8 +46,8 @@ export default function InterventionDetailScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSubmitting(false); }
   };
 
-  if (loading) return <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
-  if (!iv) return <SafeAreaView style={s.safe}><View style={s.center}><Text style={{color: Colors.textMuted}}>Intervention non trouvée</Text></View></SafeAreaView>;
+  if (loading) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (!iv) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><Text style={{color: Colors.textMuted}}>Intervention non trouvée</Text></View></SafeAreaView>;
 
   const benLoc = iv.beneficiary_location || {};
   const intLoc = iv.intervener_location || {};
@@ -78,7 +78,7 @@ export default function InterventionDetailScreen() {
     </script></body></html>`;
 
   return (
-    <SafeAreaView style={s.safe} testID="intervention-detail-screen">
+    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]} testID="intervention-detail-screen">
       <View style={s.topBar}>
         <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={s.backBtn}>
           <Ionicons name="chevron-back" size={22} color={Colors.textPrimary} />

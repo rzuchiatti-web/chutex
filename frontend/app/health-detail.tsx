@@ -75,7 +75,7 @@ export default function HealthDetailScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSavingThreshold(false); }
   };
 
-  if (!metric) return <SafeAreaView style={s.safe}><Text style={s.err}>Métrique non trouvée</Text></SafeAreaView>;
+  if (!metric) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><Text style={s.err}>Métrique non trouvée</Text></SafeAreaView>;
 
   const renderIcon = () => {
     if (metric.iconLib === 'MaterialCommunityIcons')
@@ -92,7 +92,7 @@ export default function HealthDetailScreen() {
   } : null;
 
   return (
-    <SafeAreaView style={s.safe} testID="health-detail-screen">
+    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]} testID="health-detail-screen">
       <View style={s.topBar}>
         <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={s.backBtn}>
           <Ionicons name="chevron-back" size={22} color={Colors.textPrimary} />

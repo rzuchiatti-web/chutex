@@ -56,15 +56,15 @@ export default function BeneficiaryDetailScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
-  if (loading) return <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
-  if (!data) return <SafeAreaView style={s.safe}><View style={s.center}><Text>Erreur de chargement</Text></View></SafeAreaView>;
+  if (loading) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (!data) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><Text>Erreur de chargement</Text></View></SafeAreaView>;
 
   const ben = data.beneficiary;
   const latestData: any = {};
   if (data.readings.length > 0) Object.assign(latestData, data.readings[0].data || {});
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity data-testid="back-btn" onPress={() => router.back()} style={s.backBtn}>
           <Ionicons name="chevron-back" size={22} color={Colors.textPrimary} />

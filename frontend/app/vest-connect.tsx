@@ -184,12 +184,12 @@ export default function VestConnectScreen() {
     } catch {}
   };
 
-  if (loading) return <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (loading) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
 
   // ========== NOT PAIRED ==========
   if (!isPaired) {
     return (
-      <SafeAreaView style={s.safe}>
+      <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
         <View style={s.topBar}>
           <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
           <Text style={s.topTitle}>Gilet Anti-Chute</Text>
@@ -219,7 +219,7 @@ export default function VestConnectScreen() {
   const statusColor = isActive || bleStatus === 'connected' ? Colors.success : Colors.textMuted;
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Gilet Anti-Chute</Text>

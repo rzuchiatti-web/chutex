@@ -277,13 +277,13 @@ export default function BraceletConnectScreen() {
     } catch {}
   };
 
-  if (loading) return <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (loading) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
 
   const stColor = isActive || bleStatus === 'connected' ? Colors.success : Colors.textMuted;
 
   // NOT PAIRED
   if (!isPaired && bleStatus !== 'connecting' && bleStatus !== 'scanning' && bleStatus !== 'connected') return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Bracelet Elio</Text>
@@ -307,7 +307,7 @@ export default function BraceletConnectScreen() {
 
   // SCANNING/CONNECTING
   if (bleStatus === 'scanning' || bleStatus === 'connecting') return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Bracelet Elio</Text>
@@ -324,7 +324,7 @@ export default function BraceletConnectScreen() {
   // PAIRED
   const cardBg = isActive || bleStatus === 'connected' ? '#E8F5E9' : Colors.subtle;
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Bracelet Elio</Text>

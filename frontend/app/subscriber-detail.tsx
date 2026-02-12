@@ -25,14 +25,14 @@ export default function SubscriberDetailScreen() {
     })();
   }, [subscriberId]);
 
-  if (loading) return <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
-  if (!data) return <SafeAreaView style={s.safe}><View style={s.center}><Text>Erreur</Text></View></SafeAreaView>;
+  if (loading) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (!data) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><Text>Erreur</Text></View></SafeAreaView>;
 
   const u = data.user;
   const TABS = [{id:'overview',l:'Aperçu'},{id:'alerts',l:`Alertes (${data.stats.total_alerts})`},{id:'escalations',l:`Escalades (${data.escalations.length})`},{id:'calls',l:`Appels (${data.calls.length})`}] as const;
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Fiche abonné</Text>

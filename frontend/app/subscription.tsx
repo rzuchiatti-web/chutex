@@ -79,13 +79,13 @@ export default function SubscriptionScreen() {
     } catch (e: any) { setAddResult({ error: e.message }); } finally { setAdding(false); }
   };
 
-  if (loading) return <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (loading) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
 
   const isCare = sub?.subscription_type === 'care';
   const hasSubscription = sub?.has_subscription;
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}>
           <Ionicons name="chevron-back" size={22} color={Colors.textPrimary} />

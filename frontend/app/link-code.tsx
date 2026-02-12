@@ -47,7 +47,7 @@ export default function LinkScreen() {
   const isGuardian = user?.role === 'guardian';
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>{isBen ? 'Partager mon profil' : 'Ajouter un bénéficiaire'}</Text>

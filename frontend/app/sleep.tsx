@@ -27,12 +27,12 @@ export default function SleepScreen() {
     ]).then(([s, h]) => { setSleep(s); setHistory(h); }).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <SafeAreaView style={s.safe}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (loading) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
 
   // No sleep data available
   if (!sleep || !sleep.stages || sleep.stages.length === 0) {
     return (
-      <SafeAreaView style={s.safe}>
+      <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
         <View style={s.topBar}>
           <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
           <Text style={s.topTitle}>Sommeil</Text>
@@ -51,7 +51,7 @@ export default function SleepScreen() {
   const qualityColor = (sleep?.sleep_quality || 0) >= 80 ? Colors.success : (sleep?.sleep_quality || 0) >= 60 ? '#FF9800' : Colors.destructive;
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Sommeil</Text>
