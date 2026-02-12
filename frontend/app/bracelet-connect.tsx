@@ -320,11 +320,9 @@ export default function BraceletConnectScreen() {
         <View style={s.card}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={s.sectionTitle}>Constantes</Text>
-            {bleStatus === 'connected' && (
-              <TouchableOpacity style={s.measureBtn} onPress={measureNow} disabled={measuring}>
-                {measuring ? <ActivityIndicator color="#FFF" size="small" /> : <><Ionicons name="refresh" size={14} color="#FFF" /><Text style={s.measureBtnT}>Mesurer</Text></>}
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity style={s.measureBtn} onPress={measureNow} disabled={measuring}>
+              {measuring ? <ActivityIndicator color="#FFF" size="small" /> : <><Ionicons name="refresh" size={14} color="#FFF" /><Text style={s.measureBtnT}>Mesurer</Text></>}
+            </TouchableOpacity>
           </View>
           <View style={s.vitalsGrid}>
             <VitalCard icon="heart" label="Pouls" value={vitals.heart_rate || '-'} unit="bpm" color="#E53935" />
