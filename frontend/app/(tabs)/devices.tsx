@@ -18,17 +18,20 @@ function DeviceManagement({ token }: { token: string }) {
   const [refreshing, setRefreshing] = useState(false);
   const [syncingDevice, setSyncingDevice] = useState<string | null>(null);
   const [vestStatus, setVestStatus] = useState<any>(null);
+  const [braceletStatus, setBraceletStatus] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
 
   const fetchDevices = useCallback(async () => {
     try {
-      const [devs, vs, sub] = await Promise.all([
+      const [devs, vs, bs, sub] = await Promise.all([
         apiFetch('/api/devices', {}, token),
         apiFetch('/api/vest/status', {}, token).catch(() => null),
+        apiFetch('/api/bracelet/status', {}, token).catch(() => null),
         apiFetch('/api/subscriptions/my', {}, token).catch(() => null),
       ]);
       setDevices(devs);
       setVestStatus(vs);
+      setBraceletStatus(bs);
       setSubscription(sub);
     } catch (e) { console.error(e); } finally { setLoading(false); setRefreshing(false); }
   }, [token]);
@@ -40,8 +43,12 @@ function DeviceManagement({ token }: { token: string }) {
       router.push('/vest-connect');
       return;
     }
-    if (deviceType === 'bracelet' && !subscription?.can_use_bracelet) {
-      Alert.alert('Abonnement requis', 'Un abonnement Standard ou Care est necessaire pour utiliser le bracelet Elio.');
+    if (deviceType === 'bracelet') {
+      if (!subscription?.can_use_bracelet) {
+        Alert.alert('Abonnement requis', 'Un abonnement Standard ou Care est necessaire pour utiliser le bracelet Elio.');
+        return;
+      }
+      router.push('/bracelet-connect');
       return;
     }
     setSyncingDevice(deviceType);
