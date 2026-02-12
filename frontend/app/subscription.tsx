@@ -122,7 +122,10 @@ export default function SubscriptionScreen() {
         <View style={s.card}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={s.sectionTitle}>Mes gardiens</Text>
-            <Text style={s.guardianCount}>{guardians.length} gardien{guardians.length > 1 ? 's' : ''}</Text>
+            <TouchableOpacity style={s.addGuardianBtn} onPress={() => { setShowAddGuardian(true); setAddResult(null); setGuardianPhone(''); }} data-testid="add-guardian-btn">
+              <Ionicons name="add" size={16} color="#FFF" />
+              <Text style={s.addGuardianBtnT}>Ajouter</Text>
+            </TouchableOpacity>
           </View>
 
           {guardians.length === 0 ? (
