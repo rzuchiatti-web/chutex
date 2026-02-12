@@ -9,7 +9,7 @@ from datetime import datetime
 
 BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', '').rstrip('/')
 if not BASE_URL:
-    BASE_URL = "https://pensive-kowalevski.preview.emergentagent.com"
+    BASE_URL = "https://guardian-alert-hub.preview.emergentagent.com"
 
 # Test credentials
 CREDENTIALS = {

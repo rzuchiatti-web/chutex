@@ -314,12 +314,12 @@ async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_cur
     try:
         twiml = VoiceResponse()
         # Use ElevenLabs AI voice instead of Polly
-        audio_url = f"https://pensive-kowalevski.preview.emergentagent.com/api/elevenlabs/audio/fall_detected"
+        audio_url = f"https://guardian-alert-hub.preview.emergentagent.com/api/elevenlabs/audio/fall_detected"
         twiml.play(audio_url)
         g = Gather(num_digits=1, timeout=15, action="/api/twilio/gather-response")
         twiml.append(g)
         # If no response, play no_response message
-        twiml.play(f"https://pensive-kowalevski.preview.emergentagent.com/api/elevenlabs/audio/no_response")
+        twiml.play(f"https://guardian-alert-hub.preview.emergentagent.com/api/elevenlabs/audio/no_response")
         call = twilio_client.calls.create(twiml=str(twiml), to=phone, from_=TWILIO_NUMBER)
         now = datetime.now(timezone.utc).isoformat()
         call_record = {
@@ -434,7 +434,7 @@ async def twilio_speech_response(request: Request):
         {"$set": {"response": speech_result, "answered": True, "speech_confirmed_ok": confirmed_ok and not needs_help}}
     )
 
-    base_url = "https://pensive-kowalevski.preview.emergentagent.com"
+    base_url = "https://guardian-alert-hub.preview.emergentagent.com"
     resp = VoiceResponse()
     if confirmed_ok and not needs_help:
         resp.play(f"{base_url}/api/elevenlabs/audio/confirmed_ok")
@@ -502,7 +502,7 @@ async def auto_escalation_protocol(alert: dict):
         await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "ai_calling", "escalation_id": esc['id']}})
 
         # Build base URL for audio
-        base_url = "https://pensive-kowalevski.preview.emergentagent.com"
+        base_url = "https://guardian-alert-hub.preview.emergentagent.com"
 
         # STEP 1: Call beneficiary with ElevenLabs voice + speech recognition
         ben_phone = norm_phone(ben.get('phone', ''))
