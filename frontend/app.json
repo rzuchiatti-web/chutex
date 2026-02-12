@@ -13,13 +13,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.chutex.app",
       "infoPlist": {
-        "NSBluetoothAlwaysUsageDescription": "Chutex utilise le Bluetooth pour se connecter a votre bracelet Elio et votre gilet anti-chute afin de surveiller votre sante en temps reel.",
-        "NSBluetoothPeripheralUsageDescription": "Chutex utilise le Bluetooth pour se connecter a votre bracelet Elio et votre gilet anti-chute.",
-        "UIBackgroundModes": [
-          "bluetooth-central",
-          "bluetooth-central"
-        ],
-        "ITSAppUsesNonExemptEncryption": false
+        "NSBluetoothAlwaysUsageDescription": "Chutex utilise le Bluetooth pour se connecter a votre bracelet et gilet anti-chute.",
+        "NSBluetoothPeripheralUsageDescription": "Chutex utilise le Bluetooth pour se connecter a vos appareils de sante.",
+        "UIBackgroundModes": ["bluetooth-central"]
       }
     },
     "android": {
@@ -28,7 +24,6 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "edgeToEdgeEnabled": true,
       "permissions": [
         "android.permission.BLUETOOTH",
         "android.permission.BLUETOOTH_ADMIN",
@@ -51,7 +46,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#000"
+          "backgroundColor": "#000000"
         }
       ]
     ],
