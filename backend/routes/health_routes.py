@@ -53,7 +53,48 @@ async def get_threshold(metric_id: str, user=Depends(get_current_user)):
 
 @router.get("/health/sleep")
 async def get_sleep_data(user=Depends(get_current_user)):
-    """Get sleep hypnogram data from the latest bracelet sync"""
+    """Get sleep hypnogram data - real bracelet data first, then simulated"""
+    # Try to find real sleep data from bracelet (cmd 0x53)
+    real_sleep = await db.device_readings.find(
+        {"user_id": user['id'], "device_type": "bracelet", "data.cmd": 0x53, "data.sleep_stages": {"$exists": True, "$ne": []}},
+        {"_id": 0}
+    ).sort("timestamp", -1).to_list(100)
+
+    if real_sleep:
+        # Combine all sleep stage packets into one hypnogram
+        stages = []
+        for r in reversed(real_sleep):
+            stages.extend(r['data'].get('sleep_stages', []))
+        if stages:
+            # Convert to standard format: 1=deep, 2=light, 3=REM, 0=awake
+            normalized = []
+            for s in stages:
+                if s == 1: normalized.append(1)  # deep
+                elif s == 2: normalized.append(2)  # light
+                elif s == 3: normalized.append(3)  # REM
+                else: normalized.append(0)  # awake
+
+            deep = normalized.count(1)
+            light = normalized.count(2)
+            rem = normalized.count(3)
+            awake = normalized.count(0)
+            total = len(normalized)
+            quality = min(100, int((deep * 2 + rem * 1.5 + light * 0.8) / max(total, 1) * 100))
+            return {
+                "stages": normalized,
+                "total_minutes": total,
+                "deep_minutes": deep,
+                "light_minutes": light,
+                "rem_minutes": rem,
+                "awake_minutes": awake,
+                "sleep_quality": quality,
+                "cycles": max(1, deep // 15),
+                "sleep_duration": round(total / 60, 1),
+                "date": real_sleep[0]['timestamp'],
+                "source": "bracelet",
+            }
+
+    # Fallback: check for simulated data
     reading = await db.device_readings.find_one(
         {"user_id": user['id'], "device_type": "bracelet", "data.sleep": {"$exists": True}},
         {"_id": 0},
@@ -62,11 +103,14 @@ async def get_sleep_data(user=Depends(get_current_user)):
     if reading and reading.get('data', {}).get('sleep'):
         sleep = reading['data']['sleep']
         sleep['date'] = reading['timestamp']
+        sleep['source'] = 'simulated'
         return sleep
+
     # Generate simulated data if none exists
     from utils import generate_sleep_hypnogram
     sleep = generate_sleep_hypnogram()
     sleep['date'] = datetime.now(timezone.utc).isoformat()
+    sleep['source'] = 'simulated'
     return sleep
 
 
