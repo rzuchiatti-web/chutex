@@ -192,7 +192,7 @@ export default function BraceletConnectScreen() {
   const stColor = isActive || bleStatus === 'connected' ? Colors.success : Colors.textMuted;
 
   // NOT PAIRED
-  if (!isPaired) return (
+  if (!isPaired && bleStatus !== 'connecting' && bleStatus !== 'scanning') return (
     <SafeAreaView style={s.safe}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
@@ -200,13 +200,33 @@ export default function BraceletConnectScreen() {
         <View style={{ width: 36 }} />
       </View>
       <View style={s.center}>
+        {errorMsg ? (
+          <View style={{ backgroundColor: '#FFE0E0', padding: 16, borderRadius: 12, marginBottom: 20, width: '100%' }}>
+            <Text style={{ fontSize: 13, color: Colors.destructive, fontWeight: '600' }}>{errorMsg}</Text>
+          </View>
+        ) : null}
         <Ionicons name="watch-outline" size={80} color={Colors.textMuted} />
         <Text style={s.emptyTitle}>Aucun bracelet connecte</Text>
         <Text style={s.emptyDesc}>Connectez votre bracelet Elio via Bluetooth pour suivre vos constantes de sante.</Text>
-        <TouchableOpacity style={s.pairBtn} onPress={connectBracelet} disabled={bleStatus !== 'idle'}>
-          {bleStatus !== 'idle' ? <><ActivityIndicator color="#FFF" size="small" /><Text style={s.pairBtnT}>Recherche...</Text></> : <><Ionicons name="bluetooth" size={20} color="#FFF" /><Text style={s.pairBtnT}>Appairer le bracelet</Text></>}
+        <TouchableOpacity style={s.pairBtn} onPress={connectBracelet}>
+          <Ionicons name="bluetooth" size={20} color="#FFF" /><Text style={s.pairBtnT}>Appairer le bracelet</Text>
         </TouchableOpacity>
-        {errorMsg ? <Text style={{ fontSize: 12, color: Colors.destructive, textAlign: 'center', marginTop: 12 }}>{errorMsg}</Text> : null}
+      </View>
+    </SafeAreaView>
+  );
+
+  // SCANNING/CONNECTING
+  if (bleStatus === 'scanning' || bleStatus === 'connecting') return (
+    <SafeAreaView style={s.safe}>
+      <View style={s.topBar}>
+        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+        <Text style={s.topTitle}>Bracelet Elio</Text>
+        <View style={{ width: 36 }} />
+      </View>
+      <View style={s.center}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={{ fontSize: 16, fontWeight: '700', color: Colors.textPrimary, marginTop: 16 }}>Connexion en cours...</Text>
+        {errorMsg ? <Text style={{ fontSize: 12, color: '#FF9800', textAlign: 'center', marginTop: 8 }}>{errorMsg}</Text> : null}
       </View>
     </SafeAreaView>
   );
