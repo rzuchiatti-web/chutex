@@ -56,11 +56,25 @@ export default function BraceletConnectScreen() {
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    apiFetch('/api/bracelet/status', {}, token).then(d => {
-      setBraceletData(d);
-      if (d) setVitals(v => ({ ...v, battery: d.battery || 0, heart_rate: d.heart_rate || 0, spo2: d.spo2 || 0, temperature: d.temperature || 0, steps: d.steps || 0, systolic: d.systolic || 0, diastolic: d.diastolic || 0 }));
-    }).catch(() => {}).finally(() => setLoading(false));
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+    const loadStatus = () => {
+      apiFetch('/api/bracelet/status', {}, token).then(d => {
+        setBraceletData(d);
+        if (d) setVitals(v => ({
+          ...v,
+          battery: d.battery || v.battery,
+          heart_rate: d.heart_rate || v.heart_rate,
+          spo2: d.spo2 || v.spo2,
+          temperature: d.temperature || v.temperature,
+          steps: d.steps || v.steps,
+          systolic: d.systolic || v.systolic,
+          diastolic: d.diastolic || v.diastolic,
+        }));
+      }).catch(() => {}).finally(() => setLoading(false));
+    };
+    loadStatus();
+    const iv = setInterval(loadStatus, 5000);
+    if (Platform.OS === 'web' && 'Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+    return () => { clearInterval(iv); if (pollRef.current) clearInterval(pollRef.current); };
   }, []);
 
   const isPaired = braceletData?.paired || braceletData?.connected || vitals.steps > 0 || vitals.heart_rate > 0;
