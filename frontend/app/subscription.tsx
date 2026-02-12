@@ -304,4 +304,16 @@ const s = StyleSheet.create({
   // SOS
   sosBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: Colors.destructive, borderRadius: 14, paddingVertical: 16 },
   sosBtnT: { fontSize: 17, fontWeight: '800', color: '#FFF' },
+  addGuardianBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 },
+  addGuardianBtnT: { fontSize: 12, fontWeight: '700', color: '#FFF' },
+  modalOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  modalContent: { backgroundColor: Colors.background, borderRadius: 16, padding: 20, width: '100%', maxWidth: 400 },
+  modalTitle: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },
+  modalDesc: { fontSize: 13, color: Colors.textMuted, lineHeight: 18, marginTop: 6 },
+  resultBox: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 10, marginBottom: 8 },
+  resultText: { flex: 1, fontSize: 13, fontWeight: '600' },
+  modalCancelBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.subtle, alignItems: 'center' },
+  modalCancelBtnT: { fontSize: 15, fontWeight: '700', color: Colors.textSecondary },
+  modalConfirmBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center' },
+  modalConfirmBtnT: { fontSize: 15, fontWeight: '700', color: '#FFF' },
 });
