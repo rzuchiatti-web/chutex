@@ -6,10 +6,75 @@ logger = logging.getLogger(__name__)
 BRACELET_SIM = {
     'heart_rate': (62, 95), 'hrv': (25, 80), 'stress': (15, 65), 'vo2max': (22, 48),
     'spo2': (95, 99), 'blood_pressure_systolic': (115, 138), 'blood_pressure_diastolic': (72, 88),
-    'blood_glucose': (78, 125), 'sleep_duration': (5.5, 8.5), 'sleep_quality': (55, 95),
-    'sleep_cycles': (3, 6), 'sleep_interruptions': (0, 4), 'temperature': (36.2, 37.3),
+    'blood_glucose': (78, 125), 'temperature': (36.2, 37.3),
     'calories': (800, 2200), 'steps': (1500, 9000),
 }
+
+
+def generate_sleep_hypnogram():
+    """Generate realistic sleep data matching bracelet 2208A format (minute by minute)"""
+    # 7-8 hours of sleep = 420-480 minutes
+    total_minutes = random.randint(390, 480)
+    stages = []
+    # Sleep architecture: fall asleep -> cycles of (light -> deep -> light -> REM)
+    # Each cycle ~90 min, 4-5 cycles per night
+    minute = 0
+    # Fall asleep phase (5-20 min of light sleep with some wakefulness)
+    fall_asleep = random.randint(5, 20)
+    for _ in range(fall_asleep):
+        stages.append(random.choice([2, 2, 2, 0]))  # mostly light, some awake
+        minute += 1
+
+    cycles = random.randint(4, 5)
+    for cycle in range(cycles):
+        if minute >= total_minutes:
+            break
+        # Light sleep (15-25 min)
+        for _ in range(random.randint(15, 25)):
+            if minute >= total_minutes: break
+            stages.append(2)
+            minute += 1
+        # Deep sleep (more in early cycles, less later)
+        deep_dur = random.randint(15, 30) if cycle < 2 else random.randint(5, 15)
+        for _ in range(deep_dur):
+            if minute >= total_minutes: break
+            stages.append(1)
+            minute += 1
+        # Light sleep transition (5-10 min)
+        for _ in range(random.randint(5, 10)):
+            if minute >= total_minutes: break
+            stages.append(2)
+            minute += 1
+        # REM (longer in later cycles)
+        rem_dur = random.randint(5, 15) if cycle < 2 else random.randint(15, 30)
+        for _ in range(rem_dur):
+            if minute >= total_minutes: break
+            stages.append(3)
+            minute += 1
+        # Brief awakening between cycles (0-3 min)
+        for _ in range(random.randint(0, 3)):
+            if minute >= total_minutes: break
+            stages.append(0)
+            minute += 1
+
+    deep = stages.count(1)
+    light = stages.count(2)
+    rem = stages.count(3)
+    awake = stages.count(0)
+    total = len(stages)
+    quality = min(100, int((deep * 2 + rem * 1.5 + light * 0.8) / total * 100)) if total > 0 else 0
+
+    return {
+        "stages": stages,  # minute-by-minute: 0=awake, 1=deep, 2=light, 3=REM
+        "total_minutes": total,
+        "deep_minutes": deep,
+        "light_minutes": light,
+        "rem_minutes": rem,
+        "awake_minutes": awake,
+        "sleep_quality": quality,
+        "cycles": cycles,
+        "sleep_duration": round(total / 60, 1),
+    }
 
 SCALE_SIM = {
     'weight': (58, 88), 'bmi': (19, 28), 'body_fat_pct': (15, 32), 'fat_mass': (8, 22),
