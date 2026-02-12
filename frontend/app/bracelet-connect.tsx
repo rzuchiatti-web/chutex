@@ -113,6 +113,9 @@ export default function BraceletConnectScreen() {
         setTimeout(() => sendCommand(0x28, [3, 1]), 300);
         setTimeout(() => sendCommand(0x28, [1, 1]), 600);
       }
+      if (tick === 3) { // read sleep data once after 15s
+        sendCommand(0x53, [0]); // get latest sleep data
+      }
     }, 5000);
   }, [sendCommand]);
 
