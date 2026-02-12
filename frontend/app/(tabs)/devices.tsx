@@ -115,7 +115,15 @@ function DeviceManagement({ token }: { token: string }) {
                 onPress={() => router.push('/vest-connect')}>
                 <Ionicons name="bluetooth" size={16} color={vestConnected ? Colors.success : Colors.primary} />
                 <Text style={[d.syncBtnText, vestConnected && { color: Colors.success }]}>
-                  {vestConnected ? 'Gilet connecte - Voir details' : 'Connecter via Bluetooth'}
+                  {vestConnected ? 'Gilet actif - Voir details' : 'Connecter via Bluetooth'}
+                </Text>
+              </TouchableOpacity>
+            ) : isBracelet ? (
+              <TouchableOpacity testID="connect-bracelet-ble-btn" style={[d.syncBtn, braceletConnected && { borderColor: Colors.success }, needsSub && { opacity: 0.5 }]}
+                onPress={() => syncDevice('bracelet')} disabled={needsSub}>
+                <Ionicons name="bluetooth" size={16} color={braceletConnected ? Colors.success : Colors.primary} />
+                <Text style={[d.syncBtnText, braceletConnected && { color: Colors.success }]}>
+                  {braceletConnected ? 'Bracelet actif - Voir details' : needsSub ? 'Abonnement requis' : 'Connecter via Bluetooth'}
                 </Text>
               </TouchableOpacity>
             ) : (
