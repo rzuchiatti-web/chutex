@@ -208,6 +208,58 @@ export default function SubscriptionScreen() {
           <Text style={s.sosBtnT}>SOS Urgence</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Add Guardian Modal */}
+      {showAddGuardian && (
+        <View style={s.modalOverlay}>
+          <View style={s.modalContent}>
+            <Text style={s.modalTitle}>Ajouter un gardien</Text>
+            <Text style={s.modalDesc}>Renseignez le numero de telephone de votre proche. S'il a deja un compte, il recevra une notification. Sinon, un SMS d'invitation lui sera envoye.</Text>
+            {Platform.OS === 'web' ? (
+              <div style={{ marginTop: 12, marginBottom: 12 }}>
+                <input
+                  data-testid="guardian-phone-input"
+                  type="tel"
+                  style={{ width: '100%', fontSize: 16, padding: '14px 12px', borderRadius: 12, border: `1.5px solid ${Colors.border}`, outline: 'none', backgroundColor: Colors.subtle, fontFamily: 'inherit', boxSizing: 'border-box' as any }}
+                  placeholder="+33 6 12 34 56 78"
+                  value={guardianPhone}
+                  onChange={(e: any) => setGuardianPhone(e.target.value)}
+                />
+              </div>
+            ) : (
+              <View style={{ marginTop: 12, marginBottom: 12 }}>
+                <View style={{ backgroundColor: Colors.subtle, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, paddingHorizontal: 12 }}>
+                  <TextInput
+                    testID="guardian-phone-input"
+                    style={{ fontSize: 16, paddingVertical: 14, color: Colors.textPrimary }}
+                    placeholder="+33 6 12 34 56 78"
+                    placeholderTextColor={Colors.textMuted}
+                    value={guardianPhone}
+                    onChangeText={setGuardianPhone}
+                    keyboardType="phone-pad"
+                  />
+                </View>
+              </View>
+            )}
+            {addResult && (
+              <View style={[s.resultBox, { backgroundColor: addResult.error ? Colors.destructive + '10' : addResult.linked ? Colors.success + '10' : '#FF9800' + '10' }]}>
+                <Ionicons name={addResult.error ? "alert-circle" : addResult.linked ? "checkmark-circle" : "send"} size={18} color={addResult.error ? Colors.destructive : addResult.linked ? Colors.success : '#FF9800'} />
+                <Text style={[s.resultText, { color: addResult.error ? Colors.destructive : addResult.linked ? Colors.success : '#FF9800' }]}>
+                  {addResult.error || addResult.message || 'OK'}
+                </Text>
+              </View>
+            )}
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
+              <TouchableOpacity style={s.modalCancelBtn} onPress={() => setShowAddGuardian(false)}>
+                <Text style={s.modalCancelBtnT}>Annuler</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={s.modalConfirmBtn} onPress={addGuardian} disabled={adding || !guardianPhone.trim()} data-testid="confirm-add-guardian">
+                {adding ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={s.modalConfirmBtnT}>Ajouter</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
