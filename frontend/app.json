@@ -1,22 +1,38 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "Chutex",
+    "slug": "chutex",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "chutex",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "owner": "chutex",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.chutex.app",
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "Chutex utilise le Bluetooth pour se connecter a votre bracelet Elio et votre gilet anti-chute afin de surveiller votre sante en temps reel.",
+        "NSBluetoothPeripheralUsageDescription": "Chutex utilise le Bluetooth pour se connecter a votre bracelet Elio et votre gilet anti-chute.",
+        "UIBackgroundModes": ["bluetooth-central"]
+      }
     },
     "android": {
+      "package": "com.chutex.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -34,7 +50,14 @@
           "backgroundColor": "#000"
         }
       ],
-      "expo-barcode-scanner"
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": true,
+          "modes": ["peripheral", "central"],
+          "bluetoothAlwaysPermission": "Chutex utilise le Bluetooth pour surveiller votre sante en temps reel."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
