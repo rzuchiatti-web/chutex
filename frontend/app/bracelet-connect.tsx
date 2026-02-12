@@ -159,40 +159,28 @@ export default function BraceletConnectScreen() {
       const server = await bd.gatt.connect();
       setErrorMsg('GATT connecte, recherche service fff0...');
       try {
-        const svcErr_msg = '';
-        let service: any = null;
-        try {
-          service = await server.getPrimaryService(BLE_SERVICE_UUID);
-        } catch {
-          const services = await server.getPrimaryServices();
-          for (const svc of services) {
-            if (svc.uuid === BLE_SERVICE_UUID || svc.uuid.includes('fff0')) {
-              service = svc;
-              break;
-            }
-          }
-        }
-        if (!service) {
-          setErrorMsg('Service BLE fff0 non accessible');
-          setBleStatus('idle');
-          return;
-        }
-        setErrorMsg('Service trouve, acces caracteristiques...');
+        // Try all available services since fff0 may not be directly accessible
+        const services = await server.getPrimaryServices();
+        const svcUuids = services.map((s: any) => s.uuid);
+        setErrorMsg(`Services: ${svcUuids.join(', ')}`);
+        
         let notifyChar: any = null;
         let wChar: any = null;
-        try {
-          notifyChar = await service.getCharacteristic(BLE_NOTIFY_UUID);
-        } catch {
-          // Try to find notify characteristic by scanning all
-          const chars = await service.getCharacteristics();
-          for (const c of chars) {
-            if (c.properties.notify || c.properties.indicate) notifyChar = c;
-            if (c.properties.write || c.properties.writeWithoutResponse) wChar = c;
-          }
+        
+        for (const svc of services) {
+          try {
+            const chars = await svc.getCharacteristics();
+            for (const c of chars) {
+              if ((c.properties.notify || c.properties.indicate) && !notifyChar) {
+                notifyChar = c;
+              }
+              if ((c.properties.write || c.properties.writeWithoutResponse) && !wChar) {
+                wChar = c;
+              }
+            }
+          } catch { continue; }
         }
-        if (!wChar) {
-          try { wChar = await service.getCharacteristic(BLE_WRITE_UUID); } catch {}
-        }
+        
         if (notifyChar) {
           await notifyChar.startNotifications();
           notifyChar.addEventListener('characteristicvaluechanged', handleBleData);
@@ -201,11 +189,11 @@ export default function BraceletConnectScreen() {
           setErrorMsg('');
           startPolling();
         } else {
-          setErrorMsg('Caracteristique notify non trouvee dans service fff0');
+          setErrorMsg(`Services: ${svcUuids.join(', ')} - Aucune caracteristique notify`);
           setBleStatus('idle');
         }
       } catch (innerErr: any) {
-        setErrorMsg(`Erreur service: ${innerErr?.message || String(innerErr)}`);
+        setErrorMsg(`Erreur: ${innerErr?.message || String(innerErr)}`);
         setBleStatus('idle');
       }
     } catch (e: any) {
