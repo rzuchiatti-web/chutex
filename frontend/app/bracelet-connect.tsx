@@ -238,7 +238,7 @@ export default function BraceletConnectScreen() {
   const stColor = isActive || bleStatus === 'connected' ? Colors.success : Colors.textMuted;
 
   // NOT PAIRED
-  if (!isPaired && bleStatus !== 'connecting' && bleStatus !== 'scanning') return (
+  if (!isPaired && bleStatus !== 'connecting' && bleStatus !== 'scanning' && bleStatus !== 'connected') return (
     <SafeAreaView style={s.safe}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
