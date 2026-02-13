@@ -2,34 +2,30 @@
 
 ## Design System
 - Noir & blanc, fond beige #F5F0EB + fond pastel CSS, glassmorphisme iOS
-- Glass: backdrop-blur(40px), rgba(255,255,255,0.45), border rgba(255,255,255,0.7)
 - Boutons noirs pill, uppercase, bold
+- Images 3D medicales (coeur, sang, lune, thermometre)
 
 ## Architecture  
 - Frontend: React Native / Expo / Expo Router (TypeScript)
 - Backend: FastAPI (Python) - MongoDB - JWT Auth
+- i18n: FR, EN, DE, ES, IT (I18nContext)
 
-## Credentials
-- Beneficiaire: robert.martin@email.fr / demo123 (Saint-Chamond)
-- Gardien: claire.martin@email.fr / demo123
-- Intervenant Care: ludivine.moutio@care.fr / demo123 (Saint-Etienne)
-- Admin: admin@chutex.fr / demo123
-- Teleassistance: plateau@chutex.fr / demo123
-
-## Session 7 (Feb 13, 2026)
+## Session 8 (Feb 13, 2026)
 ### Accompli
-- Switch gardien → beneficiaire (backend + page formulaire + profil)
-- Inscription simplifiee (seulement Beneficiaire/Gardien, plus admin/teleassistance)
-- Inscription enrichie avec descriptions roles
-- Page activate-beneficiary avec formulaire complet 2 etapes
-- Health detail: image 3D grande (180px) + carte glass qui chevauche (effet blur)
-- Backend: activate-beneficiary, switch-role, update-profile, change-password, contact form
-- Selecteur langue FR dans le header
-- Bouton supprimer dans fiche gardien
-- Images rappels HD (goutte, pilule, reveil fond noir)
+- i18n complet 5 langues (FR/EN/DE/ES/IT) avec I18nProvider
+- Tab labels dynamiques selon la langue
+- Selecteur langue avec drapeaux dans le profil (persiste AsyncStorage)
+- Drapeau actif dans le header dashboard
+- Seuils d'alertes fonctionnels (sauvegarde + rechargement backend)
+- Suppression rappels fonctionnelle (confirmation modal custom, pas Alert.alert)
+- Image sante 220px avec chevauchement glass
+- Calendrier inline sur le graphique
+- Analyse IA par metrique
+- Switch bidirectionnel gardien/beneficiaire
+- Inscription simplifiee (seulement benef/gardien)
 
 ## Backlog
-- i18n FR/EN complet
-- Glassmorphisme ecrans secondaires (backoffice, devices, teleconsult)
+- Glassmorphisme ecrans secondaires (devices, teleconsult, backoffice)
+- Animation switch profil dans la carte dashboard
 - Build natif Android/iOS
 - Integration bracelet J-Style / Balance Lefu
