@@ -1,0 +1,124 @@
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useAuth } from '../src/context/AuthContext';
+import { useTheme } from '../src/context/ThemeContext';
+import { apiFetch } from '../src/services/api';
+
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const GlassCard = ({ children, style }: any) => (
+  <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12, ...glass }, style]}>{children}</View>
+);
+
+const WebInput = ({ label, val, onChange, placeholder, type }: any) => Platform.OS === 'web' ? (
+  <div style={{ marginBottom: 14 }}>
+    <div style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>{label}</div>
+    <input type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
+      style={{ width: '100%', fontSize: 15, padding: '14px', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} />
+  </div>
+) : null;
+
+export default function ActivateBeneficiaryScreen() {
+  const { colors } = useTheme();
+  const { token } = useAuth();
+  const router = useRouter();
+  const [step, setStep] = useState(0);
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('');
+  const [address, setAddress] = useState('');
+  const [heightCm, setHeightCm] = useState('');
+  const [weightKg, setWeightKg] = useState('');
+  const [bloodType, setBloodType] = useState('');
+  const [allergies, setAllergies] = useState('');
+  const [medConditions, setMedConditions] = useState('');
+  const [ecName, setEcName] = useState('');
+  const [ecPhone, setEcPhone] = useState('');
+  const [doctorName, setDoctorName] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const submit = async () => {
+    setSaving(true);
+    try {
+      await apiFetch('/api/auth/activate-beneficiary', { method: 'POST', body: JSON.stringify({
+        date_of_birth: dob, gender, address, height_cm: heightCm ? parseFloat(heightCm) : null,
+        weight_kg: weightKg ? parseFloat(weightKg) : null, blood_type: bloodType,
+        allergies, medical_conditions: medConditions,
+        emergency_contact_name: ecName, emergency_contact_phone: ecPhone, doctor_name: doctorName,
+      }) }, token);
+      Alert.alert('Espace beneficiaire active', 'Reconnectez-vous pour acceder a votre espace beneficiaire.');
+      router.back();
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
+        <TouchableOpacity onPress={() => { if (step > 0) setStep(step - 1); else router.back(); }} style={{ padding: 4, marginRight: 12 }}>
+          <Ionicons name="chevron-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#000' }}>Espace beneficiaire</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
+        {/* Progress */}
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 6 }}>
+          {[0, 1].map(i => <View key={i} style={{ width: 40, height: 3, borderRadius: 2, backgroundColor: i <= step ? '#000' : '#DDD' }} />)}
+        </View>
+        <Text style={{ fontSize: 11, color: '#888', textAlign: 'center', marginBottom: 20 }}>Etape {step + 1} / 2</Text>
+
+        {step === 0 && (
+          <GlassCard>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#000', marginBottom: 16 }}>Informations personnelles</Text>
+            <WebInput label="Date de naissance" val={dob} onChange={setDob} placeholder="JJ/MM/AAAA" />
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Genre</Text>
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+              {['Homme', 'Femme', 'Autre'].map(g => <TouchableOpacity key={g} style={{ paddingVertical: 10, paddingHorizontal: 18, borderRadius: 9999, borderWidth: 2, borderColor: gender === g ? '#000' : '#DDD', backgroundColor: gender === g ? 'rgba(0,0,0,0.05)' : 'transparent' }} onPress={() => setGender(g)}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: gender === g ? '#000' : '#888' }}>{g}</Text>
+              </TouchableOpacity>)}
+            </View>
+            <WebInput label="Adresse" val={address} onChange={setAddress} placeholder="14 rue de la Republique, Saint-Chamond" />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <View style={{ flex: 1 }}><WebInput label="Taille (cm)" val={heightCm} onChange={setHeightCm} placeholder="170" type="number" /></View>
+              <View style={{ flex: 1 }}><WebInput label="Poids (kg)" val={weightKg} onChange={setWeightKg} placeholder="70" type="number" /></View>
+            </View>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Groupe sanguin</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+              {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(b => <TouchableOpacity key={b} style={{ paddingVertical: 8, paddingHorizontal: 14, borderRadius: 9999, borderWidth: 2, borderColor: bloodType === b ? '#000' : '#DDD', backgroundColor: bloodType === b ? 'rgba(0,0,0,0.05)' : 'transparent' }} onPress={() => setBloodType(b)}>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: bloodType === b ? '#000' : '#888' }}>{b}</Text>
+              </TouchableOpacity>)}
+            </View>
+          </GlassCard>
+        )}
+
+        {step === 1 && (
+          <GlassCard>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#000', marginBottom: 16 }}>Informations medicales</Text>
+            <WebInput label="Allergies connues" val={allergies} onChange={setAllergies} placeholder="Penicilline, arachides..." />
+            <WebInput label="Pathologies" val={medConditions} onChange={setMedConditions} placeholder="Diabete, hypertension..." />
+            <WebInput label="Medecin traitant" val={doctorName} onChange={setDoctorName} placeholder="Dr. Dupont" />
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', marginTop: 8, marginBottom: 12 }}>Contact d'urgence</Text>
+            <WebInput label="Nom du contact" val={ecName} onChange={setEcName} placeholder="Marie Dupont" />
+            <WebInput label="Telephone urgence" val={ecPhone} onChange={setEcPhone} placeholder="06 98 76 54 32" type="tel" />
+          </GlassCard>
+        )}
+
+        <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+          {step > 0 && <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setStep(0)}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Retour</Text>
+          </TouchableOpacity>}
+          {step === 0 ? (
+            <TouchableOpacity style={{ flex: 1, backgroundColor: '#000', paddingVertical: 14, borderRadius: 9999, alignItems: 'center' }} onPress={() => setStep(1)}>
+              <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>SUIVANT</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={{ flex: 1, backgroundColor: '#000', paddingVertical: 14, borderRadius: 9999, alignItems: 'center' }} onPress={submit} disabled={saving}>
+              {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>ACTIVER</Text>}
+            </TouchableOpacity>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
