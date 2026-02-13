@@ -178,50 +178,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         {guardians.length === 0 && <Text style={{ fontSize: 12, color: '#888', textAlign: 'center', paddingVertical: 8 }}>Aucun gardien</Text>}
       </GlassCard>
 
-      {/* Guardian Detail Modal */}
-      {showGuardianDetail && (
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20, zIndex: 100 }}>
-          <View style={{ backgroundColor: '#FFF', borderRadius: 24, padding: 24, maxHeight: '80%' }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Fiche Gardien</Text>
-              <TouchableOpacity onPress={() => setShowGuardianDetail(null)} style={{ padding: 4 }}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
-            </View>
-            <View style={{ alignItems: 'center', marginBottom: 16 }}>
-              <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#FFB74D', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 28, fontWeight: '800', color: '#FFF' }}>{showGuardianDetail.name?.charAt(0)}</Text>
-              </View>
-              <Text style={{ fontSize: 20, fontWeight: '800', color: '#000', marginTop: 10 }}>{showGuardianDetail.name}</Text>
-              {showGuardianDetail.is_intervention_provider && <View style={{ backgroundColor: '#C8E6C9', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, marginTop: 6 }}><Text style={{ fontSize: 10, fontWeight: '800', color: '#2E7D32' }}>INTERVENANT CARE</Text></View>}
-            </View>
-            {[
-              { icon: 'call-outline', label: 'Telephone', val: showGuardianDetail.phone },
-              { icon: 'mail-outline', label: 'Email', val: showGuardianDetail.email },
-              { icon: 'location-outline', label: 'Adresse', val: showGuardianDetail.address },
-              { icon: 'people-outline', label: 'Lien', val: showGuardianDetail.relationship || showGuardianDetail.guardian_type },
-              { icon: 'briefcase-outline', label: 'Profession', val: showGuardianDetail.profession },
-              { icon: 'business-outline', label: 'Structure', val: showGuardianDetail.structure_name },
-            ].filter(r => r.val).map((r, i) => (
-              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
-                <Ionicons name={r.icon as any} size={18} color="#888" />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>{r.label}</Text>
-                  <Text style={{ fontSize: 15, fontWeight: '600', color: '#000', marginTop: 2 }}>{r.val}</Text>
-                </View>
-              </View>
-            ))}
-            {showGuardianDetail.latitude && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 }}>
-                <Ionicons name="navigate-outline" size={18} color="#888" />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>Coordonnees</Text>
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#000', marginTop: 2 }}>{showGuardianDetail.latitude?.toFixed(4)}, {showGuardianDetail.longitude?.toFixed(4)}</Text>
-                </View>
-              </View>
-            )}
-          </View>
-        </View>
-      )}
-
       {/* Guardian Requests - Beneficiary accepts/refuses */}
       {guardianRequests.length > 0 && guardianRequests.map((req: any) => (
         <GlassCard key={req.id} colors={colors} style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
