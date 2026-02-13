@@ -121,11 +121,14 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <Text style={{ fontSize: 20, fontWeight: '800', color: '#000' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 18, fontWeight: '800', color: colors.textPrimary }}>{user.name}</Text>
-          <Text style={{ fontSize: 12, color: colors.textMuted, fontWeight: '600', letterSpacing: 1 }}>CHUTEX</Text>
+          <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{user.name}</Text>
+          <Text style={{ fontSize: 12, color: '#888', fontWeight: '600', letterSpacing: 1 }}>CHUTEX</Text>
         </View>
-        <TouchableOpacity style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: colors.border, marginRight: 8 }}>
-          <Ionicons name="notifications-outline" size={18} color={colors.textPrimary} />
+        <TouchableOpacity style={{ width: 30, height: 30, borderRadius: 15, overflow: 'hidden', marginRight: 8, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent: 'center', alignItems: 'center', backgroundColor: '#002395' }}>
+          <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>FR</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.5)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginRight: 8, ...glass }}>
+          <Ionicons name="notifications-outline" size={18} color="#000" />
           {guardianRequests.length > 0 && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: colors.background }} />}
         </TouchableOpacity>
       </View>
