@@ -358,30 +358,24 @@ async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_cur
     if not phone:
         raise HTTPException(status_code=400, detail="Pas de numero de telephone")
 
-    # Choose contextual message based on alert type
     alert_type = alert.get('alert_type', 'sos')
-    message_key = 'fall_detected'
-    if alert_type == 'heart_rate' or 'cardiaque' in alert.get('message', '').lower():
+    message_key = 'sos_manual'
+    if alert_type == 'fall' or 'chute' in alert.get('message', '').lower():
+        message_key = 'fall_detected'
+    elif alert_type == 'heart_rate' or 'cardiaque' in alert.get('message', '').lower():
         message_key = 'heart_anomaly'
     elif alert_type == 'spo2':
         message_key = 'spo2_low'
     elif 'inactiv' in alert.get('message', '').lower():
         message_key = 'inactivity_alert'
-    elif alert_type == 'sos':
-        message_key = 'sos_manual'
 
     try:
         base_url = "https://beneficiary-hub-7.preview.emergentagent.com"
         twiml = VoiceResponse()
-        # Play contextual ElevenLabs AI voice
         twiml.play(f"{base_url}/api/elevenlabs/audio/{message_key}")
-        # Use speech recognition instead of DTMF keys
-        gather = Gather(
-            input='speech', language='fr-FR', timeout=10, speech_timeout=5,
-            action=f"{base_url}/api/twilio/speech-response"
-        )
+        gather = Gather(input='speech', language='fr-FR', timeout=10, speech_timeout=5,
+                        action=f"{base_url}/api/twilio/speech-response")
         twiml.append(gather)
-        # If no response, play no_response message
         twiml.play(f"{base_url}/api/elevenlabs/audio/no_response")
 
         call = twilio_client.calls.create(twiml=str(twiml), to=phone, from_=TWILIO_NUMBER,
@@ -393,8 +387,7 @@ async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_cur
             "target_type": "beneficiary", "target_id": ben['id'], "target_name": ben['name'],
             "target_phone": phone, "status": "initiated", "operator_id": user['id'],
             "created_at": now, "answered": False, "response": None,
-            "voice_engine": "elevenlabs", "input_mode": "speech",
-            "message_key": message_key,
+            "voice_engine": "elevenlabs", "input_mode": "speech", "message_key": message_key,
         }
         await db.twilio_calls.insert_one(call_record)
         return {"call_sid": call.sid, "call_id": call_record['id'], "status": "initiated", "phone": phone, "message_key": message_key}
@@ -405,7 +398,7 @@ async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_cur
 
 @router.post("/twilio/call/guardian")
 async def twilio_call_guardian(request: Request, user=Depends(get_current_user)):
-    """Trigger a real Twilio call to a guardian"""
+    """Appel vocal IA au gardien - reconnaissance vocale, pas de touches"""
     body = await request.json()
     alert_id = body.get('alert_id', '')
     guardian_id = body.get('guardian_id', '')
@@ -418,15 +411,45 @@ async def twilio_call_guardian(request: Request, user=Depends(get_current_user))
     phone = phone_number or (guardian.get('phone', '') if guardian else '')
     if not phone:
         raise HTTPException(status_code=400, detail="Pas de numero de telephone")
-    ben_name = alert.get('beneficiary_name', 'un beneficiaire') if alert else 'un beneficiaire'
+    ben_name = alert.get('beneficiary_name', 'votre proche') if alert else 'votre proche'
+    alert_msg = alert.get('message', 'une alerte') if alert else 'une alerte'
+
     try:
+        base_url = "https://beneficiary-hub-7.preview.emergentagent.com"
+        # Generate dynamic guardian message with ElevenLabs
+        guardian_audio_key = f"guardian_call_{alert_id}_{guardian_id}"
+        guardian_text = (
+            f"Bonjour, ici le plateau d'ecoute Chutex. "
+            f"Une alerte a ete declenchee pour {ben_name}. {alert_msg}. "
+            f"Nous n'avons pas pu confirmer que tout va bien. "
+            f"Pouvez-vous intervenir ? Dites oui si vous pouvez vous rendre sur place, "
+            f"ou non si vous ne pouvez pas."
+        )
+        audio = generate_speech(guardian_text)
+        if audio:
+            import base64
+            await db.audio_cache.update_one(
+                {"key": guardian_audio_key},
+                {"$set": {"key": guardian_audio_key, "audio_b64": base64.b64encode(audio).decode(), "text": guardian_text}},
+                upsert=True
+            )
+
         twiml = VoiceResponse()
-        twiml.say(f"Bonjour, ici Chutex, service de teleassistance. Une alerte a ete declenchee pour {ben_name}.", voice='Polly.Lea', language='fr-FR')
-        twiml.pause(length=1)
-        g = Gather(num_digits=1, timeout=10)
-        g.say("Appuyez sur 1 si vous pouvez intervenir. Appuyez sur 2 pour transferer.", voice='Polly.Lea', language='fr-FR')
-        twiml.append(g)
-        call = twilio_client.calls.create(twiml=str(twiml), to=phone, from_=TWILIO_NUMBER)
+        if audio:
+            twiml.play(f"{base_url}/api/elevenlabs/audio/{guardian_audio_key}")
+        else:
+            twiml.say(guardian_text, voice='Polly.Lea', language='fr-FR')
+
+        # Listen for guardian's vocal response
+        gather = Gather(input='speech', language='fr-FR', timeout=10, speech_timeout=5,
+                        action=f"{base_url}/api/twilio/guardian-speech-response?alert_id={alert_id}&guardian_id={guardian_id}")
+        twiml.append(gather)
+        # No response
+        twiml.say("Nous n'avons pas recu de reponse. Nous contactons un autre gardien. Merci.", voice='Polly.Lea', language='fr-FR')
+
+        call = twilio_client.calls.create(twiml=str(twiml), to=phone, from_=TWILIO_NUMBER,
+                                           status_callback=f"{base_url}/api/twilio/status",
+                                           status_callback_event=['completed', 'busy', 'no-answer', 'failed'])
         now = datetime.now(timezone.utc).isoformat()
         call_record = {
             "id": str(uuid.uuid4()), "call_sid": call.sid, "alert_id": alert_id,
@@ -434,6 +457,7 @@ async def twilio_call_guardian(request: Request, user=Depends(get_current_user))
             "target_name": guardian['name'] if guardian else 'Gardien',
             "target_phone": phone, "status": "initiated", "operator_id": user['id'],
             "created_at": now, "answered": False, "response": None,
+            "voice_engine": "elevenlabs", "input_mode": "speech",
         }
         await db.twilio_calls.insert_one(call_record)
         return {"call_sid": call.sid, "call_id": call_record['id'], "status": "initiated", "phone": phone}
@@ -444,14 +468,14 @@ async def twilio_call_guardian(request: Request, user=Depends(get_current_user))
 
 @router.get("/twilio/twiml/beneficiary")
 async def twiml_beneficiary(request: Request):
-    alert_id = request.query_params.get('alert_id', '')
+    """TwiML for beneficiary call - speech recognition, no DTMF"""
+    base_url = "https://beneficiary-hub-7.preview.emergentagent.com"
     resp = VoiceResponse()
-    resp.say("Bonjour, ici Chutex, service de teleassistance intelligente.", voice='Polly.Lea', language='fr-FR')
-    resp.pause(length=1)
-    g = Gather(num_digits=1, timeout=10)
-    g.say("Une alerte a ete declenchee. Appuyez sur 1 si tout va bien. Appuyez sur 2 pour de l'aide.", voice='Polly.Lea', language='fr-FR')
-    resp.append(g)
-    resp.say("Nous n'avons pas recu de reponse. Nous contactons vos gardiens.", voice='Polly.Lea', language='fr-FR')
+    resp.play(f"{base_url}/api/elevenlabs/audio/fall_detected")
+    gather = Gather(input='speech', language='fr-FR', timeout=10, speech_timeout=5,
+                    action=f"{base_url}/api/twilio/speech-response")
+    resp.append(gather)
+    resp.play(f"{base_url}/api/elevenlabs/audio/no_response")
     from starlette.responses import Response
     return Response(content=str(resp), media_type="application/xml")
 
