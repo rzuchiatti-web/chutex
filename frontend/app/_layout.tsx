@@ -20,6 +20,7 @@ function useWebBackground() {
 function RootNav() {
   const { user, loading } = useAuth();
   const { colors, isDark } = useTheme();
+  useWebBackground();
 
   if (loading) {
     return (
