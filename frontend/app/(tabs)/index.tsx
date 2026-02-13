@@ -8,6 +8,7 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { useI18n } from '../../src/context/I18nContext';
 import { apiFetch } from '../../src/services/api';
 import { requestNotificationPermission, startReminderChecker, notifyAlert, notifyIntervention } from '../../src/services/notifications';
+import { FloatingNav } from '../../src/components/FloatingNav';
 
 const HEALTH_IMAGES = {
   heart: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/u3ch46l8_hearth%20red%20app%20healthbeat%20Chutex.png',
@@ -735,11 +736,14 @@ export default function Dashboard() {
   const effectiveRole = user.active_role || user.role;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="dashboard-screen">
-      {effectiveRole === 'guardian' ? <GuardianHome token={token} user={user} />
-      : effectiveRole === 'teleassistance' ? <TeleassistanceHome token={token} user={user} />
-      : effectiveRole === 'admin' ? <AdminHome token={token} user={user} />
-      : <BeneficiaryHome token={token} user={user} />}
-    </SafeAreaView>
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="dashboard-screen">
+        {effectiveRole === 'guardian' ? <GuardianHome token={token} user={user} />
+        : effectiveRole === 'teleassistance' ? <TeleassistanceHome token={token} user={user} />
+        : effectiveRole === 'admin' ? <AdminHome token={token} user={user} />
+        : <BeneficiaryHome token={token} user={user} />}
+      </SafeAreaView>
+      <FloatingNav />
+    </View>
   );
 }
