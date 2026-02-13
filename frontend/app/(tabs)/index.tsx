@@ -632,7 +632,7 @@ export default function Dashboard() {
   const { colors } = useTheme();
   if (!user || !token) return null;
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} testID="dashboard-screen">
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }} testID="dashboard-screen">
       {user.role === 'guardian' ? <GuardianHome token={token} user={user} />
       : user.role === 'teleassistance' ? <TeleassistanceHome token={token} user={user} />
       : user.role === 'admin' ? <AdminHome token={token} user={user} />
