@@ -42,7 +42,7 @@ async def update_activation_code(code_id: str, data: ActivationCodeUpdate, user=
         raise HTTPException(status_code=403, detail="Admin requis")
     update = {k: v for k, v in data.dict().items() if v is not None}
     if update:
-        await db.activation_codes.update_one({"id": code_id}, {"$set": update})
+        await db.activation_codes.update_one({"$or": [{"id": code_id}, {"code": code_id}]}, {"$set": update})
     return {"status": "updated"}
 
 
@@ -50,11 +50,11 @@ async def update_activation_code(code_id: str, data: ActivationCodeUpdate, user=
 async def toggle_activation_code(code_id: str, user=Depends(get_current_user)):
     if user['role'] != 'admin':
         raise HTTPException(status_code=403, detail="Admin requis")
-    code_doc = await db.activation_codes.find_one({"id": code_id}, {"_id": 0})
+    code_doc = await db.activation_codes.find_one({"$or": [{"id": code_id}, {"code": code_id}]}, {"_id": 0})
     if not code_doc:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail="Code non trouve")
     new_active = not code_doc.get('active', True)
-    await db.activation_codes.update_one({"id": code_id}, {"$set": {"active": new_active}})
+    await db.activation_codes.update_one({"$or": [{"id": code_id}, {"code": code_id}]}, {"$set": {"active": new_active}})
     return {"status": "toggled", "active": new_active}
 
 
@@ -62,7 +62,7 @@ async def toggle_activation_code(code_id: str, user=Depends(get_current_user)):
 async def delete_activation_code(code_id: str, user=Depends(get_current_user)):
     if user['role'] != 'admin':
         raise HTTPException(status_code=403, detail="Admin requis")
-    await db.activation_codes.delete_one({"id": code_id})
+    await db.activation_codes.delete_one({"$or": [{"id": code_id}, {"code": code_id}]})
     return {"status": "deleted"}
 
 
@@ -71,7 +71,7 @@ async def delete_activation_code(code_id: str, user=Depends(get_current_user)):
 async def create_intervention_code(data: InterventionCodeCreate, user=Depends(get_current_user)):
     if user.get('role') != 'admin':
         raise HTTPException(status_code=403, detail="Admin requis")
-    code_val = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    code_val = data.code if hasattr(data, 'code') and data.code else ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
     now = datetime.now(timezone.utc).isoformat()
     code = {
         "id": str(uuid.uuid4()), "code": code_val, "structure_name": data.structure_name,
@@ -99,7 +99,7 @@ async def update_intervention_code(code_id: str, data: ActivationCodeUpdate, use
         raise HTTPException(status_code=403, detail="Admin requis")
     update = {k: v for k, v in data.dict().items() if v is not None}
     if update:
-        await db.intervention_codes.update_one({"id": code_id}, {"$set": update})
+        await db.intervention_codes.update_one({"$or": [{"id": code_id}, {"code": code_id}]}, {"$set": update})
     return {"status": "updated"}
 
 
@@ -107,11 +107,11 @@ async def update_intervention_code(code_id: str, data: ActivationCodeUpdate, use
 async def toggle_intervention_code(code_id: str, user=Depends(get_current_user)):
     if user.get('role') != 'admin':
         raise HTTPException(status_code=403, detail="Admin requis")
-    code_doc = await db.intervention_codes.find_one({"id": code_id}, {"_id": 0})
+    code_doc = await db.intervention_codes.find_one({"$or": [{"id": code_id}, {"code": code_id}]}, {"_id": 0})
     if not code_doc:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail="Code non trouve")
     new_active = not code_doc.get('active', True)
-    await db.intervention_codes.update_one({"id": code_id}, {"$set": {"active": new_active}})
+    await db.intervention_codes.update_one({"$or": [{"id": code_id}, {"code": code_id}]}, {"$set": {"active": new_active}})
     return {"status": "toggled", "active": new_active}
 
 
@@ -119,7 +119,7 @@ async def toggle_intervention_code(code_id: str, user=Depends(get_current_user))
 async def delete_intervention_code(code_id: str, user=Depends(get_current_user)):
     if user.get('role') != 'admin':
         raise HTTPException(status_code=403, detail="Admin requis")
-    await db.intervention_codes.delete_one({"id": code_id})
+    await db.intervention_codes.delete_one({"$or": [{"id": code_id}, {"code": code_id}]})
     return {"status": "deleted"}
 
 
