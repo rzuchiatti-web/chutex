@@ -2,50 +2,46 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
-import { useTheme } from '../../src/context/ThemeContext';
 import { View, TouchableOpacity, Text, ActivityIndicator, Platform } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 
-function FloatingTabBar() {
-  const { user } = useAuth();
+function FloatingTabBar({ effectiveRole }: { effectiveRole: string }) {
   const router = useRouter();
   const pathname = usePathname();
-  if (!user) return null;
 
-  const r = user.active_role || user.role;
-  const isBen = r === 'beneficiary';
-  const isG = r === 'guardian';
-  const isTA = r === 'teleassistance';
-  const isAdmin = r === 'admin';
+  const isBen = effectiveRole === 'beneficiary';
+  const isG = effectiveRole === 'guardian';
+  const isTA = effectiveRole === 'teleassistance';
+  const isAdmin = effectiveRole === 'admin';
 
   const tabs = isAdmin ? [
-    { key: '/', icon: 'grid-outline', label: 'Dashboard', lib: 'ion' },
-    { key: '/alerts', icon: 'notifications-outline', label: 'Alertes', lib: 'ion' },
-    { key: '/devices', icon: 'document-text-outline', label: 'Prescripteurs', lib: 'ion' },
-    { key: '/teleconsult', icon: 'shield-checkmark-outline', label: 'Intervenants', lib: 'ion' },
-    { key: '/profile', icon: 'person-outline', label: 'Profil', lib: 'ion' },
+    { key: 'index', icon: 'grid-outline', label: 'Dashboard', lib: 'ion' },
+    { key: 'alerts', icon: 'notifications-outline', label: 'Alertes', lib: 'ion' },
+    { key: 'devices', icon: 'document-text-outline', label: 'Prescripteurs', lib: 'ion' },
+    { key: 'teleconsult', icon: 'shield-checkmark-outline', label: 'Intervenants', lib: 'ion' },
+    { key: 'profile', icon: 'person-outline', label: 'Profil', lib: 'ion' },
   ] : [
-    { key: '/', icon: 'home-outline', label: 'Accueil', lib: 'ion' },
-    ...(isBen ? [{ key: '/health', icon: 'heart-pulse', label: 'Sante', lib: 'mci' }] : []),
-    { key: '/alerts', icon: 'notifications-outline', label: 'Alertes', lib: 'ion' },
+    { key: 'index', icon: 'home-outline', label: 'Accueil', lib: 'ion' },
+    ...(isBen ? [{ key: 'health', icon: 'heart-pulse', label: 'Sante', lib: 'mci' }] : []),
+    { key: 'alerts', icon: 'notifications-outline', label: 'Alertes', lib: 'ion' },
     {
-      key: '/teleconsult',
+      key: 'teleconsult',
       icon: isTA ? 'headset-outline' : isG ? 'map-marker-radius-outline' : 'videocam-outline',
       label: isTA ? 'Teleassist.' : isG ? 'Interventions' : 'Teleconsult.',
       lib: isG ? 'mci' : 'ion',
     },
     {
-      key: '/devices',
+      key: 'devices',
       icon: isG ? 'document-text-outline' : isTA ? 'people-outline' : 'bluetooth-connect',
       label: isG ? 'Prescriptions' : isTA ? 'Abonnes' : 'Appareils',
       lib: isG || isTA ? 'ion' : 'mci',
     },
-    { key: '/profile', icon: 'person-outline', label: 'Profil', lib: 'ion' },
+    { key: 'profile', icon: 'person-outline', label: 'Profil', lib: 'ion' },
   ];
 
   const isActive = (tabKey: string) => {
-    if (tabKey === '/') return pathname === '/' || pathname === '/index' || pathname === '';
-    return pathname.startsWith(tabKey);
+    if (tabKey === 'index') return pathname === '/' || pathname === '/index' || pathname === '' || pathname === '/(tabs)' || pathname === '/(tabs)/index';
+    return pathname.includes(tabKey);
   };
 
   return (
@@ -56,13 +52,13 @@ function FloatingTabBar() {
         bottom: 12,
         left: 12,
         right: 12,
-        backgroundColor: 'rgba(255,255,255,0.92)',
+        backgroundColor: 'rgba(255,255,255,0.95)',
         borderRadius: 28,
         flexDirection: 'row',
-        paddingVertical: 8,
-        paddingHorizontal: 4,
+        paddingVertical: 6,
+        paddingHorizontal: 2,
         borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.06)',
+        borderColor: 'rgba(0,0,0,0.08)',
         ...(Platform.OS === 'web' ? {
           backdropFilter: 'blur(40px)',
           WebkitBackdropFilter: 'blur(40px)',
@@ -81,43 +77,31 @@ function FloatingTabBar() {
         const active = isActive(tab.key);
         return (
           <TouchableOpacity
-            key={tab.key}
-            testID={`tab-${tab.label.toLowerCase().replace(/[^a-z]/g, '')}`}
-            style={{
-              flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 4,
-            }}
-            onPress={() => {
-              if (tab.key === '/') {
-                router.replace('/(tabs)/' as any);
-              } else {
-                router.replace(`/(tabs)${tab.key}` as any);
-              }
-            }}
+            key={`${effectiveRole}-${tab.key}`}
+            testID={`tab-${tab.key}`}
+            style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 4 }}
+            onPress={() => router.replace(`/(tabs)/${tab.key === 'index' ? '' : tab.key}` as any)}
           >
             <View style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
+              width: 36,
+              height: 36,
+              borderRadius: 18,
               backgroundColor: active ? '#000' : 'transparent',
               justifyContent: 'center',
               alignItems: 'center',
             }}>
               {tab.lib === 'mci' ? (
-                <MaterialCommunityIcons name={tab.icon as any} size={20} color={active ? '#FFF' : '#888'} />
+                <MaterialCommunityIcons name={tab.icon as any} size={18} color={active ? '#FFF' : '#999'} />
               ) : (
-                <Ionicons name={tab.icon as any} size={20} color={active ? '#FFF' : '#888'} />
+                <Ionicons name={tab.icon as any} size={18} color={active ? '#FFF' : '#999'} />
               )}
             </View>
             <Text style={{
-              fontSize: 9,
+              fontSize: 8,
               fontWeight: active ? '800' : '500',
-              color: active ? '#000' : '#888',
-              marginTop: 2,
-              letterSpacing: 0.2,
-            }}>{tab.label}</Text>
+              color: active ? '#000' : '#999',
+              marginTop: 1,
+            }} numberOfLines={1}>{tab.label}</Text>
           </TouchableOpacity>
         );
       })}
@@ -149,7 +133,7 @@ export default function TabLayout() {
         <Tabs.Screen name="devices" />
         <Tabs.Screen name="profile" />
       </Tabs>
-      <FloatingTabBar />
+      <FloatingTabBar effectiveRole={effectiveRole} />
     </View>
   );
 }
