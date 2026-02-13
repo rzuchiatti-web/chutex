@@ -46,25 +46,28 @@ function RootNav() {
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="health-detail" options={{ presentation: 'card' }} />
-        <Stack.Screen name="backoffice" options={{ presentation: 'card' }} />
-        <Stack.Screen name="intervention-detail" options={{ presentation: 'card' }} />
-        <Stack.Screen name="subscriber-detail" options={{ presentation: 'card' }} />
-        <Stack.Screen name="alert-detail" options={{ presentation: 'card' }} />
-        <Stack.Screen name="beneficiary-detail" options={{ presentation: 'card' }} />
-        <Stack.Screen name="reminders" options={{ presentation: 'card' }} />
-        <Stack.Screen name="data-sharing" options={{ presentation: 'card' }} />
-        <Stack.Screen name="ecg" options={{ presentation: 'card' }} />
-        <Stack.Screen name="geofencing" options={{ presentation: 'card' }} />
-        <Stack.Screen name="vest-connect" options={{ presentation: 'card' }} />
-        <Stack.Screen name="sleep" options={{ presentation: 'card' }} />
-        <Stack.Screen name="bracelet-connect" options={{ presentation: 'card' }} />
-        <Stack.Screen name="subscription" options={{ presentation: 'card' }} />
-        <Stack.Screen name="link-code" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="guardian-detail" options={{ presentation: 'card' }} />
-      </Stack>
+      <AppBackground>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="health-detail" options={{ presentation: 'card' }} />
+          <Stack.Screen name="backoffice" options={{ presentation: 'card' }} />
+          <Stack.Screen name="intervention-detail" options={{ presentation: 'card' }} />
+          <Stack.Screen name="subscriber-detail" options={{ presentation: 'card' }} />
+          <Stack.Screen name="alert-detail" options={{ presentation: 'card' }} />
+          <Stack.Screen name="beneficiary-detail" options={{ presentation: 'card' }} />
+          <Stack.Screen name="reminders" options={{ presentation: 'card' }} />
+          <Stack.Screen name="data-sharing" options={{ presentation: 'card' }} />
+          <Stack.Screen name="ecg" options={{ presentation: 'card' }} />
+          <Stack.Screen name="geofencing" options={{ presentation: 'card' }} />
+          <Stack.Screen name="vest-connect" options={{ presentation: 'card' }} />
+          <Stack.Screen name="sleep" options={{ presentation: 'card' }} />
+          <Stack.Screen name="bracelet-connect" options={{ presentation: 'card' }} />
+          <Stack.Screen name="subscription" options={{ presentation: 'card' }} />
+          <Stack.Screen name="link-code" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="guardian-detail" options={{ presentation: 'card' }} />
+          <Stack.Screen name="edit-thresholds" options={{ presentation: 'card' }} />
+        </Stack>
+      </AppBackground>
     </>
   );
 }
