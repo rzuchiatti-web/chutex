@@ -477,6 +477,8 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [switching, setSwitching] = useState(false);
+  const [activeAlertsG, setActiveAlertsG] = useState<any[]>([]);
+  const [showNotifsG, setShowNotifsG] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -486,6 +488,8 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         apiFetch('/api/guardian/invitations', {}, token).catch(() => []),
         apiFetch('/api/interventions/pending', {}, token).catch(() => []),
       ]);
+      const aa = await apiFetch('/api/alerts/active-with-interventions', {}, token).catch(() => []);
+      setActiveAlertsG(Array.isArray(aa) ? aa : []);
       setBens(Array.isArray(b) ? b : []);
       setAlerts(Array.isArray(a) ? a : []);
       setInvitations(Array.isArray(inv) ? inv : []);
