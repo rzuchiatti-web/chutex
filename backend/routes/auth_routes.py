@@ -151,3 +151,21 @@ async def switch_active_role(data: dict, user=Depends(get_current_user)):
     return {"status": "switched", "active_role": target, "user": u}
 
 
+@router.post("/auth/activate-guardian")
+async def activate_guardian_role(data: dict, user=Depends(get_current_user)):
+    """Beneficiary activates a guardian space"""
+    if user.get('has_guardian_space'):
+        return {"status": "already_active", "message": "Espace gardien deja actif"}
+    update = {
+        "has_guardian_space": True,
+        "guardian_type": data.get("guardian_type", "particular"),
+        "relationship": data.get("relationship", ""),
+        "structure_name": data.get("structure_name", ""),
+        "profession": data.get("profession", ""),
+        "siret": data.get("siret", ""),
+    }
+    await db.users.update_one({"id": user['id']}, {"$set": update})
+    return {"status": "activated", "message": "Espace gardien active"}
+
+
+
