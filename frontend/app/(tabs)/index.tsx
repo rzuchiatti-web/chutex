@@ -115,7 +115,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <Text style={{ fontSize: 12, color: colors.textMuted, fontWeight: '600', letterSpacing: 1 }}>CHUTEX</Text>
         </View>
         <TouchableOpacity style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: colors.border, marginRight: 8 }}>
-          <Ionicons name="headset-outline" size={18} color={colors.textPrimary} />
+          <Ionicons name="notifications-outline" size={18} color={colors.textPrimary} />
+          {guardianRequests.length > 0 && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: colors.background }} />}
         </TouchableOpacity>
       </View>
 
