@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, ActivityIndicator, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -7,336 +7,165 @@ import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import { apiFetch } from '../../src/services/api';
 
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const GlassCard = ({ children, style }: any) => (
+  <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+);
+
 export default function ProfileScreen() {
-  const { user, token, logout, refreshUser } = useAuth();
-  const { colors, isDark, toggle } = useTheme();
+  const { user, token, logout } = useAuth();
+  const { colors } = useTheme();
   const router = useRouter();
-  const [linkEmail, setLinkEmail] = useState('');
-  const [linking, setLinking] = useState(false);
-  const [locMode, setLocMode] = useState(user?.location_sharing || 'alert_only');
-  const [savingLoc, setSavingLoc] = useState(false);
-  const [actCode, setActCode] = useState('');
-  const [activating, setActivating] = useState(false);
-  const [ivCode, setIvCode] = useState('');
-  const [ivActivating, setIvActivating] = useState(false);
-  const [subscription, setSubscription] = useState<any>(null);
-  const [guardians, setGuardians] = useState<any[]>([]);
-  const [showAddGuardian, setShowAddGuardian] = useState(false);
-  const [guardianPhone, setGuardianPhone] = useState('');
-  const [addingGuardian, setAddingGuardian] = useState(false);
-  const [addResult, setAddResult] = useState<any>(null);
-
-  useEffect(() => {
-    if (user?.role === 'beneficiary' && token) {
-      apiFetch('/api/subscriptions/my', {}, token).then(s => setSubscription(s)).catch(() => {});
-      apiFetch('/api/guardians/my', {}, token).then(g => setGuardians(Array.isArray(g) ? g : [])).catch(() => {});
-    }
-  }, [user, token]);
-
-  const moveGuardian = async (gid: string, dir: 'up' | 'down') => {
-    const idx = guardians.findIndex(g => g.id === gid);
-    if (idx < 0 || (dir === 'up' && idx === 0) || (dir === 'down' && idx === guardians.length - 1)) return;
-    const newList = [...guardians];
-    const swap = dir === 'up' ? idx - 1 : idx + 1;
-    [newList[idx], newList[swap]] = [newList[swap], newList[idx]];
-    setGuardians(newList);
-    await apiFetch('/api/guardians/reorder', { method: 'POST', body: JSON.stringify({ order: newList.map(g => g.id) }) }, token).catch(() => {});
-  };
-
-  const removeGuardian = async (gid: string) => {
-    await apiFetch(`/api/guardians/${gid}/unlink`, { method: 'POST' }, token).catch(() => {});
-    setGuardians(guardians.filter(g => g.id !== gid));
-  };
-
-  const addGuardian = async () => {
-    if (!guardianPhone.trim()) return;
-    setAddingGuardian(true); setAddResult(null);
-    try {
-      const r = await apiFetch('/api/guardians/invite', { method: 'POST', body: JSON.stringify({ phone: guardianPhone.trim() }) }, token);
-      setAddResult(r);
-      if (r?.linked) { setGuardians([...guardians, r.guardian]); setGuardianPhone(''); setTimeout(() => { setShowAddGuardian(false); setAddResult(null); }, 2000); }
-    } catch (e: any) { setAddResult({ error: e.message }); } finally { setAddingGuardian(false); }
-  };
+  const [editMode, setEditMode] = useState(false);
+  const [editName, setEditName] = useState(user?.name || '');
+  const [editPhone, setEditPhone] = useState(user?.phone || '');
+  const [editAddress, setEditAddress] = useState(user?.address || '');
+  const [saving, setSaving] = useState(false);
+  const [showPwChange, setShowPwChange] = useState(false);
+  const [oldPw, setOldPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [showContact, setShowContact] = useState(false);
+  const [contactMsg, setContactMsg] = useState('');
+  const [sendingContact, setSendingContact] = useState(false);
 
   if (!user || !token) return null;
 
-  const handleLogout = async () => { await logout(); };
-
-  const handleLink = async () => {
-    if (!linkEmail.trim()) return Alert.alert('Erreur', 'Entrez un email');
-    setLinking(true);
+  const saveProfile = async () => {
+    setSaving(true);
     try {
-      const r = await apiFetch('/api/guardian/link', { method: 'POST', body: JSON.stringify({ beneficiary_email: linkEmail.trim().toLowerCase() }) }, token);
-      Alert.alert('Succes', `${r.beneficiary.name} lie`); setLinkEmail(''); await refreshUser();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setLinking(false); }
+      await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ name: editName, phone: editPhone, address: editAddress }) }, token);
+      Alert.alert('Profil mis a jour'); setEditMode(false);
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
   };
 
-  const updateLocSharing = async (mode: string) => {
-    setSavingLoc(true);
-    try { await apiFetch('/api/location/sharing', { method: 'PUT', body: JSON.stringify({ mode }) }, token); setLocMode(mode); } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSavingLoc(false); }
+  const changePassword = async () => {
+    if (!newPw || newPw.length < 6) return Alert.alert('Erreur', 'Min. 6 caracteres');
+    try {
+      await apiFetch('/api/auth/change-password', { method: 'PUT', body: JSON.stringify({ old_password: oldPw, new_password: newPw }) }, token);
+      Alert.alert('Mot de passe modifie'); setShowPwChange(false); setOldPw(''); setNewPw('');
+    } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
-  const activatePrescriber = async () => {
-    if (!actCode.trim()) return Alert.alert('Erreur', 'Entrez un code');
-    setActivating(true);
-    try { const r = await apiFetch('/api/guardian/activate-prescriber', { method: 'POST', body: JSON.stringify({ code: actCode.trim().toUpperCase() }) }, token); Alert.alert('Active', `Mode prescripteur active pour ${r.structure}`); setActCode(''); await refreshUser(); } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivating(false); }
+  const sendContactForm = async () => {
+    if (!contactMsg.trim()) return Alert.alert('Erreur', 'Message requis');
+    setSendingContact(true);
+    try {
+      await apiFetch('/api/contact', { method: 'POST', body: JSON.stringify({ message: contactMsg, email: user.email, name: user.name }) }, token);
+      Alert.alert('Message envoye', 'Nous vous repondrons dans les plus brefs delais.'); setShowContact(false); setContactMsg('');
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSendingContact(false); }
   };
 
-  const activateIntervention = async () => {
-    if (!ivCode.trim()) return Alert.alert('Erreur', 'Entrez un code');
-    setIvActivating(true);
-    try { const r = await apiFetch('/api/guardian/activate-intervention-provider', { method: 'POST', body: JSON.stringify({ code: ivCode.trim().toUpperCase() }) }, token); Alert.alert('Active', `Role intervenant active. Rayon: ${r.radius_km || 30}km`); setIvCode(''); await refreshUser(); } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setIvActivating(false); }
-  };
+  const roleName = user.role === 'beneficiary' ? 'Beneficiaire' : user.role === 'guardian' ? 'Gardien' : user.role === 'teleassistance' ? 'Teleassistance' : 'Administrateur';
 
-  const roleName = user.role === 'beneficiary' ? 'Beneficiaire' : user.role === 'guardian' ? (user.is_prescriber ? 'Prescripteur' : 'Gardien') : user.role === 'teleassistance' ? 'Teleassistance' : 'Administrateur';
-
-  const glassWeb = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
-
-  const Section = ({ children, style }: any) => (
-    <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, padding: 18, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glassWeb }, style]}>{children}</View>
+  const MenuItem = ({ icon, label, onPress, danger }: any) => (
+    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }} onPress={onPress}>
+      <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: danger ? 'rgba(229,57,53,0.08)' : 'rgba(0,0,0,0.04)', justifyContent: 'center', alignItems: 'center' }}>
+        <Ionicons name={icon} size={18} color={danger ? '#E53935' : '#000'} />
+      </View>
+      <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: danger ? '#E53935' : '#000' }}>{label}</Text>
+      <Ionicons name="chevron-forward" size={16} color="#888" />
+    </TouchableOpacity>
   );
 
-  const InputRow = ({ placeholder, value, onChangeText, btnIcon, onPress, loading: btnLoading, testIDs }: any) => (
-    <View style={{ flexDirection: 'row', gap: 10 }}>
-      {Platform.OS === 'web' ? (
-        <div style={{ flex: 1 }}>
-          <input data-testid={testIDs?.[0]} type="text" placeholder={placeholder} value={value}
-            onChange={(e: any) => onChangeText(e.target.value)}
-            style={{ width: '100%', fontSize: 14, padding: '12px 14px', borderRadius: 12, border: `1.5px solid ${colors.border}`, outline: 'none', backgroundColor: colors.surfaceHighlight, fontFamily: 'system-ui', color: colors.textPrimary, boxSizing: 'border-box' as any }} />
-        </div>
-      ) : (
-        <TextInput testID={testIDs?.[0]} style={{ flex: 1, backgroundColor: colors.surfaceHighlight, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, color: colors.textPrimary, borderWidth: 1.5, borderColor: colors.border }} placeholder={placeholder} placeholderTextColor={colors.textMuted} value={value} onChangeText={onChangeText} autoCapitalize="none" />
-      )}
-      <TouchableOpacity testID={testIDs?.[1]} style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center' }} onPress={onPress} disabled={btnLoading}>
-        {btnLoading ? <ActivityIndicator color="#FFF" size="small" /> : <Ionicons name={btnIcon} size={20} color={isDark ? '#000' : '#FFF'} />}
-      </TouchableOpacity>
-    </View>
-  );
+  const WebInput = ({ val, onChange, placeholder, type }: any) => Platform.OS === 'web' ? (
+    <div style={{ marginBottom: 10 }}><input type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
+      style={{ width: '100%', fontSize: 15, padding: '12px 14px', borderRadius: 12, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
+  ) : null;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} testID="profile-screen">
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <Text style={{ fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginTop: 16, marginBottom: 24, letterSpacing: -0.5 }}>Profil</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="profile-screen">
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+        <Text style={{ fontSize: 28, fontWeight: '900', color: '#000', marginTop: 16, marginBottom: 20, letterSpacing: -0.5 }}>Profil</Text>
 
-        {/* User Card */}
-        <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, padding: 28, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {}) }}>
-          <View style={{ width: 68, height: 68, borderRadius: 34, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 14 }}>
-            <Text style={{ fontSize: 28, fontWeight: '800', color: isDark ? '#000' : '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
-          </View>
-          <Text style={{ fontSize: 22, fontWeight: '700', color: colors.textPrimary }}>{user.name}</Text>
-          <View style={{ marginTop: 8, paddingHorizontal: 16, paddingVertical: 5, borderRadius: 9999, borderWidth: 1.5, borderColor: colors.primary + '40', backgroundColor: colors.primaryGlow }}>
-            <Text style={{ fontSize: 12, fontWeight: '600', color: colors.primary }}>{roleName}</Text>
-          </View>
-          {user.is_prescriber && user.prescriber_structure ? <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 6 }}>{user.prescriber_structure}</Text> : null}
-        </View>
-
-        {/* Theme Toggle */}
-        <Section>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Ionicons name={isDark ? 'moon' : 'sunny'} size={20} color={colors.primary} />
-              <Text style={{ fontSize: 15, fontWeight: '600', color: colors.textPrimary }}>Mode {isDark ? 'sombre' : 'clair'}</Text>
+        {/* Avatar + Name */}
+        <GlassCard style={{ alignItems: 'center', padding: 28 }}>
+          <TouchableOpacity style={{ position: 'relative' }}>
+            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
-            <TouchableOpacity data-testid="theme-toggle-profile" onPress={toggle} style={{ width: 52, height: 28, borderRadius: 14, backgroundColor: isDark ? colors.primary : colors.border, justifyContent: 'center', padding: 3 }}>
-              <View style={[{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#FFF' }, isDark ? { alignSelf: 'flex-end' } : { alignSelf: 'flex-start' }]} />
-            </TouchableOpacity>
-          </View>
-        </Section>
-
-        {/* Info */}
-        <Section>
-          <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary, marginBottom: 10 }}>Informations</Text>
-          {[
-            { icon: 'mail-outline', label: 'Email', val: user.email },
-            { icon: 'call-outline', label: 'Telephone', val: user.phone || '--' },
-            { icon: 'calendar-outline', label: 'Inscrit le', val: new Date(user.created_at).toLocaleDateString('fr-FR') },
-          ].map((r, i) => (
-            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: i < 2 ? 0.5 : 0, borderBottomColor: colors.border }}>
-              <Ionicons name={r.icon as any} size={16} color={colors.textMuted} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 10, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 }}>{r.label}</Text>
-                <Text style={{ fontSize: 14, fontWeight: '500', color: colors.textPrimary, marginTop: 2 }}>{r.val}</Text>
-              </View>
+            <View style={{ position: 'absolute', bottom: 0, right: 0, width: 28, height: 28, borderRadius: 14, backgroundColor: '#FFF', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)' }}>
+              <Ionicons name="camera-outline" size={14} color="#000" />
             </View>
-          ))}
-        </Section>
+          </TouchableOpacity>
+          <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', marginTop: 12 }}>{user.name}</Text>
+          <View style={{ marginTop: 6, paddingHorizontal: 14, paddingVertical: 4, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)' }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#555' }}>{roleName}</Text>
+          </View>
+        </GlassCard>
 
-        {/* Beneficiary: Location Sharing */}
-        {user.role === 'beneficiary' && (
-          <Section>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary, marginBottom: 10 }}>Partage de localisation</Text>
-            {[
-              { mode: 'always', label: 'Toujours', icon: 'location-outline' },
-              { mode: 'alert_only', label: 'En cas d\'alerte', icon: 'alert-circle-outline' },
-              { mode: 'never', label: 'Jamais', icon: 'lock-closed-outline' },
-            ].map(opt => (
-              <TouchableOpacity key={opt.mode} testID={`loc-${opt.mode}`}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1.5, borderColor: locMode === opt.mode ? colors.primary : colors.border, marginBottom: 6, backgroundColor: locMode === opt.mode ? colors.primaryGlow : 'transparent' }}
-                onPress={() => updateLocSharing(opt.mode)} disabled={savingLoc}>
-                <Ionicons name={opt.icon as any} size={18} color={locMode === opt.mode ? colors.primary : colors.textMuted} />
-                <Text style={{ flex: 1, fontSize: 14, fontWeight: '600', color: locMode === opt.mode ? colors.primary : colors.textSecondary }}>{opt.label}</Text>
-                <View style={[{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: locMode === opt.mode ? colors.primary : colors.border, justifyContent: 'center', alignItems: 'center' }]}>
-                  {locMode === opt.mode && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary }} />}
-                </View>
+        {/* Edit Profile */}
+        {editMode ? (
+          <GlassCard>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', marginBottom: 14 }}>Modifier le profil</Text>
+            <WebInput val={editName} onChange={setEditName} placeholder="Nom complet" />
+            <WebInput val={editPhone} onChange={setEditPhone} placeholder="Telephone" type="tel" />
+            <WebInput val={editAddress} onChange={setEditAddress} placeholder="Adresse" />
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setEditMode(false)}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Annuler</Text>
               </TouchableOpacity>
-            ))}
-          </Section>
-        )}
-
-        {/* Beneficiary: Subscription */}
-        {user.role === 'beneficiary' && (
-          <Section style={{ backgroundColor: subscription?.subscription_type === 'care' ? colors.care + '12' : subscription?.has_subscription ? colors.primaryGlow : colors.surface }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <Ionicons name="shield-checkmark" size={24} color={subscription?.subscription_type === 'care' ? colors.care : subscription?.has_subscription ? colors.primary : colors.textMuted} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>{subscription?.subscription_type === 'care' ? 'Abonnement Care' : subscription?.has_subscription ? 'Abonnement Standard' : 'Aucun abonnement'}</Text>
-                <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 2 }}>{subscription?.subscription_type === 'care' ? 'Bracelet + App + Teleassistance IA' : subscription?.has_subscription ? 'Bracelet + App complete' : 'Gilet et balance uniquement'}</Text>
-              </View>
-            </View>
-          </Section>
-        )}
-
-        {/* Beneficiary: Guardians */}
-        {user.role === 'beneficiary' && (
-          <Section>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>Mes gardiens ({guardians.length})</Text>
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.primary, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 9999 }}
-                onPress={() => { setShowAddGuardian(true); setAddResult(null); setGuardianPhone(''); }}>
-                <Ionicons name="add" size={14} color={isDark ? '#000' : '#FFF'} /><Text style={{ fontSize: 12, fontWeight: '700', color: isDark ? '#000' : '#FFF' }}>Ajouter</Text>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={saveProfile} disabled={saving}>
+                {saving ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENREGISTRER</Text>}
               </TouchableOpacity>
             </View>
-            {guardians.map((g, idx) => (
-              <View key={g.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.surfaceHighlight, borderRadius: 12, padding: 12, marginBottom: 6, borderWidth: idx === 0 ? 1.5 : 0, borderColor: idx === 0 ? colors.success : 'transparent' }}>
-                <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: idx === 0 ? colors.success : colors.primary, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#FFF' }}>{idx + 1}</Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: colors.textPrimary }}>{g.name}</Text>
-                  <Text style={{ fontSize: 11, color: colors.textMuted }}>{g.phone || g.email}</Text>
-                </View>
-                {idx > 0 && <TouchableOpacity onPress={() => moveGuardian(g.id, 'up')} style={{ padding: 4 }}><Ionicons name="chevron-up" size={16} color={colors.primary} /></TouchableOpacity>}
-                {idx < guardians.length - 1 && <TouchableOpacity onPress={() => moveGuardian(g.id, 'down')} style={{ padding: 4 }}><Ionicons name="chevron-down" size={16} color={colors.primary} /></TouchableOpacity>}
-                <TouchableOpacity onPress={() => removeGuardian(g.id)} style={{ padding: 4 }}><Ionicons name="close" size={16} color={colors.danger} /></TouchableOpacity>
-              </View>
-            ))}
-            {guardians.length === 0 && <Text style={{ fontSize: 13, color: colors.textMuted, textAlign: 'center', paddingVertical: 12 }}>Aucun gardien. Ajoutez un proche.</Text>}
-          </Section>
-        )}
+          </GlassCard>
+        ) : null}
 
-        {/* Add Guardian Modal */}
-        {showAddGuardian && (
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.overlay, justifyContent: 'center', padding: 24, zIndex: 100 }}>
-            <View style={{ backgroundColor: colors.surface, borderRadius: 20, padding: 24, borderWidth: 1, borderColor: colors.border }}>
-              <Text style={{ fontSize: 20, fontWeight: '800', color: colors.textPrimary }}>Ajouter un gardien</Text>
-              <Text style={{ fontSize: 13, color: colors.textMuted, marginTop: 6, lineHeight: 19 }}>Renseignez le numero de telephone. S'il a un compte, il sera lie. Sinon, un SMS d'invitation sera envoye.</Text>
-              <View style={{ marginTop: 16, marginBottom: 16 }}>
-                {Platform.OS === 'web' ? (
-                  <div><input data-testid="add-guardian-phone" type="tel" placeholder="+33 6 12 34 56 78" value={guardianPhone}
-                    onChange={(e: any) => setGuardianPhone(e.target.value)}
-                    style={{ width: '100%', fontSize: 16, padding: '14px 14px', borderRadius: 14, border: `1.5px solid ${colors.border}`, outline: 'none', backgroundColor: colors.surfaceHighlight, fontFamily: 'system-ui', color: colors.textPrimary, boxSizing: 'border-box' as any }} /></div>
-                ) : (
-                  <TextInput testID="add-guardian-phone" style={{ fontSize: 16, backgroundColor: colors.surfaceHighlight, borderRadius: 14, borderWidth: 1.5, borderColor: colors.border, paddingHorizontal: 14, paddingVertical: 14, color: colors.textPrimary }}
-                    placeholder="+33 6 12 34 56 78" placeholderTextColor={colors.textMuted} value={guardianPhone} onChangeText={setGuardianPhone} keyboardType="phone-pad" />
-                )}
-              </View>
-              {addResult && (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 14, borderRadius: 12, marginBottom: 12, backgroundColor: addResult.error ? colors.dangerLight : addResult.linked ? colors.successLight : colors.warningLight }}>
-                  <Ionicons name={addResult.error ? 'alert-circle' : addResult.linked ? 'checkmark-circle' : 'send'} size={16} color={addResult.error ? colors.danger : addResult.linked ? colors.success : colors.warning} />
-                  <Text style={{ flex: 1, fontSize: 12, fontWeight: '600', color: addResult.error ? colors.danger : addResult.linked ? colors.success : colors.warning }}>{addResult.error || addResult.message}</Text>
-                </View>
-              )}
-              <View style={{ flexDirection: 'row', gap: 12 }}>
-                <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: colors.surfaceHighlight, alignItems: 'center' }} onPress={() => setShowAddGuardian(false)}>
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textSecondary }}>Annuler</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: colors.primary, alignItems: 'center' }} onPress={addGuardian} disabled={addingGuardian || !guardianPhone.trim()}>
-                  {addingGuardian ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 15, fontWeight: '700', color: isDark ? '#000' : '#FFF' }}>Ajouter</Text>}
-                </TouchableOpacity>
-              </View>
+        {/* Change Password */}
+        {showPwChange ? (
+          <GlassCard>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', marginBottom: 14 }}>Changer le mot de passe</Text>
+            <WebInput val={oldPw} onChange={setOldPw} placeholder="Mot de passe actuel" type="password" />
+            <WebInput val={newPw} onChange={setNewPw} placeholder="Nouveau mot de passe" type="password" />
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowPwChange(false)}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Annuler</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={changePassword}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>CONFIRMER</Text>
+              </TouchableOpacity>
             </View>
-          </View>
-        )}
+          </GlassCard>
+        ) : null}
 
-        {/* Guardian: Link Beneficiary */}
-        {user.role === 'guardian' && (
-          <Section>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary, marginBottom: 10 }}>Lier un beneficiaire</Text>
-            <InputRow placeholder="email@beneficiaire.com" value={linkEmail} onChangeText={setLinkEmail} btnIcon="link" onPress={handleLink} loading={linking} testIDs={['link-email-input', 'link-btn']} />
-            {user.beneficiaries?.length > 0 && <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 10 }}>{user.beneficiaries.length} beneficiaire(s) lie(s)</Text>}
-          </Section>
-        )}
-
-        {/* Guardian: Activate Prescriber */}
-        {user.role === 'guardian' && !user.is_prescriber && (
-          <Section>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary, marginBottom: 4 }}>Mode prescripteur</Text>
-            <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 12, lineHeight: 17 }}>Entrez votre code d'activation pour envoyer des prescriptions.</Text>
-            <InputRow placeholder="Code (ex: SAAD1234)" value={actCode} onChangeText={setActCode} btnIcon="key" onPress={activatePrescriber} loading={activating} testIDs={['act-code-input', 'activate-btn']} />
-          </Section>
-        )}
-
-        {user.role === 'guardian' && user.is_prescriber && (
-          <Section style={{ backgroundColor: colors.successLight }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Ionicons name="checkmark-circle" size={22} color={colors.success} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>Mode prescripteur actif</Text>
-                <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 2 }}>Structure : {user.prescriber_structure}</Text>
-              </View>
+        {/* Contact Form */}
+        {showContact ? (
+          <GlassCard>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', marginBottom: 4 }}>Assistance</Text>
+            <Text style={{ fontSize: 12, color: '#888', marginBottom: 14 }}>Votre message sera envoye a contact@chutex-innovation.com</Text>
+            {Platform.OS === 'web' ? (
+              <div style={{ marginBottom: 12 }}><textarea value={contactMsg} onChange={(e: any) => setContactMsg(e.target.value)} placeholder="Decrivez votre probleme..." rows={4}
+                style={{ width: '100%', fontSize: 14, padding: '12px', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', resize: 'none' as any, boxSizing: 'border-box' as any }} /></div>
+            ) : null}
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowContact(false)}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Annuler</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={sendContactForm} disabled={sendingContact}>
+                {sendingContact ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENVOYER</Text>}
+              </TouchableOpacity>
             </View>
-          </Section>
-        )}
+          </GlassCard>
+        ) : null}
 
-        {user.role === 'guardian' && !user.is_intervention_provider && (
-          <Section>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary, marginBottom: 4 }}>Devenir intervenant</Text>
-            <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 12, lineHeight: 17 }}>Entrez votre code pour devenir prestataire d'intervention.</Text>
-            <InputRow placeholder="Code intervenant" value={ivCode} onChangeText={setIvCode} btnIcon="shield-checkmark" onPress={activateIntervention} loading={ivActivating} testIDs={['iv-code-input', 'iv-activate-btn']} />
-          </Section>
-        )}
+        {/* Menu Items */}
+        <GlassCard>
+          <MenuItem icon="person-outline" label="Modifier mon profil" onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
+          <MenuItem icon="lock-closed-outline" label="Securite (mot de passe)" onPress={() => setShowPwChange(true)} />
+          {user.role === 'guardian' && <MenuItem icon="swap-horizontal-outline" label="Basculer vers mon espace beneficiaire" onPress={() => Alert.alert('Switch', 'Fonctionnalite bientot disponible')} />}
+          <MenuItem icon="language-outline" label="Langue" onPress={() => Alert.alert('Langue', 'Francais / English - bientot disponible')} />
+          <MenuItem icon="notifications-outline" label="Notifications" onPress={() => {}} />
+          <MenuItem icon="document-text-outline" label="Conditions generales d'utilisation" onPress={() => Alert.alert('CGU', 'Les conditions generales d\'utilisation de Chutex seront disponibles prochainement.')} />
+          <MenuItem icon="help-circle-outline" label="Assistance" onPress={() => setShowContact(true)} />
+          <MenuItem icon="information-circle-outline" label="A propos - Chutex v3.0" onPress={() => Alert.alert('CHUTEX', 'Version 3.0\nChutex Innovation SAS\nTeleassistance intelligente')} />
+        </GlassCard>
 
-        {user.role === 'guardian' && user.is_intervention_provider && (
-          <Section style={{ backgroundColor: colors.successLight }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Ionicons name="shield-checkmark" size={22} color={colors.success} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>Intervenant actif</Text>
-                <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 2 }}>Rayon: {user.intervention_radius_km || 30}km</Text>
-              </View>
-            </View>
-          </Section>
-        )}
-
-        {/* Shortcuts */}
-        {(user.role === 'admin') && (
-          <TouchableOpacity testID="backoffice-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 14, padding: 16, marginBottom: 8, borderWidth: 1, borderColor: colors.border }} onPress={() => router.push('/backoffice')}>
-            <Ionicons name="settings-outline" size={20} color={colors.primary} />
-            <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: colors.textPrimary }}>Back Office</Text>
-            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-          </TouchableOpacity>
-        )}
-
-        {user.role === 'beneficiary' && [
-          { testID: 'share-link', icon: 'qr-code-outline', label: 'Partager mon profil (Code / QR)', route: '/link-code' },
-          { testID: 'devices-shortcut', icon: 'bluetooth-outline', label: 'Gerer mes appareils', route: '/(tabs)/devices' },
-          { testID: 'data-sharing-link', icon: 'shield-checkmark-outline', label: 'Gerer le partage de donnees', route: '/data-sharing' },
-          { testID: 'reminders-link', icon: 'alarm-outline', label: 'Mes rappels quotidiens', route: '/reminders' },
-          { testID: 'ecg-link', icon: 'pulse-outline', label: 'Electrocardiogramme (ECG)', route: '/ecg' },
-          { testID: 'geofence-link', icon: 'locate-outline', label: 'Zones de securite', route: '/geofencing' },
-        ].map(s => (
-          <TouchableOpacity key={s.testID} testID={s.testID} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 16, padding: 16, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } : {}) }} onPress={() => router.push(s.route as any)}>
-            <Ionicons name={s.icon as any} size={20} color="#000" />
-            <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: '#000' }}>{s.label}</Text>
-            <Ionicons name="chevron-forward" size={16} color="#888" />
-          </TouchableOpacity>
-        ))}
-
-        <TouchableOpacity testID="logout-btn" style={{ backgroundColor: '#000', paddingVertical: 16, borderRadius: 9999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16, marginTop: 12, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={handleLogout}>
+        {/* Logout */}
+        <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={logout}>
           <Ionicons name="log-out-outline" size={16} color="#FFF" />
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Se deconnecter</Text>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF', textTransform: 'uppercase', letterSpacing: 0.5 }}>SE DECONNECTER</Text>
         </TouchableOpacity>
-        <Text style={{ textAlign: 'center', fontSize: 11, color: colors.textMuted, letterSpacing: 0.5, marginBottom: 8 }}>Chutex AI v3.0</Text>
+        <Text style={{ textAlign: 'center', fontSize: 11, color: '#888', letterSpacing: 0.5, marginTop: 16 }}>Chutex Innovation SAS - v3.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
