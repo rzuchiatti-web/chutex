@@ -1,40 +1,46 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, TextInput, Alert, SafeAreaView, ActivityIndicator, Switch, Platform, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Alert, ActivityIndicator, Switch, Platform, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../src/context/AuthContext';
-import { apiFetch } from '../src/services/api';
-import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
+import { apiFetch } from '../src/services/api';
 import { useRouter } from 'expo-router';
 
-const TYPES = [
-  { key: 'hydration', label: 'Hydratation', icon: 'water-outline', color: '#2196F3' },
-  { key: 'medication', label: 'Médicament', icon: 'medkit-outline', color: '#E91E63' },
-  { key: 'alarm', label: 'Activité', icon: 'alarm-outline', color: '#FF9800' },
-  { key: 'custom', label: 'Personnalisé', icon: 'create-outline', color: '#9C27B0' },
-];
-const DAYS = [
-  { key: 'lun', label: 'L' }, { key: 'mar', label: 'M' }, { key: 'mer', label: 'Me' },
-  { key: 'jeu', label: 'J' }, { key: 'ven', label: 'V' }, { key: 'sam', label: 'S' }, { key: 'dim', label: 'D' },
+const REMINDER_IMAGES: Record<string, string> = {
+  hydration: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/22914qql_rappels_hydratation.svg',
+  medication: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/kmlx8iu2_ChatGPT%20Image%2026%20nov.%202025%2C%2010_04_44.png',
+  alarm: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/o8lth2ng_ChatGPT%20Image%2026%20nov.%202025%2C%2010_07_27.png',
+};
+
+const CATEGORIES = [
+  { key: 'hydration', label: 'Hydratation', types: ['hydration'] },
+  { key: 'medication', label: 'Traitements', types: ['medication'] },
+  { key: 'alarm', label: 'Alarmes quotidiennes', types: ['alarm', 'custom'] },
 ];
 
+const DAYS_FULL = [
+  { key: 'lun', label: 'LUNDI' }, { key: 'mar', label: 'MARDI' }, { key: 'mer', label: 'MERCREDI' },
+  { key: 'jeu', label: 'JEUDI' }, { key: 'ven', label: 'VENDREDI' }, { key: 'sam', label: 'SAMEDI' }, { key: 'dim', label: 'DIMANCHE' },
+];
+
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+
 export default function RemindersScreen() {
-  const { colors: themeColors } = useTheme();
+  const { colors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
   const [reminders, setReminders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedType, setSelectedType] = useState('hydration');
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('08:00');
   const [dosage, setDosage] = useState('');
-  const [notes, setNotes] = useState('');
-  const [interval, setInterval_] = useState('120');
-  const [selectedDays, setSelectedDays] = useState(['lun','mar','mer','jeu','ven','sam','dim']);
+  const [interval_, setInterval_] = useState('120');
+  const [selectedDays, setSelectedDays] = useState(['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim']);
   const [saving, setSaving] = useState(false);
-
-  const today = new Date().toISOString().split('T')[0];
 
   const fetchReminders = useCallback(async () => {
     try { setReminders(await apiFetch('/api/reminders', {}, token)); } catch {} finally { setLoading(false); }
@@ -46,248 +52,178 @@ export default function RemindersScreen() {
     if (!title.trim()) return Alert.alert('Erreur', 'Titre requis');
     setSaving(true);
     try {
-      await apiFetch('/api/reminders', {
-        method: 'POST',
-        body: JSON.stringify({
-          reminder_type: selectedType, title: title.trim(), time,
-          days: selectedDays, notes, dosage,
-          interval_minutes: selectedType === 'hydration' ? parseInt(interval) || 120 : 0,
-        })
-      }, token);
-      setShowModal(false); setTitle(''); setDosage(''); setNotes('');
-      fetchReminders();
+      await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: selectedType, title: title.trim(), time, days: selectedDays, dosage, interval_minutes: selectedType === 'hydration' ? parseInt(interval_) || 120 : 0 }) }, token);
+      setShowModal(false); setTitle(''); setDosage(''); fetchReminders();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
   };
 
-  const toggleComplete = async (rid: string) => {
-    try {
-      await apiFetch(`/api/reminders/${rid}/complete`, { method: 'PUT' }, token);
-      fetchReminders();
-    } catch {}
-  };
-
   const toggleActive = async (rid: string) => {
-    try {
-      await apiFetch(`/api/reminders/${rid}/toggle`, { method: 'PUT' }, token);
-      fetchReminders();
-    } catch {}
+    try { await apiFetch(`/api/reminders/${rid}/toggle`, { method: 'PUT' }, token); fetchReminders(); } catch {}
   };
 
   const deleteReminder = (rid: string) => {
     Alert.alert('Supprimer', 'Supprimer ce rappel ?', [
       { text: 'Annuler' },
-      { text: 'Supprimer', style: 'destructive', onPress: async () => {
-        await apiFetch(`/api/reminders/${rid}`, { method: 'DELETE' }, token);
-        fetchReminders();
-      }}
+      { text: 'Supprimer', style: 'destructive', onPress: async () => { await apiFetch(`/api/reminders/${rid}`, { method: 'DELETE' }, token); fetchReminders(); } }
     ]);
   };
 
-  const toggleDay = (day: string) => {
-    setSelectedDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
-  };
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></SafeAreaView>;
 
-  const isCompleted = (r: any) => r.completions?.includes(today);
-  const typeInfo = (t: string) => TYPES.find(x => x.key === t) || TYPES[3];
+  const activeCat = activeCategory ? CATEGORIES.find(c => c.key === activeCategory) : null;
+  const catReminders = activeCat ? reminders.filter(r => activeCat.types.includes(r.reminder_type)) : [];
 
-  if (loading) return <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}><ActivityIndicator size="large" color={Colors.primary} /></SafeAreaView>;
-
-  const grouped = {
-    hydration: reminders.filter(r => r.reminder_type === 'hydration'),
-    medication: reminders.filter(r => r.reminder_type === 'medication'),
-    alarm: reminders.filter(r => r.reminder_type === 'alarm'),
-    custom: reminders.filter(r => r.reminder_type === 'custom'),
-  };
-
-  return (
-    <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}>
-      <View style={s.header}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={Colors.text} />
-        </TouchableOpacity>
-        <Text style={s.headerT}>Mes rappels</Text>
-        <TouchableOpacity data-testid="add-reminder-btn" style={s.addBtn} onPress={() => setShowModal(true)}>
-          <Ionicons name="add" size={22} color="#FFF" />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView style={s.scroll} contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Summary cards */}
-        <View style={s.summaryRow}>
-          {TYPES.map(t => {
-            const items = grouped[t.key as keyof typeof grouped] || [];
-            const done = items.filter(r => isCompleted(r)).length;
-            return (
-              <View key={t.key} style={[s.summaryCard, { borderLeftColor: t.color }]}>
-                <Ionicons name={t.icon as any} size={20} color={t.color} />
-                <Text style={s.summaryCount}>{done}/{items.length}</Text>
-                <Text style={s.summaryLabel}>{t.label}</Text>
-              </View>
-            );
-          })}
+  // Category list view
+  if (!activeCategory) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        {/* Header */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
+          <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
+            <Ionicons name="chevron-back" size={24} color="#000" />
+          </TouchableOpacity>
+          <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#000' }}>Mes rappels</Text>
         </View>
 
-        {/* Reminders list by type */}
-        {TYPES.map(t => {
-          const items = grouped[t.key as keyof typeof grouped] || [];
-          if (items.length === 0) return null;
-          return (
-            <View key={t.key} style={s.section}>
-              <View style={s.sectionHeader}>
-                <Ionicons name={t.icon as any} size={18} color={t.color} />
-                <Text style={[s.sectionTitle, { color: t.color }]}>{t.label}</Text>
-              </View>
-              {items.map(r => (
-                <View key={r.id} style={[s.reminderCard, !r.active && { opacity: 0.4 }]}>
-                  <TouchableOpacity
-                    data-testid={`complete-${r.id}`}
-                    style={[s.checkCircle, isCompleted(r) && { backgroundColor: t.color, borderColor: t.color }]}
-                    onPress={() => toggleComplete(r.id)}
-                  >
-                    {isCompleted(r) && <Ionicons name="checkmark" size={14} color="#FFF" />}
-                  </TouchableOpacity>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
+          {CATEGORIES.map(cat => {
+            const items = reminders.filter(r => cat.types.includes(r.reminder_type));
+            return (
+              <TouchableOpacity key={cat.key} onPress={() => setActiveCategory(cat.key)} activeOpacity={0.7}>
+                <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', ...glass }]}>
                   <View style={{ flex: 1 }}>
-                    <Text style={[s.reminderTitle, isCompleted(r) && { textDecorationLine: 'line-through', color: Colors.textMuted }]}>{r.title}</Text>
-                    <Text style={s.reminderMeta}>
-                      {r.time} {r.dosage ? ` - ${r.dosage}` : ''}
-                      {r.interval_minutes > 0 ? ` - Toutes les ${r.interval_minutes}min` : ''}
-                    </Text>
-                    <View style={s.daysRow}>
-                      {DAYS.map(d => (
-                        <View key={d.key} style={[s.dayBadge, r.days?.includes(d.key) && { backgroundColor: t.color }]}>
-                          <Text style={[s.dayText, r.days?.includes(d.key) && { color: '#FFF' }]}>{d.label}</Text>
-                        </View>
-                      ))}
-                    </View>
+                    <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{cat.label}</Text>
+                    <Text style={{ fontSize: 13, color: '#888', marginTop: 2 }}>{items.length} rappel{items.length !== 1 ? 's' : ''} par jour</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', marginTop: 10, textTransform: 'uppercase' }}>TEMPS RESTANT | --:--</Text>
                   </View>
-                  <View style={s.reminderActions}>
-                    <Switch value={r.active} onValueChange={() => toggleActive(r.id)} trackColor={{ true: t.color }} />
-                    <TouchableOpacity onPress={() => deleteReminder(r.id)} style={{ marginTop: 6 }}>
-                      <Ionicons name="trash-outline" size={16} color={Colors.textMuted} />
-                    </TouchableOpacity>
-                  </View>
+                  <Image source={{ uri: REMINDER_IMAGES[cat.key] }} style={{ width: 60, height: 60, resizeMode: 'contain' }} />
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  // Category detail view
+  const catImg = REMINDER_IMAGES[activeCategory];
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* Header */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
+        <TouchableOpacity onPress={() => setActiveCategory(null)} style={{ padding: 4, marginRight: 12 }}>
+          <Ionicons name="chevron-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#000' }}>{activeCat?.label}</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
+        {/* Category illustration */}
+        <View style={{ alignItems: 'center', marginBottom: 20 }}>
+          <Image source={{ uri: catImg }} style={{ width: 100, height: 100, resizeMode: 'contain' }} />
+        </View>
+
+        {/* Reminder entries */}
+        {catReminders.map(r => (
+          <View key={r.id} style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 10, ...glass }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View>
+                <Text style={{ fontSize: 28, fontWeight: '900', color: '#000' }}>{r.time}</Text>
+                <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
+                  {r.days?.length === 7 ? 'Tous les jours' : r.days?.map((d: string) => {
+                    const day = DAYS_FULL.find(df => df.key === d);
+                    return day?.label?.substring(0, 3) || d;
+                  }).join(', ')}
+                </Text>
+                {r.dosage ? <Text style={{ fontSize: 12, color: '#888' }}>{r.dosage}</Text> : null}
+              </View>
+              <Switch value={r.active} onValueChange={() => toggleActive(r.id)} trackColor={{ true: '#4CAF50', false: '#DDD' }} />
+            </View>
+
+            {/* Day frequency selector */}
+            <View style={{ marginTop: 12 }}>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#000', marginBottom: 8 }}>Definir la frequence</Text>
+              {DAYS_FULL.map(d => (
+                <View key={d.key} style={[{ backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }]}>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5 }}>{d.label}</Text>
+                  {r.days?.includes(d.key) && <Ionicons name="checkmark" size={18} color="#000" />}
                 </View>
               ))}
             </View>
-          );
-        })}
+          </View>
+        ))}
 
-        {reminders.length === 0 && (
-          <View style={s.empty}>
-            <Ionicons name="alarm-outline" size={48} color={Colors.textMuted} />
-            <Text style={s.emptyText}>Aucun rappel configuré</Text>
-            <Text style={s.emptyDesc}>Ajoutez vos rappels d'hydratation, médicaments et activités quotidiennes</Text>
+        {catReminders.length === 0 && (
+          <View style={{ alignItems: 'center', padding: 32 }}>
+            <Text style={{ fontSize: 14, color: '#888' }}>Aucun rappel dans cette categorie</Text>
           </View>
         )}
+
+        {/* Add reminder button */}
+        <TouchableOpacity data-testid="add-reminder-btn" style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={() => { setSelectedType(activeCategory === 'alarm' ? 'alarm' : activeCategory); setShowModal(true); }}>
+          <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 }}>AJOUTER UN RAPPEL</Text>
+          <Ionicons name="heart-outline" size={18} color="#FFF" />
+        </TouchableOpacity>
       </ScrollView>
 
-      {/* Create Reminder Modal */}
+      {/* Create Modal */}
       <Modal visible={showModal} transparent animationType="slide">
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={s.modalO}>
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={s.modalO}>
-              <TouchableWithoutFeedback>
-                <View style={s.modalC}>
-                  <Text style={s.modalTitle}>Nouveau rappel</Text>
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
+            <Text style={{ fontSize: 20, fontWeight: '900', color: '#000', marginBottom: 16 }}>Nouveau rappel</Text>
 
-                  {/* Type selection */}
-                  <View style={s.typeRow}>
-                    {TYPES.map(t => (
-                      <TouchableOpacity
-                        key={t.key}
-                        style={[s.typeBtn, selectedType === t.key && { backgroundColor: t.color, borderColor: t.color }]}
-                        onPress={() => setSelectedType(t.key)}
-                      >
-                        <Ionicons name={t.icon as any} size={18} color={selectedType === t.key ? '#FFF' : Colors.text} />
-                        <Text style={[s.typeBtnT, selectedType === t.key && { color: '#FFF' }]}>{t.label}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+            {Platform.OS === 'web' ? (
+              <>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>Titre</div>
+                  <input data-testid="reminder-title-input" type="text" placeholder="Ex: Prendre Doliprane" value={title} onChange={(e: any) => setTitle(e.target.value)}
+                    style={{ width: '100%', fontSize: 15, padding: '14px', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.6)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} />
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>Heure</div>
+                  <input type="time" value={time} onChange={(e: any) => setTime(e.target.value)}
+                    style={{ width: '100%', fontSize: 15, padding: '14px', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.6)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} />
+                </div>
+                {activeCategory === 'medication' && (
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>Dosage</div>
+                    <input type="text" placeholder="1 comprime" value={dosage} onChange={(e: any) => setDosage(e.target.value)}
+                      style={{ width: '100%', fontSize: 15, padding: '14px', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.6)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} />
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <TextInput placeholder="Titre du rappel" placeholderTextColor="#999" value={title} onChangeText={setTitle}
+                  style={{ backgroundColor: 'rgba(245,245,245,0.8)', borderRadius: 14, padding: 14, fontSize: 15, color: '#000', marginBottom: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.08)' }} />
+                <TextInput placeholder="Heure (HH:MM)" placeholderTextColor="#999" value={time} onChangeText={setTime}
+                  style={{ backgroundColor: 'rgba(245,245,245,0.8)', borderRadius: 14, padding: 14, fontSize: 15, color: '#000', marginBottom: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.08)' }} />
+              </>
+            )}
 
-                  <TextInput style={s.input} placeholder="Titre du rappel" placeholderTextColor={Colors.textMuted}
-                    value={title} onChangeText={setTitle} blurOnSubmit={false} />
-                  <TextInput style={s.input} placeholder="Heure (HH:MM)" placeholderTextColor={Colors.textMuted}
-                    value={time} onChangeText={setTime} blurOnSubmit={false} />
-                  {selectedType === 'medication' && (
-                    <TextInput style={s.input} placeholder="Dosage (ex: 1 comprimé)" placeholderTextColor={Colors.textMuted}
-                      value={dosage} onChangeText={setDosage} blurOnSubmit={false} />
-                  )}
-                  {selectedType === 'hydration' && (
-                    <TextInput style={s.input} placeholder="Intervalle (minutes)" placeholderTextColor={Colors.textMuted}
-                      value={interval} onChangeText={setInterval_} keyboardType="numeric" blurOnSubmit={false} />
-                  )}
-                  <TextInput style={s.input} placeholder="Notes (optionnel)" placeholderTextColor={Colors.textMuted}
-                    value={notes} onChangeText={setNotes} blurOnSubmit={false} />
-
-                  {/* Days selection */}
-                  <View style={s.daysSelect}>
-                    {DAYS.map(d => (
-                      <TouchableOpacity
-                        key={d.key}
-                        style={[s.daySelectBtn, selectedDays.includes(d.key) && { backgroundColor: Colors.primary }]}
-                        onPress={() => toggleDay(d.key)}
-                      >
-                        <Text style={[s.daySelectT, selectedDays.includes(d.key) && { color: '#FFF' }]}>{d.label}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-
-                  <View style={s.modalBtns}>
-                    <TouchableOpacity style={s.cancelBtn} onPress={() => setShowModal(false)}>
-                      <Text style={s.cancelBtnT}>Annuler</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity data-testid="save-reminder-btn" style={s.saveBtn} onPress={createReminder} disabled={saving}>
-                      {saving ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={s.saveBtnT}>Créer</Text>}
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </TouchableWithoutFeedback>
+            {/* Days */}
+            <View style={{ flexDirection: 'row', gap: 6, marginBottom: 16, justifyContent: 'center' }}>
+              {DAYS_FULL.map(d => (
+                <TouchableOpacity key={d.key} style={[{ width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: selectedDays.includes(d.key) ? '#000' : '#DDD' }, selectedDays.includes(d.key) && { backgroundColor: '#000' }]}
+                  onPress={() => setSelectedDays(prev => prev.includes(d.key) ? prev.filter(x => x !== d.key) : [...prev, d.key])}>
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: selectedDays.includes(d.key) ? '#FFF' : '#888' }}>{d.label.substring(0, 2)}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
-          </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
+
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#F5F5F5', alignItems: 'center' }} onPress={() => setShowModal(false)}>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#888' }}>Annuler</Text>
+              </TouchableOpacity>
+              <TouchableOpacity data-testid="save-reminder-btn" style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={createReminder} disabled={saving}>
+                {saving ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>CREER</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </Modal>
     </SafeAreaView>
   );
 }
-
-const s = StyleSheet.create({
-  c: { flex: 1, backgroundColor: Colors.background },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: Colors.border, backgroundColor: Colors.paper },
-  backBtn: { padding: 4, marginRight: 12 },
-  headerT: { flex: 1, fontSize: 18, fontWeight: '700', color: Colors.text, letterSpacing: 0.5 },
-  addBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
-  scroll: { flex: 1 },
-  summaryRow: { flexDirection: 'row', padding: 12, gap: 8 },
-  summaryCard: { flex: 1, backgroundColor: Colors.paper, padding: 12, borderRadius: 10, borderLeftWidth: 3, alignItems: 'center', gap: 4 },
-  summaryCount: { fontSize: 18, fontWeight: '700', color: Colors.text },
-  summaryLabel: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
-  section: { marginBottom: 16 },
-  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 8 },
-  sectionTitle: { fontSize: 14, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
-  reminderCard: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: Colors.paper, marginHorizontal: 12, marginBottom: 6, borderRadius: 10, gap: 12 },
-  checkCircle: { width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: Colors.border, justifyContent: 'center', alignItems: 'center' },
-  reminderTitle: { fontSize: 15, fontWeight: '600', color: Colors.text },
-  reminderMeta: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
-  daysRow: { flexDirection: 'row', gap: 3, marginTop: 6 },
-  dayBadge: { width: 22, height: 22, borderRadius: 11, backgroundColor: Colors.subtle, justifyContent: 'center', alignItems: 'center' },
-  dayText: { fontSize: 9, fontWeight: '600', color: Colors.textMuted },
-  reminderActions: { alignItems: 'center' },
-  empty: { alignItems: 'center', padding: 40, gap: 8 },
-  emptyText: { fontSize: 16, fontWeight: '600', color: Colors.text },
-  emptyDesc: { fontSize: 13, color: Colors.textMuted, textAlign: 'center' },
-  modalO: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalC: { backgroundColor: Colors.paper, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, maxHeight: '85%' },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: Colors.text, marginBottom: 16 },
-  typeRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  typeBtn: { flex: 1, flexDirection: 'column', alignItems: 'center', padding: 10, borderRadius: 10, borderWidth: 1.5, borderColor: Colors.border, gap: 4 },
-  typeBtnT: { fontSize: 10, fontWeight: '600', color: Colors.text },
-  input: { backgroundColor: Colors.subtle, borderRadius: 10, padding: 14, fontSize: 15, color: Colors.text, marginBottom: 10, borderWidth: 1, borderColor: Colors.border },
-  daysSelect: { flexDirection: 'row', gap: 6, marginBottom: 16, justifyContent: 'center' },
-  daySelectBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: Colors.subtle, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: Colors.border },
-  daySelectT: { fontSize: 12, fontWeight: '600', color: Colors.text },
-  modalBtns: { flexDirection: 'row', gap: 12 },
-  cancelBtn: { flex: 1, padding: 14, borderRadius: 10, borderWidth: 1, borderColor: Colors.border, alignItems: 'center' },
-  cancelBtnT: { fontSize: 15, color: Colors.textMuted, fontWeight: '600' },
-  saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: Colors.primary, alignItems: 'center' },
-  saveBtnT: { fontSize: 15, color: '#FFF', fontWeight: '600' },
-});
