@@ -902,18 +902,22 @@ async def auto_escalation_protocol(alert: dict):
 
             try:
                 ben_name = alert.get('beneficiary_name', 'votre proche')
-                # Generate guardian-specific ElevenLabs message
-                guardian_msg = f"Bonjour, ici le plateau d'ecoute Chutex. Une alerte a ete declenchee pour {ben_name}. Nous n'avons pas pu confirmer que tout va bien. Veuillez ouvrir l'application Chutex et cliquer sur Intervenir. Merci."
+                alert_msg = alert.get('message', 'une alerte')
+                guardian_text = (
+                    f"Bonjour, ici le plateau d'ecoute Chutex. "
+                    f"Une alerte a ete declenchee pour {ben_name}. {alert_msg}. "
+                    f"Nous n'avons pas pu confirmer que tout va bien. "
+                    f"Pouvez-vous intervenir ? Dites oui si vous y allez, ou non sinon."
+                )
                 from services.elevenlabs_service import generate_speech
-                audio = generate_speech(guardian_msg)
+                audio = generate_speech(guardian_text)
 
-                # Store audio temporarily
                 import base64
                 audio_key = f"guardian_call_{esc['id']}_{guardian['id']}"
                 if audio:
                     await db.audio_cache.update_one(
                         {"key": audio_key},
-                        {"$set": {"key": audio_key, "audio_b64": base64.b64encode(audio).decode(), "text": guardian_msg}},
+                        {"$set": {"key": audio_key, "audio_b64": base64.b64encode(audio).decode(), "text": guardian_text}},
                         upsert=True
                     )
 
@@ -921,9 +925,15 @@ async def auto_escalation_protocol(alert: dict):
                 if audio:
                     twiml_g.play(f"{base_url}/api/elevenlabs/audio/{audio_key}")
                 else:
-                    twiml_g.say(f"Bonjour, ici Chutex. Alerte pour {ben_name}. Ouvrez l'application Chutex.", voice='Polly.Lea', language='fr-FR')
-                twiml_g.pause(length=3)
-                twiml_g.say("Merci. Au revoir.", voice='Polly.Lea', language='fr-FR')
+                    twiml_g.say(guardian_text, voice='Polly.Lea', language='fr-FR')
+
+                # Use speech recognition for guardian response
+                gather_g = Gather(
+                    input='speech', language='fr-FR', timeout=10, speech_timeout=5,
+                    action=f"{base_url}/api/twilio/guardian-speech-response?alert_id={alert['id']}&guardian_id={guardian['id']}"
+                )
+                twiml_g.append(gather_g)
+                twiml_g.say("Nous n'avons pas recu de reponse. Nous contactons un autre gardien.", voice='Polly.Lea', language='fr-FR')
 
                 g_call = twilio_client.calls.create(twiml=str(twiml_g), to=g_phone, from_=TWILIO_NUMBER)
                 await db.twilio_calls.insert_one({
