@@ -743,7 +743,7 @@ export default function Dashboard() {
         : effectiveRole === 'admin' ? <AdminHome token={token} user={user} />
         : <BeneficiaryHome token={token} user={user} />}
       </SafeAreaView>
-      <FloatingNav />
+      <FloatingNav role={effectiveRole} />
     </View>
   );
 }
