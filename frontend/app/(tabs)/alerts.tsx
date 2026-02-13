@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Platform, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
@@ -91,7 +90,7 @@ export default function AlertsScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="alerts-screen">
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="alerts-screen">
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>
         <Text style={{ fontSize: 28, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Alertes</Text>
       </View>
@@ -126,6 +125,6 @@ export default function AlertsScreen() {
           }
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }
