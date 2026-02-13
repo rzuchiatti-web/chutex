@@ -63,140 +63,207 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
     </ScrollView>);
 }
 
-/* ===== TELEASSISTANCE: ESCALATION FLOW ===== */
+/* ===== TELEASSISTANCE: CARE WATCH DASHBOARD ===== */
 function TeleassistanceDashboard({ token }: { token: string }) {
   const router = useRouter();
-  const [alerts, setAlerts] = useState<any[]>([]);
-  const [escalations, setEscalations] = useState<any[]>([]);
+  const [incidents, setIncidents] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeEsc, setActiveEsc] = useState<any>(null);
-  const [protocol, setProtocol] = useState<any[]>([]);
-  const [callStep, setCallStep] = useState(0);
-  const [callAnswers, setCallAnswers] = useState<any>({});
-  const [callNotes, setCallNotes] = useState('');
-  const [processing, setProcessing] = useState(false);
-  const [tab, setTab] = useState<'en_cours'|'historique'|'interventions'>('en_cours');
+  const [refreshing, setRefreshing] = useState(false);
+  const [tab, setTab] = useState<'active'|'all'|'stats'>('active');
+  const [selectedIncident, setSelectedIncident] = useState<any>(null);
+  const [noteText, setNoteText] = useState('');
 
   const fetchData = useCallback(async () => {
     try {
-      const [a, e, p] = await Promise.all([
-        apiFetch('/api/alerts', {}, token).catch(() => []),
-        apiFetch('/api/teleassistance/escalations', {}, token).catch(() => []),
-        apiFetch('/api/teleassistance/protocol/beneficiary', {}, token).catch(() => []),
+      const [inc, st] = await Promise.all([
+        apiFetch('/api/carewatch/incidents', {}, token).catch(() => []),
+        apiFetch('/api/carewatch/stats', {}, token).catch(() => ({})),
       ]);
-      setAlerts(a.filter((x: any) => x.status === 'active')); setEscalations(e); setProtocol(p);
-    } catch {} finally { setLoading(false); }
+      setIncidents(Array.isArray(inc) ? inc : []);
+      setStats(st);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
-  // Auto-refresh every 5 seconds for real-time monitoring
-  useEffect(() => { const iv = setInterval(fetchData, 5000); return () => clearInterval(iv); }, [fetchData]);
+  useEffect(() => { fetchData(); const t = setInterval(fetchData, 5000); return () => clearInterval(t); }, [fetchData]);
 
-  const startEscalation = async (alert: any) => {
-    setProcessing(true);
+  const resolveIncident = async (iid: string) => {
     try {
-      const esc = await apiFetch('/api/teleassistance/escalation/start', { method: 'POST', body: JSON.stringify({ alert_id: alert.id }) }, token);
-      setActiveEsc(esc); setCallStep(0); setCallAnswers({}); setCallNotes('');
-      // Trigger real Twilio call to beneficiary
-      try {
-        const callRes = await apiFetch('/api/twilio/call/beneficiary', { method: 'POST', body: JSON.stringify({ alert_id: alert.id }) }, token);
-        Alert.alert('📞 Appel lancé', `Appel en cours vers ${esc.beneficiary_name}...\nSID: ${callRes.call_sid?.slice(0,12)}...`);
-      } catch (callErr: any) { Alert.alert('⚠️ Appel', `Escalade démarrée mais appel échoué: ${callErr.message}`); }
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setProcessing(false); }
+      await apiFetch(`/api/carewatch/incident/${iid}/resolve`, { method: 'POST', body: JSON.stringify({ motif: 'Cloture operateur' }) }, token);
+      Alert.alert('Incident cloture');
+      fetchData();
+    } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
-  const advanceStep = async (response: string) => {
-    if (!activeEsc) return;
-    setProcessing(true);
+  const addNote = async (iid: string) => {
+    if (!noteText.trim()) return;
     try {
-      const ans = protocol.map(p => ({ question_id: p.id, question: p.question, answer: callAnswers[p.id] || '' }));
-      const updated = await apiFetch('/api/teleassistance/escalation/step', { method: 'POST',
-        body: JSON.stringify({ escalation_id: activeEsc.id, response, answers: ans, notes: callNotes }) }, token);
-      setActiveEsc(updated);
-      if (['resolved', 'dispatched', 'guardian_handling'].includes(updated.status)) {
-        Alert.alert('Terminé', getStepMessage(updated));
-        setActiveEsc(null); fetchData();
-      }
-      setCallAnswers({}); setCallNotes(''); setCallStep(0);
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setProcessing(false); }
+      await apiFetch(`/api/carewatch/incident/${iid}/note`, { method: 'POST', body: JSON.stringify({ note: noteText }) }, token);
+      setNoteText(''); fetchData();
+    } catch {}
   };
 
-  const getStepMessage = (esc: any) => {
-    if (esc.status === 'resolved') return 'Levée de doute réussie. Alerte résolue.';
-    if (esc.status === 'guardian_handling') return `Gardien ${esc.current_target?.name} prend en charge.`;
-    if (esc.status === 'dispatched') return `Intervention #${esc.intervention_id?.slice(0,8)} créée et dispatchée.`;
-    return '';
-  };
+  const activeIncidents = incidents.filter(i => !['RESOLVED', 'FAILED'].includes(i.state));
+  const displayed = tab === 'active' ? activeIncidents : tab === 'all' ? incidents : [];
+
+  const stateColor = (st: string) => ({ NEW_ALERT: '#E53935', CALLING_PATIENT: '#FF9800', PATIENT_CONFIRMED_OK: '#4CAF50', PATIENT_NEEDS_HELP: '#E53935', PATIENT_NO_RESPONSE: '#FF5722', CALLING_GUARDIAN_1: '#2196F3', CALLING_GUARDIAN_2: '#2196F3', GUARDIAN_INTERVENTION_ACCEPTED: '#4CAF50', GUARDIAN_UNREACHABLE: '#FF5722', CARE_DISPATCHED: '#9C27B0', RESOLVED: '#4CAF50', FAILED: '#888' }[st] || '#888');
+  const stateLabel = (st: string) => ({
+    NEW_ALERT: 'Nouvelle alerte', CALLING_PATIENT: 'Appel patient', PATIENT_CONFIRMED_OK: 'Patient OK',
+    PATIENT_NEEDS_HELP: 'Patient en detresse', PATIENT_NO_RESPONSE: 'Pas de reponse', PATIENT_AMBIGUOUS: 'Reponse ambigue',
+    CALLING_GUARDIAN_1: 'Appel gardien 1', CALLING_GUARDIAN_2: 'Appel gardien 2', CALLING_GUARDIAN_N: 'Appel gardien',
+    GUARDIAN_INTERVENTION_ACCEPTED: 'Gardien intervient', GUARDIAN_UNREACHABLE: 'Gardien injoignable',
+    CARE_DISPATCHED: 'Care dispatche', RESOLVED: 'Resolu', FAILED: 'Echoue',
+  }[st] || st);
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
 
-  /* ACTIVE ESCALATION UI */
-  if (activeEsc) {
-    const step = activeEsc.current_step;
-    const target = activeEsc.current_target;
-    const isCallingBen = step === 'calling_beneficiary';
-    const isDoubt = step === 'doubt_lifting';
-    const isCallingGuardian = step === 'calling_guardian';
-    const isDispatchNeeded = step === 'dispatch_needed';
+  return (
+    <ScrollView contentContainerStyle={[s.sc, { paddingBottom: 80 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />}>
+      <Text style={{ fontSize: 24, fontWeight: '900', color: '#000', marginBottom: 4 }}>Plateau d'ecoute IA</Text>
+      <Text style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>CARE WATCH - Teleassistance automatisee</Text>
 
-    return (
-      <ScrollView contentContainerStyle={s.sc} showsVerticalScrollIndicator={false}>
-        {/* Call Header */}
-        <View style={s.escHeader}>
-          <View style={[s.escPulse, isCallingBen && { backgroundColor: Colors.primary }, isCallingGuardian && { backgroundColor: '#555' }, isDispatchNeeded && { backgroundColor: Colors.destructive }]}>
-            <Ionicons name={isDispatchNeeded ? 'warning' : 'call'} size={28} color="#FFF" />
-          </View>
-          <Text style={s.escTitle}>
-            {isCallingBen ? 'Appel bénéficiaire' : isDoubt ? 'Levée de doute' : isCallingGuardian ? `Appel gardien` : isDispatchNeeded ? 'Dispatcher intervention' : step}
-          </Text>
-          <Text style={s.escSub}>{target?.name} — {activeEsc.beneficiary_name}</Text>
-        </View>
-
-        {/* Timeline */}
-        <View style={s.tlCard}>
-          <Text style={s.tlTitle}>Chronologie</Text>
-          {activeEsc.timeline?.map((t: any, i: number) => (
-            <View key={i} style={s.tlRow}>
-              <View style={[s.tlDot, i === activeEsc.timeline.length - 1 && { backgroundColor: Colors.primary }]} />
-              <Text style={s.tlText}>{t.note}</Text>
+      {/* Stats Cards */}
+      {stats && (
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+          {[
+            { val: activeIncidents.length, label: 'En cours', color: activeIncidents.length > 0 ? '#E53935' : '#4CAF50' },
+            { val: stats.resolved_incidents || 0, label: 'Resolus', color: '#4CAF50' },
+            { val: stats.care_dispatched || 0, label: 'Dispatches', color: '#9C27B0' },
+            { val: `${stats.patient_response_rate || 0}%`, label: 'Reponse', color: '#2196F3' },
+          ].map((s, i) => (
+            <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)' }}>
+              <Text style={{ fontSize: 22, fontWeight: '900', color: s.color }}>{s.val}</Text>
+              <Text style={{ fontSize: 8, color: '#888', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.label}</Text>
             </View>
           ))}
         </View>
+      )}
 
-        {/* Doubt Lifting Questions */}
-        {isDoubt && protocol.length > 0 && (
-          <View style={s.qCard}>
-            <Text style={s.qLabel}>Protocole de levée de doute</Text>
-            {protocol.map((q: any, qi: number) => (
-              <View key={q.id} style={s.qItem}>
-                <Text style={s.qText}>{q.question}</Text>
-                {q.options?.map((o: string, oi: number) => (
-                  <TouchableOpacity key={oi} testID={`doubt-${qi}-${oi}`} style={[s.optBtn, callAnswers[q.id] === o && s.optBtnA]} onPress={() => setCallAnswers({ ...callAnswers, [q.id]: o })}>
-                    <View style={[s.radio, callAnswers[q.id] === o && s.radioA]}>{callAnswers[q.id] === o && <View style={s.radioI} />}</View>
-                    <Text style={[s.optT, callAnswers[q.id] === o && s.optTA]}>{o}</Text>
-                  </TouchableOpacity>
-                ))}
+      {/* Tabs */}
+      <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 12, padding: 3, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)' }}>
+        {[
+          { key: 'active', label: `En cours (${activeIncidents.length})` },
+          { key: 'all', label: `Historique (${incidents.length})` },
+        ].map(t => (
+          <TouchableOpacity key={t.key} style={[{ flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: 10 }, tab === t.key && { backgroundColor: '#000' }]}
+            onPress={() => setTab(t.key as any)}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: tab === t.key ? '#FFF' : '#888' }}>{t.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Incident Detail Modal */}
+      {selectedIncident && (
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 20, padding: 16, marginBottom: 12, borderWidth: 2, borderColor: stateColor(selectedIncident.state) + '40' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+            <Text style={{ fontSize: 16, fontWeight: '900', color: '#000' }}>Incident #{selectedIncident.id?.slice(0, 8)}</Text>
+            <TouchableOpacity onPress={() => setSelectedIncident(null)}><Ionicons name="close-circle" size={24} color="#888" /></TouchableOpacity>
+          </View>
+
+          {/* Beneficiary */}
+          <View style={{ backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 12, padding: 12, marginBottom: 10 }}>
+            <Text style={{ fontSize: 9, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Beneficiaire</Text>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: '#000' }}>{selectedIncident.beneficiary_name}</Text>
+            <Text style={{ fontSize: 11, color: '#555', marginTop: 2 }}>{selectedIncident.beneficiary_phone}</Text>
+            {selectedIncident.beneficiary_address && <Text style={{ fontSize: 11, color: '#555' }}>{selectedIncident.beneficiary_address}</Text>}
+            {selectedIncident.beneficiary_medical && <Text style={{ fontSize: 10, color: '#E53935', marginTop: 4 }}>Pathologies: {selectedIncident.beneficiary_medical}</Text>}
+          </View>
+
+          {/* Transcriptions */}
+          {selectedIncident.transcriptions?.length > 0 && (
+            <View style={{ marginBottom: 10 }}>
+              <Text style={{ fontSize: 9, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Transcriptions</Text>
+              {selectedIncident.transcriptions.map((t: any, i: number) => (
+                <View key={i} style={{ backgroundColor: t.type === 'patient' ? 'rgba(33,150,243,0.06)' : 'rgba(255,152,0,0.06)', borderRadius: 10, padding: 10, marginBottom: 4 }}>
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: t.type === 'patient' ? '#1565C0' : '#E65100' }}>{t.type === 'patient' ? 'Patient' : `Gardien ${t.guardian_name || ''}`}</Text>
+                  <Text style={{ fontSize: 12, color: '#333', fontStyle: 'italic', marginTop: 2 }}>"{t.text}"</Text>
+                  {t.classification && <Text style={{ fontSize: 9, color: '#888', marginTop: 2 }}>Intent: {t.classification.intent} ({(t.classification.confidence * 100).toFixed(0)}%)</Text>}
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Timeline */}
+          <View style={{ marginBottom: 10 }}>
+            <Text style={{ fontSize: 9, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Timeline</Text>
+            {selectedIncident.timeline?.slice(-8).map((t: any, i: number) => (
+              <View key={i} style={{ flexDirection: 'row', gap: 8, marginBottom: 4 }}>
+                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: stateColor(t.state), marginTop: 5 }} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 11, color: '#333' }}>{t.detail?.slice(0, 100)}</Text>
+                  <Text style={{ fontSize: 9, color: '#AAA' }}>{new Date(t.timestamp).toLocaleTimeString('fr-FR')}</Text>
+                </View>
               </View>
             ))}
           </View>
-        )}
 
-        {/* Notes */}
-        <TextInput testID="esc-notes" style={s.textInp} placeholder="Notes de l'opérateur..." placeholderTextColor={Colors.textMuted} value={callNotes} onChangeText={setCallNotes} multiline />
-
-        {/* Action Buttons based on step */}
-        <Text style={s.actionTitle}>Actions</Text>
-
-        {isCallingBen && (
-          <>
-            <TouchableOpacity testID="ben-answered" style={[s.actionBtn, { backgroundColor: Colors.primary }]} onPress={() => advanceStep('answered')} disabled={processing}>
-              <Ionicons name="call" size={16} color="#FFF" /><Text style={s.actionBtnT}>Bénéficiaire a répondu</Text>
+          {/* Notes */}
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+            <TextInput style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, padding: 10, fontSize: 12 }}
+              placeholder="Note operateur..." value={noteText} onChangeText={setNoteText} />
+            <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 10, paddingHorizontal: 16, justifyContent: 'center' }}
+              onPress={() => addNote(selectedIncident.id)}>
+              <Ionicons name="send" size={14} color="#FFF" />
             </TouchableOpacity>
-            <TouchableOpacity testID="ben-no-answer" style={[s.actionBtn, { backgroundColor: Colors.textSecondary }]} onPress={() => advanceStep('no_answer')} disabled={processing}>
-              <Ionicons name="call-outline" size={16} color="#FFF" /><Text style={s.actionBtnT}>Pas de réponse → Appeler gardien</Text>
-            </TouchableOpacity>
-          </>
-        )}
+          </View>
+
+          {/* Actions */}
+          {!['RESOLVED', 'FAILED'].includes(selectedIncident.state) && (
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity style={{ flex: 1, backgroundColor: '#4CAF50', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
+                onPress={() => { resolveIncident(selectedIncident.id); setSelectedIncident(null); }}>
+                <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>CLOTURER</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, borderWidth: 2, borderColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
+                onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: selectedIncident.alert_id } })}>
+                <Text style={{ color: '#000', fontSize: 12, fontWeight: '800' }}>FICHE ALERTE</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      )}
+
+      {/* Incidents List */}
+      {displayed.length > 0 ? displayed.map(inc => (
+        <TouchableOpacity key={inc.id} testID={`incident-${inc.id}`} onPress={() => setSelectedIncident(inc)}>
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', marginBottom: 10, overflow: 'hidden', borderLeftWidth: 4, borderLeftColor: stateColor(inc.state) }}>
+            <View style={{ padding: 14 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: stateColor(inc.state) + '15', justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name={inc.state.includes('CALLING') ? 'call' : inc.state === 'RESOLVED' ? 'checkmark' : inc.state === 'CARE_DISPATCHED' ? 'navigate' : 'alert-circle'} size={16} color={stateColor(inc.state)} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>{inc.beneficiary_name}</Text>
+                  <Text style={{ fontSize: 10, color: '#888' }}>{inc.alert_type?.toUpperCase()} - {new Date(inc.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</Text>
+                </View>
+                <View style={{ backgroundColor: stateColor(inc.state) + '15', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                  <Text style={{ fontSize: 8, fontWeight: '800', color: stateColor(inc.state), textTransform: 'uppercase' }}>{stateLabel(inc.state)}</Text>
+                </View>
+              </View>
+              <Text style={{ fontSize: 11, color: '#555', marginTop: 6 }}>{inc.alert_message?.slice(0, 80)}</Text>
+              {inc.care_provider && <Text style={{ fontSize: 10, color: '#9C27B0', fontWeight: '600', marginTop: 4 }}>Care: {inc.care_provider}</Text>}
+              {inc.assigned_guardian && <Text style={{ fontSize: 10, color: '#4CAF50', fontWeight: '600', marginTop: 4 }}>Gardien: {inc.assigned_guardian.name}</Text>}
+              {inc.guardians_contacted?.length > 0 && (
+                <View style={{ flexDirection: 'row', gap: 4, marginTop: 6 }}>
+                  {inc.guardians_contacted.map((g: any, i: number) => (
+                    <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: g.answered ? 'rgba(76,175,80,0.1)' : 'rgba(0,0,0,0.04)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                      <Ionicons name={g.answered ? 'checkmark-circle' : 'close-circle'} size={10} color={g.answered ? '#4CAF50' : '#888'} />
+                      <Text style={{ fontSize: 9, color: g.answered ? '#4CAF50' : '#888' }}>{g.name?.split(' ')[0]}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          </View>
+        </TouchableOpacity>
+      )) : (
+        <View style={{ alignItems: 'center', paddingVertical: 40, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 18 }}>
+          <Ionicons name="checkmark-circle-outline" size={40} color="#CCC" />
+          <Text style={{ fontSize: 14, fontWeight: '600', color: '#888', marginTop: 10 }}>{tab === 'active' ? 'Aucun incident en cours' : 'Aucun historique'}</Text>
+        </View>
+      )}
+    </ScrollView>);
+}
 
         {isDoubt && (
           <>
