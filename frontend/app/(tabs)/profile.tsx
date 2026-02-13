@@ -325,10 +325,10 @@ export default function ProfileScreen() {
           { testID: 'ecg-link', icon: 'pulse-outline', label: 'Electrocardiogramme (ECG)', route: '/ecg' },
           { testID: 'geofence-link', icon: 'locate-outline', label: 'Zones de securite', route: '/geofencing' },
         ].map(s => (
-          <TouchableOpacity key={s.testID} testID={s.testID} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 14, padding: 16, marginBottom: 8, borderWidth: 1, borderColor: colors.border }} onPress={() => router.push(s.route as any)}>
-            <Ionicons name={s.icon as any} size={20} color={colors.primary} />
-            <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: colors.textPrimary }}>{s.label}</Text>
-            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+          <TouchableOpacity key={s.testID} testID={s.testID} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 16, padding: 16, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } : {}) }} onPress={() => router.push(s.route as any)}>
+            <Ionicons name={s.icon as any} size={20} color="#000" />
+            <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: '#000' }}>{s.label}</Text>
+            <Ionicons name="chevron-forward" size={16} color="#888" />
           </TouchableOpacity>
         ))}
 
