@@ -549,7 +549,7 @@ export default function TeleconsultScreen() {
   const { user, token } = useAuth();
   const { colors } = useTheme();
   if (!user || !token) return null;
-  const r = user.role;
+  const r = user.active_role || user.role;
   return (
     <View style={[s.safe, { backgroundColor: colors.background }]} testID="teleconsult-screen">
       <View style={s.header}>
