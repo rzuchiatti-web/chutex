@@ -247,6 +247,10 @@ async def get_data_sharing(user=Depends(get_current_user)):
 # ==================== LINK CODE ====================
 @router.post("/beneficiary/generate-link-code")
 async def generate_link_code(user=Depends(get_current_user)):
+    # Return existing code if already generated, otherwise create one
+    existing = await db.link_codes.find_one({"user_id": user['id']}, {"_id": 0})
+    if existing and existing.get('code'):
+        return {"code": existing['code']}
     import string
     code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
     await db.link_codes.update_one({"user_id": user['id']}, {"$set": {"user_id": user['id'], "code": code, "created_at": datetime.now(timezone.utc).isoformat()}}, upsert=True)
