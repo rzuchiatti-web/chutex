@@ -353,7 +353,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       </View>
 
       <BlackButton label="GERER MES RAPPELS" icon="time-outline" onPress={() => router.push('/reminders')} testID="go-reminders" />
-      <BlackButton label="VOIR MES GARDIENS" icon="people-outline" onPress={() => router.push('/(tabs)/profile')} testID="go-guardians" />
 
       {/* Quick Actions */}
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
