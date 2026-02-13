@@ -30,7 +30,7 @@ export default function ProfileScreen() {
   const [sendingContact, setSendingContact] = useState(false);
 
   const [showLangPicker, setShowLangPicker] = useState(false);
-  const [lang, setLang] = useState('FR');
+  const { lang, setLang, t, flags: I18N_FLAGS } = useI18n();
 
   const LANGUAGES = [
     { code: 'FR', label: 'Francais', color: '#002395' },
