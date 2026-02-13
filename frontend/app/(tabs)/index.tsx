@@ -299,6 +299,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
       {/* Activity */}
       <GlassCard colors={colors}>
+        <View style={{ alignItems: 'center', marginBottom: 8 }}>
+          <Image source={{ uri: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/mdk4g3eq_Muscle.png' }} style={{ width: 60, height: 60, resizeMode: 'contain' }} />
+        </View>
         <Text style={{ fontSize: 16, fontWeight: '900', color: colors.textPrimary, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Activite physique</Text>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 16 }}>
           {[
