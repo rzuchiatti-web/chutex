@@ -201,44 +201,66 @@ async def advance_escalation(data: EscalationStepRequest, user=Depends(get_curre
         ben_lat = ben.get('latitude', 45.4737) if ben else 45.4737
         ben_lng = ben.get('longitude', 4.5134) if ben else 4.5134
 
-        # Find nearest Intervenant Care
-        interveners = await db.users.find({"is_intervention_provider": True}, {"_id": 0, "password_hash": 0}).to_list(100)
-        nearest = None
-        nearest_dist = float('inf')
+        # Find nearest intervention CODE (structure) by finding nearest intervention provider
+        interveners = await db.users.find({"is_intervention_provider": True}, {"_id": 0, "password_hash": 0}).to_list(200)
+        # Group by intervention_code (prescriber_code_used or structure)
+        code_groups = {}
         for iv_user in interveners:
+            code = iv_user.get('intervention_code') or iv_user.get('prescriber_code_used') or iv_user.get('structure_name') or iv_user.get('id')
             iv_lat = iv_user.get('latitude')
             iv_lng = iv_user.get('longitude')
             if iv_lat and iv_lng:
-                dist = math.sqrt((ben_lat - iv_lat) ** 2 + (ben_lng - iv_lng) ** 2) * 111  # approx km
+                dist = math.sqrt((ben_lat - iv_lat) ** 2 + (ben_lng - iv_lng) ** 2) * 111
                 radius = iv_user.get('intervention_radius_km', 30)
-                if dist <= radius and dist < nearest_dist:
-                    nearest = iv_user
-                    nearest_dist = dist
+                if dist <= radius:
+                    if code not in code_groups or dist < code_groups[code]['min_dist']:
+                        code_groups[code] = {'min_dist': dist, 'members': [], 'nearest': iv_user}
+                    code_groups[code]['members'].append(iv_user)
 
-        assigned_id = nearest['id'] if nearest else user['id']
-        assigned_name = nearest['name'] if nearest else "Structure partenaire"
-        iv_lat = nearest.get('latitude', ben_lat) if nearest else ben_lat
-        iv_lng = nearest.get('longitude', ben_lng) if nearest else ben_lng
+        # Find the nearest code group
+        nearest_code = None
+        nearest_dist = float('inf')
+        for code, group in code_groups.items():
+            if group['min_dist'] < nearest_dist:
+                nearest_dist = group['min_dist']
+                nearest_code = code
+
+        all_recipients = code_groups[nearest_code]['members'] if nearest_code else []
+        nearest = code_groups[nearest_code]['nearest'] if nearest_code else None
+        structure_name = nearest.get('structure_name', nearest.get('name', '')) if nearest else "Structure partenaire"
         distance_note = f" ({nearest_dist:.1f}km)" if nearest else ""
 
         iv_id = str(uuid.uuid4())
         iv = {
             "id": iv_id, "alert_id": esc['alert_id'], "escalation_id": esc['id'],
             "beneficiary_id": esc['beneficiary_id'], "beneficiary_name": esc['beneficiary_name'],
-            "assigned_to": assigned_id, "assigned_name": assigned_name,
-            "status": "dispatched",
+            "intervention_code": nearest_code or "",
+            "structure_name": structure_name,
+            "recipients": [{"id": r['id'], "name": r['name'], "phone": r.get('phone', '')} for r in all_recipients],
+            "assigned_to": None, "assigned_name": None,
+            "status": "pending_acceptance",
             "notes": f"Auto-dispatch: {alert['message'] if alert else 'Alerte'}",
+            "alert_type": alert.get('alert_type', 'sos') if alert else 'sos',
+            "alert_message": alert.get('message', '') if alert else '',
+            "beneficiary_info": {
+                "name": ben.get('name', '') if ben else '', "phone": ben.get('phone', '') if ben else '',
+                "address": ben.get('address', '') if ben else '',
+                "medical_conditions": ben.get('medical_conditions', '') if ben else '',
+                "allergies": ben.get('allergies', '') if ben else '',
+                "emergency_contact_name": ben.get('emergency_contact_name', '') if ben else '',
+                "emergency_contact_phone": ben.get('emergency_contact_phone', '') if ben else '',
+            },
             "beneficiary_location": {"latitude": ben_lat, "longitude": ben_lng, "address": ben.get('address', '') if ben else ''},
-            "intervener_location": {"latitude": iv_lat, "longitude": iv_lng, "address": nearest.get('address', '') if nearest else ''},
             "distance_km": round(nearest_dist, 1) if nearest else None,
-            "created_at": now, "completed_at": None, "report": None,
-            "timeline": [{"status": "dispatched", "time": now, "note": f"Intervention dispatchee a {assigned_name}{distance_note}"}],
+            "created_at": now, "accepted_at": None, "completed_at": None,
+            "report": None, "report_answers": [],
+            "timeline": [{"status": "pending_acceptance", "time": now, "note": f"Demande envoyee a {len(all_recipients)} intervenant(s) Care - {structure_name}{distance_note}"}],
         }
         await db.interventions.insert_one(iv)
         esc['intervention_id'] = iv_id
         esc['status'] = "dispatched"
         esc['current_step'] = "dispatched"
-        esc['timeline'].append({"step": "dispatched", "time": now, "note": f"Intervenant Care {assigned_name}{distance_note} - Intervention #{iv_id[:8]}"})
+        esc['timeline'].append({"step": "dispatched", "time": now, "note": f"Intervenant Care {structure_name}{distance_note} - {len(all_recipients)} notifie(s) - Intervention #{iv_id[:8]}"})
         await db.alerts.update_one({"id": esc['alert_id']}, {"$set": {"teleassistance_status": "intervention_dispatched"}})
     await db.escalations.update_one({"id": esc['id']}, {"$set": {
         "status": esc['status'], "current_step": esc['current_step'], "current_target": esc['current_target'],
