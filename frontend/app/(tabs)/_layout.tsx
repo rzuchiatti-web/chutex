@@ -33,9 +33,9 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 
   return (
     <View style={{
-      position: 'absolute', bottom: 10, left: 10, right: 10,
       backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 28,
-      flexDirection: 'row', paddingVertical: 6, paddingHorizontal: 2,
+      flexDirection: 'row', paddingVertical: 8, paddingHorizontal: 4,
+      marginHorizontal: 10, marginBottom: 8,
       borderWidth: 1, borderColor: 'rgba(0,0,0,0.08)',
       ...(Platform.OS === 'web' ? {
         backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)',
