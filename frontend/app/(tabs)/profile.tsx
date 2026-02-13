@@ -200,6 +200,27 @@ export default function ProfileScreen() {
           <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF', textTransform: 'uppercase', letterSpacing: 0.5 }}>SE DECONNECTER</Text>
         </TouchableOpacity>
         <Text style={{ textAlign: 'center', fontSize: 11, color: '#888', letterSpacing: 0.5, marginTop: 16 }}>Chutex Innovation SAS - v3.0</Text>
+
+        {/* Language Picker Modal */}
+        {showLangPicker && (
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 24, zIndex: 100 }}>
+            <View style={{ backgroundColor: '#FFF', borderRadius: 24, padding: 24 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Langue</Text>
+                <TouchableOpacity onPress={() => setShowLangPicker(false)} style={{ padding: 4 }}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
+              </View>
+              {LANGUAGES.map(l => (
+                <TouchableOpacity key={l.code} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }} onPress={() => { setLang(l.code); setShowLangPicker(false); }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: l.color, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: lang === l.code ? '#000' : 'rgba(0,0,0,0.1)' }}>
+                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFF' }}>{l.code}</Text>
+                  </View>
+                  <Text style={{ flex: 1, fontSize: 16, fontWeight: '600', color: '#000' }}>{l.label}</Text>
+                  {lang === l.code && <Ionicons name="checkmark-circle" size={22} color="#000" />}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
