@@ -28,6 +28,17 @@ export default function ProfileScreen() {
   const [contactMsg, setContactMsg] = useState('');
   const [sendingContact, setSendingContact] = useState(false);
 
+  const [showLangPicker, setShowLangPicker] = useState(false);
+  const [lang, setLang] = useState('FR');
+
+  const LANGUAGES = [
+    { code: 'FR', label: 'Francais', color: '#002395' },
+    { code: 'EN', label: 'English', color: '#C8102E' },
+    { code: 'DE', label: 'Deutsch', color: '#000000' },
+    { code: 'ES', label: 'Espanol', color: '#AA151B' },
+    { code: 'IT', label: 'Italiano', color: '#009246' },
+  ];
+
   if (!user || !token) return null;
 
   const saveProfile = async () => {
