@@ -55,13 +55,21 @@ async def get_my_guardians(user=Depends(get_current_user)):
     for gid in guardian_order:
         g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
         if g:
-            guardians.append({"id": g['id'], "name": g['name'], "email": g.get('email', ''), "phone": g.get('phone', '')})
+            guardians.append({"id": g['id'], "name": g['name'], "email": g.get('email', ''), "phone": g.get('phone', ''),
+                "address": g.get('address', ''), "profession": g.get('profession', ''), "structure_name": g.get('structure_name', ''),
+                "guardian_type": g.get('guardian_type', ''), "relationship": g.get('relationship', ''),
+                "is_intervention_provider": g.get('is_intervention_provider', False), "is_prescriber": g.get('is_prescriber', False),
+                "latitude": g.get('latitude'), "longitude": g.get('longitude')})
     # Add any guardians not in the order list
     for gid in cu.get('guardians', []):
         if gid not in guardian_order:
             g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
             if g:
-                guardians.append({"id": g['id'], "name": g['name'], "email": g.get('email', ''), "phone": g.get('phone', '')})
+                guardians.append({"id": g['id'], "name": g['name'], "email": g.get('email', ''), "phone": g.get('phone', ''),
+                    "address": g.get('address', ''), "profession": g.get('profession', ''), "structure_name": g.get('structure_name', ''),
+                    "guardian_type": g.get('guardian_type', ''), "relationship": g.get('relationship', ''),
+                    "is_intervention_provider": g.get('is_intervention_provider', False), "is_prescriber": g.get('is_prescriber', False),
+                    "latitude": g.get('latitude'), "longitude": g.get('longitude')})
     return guardians
 
 
