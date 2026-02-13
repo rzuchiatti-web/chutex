@@ -1,133 +1,139 @@
-// CHUTEX Design System - Futuristic Clinical Theme
-// Inspired by Whoop + Withings + Premium Medical Devices
+// CHUTEX Design System - Black & White Glassmorphism
+// Premium medical aesthetic - NO blue/cyan
 
 export const LightTheme = {
-  background: '#F0F4F8',
-  surface: '#FFFFFF',
-  surfaceHighlight: '#F7F9FC',
-  surfaceGlass: 'rgba(255, 255, 255, 0.72)',
-  glassBorder: 'rgba(255, 255, 255, 0.35)',
+  background: '#F5F0EB',
+  backgroundGradientStart: '#F5F0EB',
+  backgroundGradientMid: '#F0E6F6',
+  backgroundGradientEnd: '#E8EDF5',
 
-  textPrimary: '#0B1426',
-  textSecondary: '#4A5568',
-  textMuted: '#8896AB',
+  surface: 'rgba(255, 255, 255, 0.65)',
+  surfaceHighlight: 'rgba(255, 255, 255, 0.45)',
+  surfaceGlass: 'rgba(255, 255, 255, 0.55)',
+  glassBorder: 'rgba(255, 255, 255, 0.8)',
 
-  primary: '#0891B2',
-  primaryDark: '#0E7490',
-  primaryLight: '#E0F7FA',
-  primaryGlow: 'rgba(8, 145, 178, 0.15)',
+  textPrimary: '#000000',
+  textSecondary: '#333333',
+  textMuted: '#888888',
 
-  accent: '#06D6A0',
-  accentDark: '#05B384',
-  accentLight: '#D1FAE5',
+  primary: '#000000',
+  primaryDark: '#000000',
+  primaryLight: '#F5F5F5',
+  primaryGlow: 'rgba(0, 0, 0, 0.06)',
 
-  danger: '#EF4444',
-  dangerLight: '#FEE2E2',
-  dangerGlow: 'rgba(239, 68, 68, 0.20)',
+  accent: '#4CAF50',
+  accentDark: '#388E3C',
+  accentLight: '#C8E6C9',
 
-  warning: '#F59E0B',
-  warningLight: '#FEF3C7',
+  danger: '#E53935',
+  dangerLight: '#FFEBEE',
+  dangerGlow: 'rgba(229, 57, 53, 0.12)',
 
-  success: '#10B981',
-  successLight: '#D1FAE5',
+  warning: '#FF9800',
+  warningLight: '#FFF3E0',
 
-  info: '#3B82F6',
-  infoLight: '#DBEAFE',
+  success: '#4CAF50',
+  successLight: '#E8F5E9',
+  successBadge: '#C8E6C9',
 
-  border: '#E2E8F0',
-  borderLight: '#F1F5F9',
+  info: '#000000',
+  infoLight: '#F5F5F5',
 
-  care: '#7C3AED',
-  careLight: '#EDE9FE',
-  standard: '#0891B2',
+  border: 'rgba(0, 0, 0, 0.08)',
+  borderLight: 'rgba(0, 0, 0, 0.04)',
 
-  tabBar: '#FFFFFF',
-  tabBarBorder: '#E2E8F0',
+  care: '#000000',
+  careLight: '#F5F5F5',
+  standard: '#000000',
 
-  cardShadow: 'rgba(0, 0, 0, 0.06)',
+  tabBar: 'rgba(255, 255, 255, 0.85)',
+  tabBarBorder: 'rgba(0, 0, 0, 0.06)',
+
+  cardShadow: 'rgba(0, 0, 0, 0.08)',
   overlay: 'rgba(0, 0, 0, 0.5)',
 
-  skeleton: '#E8EDF2',
+  skeleton: '#E8E8E8',
 
   // Backward-compatible aliases
-  subtle: '#F7F9FC',
+  subtle: 'rgba(255, 255, 255, 0.55)',
   paper: '#FFFFFF',
   elevated: '#FFFFFF',
-  card: '#FFFFFF',
-  destructive: '#EF4444',
-  destructiveLight: '#FEE2E2',
-  text: '#0B1426',
-  textPrimary: '#0B1426',
-  secondary: '#E2E8F0',
-  secondaryDark: '#CBD5E1',
-  accent: '#06D6A0',
-  accentLight: '#D1FAE5',
+  card: 'rgba(255, 255, 255, 0.65)',
+  destructive: '#E53935',
+  destructiveLight: '#FFEBEE',
+  text: '#000000',
+  secondary: '#F5F5F5',
+  secondaryDark: '#E0E0E0',
+  accentLight2: '#E8F5E9',
 };
 
 export const DarkTheme = {
-  background: '#0B1120',
-  surface: '#151F32',
-  surfaceHighlight: '#1C2940',
-  surfaceGlass: 'rgba(21, 31, 50, 0.80)',
+  background: '#0A0A0A',
+  backgroundGradientStart: '#0A0A0A',
+  backgroundGradientMid: '#121212',
+  backgroundGradientEnd: '#0A0A0A',
+
+  surface: 'rgba(30, 30, 30, 0.75)',
+  surfaceHighlight: 'rgba(40, 40, 40, 0.6)',
+  surfaceGlass: 'rgba(30, 30, 30, 0.65)',
   glassBorder: 'rgba(255, 255, 255, 0.08)',
 
-  textPrimary: '#F1F5F9',
-  textSecondary: '#94A3B8',
-  textMuted: '#5A6B82',
+  textPrimary: '#FFFFFF',
+  textSecondary: '#CCCCCC',
+  textMuted: '#777777',
 
-  primary: '#22D3EE',
-  primaryDark: '#06B6D4',
-  primaryLight: '#164E63',
-  primaryGlow: 'rgba(34, 211, 238, 0.15)',
+  primary: '#FFFFFF',
+  primaryDark: '#E0E0E0',
+  primaryLight: '#1A1A1A',
+  primaryGlow: 'rgba(255, 255, 255, 0.08)',
 
-  accent: '#34D399',
-  accentDark: '#10B981',
-  accentLight: '#064E3B',
+  accent: '#66BB6A',
+  accentDark: '#4CAF50',
+  accentLight: '#1B5E20',
 
-  danger: '#F87171',
-  dangerLight: '#450A0A',
-  dangerGlow: 'rgba(248, 113, 113, 0.20)',
+  danger: '#EF5350',
+  dangerLight: '#3E1A1A',
+  dangerGlow: 'rgba(239, 83, 80, 0.15)',
 
-  warning: '#FBBF24',
-  warningLight: '#451A03',
+  warning: '#FFA726',
+  warningLight: '#3E2A0A',
 
-  success: '#34D399',
-  successLight: '#064E3B',
+  success: '#66BB6A',
+  successLight: '#1B5E20',
+  successBadge: '#1B5E20',
 
-  info: '#60A5FA',
-  infoLight: '#172554',
+  info: '#FFFFFF',
+  infoLight: '#1A1A1A',
 
-  border: '#1E2D45',
-  borderLight: '#1A2538',
+  border: 'rgba(255, 255, 255, 0.08)',
+  borderLight: 'rgba(255, 255, 255, 0.04)',
 
-  care: '#A78BFA',
-  careLight: '#2E1065',
-  standard: '#22D3EE',
+  care: '#FFFFFF',
+  careLight: '#1A1A1A',
+  standard: '#FFFFFF',
 
-  tabBar: '#0F1929',
-  tabBarBorder: '#1A2538',
+  tabBar: 'rgba(15, 15, 15, 0.9)',
+  tabBarBorder: 'rgba(255, 255, 255, 0.06)',
 
-  cardShadow: 'rgba(0, 0, 0, 0.3)',
+  cardShadow: 'rgba(0, 0, 0, 0.4)',
   overlay: 'rgba(0, 0, 0, 0.7)',
 
-  skeleton: '#1C2940',
+  skeleton: '#1A1A1A',
 
   // Backward-compatible aliases
-  subtle: '#1C2940',
-  paper: '#151F32',
-  elevated: '#1C2940',
-  card: '#151F32',
-  destructive: '#F87171',
-  destructiveLight: '#450A0A',
-  text: '#F1F5F9',
-  textPrimary: '#F1F5F9',
-  secondary: '#1E293B',
-  secondaryDark: '#334155',
-  accent: '#34D399',
-  accentLight: '#064E3B',
+  subtle: 'rgba(30, 30, 30, 0.65)',
+  paper: '#1A1A1A',
+  elevated: '#1E1E1E',
+  card: 'rgba(30, 30, 30, 0.75)',
+  destructive: '#EF5350',
+  destructiveLight: '#3E1A1A',
+  text: '#FFFFFF',
+  secondary: '#1A1A1A',
+  secondaryDark: '#2A2A2A',
+  accentLight2: '#1B5E20',
 };
 
 export type ThemeColors = typeof LightTheme;
 
-// Legacy export for backward compatibility during migration
+// Legacy export for backward compatibility
 export const Colors = LightTheme;
