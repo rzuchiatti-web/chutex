@@ -438,7 +438,7 @@ export default function DevicesScreen() {
   const { colors } = useTheme();
   if (!user || !token) return null;
   return (
-    <SafeAreaView style={[d.safeArea, { backgroundColor: colors.background }]} testID="devices-screen">
+    <View style={[d.safeArea, { backgroundColor: colors.background }]} testID="devices-screen">
       <View style={d.header}>
         <Text style={[d.title, { color: colors.textPrimary }]}>{user.role === 'admin' ? 'Prescripteurs' : user.role === 'guardian' ? 'Prescriptions' : user.role === 'teleassistance' ? 'Abonnés' : 'Mes Appareils'}</Text>
       </View>
@@ -446,7 +446,7 @@ export default function DevicesScreen() {
         : user.role === 'guardian' ? <PrescriptionManagement token={token} user={user} />
         : user.role === 'teleassistance' ? <SubscribersList token={token} />
         : <DeviceManagement token={token} />}
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -558,7 +558,7 @@ export default function TeleconsultScreen() {
   if (!user || !token) return null;
   const r = user.role;
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: colors.background }]} testID="teleconsult-screen">
+    <View style={[s.safe, { backgroundColor: colors.background }]} testID="teleconsult-screen">
       <View style={s.header}>
         <Text style={[s.title, { color: colors.textPrimary }]}>{r === 'teleassistance' ? 'Téléassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Intervenants' : 'Téléconsultation'}</Text>
         {r === 'teleassistance' && <Text style={[s.subtitle, { color: colors.textMuted }]}>Plateau d'écoute — Protocole d'escalade</Text>}
