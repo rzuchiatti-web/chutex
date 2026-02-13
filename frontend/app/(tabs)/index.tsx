@@ -121,6 +121,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       setBraceletData(brac);
       setGuardians(Array.isArray(guards) ? guards : []);
       setGuardianRequests(Array.isArray(greqs) ? greqs : []);
+      // Fetch active alerts separately
+      try {
+        const aa = await apiFetch('/api/alerts/active-with-interventions', {}, token);
+        setActiveAlerts(Array.isArray(aa) ? aa : []);
+      } catch { setActiveAlerts([]); }
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
