@@ -4,14 +4,14 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, usePathname } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 
-export function FloatingNav() {
+export function FloatingNav({ role }: { role?: string }) {
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   if (!user) return null;
 
-  const r = user.active_role || user.role;
+  const r = role || user.active_role || user.role;
   const isBen = r === 'beneficiary';
   const isG = r === 'guardian';
   const isTA = r === 'teleassistance';
