@@ -261,9 +261,83 @@ async def link_with_code(data: LinkWithCodeRequest, user=Depends(get_current_use
     ben = await db.users.find_one({"id": lc['user_id']}, {"_id": 0})
     if not ben:
         raise HTTPException(status_code=404, detail="Beneficiaire non trouve")
-    await db.users.update_one({"id": user['id']}, {"$addToSet": {"beneficiaries": ben['id']}})
-    await db.users.update_one({"id": ben['id']}, {"$addToSet": {"guardians": user['id']}})
-    return {"status": "linked", "beneficiary_name": ben['name']}
+    # Check if already linked
+    if user['id'] in ben.get('guardians', []):
+        return {"status": "already_linked", "message": f"Vous etes deja gardien de {ben['name']}"}
+    # Check if request already pending
+    existing = await db.guardian_requests.find_one({"guardian_id": user['id'], "beneficiary_id": ben['id'], "status": "pending"})
+    if existing:
+        return {"status": "pending", "message": "Demande deja en attente"}
+    # Create pending request (beneficiary must accept)
+    req_id = str(uuid.uuid4())
+    await db.guardian_requests.insert_one({
+        "id": req_id, "guardian_id": user['id'], "guardian_name": user['name'],
+        "guardian_phone": user.get('phone', ''), "guardian_email": user.get('email', ''),
+        "beneficiary_id": ben['id'], "beneficiary_name": ben['name'],
+        "method": "code", "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"status": "pending", "message": f"Demande envoyee a {ben['name']}. En attente d'acceptation.", "request_id": req_id}
+
+
+@router.post("/guardian/link-with-phone")
+async def link_with_phone(data: dict, user=Depends(get_current_user)):
+    """Guardian requests to link with a beneficiary by phone number"""
+    phone = data.get('phone', '').strip()
+    if not phone:
+        raise HTTPException(status_code=400, detail="Numero de telephone requis")
+    # Normalize French phone
+    cleaned = phone.replace(' ', '').replace('.', '').replace('-', '')
+    if cleaned.startswith('0') and len(cleaned) >= 10:
+        cleaned = '+33' + cleaned[1:]
+    ben = await db.users.find_one({"phone": cleaned, "role": "beneficiary"}, {"_id": 0})
+    if not ben:
+        # Try without +33
+        ben = await db.users.find_one({"phone": {"$regex": cleaned[-9:]}, "role": "beneficiary"}, {"_id": 0})
+    if not ben:
+        raise HTTPException(status_code=404, detail="Aucun beneficiaire trouve avec ce numero")
+    if user['id'] in ben.get('guardians', []):
+        return {"status": "already_linked", "message": f"Vous etes deja gardien de {ben['name']}"}
+    existing = await db.guardian_requests.find_one({"guardian_id": user['id'], "beneficiary_id": ben['id'], "status": "pending"})
+    if existing:
+        return {"status": "pending", "message": "Demande deja en attente"}
+    req_id = str(uuid.uuid4())
+    await db.guardian_requests.insert_one({
+        "id": req_id, "guardian_id": user['id'], "guardian_name": user['name'],
+        "guardian_phone": user.get('phone', ''), "guardian_email": user.get('email', ''),
+        "beneficiary_id": ben['id'], "beneficiary_name": ben['name'],
+        "method": "phone", "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"status": "pending", "message": f"Demande envoyee a {ben['name']}. En attente d'acceptation.", "request_id": req_id}
+
+
+@router.get("/beneficiary/guardian-requests")
+async def get_guardian_requests(user=Depends(get_current_user)):
+    """Beneficiary sees pending guardian requests"""
+    requests = await db.guardian_requests.find(
+        {"beneficiary_id": user['id'], "status": "pending"}, {"_id": 0}
+    ).sort("created_at", -1).to_list(50)
+    return requests
+
+
+@router.post("/beneficiary/guardian-requests/{req_id}/accept")
+async def accept_guardian_request(req_id: str, user=Depends(get_current_user)):
+    """Beneficiary accepts a guardian request"""
+    req = await db.guardian_requests.find_one({"id": req_id, "beneficiary_id": user['id']}, {"_id": 0})
+    if not req:
+        raise HTTPException(status_code=404, detail="Demande non trouvee")
+    await db.users.update_one({"id": user['id']}, {"$addToSet": {"guardians": req['guardian_id']}})
+    await db.users.update_one({"id": req['guardian_id']}, {"$addToSet": {"beneficiaries": user['id']}})
+    await db.guardian_requests.update_one({"id": req_id}, {"$set": {"status": "accepted"}})
+    return {"status": "accepted", "message": f"{req['guardian_name']} est maintenant votre gardien."}
+
+
+@router.post("/beneficiary/guardian-requests/{req_id}/reject")
+async def reject_guardian_request(req_id: str, user=Depends(get_current_user)):
+    """Beneficiary rejects a guardian request"""
+    await db.guardian_requests.update_one({"id": req_id, "beneficiary_id": user['id']}, {"$set": {"status": "rejected"}})
+    return {"status": "rejected"}
 
 
 # ==================== PRESCRIPTIONS DETAIL ====================
