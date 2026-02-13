@@ -301,16 +301,20 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
   const { colors } = useTheme();
   const [bens, setBens] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
+  const [invitations, setInvitations] = useState<any[]>([]);
+  const [pendingInterventions, setPendingInterventions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
-      const [b, a] = await Promise.all([
+      const [b, a, inv, piv] = await Promise.all([
         apiFetch('/api/guardian/beneficiaries', {}, token).catch(() => []),
         apiFetch('/api/alerts', {}, token).catch(() => []),
+        apiFetch('/api/guardian/invitations', {}, token).catch(() => []),
+        apiFetch('/api/interventions/pending', {}, token).catch(() => []),
       ]);
-      setBens(b); setAlerts(a);
+      setBens(b); setAlerts(a); setInvitations(inv); setPendingInterventions(piv);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
