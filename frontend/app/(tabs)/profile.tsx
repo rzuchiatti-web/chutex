@@ -90,8 +90,10 @@ export default function ProfileScreen() {
 
   const roleName = user.role === 'beneficiary' ? 'Beneficiaire' : user.role === 'guardian' ? (user.is_prescriber ? 'Prescripteur' : 'Gardien') : user.role === 'teleassistance' ? 'Teleassistance' : 'Administrateur';
 
+  const glassWeb = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+
   const Section = ({ children, style }: any) => (
-    <View style={[{ backgroundColor: colors.surface, borderRadius: 16, padding: 18, marginBottom: 12, borderWidth: 1, borderColor: colors.border }, style]}>{children}</View>
+    <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, padding: 18, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glassWeb }, style]}>{children}</View>
   );
 
   const InputRow = ({ placeholder, value, onChangeText, btnIcon, onPress, loading: btnLoading, testIDs }: any) => (
