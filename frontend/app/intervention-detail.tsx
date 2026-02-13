@@ -162,6 +162,24 @@ export default function InterventionDetailScreen() {
           </GlassCard>
         )}
 
+        {/* Intervener Info */}
+        {iv.assigned_name && (
+          <GlassCard>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>INTERVENANT</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.assigned_name?.charAt(0)}</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{iv.assigned_name}</Text>
+                {iv.structure_name ? <Text style={{ fontSize: 12, color: '#888' }}>{iv.structure_name}</Text> : null}
+              </View>
+            </View>
+            {iv.intervener_location?.address ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}><Ionicons name="location-outline" size={16} color="#000" /><Text style={{ fontSize: 13, color: '#555', flex: 1 }}>{iv.intervener_location.address}</Text></View> : null}
+            {iv.distance_km ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}><Ionicons name="navigate-outline" size={16} color="#000" /><Text style={{ fontSize: 13, color: '#555' }}>Distance : {iv.distance_km} km</Text></View> : null}
+          </GlassCard>
+        )}
+
         {/* Timeline */}
         <GlassCard>
           <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>TIMELINE</Text>
