@@ -24,6 +24,7 @@ const STATE_LABEL: Record<string, string> = {
 export default function AlertsScreen() {
   const { token, user } = useAuth();
   const router = useRouter();
+  const effectiveRole = user?.active_role || user?.role || '';
   const [alerts, setAlerts] = useState<any[]>([]);
   const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -140,7 +141,7 @@ export default function AlertsScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="alerts-screen">
+    <View key={effectiveRole} style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="alerts-screen">
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>
         <Text style={{ fontSize: 28, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Alertes</Text>
       </View>
