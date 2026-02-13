@@ -47,7 +47,7 @@ function LanguageFlagButton() {
   const [open, setOpen] = useState(false);
   const current = flags.find(f => f.code === lang) || flags[0];
   return (
-    <View style={{ position: 'relative', zIndex: 100 }}>
+    <View style={{ position: 'relative', zIndex: 9999 }}>
       <TouchableOpacity
         testID="lang-flag-btn"
         style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: current.color, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)' }}
@@ -56,9 +56,9 @@ function LanguageFlagButton() {
         <Text style={{ fontSize: 10, fontWeight: '900', color: '#FFF' }}>{current.code}</Text>
       </TouchableOpacity>
       {open && (
-        <View style={{ position: 'absolute', top: 38, right: 0, backgroundColor: '#FFF', borderRadius: 14, padding: 6, minWidth: 120, ...( Platform.OS === 'web' ? { boxShadow: '0 8px 24px rgba(0,0,0,0.15)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 10 }) }}>
+        <View style={{ position: 'absolute', top: 38, right: 0, backgroundColor: '#FFF', borderRadius: 14, padding: 6, minWidth: 120, zIndex: 99999, ...( Platform.OS === 'web' ? { boxShadow: '0 8px 24px rgba(0,0,0,0.15)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 10 }) }}>
           {flags.map(f => (
-            <TouchableOpacity key={f.code} testID={`lang-option-${f.code}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, backgroundColor: lang === f.code ? 'rgba(0,0,0,0.04)' : 'transparent' }}
+            <TouchableOpacity key={f.code} testID={`lang-option-${f.code}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, backgroundColor: lang === f.code ? 'rgba(0,0,0,0.04)' : 'transparent', zIndex: 99999 }}
               onPress={() => { setLang(f.code); setOpen(false); }}>
               <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: f.color, justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontSize: 8, fontWeight: '800', color: '#FFF' }}>{f.code}</Text>
