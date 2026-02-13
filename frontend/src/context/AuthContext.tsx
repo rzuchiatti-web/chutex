@@ -8,9 +8,33 @@ interface User {
   name: string;
   phone: string;
   role: string;
+  active_role?: string;
   created_at: string;
   beneficiaries: string[];
   guardians: string[];
+  has_guardian_space?: boolean;
+  has_beneficiary_space?: boolean;
+  avatar_url?: string;
+  guardian_type?: string;
+  is_prescriber?: boolean;
+  prescriber_structure?: string;
+  profession?: string;
+  relationship?: string;
+  structure_name?: string;
+  address?: string;
+  date_of_birth?: string;
+  gender?: string;
+  height_cm?: number;
+  weight_kg?: number;
+  blood_type?: string;
+  allergies?: string;
+  medical_conditions?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  doctor_name?: string;
+  subscription_type?: string;
+  has_subscription?: boolean;
+  [key: string]: any;
 }
 
 interface AuthContextType {
@@ -97,21 +121,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       await AsyncStorage.removeItem('vl_token');
-    } catch (e) {
-      // ignore AsyncStorage errors on web
-    }
+    } catch (e) {}
     setUser(null);
     setToken(null);
   };
 
   const refreshUser = async () => {
     if (!token) return;
-    const res = await fetch(`${API_URL}/api/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      const userData = await res.json();
-      setUser(userData);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const userData = await res.json();
+        setUser(userData);
+      }
+    } catch (e) {
+      console.error('Refresh user error:', e);
     }
   };
 
