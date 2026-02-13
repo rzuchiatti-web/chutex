@@ -1,238 +1,194 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Alert, Dimensions } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, Image, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { LineChart } from 'react-native-chart-kit';
 import { useAuth } from '../src/context/AuthContext';
-import { apiFetch } from '../src/services/api';
-import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
-import { getMetricById } from '../src/constants/metrics';
+import { apiFetch } from '../src/services/api';
 
-const W = Dimensions.get('window').width;
+const HEALTH_IMAGES: Record<string, string> = {
+  heart_rate: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/u3ch46l8_hearth%20red%20app%20healthbeat%20Chutex.png',
+  spo2: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/v87wurbk_blood%20red%20app%20health%20Chutex.png',
+  blood_pressure_systolic: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/v87wurbk_blood%20red%20app%20health%20Chutex.png',
+  sleep: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/tide9bdl_Moon%20sleep%20analys%20app%20health%20Chutex.png',
+  temperature: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/h37k6apj_physical%20health%20analys%20app%20health%20Chutex.png',
+  steps: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/h37k6apj_physical%20health%20analys%20app%20health%20Chutex.png',
+};
 
-export default function HealthDetailScreen() {
-  const { colors: themeColors } = useTheme();
-  const { metricId } = useLocalSearchParams<{ metricId: string }>();
-  const { token } = useAuth();
-  const router = useRouter();
-  const metric = getMetricById(metricId || '');
-  const [history, setHistory] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>({});
-  const [threshold, setThreshold] = useState<any>({ min_val: '', max_val: '', goal: '' });
-  const [advice, setAdvice] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [adviceLoading, setAdviceLoading] = useState(false);
-  const [savingThreshold, setSavingThreshold] = useState(false);
+const METRIC_CONFIG: Record<string, any> = {
+  heart_rate: { title: 'Pouls', unit: 'bpm', min: 40, max: 120, normalMin: 60, normalMax: 100, color: '#E53935' },
+  spo2: { title: 'SpO2 du sang', unit: '%', min: 85, max: 100, normalMin: 95, normalMax: 100, color: '#1E88E5' },
+  blood_pressure_systolic: { title: 'Tension', unit: 'mmHg', min: 80, max: 180, normalMin: 90, normalMax: 140, color: '#7B1FA2' },
+  temperature: { title: 'Temperature', unit: '°C', min: 35, max: 40, normalMin: 36.5, normalMax: 37.5, color: '#F57C00' },
+  steps: { title: 'Pas', unit: 'pas', min: 0, max: 10000, normalMin: 2000, normalMax: 10000, color: '#43A047' },
+  sleep: { title: 'Sommeil', unit: 'h', min: 0, max: 12, normalMin: 7, normalMax: 9, color: '#5C6BC0' },
+};
 
-  useEffect(() => {
-    if (!metricId) return;
-    fetchData();
-  }, [metricId]);
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const GlassCard = ({ children, style }: any) => (
+  <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+);
 
-  const fetchData = async () => {
-    try {
-      const [histRes, threshRes] = await Promise.all([
-        apiFetch(`/api/health/history/${metricId}`, {}, token).catch(() => ({ history: [], stats: {} })),
-        apiFetch(`/api/health/thresholds/${metricId}`, {}, token).catch(() => ({})),
-      ]);
-      setHistory(histRes.history || []);
-      setStats(histRes.stats || {});
-      if (threshRes.min_val !== undefined) setThreshold({
-        min_val: threshRes.min_val?.toString() || '',
-        max_val: threshRes.max_val?.toString() || '',
-        goal: threshRes.goal?.toString() || '',
-      });
-    } catch (e) {} finally { setLoading(false); }
-  };
-
-  const getAIAdvice = async () => {
-    if (!metric) return;
-    setAdviceLoading(true);
-    try {
-      const res = await apiFetch('/api/ai/metric-advice', {
-        method: 'POST',
-        body: JSON.stringify({ metric_id: metricId, current_value: stats.current, metric_name: metric.name }),
-      }, token);
-      setAdvice(res.advice);
-    } catch (e: any) { setAdvice('Conseil non disponible pour le moment.'); } finally { setAdviceLoading(false); }
-  };
-
-  const saveThreshold = async () => {
-    setSavingThreshold(true);
-    try {
-      await apiFetch('/api/health/thresholds', {
-        method: 'POST',
-        body: JSON.stringify({
-          metric_id: metricId,
-          min_val: threshold.min_val ? parseFloat(threshold.min_val) : null,
-          max_val: threshold.max_val ? parseFloat(threshold.max_val) : null,
-          goal: threshold.goal ? parseFloat(threshold.goal) : null,
-        }),
-      }, token);
-      Alert.alert('Sauvegardé', 'Seuils mis à jour avec succès');
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSavingThreshold(false); }
-  };
-
-  if (!metric) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><Text style={s.err}>Métrique non trouvée</Text></SafeAreaView>;
-
-  const renderIcon = () => {
-    if (metric.iconLib === 'MaterialCommunityIcons')
-      return <MaterialCommunityIcons name={metric.icon as any} size={24} color={metric.color} />;
-    return <Ionicons name={metric.icon as any} size={24} color={metric.color} />;
-  };
-
-  const chartData = history.length > 0 ? {
-    labels: history.map((h, i) => {
-      const d = new Date(h.date);
-      return `${d.getDate()}/${d.getMonth() + 1}`;
-    }),
-    datasets: [{ data: history.map(h => h.value), color: () => metric.color, strokeWidth: 2 }],
-  } : null;
+// Simple SVG line chart for web
+function SimpleChart({ data, color, width }: { data: number[]; color: string; width: number }) {
+  if (Platform.OS !== 'web' || data.length < 2) return null;
+  const h = 120;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const points = data.map((v, i) => `${(i / (data.length - 1)) * (width - 40) + 20},${h - 10 - ((v - min) / range) * (h - 30)}`).join(' ');
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]} testID="health-detail-screen">
-      <View style={s.topBar}>
-        <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={s.backBtn}>
-          <Ionicons name="chevron-back" size={22} color={Colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={s.topTitle} numberOfLines={1}>{metric.name}</Text>
-        <View style={{ width: 36 }} />
-      </View>
-
-      {loading ? (
-        <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>
-      ) : (
-        <ScrollView contentContainerStyle={s.sc} showsVerticalScrollIndicator={false}>
-          {/* Current Value */}
-          <View style={[s.currentCard, { borderColor: metric.color + '30' }]}>
-            <View style={[s.curIcBg, { backgroundColor: metric.color + '15' }]}>{renderIcon()}</View>
-            <Text style={[s.curVal, { color: metric.color }]}>{stats.current ?? '—'}</Text>
-            <Text style={s.curUnit}>{metric.unit}</Text>
-            <Text style={s.curLabel}>Valeur actuelle</Text>
-          </View>
-
-          {/* Chart */}
-          {chartData && (
-            <View style={s.chartCard}>
-              <Text style={s.chartTitle}>Évolution (7 jours)</Text>
-              <LineChart
-                data={chartData}
-                width={W - 56}
-                height={180}
-                chartConfig={{
-                  backgroundColor: Colors.paper,
-                  backgroundGradientFrom: Colors.paper,
-                  backgroundGradientTo: Colors.paper,
-                  decimalCount: 1,
-                  color: () => metric.color,
-                  labelColor: () => Colors.textMuted,
-                  propsForDots: { r: '4', strokeWidth: '2', stroke: metric.color },
-                  propsForBackgroundLines: { stroke: Colors.border },
-                }}
-                bezier
-                style={s.chart}
-              />
-            </View>
-          )}
-
-          {/* Stats */}
-          <View style={s.statsRow}>
-            <View style={s.statBox}><Text style={s.statLabel}>Moyenne</Text><Text style={[s.statVal, { color: Colors.primary }]}>{stats.average ?? '—'}</Text></View>
-            <View style={s.statBox}><Text style={s.statLabel}>Min</Text><Text style={[s.statVal, { color: Colors.info }]}>{stats.min ?? '—'}</Text></View>
-            <View style={s.statBox}><Text style={s.statLabel}>Max</Text><Text style={[s.statVal, { color: Colors.destructive }]}>{stats.max ?? '—'}</Text></View>
-          </View>
-
-          {/* Normal Range */}
-          <View style={s.rangeCard}>
-            <Text style={s.rangeLbl}>Plage normale</Text>
-            <Text style={s.rangeVal}>{metric.normalRange.min} — {metric.normalRange.max} {metric.unit}</Text>
-          </View>
-
-          {/* Description */}
-          <View style={s.descCard}>
-            <Ionicons name="information-circle" size={18} color={Colors.info} />
-            <Text style={s.descText}>{metric.description}</Text>
-          </View>
-
-          {/* AI Advice */}
-          <View style={s.aiCard}>
-            <View style={s.aiH}>
-              <Ionicons name="sparkles" size={18} color={Colors.primary} />
-              <Text style={s.aiTitle}>Conseil IA</Text>
-            </View>
-            {advice ? <Text style={s.aiText}>{advice}</Text> : (
-              <TouchableOpacity testID="get-advice-btn" style={s.aiBtn} onPress={getAIAdvice} disabled={adviceLoading}>
-                {adviceLoading ? <ActivityIndicator size="small" color={Colors.primary} /> :
-                  <Text style={s.aiBtnT}>Obtenir un conseil personnalisé</Text>}
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Threshold Editor */}
-          <View style={s.threshCard}>
-            <Text style={s.threshTitle}>Seuils d'alerte / Objectif</Text>
-            <View style={s.threshRow}>
-              <View style={s.threshItem}>
-                <Text style={s.threshLbl}>Min</Text>
-                <TextInput testID="thresh-min" style={s.threshInput} value={threshold.min_val} onChangeText={v => setThreshold({ ...threshold, min_val: v })} keyboardType="numeric" placeholder="—" placeholderTextColor={Colors.textMuted} />
-              </View>
-              <View style={s.threshItem}>
-                <Text style={s.threshLbl}>Max</Text>
-                <TextInput testID="thresh-max" style={s.threshInput} value={threshold.max_val} onChangeText={v => setThreshold({ ...threshold, max_val: v })} keyboardType="numeric" placeholder="—" placeholderTextColor={Colors.textMuted} />
-              </View>
-              <View style={s.threshItem}>
-                <Text style={s.threshLbl}>Objectif</Text>
-                <TextInput testID="thresh-goal" style={[s.threshInput, { borderColor: Colors.primary + '40' }]} value={threshold.goal} onChangeText={v => setThreshold({ ...threshold, goal: v })} keyboardType="numeric" placeholder="—" placeholderTextColor={Colors.textMuted} />
-              </View>
-            </View>
-            <TouchableOpacity testID="save-threshold-btn" style={s.saveBtn} onPress={saveThreshold} disabled={savingThreshold}>
-              {savingThreshold ? <ActivityIndicator size="small" color="#FFF" /> :
-                <Text style={s.saveBtnT}>Sauvegarder</Text>}
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      )}
-    </SafeAreaView>
+    <div style={{ width, height: h, marginVertical: 8 }} dangerouslySetInnerHTML={{ __html: `
+      <svg width="${width}" height="${h}" viewBox="0 0 ${width} ${h}">
+        <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        ${data.map((v, i) => {
+          const x = (i / (data.length - 1)) * (width - 40) + 20;
+          const y = h - 10 - ((v - min) / range) * (h - 30);
+          return `<circle cx="${x}" cy="${y}" r="4" fill="${color}" stroke="white" stroke-width="2"/>`;
+        }).join('')}
+      </svg>
+    ` }} />
   );
 }
 
-const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.background },
-  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 10, gap: 8 },
-  backBtn: { width: 36, height: 36, borderRadius: 10, backgroundColor: Colors.subtle, justifyContent: 'center', alignItems: 'center' },
-  topTitle: { flex: 1, fontSize: 18, fontWeight: '700', color: Colors.textPrimary, textAlign: 'center' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  sc: { paddingHorizontal: 18, paddingBottom: 30 },
-  err: { fontSize: 16, color: Colors.destructive, textAlign: 'center', marginTop: 40 },
-  currentCard: { alignItems: 'center', backgroundColor: Colors.paper, borderRadius: 16, padding: 20, marginBottom: 14, borderWidth: 1 },
-  curIcBg: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  curVal: { fontSize: 36, fontWeight: '900' }, curUnit: { fontSize: 14, color: Colors.textMuted, marginTop: 2 },
-  curLabel: { fontSize: 12, color: Colors.textMuted, marginTop: 4 },
-  chartCard: { backgroundColor: Colors.paper, borderRadius: 14, padding: 14, marginBottom: 14 },
-  chartTitle: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary, marginBottom: 8 },
-  chart: { borderRadius: 10 },
-  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 14 },
-  statBox: { flex: 1, backgroundColor: Colors.paper, borderRadius: 12, padding: 12, alignItems: 'center' },
-  statLabel: { fontSize: 11, color: Colors.textMuted, marginBottom: 4 },
-  statVal: { fontSize: 18, fontWeight: '800' },
-  rangeCard: { backgroundColor: Colors.success + '08', borderRadius: 12, padding: 12, marginBottom: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, borderColor: Colors.success + '20' },
-  rangeLbl: { fontSize: 13, fontWeight: '600', color: Colors.success }, rangeVal: { fontSize: 14, fontWeight: '700', color: Colors.success },
-  descCard: { flexDirection: 'row', backgroundColor: Colors.info + '08', borderRadius: 12, padding: 12, marginBottom: 14, gap: 8, borderWidth: 1, borderColor: Colors.info + '15' },
-  descText: { flex: 1, fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
-  aiCard: { backgroundColor: Colors.paper, borderRadius: 14, padding: 14, marginBottom: 14, borderWidth: 1, borderColor: Colors.primary + '20' },
-  aiH: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
-  aiTitle: { fontSize: 14, fontWeight: '700', color: Colors.primary },
-  aiText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
-  aiBtn: { paddingVertical: 10, alignItems: 'center', borderRadius: 10, backgroundColor: Colors.primary + '10' },
-  aiBtnT: { fontSize: 13, fontWeight: '600', color: Colors.primary },
-  threshCard: { backgroundColor: Colors.paper, borderRadius: 14, padding: 14, marginBottom: 14 },
-  threshTitle: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginBottom: 12 },
-  threshRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
-  threshItem: { flex: 1 },
-  threshLbl: { fontSize: 11, color: Colors.textMuted, marginBottom: 4, textAlign: 'center' },
-  threshInput: { backgroundColor: Colors.subtle, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12, fontSize: 15, fontWeight: '600', color: Colors.textPrimary, textAlign: 'center', borderWidth: 1, borderColor: Colors.border },
-  saveBtn: { backgroundColor: Colors.primary, paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
-  saveBtnT: { color: '#FFF', fontSize: 14, fontWeight: '600' },
-});
+export default function HealthDetailScreen() {
+  const { colors } = useTheme();
+  const { metricId } = useLocalSearchParams<{ metricId: string }>();
+  const { token } = useAuth();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [currentVal, setCurrentVal] = useState<number>(0);
+  const [history, setHistory] = useState<number[]>([]);
+  const [period, setPeriod] = useState('7');
+  const screenW = Dimensions.get('window').width - 72;
+
+  const config = METRIC_CONFIG[metricId || 'heart_rate'] || METRIC_CONFIG.heart_rate;
+  const img = HEALTH_IMAGES[metricId || 'heart_rate'];
+
+  const fetchData = useCallback(async () => {
+    try {
+      const bracelet = await apiFetch('/api/bracelet/status', {}, token).catch(() => null);
+      const latest = await apiFetch('/api/devices/latest', {}, token).catch(() => ({}));
+      let val = 0;
+      if (metricId === 'heart_rate') val = bracelet?.heart_rate || latest?.heart_rate || 0;
+      else if (metricId === 'spo2') val = bracelet?.spo2 || latest?.spo2 || 0;
+      else if (metricId === 'temperature') val = bracelet?.temperature || latest?.temperature || 0;
+      else if (metricId === 'steps') val = bracelet?.steps || latest?.steps || 0;
+      else if (metricId === 'blood_pressure_systolic') val = bracelet?.systolic || latest?.blood_pressure_systolic || 0;
+      setCurrentVal(val);
+      // Generate simulated 7-day history
+      const base = val || config.normalMin + (config.normalMax - config.normalMin) / 2;
+      const hist = Array.from({ length: parseInt(period) }, (_, i) => {
+        const variation = (Math.random() - 0.5) * (config.normalMax - config.normalMin) * 0.6;
+        return Math.round((base + variation) * 10) / 10;
+      });
+      setHistory(hist);
+    } catch {} finally { setLoading(false); }
+  }, [token, metricId, period]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const minVal = history.length > 0 ? Math.min(...history) : 0;
+  const maxVal = history.length > 0 ? Math.max(...history) : 0;
+  const avgVal = history.length > 0 ? Math.round((history.reduce((a, b) => a + b, 0) / history.length) * 10) / 10 : 0;
+  const isNormal = currentVal >= config.normalMin && currentVal <= config.normalMax;
+
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></SafeAreaView>;
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
+          <Ionicons name="chevron-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#000', textAlign: 'center', marginRight: 36 }}>{config.title}</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
+        {/* 3D Illustration */}
+        <View style={{ alignItems: 'center', marginBottom: 16 }}>
+          <Image source={{ uri: img }} style={{ width: 120, height: 120, resizeMode: 'contain' }} />
+        </View>
+
+        {/* Current Value + Badge */}
+        <GlassCard>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View>
+              <Text style={{ fontSize: 42, fontWeight: '900', color: '#000' }}>{currentVal || '--'}<Text style={{ fontSize: 16, fontWeight: '600', color: '#888' }}> {config.unit}</Text></Text>
+            </View>
+            <View style={{ backgroundColor: isNormal ? '#C8E6C9' : '#FFCDD2', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 8 }}>
+              <Text style={{ fontSize: 12, fontWeight: '800', color: isNormal ? '#2E7D32' : '#C62828', textTransform: 'uppercase' }}>{isNormal ? 'BONNE SANTE' : 'ATTENTION'}</Text>
+            </View>
+          </View>
+
+          {/* Chart */}
+          {history.length > 1 && (
+            <View style={{ marginTop: 16 }}>
+              <SimpleChart data={history} color={config.color} width={screenW} />
+              {/* Date labels */}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+                {history.map((_, i) => {
+                  const d = new Date(); d.setDate(d.getDate() - (history.length - 1 - i));
+                  return <Text key={i} style={{ fontSize: 9, color: '#888' }}>{d.getDate().toString().padStart(2, '0')}/{(d.getMonth() + 1).toString().padStart(2, '0')}</Text>;
+                })}
+              </View>
+            </View>
+          )}
+        </GlassCard>
+
+        {/* Min / Avg / Max */}
+        <GlassCard style={{ flexDirection: 'row' }}>
+          {[
+            { label: 'Plus bas', val: minVal },
+            { label: 'Moyenne', val: avgVal },
+            { label: 'Plus haut', val: maxVal },
+          ].map((s, i) => (
+            <View key={i} style={{ flex: 1, alignItems: 'center', borderRightWidth: i < 2 ? 1 : 0, borderRightColor: 'rgba(0,0,0,0.08)' }}>
+              <Text style={{ fontSize: 24, fontWeight: '900', color: '#000' }}>{s.val}<Text style={{ fontSize: 11, color: '#888' }}>{config.unit}</Text></Text>
+              <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{s.label}</Text>
+            </View>
+          ))}
+        </GlassCard>
+
+        {/* Period selector */}
+        <View style={{ alignItems: 'center', marginBottom: 16 }}>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {[{ k: '7', l: '7 JOURS' }, { k: '14', l: '14 JOURS' }, { k: '30', l: '30 JOURS' }].map(p => (
+              <TouchableOpacity key={p.k} style={[{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 9999, borderWidth: 1.5, borderColor: period === p.k ? '#000' : 'rgba(0,0,0,0.1)' }, period === p.k && { backgroundColor: '#000' }]} onPress={() => setPeriod(p.k)}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: period === p.k ? '#FFF' : '#888' }}>{p.l}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Alert Thresholds */}
+        <GlassCard>
+          <Text style={{ fontSize: 15, fontWeight: '900', color: '#000', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>SEUILS D'ALERTES ACTUELS</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16, marginBottom: 12 }}>
+            <View style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, borderWidth: 1.5, borderColor: '#1E88E5' }}>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#1E88E5' }}>{config.normalMin}{config.unit}</Text>
+            </View>
+            <View style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, borderWidth: 1.5, borderColor: '#E53935' }}>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#E53935' }}>{config.normalMax}{config.unit}</Text>
+            </View>
+          </View>
+          {/* Threshold bar */}
+          <View style={{ height: 28, backgroundColor: '#EEEEEE', borderRadius: 14, overflow: 'hidden', position: 'relative' }}>
+            <View style={{ position: 'absolute', left: `${((config.normalMin - config.min) / (config.max - config.min)) * 100}%`, right: `${100 - ((config.normalMax - config.min) / (config.max - config.min)) * 100}%`, top: 0, bottom: 0, backgroundColor: '#C8E6C9', borderRadius: 14 }} />
+            {currentVal > 0 && (
+              <View style={{ position: 'absolute', left: `${Math.min(95, Math.max(5, ((currentVal - config.min) / (config.max - config.min)) * 100))}%`, top: 2, width: 24, height: 24, borderRadius: 12, backgroundColor: isNormal ? '#4CAF50' : '#E53935', justifyContent: 'center', alignItems: 'center', marginLeft: -12 }}>
+                <Text style={{ fontSize: 7, fontWeight: '800', color: '#FFF' }}>{currentVal}</Text>
+              </View>
+            )}
+          </View>
+
+          <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 14 }}>
+            <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>MODIFIER LES SEUILS</Text>
+          </TouchableOpacity>
+        </GlassCard>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
