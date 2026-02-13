@@ -176,7 +176,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           { key: 'sleep', title: 'Sante du sommeil', img: HEALTH_IMAGES.sleep, route: '/sleep' },
           { key: 'physical', title: 'Sante physique', img: HEALTH_IMAGES.physical, route: '/health-detail', params: { metricId: 'temperature' } },
         ].map(cat => (
-          <TouchableOpacity key={cat.key} testID={`health-cat-${cat.key}`} style={{ width: '48%', backgroundColor: colors.surface, borderRadius: 20, borderWidth: 1, borderColor: colors.glassBorder, overflow: 'hidden', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } : {}) }} onPress={() => router.push(cat.params ? { pathname: cat.route as any, params: cat.params } : cat.route as any)}>
+          <TouchableOpacity key={cat.key} testID={`health-cat-${cat.key}`} style={{ width: '48%', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', overflow: 'hidden', ...glassStyle }} onPress={() => router.push(cat.params ? { pathname: cat.route as any, params: cat.params } : cat.route as any)}>
             <View style={{ height: 110, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,235,238,0.3)' }}>
               <Image source={{ uri: cat.img }} style={{ width: 90, height: 90, resizeMode: 'contain' }} />
             </View>
