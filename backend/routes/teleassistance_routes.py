@@ -4,7 +4,7 @@ import uuid, random, asyncio, logging, os, math
 
 from database import db, twilio_client, TWILIO_NUMBER, EMERGENT_LLM_KEY
 from auth import get_current_user
-from models import TeleassistanceCallUpdate, EscalationStart, EscalationStepRequest, TriggerCallRequest
+from models import TeleassistanceCallUpdate, EscalationStart, EscalationStepRequest, TriggerCallRequest, InterventionAcceptRequest, InterventionCloseRequest, InterventionLocationUpdate
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from twilio.twiml.voice_response import VoiceResponse, Gather
 from services.elevenlabs_service import generate_speech_base64, MESSAGES
