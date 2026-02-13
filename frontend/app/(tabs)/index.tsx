@@ -423,7 +423,8 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           <Text style={{ fontSize: 11, color: colors.textMuted, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 }}>{roleName}</Text>
         </View>
         <TouchableOpacity style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: colors.border }}>
-          <Ionicons name="headset-outline" size={18} color={colors.textPrimary} />
+          <Ionicons name="notifications-outline" size={18} color={colors.textPrimary} />
+          {(invitations.length > 0 || pendingInterventions.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: colors.background }} />}
         </TouchableOpacity>
       </View>
 
