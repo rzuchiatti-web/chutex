@@ -89,6 +89,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [refreshing, setRefreshing] = useState(false);
   const [sosLoading, setSosLoading] = useState(false);
   const [switching, setSwitching] = useState(false);
+  const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
+  const [showNotifs, setShowNotifs] = useState(false);
   const sosPulse = useRef(new Animated.Value(1)).current;
   const { refreshUser } = useAuth();
 
