@@ -82,6 +82,9 @@ async def update_profile(data: dict, user=Depends(get_current_user)):
     for key in ['name', 'phone', 'address', 'date_of_birth', 'gender', 'avatar_url']:
         if key in data and data[key]:
             update[key] = data[key]
+    # Handle boolean fields
+    if 'is_intervention_provider' in data:
+        update['is_intervention_provider'] = data['is_intervention_provider']
     if update:
         await db.users.update_one({"id": user['id']}, {"$set": update})
     updated = await db.users.find_one({"id": user['id']}, {"_id": 0})
