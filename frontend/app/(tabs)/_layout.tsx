@@ -49,7 +49,7 @@ export default function TabLayout() {
   const isTA = r === 'teleassistance';
 
   return (
-    <Tabs screenOptions={{
+    <Tabs key={r} screenOptions={{
       headerShown: false,
       tabBarActiveTintColor: '#000',
       tabBarInactiveTintColor: '#999',
