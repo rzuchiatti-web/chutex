@@ -73,3 +73,39 @@ async def login(data: UserLogin):
 @router.get("/auth/me")
 async def get_me(user=Depends(get_current_user)):
     return sanitize_user(user)
+
+
+@router.put("/auth/update-profile")
+async def update_profile(data: dict, user=Depends(get_current_user)):
+    update = {}
+    for key in ['name', 'phone', 'address', 'date_of_birth', 'gender']:
+        if key in data and data[key]:
+            update[key] = data[key]
+    if update:
+        await db.users.update_one({"id": user['id']}, {"$set": update})
+    return {"status": "updated"}
+
+
+@router.put("/auth/change-password")
+async def change_password(data: dict, user=Depends(get_current_user)):
+    if not verify_password(data.get('old_password', ''), user['password_hash']):
+        raise HTTPException(status_code=400, detail="Mot de passe actuel incorrect")
+    new_pw = data.get('new_password', '')
+    if len(new_pw) < 6:
+        raise HTTPException(status_code=400, detail="Min. 6 caracteres")
+    await db.users.update_one({"id": user['id']}, {"$set": {"password_hash": hash_password(new_pw)}})
+    return {"status": "password_changed"}
+
+
+@router.post("/contact")
+async def send_contact(data: dict, user=Depends(get_current_user)):
+    import logging
+    logging.info(f"CONTACT FORM from {data.get('name', user['name'])} ({data.get('email', user['email'])}): {data.get('message', '')}")
+    await db.contact_messages.insert_one({
+        "id": str(uuid.uuid4()), "user_id": user['id'], "name": data.get('name', user['name']),
+        "email": data.get('email', user['email']), "message": data.get('message', ''),
+        "to": "contact@chutex-innovation.com",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"status": "sent", "message": "Message envoye a contact@chutex-innovation.com"}
+
