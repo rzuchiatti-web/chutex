@@ -157,7 +157,7 @@ export default function HealthDetailScreen() {
         </GlassCard>
 
         {/* Period selector */}
-        <View style={{ alignItems: 'center', marginBottom: 16 }}>
+        <View style={{ alignItems: 'center', marginBottom: 12 }}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {[{ k: '7', l: '7 JOURS' }, { k: '14', l: '14 JOURS' }, { k: '30', l: '30 JOURS' }].map(p => (
               <TouchableOpacity key={p.k} style={[{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 9999, borderWidth: 1.5, borderColor: period === p.k ? '#000' : 'rgba(0,0,0,0.1)' }, period === p.k && { backgroundColor: '#000' }]} onPress={() => setPeriod(p.k)}>
@@ -166,6 +166,19 @@ export default function HealthDetailScreen() {
             ))}
           </View>
         </View>
+
+        {/* Calendar Date Picker */}
+        <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Ionicons name="calendar-outline" size={22} color="#000" />
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>DATE SELECTIONNEE</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', marginTop: 2 }}>{new Date(selectedDate).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</Text>
+          </View>
+          {Platform.OS === 'web' && (
+            <div><input type="date" value={selectedDate} onChange={(e: any) => setSelectedDate(e.target.value)} max={new Date().toISOString().split('T')[0]}
+              style={{ fontSize: 14, padding: '8px 12px', borderRadius: 12, border: '1.5px solid rgba(0,0,0,0.1)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', cursor: 'pointer' }} /></div>
+          )}
+        </GlassCard>
 
         {/* Alert Thresholds */}
         <GlassCard>
