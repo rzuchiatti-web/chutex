@@ -568,7 +568,7 @@ export default function TeleconsultScreen() {
         : r === 'guardian' ? <GuardianInterventions token={token} user={user} />
         : r === 'admin' ? <AdminIntervenants token={token} />
         : <BeneficiaryTeleconsult token={token} />}
-    </SafeAreaView>
+    </View>
   );
 }
 
