@@ -47,10 +47,11 @@ export default function TabLayout() {
   return (
     <Tabs screenOptions={{
       headerShown: false,
-      tabBarActiveTintColor: colors.primary,
-      tabBarInactiveTintColor: colors.textMuted,
+      tabBarActiveTintColor: '#000',
+      tabBarInactiveTintColor: '#888',
       tabBarStyle: tabStyle,
       tabBarLabelStyle: { fontSize: 10, fontWeight: '600', letterSpacing: 0.3 },
+      sceneStyle: { backgroundColor: 'transparent' },
     }}>
       <Tabs.Screen name="index" options={{
         title: 'Accueil',
