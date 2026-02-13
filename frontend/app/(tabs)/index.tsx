@@ -119,7 +119,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </TouchableOpacity>
       </View>
 
-      {/* Devices Status */}
+      {/* Devices Status - ONLY devices */}
       <GlassCard colors={colors} style={{ padding: 14 }}>
         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }} onPress={() => router.push('/bracelet-connect')}>
           <View style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
@@ -132,14 +132,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <Text style={{ fontSize: 13, fontWeight: '800', color: '#E53935', marginLeft: 2 }}>{braceletData.battery}%</Text>
             </View>
           )}
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-            {guardians.slice(0, 4).map((g: any, i: number) => (
-              <View key={g.id || i} style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: ['#FFB74D', '#4FC3F7', '#AED581', '#FF8A65'][i % 4], justifyContent: 'center', alignItems: 'center', marginLeft: i > 0 ? -6 : 0, borderWidth: 2, borderColor: '#FFF' }}>
-                <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>{g.name?.charAt(0)}</Text>
-              </View>
-            ))}
-            <Text style={{ fontSize: 11, fontWeight: '800', color: colors.textPrimary, marginLeft: 8, textTransform: 'uppercase' }}>{guardians.length} GARDIEN{guardians.length > 1 ? 'S' : ''} CONNECTE{guardians.length > 1 ? 'S' : ''}</Text>
-          </View>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: colors.textPrimary, flex: 1 }}>Bracelet Elio</Text>
           <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
         </TouchableOpacity>
 
@@ -158,6 +151,77 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
         </TouchableOpacity>
       </GlassCard>
+
+      {/* Guardians Card - separate */}
+      <GlassCard colors={colors} style={{ padding: 14 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: guardians.length > 0 ? 10 : 0 }}>
+          <View style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+            <Ionicons name="people" size={22} color="#000" />
+          </View>
+          <Text style={{ fontSize: 14, fontWeight: '800', color: '#000', flex: 1 }}>{guardians.length} GARDIEN{guardians.length > 1 ? 'S' : ''}</Text>
+          <TouchableOpacity onPress={() => router.push('/link-code')} style={{ padding: 4 }}>
+            <Ionicons name="add-circle-outline" size={22} color="#000" />
+          </TouchableOpacity>
+        </View>
+        {guardians.map((g: any, i: number) => (
+          <TouchableOpacity key={g.id || i} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: i > 0 ? 0.5 : 0, borderTopColor: 'rgba(0,0,0,0.06)' }} onPress={() => setShowGuardianDetail(g)}>
+            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: ['#FFB74D', '#4FC3F7', '#AED581', '#FF8A65', '#CE93D8'][i % 5], justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>{g.name?.charAt(0)}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{g.name}</Text>
+              <Text style={{ fontSize: 11, color: '#888' }}>{g.relationship || g.profession || g.guardian_type || 'Gardien'}{g.structure_name ? ` - ${g.structure_name}` : ''}</Text>
+            </View>
+            {g.is_intervention_provider && <View style={{ backgroundColor: '#C8E6C9', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginRight: 6 }}><Text style={{ fontSize: 8, fontWeight: '800', color: '#2E7D32' }}>CARE</Text></View>}
+            <Ionicons name="chevron-forward" size={16} color="#888" />
+          </TouchableOpacity>
+        ))}
+        {guardians.length === 0 && <Text style={{ fontSize: 12, color: '#888', textAlign: 'center', paddingVertical: 8 }}>Aucun gardien</Text>}
+      </GlassCard>
+
+      {/* Guardian Detail Modal */}
+      {showGuardianDetail && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20, zIndex: 100 }}>
+          <View style={{ backgroundColor: '#FFF', borderRadius: 24, padding: 24, maxHeight: '80%' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Fiche Gardien</Text>
+              <TouchableOpacity onPress={() => setShowGuardianDetail(null)} style={{ padding: 4 }}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
+            </View>
+            <View style={{ alignItems: 'center', marginBottom: 16 }}>
+              <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#FFB74D', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 28, fontWeight: '800', color: '#FFF' }}>{showGuardianDetail.name?.charAt(0)}</Text>
+              </View>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#000', marginTop: 10 }}>{showGuardianDetail.name}</Text>
+              {showGuardianDetail.is_intervention_provider && <View style={{ backgroundColor: '#C8E6C9', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, marginTop: 6 }}><Text style={{ fontSize: 10, fontWeight: '800', color: '#2E7D32' }}>INTERVENANT CARE</Text></View>}
+            </View>
+            {[
+              { icon: 'call-outline', label: 'Telephone', val: showGuardianDetail.phone },
+              { icon: 'mail-outline', label: 'Email', val: showGuardianDetail.email },
+              { icon: 'location-outline', label: 'Adresse', val: showGuardianDetail.address },
+              { icon: 'people-outline', label: 'Lien', val: showGuardianDetail.relationship || showGuardianDetail.guardian_type },
+              { icon: 'briefcase-outline', label: 'Profession', val: showGuardianDetail.profession },
+              { icon: 'business-outline', label: 'Structure', val: showGuardianDetail.structure_name },
+            ].filter(r => r.val).map((r, i) => (
+              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
+                <Ionicons name={r.icon as any} size={18} color="#888" />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>{r.label}</Text>
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: '#000', marginTop: 2 }}>{r.val}</Text>
+                </View>
+              </View>
+            ))}
+            {showGuardianDetail.latitude && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 }}>
+                <Ionicons name="navigate-outline" size={18} color="#888" />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>Coordonnees</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#000', marginTop: 2 }}>{showGuardianDetail.latitude?.toFixed(4)}, {showGuardianDetail.longitude?.toFixed(4)}</Text>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+      )}
 
       {/* Guardian Requests - Beneficiary accepts/refuses */}
       {guardianRequests.length > 0 && guardianRequests.map((req: any) => (
