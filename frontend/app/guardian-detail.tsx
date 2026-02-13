@@ -88,6 +88,22 @@ export default function GuardianDetailScreen() {
             </View>
           </GlassCard>
         )}
+
+        {/* Delete guardian button */}
+        <TouchableOpacity style={{ backgroundColor: '#E53935', borderRadius: 9999, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(229,57,53,0.2)' } : {}) }}
+          onPress={() => Alert.alert('Supprimer ce gardien ?', `${guardian.name} ne sera plus votre gardien.`, [
+            { text: 'Annuler' },
+            { text: 'Supprimer', style: 'destructive', onPress: async () => {
+              try {
+                await apiFetch(`/api/guardians/${guardian.id}/unlink`, { method: 'POST' }, token);
+                Alert.alert('Gardien supprime');
+                router.back();
+              } catch (e: any) { Alert.alert('Erreur', e.message); }
+            }},
+          ])}>
+          <Ionicons name="trash-outline" size={18} color="#FFF" />
+          <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>SUPPRIMER CE GARDIEN</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
