@@ -163,7 +163,7 @@ export default function ProfileScreen() {
             } else {
               router.push('/activate-beneficiary' as any);
             }
-          }} />
+          }} />}
           <MenuItem icon="language-outline" label="Langue" onPress={() => Alert.alert('Langue', 'Francais / English - bientot disponible')} />
           <MenuItem icon="notifications-outline" label="Notifications" onPress={() => {}} />
           <MenuItem icon="document-text-outline" label="Conditions generales d'utilisation" onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
