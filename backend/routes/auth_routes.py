@@ -109,3 +109,45 @@ async def send_contact(data: dict, user=Depends(get_current_user)):
     })
     return {"status": "sent", "message": "Message envoye a contact@chutex-innovation.com"}
 
+
+@router.post("/auth/activate-beneficiary")
+async def activate_beneficiary_role(data: dict, user=Depends(get_current_user)):
+    """Guardian activates a beneficiary space - fills beneficiary form"""
+    if user.get('has_beneficiary_space'):
+        return {"status": "already_active", "message": "Espace beneficiaire deja actif"}
+    update = {
+        "has_beneficiary_space": True,
+        "date_of_birth": data.get("date_of_birth", ""),
+        "gender": data.get("gender", ""),
+        "height_cm": data.get("height_cm"),
+        "weight_kg": data.get("weight_kg"),
+        "blood_type": data.get("blood_type", ""),
+        "allergies": data.get("allergies", ""),
+        "medical_conditions": data.get("medical_conditions", ""),
+        "emergency_contact_name": data.get("emergency_contact_name", ""),
+        "emergency_contact_phone": data.get("emergency_contact_phone", ""),
+        "doctor_name": data.get("doctor_name", ""),
+    }
+    if data.get("address"): update["address"] = data["address"]
+    await db.users.update_one({"id": user['id']}, {"$set": update})
+    return {"status": "activated", "message": "Espace beneficiaire active"}
+
+
+@router.post("/auth/switch-role")
+async def switch_active_role(data: dict, user=Depends(get_current_user)):
+    """Switch the active role between guardian and beneficiary"""
+    target = data.get("role", "")
+    if target == "beneficiary":
+        if not user.get("has_beneficiary_space"):
+            raise HTTPException(status_code=400, detail="Activez d'abord votre espace beneficiaire")
+        await db.users.update_one({"id": user['id']}, {"$set": {"active_role": "beneficiary"}})
+    elif target == "guardian":
+        if user.get("role") != "guardian":
+            raise HTTPException(status_code=400, detail="Vous n'avez pas de role gardien")
+        await db.users.update_one({"id": user['id']}, {"$set": {"active_role": "guardian"}})
+    else:
+        raise HTTPException(status_code=400, detail="Role invalide")
+    u = await db.users.find_one({"id": user['id']}, {"_id": 0, "password_hash": 0})
+    return {"status": "switched", "active_role": target, "user": u}
+
+
