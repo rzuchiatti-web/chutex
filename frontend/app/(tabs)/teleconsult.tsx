@@ -405,11 +405,37 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         </View>
       ) : (
         <View style={s.careActive}>
-          <Ionicons name="shield-checkmark" size={22} color={Colors.success} />
-          <View style={{ flex: 1 }}>
-            <Text style={s.careActiveT}>Intervenant Care actif</Text>
-            <Text style={s.careActiveSub}>{user.intervention_structure} · Rayon: {user.intervention_radius_km || 30}km</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(76,175,80,0.15)', justifyContent: 'center', alignItems: 'center' }}>
+              <Ionicons name="shield-checkmark" size={22} color={Colors.success} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.careActiveT}>Intervenant Care actif</Text>
+              <Text style={s.careActiveSub}>{user.intervention_structure || user.structure_name || 'Structure Care'}</Text>
+            </View>
           </View>
+          <View style={{ backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 12, padding: 12, marginBottom: 10 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+              <Text style={{ fontSize: 12, color: Colors.textMuted }}>Rayon d'intervention</Text>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: Colors.textPrimary }}>{user.intervention_radius_km || 30} km</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={{ fontSize: 12, color: Colors.textMuted }}>Statut</Text>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: Colors.success }}>Disponible</Text>
+            </View>
+          </View>
+          <TouchableOpacity testID="deactivate-care-btn" style={{ borderWidth: 1.5, borderColor: '#E53935', borderRadius: 9999, paddingVertical: 10, alignItems: 'center' }}
+            onPress={() => Alert.alert('Desactiver', 'Voulez-vous desactiver votre espace Intervenant Care ?', [
+              { text: 'Annuler' },
+              { text: 'Desactiver', style: 'destructive', onPress: async () => {
+                try {
+                  await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_intervention_provider: false }) }, token);
+                  await refreshUser();
+                } catch {}
+              }}
+            ])}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#E53935' }}>DESACTIVER INTERVENANT CARE</Text>
+          </TouchableOpacity>
         </View>
       )}
 
