@@ -197,24 +197,48 @@ async def advance_escalation(data: EscalationStepRequest, user=Depends(get_curre
                 esc['timeline'].append({"step": "all_guardians_failed", "time": now, "note": "Tous gardiens injoignables -> Intervention"})
     if esc['current_step'] == "dispatch_needed" or data.response == "dispatch":
         alert = await db.alerts.find_one({"id": esc['alert_id']}, {"_id": 0})
-        loc = await db.locations.find_one({"user_id": esc['beneficiary_id']}, {"_id": 0})
+        ben = await db.users.find_one({"id": esc['beneficiary_id']}, {"_id": 0})
+        ben_lat = ben.get('latitude', 45.4737) if ben else 45.4737
+        ben_lng = ben.get('longitude', 4.5134) if ben else 4.5134
+
+        # Find nearest Intervenant Care
+        interveners = await db.users.find({"is_intervention_provider": True}, {"_id": 0, "password_hash": 0}).to_list(100)
+        nearest = None
+        nearest_dist = float('inf')
+        for iv_user in interveners:
+            iv_lat = iv_user.get('latitude')
+            iv_lng = iv_user.get('longitude')
+            if iv_lat and iv_lng:
+                dist = math.sqrt((ben_lat - iv_lat) ** 2 + (ben_lng - iv_lng) ** 2) * 111  # approx km
+                radius = iv_user.get('intervention_radius_km', 30)
+                if dist <= radius and dist < nearest_dist:
+                    nearest = iv_user
+                    nearest_dist = dist
+
+        assigned_id = nearest['id'] if nearest else user['id']
+        assigned_name = nearest['name'] if nearest else "Structure partenaire"
+        iv_lat = nearest.get('latitude', ben_lat) if nearest else ben_lat
+        iv_lng = nearest.get('longitude', ben_lng) if nearest else ben_lng
+        distance_note = f" ({nearest_dist:.1f}km)" if nearest else ""
+
         iv_id = str(uuid.uuid4())
         iv = {
             "id": iv_id, "alert_id": esc['alert_id'], "escalation_id": esc['id'],
             "beneficiary_id": esc['beneficiary_id'], "beneficiary_name": esc['beneficiary_name'],
-            "assigned_to": user['id'], "assigned_name": "Structure partenaire",
+            "assigned_to": assigned_id, "assigned_name": assigned_name,
             "status": "dispatched",
             "notes": f"Auto-dispatch: {alert['message'] if alert else 'Alerte'}",
-            "beneficiary_location": {"latitude": loc['latitude'] if loc else 48.8566, "longitude": loc['longitude'] if loc else 2.3522},
-            "intervener_location": {"latitude": 48.8566 + random.uniform(-0.02, 0.02), "longitude": 2.3522 + random.uniform(-0.02, 0.02)},
+            "beneficiary_location": {"latitude": ben_lat, "longitude": ben_lng, "address": ben.get('address', '') if ben else ''},
+            "intervener_location": {"latitude": iv_lat, "longitude": iv_lng, "address": nearest.get('address', '') if nearest else ''},
+            "distance_km": round(nearest_dist, 1) if nearest else None,
             "created_at": now, "completed_at": None, "report": None,
-            "timeline": [{"status": "dispatched", "time": now, "note": "Intervention auto-dispatchee via teleassistance"}],
+            "timeline": [{"status": "dispatched", "time": now, "note": f"Intervention dispatchee a {assigned_name}{distance_note}"}],
         }
         await db.interventions.insert_one(iv)
         esc['intervention_id'] = iv_id
         esc['status'] = "dispatched"
         esc['current_step'] = "dispatched"
-        esc['timeline'].append({"step": "dispatched", "time": now, "note": f"Intervention #{iv_id[:8]} creee"})
+        esc['timeline'].append({"step": "dispatched", "time": now, "note": f"Intervenant Care {assigned_name}{distance_note} - Intervention #{iv_id[:8]}"})
         await db.alerts.update_one({"id": esc['alert_id']}, {"$set": {"teleassistance_status": "intervention_dispatched"}})
     await db.escalations.update_one({"id": esc['id']}, {"$set": {
         "status": esc['status'], "current_step": esc['current_step'], "current_target": esc['current_target'],
