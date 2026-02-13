@@ -81,6 +81,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       setVestData(vest);
       setBraceletData(brac);
       setGuardians(Array.isArray(guards) ? guards : []);
+      setGuardianRequests(Array.isArray(greqs) ? greqs : []);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
