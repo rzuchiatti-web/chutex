@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useI18n } from '../../src/context/I18nContext';
 import { View, ActivityIndicator, Platform } from 'react-native';
 
 export default function TabLayout() {
