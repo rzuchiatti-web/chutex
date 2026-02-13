@@ -166,7 +166,7 @@ export default function ProfileScreen() {
           }} />
           <MenuItem icon="language-outline" label="Langue" onPress={() => Alert.alert('Langue', 'Francais / English - bientot disponible')} />
           <MenuItem icon="notifications-outline" label="Notifications" onPress={() => {}} />
-          <MenuItem icon="document-text-outline" label="Conditions generales d'utilisation" onPress={() => Alert.alert('CGU', 'Les conditions generales d\'utilisation de Chutex seront disponibles prochainement.')} />
+          <MenuItem icon="document-text-outline" label="Conditions generales d'utilisation" onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
           <MenuItem icon="help-circle-outline" label="Assistance" onPress={() => setShowContact(true)} />
           <MenuItem icon="information-circle-outline" label="A propos - Chutex v3.0" onPress={() => Alert.alert('CHUTEX', 'Version 3.0\nChutex Innovation SAS\nTeleassistance intelligente')} />
         </GlassCard>
