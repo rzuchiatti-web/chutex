@@ -203,11 +203,13 @@ async def get_reminders(user=Depends(get_current_user)):
 
 
 @router.put("/reminders/{rid}")
-async def update_reminder(rid: str, data: ReminderCreate, user=Depends(get_current_user)):
-    await db.reminders.update_one({"id": rid, "user_id": user['id']}, {"$set": {
-        "reminder_type": data.reminder_type, "title": data.title, "time": data.time,
-        "days": data.days, "notes": data.notes, "active": data.active,
-    }})
+async def update_reminder(rid: str, data: dict, user=Depends(get_current_user)):
+    update = {}
+    for key in ['title', 'time', 'days', 'dosage', 'notes', 'active', 'reminder_type']:
+        if key in data:
+            update[key] = data[key]
+    if update:
+        await db.reminders.update_one({"id": rid, "user_id": user['id']}, {"$set": update})
     return {"status": "updated"}
 
 
