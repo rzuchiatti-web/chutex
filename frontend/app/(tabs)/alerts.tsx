@@ -40,7 +40,7 @@ export default function AlertsScreen() {
   const activeCount = alerts.filter(a => a.status === 'active').length;
 
   const renderAlert = ({ item }: { item: any }) => (
-    <TouchableOpacity testID={`alert-card-${item.id}`} style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: colors.border, borderLeftWidth: 3, borderLeftColor: item.severity === 'critical' ? colors.danger : colors.border }}
+    <TouchableOpacity testID={`alert-card-${item.id}`} style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', borderLeftWidth: 3, borderLeftColor: item.severity === 'critical' ? '#E53935' : 'rgba(255,255,255,0.7)', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {}) }}
       onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: item.id } })}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6, gap: 8 }}>
         <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: item.severity === 'critical' ? colors.dangerGlow : colors.surfaceHighlight, justifyContent: 'center', alignItems: 'center' }}>
