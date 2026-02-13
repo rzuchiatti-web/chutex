@@ -91,7 +91,7 @@ export default function AlertsScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }} testID="alerts-screen">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="alerts-screen">
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>
         <Text style={{ fontSize: 28, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Alertes</Text>
       </View>
