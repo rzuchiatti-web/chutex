@@ -64,6 +64,7 @@ function RootNav() {
           <Stack.Screen name="link-code" options={{ presentation: 'modal' }} />
           <Stack.Screen name="guardian-detail" options={{ presentation: 'card' }} />
           <Stack.Screen name="edit-thresholds" options={{ presentation: 'card' }} />
+        <Stack.Screen name="activate-beneficiary" options={{ presentation: 'card' }} />
         </Stack>
     </>
   );
