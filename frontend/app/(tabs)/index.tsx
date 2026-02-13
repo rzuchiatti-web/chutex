@@ -64,13 +64,14 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [r, rc, rem, vest, brac, guards] = await Promise.all([
+      const [r, rc, rem, vest, brac, guards, greqs] = await Promise.all([
         apiFetch('/api/devices/latest', {}, token).catch(() => ({})),
         apiFetch('/api/ai/recommendations/latest', {}, token).catch(() => ({ recommendation: '' })),
         apiFetch('/api/reminders', {}, token).catch(() => []),
         apiFetch('/api/vest/status', {}, token).catch(() => null),
         apiFetch('/api/bracelet/status', {}, token).catch(() => null),
         apiFetch('/api/guardians/my', {}, token).catch(() => []),
+        apiFetch('/api/beneficiary/guardian-requests', {}, token).catch(() => []),
       ]);
       if (brac && (brac.heart_rate > 0 || brac.steps > 0)) {
         setVitals({ heart_rate: brac.heart_rate || 0, spo2: brac.spo2 || 0, blood_pressure_systolic: brac.systolic || 0, blood_pressure_diastolic: brac.diastolic || 0, temperature: brac.temperature || 0, steps: brac.steps || 0 });
