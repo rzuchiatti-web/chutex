@@ -436,6 +436,8 @@ function AdminPrescripteurs({ token }: { token: string }) {
 export default function DevicesScreen() {
   const { user, token } = useAuth();
   const { colors } = useTheme();
+  const [, forceUpdate] = useState(0);
+  useFocusEffect(useCallback(() => { forceUpdate(n => n + 1); }, []));
   if (!user || !token) return null;
   return (
     <View style={[d.safeArea, { backgroundColor: colors.background }]} testID="devices-screen">
