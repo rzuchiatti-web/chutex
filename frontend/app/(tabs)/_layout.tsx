@@ -1,18 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { View, TouchableOpacity, Text, ActivityIndicator, Platform } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 
-function FloatingTabBar({ effectiveRole }: { effectiveRole: string }) {
+function FloatingTabBar() {
+  const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [, forceUpdate] = useState(0);
 
-  const isBen = effectiveRole === 'beneficiary';
-  const isG = effectiveRole === 'guardian';
-  const isTA = effectiveRole === 'teleassistance';
-  const isAdmin = effectiveRole === 'admin';
+  // Force re-render when user changes
+  const userKey = user ? `${user.active_role || user.role}-${user.id}` : '';
+  useEffect(() => {
+    forceUpdate(prev => prev + 1);
+  }, [userKey]);
+
+  if (!user) return null;
+
+  const r = user.active_role || user.role;
+  const isBen = r === 'beneficiary';
+  const isG = r === 'guardian';
+  const isTA = r === 'teleassistance';
+  const isAdmin = r === 'admin';
 
   const tabs = isAdmin ? [
     { key: 'index', icon: 'grid-outline', label: 'Dashboard', lib: 'ion' },
@@ -46,6 +57,7 @@ function FloatingTabBar({ effectiveRole }: { effectiveRole: string }) {
 
   return (
     <View
+      key={`nav-${r}`}
       testID="floating-tab-bar"
       style={{
         position: 'absolute',
@@ -77,18 +89,15 @@ function FloatingTabBar({ effectiveRole }: { effectiveRole: string }) {
         const active = isActive(tab.key);
         return (
           <TouchableOpacity
-            key={`${effectiveRole}-${tab.key}`}
+            key={tab.key}
             testID={`tab-${tab.key}`}
             style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 4 }}
             onPress={() => router.replace(`/(tabs)/${tab.key === 'index' ? '' : tab.key}` as any)}
           >
             <View style={{
-              width: 36,
-              height: 36,
-              borderRadius: 18,
+              width: 36, height: 36, borderRadius: 18,
               backgroundColor: active ? '#000' : 'transparent',
-              justifyContent: 'center',
-              alignItems: 'center',
+              justifyContent: 'center', alignItems: 'center',
             }}>
               {tab.lib === 'mci' ? (
                 <MaterialCommunityIcons name={tab.icon as any} size={18} color={active ? '#FFF' : '#999'} />
@@ -97,10 +106,8 @@ function FloatingTabBar({ effectiveRole }: { effectiveRole: string }) {
               )}
             </View>
             <Text style={{
-              fontSize: 8,
-              fontWeight: active ? '800' : '500',
-              color: active ? '#000' : '#999',
-              marginTop: 1,
+              fontSize: 8, fontWeight: active ? '800' : '500',
+              color: active ? '#000' : '#999', marginTop: 1,
             }} numberOfLines={1}>{tab.label}</Text>
           </TouchableOpacity>
         );
@@ -115,25 +122,22 @@ export default function TabLayout() {
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
   if (!user) return null;
 
-  const effectiveRole = user.active_role || user.role;
-
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
       <Tabs
-        key={effectiveRole}
         screenOptions={{
           headerShown: false,
           tabBarStyle: { display: 'none' },
         }}
       >
         <Tabs.Screen name="index" />
-        <Tabs.Screen name="health" options={{ href: effectiveRole !== 'beneficiary' ? null : undefined }} />
+        <Tabs.Screen name="health" />
         <Tabs.Screen name="alerts" />
         <Tabs.Screen name="teleconsult" />
         <Tabs.Screen name="devices" />
         <Tabs.Screen name="profile" />
       </Tabs>
-      <FloatingTabBar effectiveRole={effectiveRole} />
+      <FloatingTabBar />
     </View>
   );
 }
