@@ -49,6 +49,7 @@ function RootNav() {
         <Stack.Screen name="bracelet-connect" options={{ presentation: 'card' }} />
         <Stack.Screen name="subscription" options={{ presentation: 'card' }} />
         <Stack.Screen name="link-code" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="guardian-detail" options={{ presentation: 'card' }} />
       </Stack>
     </>
   );
