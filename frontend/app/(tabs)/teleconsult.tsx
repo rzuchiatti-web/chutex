@@ -348,34 +348,36 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       )}
 
       {/* Care Detail Modal */}
-      {showCareModal && (
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100, justifyContent: 'center', padding: 20 }}>
+      <Modal visible={showCareModal} transparent animationType="fade" onRequestClose={() => setShowCareModal(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 }}>
           <View style={{ backgroundColor: '#FFF', borderRadius: 24, padding: 24, maxHeight: '80%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Espace Intervenant Care</Text>
               <TouchableOpacity onPress={() => setShowCareModal(false)}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
             </View>
-            <View style={{ backgroundColor: 'rgba(76,175,80,0.08)', borderRadius: 16, padding: 16, marginBottom: 16 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                <Ionicons name="shield-checkmark" size={28} color={Colors.success} />
-                <Text style={{ fontSize: 16, fontWeight: '800', color: Colors.success }}>Statut : Actif</Text>
-              </View>
-              {[
-                ['Structure', user.intervention_structure || user.structure_name || '-'],
-                ['Profession', user.profession || '-'],
-                ['SIRET', user.siret || '-'],
-                ['Adresse', user.address || '-'],
-                ['Telephone', user.phone || '-'],
-                ['Rayon intervention', `${user.intervention_radius_km || 30} km`],
-              ].map(([l, v]) => (
-                <View key={l as string} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
-                  <Text style={{ fontSize: 13, color: '#888' }}>{l}</Text>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1, textAlign: 'right' }}>{v}</Text>
+            <ScrollView style={{ maxHeight: 400 }}>
+              <View style={{ backgroundColor: 'rgba(76,175,80,0.08)', borderRadius: 16, padding: 16, marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                  <Ionicons name="shield-checkmark" size={28} color={Colors.success} />
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: Colors.success }}>Statut : Actif</Text>
                 </View>
-              ))}
-            </View>
-            <TouchableOpacity testID="deactivate-care-modal-btn" style={{ borderWidth: 2, borderColor: '#E53935', borderRadius: 9999, paddingVertical: 14, alignItems: 'center' }}
-              onPress={() => Alert.alert('Desactiver', 'Voulez-vous desactiver votre espace Intervenant Care ?', [
+                {[
+                  ['Structure', user.intervention_structure || user.structure_name || '-'],
+                  ['Profession', user.profession || '-'],
+                  ['SIRET', user.siret || '-'],
+                  ['Adresse', user.address || '-'],
+                  ['Telephone', user.phone || '-'],
+                  ['Rayon', `${user.intervention_radius_km || 30} km`],
+                ].map(([l, v]) => (
+                  <View key={l as string} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
+                    <Text style={{ fontSize: 13, color: '#888', width: 100 }}>{l}</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1, textAlign: 'right' }}>{v}</Text>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
+            <TouchableOpacity testID="deactivate-care-modal-btn" style={{ borderWidth: 2, borderColor: '#E53935', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', marginTop: 12 }}
+              onPress={() => Alert.alert('Desactiver', 'Vous ne recevrez plus de missions d\'intervention. Confirmez ?', [
                 { text: 'Annuler' },
                 { text: 'Desactiver', style: 'destructive', onPress: deactivateCare },
               ])}>
@@ -383,7 +385,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
             </TouchableOpacity>
           </View>
         </View>
-      )}
+      </Modal>
 
       {/* Interventions List */}
       <Text style={s.secTitle}>Mes interventions</Text>
