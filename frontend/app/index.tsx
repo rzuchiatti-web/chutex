@@ -95,7 +95,7 @@ export default function AuthScreen() {
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
   };
 
-  const totalSteps = role === 'beneficiary' ? 3 : role === 'guardian' ? 3 : 2;
+  const totalSteps = role === 'beneficiary' ? 3 : 3;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
