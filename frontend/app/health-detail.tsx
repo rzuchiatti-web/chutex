@@ -215,54 +215,10 @@ export default function HealthDetailScreen() {
             )}
           </View>
 
-          <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }} onPress={() => { setNewSeuilBas(String(config.normalMin)); setNewSeuilHaut(String(config.normalMax)); setEditingThresholds(true); }}>
+          <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }} onPress={() => router.push({ pathname: '/edit-thresholds', params: { metricId: metricId || 'heart_rate' } })}>
             <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>MODIFIER LES SEUILS</Text>
           </TouchableOpacity>
         </GlassCard>
-
-        {/* Edit Thresholds Form */}
-        {editingThresholds && (
-          <GlassCard>
-            <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', textAlign: 'center', textTransform: 'uppercase', marginBottom: 14 }}>NOUVEAUX SEUILS</Text>
-            <View style={{ flexDirection: 'row', gap: 16, marginBottom: 14 }}>
-              <View style={{ flex: 1, alignItems: 'center' }}>
-                <Text style={{ fontSize: 11, fontWeight: '800', color: '#1E88E5', textTransform: 'uppercase', marginBottom: 6 }}>SEUIL BAS</Text>
-                {Platform.OS === 'web' ? (
-                  <div><input type="number" value={newSeuilBas} onChange={(e: any) => setNewSeuilBas(e.target.value)}
-                    style={{ width: '100%', fontSize: 20, fontWeight: '800', padding: '10px', borderRadius: 12, border: '2px solid #1E88E5', textAlign: 'center', color: '#1E88E5', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
-                ) : null}
-              </View>
-              <View style={{ flex: 1, alignItems: 'center' }}>
-                <Text style={{ fontSize: 11, fontWeight: '800', color: '#E53935', textTransform: 'uppercase', marginBottom: 6 }}>SEUIL HAUT</Text>
-                {Platform.OS === 'web' ? (
-                  <div><input type="number" value={newSeuilHaut} onChange={(e: any) => setNewSeuilHaut(e.target.value)}
-                    style={{ width: '100%', fontSize: 20, fontWeight: '800', padding: '10px', borderRadius: 12, border: '2px solid #E53935', textAlign: 'center', color: '#E53935', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
-                ) : null}
-              </View>
-            </View>
-            {/* Preview bar */}
-            <View style={{ height: 24, backgroundColor: '#EEEEEE', borderRadius: 12, overflow: 'hidden', position: 'relative', marginBottom: 4 }}>
-              <View style={{ position: 'absolute', left: `${Math.max(0, ((parseFloat(newSeuilBas) || config.min) - config.min) / (config.max - config.min) * 100)}%`, right: `${Math.max(0, 100 - ((parseFloat(newSeuilHaut) || config.max) - config.min) / (config.max - config.min) * 100)}%`, top: 0, bottom: 0, borderRadius: 12 }}>
-                <View style={{ flex: 1, flexDirection: 'row', borderRadius: 12, overflow: 'hidden' }}>
-                  <View style={{ flex: 1, backgroundColor: '#42A5F5' }} />
-                  <View style={{ flex: 1, backgroundColor: '#EF5350' }} />
-                </View>
-              </View>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: '#1E88E5' }}>{config.min}{config.unit}</Text>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: '#E53935' }}>{config.max}{config.unit}</Text>
-            </View>
-            <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 14, alignItems: 'center' }} onPress={async () => {
-              try {
-                await apiFetch('/api/health/thresholds', { method: 'PUT', body: JSON.stringify({ metric_id: metricId, min_val: parseFloat(newSeuilBas), max_val: parseFloat(newSeuilHaut) }) }, token);
-                setEditingThresholds(false);
-              } catch {}
-            }}>
-              <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>CONFIRMER LES NOUVEAUX SEUILS</Text>
-            </TouchableOpacity>
-          </GlassCard>
-        )}
       </ScrollView>
     </SafeAreaView>
   );
