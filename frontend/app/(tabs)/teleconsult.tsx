@@ -548,6 +548,11 @@ function AdminIntervenants({ token }: { token: string }) {
 export default function TeleconsultScreen() {
   const { user, token } = useAuth();
   const { colors } = useTheme();
+  const [, forceUpdate] = useState(0);
+  
+  // Force re-render when tab is focused (handles role switch)
+  useFocusEffect(useCallback(() => { forceUpdate(n => n + 1); }, []));
+  
   if (!user || !token) return null;
   const r = user.active_role || user.role;
   return (
