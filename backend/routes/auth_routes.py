@@ -67,7 +67,8 @@ async def login(data: UserLogin):
             user = await db.users.find_one({"phone": identifier}, {"_id": 0})
     if not user or not verify_password(data.password, user['password_hash']):
         raise HTTPException(status_code=401, detail="Identifiant ou mot de passe incorrect")
-    return {"token": create_token(user['id'], user['role']), "user": sanitize_user(user)}
+    active = user.get('active_role', user['role'])
+    return {"token": create_token(user['id'], active), "user": sanitize_user(user)}
 
 
 @router.get("/auth/me")
@@ -78,12 +79,13 @@ async def get_me(user=Depends(get_current_user)):
 @router.put("/auth/update-profile")
 async def update_profile(data: dict, user=Depends(get_current_user)):
     update = {}
-    for key in ['name', 'phone', 'address', 'date_of_birth', 'gender']:
+    for key in ['name', 'phone', 'address', 'date_of_birth', 'gender', 'avatar_url']:
         if key in data and data[key]:
             update[key] = data[key]
     if update:
         await db.users.update_one({"id": user['id']}, {"$set": update})
-    return {"status": "updated"}
+    updated = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    return {"status": "updated", "user": sanitize_user(updated)}
 
 
 @router.put("/auth/change-password")
@@ -138,17 +140,17 @@ async def switch_active_role(data: dict, user=Depends(get_current_user)):
     """Switch the active role between guardian and beneficiary"""
     target = data.get("role", "")
     if target == "beneficiary":
-        if not user.get("has_beneficiary_space"):
+        if user.get("role") != "beneficiary" and not user.get("has_beneficiary_space"):
             raise HTTPException(status_code=400, detail="Activez d'abord votre espace beneficiaire")
         await db.users.update_one({"id": user['id']}, {"$set": {"active_role": "beneficiary"}})
     elif target == "guardian":
-        if user.get("role") != "guardian":
-            raise HTTPException(status_code=400, detail="Vous n'avez pas de role gardien")
+        if user.get("role") != "guardian" and not user.get("has_guardian_space"):
+            raise HTTPException(status_code=400, detail="Activez d'abord votre espace gardien")
         await db.users.update_one({"id": user['id']}, {"$set": {"active_role": "guardian"}})
     else:
         raise HTTPException(status_code=400, detail="Role invalide")
     u = await db.users.find_one({"id": user['id']}, {"_id": 0, "password_hash": 0})
-    return {"status": "switched", "active_role": target, "user": u}
+    return {"status": "switched", "active_role": target, "user": sanitize_user(u)}
 
 
 @router.post("/auth/activate-guardian")
