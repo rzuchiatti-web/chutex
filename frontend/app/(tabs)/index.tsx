@@ -88,6 +88,15 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   useEffect(() => { fetchData(); const iv = setInterval(fetchData, 30000); return () => clearInterval(iv); }, [fetchData]);
 
+  // Request notification permission and start reminder checker
+  useEffect(() => { requestNotificationPermission(); }, []);
+  useEffect(() => {
+    if (reminders.length > 0) {
+      const cleanup = startReminderChecker(reminders);
+      return cleanup;
+    }
+  }, [reminders]);
+
   const handleSOS = async () => {
     setSosLoading(true);
     try {
