@@ -177,11 +177,77 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           </View>
         </TouchableOpacity>
         <LanguageFlagButton />
-        <TouchableOpacity testID="notification-bell" style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.5)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginLeft: 8, ...glassStyle }}>
+        <TouchableOpacity testID="notification-bell" onPress={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.5)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginLeft: 8, ...glassStyle }}>
           <Ionicons name="notifications-outline" size={18} color="#000" />
-          {guardianRequests.length > 0 && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: '#F5F0EB' }} />}
+          {(guardianRequests.length > 0 || activeAlerts.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: '#F5F0EB' }} />}
         </TouchableOpacity>
       </View>
+
+      {/* Notifications Dropdown */}
+      {showNotifs && (
+        <GlassCard style={{ marginBottom: 12, borderLeftWidth: 4, borderLeftColor: '#2196F3' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+            <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>Notifications</Text>
+            <TouchableOpacity onPress={() => setShowNotifs(false)}><Ionicons name="close" size={18} color="#888" /></TouchableOpacity>
+          </View>
+          {activeAlerts.length === 0 && guardianRequests.length === 0 && (
+            <Text style={{ fontSize: 12, color: '#888', textAlign: 'center', paddingVertical: 8 }}>Aucune notification</Text>
+          )}
+          {activeAlerts.map((a: any) => (
+            <TouchableOpacity key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}
+              onPress={() => { setShowNotifs(false); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }}>
+              <Ionicons name="alert-circle" size={16} color="#E53935" />
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#000' }}>{a.message}</Text>
+                <Text style={{ fontSize: 10, color: '#888' }}>{a.incident_state || a.teleassistance_status}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+          {guardianRequests.map((req: any) => (
+            <View key={req.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8 }}>
+              <Ionicons name="person-add" size={16} color="#FF9800" />
+              <Text style={{ fontSize: 12, color: '#000', flex: 1 }}>{req.guardian_name} veut devenir gardien</Text>
+            </View>
+          ))}
+        </GlassCard>
+      )}
+
+      {/* Active Alerts Banner */}
+      {activeAlerts.map((a: any) => (
+        <TouchableOpacity key={a.id} testID={`active-alert-${a.id}`} onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
+          <GlassCard style={{ backgroundColor: 'rgba(229,57,53,0.08)', borderLeftWidth: 4, borderLeftColor: '#E53935', padding: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E53935', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="alert-circle" size={20} color="#FFF" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: '900', color: '#E53935', textTransform: 'uppercase' }}>ALERTE EN COURS</Text>
+                <Text style={{ fontSize: 12, color: '#000', marginTop: 2 }}>{a.message}</Text>
+              </View>
+              <Text style={{ fontSize: 10, color: '#888' }}>{new Date(a.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</Text>
+            </View>
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 12, padding: 10 }}>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                {a.incident_state === 'CARE_DISPATCHED' ? 'INTERVENANT EN ROUTE' : a.incident_state === 'CALLING_PATIENT' ? 'APPEL EN COURS' : a.incident_state === 'RESOLVED' ? 'RESOLUE' : a.teleassistance_status || 'EN COURS'}
+              </Text>
+              {a.intervener_info && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 }}>
+                  <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="person" size={14} color="#FFF" />
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#000' }}>{a.intervener_info.name}</Text>
+                    <Text style={{ fontSize: 10, color: '#888' }}>{a.intervener_info.structure}</Text>
+                  </View>
+                </View>
+              )}
+              {a.intervention && !a.intervener_info && (
+                <Text style={{ fontSize: 12, color: '#555', marginTop: 4 }}>Intervention en attente d'acceptation</Text>
+              )}
+            </View>
+          </GlassCard>
+        </TouchableOpacity>
+      ))}
 
       {/* Devices Status */}
       <GlassCard style={{ padding: 14 }}>
