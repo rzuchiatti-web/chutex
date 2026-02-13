@@ -357,25 +357,47 @@ async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_cur
     phone = data.phone_number or ben.get('phone', '')
     if not phone:
         raise HTTPException(status_code=400, detail="Pas de numero de telephone")
+
+    # Choose contextual message based on alert type
+    alert_type = alert.get('alert_type', 'sos')
+    message_key = 'fall_detected'
+    if alert_type == 'heart_rate' or 'cardiaque' in alert.get('message', '').lower():
+        message_key = 'heart_anomaly'
+    elif alert_type == 'spo2':
+        message_key = 'spo2_low'
+    elif 'inactiv' in alert.get('message', '').lower():
+        message_key = 'inactivity_alert'
+    elif alert_type == 'sos':
+        message_key = 'sos_manual'
+
     try:
+        base_url = "https://beneficiary-hub-7.preview.emergentagent.com"
         twiml = VoiceResponse()
-        # Use ElevenLabs AI voice instead of Polly
-        audio_url = f"https://beneficiary-hub-7.preview.emergentagent.com/api/elevenlabs/audio/fall_detected"
-        twiml.play(audio_url)
-        g = Gather(num_digits=1, timeout=15, action="/api/twilio/gather-response")
-        twiml.append(g)
+        # Play contextual ElevenLabs AI voice
+        twiml.play(f"{base_url}/api/elevenlabs/audio/{message_key}")
+        # Use speech recognition instead of DTMF keys
+        gather = Gather(
+            input='speech', language='fr-FR', timeout=10, speech_timeout=5,
+            action=f"{base_url}/api/twilio/speech-response"
+        )
+        twiml.append(gather)
         # If no response, play no_response message
-        twiml.play(f"https://beneficiary-hub-7.preview.emergentagent.com/api/elevenlabs/audio/no_response")
-        call = twilio_client.calls.create(twiml=str(twiml), to=phone, from_=TWILIO_NUMBER)
+        twiml.play(f"{base_url}/api/elevenlabs/audio/no_response")
+
+        call = twilio_client.calls.create(twiml=str(twiml), to=phone, from_=TWILIO_NUMBER,
+                                           status_callback=f"{base_url}/api/twilio/status",
+                                           status_callback_event=['completed', 'busy', 'no-answer', 'failed'])
         now = datetime.now(timezone.utc).isoformat()
         call_record = {
             "id": str(uuid.uuid4()), "call_sid": call.sid, "alert_id": data.alert_id,
             "target_type": "beneficiary", "target_id": ben['id'], "target_name": ben['name'],
             "target_phone": phone, "status": "initiated", "operator_id": user['id'],
             "created_at": now, "answered": False, "response": None,
+            "voice_engine": "elevenlabs", "input_mode": "speech",
+            "message_key": message_key,
         }
         await db.twilio_calls.insert_one(call_record)
-        return {"call_sid": call.sid, "call_id": call_record['id'], "status": "initiated", "phone": phone}
+        return {"call_sid": call.sid, "call_id": call_record['id'], "status": "initiated", "phone": phone, "message_key": message_key}
     except Exception as e:
         logger.error(f"Twilio call error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
