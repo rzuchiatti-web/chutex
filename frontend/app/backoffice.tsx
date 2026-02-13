@@ -209,7 +209,7 @@ export default function BackofficeScreen() {
   const toggleIvCode = async (id: string) => {
     try {
       const r = await apiFetch(`/api/admin/intervention-codes/${id}/toggle`, { method: 'PUT' }, token);
-      setInterventionCodes(interventionCodes.map(c => c.id === id ? { ...c, active: r.active } : c));
+      setInterventionCodes(interventionCodes.map(c => (c.id === id || c.code === id) ? { ...c, active: r.active } : c));
     } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
@@ -219,7 +219,7 @@ export default function BackofficeScreen() {
       { text: 'Supprimer', style: 'destructive', onPress: async () => {
         try {
           await apiFetch(`/api/admin/intervention-codes/${id}`, { method: 'DELETE' }, token);
-          setInterventionCodes(interventionCodes.filter(c => c.id !== id));
+          setInterventionCodes(interventionCodes.filter(c => c.id !== id && c.code !== id));
         } catch (e: any) { Alert.alert('Erreur', e.message); }
       }},
     ]);
