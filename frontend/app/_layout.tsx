@@ -45,8 +45,7 @@ function RootNav() {
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <AppBackground>
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="health-detail" options={{ presentation: 'card' }} />
           <Stack.Screen name="backoffice" options={{ presentation: 'card' }} />
