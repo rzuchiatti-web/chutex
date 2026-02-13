@@ -158,6 +158,26 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </TouchableOpacity>
       </GlassCard>
 
+      {/* Guardian Requests - Beneficiary accepts/refuses */}
+      {guardianRequests.length > 0 && guardianRequests.map((req: any) => (
+        <GlassCard key={req.id} colors={colors} style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
+          <Text style={{ fontSize: 11, fontWeight: '800', color: '#FF9800', textTransform: 'uppercase', letterSpacing: 1 }}>DEMANDE DE GARDIEN</Text>
+          <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', marginTop: 4 }}>{req.guardian_name}</Text>
+          <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Souhaite devenir votre gardien</Text>
+          {req.guardian_phone ? <Text style={{ fontSize: 12, color: '#888' }}>{req.guardian_phone}</Text> : null}
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+            <TouchableOpacity style={{ flex: 1, backgroundColor: '#4CAF50', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
+              onPress={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/accept`, { method: 'POST' }, token); Alert.alert('Accepte', `${req.guardian_name} est maintenant votre gardien.`); fetchData(); } catch (e: any) { Alert.alert('Erreur', e.message); } }}>
+              <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>ACCEPTER</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)' }}
+              onPress={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }}>
+              <Text style={{ color: '#888', fontSize: 13, fontWeight: '700', textTransform: 'uppercase' }}>REFUSER</Text>
+            </TouchableOpacity>
+          </View>
+        </GlassCard>
+      ))}
+
       {/* SOS Button */}
       <Animated.View style={{ transform: [{ scale: sosPulse }], marginBottom: 16 }}>
         <TouchableOpacity testID="sos-button" style={{ backgroundColor: '#E53935', borderRadius: 20, paddingVertical: 20, alignItems: 'center' }} onPress={handleSOS} disabled={sosLoading} activeOpacity={0.8}>
