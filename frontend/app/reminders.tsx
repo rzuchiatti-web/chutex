@@ -8,9 +8,9 @@ import { apiFetch } from '../src/services/api';
 import { useRouter } from 'expo-router';
 
 const REMINDER_IMAGES: Record<string, string> = {
-  hydration: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/22914qql_rappels_hydratation.svg',
-  medication: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/kmlx8iu2_ChatGPT%20Image%2026%20nov.%202025%2C%2010_04_44.png',
-  alarm: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/o8lth2ng_ChatGPT%20Image%2026%20nov.%202025%2C%2010_07_27.png',
+  hydration: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/7s8stuxi_hydratation.png',
+  medication: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/y3xje768_traitement.png',
+  alarm: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/hzoi0qcr_alarmes.png',
 };
 
 const CATEGORIES = [
