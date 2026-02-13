@@ -345,6 +345,46 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         <Text style={{ color: colors.textSecondary }}>vos beneficiaires sont en {bens.length > 0 ? 'excellente' : 'bonne'} sante aujourd'hui !</Text>
       </Text>
 
+      {/* Pending Interventions Care */}
+      {pendingInterventions.length > 0 && pendingInterventions.map((piv: any) => (
+        <TouchableOpacity key={piv.id} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: piv.id } })}>
+          <GlassCard colors={colors} style={{ borderLeftWidth: 4, borderLeftColor: '#E53935', backgroundColor: 'rgba(255,205,210,0.4)' }}>
+            <Text style={{ fontSize: 11, fontWeight: '800', color: '#E53935', textTransform: 'uppercase', letterSpacing: 1 }}>INTERVENTION REQUISE</Text>
+            <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', marginTop: 4 }}>{piv.alert_message || piv.notes || 'Alerte'}</Text>
+            <Text style={{ fontSize: 13, color: '#555', marginTop: 4 }}>{piv.beneficiary_name} - {piv.distance_km ? `${piv.distance_km}km` : ''}</Text>
+            {piv.status === 'pending_acceptance' && (
+              <View style={{ backgroundColor: '#4CAF50', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }}>
+                <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2 }}>J'INTERVIENS</Text>
+              </View>
+            )}
+            {piv.status === 'in_progress' && piv.assigned_to === user.id && (
+              <View style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }}>
+                <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' }}>VOIR L'INTERVENTION</Text>
+              </View>
+            )}
+          </GlassCard>
+        </TouchableOpacity>
+      ))}
+
+      {/* Pending Invitations */}
+      {invitations.length > 0 && invitations.map((inv: any) => (
+        <GlassCard key={inv.id} colors={colors} style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
+          <Text style={{ fontSize: 11, fontWeight: '800', color: '#FF9800', textTransform: 'uppercase', letterSpacing: 1 }}>INVITATION</Text>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', marginTop: 4 }}>{inv.beneficiary_name} vous invite</Text>
+          <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Souhaite que vous deveniez son gardien</Text>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+            <TouchableOpacity style={{ flex: 1, backgroundColor: '#4CAF50', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
+              onPress={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/accept`, { method: 'POST' }, token); Alert.alert('Accepte', 'Vous etes maintenant gardien.'); fetchData(); } catch (e: any) { Alert.alert('Erreur', e.message); } }}>
+              <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>ACCEPTER</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)' }}
+              onPress={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }}>
+              <Text style={{ color: '#888', fontSize: 13, fontWeight: '700', textTransform: 'uppercase' }}>REFUSER</Text>
+            </TouchableOpacity>
+          </View>
+        </GlassCard>
+      ))}
+
       {/* Beneficiary Cards */}
       {bens.map((b: any) => (
         <GlassCard key={b.id} colors={colors} style={{ padding: 20 }}>
