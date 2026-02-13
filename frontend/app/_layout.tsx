@@ -3,7 +3,21 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { ThemeProvider, useTheme } from '../src/context/ThemeContext';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform, ImageBackground } from 'react-native';
+
+const BG_IMAGE = 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/tor5yp57_fond%20couleur%20pastelle.png';
+
+function AppBackground({ children }: { children: React.ReactNode }) {
+  const { colors } = useTheme();
+  if (Platform.OS === 'web') {
+    return (
+      <div style={{ flex: 1, minHeight: '100vh', background: `url(${BG_IMAGE}) repeat`, backgroundSize: '600px 600px' }}>
+        {children}
+      </div>
+    );
+  }
+  return <ImageBackground source={{ uri: BG_IMAGE }} style={{ flex: 1 }} resizeMode="repeat">{children}</ImageBackground>;
+}
 
 function RootNav() {
   const { user, loading } = useAuth();
