@@ -101,6 +101,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     setSosLoading(true);
     try {
       await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'sos', severity: 'critical', message: 'SOS - Aide requise immediatement!', device_type: 'bracelet' }) }, token);
+      notifyAlert('sos', 'SOS envoye ! Vos gardiens et la teleassistance ont ete alertes.');
       Alert.alert('SOS Envoye', 'Vos gardiens et la teleassistance ont ete alertes.');
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSosLoading(false); }
   };
