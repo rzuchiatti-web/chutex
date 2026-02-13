@@ -9,23 +9,27 @@ function FloatingTabBar() {
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const [currentRole, setCurrentRole] = useState('');
+  const [role, setRole] = useState('');
 
-  // Sync role from auth context
-  const effectiveRole = user ? (user.active_role || user.role) : '';
+  // Poll user role changes every 500ms since Expo Router caches layouts
   useEffect(() => {
-    if (effectiveRole && effectiveRole !== currentRole) {
-      setCurrentRole(effectiveRole);
-    }
-  }, [effectiveRole]);
+    const check = () => {
+      if (user) {
+        const eff = user.active_role || user.role;
+        setRole(prev => prev !== eff ? eff : prev);
+      }
+    };
+    check();
+    const interval = setInterval(check, 500);
+    return () => clearInterval(interval);
+  }, [user, user?.active_role, user?.role]);
 
-  if (!user) return null;
+  if (!user || !role) return null;
 
-  const r = currentRole || effectiveRole;
-  const isBen = r === 'beneficiary';
-  const isG = r === 'guardian';
-  const isTA = r === 'teleassistance';
-  const isAdmin = r === 'admin';
+  const isBen = role === 'beneficiary';
+  const isG = role === 'guardian';
+  const isTA = role === 'teleassistance';
+  const isAdmin = role === 'admin';
 
   const tabs = isAdmin ? [
     { key: 'index', icon: 'grid-outline', label: 'Dashboard', lib: 'ion' },
