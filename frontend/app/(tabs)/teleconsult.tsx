@@ -371,30 +371,44 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const [loading, setLoading] = useState(true);
   const [ivCode, setIvCode] = useState('');
   const [activating, setActivating] = useState(false);
+  const [showCareModal, setShowCareModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => { (async () => { try { setIvs(await apiFetch('/api/interventions', {}, token)); } catch {} finally { setLoading(false); } })(); }, []);
+  const fetchIvs = async () => {
+    try { setIvs(await apiFetch('/api/interventions', {}, token)); } catch {} finally { setLoading(false); setRefreshing(false); }
+  };
+  useEffect(() => { fetchIvs(); const t = setInterval(fetchIvs, 15000); return () => clearInterval(t); }, []);
 
   const activateCare = async () => {
     if (!ivCode.trim()) return Alert.alert('Erreur', 'Entrez un code intervenant');
     setActivating(true);
     try {
       await apiFetch('/api/guardian/activate-intervention-provider', { method: 'POST', body: JSON.stringify({ code: ivCode.trim().toUpperCase() }) }, token);
-      Alert.alert('Activé', 'Vous êtes maintenant intervenant Care Chutex. La téléassistance peut vous missionner.');
+      Alert.alert('Active', 'Vous etes maintenant intervenant Care.');
       setIvCode(''); await refreshUser();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivating(false); }
   };
 
+  const deactivateCare = async () => {
+    try {
+      await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_intervention_provider: false }) }, token);
+      await refreshUser();
+      setShowCareModal(false);
+    } catch {}
+  };
+
+  const statusLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
+  const statusColor = (st: string) => ({ pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' }[st] || '#888');
+
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
   return (
-    <ScrollView contentContainerStyle={s.sc}>
-      {/* Intervention Care activation */}
+    <ScrollView contentContainerStyle={[s.sc, { paddingBottom: 80 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchIvs(); }} />}>
+      {/* Intervention Care Card */}
       {!user?.is_intervention_provider ? (
         <View style={s.careCard}>
           <Ionicons name="shield-checkmark-outline" size={36} color={Colors.primary} />
           <Text style={s.careTitle}>Devenir Intervenant Care</Text>
-          <Text style={s.careDesc}>
-            Activez votre espace Intervenant Care pour être missionné par le plateau de téléassistance IA Chutex en cas de levée de doute auprès de vos bénéficiaires.
-          </Text>
+          <Text style={s.careDesc}>Activez votre espace pour etre missionne par la teleassistance IA.</Text>
           <View style={s.careRow}>
             <TextInput testID="care-code-input" style={s.careInput} placeholder="CODE INTERVENANT" placeholderTextColor={Colors.textMuted}
               value={ivCode} onChangeText={setIvCode} autoCapitalize="characters" />
@@ -404,48 +418,96 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
           </View>
         </View>
       ) : (
-        <View style={s.careActive}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(76,175,80,0.15)', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name="shield-checkmark" size={22} color={Colors.success} />
+        <TouchableOpacity testID="care-card-active" onPress={() => setShowCareModal(true)} activeOpacity={0.7}>
+          <View style={[s.careActive, { borderWidth: 2, borderColor: 'rgba(76,175,80,0.3)' }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(76,175,80,0.15)', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="shield-checkmark" size={24} color={Colors.success} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Intervenant Care actif</Text>
+                <Text style={{ fontSize: 13, color: '#555', marginTop: 2 }}>{user.intervention_structure || user.structure_name || 'Structure Care'}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#888" />
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={s.careActiveT}>Intervenant Care actif</Text>
-              <Text style={s.careActiveSub}>{user.intervention_structure || user.structure_name || 'Structure Care'}</Text>
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+              <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000' }}>{user.intervention_radius_km || 30}</Text>
+                <Text style={{ fontSize: 9, color: '#888', textTransform: 'uppercase' }}>km rayon</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'rgba(76,175,80,0.08)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                <Ionicons name="radio-button-on" size={16} color={Colors.success} />
+                <Text style={{ fontSize: 9, color: Colors.success, fontWeight: '700', textTransform: 'uppercase', marginTop: 2 }}>Disponible</Text>
+              </View>
             </View>
           </View>
-          <View style={{ backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 12, padding: 12, marginBottom: 10 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-              <Text style={{ fontSize: 12, color: Colors.textMuted }}>Rayon d'intervention</Text>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: Colors.textPrimary }}>{user.intervention_radius_km || 30} km</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Care Detail Modal */}
+      {showCareModal && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100, justifyContent: 'center', padding: 20 }}>
+          <View style={{ backgroundColor: '#FFF', borderRadius: 24, padding: 24, maxHeight: '80%' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Espace Intervenant Care</Text>
+              <TouchableOpacity onPress={() => setShowCareModal(false)}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
             </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ fontSize: 12, color: Colors.textMuted }}>Statut</Text>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: Colors.success }}>Disponible</Text>
+            <View style={{ backgroundColor: 'rgba(76,175,80,0.08)', borderRadius: 16, padding: 16, marginBottom: 16 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <Ionicons name="shield-checkmark" size={28} color={Colors.success} />
+                <Text style={{ fontSize: 16, fontWeight: '800', color: Colors.success }}>Statut : Actif</Text>
+              </View>
+              {[
+                ['Structure', user.intervention_structure || user.structure_name || '-'],
+                ['Profession', user.profession || '-'],
+                ['SIRET', user.siret || '-'],
+                ['Adresse', user.address || '-'],
+                ['Telephone', user.phone || '-'],
+                ['Rayon intervention', `${user.intervention_radius_km || 30} km`],
+              ].map(([l, v]) => (
+                <View key={l as string} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
+                  <Text style={{ fontSize: 13, color: '#888' }}>{l}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1, textAlign: 'right' }}>{v}</Text>
+                </View>
+              ))}
             </View>
+            <TouchableOpacity testID="deactivate-care-modal-btn" style={{ borderWidth: 2, borderColor: '#E53935', borderRadius: 9999, paddingVertical: 14, alignItems: 'center' }}
+              onPress={() => Alert.alert('Desactiver', 'Voulez-vous desactiver votre espace Intervenant Care ?', [
+                { text: 'Annuler' },
+                { text: 'Desactiver', style: 'destructive', onPress: deactivateCare },
+              ])}>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#E53935' }}>DESACTIVER INTERVENANT CARE</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity testID="deactivate-care-btn" style={{ borderWidth: 1.5, borderColor: '#E53935', borderRadius: 9999, paddingVertical: 10, alignItems: 'center' }}
-            onPress={() => Alert.alert('Desactiver', 'Voulez-vous desactiver votre espace Intervenant Care ?', [
-              { text: 'Annuler' },
-              { text: 'Desactiver', style: 'destructive', onPress: async () => {
-                try {
-                  await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_intervention_provider: false }) }, token);
-                  await refreshUser();
-                } catch {}
-              }}
-            ])}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#E53935' }}>DESACTIVER INTERVENANT CARE</Text>
-          </TouchableOpacity>
         </View>
       )}
 
-      <Text style={s.secTitle}>Interventions</Text>
+      {/* Interventions List */}
+      <Text style={s.secTitle}>Mes interventions</Text>
       {ivs.length > 0 ? ivs.map(iv => (
-        <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} style={s.ivCard} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
-          <View style={[s.ivDot, { backgroundColor: iv.status === 'completed' ? Colors.success : Colors.primary }]} />
-          <View style={s.ivInfo}><Text style={s.ivName}>{iv.beneficiary_name}</Text><Text style={s.ivSt}>{iv.status === 'en_route' ? 'En route' : iv.status === 'dispatched' ? 'Dispatché' : iv.status === 'completed' ? 'Terminé' : iv.status}</Text></View>
-          <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} /></TouchableOpacity>
-      )) : <View style={s.emptyC}><MaterialCommunityIcons name="map-marker-radius" size={28} color={Colors.textMuted} /><Text style={s.emptyT}>Aucune intervention</Text></View>}
+        <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: statusColor(iv.status) }} />
+              <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', flex: 1 }}>{iv.beneficiary_name}</Text>
+              <View style={{ backgroundColor: statusColor(iv.status) + '20', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 9999 }}>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: statusColor(iv.status), textTransform: 'uppercase' }}>{statusLabel(iv.status)}</Text>
+              </View>
+            </View>
+            <Text style={{ fontSize: 12, color: '#555', marginBottom: 6 }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              {iv.distance_km && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Ionicons name="navigate-outline" size={12} color="#888" /><Text style={{ fontSize: 11, color: '#888' }}>{iv.distance_km} km</Text></View>}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Ionicons name="time-outline" size={12} color="#888" /><Text style={{ fontSize: 11, color: '#888' }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text></View>
+            </View>
+          </View>
+        </TouchableOpacity>
+      )) : (
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 18, padding: 32, alignItems: 'center' }}>
+          <Ionicons name="checkmark-circle-outline" size={40} color="#CCC" />
+          <Text style={{ fontSize: 14, fontWeight: '600', color: '#888', marginTop: 10 }}>Aucune intervention</Text>
+          <Text style={{ fontSize: 11, color: '#AAA', marginTop: 4 }}>Les missions apparaitront ici</Text>
+        </View>
+      )}
     </ScrollView>);
 }
 
