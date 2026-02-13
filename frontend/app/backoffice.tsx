@@ -41,6 +41,7 @@ export default function BackofficeScreen() {
   const [shopifyConnected, setShopifyConnected] = useState(false);
 
   useEffect(() => {
+    if (!token) return;
     (async () => {
       try {
         const [s, u, a, c, p, ic, k, subs] = await Promise.all([
@@ -54,11 +55,10 @@ export default function BackofficeScreen() {
           apiFetch('/api/admin/subscriptions', {}, token).catch(() => []),
         ]);
         setStats(s); setUsers(u); setAlerts(a); setCodes(c); setPrescriptions(p); setInterventionCodes(ic); setKpi(k); setSubscriptions(subs);
-        // Check Shopify connection
         apiFetch('/api/admin/shopify/status', {}, token).then(r => setShopifyConnected(r?.connected)).catch(() => {});
       } catch {} finally { setLoading(false); }
     })();
-  }, []);
+  }, [token]);
 
   const resetCodeForm = () => setCodeForm({ structure_name: '', max_uses: '50', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '' });
   const resetIvForm = () => setIvForm({ structure_name: '', max_uses: '50', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' });
