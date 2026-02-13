@@ -1,0 +1,85 @@
+{
+  "summary": "Iteration 16: P0 bug testing complete. Backend APIs (24/24 tests PASSED): All CRUD operations for activation codes and intervention codes work correctly. Role switching API works correctly. Frontend: Role switching UI verified working - Claire can switch from guardian to beneficiary mode and dashboard content updates (SOS button, health cards, different tab bar). Admin backoffice: Modal for creating codes appears and is functional, but the codes LIST does not render in the Codes tab due to authentication state issue when navigating directly to /backoffice.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "backoffice.tsx Codes tab",
+        "issue": "Codes list is empty (shows only Create button) - 401 errors in console suggest authentication state is lost when navigating to /backoffice directly. The codes API requires admin token but the page seems to lose auth context.",
+        "selector": "[data-testid='code-card-*']",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Backoffice codes list rendering",
+        "issue": "API call to /api/admin/activation-codes returns 401 when accessed via direct /backoffice URL navigation. The useAuth token may not be persisting correctly on page navigation.",
+        "affected_selectors": ["codes.map() output in tab='codes'"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration16_bugs.py",
+    "/app/test_reports/pytest/pytest_results_iter16.xml"
+  ],
+  "action_items": [
+    "Investigate why /api/admin/activation-codes returns 401 in frontend but works in backend tests - possible token persistence issue on page navigation",
+    "Check if AuthContext token is available when backoffice.tsx useEffect runs apiFetch calls"
+  ],
+  "critical_code_review_comments": [
+    "Backend CRUD for activation codes and intervention codes is fully functional (all tests pass)",
+    "Role switching API (POST /api/auth/switch-role) works correctly and returns updated user with active_role",
+    "Frontend role switching UI works - Claire switches from guardian to beneficiary, dashboard shows SOS button and beneficiary tabs",
+    "Backoffice codes list issue: apiFetch('/api/admin/activation-codes', {}, token) may have token=null on initial load"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration16_bugs.py"
+  ],
+  "success_rate": {
+    "backend": "100% (24/24 passed)",
+    "frontend": "80% - Role switching works, Backoffice modal works, but codes list doesn't render"
+  },
+  "test_credentials": {
+    "admin": "admin@chutex.fr / demo123",
+    "guardian": "claire.martin@email.fr / demo123",
+    "beneficiary": "robert.martin@email.fr / demo123"
+  },
+  "seed_data_creation": "None - using existing seeded codes",
+  "retest_needed": true,
+  "main_agent_can_self_test": false,
+  "context_for_next_testing_agent": "Backend CRUD fully tested and working. Role switching UI works (tested Claire guardian->beneficiary->guardian). Admin backoffice page loads but codes list is empty due to 401 errors - check AuthContext token availability in backoffice.tsx useEffect",
+  "features_tested": {
+    "backend": {
+      "POST /api/auth/login (admin)": "PASS",
+      "GET /api/admin/activation-codes": "PASS - returns 3 codes with id field",
+      "POST /api/admin/activation-codes": "PASS - creates code with UUID id",
+      "PUT /api/admin/activation-codes/{id}/toggle": "PASS - toggles active status",
+      "PUT /api/admin/activation-codes/{id}": "PASS - updates fields",
+      "DELETE /api/admin/activation-codes/{id}": "PASS - deletes code",
+      "GET /api/admin/intervention-codes": "PASS - returns 3 codes with id field",
+      "POST /api/admin/intervention-codes": "PASS - creates intervention code",
+      "PUT /api/admin/intervention-codes/{id}/toggle": "PASS",
+      "PUT /api/admin/intervention-codes/{id}": "PASS",
+      "DELETE /api/admin/intervention-codes/{id}": "PASS",
+      "POST /api/auth/switch-role": "PASS - Claire switches guardian<->beneficiary",
+      "GET /api/backoffice/stats": "PASS",
+      "GET /api/backoffice/kpi": "PASS"
+    },
+    "frontend": {
+      "Claire login as guardian": "PASS - Shows MES BENEFICIAIRES, guardian tabs",
+      "Claire switch to beneficiary via Profile": "PASS - Shows SOS button, health cards, beneficiary tabs",
+      "Claire switch back to guardian": "PASS - Shows guardian dashboard again",
+      "Admin backoffice Stats tab": "PASS - Shows stats with 3 CODES ACTIFS",
+      "Admin backoffice Codes tab": "PARTIAL - Shows Create button, modal works, but codes list is empty",
+      "Admin backoffice Create code modal": "PASS - Form appears with all fields (structure, max_uses, siret, etc.)"
+    }
+  },
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "mocked_apis_list": []
+  }
+}
