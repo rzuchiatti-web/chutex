@@ -589,7 +589,76 @@ async def twilio_speech_response(request: Request):
     return StarletteResponse(content=str(resp_twiml), media_type="application/xml")
 
 
-@router.post("/ai/analyze-speech")
+@router.post("/twilio/guardian-speech-response")
+async def twilio_guardian_speech_response(request: Request):
+    """Handle guardian's vocal response - analyze with GPT-5.2 to determine if they'll intervene"""
+    form = await request.form()
+    call_sid = form.get('CallSid', '')
+    speech_result = form.get('SpeechResult', '')
+    confidence = form.get('Confidence', '0')
+    alert_id = request.query_params.get('alert_id', '')
+    guardian_id = request.query_params.get('guardian_id', '')
+
+    logger.info(f"Guardian speech from {call_sid}: '{speech_result}' (confidence: {confidence})")
+
+    # Analyze guardian response with GPT-5.2
+    will_intervene = False
+    cannot_intervene = False
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"guardian-speech-{uuid.uuid4().hex[:8]}",
+            system_message=(
+                "Tu analyses la reponse vocale d'un gardien apres une alerte pour un proche. "
+                "Reponds UNIQUEMENT en JSON: "
+                '{"will_intervene": bool, "cannot_intervene": bool, "summary": "resume en 1 phrase"}'
+            )
+        ).with_model("openai", "gpt-5.2")
+        resp = await chat.send_message(UserMessage(text=f'Le gardien a dit: "{speech_result}". Va-t-il intervenir ?'))
+        import json
+        try:
+            resp_clean = resp.strip()
+            if resp_clean.startswith("```"):
+                resp_clean = resp_clean.split("```")[1].strip()
+                if resp_clean.startswith("json"):
+                    resp_clean = resp_clean[4:].strip()
+            analysis = json.loads(resp_clean)
+            will_intervene = analysis.get("will_intervene", False)
+            cannot_intervene = analysis.get("cannot_intervene", False)
+        except:
+            speech_lower = (speech_result or '').lower()
+            will_intervene = any(w in speech_lower for w in ['oui', "j'y vais", 'interviens', 'arrive', "j'arrive", 'ok', "d'accord"])
+            cannot_intervene = any(w in speech_lower for w in ['non', 'pas possible', 'peux pas', 'ne peux pas', 'indisponible'])
+    except Exception as e:
+        logger.error(f"Guardian speech analysis error: {e}")
+        speech_lower = (speech_result or '').lower()
+        will_intervene = any(w in speech_lower for w in ['oui', "j'y vais", 'interviens', 'arrive'])
+        cannot_intervene = any(w in speech_lower for w in ['non', 'pas possible', 'peux pas'])
+
+    # Store response
+    await db.speech_responses.insert_one({
+        "call_sid": call_sid, "text": speech_result,
+        "confidence": float(confidence) if confidence else 0,
+        "target_type": "guardian", "guardian_id": guardian_id, "alert_id": alert_id,
+        "will_intervene": will_intervene, "cannot_intervene": cannot_intervene,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
+    await db.twilio_calls.update_one(
+        {"call_sid": call_sid},
+        {"$set": {"response": speech_result, "answered": True, "guardian_will_intervene": will_intervene}}
+    )
+
+    base_url = "https://beneficiary-hub-7.preview.emergentagent.com"
+    resp_twiml = VoiceResponse()
+    if will_intervene:
+        resp_twiml.play(f"{base_url}/api/elevenlabs/audio/guardian_followup")
+    elif cannot_intervene:
+        resp_twiml.say("Merci de votre reponse. Nous contactons un autre gardien. Au revoir.", voice='Polly.Lea', language='fr-FR')
+    else:
+        resp_twiml.say("Merci. Nous notons votre reponse. Ouvrez l'application Chutex si necessaire. Au revoir.", voice='Polly.Lea', language='fr-FR')
+
+    from starlette.responses import Response as StarletteResponse
+    return StarletteResponse(content=str(resp_twiml), media_type="application/xml")
 async def ai_analyze_speech(data: dict, user=Depends(get_current_user)):
     """Manually analyze a speech response with AI"""
     speech_text = data.get("text", "")
