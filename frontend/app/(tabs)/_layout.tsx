@@ -3,89 +3,153 @@ import { Tabs } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
-import { useI18n } from '../../src/context/I18nContext';
-import { View, ActivityIndicator, Platform } from 'react-native';
+import { View, TouchableOpacity, Text, ActivityIndicator, Platform } from 'react-native';
+import { usePathname, useRouter } from 'expo-router';
 
-export default function TabLayout() {
-  const { user, loading } = useAuth();
-  const { colors } = useTheme();
-
-  const { t } = useI18n();
-
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+function FloatingTabBar() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
   if (!user) return null;
 
   const r = user.active_role || user.role;
   const isBen = r === 'beneficiary';
   const isG = r === 'guardian';
   const isTA = r === 'teleassistance';
+  const isAdmin = r === 'admin';
 
-  const tabStyle: any = {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.06)',
-    paddingBottom: 6,
-    paddingTop: 8,
-    height: 62,
-    elevation: 0,
-    ...(Platform.OS === 'web' ? {
-      backdropFilter: 'blur(40px)',
-      WebkitBackdropFilter: 'blur(40px)',
-    } : {}),
+  const tabs = isAdmin ? [
+    { key: '/', icon: 'grid-outline', label: 'Dashboard', lib: 'ion' },
+    { key: '/alerts', icon: 'notifications-outline', label: 'Alertes', lib: 'ion' },
+    { key: '/devices', icon: 'document-text-outline', label: 'Prescripteurs', lib: 'ion' },
+    { key: '/teleconsult', icon: 'shield-checkmark-outline', label: 'Intervenants', lib: 'ion' },
+    { key: '/profile', icon: 'person-outline', label: 'Profil', lib: 'ion' },
+  ] : [
+    { key: '/', icon: 'home-outline', label: 'Accueil', lib: 'ion' },
+    ...(isBen ? [{ key: '/health', icon: 'heart-pulse', label: 'Sante', lib: 'mci' }] : []),
+    { key: '/alerts', icon: 'notifications-outline', label: 'Alertes', lib: 'ion' },
+    {
+      key: '/teleconsult',
+      icon: isTA ? 'headset-outline' : isG ? 'map-marker-radius-outline' : 'videocam-outline',
+      label: isTA ? 'Teleassist.' : isG ? 'Interventions' : 'Teleconsult.',
+      lib: isG ? 'mci' : 'ion',
+    },
+    {
+      key: '/devices',
+      icon: isG ? 'document-text-outline' : isTA ? 'people-outline' : 'bluetooth-connect',
+      label: isG ? 'Prescriptions' : isTA ? 'Abonnes' : 'Appareils',
+      lib: isG || isTA ? 'ion' : 'mci',
+    },
+    { key: '/profile', icon: 'person-outline', label: 'Profil', lib: 'ion' },
+  ];
+
+  const isActive = (tabKey: string) => {
+    if (tabKey === '/') return pathname === '/' || pathname === '/index' || pathname === '';
+    return pathname.startsWith(tabKey);
   };
 
-  if (r === 'admin') {
-    return (
-      <Tabs screenOptions={{ headerShown: false, tabBarStyle: tabStyle, tabBarLabelStyle: { fontSize: 10, fontWeight: '600', letterSpacing: 0.3 }, tabBarActiveTintColor: colors.primary, tabBarInactiveTintColor: colors.textMuted }}>
-        <Tabs.Screen name="index" options={{ title: 'Dashboard', tabBarIcon: ({ color }) => <Ionicons name="grid-outline" size={22} color={color} /> }} />
-        <Tabs.Screen name="alerts" options={{ title: 'Alertes', tabBarIcon: ({ color }) => <Ionicons name="notifications-outline" size={22} color={color} /> }} />
-        <Tabs.Screen name="devices" options={{ title: 'Prescripteurs', tabBarIcon: ({ color }) => <Ionicons name="document-text-outline" size={22} color={color} /> }} />
-        <Tabs.Screen name="teleconsult" options={{ title: 'Intervenants', tabBarIcon: ({ color }) => <Ionicons name="shield-checkmark-outline" size={22} color={color} /> }} />
-        <Tabs.Screen name="health" options={{ title: 'Analyse', tabBarIcon: ({ color }) => <Ionicons name="analytics-outline" size={22} color={color} /> }} />
-        <Tabs.Screen name="profile" options={{ title: 'Profil', tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={22} color={color} /> }} />
-      </Tabs>
-    );
-  }
+  return (
+    <View
+      testID="floating-tab-bar"
+      style={{
+        position: 'absolute',
+        bottom: 12,
+        left: 12,
+        right: 12,
+        backgroundColor: 'rgba(255,255,255,0.92)',
+        borderRadius: 28,
+        flexDirection: 'row',
+        paddingVertical: 8,
+        paddingHorizontal: 4,
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.06)',
+        ...(Platform.OS === 'web' ? {
+          backdropFilter: 'blur(40px)',
+          WebkitBackdropFilter: 'blur(40px)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+        } : {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 16,
+          elevation: 20,
+        }),
+        zIndex: 9999,
+      }}
+    >
+      {tabs.map((tab) => {
+        const active = isActive(tab.key);
+        return (
+          <TouchableOpacity
+            key={tab.key}
+            testID={`tab-${tab.label.toLowerCase().replace(/[^a-z]/g, '')}`}
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 4,
+            }}
+            onPress={() => {
+              if (tab.key === '/') {
+                router.replace('/(tabs)/' as any);
+              } else {
+                router.replace(`/(tabs)${tab.key}` as any);
+              }
+            }}
+          >
+            <View style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: active ? '#000' : 'transparent',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+              {tab.lib === 'mci' ? (
+                <MaterialCommunityIcons name={tab.icon as any} size={20} color={active ? '#FFF' : '#888'} />
+              ) : (
+                <Ionicons name={tab.icon as any} size={20} color={active ? '#FFF' : '#888'} />
+              )}
+            </View>
+            <Text style={{
+              fontSize: 9,
+              fontWeight: active ? '800' : '500',
+              color: active ? '#000' : '#888',
+              marginTop: 2,
+              letterSpacing: 0.2,
+            }}>{tab.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+export default function TabLayout() {
+  const { user, loading } = useAuth();
+
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (!user) return null;
+
+  const effectiveRole = user.active_role || user.role;
 
   return (
-    <Tabs screenOptions={{
-      headerShown: false,
-      tabBarActiveTintColor: '#000',
-      tabBarInactiveTintColor: '#888',
-      tabBarStyle: tabStyle,
-      tabBarLabelStyle: { fontSize: 10, fontWeight: '600', letterSpacing: 0.3 },
-    }}>
-      <Tabs.Screen name="index" options={{
-        title: 'Accueil',
-        tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
-      }} />
-      <Tabs.Screen name="health" options={{
-        title: 'Sante',
-        tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="heart-pulse" size={size} color={color} />,
-        href: !isBen ? null : undefined,
-      }} />
-      <Tabs.Screen name="alerts" options={{
-        title: 'Alertes',
-        tabBarIcon: ({ color, size }) => <Ionicons name="notifications-outline" size={size} color={color} />,
-      }} />
-      <Tabs.Screen name="teleconsult" options={{
-        title: isTA ? 'Teleassist.' : isG ? 'Interventions' : 'Teleconsult.',
-        tabBarIcon: ({ color, size }) => isTA
-          ? <Ionicons name="headset-outline" size={size} color={color} />
-          : isG ? <MaterialCommunityIcons name="map-marker-radius-outline" size={size} color={color} />
-          : <Ionicons name="videocam-outline" size={size} color={color} />,
-      }} />
-      <Tabs.Screen name="devices" options={{
-        title: isG ? 'Prescriptions' : (isTA) ? 'Abonnes' : 'Appareils',
-        tabBarIcon: ({ color, size }) => isG
-          ? <Ionicons name="document-text-outline" size={size} color={color} />
-          : isTA ? <Ionicons name="people-outline" size={size} color={color} />
-          : <MaterialCommunityIcons name="bluetooth-connect" size={size} color={color} />,
-      }} />
-      <Tabs.Screen name="profile" options={{
-        title: 'Profil',
-        tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
-      }} />
-    </Tabs>
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+      <Tabs
+        key={effectiveRole}
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: { display: 'none' },
+        }}
+      >
+        <Tabs.Screen name="index" />
+        <Tabs.Screen name="health" options={{ href: effectiveRole !== 'beneficiary' ? null : undefined }} />
+        <Tabs.Screen name="alerts" />
+        <Tabs.Screen name="teleconsult" />
+        <Tabs.Screen name="devices" />
+        <Tabs.Screen name="profile" />
+      </Tabs>
+      <FloatingTabBar />
+    </View>
   );
 }
