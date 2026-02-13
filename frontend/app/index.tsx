@@ -7,10 +7,8 @@ import { useAuth } from '../src/context/AuthContext';
 import { useTheme } from '../src/context/ThemeContext';
 
 const ROLES = [
-  { id: 'beneficiary', label: 'Beneficiaire', icon: 'heart-outline', desc: 'Patient / porteur bracelet' },
-  { id: 'guardian', label: 'Gardien', icon: 'shield-checkmark-outline', desc: 'Proche ou professionnel' },
-  { id: 'teleassistance', label: 'Teleassistance', icon: 'headset-outline', desc: 'Operateur plateau' },
-  { id: 'admin', label: 'Admin', icon: 'settings-outline', desc: 'Back-office' },
+  { id: 'beneficiary', label: 'Beneficiaire', icon: 'heart-outline', desc: 'Je porte un bracelet ou gilet connecte' },
+  { id: 'guardian', label: 'Gardien', icon: 'shield-checkmark-outline', desc: 'Je surveille un proche ou un patient' },
 ];
 
 const FormInput = React.memo(({ testID, label, placeholder, value, onChangeText, keyboardType, secureTextEntry, autoCapitalize, multiline, rightElement, colors }: any) => {
