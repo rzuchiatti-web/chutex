@@ -345,3 +345,13 @@ async def guardian_map(user=Depends(get_current_user)):
                 "location": loc if loc else {"latitude": 48.8566 + random.uniform(-0.05, 0.05), "longitude": 2.3522 + random.uniform(-0.05, 0.05), "updated_at": datetime.now(timezone.utc).isoformat()},
             })
     return result
+
+
+@router.delete("/guardian/beneficiary/{bid}/unlink")
+async def unlink_beneficiary_from_guardian(bid: str, user=Depends(get_current_user)):
+    """Guardian removes a beneficiary from their list"""
+    if bid not in user.get('beneficiaries', []):
+        raise HTTPException(status_code=403, detail="Ce beneficiaire n'est pas dans votre liste")
+    await db.users.update_one({"id": user['id']}, {"$pull": {"beneficiaries": bid}})
+    await db.users.update_one({"id": bid}, {"$pull": {"guardians": user['id'], "guardian_order": user['id']}})
+    return {"status": "unlinked", "message": "Beneficiaire retire de votre liste"}
