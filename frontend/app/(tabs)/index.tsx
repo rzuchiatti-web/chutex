@@ -103,7 +103,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [r, rc, rem, vest, brac, guards, greqs, aa] = await Promise.all([
+      const [r, rc, rem, vest, brac, guards, greqs] = await Promise.all([
         apiFetch('/api/devices/latest', {}, token).catch(() => ({})),
         apiFetch('/api/ai/recommendations/latest', {}, token).catch(() => ({ recommendation: '' })),
         apiFetch('/api/reminders', {}, token).catch(() => []),
@@ -111,10 +111,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         apiFetch('/api/bracelet/status', {}, token).catch(() => null),
         apiFetch('/api/guardians/my', {}, token).catch(() => []),
         apiFetch('/api/beneficiary/guardian-requests', {}, token).catch(() => []),
-        apiFetch('/api/alerts/active-with-interventions', {}, token).catch(() => []),
       ]);
-      setActiveAlerts(Array.isArray(aa) ? aa : []);
-      if (Array.isArray(aa) && aa.length > 0) console.log('[CHUTEX] Active alerts loaded:', aa.length);
       if (brac && (brac.heart_rate > 0 || brac.steps > 0)) {
         setVitals({ heart_rate: brac.heart_rate || 0, spo2: brac.spo2 || 0, blood_pressure_systolic: brac.systolic || 0, blood_pressure_diastolic: brac.diastolic || 0, temperature: brac.temperature || 0, steps: brac.steps || 0 });
       }
