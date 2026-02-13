@@ -440,11 +440,11 @@ export default function DevicesScreen() {
   return (
     <View style={[d.safeArea, { backgroundColor: colors.background }]} testID="devices-screen">
       <View style={d.header}>
-        <Text style={[d.title, { color: colors.textPrimary }]}>{user.role === 'admin' ? 'Prescripteurs' : user.role === 'guardian' ? 'Prescriptions' : user.role === 'teleassistance' ? 'Abonnés' : 'Mes Appareils'}</Text>
+        <Text style={[d.title, { color: colors.textPrimary }]}>{(user.active_role || user.role) === 'admin' ? 'Prescripteurs' : (user.active_role || user.role) === 'guardian' ? 'Prescriptions' : (user.active_role || user.role) === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
       </View>
-      {user.role === 'admin' ? <AdminPrescripteurs token={token} />
-        : user.role === 'guardian' ? <PrescriptionManagement token={token} user={user} />
-        : user.role === 'teleassistance' ? <SubscribersList token={token} />
+      {(user.active_role || user.role) === 'admin' ? <AdminPrescripteurs token={token} />
+        : (user.active_role || user.role) === 'guardian' ? <PrescriptionManagement token={token} user={user} />
+        : (user.active_role || user.role) === 'teleassistance' ? <SubscribersList token={token} />
         : <DeviceManagement token={token} />}
     </View>
   );
