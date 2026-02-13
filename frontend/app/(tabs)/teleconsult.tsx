@@ -265,7 +265,8 @@ function TeleassistanceDashboard({ token }: { token: string }) {
     </ScrollView>);
 }
 
-        {isDoubt && (
+/* ===== GUARDIAN: INTERVENTIONS ===== */
+function GuardianInterventions({ token, user }: { token: string; user: any }) {
           <>
             <TouchableOpacity testID="doubt-resolved" style={[s.actionBtn, { backgroundColor: Colors.success }]} onPress={() => advanceStep('resolved')} disabled={processing}>
               <Ionicons name="checkmark-circle" size={16} color="#FFF" /><Text style={s.actionBtnT}>Tout va bien — Résolu</Text>
