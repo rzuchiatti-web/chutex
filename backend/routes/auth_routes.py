@@ -3,8 +3,7 @@ from datetime import datetime, timezone, timedelta
 import uuid, random, string
 
 from database import db
-from auth import get_current_user, hash_password, verify_password, create_token, sanitize_user
-from models import UserRegister, UserLogin
+from auth import get_current_user, hash_password, verify_password, create_token, sanitize_userfrom models import UserRegister, UserLogin
 
 router = APIRouter()
 
