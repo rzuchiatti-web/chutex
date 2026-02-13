@@ -332,9 +332,9 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity testID="logout-btn" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 16, borderRadius: 9999, borderWidth: 1.5, borderColor: colors.danger + '30', marginBottom: 16, marginTop: 12 }} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={16} color={colors.danger} />
-          <Text style={{ fontSize: 15, fontWeight: '600', color: colors.danger }}>Se deconnecter</Text>
+        <TouchableOpacity testID="logout-btn" style={{ backgroundColor: '#000', paddingVertical: 16, borderRadius: 9999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16, marginTop: 12, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={16} color="#FFF" />
+          <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Se deconnecter</Text>
         </TouchableOpacity>
         <Text style={{ textAlign: 'center', fontSize: 11, color: colors.textMuted, letterSpacing: 0.5, marginBottom: 8 }}>Chutex AI v3.0</Text>
       </ScrollView>
