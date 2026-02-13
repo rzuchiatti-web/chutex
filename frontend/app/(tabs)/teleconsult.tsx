@@ -549,15 +549,12 @@ function AdminIntervenants({ token }: { token: string }) {
 export default function TeleconsultScreen() {
   const { user, token } = useAuth();
   const { colors } = useTheme();
-  const [, forceUpdate] = useState(0);
-  
-  // Force re-render when tab is focused (handles role switch)
-  useFocusEffect(useCallback(() => { forceUpdate(n => n + 1); }, []));
   
   if (!user || !token) return null;
   const r = user.active_role || user.role;
+  // key={r} forces complete remount when role changes (Expo Router tab caching fix)
   return (
-    <View style={[s.safe, { backgroundColor: colors.background }]} testID="teleconsult-screen">
+    <View key={r} style={[s.safe, { backgroundColor: colors.background }]} testID="teleconsult-screen">
       <View style={s.header}>
         <Text style={[s.title, { color: colors.textPrimary }]}>{r === 'teleassistance' ? 'Téléassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Intervenants' : 'Téléconsultation'}</Text>
         {r === 'teleassistance' && <Text style={[s.subtitle, { color: colors.textMuted }]}>Plateau d'écoute — Protocole d'escalade</Text>}

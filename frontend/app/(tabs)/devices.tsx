@@ -437,17 +437,17 @@ function AdminPrescripteurs({ token }: { token: string }) {
 export default function DevicesScreen() {
   const { user, token } = useAuth();
   const { colors } = useTheme();
-  const [, forceUpdate] = useState(0);
-  useFocusEffect(useCallback(() => { forceUpdate(n => n + 1); }, []));
   if (!user || !token) return null;
+  const r = user.active_role || user.role;
+  // key={r} forces complete remount when role changes (Expo Router tab caching fix)
   return (
-    <View style={[d.safeArea, { backgroundColor: colors.background }]} testID="devices-screen">
+    <View key={r} style={[d.safeArea, { backgroundColor: colors.background }]} testID="devices-screen">
       <View style={d.header}>
-        <Text style={[d.title, { color: colors.textPrimary }]}>{(user.active_role || user.role) === 'admin' ? 'Prescripteurs' : (user.active_role || user.role) === 'guardian' ? 'Prescriptions' : (user.active_role || user.role) === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
+        <Text style={[d.title, { color: colors.textPrimary }]}>{r === 'admin' ? 'Prescripteurs' : r === 'guardian' ? 'Prescriptions' : r === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
       </View>
-      {(user.active_role || user.role) === 'admin' ? <AdminPrescripteurs token={token} />
-        : (user.active_role || user.role) === 'guardian' ? <PrescriptionManagement token={token} user={user} />
-        : (user.active_role || user.role) === 'teleassistance' ? <SubscribersList token={token} />
+      {r === 'admin' ? <AdminPrescripteurs token={token} />
+        : r === 'guardian' ? <PrescriptionManagement token={token} user={user} />
+        : r === 'teleassistance' ? <SubscribersList token={token} />
         : <DeviceManagement token={token} />}
     </View>
   );
