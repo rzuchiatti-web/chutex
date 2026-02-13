@@ -37,6 +37,34 @@ async def get_alerts(user=Depends(get_current_user)):
     return await db.alerts.find({"beneficiary_id": user['id']}, {"_id": 0}).sort("created_at", -1).to_list(100)
 
 
+@router.get("/alerts/active-with-interventions")
+async def get_active_alerts_with_interventions(user=Depends(get_current_user)):
+    """Get active alerts enriched with intervention data for dashboard display"""
+    eff = get_effective_role(user)
+    if eff == 'beneficiary':
+        alerts = await db.alerts.find({"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}).sort("created_at", -1).to_list(10)
+    elif eff == 'guardian':
+        bids = user.get('beneficiaries', []) + [user['id']]
+        alerts = await db.alerts.find({"beneficiary_id": {"$in": bids}, "status": "active"}, {"_id": 0}).sort("created_at", -1).to_list(10)
+    else:
+        alerts = await db.alerts.find({"status": "active"}, {"_id": 0}).sort("created_at", -1).to_list(20)
+
+    result = []
+    for a in alerts:
+        iv = await db.interventions.find_one({"alert_id": a['id'], "status": {"$in": ["pending_acceptance", "in_progress"]}}, {"_id": 0})
+        incident = await db.incidents.find_one({"alert_id": a['id']}, {"_id": 0, "state": 1, "timeline": 1, "care_provider": 1, "assigned_guardian": 1})
+        a['intervention'] = iv
+        a['incident_state'] = incident.get('state') if incident else None
+        a['care_provider'] = incident.get('care_provider') if incident else None
+        a['assigned_guardian'] = incident.get('assigned_guardian') if incident else None
+        if iv and iv.get('assigned_to'):
+            intervener = await db.users.find_one({"id": iv['assigned_to']}, {"_id": 0, "password_hash": 0})
+            if intervener:
+                a['intervener_info'] = {"name": intervener.get('name', ''), "phone": intervener.get('phone', ''), "structure": intervener.get('structure_name', '') or intervener.get('intervention_structure', '')}
+        result.append(a)
+    return result
+
+
 @router.put("/alerts/{alert_id}/resolve")
 async def resolve_alert(alert_id: str, data: dict = None, user=Depends(get_current_user)):
     now = datetime.now(timezone.utc).isoformat()
