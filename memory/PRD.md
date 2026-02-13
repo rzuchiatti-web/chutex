@@ -1,66 +1,43 @@
-# CHUTEX - PRD
+# CHUTEX / CARE WATCH - PRD
 
-## Design System
-- Noir & blanc, fond beige #F5F0EB + fond pastel CSS, glassmorphisme iOS
-- Boutons noirs pill, uppercase, bold
-- Images 3D medicales (coeur, sang, lune, thermometre)
-
-## Architecture  
+## Architecture
 - Frontend: React Native / Expo / Expo Router (TypeScript)
 - Backend: FastAPI (Python) - MongoDB - JWT Auth
-- i18n: FR, EN, DE, ES, IT (I18nContext)
-- IA: GPT-5.2 (Emergent LLM Key) pour analyse vocale et synthese protocole
-- Voix: ElevenLabs (multilingual_v2) pour appels telephoniques IA
-- Telephonie: Twilio (appels, SMS, speech recognition)
+- IA: GPT-5.2 (Emergent LLM Key) - classification vocale, analyse intention
+- Voix: ElevenLabs (multilingual_v2) - voix naturelle francaise
+- Telephonie: Twilio (appels, speech recognition FR-FR)
+- i18n: FR, EN, DE, ES, IT
 
-## Session 8 (Feb 13, 2026)
-### Accompli
-- i18n complet 5 langues (FR/EN/DE/ES/IT) avec I18nProvider
-- Tab labels dynamiques selon la langue
-- Selecteur langue avec drapeaux dans le profil (persiste AsyncStorage)
-- Drapeau actif dans le header dashboard
-- Seuils d'alertes fonctionnels (sauvegarde + rechargement backend)
-- Suppression rappels fonctionnelle (confirmation modal custom)
-- Image sante 220px avec chevauchement glass
-- Calendrier inline sur le graphique
-- Analyse IA par metrique
-- Switch bidirectionnel gardien/beneficiaire
-- Inscription simplifiee (seulement benef/gardien)
+## CARE WATCH - Plateau d'ecoute IA (Session 11, Feb 13 2026)
+### Moteur d'orchestration
+- Machine a etats: NEW_ALERT → CALLING_PATIENT → PATIENT_OK/NEEDS_HELP/NO_RESPONSE → CALLING_GUARDIAN_1 → CALLING_GUARDIAN_2 → GUARDIAN_ACCEPTED/UNREACHABLE → CARE_DISPATCHED → RESOLVED
+- Scripts vocaux dynamiques avec variantes (naturalite)
+- Classification NLP: intent_ok, intent_help, intent_uncertain, no_speech, voicemail_detected
+- Parametres configurables: ring_timeout, max_reformulations, speech_timeout
+- Journalisation complete avec horodatage (collection `incidents`)
 
-## Session 9 (Feb 13, 2026)
-### Accompli
-- Dashboard Gardien redesigne (glassmorphisme, stats, cartes beneficiaires)
-- Drapeaux de langue dans le header (LanguageFlagButton dans tous les dashboards)
-- Switch de role corrige (active_role, has_guardian_space, has_beneficiary_space)
-- Upload photo de profil (camera button, FileReader upload)
-- Vue carte d'intervention style Uber Eats (intervention-map.tsx)
-- Flux d'activation pre-rempli (activate-beneficiary/guardian)
-- Suppression de beneficiaire (bouton + DELETE endpoint)
-- Tests 100% backend, 95% frontend (iteration 13)
+### Fichiers cles
+- `/app/backend/services/carewatch_config.py` - Config + scripts vocaux + machine a etats
+- `/app/backend/services/carewatch_engine.py` - Moteur d'orchestration (carewatch_orchestrate)
+- `/app/backend/routes/carewatch_routes.py` - API + webhooks Twilio (patient/guardian response)
+- `/app/backend/routes/alert_routes.py` - Declencheur (severity high/critical → carewatch_orchestrate)
 
-## Session 10 (Feb 13, 2026)
-### Accompli - Amelioration Appels IA & Protocole Alerte
-- **Analyse vocale GPT-5.2** : POST /api/ai/analyze-speech - Remplace detection par mots-cles par analyse IA d'intention/sentiment/urgence
-- **Synthese IA du protocole** : POST /api/ai/protocol-summary - Resume structure de toute l'execution du protocole d'alerte
-- **Reconnaissance vocale** : Appels Twilio utilisent `input='speech'` avec `language='fr-FR'` au lieu de touches DTMF
-- **Messages ElevenLabs contextuels** : 11 messages adaptes (heart_anomaly, spo2_low, unclear_response, guardian_alert, guardian_followup, emergency_dispatch, etc.)
-- **Refonte page alerte-detail** : Glassmorphisme avec panneau actions operateur (APPELER IA, ESCALADER, CLOTURER, SYNTHESE IA), appels gardiens, timeline visuelle, panel analyse IA
-- **Auto-escalation amelioree** : Messages ElevenLabs contextuels selon le type d'alerte, analyse GPT-5.2 des reponses vocales
-- Tests 100% backend (18/18), 100% frontend (iteration 14)
+### API Endpoints
+- GET /api/carewatch/incidents - Liste incidents
+- GET /api/carewatch/incidents/active - Incidents actifs
+- GET /api/carewatch/incident/{id} - Detail incident
+- POST /api/carewatch/incident/{id}/note - Ajouter note operateur
+- POST /api/carewatch/incident/{id}/takeover - Reprise en main
+- POST /api/carewatch/incident/{id}/resolve - Cloturer
+- GET /api/carewatch/stats - Statistiques
+- GET /api/carewatch/config - Configuration
+- PUT /api/carewatch/config - Modifier config
+- POST /api/carewatch/patient-response - Webhook Twilio patient
+- POST /api/carewatch/patient-reformulation - Webhook reformulation
+- POST /api/carewatch/guardian-response - Webhook Twilio gardien
 
 ## Backlog
-- P1: Animation switch profil (carte flip animee sur le dashboard)
-- P1: Build natif Android/iOS + integration BLE (bracelet J-Style, gilet S-AIRBAG)
-- P2: Integration bracelet J-Style donnees completes (SpO2, BP, Sleep hypnogram)
-- P2: Integration Balance Lefu
-- P3: Integration Shopify (bloquee - cle d'acces manquante)
-- P3: Build iOS (bloquee - credentials Apple Developer)
-
-## Credentials de test
-| Role | Email | Mot de passe |
-|---|---|---|
-| Beneficiaire | robert.martin@email.fr | demo123 |
-| Gardien | claire.martin@email.fr | demo123 |
-| Intervenant Care | ludivine.moutio@care.fr | demo123 |
-| Admin | admin@chutex.fr | demo123 |
-| Teleassistance | plateau@chutex.fr | demo123 |
+- P0: Dashboard frontend "Plateau d'ecoute" (teleconsult.tsx pour role teleassistance)
+- P1: Reporting avance (taux reponse, temps moyen, graphiques)
+- P1: Animation switch profil
+- P2: Build natif Android/iOS + BLE
