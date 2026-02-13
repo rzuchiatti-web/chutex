@@ -356,7 +356,7 @@ export default function BackofficeScreen() {
                 <Ionicons name="add" size={18} color="#FFF" /><Text style={bs.createBtnT}>Creer un code d'activation</Text>
               </TouchableOpacity>
               {codes.map(c => (
-                <View key={c.id} style={[bs.codeC, !c.active && { opacity: 0.5 }]} data-testid={`code-card-${c.id}`}>
+                <View key={c.id || c.code} style={[bs.codeC, !c.active && { opacity: 0.5 }]} data-testid={`code-card-${c.id || c.code}`}>
                   <View style={bs.codeTop}>
                     <Text style={bs.codeVal}>{c.code}</Text>
                     <View style={[bs.codeBdg, c.active && { backgroundColor: Colors.success + '15' }]}>
@@ -367,7 +367,7 @@ export default function BackofficeScreen() {
                   {c.raison_sociale ? <Text style={bs.codeMeta}>{c.raison_sociale}{c.siret ? ` - SIRET: ${c.siret}` : ''}</Text> : null}
                   <Text style={bs.codeMeta}>Utilisations: {c.uses_count}/{c.max_uses} - {new Date(c.created_at).toLocaleDateString('fr-FR')}</Text>
                   <View style={bs.codeActions}>
-                    <TouchableOpacity data-testid={`edit-code-${c.id}`} style={bs.actionBtn} onPress={() => openEditCode(c)}>
+                    <TouchableOpacity data-testid={`edit-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => openEditCode(c)}>
                       <Ionicons name="create-outline" size={14} color={Colors.primary} /><Text style={[bs.actionBtnT, { color: Colors.primary }]}>Modifier</Text>
                     </TouchableOpacity>
                     <TouchableOpacity data-testid={`toggle-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => toggleCode(c.id || c.code)}>
@@ -415,7 +415,7 @@ export default function BackofficeScreen() {
               </TouchableOpacity>
               <Text style={{ fontSize: 11, color: Colors.textMuted, marginBottom: 10 }}>Les intervenants activent ce code dans leur profil gardien pour recevoir les interventions d'urgence dans un rayon defini.</Text>
               {interventionCodes.map(c => (
-                <View key={c.id} style={[bs.codeC, !c.active && { opacity: 0.5 }]} data-testid={`iv-code-card-${c.id}`}>
+                <View key={c.id || c.code} style={[bs.codeC, !c.active && { opacity: 0.5 }]} data-testid={`iv-code-card-${c.id || c.code}`}>
                   <View style={bs.codeTop}>
                     <Text style={bs.codeVal}>{c.code}</Text>
                     <View style={[bs.codeBdg, c.active && { backgroundColor: Colors.success + '15' }]}>
@@ -426,7 +426,7 @@ export default function BackofficeScreen() {
                   {c.raison_sociale ? <Text style={bs.codeMeta}>{c.raison_sociale}{c.siret ? ` - SIRET: ${c.siret}` : ''}</Text> : null}
                   <Text style={bs.codeMeta}>Rayon: {c.default_radius_km || 30} km - Utilisations: {c.uses_count}/{c.max_uses}</Text>
                   <View style={bs.codeActions}>
-                    <TouchableOpacity data-testid={`edit-iv-code-${c.id}`} style={bs.actionBtn} onPress={() => openEditIvCode(c)}>
+                    <TouchableOpacity data-testid={`edit-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => openEditIvCode(c)}>
                       <Ionicons name="create-outline" size={14} color={Colors.primary} /><Text style={[bs.actionBtnT, { color: Colors.primary }]}>Modifier</Text>
                     </TouchableOpacity>
                     <TouchableOpacity data-testid={`toggle-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => toggleIvCode(c.id || c.code)}>
