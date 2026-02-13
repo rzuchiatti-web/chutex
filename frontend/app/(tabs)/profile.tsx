@@ -12,11 +12,29 @@ const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBack
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
+const WebInput = ({ val, onChange, placeholder, type, rows }: any) => Platform.OS === 'web' ? (
+  rows ? (
+    <div style={{ marginBottom: 10 }}><textarea value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder} rows={rows}
+      style={{ width: '100%', fontSize: 14, padding: '12px', borderRadius: 12, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', resize: 'none' as any, boxSizing: 'border-box' as any }} /></div>
+  ) : (
+    <div style={{ marginBottom: 10 }}><input type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
+      style={{ width: '100%', fontSize: 15, padding: '12px 14px', borderRadius: 12, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
+  )
+) : null;
+
+const LANGUAGES = [
+  { code: 'FR', label: 'Francais', color: '#002395' },
+  { code: 'EN', label: 'English', color: '#C8102E' },
+  { code: 'DE', label: 'Deutsch', color: '#000000' },
+  { code: 'ES', label: 'Espanol', color: '#AA151B' },
+  { code: 'IT', label: 'Italiano', color: '#009246' },
+];
 
 export default function ProfileScreen() {
   const { user, token, logout } = useAuth();
   const { colors } = useTheme();
   const router = useRouter();
+  const { lang, setLang } = useI18n();
   const [editMode, setEditMode] = useState(false);
   const [editName, setEditName] = useState(user?.name || '');
   const [editPhone, setEditPhone] = useState(user?.phone || '');
@@ -26,48 +44,33 @@ export default function ProfileScreen() {
   const [oldPw, setOldPw] = useState('');
   const [newPw, setNewPw] = useState('');
   const [showContact, setShowContact] = useState(false);
+  const [contactObj, setContactObj] = useState('');
+  const [contactName, setContactName] = useState(user?.name || '');
+  const [contactEmail, setContactEmail] = useState(user?.email || '');
+  const [contactPhone, setContactPhone] = useState(user?.phone || '');
   const [contactMsg, setContactMsg] = useState('');
   const [sendingContact, setSendingContact] = useState(false);
-
   const [showLangPicker, setShowLangPicker] = useState(false);
-  const { lang, setLang, t, flags: I18N_FLAGS } = useI18n();
-
-  const LANGUAGES = [
-    { code: 'FR', label: 'Francais', color: '#002395' },
-    { code: 'EN', label: 'English', color: '#C8102E' },
-    { code: 'DE', label: 'Deutsch', color: '#000000' },
-    { code: 'ES', label: 'Espanol', color: '#AA151B' },
-    { code: 'IT', label: 'Italiano', color: '#009246' },
-  ];
 
   if (!user || !token) return null;
 
   const saveProfile = async () => {
     setSaving(true);
-    try {
-      await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ name: editName, phone: editPhone, address: editAddress }) }, token);
-      Alert.alert('Profil mis a jour'); setEditMode(false);
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+    try { await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ name: editName, phone: editPhone, address: editAddress }) }, token); Alert.alert('Profil mis a jour'); setEditMode(false); } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
   };
-
   const changePassword = async () => {
     if (!newPw || newPw.length < 6) return Alert.alert('Erreur', 'Min. 6 caracteres');
-    try {
-      await apiFetch('/api/auth/change-password', { method: 'PUT', body: JSON.stringify({ old_password: oldPw, new_password: newPw }) }, token);
-      Alert.alert('Mot de passe modifie'); setShowPwChange(false); setOldPw(''); setNewPw('');
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
+    try { await apiFetch('/api/auth/change-password', { method: 'PUT', body: JSON.stringify({ old_password: oldPw, new_password: newPw }) }, token); Alert.alert('Mot de passe modifie'); setShowPwChange(false); setOldPw(''); setNewPw(''); } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
-
   const sendContactForm = async () => {
-    if (!contactMsg.trim()) return Alert.alert('Erreur', 'Message requis');
+    if (!contactMsg.trim() || !contactObj.trim()) { if (Platform.OS === 'web') window.alert('Objet et message requis'); return; }
     setSendingContact(true);
-    try {
-      await apiFetch('/api/contact', { method: 'POST', body: JSON.stringify({ message: contactMsg, email: user.email, name: user.name }) }, token);
-      Alert.alert('Message envoye', 'Nous vous repondrons dans les plus brefs delais.'); setShowContact(false); setContactMsg('');
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSendingContact(false); }
+    try { await apiFetch('/api/contact', { method: 'POST', body: JSON.stringify({ subject: contactObj, message: contactMsg, name: contactName, email: contactEmail, phone: contactPhone }) }, token); Alert.alert('Message envoye', 'Nous vous repondrons rapidement.'); setShowContact(false); setContactMsg(''); setContactObj(''); } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSendingContact(false); }
   };
 
   const roleName = user.role === 'beneficiary' ? 'Beneficiaire' : user.role === 'guardian' ? 'Gardien' : user.role === 'teleassistance' ? 'Teleassistance' : 'Administrateur';
+  const otherRole = user.role === 'beneficiary' ? 'gardien' : 'beneficiaire';
+  const hasOther = user.role === 'beneficiary' ? user.has_guardian_space : user.has_beneficiary_space;
 
   const MenuItem = ({ icon, label, onPress, danger }: any) => (
     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }} onPress={onPress}>
@@ -79,26 +82,16 @@ export default function ProfileScreen() {
     </TouchableOpacity>
   );
 
-  const WebInput = ({ val, onChange, placeholder, type }: any) => Platform.OS === 'web' ? (
-    <div style={{ marginBottom: 10 }}><input type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
-      style={{ width: '100%', fontSize: 15, padding: '12px 14px', borderRadius: 12, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
-  ) : null;
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="profile-screen">
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <Text style={{ fontSize: 28, fontWeight: '900', color: '#000', marginTop: 16, marginBottom: 20, letterSpacing: -0.5 }}>Profil</Text>
+        <Text style={{ fontSize: 28, fontWeight: '900', color: '#000', marginTop: 16, marginBottom: 20 }}>Profil</Text>
 
-        {/* Avatar + Name */}
+        {/* Avatar */}
         <GlassCard style={{ alignItems: 'center', padding: 28 }}>
-          <TouchableOpacity style={{ position: 'relative' }}>
-            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
-            </View>
-            <View style={{ position: 'absolute', bottom: 0, right: 0, width: 28, height: 28, borderRadius: 14, backgroundColor: '#FFF', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)' }}>
-              <Ionicons name="camera-outline" size={14} color="#000" />
-            </View>
-          </TouchableOpacity>
+          <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
+          </View>
           <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', marginTop: 12 }}>{user.name}</Text>
           <View style={{ marginTop: 6, paddingHorizontal: 14, paddingVertical: 4, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)' }}>
             <Text style={{ fontSize: 12, fontWeight: '700', color: '#555' }}>{roleName}</Text>
@@ -106,109 +99,78 @@ export default function ProfileScreen() {
         </GlassCard>
 
         {/* Edit Profile */}
-        {editMode ? (
+        {editMode && (
           <GlassCard>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', marginBottom: 14 }}>Modifier le profil</Text>
             <WebInput val={editName} onChange={setEditName} placeholder="Nom complet" />
             <WebInput val={editPhone} onChange={setEditPhone} placeholder="Telephone" type="tel" />
             <WebInput val={editAddress} onChange={setEditAddress} placeholder="Adresse" />
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setEditMode(false)}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Annuler</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={saveProfile} disabled={saving}>
-                {saving ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENREGISTRER</Text>}
-              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setEditMode(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Annuler</Text></TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={saveProfile} disabled={saving}>{saving ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENREGISTRER</Text>}</TouchableOpacity>
             </View>
           </GlassCard>
-        ) : null}
+        )}
 
-        {/* Change Password */}
-        {showPwChange ? (
+        {showPwChange && (
           <GlassCard>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', marginBottom: 14 }}>Changer le mot de passe</Text>
             <WebInput val={oldPw} onChange={setOldPw} placeholder="Mot de passe actuel" type="password" />
             <WebInput val={newPw} onChange={setNewPw} placeholder="Nouveau mot de passe" type="password" />
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowPwChange(false)}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Annuler</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={changePassword}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>CONFIRMER</Text>
-              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowPwChange(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Annuler</Text></TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={changePassword}><Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>CONFIRMER</Text></TouchableOpacity>
             </View>
           </GlassCard>
-        ) : null}
+        )}
 
-        {/* Contact Form */}
-        {showContact ? (
+        {showContact && (
           <GlassCard>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', marginBottom: 4 }}>Assistance</Text>
-            <Text style={{ fontSize: 12, color: '#888', marginBottom: 14 }}>Votre message sera envoye a contact@chutex-innovation.com</Text>
-            {Platform.OS === 'web' ? (
-              <div style={{ marginBottom: 12 }}><textarea value={contactMsg} onChange={(e: any) => setContactMsg(e.target.value)} placeholder="Decrivez votre probleme..." rows={4}
-                style={{ width: '100%', fontSize: 14, padding: '12px', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', resize: 'none' as any, boxSizing: 'border-box' as any }} /></div>
-            ) : null}
+            <Text style={{ fontSize: 12, color: '#888', marginBottom: 14 }}>contact@chutex-innovation.com</Text>
+            <WebInput val={contactObj} onChange={setContactObj} placeholder="Objet de votre demande" />
+            <WebInput val={contactName} onChange={setContactName} placeholder="Nom et prenom" />
+            <WebInput val={contactEmail} onChange={setContactEmail} placeholder="Email" type="email" />
+            <WebInput val={contactPhone} onChange={setContactPhone} placeholder="Telephone" type="tel" />
+            <WebInput val={contactMsg} onChange={setContactMsg} placeholder="Decrivez votre probleme..." rows={4} />
             <View style={{ flexDirection: 'row', gap: 10 }}>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowContact(false)}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Annuler</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={sendContactForm} disabled={sendingContact}>
-                {sendingContact ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENVOYER</Text>}
-              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowContact(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Annuler</Text></TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={sendContactForm} disabled={sendingContact}>{sendingContact ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENVOYER</Text>}</TouchableOpacity>
             </View>
           </GlassCard>
-        ) : null}
+        )}
 
-        {/* Menu Items */}
+        {/* Menu */}
         <GlassCard>
           <MenuItem icon="person-outline" label="Modifier mon profil" onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
           <MenuItem icon="lock-closed-outline" label="Securite (mot de passe)" onPress={() => setShowPwChange(true)} />
-          {user.role === 'guardian' && <MenuItem icon="swap-horizontal-outline" label="Mon espace beneficiaire" onPress={() => {
-            if (user.has_beneficiary_space) {
-              (async () => {
-                try {
-                  await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'beneficiary' }) }, token);
-                  Alert.alert('Espace change', 'Mode beneficiaire active. Reconnectez-vous.');
-                } catch (e: any) { Alert.alert('Erreur', e.message); }
-              })();
+          <MenuItem icon="swap-horizontal-outline" label={`Mon espace ${otherRole}`} onPress={() => {
+            if (hasOther) {
+              apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: otherRole === 'gardien' ? 'guardian' : 'beneficiary' }) }, token)
+                .then(() => Alert.alert(`Espace ${otherRole} active`, 'Reconnectez-vous.')).catch((e: any) => Alert.alert('Erreur', e.message));
             } else {
-              router.push('/activate-beneficiary' as any);
+              router.push(otherRole === 'gardien' ? '/activate-guardian' : '/activate-beneficiary' as any);
             }
-          }} />}
-          {user.role === 'beneficiary' && <MenuItem icon="swap-horizontal-outline" label="Mon espace gardien" onPress={() => {
-            if (user.has_guardian_space) {
-              (async () => {
-                try {
-                  await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'guardian' }) }, token);
-                  Alert.alert('Espace change', 'Mode gardien active. Reconnectez-vous.');
-                } catch (e: any) { Alert.alert('Erreur', e.message); }
-              })();
-            } else {
-              router.push('/activate-guardian' as any);
-            }
-          }} />}
+          }} />
           <MenuItem icon="language-outline" label={`Langue (${lang})`} onPress={() => setShowLangPicker(true)} />
-          <MenuItem icon="notifications-outline" label="Notifications" onPress={() => {}} />
-          <MenuItem icon="document-text-outline" label="Conditions generales d'utilisation" onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
+          <MenuItem icon="document-text-outline" label="Conditions generales" onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
           <MenuItem icon="help-circle-outline" label="Assistance" onPress={() => setShowContact(true)} />
-          <MenuItem icon="information-circle-outline" label="A propos - Chutex v3.0" onPress={() => Alert.alert('CHUTEX', 'Version 3.0\nChutex Innovation SAS\nTeleassistance intelligente')} />
+          <MenuItem icon="information-circle-outline" label="A propos - Chutex v3.0" onPress={() => Alert.alert('CHUTEX', 'Version 3.0\nChutex Innovation SAS')} />
         </GlassCard>
 
-        {/* Logout */}
-        <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={logout}>
+        <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }} onPress={logout}>
           <Ionicons name="log-out-outline" size={16} color="#FFF" />
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF', textTransform: 'uppercase', letterSpacing: 0.5 }}>SE DECONNECTER</Text>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF', textTransform: 'uppercase' }}>SE DECONNECTER</Text>
         </TouchableOpacity>
-        <Text style={{ textAlign: 'center', fontSize: 11, color: '#888', letterSpacing: 0.5, marginTop: 16 }}>Chutex Innovation SAS - v3.0</Text>
+        <Text style={{ textAlign: 'center', fontSize: 11, color: '#888', marginTop: 16 }}>Chutex Innovation SAS - v3.0</Text>
 
-        {/* Language Picker Modal */}
+        {/* Language Picker */}
         {showLangPicker && (
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 24, zIndex: 100 }}>
             <View style={{ backgroundColor: '#FFF', borderRadius: 24, padding: 24 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                 <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Langue</Text>
-                <TouchableOpacity onPress={() => setShowLangPicker(false)} style={{ padding: 4 }}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowLangPicker(false)}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
               </View>
               {LANGUAGES.map(l => (
                 <TouchableOpacity key={l.code} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }} onPress={() => { setLang(l.code); setShowLangPicker(false); }}>
