@@ -193,7 +193,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           { id: 'sleep', label: 'Sommeil', val: '--', unit: '', icon: 'moon-outline' },
           { id: 'temperature', label: 'Temperature', val: vitals?.temperature || '--', unit: '', icon: 'thermometer-outline' },
         ].map(v => (
-          <TouchableOpacity key={v.id} testID={`vital-${v.id}`} style={{ width: '48%', backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.glassBorder, padding: 14, ...(Platform.OS === 'web' ? { backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } : {}) }}
+          <TouchableOpacity key={v.id} testID={`vital-${v.id}`} style={{ width: '48%', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 14, ...glassStyle }}
             onPress={() => router.push({ pathname: '/health-detail', params: { metricId: v.id } })}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View>
