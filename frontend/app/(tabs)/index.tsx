@@ -112,6 +112,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         apiFetch('/api/guardians/my', {}, token).catch(() => []),
         apiFetch('/api/beneficiary/guardian-requests', {}, token).catch(() => []),
       ]);
+      const aa = await apiFetch('/api/alerts/active-with-interventions', {}, token).catch(() => []);
+      setActiveAlerts(Array.isArray(aa) ? aa : []);
       if (brac && (brac.heart_rate > 0 || brac.steps > 0)) {
         setVitals({ heart_rate: brac.heart_rate || 0, spo2: brac.spo2 || 0, blood_pressure_systolic: brac.systolic || 0, blood_pressure_diastolic: brac.diastolic || 0, temperature: brac.temperature || 0, steps: brac.steps || 0 });
       }
