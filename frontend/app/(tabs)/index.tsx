@@ -316,21 +316,27 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </View>
 
         {/* Objectives */}
-        <View style={{ backgroundColor: colors.surfaceGlass, borderRadius: 14, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.border }}>
-          <Text style={{ fontSize: 12, fontWeight: '800', color: colors.textPrimary, textTransform: 'uppercase', letterSpacing: 0.5 }}>OBJECTIF JOURNALIER | <Text style={{ color: '#E53935' }}>500 KCAL</Text></Text>
-          <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
-            <View style={{ height: 24, backgroundColor: '#4CAF50', borderRadius: 12, width: '40%', justifyContent: 'center', paddingLeft: 8 }}>
-              <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>0 KCAL</Text>
+        <View style={{ backgroundColor: colors.surfaceGlass, borderRadius: 14, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.border, flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 12, fontWeight: '800', color: colors.textPrimary, textTransform: 'uppercase', letterSpacing: 0.5 }}>OBJECTIF JOURNALIER | <Text style={{ color: '#E53935' }}>500 KCAL</Text></Text>
+            <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
+              <View style={{ height: 24, backgroundColor: '#4CAF50', borderRadius: 12, width: '40%', justifyContent: 'center', paddingLeft: 8 }}>
+                <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>0 KCAL</Text>
+              </View>
             </View>
           </View>
+          <Image source={{ uri: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/2c701rx3_ChatGPT%20Image%2026%20nov.%202025%2C%2015_01_41.png' }} style={{ width: 36, height: 36, resizeMode: 'contain', marginLeft: 10 }} />
         </View>
-        <View style={{ backgroundColor: colors.surfaceGlass, borderRadius: 14, padding: 12, borderWidth: 1, borderColor: colors.border }}>
-          <Text style={{ fontSize: 12, fontWeight: '800', color: colors.textPrimary, textTransform: 'uppercase', letterSpacing: 0.5 }}>OBJECTIF JOURNALIER | <Text style={{ color: '#E53935' }}>2000 PAS</Text></Text>
-          <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
-            <View style={{ height: 24, backgroundColor: '#4CAF50', borderRadius: 12, width: `${Math.min(100, ((vitals?.steps || 0) / 2000) * 100)}%`, justifyContent: 'center', paddingLeft: 8 }}>
-              <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>{vitals?.steps || 0} PAS</Text>
+        <View style={{ backgroundColor: colors.surfaceGlass, borderRadius: 14, padding: 12, borderWidth: 1, borderColor: colors.border, flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 12, fontWeight: '800', color: colors.textPrimary, textTransform: 'uppercase', letterSpacing: 0.5 }}>OBJECTIF JOURNALIER | <Text style={{ color: '#E53935' }}>2000 PAS</Text></Text>
+            <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
+              <View style={{ height: 24, backgroundColor: '#4CAF50', borderRadius: 12, width: `${Math.min(100, ((vitals?.steps || 0) / 2000) * 100)}%`, justifyContent: 'center', paddingLeft: 8 }}>
+                <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>{vitals?.steps || 0} PAS</Text>
+              </View>
             </View>
           </View>
+          <Image source={{ uri: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/2c701rx3_ChatGPT%20Image%2026%20nov.%202025%2C%2015_01_41.png' }} style={{ width: 36, height: 36, resizeMode: 'contain', marginLeft: 10 }} />
         </View>
       </GlassCard>
 
