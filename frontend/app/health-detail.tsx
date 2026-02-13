@@ -111,13 +111,13 @@ export default function HealthDetailScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
-        {/* 3D Illustration */}
-        <View style={{ alignItems: 'center', marginBottom: 16 }}>
-          <Image source={{ uri: img }} style={{ width: 120, height: 120, resizeMode: 'contain' }} />
+        {/* 3D Illustration - Big + overlapped by card below */}
+        <View style={{ alignItems: 'center', marginBottom: -40, zIndex: 1 }}>
+          <Image source={{ uri: img }} style={{ width: 180, height: 180, resizeMode: 'contain' }} />
         </View>
 
-        {/* Current Value + Badge */}
-        <GlassCard>
+        {/* Current Value + Badge + Chart - overlapping the image */}
+        <GlassCard style={{ paddingTop: 50, zIndex: 2 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View>
               <Text style={{ fontSize: 42, fontWeight: '900', color: '#000' }}>{currentVal || '--'}<Text style={{ fontSize: 16, fontWeight: '600', color: '#888' }}> {config.unit}</Text></Text>
