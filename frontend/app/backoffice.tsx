@@ -429,11 +429,11 @@ export default function BackofficeScreen() {
                     <TouchableOpacity data-testid={`edit-iv-code-${c.id}`} style={bs.actionBtn} onPress={() => openEditIvCode(c)}>
                       <Ionicons name="create-outline" size={14} color={Colors.primary} /><Text style={[bs.actionBtnT, { color: Colors.primary }]}>Modifier</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity data-testid={`toggle-iv-code-${c.id}`} style={bs.actionBtn} onPress={() => toggleIvCode(c.id)}>
+                    <TouchableOpacity data-testid={`toggle-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => toggleIvCode(c.id || c.code)}>
                       <Ionicons name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={14} color={c.active ? '#FF9800' : Colors.success} />
                       <Text style={[bs.actionBtnT, { color: c.active ? '#FF9800' : Colors.success }]}>{c.active ? 'Desactiver' : 'Activer'}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity data-testid={`delete-iv-code-${c.id}`} style={bs.actionBtn} onPress={() => deleteIvCode(c.id)}>
+                    <TouchableOpacity data-testid={`delete-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => deleteIvCode(c.id || c.code)}>
                       <Ionicons name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>Supprimer</Text>
                     </TouchableOpacity>
                   </View>
