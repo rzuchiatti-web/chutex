@@ -75,9 +75,11 @@ function RootNav() {
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <RootNav />
-      </AuthProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <RootNav />
+        </AuthProvider>
+      </I18nProvider>
     </ThemeProvider>
   );
 }
