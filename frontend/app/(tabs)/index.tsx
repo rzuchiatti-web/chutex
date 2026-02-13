@@ -381,6 +381,11 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
   }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { requestNotificationPermission(); }, []);
+  useEffect(() => {
+    if (pendingInterventions.length > 0) pendingInterventions.forEach((piv: any) => { if (piv.status === 'pending_acceptance') notifyIntervention(piv.beneficiary_name, piv.distance_km); });
+    if (invitations.length > 0) invitations.forEach((inv: any) => notifyAlert('guardian_request', `${inv.beneficiary_name} vous demande comme gardien`));
+  }, [pendingInterventions.length, invitations.length]);
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}><ActivityIndicator size="large" color="#000" /></View>;
 
   const roleName = user.is_prescriber ? 'PRESCRIPTEUR' : user.guardian_type === 'professional' ? user.profession?.toUpperCase() || 'PROFESSIONNEL' : 'GARDIEN';
