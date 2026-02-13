@@ -33,7 +33,7 @@ const HealthBadge = ({ status }: { status: string }) => (
 );
 
 const BlackButton = ({ label, icon, onPress, testID }: any) => (
-  <TouchableOpacity testID={testID} style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }} onPress={onPress}>
+  <TouchableOpacity testID={testID} style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 6 }) }} onPress={onPress}>
     <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</Text>
     {icon && <Ionicons name={icon} size={18} color="#FFF" />}
   </TouchableOpacity>
