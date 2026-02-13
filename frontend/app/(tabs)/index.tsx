@@ -244,24 +244,25 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </View>
       </GlassCard>
 
-      {/* Reminders */}
-      <GlassCard colors={colors}>
-        {hydroReminder && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-            <Text style={{ fontSize: 14, fontWeight: '800', color: colors.textPrimary, flex: 1 }}>HYDRATATION</Text>
-            <Text style={{ fontSize: 12, color: colors.textMuted }}>TEMPS RESTANT | {hydroReminder.time || '00:00'}</Text>
-          </View>
-        )}
-        {medReminder && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-            <Text style={{ fontSize: 14, fontWeight: '800', color: colors.textPrimary, flex: 1 }}>TRAITEMENTS</Text>
-            <Text style={{ fontSize: 12, color: colors.textMuted }}>TEMPS RESTANT | {medReminder.time || '00:00'}</Text>
-          </View>
-        )}
-        {!hydroReminder && !medReminder && (
-          <Text style={{ fontSize: 13, color: colors.textMuted, textAlign: 'center', paddingVertical: 8 }}>Configurez vos rappels quotidiens</Text>
-        )}
-      </GlassCard>
+      {/* Reminders - 3 categories like the screenshots */}
+      <View style={{ marginBottom: 16 }}>
+        {[
+          { key: 'hydration', title: 'Hydratation', img: REMINDER_IMAGES.hydration, count: activeReminders.filter((r: any) => r.reminder_type === 'hydration').length },
+          { key: 'medication', title: 'Traitements', img: REMINDER_IMAGES.medication, count: activeReminders.filter((r: any) => r.reminder_type === 'medication').length },
+          { key: 'alarm', title: 'Alarmes quotidiennes', img: REMINDER_IMAGES.alarm, count: activeReminders.filter((r: any) => r.reminder_type !== 'hydration' && r.reminder_type !== 'medication').length },
+        ].map(cat => (
+          <TouchableOpacity key={cat.key} onPress={() => router.push('/reminders')} activeOpacity={0.7}>
+            <GlassCard colors={colors} style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>{cat.title}</Text>
+                <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 2 }}>{cat.count} rappel{cat.count !== 1 ? 's' : ''} par jour</Text>
+                <Text style={{ fontSize: 12, fontWeight: '800', color: colors.textPrimary, marginTop: 8 }}>TEMPS RESTANT | --:--</Text>
+              </View>
+              <Image source={{ uri: cat.img }} style={{ width: 56, height: 56, resizeMode: 'contain' }} />
+            </GlassCard>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       <BlackButton label="GERER MES RAPPELS" icon="time-outline" onPress={() => router.push('/reminders')} testID="go-reminders" />
       <BlackButton label="VOIR MES GARDIENS" icon="people-outline" onPress={() => router.push('/(tabs)/profile')} testID="go-guardians" />
