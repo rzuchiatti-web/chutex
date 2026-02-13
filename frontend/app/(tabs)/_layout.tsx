@@ -18,16 +18,16 @@ export default function TabLayout() {
   const isTA = r === 'teleassistance';
 
   const tabStyle: any = {
-    backgroundColor: colors.tabBar,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     borderTopWidth: 1,
-    borderTopColor: colors.tabBarBorder,
+    borderTopColor: 'rgba(0,0,0,0.06)',
     paddingBottom: 6,
     paddingTop: 8,
     height: 62,
     elevation: 0,
     ...(Platform.OS === 'web' ? {
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
+      backdropFilter: 'blur(40px)',
+      WebkitBackdropFilter: 'blur(40px)',
     } : {}),
   };
 
