@@ -37,9 +37,21 @@ async def get_alerts(user=Depends(get_current_user)):
 
 
 @router.put("/alerts/{alert_id}/resolve")
-async def resolve_alert(alert_id: str, user=Depends(get_current_user)):
-    await db.alerts.update_one({"id": alert_id}, {"$set": {"status": "resolved", "resolved_at": datetime.now(timezone.utc).isoformat(), "resolved_by": user['id']}})
+async def resolve_alert(alert_id: str, data: dict = None, user=Depends(get_current_user)):
+    now = datetime.now(timezone.utc).isoformat()
+    update = {"status": "resolved", "resolved_at": now, "resolved_by": user['id'], "resolved_by_name": user['name']}
+    if data and data.get('answers'):
+        update['report'] = {"answers": data['answers'], "notes": data.get('notes', ''), "closed_by": user['id'], "closed_by_name": user['name'], "closed_at": now}
+    await db.alerts.update_one({"id": alert_id}, {"$set": update})
     return {"status": "resolved"}
+
+
+@router.post("/alerts/{alert_id}/resolve-with-report")
+async def resolve_alert_with_report(alert_id: str, data: dict, user=Depends(get_current_user)):
+    now = datetime.now(timezone.utc).isoformat()
+    report = {"answers": data.get('answers', []), "notes": data.get('notes', ''), "closed_by": user['id'], "closed_by_name": user['name'], "closed_at": now}
+    await db.alerts.update_one({"id": alert_id}, {"$set": {"status": "resolved", "resolved_at": now, "resolved_by": user['id'], "resolved_by_name": user['name'], "report": report}})
+    return {"status": "resolved", "report": report}
 
 
 @router.get("/alerts/{aid}/report")
