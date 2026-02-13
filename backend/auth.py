@@ -56,3 +56,8 @@ def sanitize_user(u):
         elif k in ('is_prescriber',):
             r[k] = False
     return r
+
+
+def get_effective_role(user: dict) -> str:
+    """Returns the effective role: active_role if set, otherwise role"""
+    return user.get('active_role') or user.get('role', 'beneficiary')
