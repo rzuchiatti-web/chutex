@@ -735,11 +735,11 @@ export default function Dashboard() {
   const effectiveRole = user.active_role || user.role;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="dashboard-screen">
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="dashboard-screen">
       {effectiveRole === 'guardian' ? <GuardianHome token={token} user={user} />
       : effectiveRole === 'teleassistance' ? <TeleassistanceHome token={token} user={user} />
       : effectiveRole === 'admin' ? <AdminHome token={token} user={user} />
       : <BeneficiaryHome token={token} user={user} />}
-    </SafeAreaView>
+    </View>
   );
 }
