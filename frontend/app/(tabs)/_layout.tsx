@@ -9,17 +9,19 @@ function FloatingTabBar() {
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const [, forceUpdate] = useState(0);
+  const [currentRole, setCurrentRole] = useState('');
 
-  // Force re-render when user changes
-  const userKey = user ? `${user.active_role || user.role}-${user.id}` : '';
+  // Sync role from auth context
+  const effectiveRole = user ? (user.active_role || user.role) : '';
   useEffect(() => {
-    forceUpdate(prev => prev + 1);
-  }, [userKey]);
+    if (effectiveRole && effectiveRole !== currentRole) {
+      setCurrentRole(effectiveRole);
+    }
+  }, [effectiveRole]);
 
   if (!user) return null;
 
-  const r = user.active_role || user.role;
+  const r = currentRole || effectiveRole;
   const isBen = r === 'beneficiary';
   const isG = r === 'guardian';
   const isTA = r === 'teleassistance';
