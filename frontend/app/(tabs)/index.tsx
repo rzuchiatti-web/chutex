@@ -53,7 +53,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [sosLoading, setSosLoading] = useState(false);
-  const [showGuardianDetail, setShowGuardianDetail] = useState<any>(null);
   const sosPulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
