@@ -210,6 +210,21 @@ class SedentaritySettings(BaseModel):
     end_hour: int = 20
 
 
+class InterventionAcceptRequest(BaseModel):
+    intervention_id: str
+
+class InterventionLocationUpdate(BaseModel):
+    intervention_id: str
+    latitude: float
+    longitude: float
+
+class InterventionCloseRequest(BaseModel):
+    intervention_id: str
+    answers: List[dict]
+    notes: str = ""
+
+
+
 class SubscriptionCreate(BaseModel):
     beneficiary_phone: str
     subscription_type: str = "standard"
