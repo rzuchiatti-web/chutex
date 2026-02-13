@@ -184,7 +184,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const totalComm = prescriptions.reduce((sum, p) => sum + (p.commission || 0), 0);
 
   return (
-    <ScrollView style={d.sv} contentContainerStyle={d.sc} showsVerticalScrollIndicator={false}>
+    <ScrollView style={d.sv} contentContainerStyle={[d.sc, { paddingBottom: 80 }]} showsVerticalScrollIndicator={false}>
       {/* Prescriber activation - show prominently if not yet a prescriber */}
       {!user?.is_prescriber ? (
         <View style={d.activateCard}>
