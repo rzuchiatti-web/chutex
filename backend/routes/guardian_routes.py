@@ -361,3 +361,13 @@ async def unlink_beneficiary_from_guardian(bid: str, user=Depends(get_current_us
     await db.users.update_one({"id": user['id']}, {"$pull": {"beneficiaries": bid}})
     await db.users.update_one({"id": bid}, {"$pull": {"guardians": user['id'], "guardian_order": user['id']}})
     return {"status": "unlinked", "message": "Beneficiaire retire de votre liste"}
+
+
+@router.delete("/beneficiary/guardian/{gid}/remove")
+async def remove_guardian_from_beneficiary(gid: str, user=Depends(get_current_user)):
+    """Beneficiary removes a guardian from their list"""
+    if gid not in user.get('guardians', []):
+        raise HTTPException(status_code=403, detail="Ce gardien n'est pas dans votre liste")
+    await db.users.update_one({"id": user['id']}, {"$pull": {"guardians": gid, "guardian_order": gid}})
+    await db.users.update_one({"id": gid}, {"$pull": {"beneficiaries": user['id']}})
+    return {"status": "removed", "message": "Gardien retire de votre liste"}
