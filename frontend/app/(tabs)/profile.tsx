@@ -152,7 +152,18 @@ export default function ProfileScreen() {
         <GlassCard>
           <MenuItem icon="person-outline" label="Modifier mon profil" onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
           <MenuItem icon="lock-closed-outline" label="Securite (mot de passe)" onPress={() => setShowPwChange(true)} />
-          {user.role === 'guardian' && <MenuItem icon="swap-horizontal-outline" label="Basculer vers mon espace beneficiaire" onPress={() => Alert.alert('Switch', 'Fonctionnalite bientot disponible')} />}
+          {user.role === 'guardian' && <MenuItem icon="swap-horizontal-outline" label="Mon espace beneficiaire" onPress={() => {
+            if (user.has_beneficiary_space) {
+              (async () => {
+                try {
+                  await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: user.active_role === 'beneficiary' ? 'guardian' : 'beneficiary' }) }, token);
+                  Alert.alert('Espace change', `Vous etes maintenant en mode ${user.active_role === 'beneficiary' ? 'gardien' : 'beneficiaire'}. Reconnectez-vous pour appliquer.`);
+                } catch (e: any) { Alert.alert('Erreur', e.message); }
+              })();
+            } else {
+              router.push('/activate-beneficiary' as any);
+            }
+          }} />
           <MenuItem icon="language-outline" label="Langue" onPress={() => Alert.alert('Langue', 'Francais / English - bientot disponible')} />
           <MenuItem icon="notifications-outline" label="Notifications" onPress={() => {}} />
           <MenuItem icon="document-text-outline" label="Conditions generales d'utilisation" onPress={() => Alert.alert('CGU', 'Les conditions generales d\'utilisation de Chutex seront disponibles prochainement.')} />
