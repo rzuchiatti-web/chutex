@@ -540,11 +540,67 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           </View>
         </TouchableOpacity>
         <LanguageFlagButton />
-        <TouchableOpacity testID="guardian-notification-bell" style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.5)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginLeft: 8, ...glassStyle }}>
+        <TouchableOpacity testID="guardian-notification-bell" onPress={() => setShowNotifsG(!showNotifsG)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.5)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginLeft: 8, ...glassStyle }}>
           <Ionicons name="notifications-outline" size={18} color="#000" />
-          {(invitations.length > 0 || pendingInterventions.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: '#F5F0EB' }} />}
+          {(invitations.length > 0 || pendingInterventions.length > 0 || activeAlertsG.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: '#F5F0EB' }} />}
         </TouchableOpacity>
       </View>
+
+      {/* Notifications */}
+      {showNotifsG && (
+        <GlassCard style={{ marginBottom: 12, borderLeftWidth: 4, borderLeftColor: '#2196F3' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+            <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>Notifications</Text>
+            <TouchableOpacity onPress={() => setShowNotifsG(false)}><Ionicons name="close" size={18} color="#888" /></TouchableOpacity>
+          </View>
+          {activeAlertsG.length === 0 && invitations.length === 0 && pendingInterventions.length === 0 && (
+            <Text style={{ fontSize: 12, color: '#888', textAlign: 'center', paddingVertical: 8 }}>Aucune notification</Text>
+          )}
+          {activeAlertsG.map((a: any) => (
+            <TouchableOpacity key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}
+              onPress={() => { setShowNotifsG(false); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }}>
+              <Ionicons name="alert-circle" size={14} color="#E53935" />
+              <Text style={{ fontSize: 11, color: '#000', flex: 1 }}>{a.beneficiary_name}: {a.message}</Text>
+            </TouchableOpacity>
+          ))}
+          {pendingInterventions.map((p: any) => (
+            <TouchableOpacity key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}
+              onPress={() => { setShowNotifsG(false); router.push({ pathname: '/intervention-detail', params: { interventionId: p.id } }); }}>
+              <Ionicons name="navigate" size={14} color="#FF9800" />
+              <Text style={{ fontSize: 11, color: '#000', flex: 1 }}>Intervention: {p.beneficiary_name}</Text>
+            </TouchableOpacity>
+          ))}
+        </GlassCard>
+      )}
+
+      {/* Active Alerts for Guardian */}
+      {activeAlertsG.map((a: any) => (
+        <TouchableOpacity key={a.id} onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
+          <GlassCard style={{ backgroundColor: 'rgba(229,57,53,0.06)', borderLeftWidth: 4, borderLeftColor: '#E53935', padding: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <Ionicons name="alert-circle" size={20} color="#E53935" />
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#E53935' }}>ALERTE - {a.beneficiary_name}</Text>
+                <Text style={{ fontSize: 11, color: '#555' }}>{a.message}</Text>
+              </View>
+              <Text style={{ fontSize: 9, color: '#888' }}>{new Date(a.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</Text>
+            </View>
+            {a.intervener_info ? (
+              <View style={{ backgroundColor: 'rgba(76,175,80,0.1)', borderRadius: 10, padding: 8, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Ionicons name="person" size={14} color="#4CAF50" />
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#2E7D32' }}>{a.intervener_info.name} intervient ({a.intervener_info.structure})</Text>
+              </View>
+            ) : a.incident_state === 'CARE_DISPATCHED' ? (
+              <View style={{ backgroundColor: 'rgba(255,152,0,0.1)', borderRadius: 10, padding: 8, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Ionicons name="navigate" size={14} color="#FF9800" />
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#E65100' }}>Intervenant Care en attente</Text>
+              </View>
+            ) : (
+              <Text style={{ fontSize: 10, color: '#888', marginTop: 4 }}>Protocole en cours: {a.incident_state || a.teleassistance_status}</Text>
+            )}
+          </GlassCard>
+        </TouchableOpacity>
+      ))}
 
       {/* Greeting */}
       <GlassCard style={{ padding: 24, alignItems: 'center' }}>
