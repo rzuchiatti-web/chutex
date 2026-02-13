@@ -28,9 +28,10 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
 
 @router.get("/alerts")
 async def get_alerts(user=Depends(get_current_user)):
-    if user['role'] in ('teleassistance', 'admin'):
+    eff = get_effective_role(user)
+    if eff in ('teleassistance', 'admin'):
         return await db.alerts.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
-    if user['role'] == 'guardian':
+    if eff == 'guardian':
         bids = user.get('beneficiaries', []) + [user['id']]
         return await db.alerts.find({"beneficiary_id": {"$in": bids}}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return await db.alerts.find({"beneficiary_id": user['id']}, {"_id": 0}).sort("created_at", -1).to_list(100)
