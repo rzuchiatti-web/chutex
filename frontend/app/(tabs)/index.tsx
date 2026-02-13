@@ -14,8 +14,16 @@ const HEALTH_IMAGES = {
   physical: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/h37k6apj_physical%20health%20analys%20app%20health%20Chutex.png',
 };
 
+const REMINDER_IMAGES = {
+  hydration: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/22914qql_rappels_hydratation.svg',
+  medication: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/kmlx8iu2_ChatGPT%20Image%2026%20nov.%202025%2C%2010_04_44.png',
+  alarm: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/o8lth2ng_ChatGPT%20Image%2026%20nov.%202025%2C%2010_07_27.png',
+};
+
+const glassStyle = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+
 const GlassCard = ({ children, style, colors }: any) => (
-  <View style={[{ backgroundColor: colors.surface, borderRadius: 20, borderWidth: 1, borderColor: colors.glassBorder, padding: 16, marginBottom: 12, ...(Platform.OS === 'web' ? { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } : {}) }, style]}>{children}</View>
+  <View style={[{ backgroundColor: 'rgba(255, 255, 255, 0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.7)', padding: 16, marginBottom: 12, ...glassStyle }, style]}>{children}</View>
 );
 
 const HealthBadge = ({ status }: { status: string }) => (
