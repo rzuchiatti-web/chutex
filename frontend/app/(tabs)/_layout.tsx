@@ -51,8 +51,6 @@ export default function TabLayout() {
       tabBarInactiveTintColor: '#888',
       tabBarStyle: tabStyle,
       tabBarLabelStyle: { fontSize: 10, fontWeight: '600', letterSpacing: 0.3 },
-      sceneStyle: { backgroundColor: '#F5F0EB' },
-      sceneContainerStyle: { backgroundColor: '#F5F0EB' },
     }}>
       <Tabs.Screen name="index" options={{
         title: 'Accueil',
