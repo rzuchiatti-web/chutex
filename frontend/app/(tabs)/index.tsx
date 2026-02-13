@@ -216,7 +216,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       )}
 
       {/* Active Alerts Banner */}
-      {activeAlerts.length > 0 && <Text testID="alert-debug" style={{ fontSize: 10, color: 'red', textAlign: 'center' }}>DEBUG: {activeAlerts.length} alertes actives</Text>}
       {activeAlerts.map((a: any) => (
         <TouchableOpacity key={a.id} testID={`active-alert-${a.id}`} onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
           <GlassCard style={{ backgroundColor: 'rgba(229,57,53,0.08)', borderLeftWidth: 4, borderLeftColor: '#E53935', padding: 16 }}>
