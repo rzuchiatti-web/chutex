@@ -81,7 +81,10 @@ async def seed_demo_data():
                 "doctor_name": acct.get("doctor_name", ""),
                 "guardian_type": acct.get("guardian_type", ""), "structure_name": acct.get("structure_name", ""),
                 "siret": "", "profession": "", "relationship": acct.get("relationship", ""),
-                "is_prescriber": False, "prescriber_structure": "", "prescriber_code_used": "",
+                "is_prescriber": acct.get("is_prescriber", False), "prescriber_structure": acct.get("structure_name", ""), "prescriber_code_used": "",
+                "is_intervention_provider": acct.get("is_intervention_provider", False),
+                "intervention_radius_km": acct.get("intervention_radius_km", 30),
+                "latitude": acct.get("latitude"), "longitude": acct.get("longitude"),
             }
             await db.users.insert_one(user)
             if acct["role"] == "beneficiary":
