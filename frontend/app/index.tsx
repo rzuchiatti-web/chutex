@@ -197,7 +197,7 @@ export default function AuthScreen() {
               </>
             )}
             {step === 2 && role === 'guardian' && (<><Text style={{ fontSize: 18, fontWeight: '800', color: '#000', marginBottom: 16 }}>Mode prescripteur</Text><FormInput testID="reg-presc-code" label="Code d'activation" placeholder="SAAD1234" value={prescriberCode} onChangeText={setPrescriberCode} autoCapitalize="characters" colors={colors} /></>)}
-            {step === 1 && (role === 'teleassistance' || role === 'admin') && (<><Text style={{ fontSize: 18, fontWeight: '800', color: '#000', marginBottom: 16 }}>Informations complementaires</Text><FormInput testID="reg-address" label="Adresse" value={address} onChangeText={setAddress} colors={colors} /></>)}
+
 
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
               {step > 0 && <TouchableOpacity testID="prev-step" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 14, paddingHorizontal: 18, borderRadius: 9999, backgroundColor: 'rgba(255,255,255,0.6)', borderWidth: 1, borderColor: '#DDD' }} onPress={() => setStep(step - 1)}><Ionicons name="chevron-back" size={16} color="#000" /><Text style={{ fontSize: 14, fontWeight: '600', color: '#000' }}>Retour</Text></TouchableOpacity>}
