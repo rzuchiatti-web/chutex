@@ -125,6 +125,49 @@ async def seed_demo_data():
             )
             logger.info("Seed: created Care subscription for Robert Martin")
 
+    # Seed activation codes with id field
+    now = datetime.now(timezone.utc).isoformat()
+    seed_act_codes = [
+        {"code": "PRESC-DOC-01", "structure_name": "Cabinet Medical Saint-Chamond", "raison_sociale": "Dr. Lefevre SELARL", "siret": "44455566600012"},
+        {"code": "PRESC-INF-01", "structure_name": "Cabinet Infirmier du Forez", "raison_sociale": "SCI Infirmieres du Forez", "siret": "55566677700034"},
+        {"code": "PRESC-SAAD-01", "structure_name": "SAAD Aide a Domicile", "raison_sociale": "Association Aide a Domicile Loire", "siret": "66677788800056"},
+    ]
+    for ac in seed_act_codes:
+        existing = await db.activation_codes.find_one({"code": ac["code"]})
+        if existing and not existing.get("id"):
+            await db.activation_codes.update_one({"code": ac["code"]}, {"$set": {"id": str(uuid.uuid4())}})
+            logger.info(f"Seed: fixed missing id on activation code {ac['code']}")
+        elif not existing:
+            await db.activation_codes.insert_one({
+                "id": str(uuid.uuid4()), "code": ac["code"], "structure_name": ac["structure_name"],
+                "raison_sociale": ac.get("raison_sociale", ""), "siret": ac.get("siret", ""),
+                "tva": "", "adresse": "", "telephone": "", "email_contact": "",
+                "max_uses": 50, "uses_count": 0, "active": True, "created_at": now, "created_by": "seed",
+            })
+            logger.info(f"Seed: created activation code {ac['code']}")
+
+    # Seed intervention codes with id field
+    seed_iv_codes = [
+        {"code": "CARE-STETI-01", "structure_name": "Cabinet Infirmier Saint-Etienne", "radius_km": 30},
+        {"code": "CARE-PARIS-01", "structure_name": "ABC Domicile Paris", "radius_km": 50},
+        {"code": "CARE-LYON-01", "structure_name": "ABC Domicile Lyon", "radius_km": 40},
+    ]
+    for ic in seed_iv_codes:
+        existing = await db.intervention_codes.find_one({"code": ic["code"]})
+        if existing and not existing.get("id"):
+            await db.intervention_codes.update_one({"code": ic["code"]}, {"$set": {"id": str(uuid.uuid4())}})
+            logger.info(f"Seed: fixed missing id on intervention code {ic['code']}")
+        elif not existing:
+            await db.intervention_codes.insert_one({
+                "id": str(uuid.uuid4()), "code": ic["code"], "structure_name": ic["structure_name"],
+                "default_radius_km": ic.get("radius_km", 30),
+                "raison_sociale": "", "siret": "", "tva": "", "adresse": "", "telephone": "", "email_contact": "",
+                "max_uses": 50, "uses_count": 0, "active": True,
+                "base_location": {"latitude": 48.8566, "longitude": 2.3522},
+                "created_at": now, "created_by": "seed",
+            })
+            logger.info(f"Seed: created intervention code {ic['code']}")
+
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
