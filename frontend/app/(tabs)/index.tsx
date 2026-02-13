@@ -127,7 +127,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         <TouchableOpacity style={{ width: 30, height: 30, borderRadius: 15, overflow: 'hidden', marginRight: 8, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent: 'center', alignItems: 'center', backgroundColor: '#002395' }}>
           <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>FR</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.5)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginRight: 8, ...glass }}>
+        <TouchableOpacity style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.5)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginRight: 8, ...glassStyle }}>
           <Ionicons name="notifications-outline" size={18} color="#000" />
           {guardianRequests.length > 0 && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: colors.background }} />}
         </TouchableOpacity>
