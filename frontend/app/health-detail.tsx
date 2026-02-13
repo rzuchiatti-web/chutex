@@ -62,6 +62,9 @@ export default function HealthDetailScreen() {
   const [currentVal, setCurrentVal] = useState<number>(0);
   const [history, setHistory] = useState<number[]>([]);
   const [period, setPeriod] = useState('7');
+  const [editingThresholds, setEditingThresholds] = useState(false);
+  const [newSeuilBas, setNewSeuilBas] = useState('');
+  const [newSeuilHaut, setNewSeuilHaut] = useState('');
   const screenW = Dimensions.get('window').width - 72;
 
   const config = METRIC_CONFIG[metricId || 'heart_rate'] || METRIC_CONFIG.heart_rate;
