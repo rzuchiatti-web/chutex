@@ -448,7 +448,7 @@ async def twilio_status(request: Request):
 
 @router.post("/twilio/speech-response")
 async def twilio_speech_response(request: Request):
-    """Handle Twilio speech recognition response from beneficiary"""
+    """Handle Twilio speech recognition - analyze with GPT-5.2 for intent"""
     form = await request.form()
     call_sid = form.get('CallSid', '')
     speech_result = form.get('SpeechResult', '')
@@ -456,44 +456,193 @@ async def twilio_speech_response(request: Request):
 
     logger.info(f"Speech response from {call_sid}: '{speech_result}' (confidence: {confidence})")
 
-    # Analyze speech for confirmation
-    speech_lower = speech_result.lower() if speech_result else ''
-    positive_words = ['bien', 'va bien', 'oui', 'ca va', 'ça va', 'ok', 'pas de probleme', 'tout va bien', 'je vais bien', 'rien']
-    negative_words = ['aide', 'aidez', 'mal', 'secours', 'tombe', 'urgence', 'non', 'pas bien', 'help']
+    # Use GPT-5.2 to analyze the speech for intent, sentiment, and urgency
+    ai_analysis = {"confirmed_ok": False, "needs_help": False, "urgency": "unknown", "sentiment": "neutral", "summary": ""}
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"speech-{uuid.uuid4().hex[:8]}",
+            system_message=(
+                "Tu es un assistant medical IA pour le service de teleassistance Chutex. "
+                "Analyse la reponse vocale d'un beneficiaire apres une alerte. "
+                "Reponds UNIQUEMENT en JSON avec ces champs: "
+                '{"confirmed_ok": bool, "needs_help": bool, "urgency": "none|low|medium|high|critical", '
+                '"sentiment": "calm|worried|distressed|confused|pain", "summary": "resume en 1 phrase"}'
+            )
+        ).with_model("openai", "gpt-5.2")
 
-    confirmed_ok = any(w in speech_lower for w in positive_words)
-    needs_help = any(w in speech_lower for w in negative_words)
+        # Get alert context
+        call_record = await db.twilio_calls.find_one({"call_sid": call_sid}, {"_id": 0})
+        alert_context = ""
+        if call_record:
+            alert = await db.alerts.find_one({"id": call_record.get('alert_id', '')}, {"_id": 0})
+            if alert:
+                alert_context = f" L'alerte etait: {alert.get('message', '')} (type: {alert.get('alert_type', '')})."
 
-    # Store speech response
+        prompt = f"Le beneficiaire a dit: \"{speech_result}\".{alert_context} Confiance reconnaissance: {confidence}. Analyse cette reponse."
+        resp = await chat.send_message(UserMessage(text=prompt))
+
+        # Parse JSON response
+        import json
+        try:
+            resp_clean = resp.strip()
+            if resp_clean.startswith("```"):
+                resp_clean = resp_clean.split("```")[1].strip()
+                if resp_clean.startswith("json"):
+                    resp_clean = resp_clean[4:].strip()
+            ai_analysis = json.loads(resp_clean)
+        except:
+            # Fallback to keyword analysis
+            speech_lower = (speech_result or '').lower()
+            ai_analysis["confirmed_ok"] = any(w in speech_lower for w in ['bien', 'va bien', 'oui', 'ok', 'ca va', 'rien'])
+            ai_analysis["needs_help"] = any(w in speech_lower for w in ['aide', 'mal', 'secours', 'tombe', 'urgence', 'non'])
+            ai_analysis["summary"] = f"Analyse par mots-cles: {speech_result[:100]}"
+    except Exception as e:
+        logger.error(f"AI speech analysis error: {e}")
+        speech_lower = (speech_result or '').lower()
+        ai_analysis["confirmed_ok"] = any(w in speech_lower for w in ['bien', 'va bien', 'oui', 'ok'])
+        ai_analysis["needs_help"] = any(w in speech_lower for w in ['aide', 'mal', 'secours', 'tombe'])
+
+    confirmed_ok = ai_analysis.get("confirmed_ok", False) and not ai_analysis.get("needs_help", False)
+    needs_help = ai_analysis.get("needs_help", False)
+
+    # Store speech response with AI analysis
     await db.speech_responses.insert_one({
         "call_sid": call_sid,
         "text": speech_result,
         "confidence": float(confidence) if confidence else 0,
-        "confirmed_ok": confirmed_ok and not needs_help,
+        "confirmed_ok": confirmed_ok,
         "needs_help": needs_help,
+        "ai_analysis": ai_analysis,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     })
 
-    # Update call record
     await db.twilio_calls.update_one(
         {"call_sid": call_sid},
-        {"$set": {"response": speech_result, "answered": True, "speech_confirmed_ok": confirmed_ok and not needs_help}}
+        {"$set": {
+            "response": speech_result, "answered": True,
+            "speech_confirmed_ok": confirmed_ok,
+            "ai_analysis": ai_analysis,
+        }}
     )
 
     base_url = "https://beneficiary-hub-7.preview.emergentagent.com"
-    resp = VoiceResponse()
-    if confirmed_ok and not needs_help:
-        resp.play(f"{base_url}/api/elevenlabs/audio/confirmed_ok")
+    resp_twiml = VoiceResponse()
+    if confirmed_ok:
+        resp_twiml.play(f"{base_url}/api/elevenlabs/audio/confirmed_ok")
     elif needs_help:
-        resp.play(f"{base_url}/api/elevenlabs/audio/help_requested")
+        resp_twiml.play(f"{base_url}/api/elevenlabs/audio/help_requested")
     else:
-        # Unclear response, ask again
-        resp.play(f"{base_url}/api/elevenlabs/audio/fall_detected")
+        # Unclear response - ask again with clearer instructions
+        resp_twiml.play(f"{base_url}/api/elevenlabs/audio/unclear_response")
         gather = Gather(input='speech', language='fr-FR', timeout=8, speech_timeout=5, action=f"{base_url}/api/twilio/speech-response")
-        resp.append(gather)
+        resp_twiml.append(gather)
+        resp_twiml.play(f"{base_url}/api/elevenlabs/audio/no_response")
 
     from starlette.responses import Response as StarletteResponse
-    return StarletteResponse(content=str(resp), media_type="application/xml")
+    return StarletteResponse(content=str(resp_twiml), media_type="application/xml")
+
+
+@router.post("/ai/analyze-speech")
+async def ai_analyze_speech(data: dict, user=Depends(get_current_user)):
+    """Manually analyze a speech response with AI"""
+    speech_text = data.get("text", "")
+    alert_id = data.get("alert_id", "")
+    if not speech_text:
+        raise HTTPException(status_code=400, detail="Texte requis")
+
+    alert_context = ""
+    if alert_id:
+        alert = await db.alerts.find_one({"id": alert_id}, {"_id": 0})
+        if alert:
+            ben = await db.users.find_one({"id": alert['beneficiary_id']}, {"_id": 0})
+            alert_context = (
+                f"Alerte: {alert.get('message', '')} (type: {alert.get('alert_type', '')}, severite: {alert.get('severity', '')}). "
+                f"Beneficiaire: {alert.get('beneficiary_name', '')}."
+            )
+            if ben:
+                alert_context += f" Pathologies: {ben.get('medical_conditions', 'aucune')}. Allergies: {ben.get('allergies', 'aucune')}."
+
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"analysis-{uuid.uuid4().hex[:8]}",
+            system_message=(
+                "Tu es un assistant medical IA expert en teleassistance. "
+                "Analyse la situation et donne des recommandations claires et concises en francais."
+            )
+        ).with_model("openai", "gpt-5.2")
+        prompt = f"Analyse cette reponse vocale du beneficiaire: \"{speech_text}\". Contexte: {alert_context}. Donne ton evaluation de la situation, le niveau d'urgence, et tes recommandations pour l'operateur."
+        analysis = await chat.send_message(UserMessage(text=prompt))
+        return {"analysis": analysis, "speech_text": speech_text}
+    except Exception as e:
+        logger.error(f"AI analysis error: {e}")
+        return {"analysis": f"Analyse IA indisponible: {str(e)}", "speech_text": speech_text}
+
+
+@router.post("/ai/protocol-summary")
+async def ai_protocol_summary(data: dict, user=Depends(get_current_user)):
+    """Generate an AI summary of the entire alert protocol execution"""
+    alert_id = data.get("alert_id", "")
+    if not alert_id:
+        raise HTTPException(status_code=400, detail="alert_id requis")
+
+    alert = await db.alerts.find_one({"id": alert_id}, {"_id": 0})
+    if not alert:
+        raise HTTPException(status_code=404, detail="Alerte non trouvee")
+
+    ben = await db.users.find_one({"id": alert['beneficiary_id']}, {"_id": 0, "password_hash": 0})
+    escalations = await db.escalations.find({"alert_id": alert_id}, {"_id": 0}).sort("created_at", -1).to_list(5)
+    calls = await db.twilio_calls.find({"alert_id": alert_id}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    interventions = await db.interventions.find({"alert_id": alert_id}, {"_id": 0}).to_list(5)
+    speech_responses = []
+    for c in calls:
+        sr = await db.speech_responses.find_one({"call_sid": c.get('call_sid', '')}, {"_id": 0})
+        if sr:
+            speech_responses.append(sr)
+
+    context = f"ALERTE: {alert.get('message', '')} (type: {alert.get('alert_type', '')}, severite: {alert.get('severity', '')})\n"
+    context += f"BENEFICIAIRE: {alert.get('beneficiary_name', '')}\n"
+    if ben:
+        context += f"Pathologies: {ben.get('medical_conditions', 'aucune')}, Allergies: {ben.get('allergies', 'aucune')}\n"
+    context += f"STATUT: {alert.get('status', '')}, Statut TA: {alert.get('teleassistance_status', '')}\n\n"
+
+    if escalations:
+        context += "ESCALADES:\n"
+        for esc in escalations:
+            for t in esc.get('timeline', []):
+                context += f"- [{t.get('time', '')[:19]}] {t.get('note', '')}\n"
+    if calls:
+        context += f"\nAPPELS ({len(calls)}):\n"
+        for c in calls:
+            context += f"- {c.get('target_name', '')} ({c.get('target_type', '')}): {c.get('status', '')} - Reponse: {c.get('response', 'aucune')}\n"
+    if speech_responses:
+        context += "\nREPONSES VOCALES:\n"
+        for sr in speech_responses:
+            context += f"- \"{sr.get('text', '')}\" (confiance: {sr.get('confidence', 0):.0%}) -> OK: {sr.get('confirmed_ok', False)}, Aide: {sr.get('needs_help', False)}\n"
+            if sr.get('ai_analysis'):
+                context += f"  Analyse IA: urgence={sr['ai_analysis'].get('urgency', '?')}, sentiment={sr['ai_analysis'].get('sentiment', '?')}\n"
+    if interventions:
+        context += f"\nINTERVENTIONS ({len(interventions)}):\n"
+        for iv in interventions:
+            context += f"- {iv.get('assigned_name', 'non assigne')} ({iv.get('structure_name', '')}): {iv.get('status', '')}\n"
+
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"summary-{uuid.uuid4().hex[:8]}",
+            system_message=(
+                "Tu es un expert en teleassistance medicale. "
+                "Genere un resume structure du protocole d'alerte execute. "
+                "Inclus: 1) Resume de la situation, 2) Actions effectuees, 3) Evaluation du risque actuel, 4) Recommandations. "
+                "Sois concis et professionnel."
+            )
+        ).with_model("openai", "gpt-5.2")
+        summary = await chat.send_message(UserMessage(text=f"Genere le resume du protocole pour cette alerte:\n{context}"))
+        return {"summary": summary, "alert_id": alert_id, "generated_at": datetime.now(timezone.utc).isoformat()}
+    except Exception as e:
+        logger.error(f"Protocol summary error: {e}")
+        return {"summary": f"Resume IA indisponible: {str(e)}", "alert_id": alert_id}
 
 
 # ==================== AUTO ESCALATION WITH ELEVENLABS ====================
