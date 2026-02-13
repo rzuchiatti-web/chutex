@@ -4,14 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
-import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
-
 const WebInput = ({ label, val, onChange, placeholder, type }: any) => Platform.OS === 'web' ? (
   <div style={{ marginBottom: 14 }}>
     <div style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>{label}</div>
@@ -21,21 +19,20 @@ const WebInput = ({ label, val, onChange, placeholder, type }: any) => Platform.
 ) : null;
 
 export default function ActivateBeneficiaryScreen() {
-  const { colors } = useTheme();
-  const { token } = useAuth();
+  const { token, user, refreshUser } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [dob, setDob] = useState('');
-  const [gender, setGender] = useState('');
-  const [address, setAddress] = useState('');
-  const [heightCm, setHeightCm] = useState('');
-  const [weightKg, setWeightKg] = useState('');
-  const [bloodType, setBloodType] = useState('');
-  const [allergies, setAllergies] = useState('');
-  const [medConditions, setMedConditions] = useState('');
-  const [ecName, setEcName] = useState('');
-  const [ecPhone, setEcPhone] = useState('');
-  const [doctorName, setDoctorName] = useState('');
+  const [dob, setDob] = useState(user?.date_of_birth || '');
+  const [gender, setGender] = useState(user?.gender || '');
+  const [address, setAddress] = useState(user?.address || '');
+  const [heightCm, setHeightCm] = useState(user?.height_cm?.toString() || '');
+  const [weightKg, setWeightKg] = useState(user?.weight_kg?.toString() || '');
+  const [bloodType, setBloodType] = useState(user?.blood_type || '');
+  const [allergies, setAllergies] = useState(user?.allergies || '');
+  const [medConditions, setMedConditions] = useState(user?.medical_conditions || '');
+  const [ecName, setEcName] = useState(user?.emergency_contact_name || '');
+  const [ecPhone, setEcPhone] = useState(user?.emergency_contact_phone || '');
+  const [doctorName, setDoctorName] = useState(user?.doctor_name || '');
   const [saving, setSaving] = useState(false);
 
   const submit = async () => {
@@ -47,26 +44,33 @@ export default function ActivateBeneficiaryScreen() {
         allergies, medical_conditions: medConditions,
         emergency_contact_name: ecName, emergency_contact_phone: ecPhone, doctor_name: doctorName,
       }) }, token);
-      Alert.alert('Espace beneficiaire active', 'Reconnectez-vous pour acceder a votre espace beneficiaire.');
+      await refreshUser();
+      Alert.alert('Espace beneficiaire active', 'Votre espace beneficiaire est maintenant accessible.');
       router.back();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="activate-beneficiary-screen">
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => { if (step > 0) setStep(step - 1); else router.back(); }} style={{ padding: 4, marginRight: 12 }}>
+        <TouchableOpacity testID="back-btn" onPress={() => { if (step > 0) setStep(step - 1); else router.back(); }} style={{ padding: 4, marginRight: 12 }}>
           <Ionicons name="chevron-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#000' }}>Espace beneficiaire</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
-        {/* Progress */}
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 6 }}>
           {[0, 1].map(i => <View key={i} style={{ width: 40, height: 3, borderRadius: 2, backgroundColor: i <= step ? '#000' : '#DDD' }} />)}
         </View>
         <Text style={{ fontSize: 11, color: '#888', textAlign: 'center', marginBottom: 20 }}>Etape {step + 1} / 2</Text>
+
+        {/* Pre-filled info notice */}
+        {step === 0 && (user?.name || user?.phone) && (
+          <GlassCard style={{ backgroundColor: 'rgba(76,175,80,0.08)', borderLeftWidth: 4, borderLeftColor: '#4CAF50', padding: 14, marginBottom: 16 }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#2E7D32' }}>Les informations connues ont ete pre-remplies depuis votre profil.</Text>
+          </GlassCard>
+        )}
 
         {step === 0 && (
           <GlassCard>
@@ -109,11 +113,11 @@ export default function ActivateBeneficiaryScreen() {
             <Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Retour</Text>
           </TouchableOpacity>}
           {step === 0 ? (
-            <TouchableOpacity style={{ flex: 1, backgroundColor: '#000', paddingVertical: 14, borderRadius: 9999, alignItems: 'center' }} onPress={() => setStep(1)}>
+            <TouchableOpacity testID="next-step-btn" style={{ flex: 1, backgroundColor: '#000', paddingVertical: 14, borderRadius: 9999, alignItems: 'center' }} onPress={() => setStep(1)}>
               <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>SUIVANT</Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={{ flex: 1, backgroundColor: '#000', paddingVertical: 14, borderRadius: 9999, alignItems: 'center' }} onPress={submit} disabled={saving}>
+            <TouchableOpacity testID="activate-btn" style={{ flex: 1, backgroundColor: '#000', paddingVertical: 14, borderRadius: 9999, alignItems: 'center' }} onPress={submit} disabled={saving}>
               {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>ACTIVER</Text>}
             </TouchableOpacity>
           )}
