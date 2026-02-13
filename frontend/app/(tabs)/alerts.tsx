@@ -86,8 +86,8 @@ export default function AlertsScreen() {
 
       <View style={{ flexDirection: 'row', paddingHorizontal: 20, gap: 8, marginBottom: 12 }}>
         {(['all', 'active', 'resolved'] as const).map((f) => (
-          <TouchableOpacity key={f} testID={`filter-${f}`} style={[{ paddingHorizontal: 16, paddingVertical: 9, borderRadius: 9999, borderWidth: 1.5, borderColor: filter === f ? colors.primary : colors.border }, filter === f && { backgroundColor: colors.primary }]} onPress={() => setFilter(f)}>
-            <Text style={[{ fontSize: 13, fontWeight: '600' }, filter === f ? { color: '#FFF' } : { color: colors.textMuted }]}>
+          <TouchableOpacity key={f} testID={`filter-${f}`} style={[{ paddingHorizontal: 16, paddingVertical: 9, borderRadius: 9999, borderWidth: 1.5, borderColor: filter === f ? '#000' : 'rgba(0,0,0,0.08)' }, filter === f && { backgroundColor: '#000' }]} onPress={() => setFilter(f)}>
+            <Text style={[{ fontSize: 13, fontWeight: '600' }, filter === f ? { color: '#FFF' } : { color: '#888' }]}>
               {f === 'all' ? 'Toutes' : f === 'active' ? 'Actives' : 'Resolues'}
             </Text>
           </TouchableOpacity>
