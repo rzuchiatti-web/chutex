@@ -40,6 +40,17 @@ async def set_threshold(data: ThresholdUpdate, user=Depends(get_current_user)):
     return {"status": "saved"}
 
 
+@router.put("/health/thresholds")
+async def update_threshold(data: ThresholdUpdate, user=Depends(get_current_user)):
+    await db.thresholds.update_one(
+        {"user_id": user['id'], "metric_id": data.metric_id},
+        {"$set": {"user_id": user['id'], "metric_id": data.metric_id, "min_val": data.min_val, "max_val": data.max_val, "goal": data.goal}},
+        upsert=True,
+    )
+    return {"status": "saved"}
+
+
+
 @router.get("/health/thresholds")
 async def get_thresholds(user=Depends(get_current_user)):
     return await db.thresholds.find({"user_id": user['id']}, {"_id": 0}).to_list(200)
