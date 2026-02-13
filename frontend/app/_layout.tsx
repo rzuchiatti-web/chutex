@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { ThemeProvider, useTheme } from '../src/context/ThemeContext';
+import { I18nProvider } from '../src/context/I18nContext';
 import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 
 const BG_IMAGE = 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/tor5yp57_fond%20couleur%20pastelle.png';
