@@ -49,6 +49,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [vestData, setVestData] = useState<any>(null);
   const [braceletData, setBraceletData] = useState<any>(null);
   const [guardians, setGuardians] = useState<any[]>([]);
+  const [guardianRequests, setGuardianRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [sosLoading, setSosLoading] = useState(false);
