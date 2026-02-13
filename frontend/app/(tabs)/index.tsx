@@ -165,7 +165,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           </TouchableOpacity>
         </View>
         {guardians.map((g: any, i: number) => (
-          <TouchableOpacity key={g.id || i} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: i > 0 ? 0.5 : 0, borderTopColor: 'rgba(0,0,0,0.06)' }} onPress={() => setShowGuardianDetail(g)}>
+          <TouchableOpacity key={g.id || i} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: i > 0 ? 0.5 : 0, borderTopColor: 'rgba(0,0,0,0.06)' }} onPress={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })}>
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: ['#FFB74D', '#4FC3F7', '#AED581', '#FF8A65', '#CE93D8'][i % 5], justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
               <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>{g.name?.charAt(0)}</Text>
             </View>
@@ -173,7 +173,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{g.name}</Text>
               <Text style={{ fontSize: 11, color: '#888' }}>{g.relationship || g.profession || g.guardian_type || 'Gardien'}{g.structure_name ? ` - ${g.structure_name}` : ''}</Text>
             </View>
-            {g.is_intervention_provider && <View style={{ backgroundColor: '#C8E6C9', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginRight: 6 }}><Text style={{ fontSize: 8, fontWeight: '800', color: '#2E7D32' }}>CARE</Text></View>}
             <Ionicons name="chevron-forward" size={16} color="#888" />
           </TouchableOpacity>
         ))}
