@@ -48,13 +48,19 @@ async def seed_demo_data():
     demo_accounts = [
         {"email": "admin@chutex.fr", "name": "Directeur Chutex", "phone": "+33600000001", "role": "admin"},
         {"email": "robert.martin@email.fr", "name": "Robert Martin", "phone": "+33651245918", "role": "beneficiary",
-         "date_of_birth": "15/03/1952", "gender": "Homme", "address": "12 rue de la Sante, 75014 Paris",
+         "date_of_birth": "15/03/1952", "gender": "Homme", "address": "14 rue de la Republique, 42400 Saint-Chamond",
          "height_cm": 175, "weight_kg": 72, "blood_type": "A+", "allergies": "Penicilline",
          "medical_conditions": "Hypertension legere, arthrose", "emergency_contact_name": "Claire Martin",
-         "emergency_contact_phone": "+33630686585", "doctor_name": "Dr. Lefevre"},
+         "emergency_contact_phone": "+33630686585", "doctor_name": "Dr. Lefevre",
+         "latitude": 45.4737, "longitude": 4.5134},
         {"email": "claire.martin@email.fr", "name": "Claire Martin", "phone": "+33630686585", "role": "guardian",
          "guardian_type": "particular", "relationship": "Fille"},
         {"email": "plateau@chutex.fr", "name": "Plateau Ecoute Chutex", "phone": "+33477101011", "role": "teleassistance"},
+        {"email": "ludivine.moutio@care.fr", "name": "Ludivine Moutio", "phone": "+33477223344", "role": "guardian",
+         "guardian_type": "professional", "profession": "Infirmiere liberale", "structure_name": "Cabinet Infirmier Saint-Etienne",
+         "is_intervention_provider": True, "intervention_radius_km": 30,
+         "address": "8 place Jean Jaures, 42000 Saint-Etienne",
+         "latitude": 45.4397, "longitude": 4.3872},
     ]
     for acct in demo_accounts:
         existing = await db.users.find_one({"email": acct["email"]})
