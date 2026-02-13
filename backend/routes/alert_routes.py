@@ -21,8 +21,8 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
     }
     await db.alerts.insert_one(alert)
     if data.severity in ('critical', 'high') and twilio_client:
-        from routes.teleassistance_routes import auto_escalation_protocol
-        asyncio.create_task(auto_escalation_protocol(alert))
+        from services.carewatch_engine import carewatch_orchestrate
+        asyncio.create_task(carewatch_orchestrate(alert))
     return {k: v for k, v in alert.items() if k != '_id'}
 
 
