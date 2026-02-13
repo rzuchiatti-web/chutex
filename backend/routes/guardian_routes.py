@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 import uuid, random, logging
 
 from database import db, EMERGENT_LLM_KEY, twilio_client, TWILIO_NUMBER
-from auth import get_current_user, sanitize_user
+from auth import get_current_user, sanitize_user, get_effective_role
 from models import (
     LinkBeneficiaryRequest, PrescriptionCreate, ActivatePrescriberRequest,
     InterventionProviderActivate,

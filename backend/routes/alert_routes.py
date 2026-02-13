@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import uuid, random, asyncio, logging
 
 from database import db, twilio_client, TWILIO_NUMBER
-from auth import get_current_user
+from auth import get_current_user, get_effective_role
 from models import AlertCreate
 
 logger = logging.getLogger(__name__)
