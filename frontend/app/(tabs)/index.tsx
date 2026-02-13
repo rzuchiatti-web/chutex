@@ -115,15 +115,25 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
 
-      {/* Header */}
+      {/* Header with animated profile */}
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
-        <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#E0E0E0', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-          <Text style={{ fontSize: 20, fontWeight: '800', color: '#000' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{user.name}</Text>
-          <Text style={{ fontSize: 12, color: '#888', fontWeight: '600', letterSpacing: 1 }}>CHUTEX</Text>
-        </View>
+        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={() => {
+          if (user.has_guardian_space) {
+            apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'guardian' }) }, token).then(() => { Alert.alert('Espace gardien active', 'Reconnectez-vous.'); }).catch(() => {});
+          }
+        }}>
+          <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{user.name}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <View style={{ backgroundColor: '#4CAF50', width: 6, height: 6, borderRadius: 3 }} />
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', letterSpacing: 0.5 }}>BENEFICIAIRE</Text>
+              {user.has_guardian_space && <Text style={{ fontSize: 10, color: '#AAA' }}> | Gardien</Text>}
+            </View>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity style={{ width: 30, height: 30, borderRadius: 15, overflow: 'hidden', marginRight: 8, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.1)', justifyContent: 'center', alignItems: 'center', backgroundColor: '#002395' }}>
           <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>FR</Text>
         </TouchableOpacity>
