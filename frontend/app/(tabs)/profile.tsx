@@ -119,7 +119,7 @@ export default function ProfileScreen() {
         <Text style={{ fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginTop: 16, marginBottom: 24, letterSpacing: -0.5 }}>Profil</Text>
 
         {/* User Card */}
-        <View style={{ backgroundColor: colors.surface, borderRadius: 20, padding: 28, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: colors.border }}>
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, padding: 28, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {}) }}>
           <View style={{ width: 68, height: 68, borderRadius: 34, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 14 }}>
             <Text style={{ fontSize: 28, fontWeight: '800', color: isDark ? '#000' : '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
           </View>
