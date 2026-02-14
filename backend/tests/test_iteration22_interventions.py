@@ -364,7 +364,7 @@ class TestIntervenantDetail:
         intervenants = response.json()
         
         if intervenants:
-            intervenant_id = intervenants[0]["user_id"]
+            intervenant_id = intervenants[0]["id"]
             
             detail_response = requests.get(
                 f"{BASE_URL}/api/company/intervenant/{intervenant_id}",
