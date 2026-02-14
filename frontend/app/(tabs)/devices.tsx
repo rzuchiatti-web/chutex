@@ -361,14 +361,27 @@ function AdminPrescripteurs({ token }: { token: string }) {
   if (loading) return <View style={d.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
 
   return (
-    <ScrollView style={d.sv} contentContainerStyle={d.sc}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{codes.length} structure(s) prescriptrice(s)</Text>
-        <TouchableOpacity testID="add-prescripteur-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}
-          onPress={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', max_uses: '50' }); setShowModal(true); }}>
-          <Ionicons name="add" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
-        </TouchableOpacity>
+    <ScrollView style={d.sv} contentContainerStyle={[d.sc, { paddingBottom: 80 }]}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAll(); }} />}>
+      {/* Tabs */}
+      <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 12, padding: 3, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)' }}>
+        {([['codes', `Codes (${codes.length})`], ['prescribers', `Prescripteurs (${prescribers.length})`], ['prescriptions', `Souscriptions (${prescriptions.length})`]] as const).map(([k, l]) => (
+          <TouchableOpacity key={k} style={[{ flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: 10 }, tab === k && { backgroundColor: '#000' }]}
+            onPress={() => setTab(k)}>
+            <Text style={{ fontSize: 10, fontWeight: '700', color: tab === k ? '#FFF' : '#888' }}>{l}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
+
+      {/* CODES TAB */}
+      {tab === 'codes' && <>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{codes.length} structure(s) prescriptrice(s)</Text>
+          <TouchableOpacity testID="add-prescripteur-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}
+            onPress={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', max_uses: '50' }); setShowModal(true); }}>
+            <Ionicons name="add" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
+          </TouchableOpacity>
+        </View>
 
       {codes.map(c => (
         <View key={c.id} style={[d.deviceCard, !c.active && { opacity: 0.5 }]}>
