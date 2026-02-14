@@ -244,7 +244,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             </View>
           </TouchableOpacity>
 
-          {/* Prescripteur Modal */}
+          {/* Rewards Card - golden */}
+          <RewardsCard token={token} />
           <Modal visible={showPrescModal} transparent animationType="fade" onRequestClose={() => setShowPrescModal(false)}>
             <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
               <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
