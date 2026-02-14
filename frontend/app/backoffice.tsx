@@ -237,9 +237,9 @@ export default function BackofficeScreen() {
   ] as const;
 
   return (
-    <SafeAreaView style={[bs.safe, { backgroundColor: themeColors.background }]} data-testid="backoffice-screen">
+    <SafeAreaView style={[bs.safe, { backgroundColor: themeColors.background }]} testID="backoffice-screen">
       <View style={bs.topBar}>
-        <TouchableOpacity data-testid="back-btn" onPress={() => router.back()} style={bs.backBtn}>
+        <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={bs.backBtn}>
           <Ionicons name="chevron-back" size={22} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={bs.topTitle}>Back Office</Text>
@@ -291,10 +291,10 @@ export default function BackofficeScreen() {
           {tab === 'subscriptions' && (
             <>
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
-                <TouchableOpacity data-testid="create-sub-btn" style={[bs.createBtn, { flex: 1, marginBottom: 0 }]} onPress={() => { setSubForm({ beneficiary_phone: '', subscription_type: 'standard', notes: '' }); setShowSubModal(true); }}>
+                <TouchableOpacity testID="create-sub-btn" style={[bs.createBtn, { flex: 1, marginBottom: 0 }]} onPress={() => { setSubForm({ beneficiary_phone: '', subscription_type: 'standard', notes: '' }); setShowSubModal(true); }}>
                   <Ionicons name="add" size={18} color="#FFF" /><Text style={bs.createBtnT}>Nouvel abonnement</Text>
                 </TouchableOpacity>
-                <TouchableOpacity data-testid="sync-shopify-btn" style={[bs.createBtn, { flex: 1, marginBottom: 0, backgroundColor: shopifyConnected ? '#96BF48' : '#FF9800' }]} onPress={syncShopify} disabled={syncing}>
+                <TouchableOpacity testID="sync-shopify-btn" style={[bs.createBtn, { flex: 1, marginBottom: 0, backgroundColor: shopifyConnected ? '#96BF48' : '#FF9800' }]} onPress={syncShopify} disabled={syncing}>
                   {syncing ? <ActivityIndicator color="#FFF" size="small" /> : <><Ionicons name={shopifyConnected ? "sync" : "link"} size={18} color="#FFF" /><Text style={bs.createBtnT}>{shopifyConnected ? 'Sync Shopify' : 'Connecter Shopify'}</Text></>}
                 </TouchableOpacity>
               </View>
@@ -313,7 +313,7 @@ export default function BackofficeScreen() {
                 </View>
               </View>
               {subscriptions.map(s => (
-                <View key={s.id} style={bs.codeC} data-testid={`sub-card-${s.id}`}>
+                <View key={s.id} style={bs.codeC} testID={`sub-card-${s.id}`}>
                   <View style={bs.codeTop}>
                     <Text style={[bs.codeVal, { fontSize: 14 }]}>{s.beneficiary_name || s.beneficiary_phone}</Text>
                     <View style={[bs.codeBdg, { backgroundColor: s.subscription_type === 'care' ? '#9C27B0' + '15' : Colors.success + '15' }]}>
@@ -326,7 +326,7 @@ export default function BackofficeScreen() {
                   <Text style={bs.codeMeta}>Source: {s.source === 'shopify' || s.source === 'shopify_webhook' ? 'Shopify' : 'Manuel'}{s.shopify_order_number ? ` #${s.shopify_order_number}` : ''} - {new Date(s.created_at).toLocaleDateString('fr-FR')}</Text>
                   {s.notes ? <Text style={[bs.codeMeta, { fontStyle: 'italic' }]}>{s.notes}</Text> : null}
                   <View style={bs.codeActions}>
-                    <TouchableOpacity data-testid={`delete-sub-${s.id}`} style={bs.actionBtn} onPress={() => deleteSub(s.id)}>
+                    <TouchableOpacity testID={`delete-sub-${s.id}`} style={bs.actionBtn} onPress={() => deleteSub(s.id)}>
                       <Ionicons name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>Supprimer</Text>
                     </TouchableOpacity>
                   </View>
@@ -352,11 +352,11 @@ export default function BackofficeScreen() {
           {/* ACTIVATION CODES */}
           {tab === 'codes' && (
             <>
-              <TouchableOpacity data-testid="create-code-btn" style={bs.createBtn} onPress={openCreateCode}>
+              <TouchableOpacity testID="create-code-btn" style={bs.createBtn} onPress={openCreateCode}>
                 <Ionicons name="add" size={18} color="#FFF" /><Text style={bs.createBtnT}>Creer un code d'activation</Text>
               </TouchableOpacity>
               {codes.map(c => (
-                <View key={c.id || c.code} style={[bs.codeC, !c.active && { opacity: 0.5 }]} data-testid={`code-card-${c.id || c.code}`}>
+                <View key={c.id || c.code} style={[bs.codeC, !c.active && { opacity: 0.5 }]} testID={`code-card-${c.id || c.code}`}>
                   <View style={bs.codeTop}>
                     <Text style={bs.codeVal}>{c.code}</Text>
                     <View style={[bs.codeBdg, c.active && { backgroundColor: Colors.success + '15' }]}>
@@ -367,14 +367,14 @@ export default function BackofficeScreen() {
                   {c.raison_sociale ? <Text style={bs.codeMeta}>{c.raison_sociale}{c.siret ? ` - SIRET: ${c.siret}` : ''}</Text> : null}
                   <Text style={bs.codeMeta}>Utilisations: {c.uses_count}/{c.max_uses} - {new Date(c.created_at).toLocaleDateString('fr-FR')}</Text>
                   <View style={bs.codeActions}>
-                    <TouchableOpacity data-testid={`edit-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => openEditCode(c)}>
+                    <TouchableOpacity testID={`edit-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => openEditCode(c)}>
                       <Ionicons name="create-outline" size={14} color={Colors.primary} /><Text style={[bs.actionBtnT, { color: Colors.primary }]}>Modifier</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity data-testid={`toggle-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => toggleCode(c.id || c.code)}>
+                    <TouchableOpacity testID={`toggle-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => toggleCode(c.id || c.code)}>
                       <Ionicons name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={14} color={c.active ? '#FF9800' : Colors.success} />
                       <Text style={[bs.actionBtnT, { color: c.active ? '#FF9800' : Colors.success }]}>{c.active ? 'Desactiver' : 'Activer'}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity data-testid={`delete-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => deleteCode(c.id || c.code)}>
+                    <TouchableOpacity testID={`delete-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => deleteCode(c.id || c.code)}>
                       <Ionicons name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>Supprimer</Text>
                     </TouchableOpacity>
                   </View>
@@ -410,12 +410,12 @@ export default function BackofficeScreen() {
           {/* INTERVENTION CODES */}
           {tab === 'interventions' && (
             <>
-              <TouchableOpacity data-testid="create-iv-code-btn" style={bs.createBtn} onPress={openCreateIvCode}>
+              <TouchableOpacity testID="create-iv-code-btn" style={bs.createBtn} onPress={openCreateIvCode}>
                 <Ionicons name="add" size={18} color="#FFF" /><Text style={bs.createBtnT}>Creer un code intervenant</Text>
               </TouchableOpacity>
               <Text style={{ fontSize: 11, color: Colors.textMuted, marginBottom: 10 }}>Les intervenants activent ce code dans leur profil gardien pour recevoir les interventions d'urgence dans un rayon defini.</Text>
               {interventionCodes.map(c => (
-                <View key={c.id || c.code} style={[bs.codeC, !c.active && { opacity: 0.5 }]} data-testid={`iv-code-card-${c.id || c.code}`}>
+                <View key={c.id || c.code} style={[bs.codeC, !c.active && { opacity: 0.5 }]} testID={`iv-code-card-${c.id || c.code}`}>
                   <View style={bs.codeTop}>
                     <Text style={bs.codeVal}>{c.code}</Text>
                     <View style={[bs.codeBdg, c.active && { backgroundColor: Colors.success + '15' }]}>
@@ -426,14 +426,14 @@ export default function BackofficeScreen() {
                   {c.raison_sociale ? <Text style={bs.codeMeta}>{c.raison_sociale}{c.siret ? ` - SIRET: ${c.siret}` : ''}</Text> : null}
                   <Text style={bs.codeMeta}>Rayon: {c.default_radius_km || 30} km - Utilisations: {c.uses_count}/{c.max_uses}</Text>
                   <View style={bs.codeActions}>
-                    <TouchableOpacity data-testid={`edit-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => openEditIvCode(c)}>
+                    <TouchableOpacity testID={`edit-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => openEditIvCode(c)}>
                       <Ionicons name="create-outline" size={14} color={Colors.primary} /><Text style={[bs.actionBtnT, { color: Colors.primary }]}>Modifier</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity data-testid={`toggle-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => toggleIvCode(c.id || c.code)}>
+                    <TouchableOpacity testID={`toggle-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => toggleIvCode(c.id || c.code)}>
                       <Ionicons name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={14} color={c.active ? '#FF9800' : Colors.success} />
                       <Text style={[bs.actionBtnT, { color: c.active ? '#FF9800' : Colors.success }]}>{c.active ? 'Desactiver' : 'Activer'}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity data-testid={`delete-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => deleteIvCode(c.id || c.code)}>
+                    <TouchableOpacity testID={`delete-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => deleteIvCode(c.id || c.code)}>
                       <Ionicons name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>Supprimer</Text>
                     </TouchableOpacity>
                   </View>
@@ -539,7 +539,7 @@ export default function BackofficeScreen() {
                     <FormField label="Email contact" value={codeForm.email_contact} onChange={(v) => setCodeForm({ ...codeForm, email_contact: v })} placeholder="contact@..." testId="code-email" />
                     <View style={bs.modalBtns}>
                       <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowCodeModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
-                      <TouchableOpacity data-testid="confirm-code-btn" style={bs.confirmBtn} onPress={saveCode} disabled={creating}>
+                      <TouchableOpacity testID="confirm-code-btn" style={bs.confirmBtn} onPress={saveCode} disabled={creating}>
                         {creating ? <ActivityIndicator color="#FFF" /> : <Text style={bs.confirmBtnT}>{editingCode ? 'Enregistrer' : 'Creer'}</Text>}
                       </TouchableOpacity>
                     </View>
@@ -570,7 +570,7 @@ export default function BackofficeScreen() {
                     <FormField label="Email contact" value={ivForm.email_contact} onChange={(v) => setIvForm({ ...ivForm, email_contact: v })} placeholder="contact@..." testId="iv-email" />
                     <View style={bs.modalBtns}>
                       <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowIvCodeModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
-                      <TouchableOpacity data-testid="confirm-iv-code-btn" style={bs.confirmBtn} onPress={saveIvCode} disabled={creating}>
+                      <TouchableOpacity testID="confirm-iv-code-btn" style={bs.confirmBtn} onPress={saveIvCode} disabled={creating}>
                         {creating ? <ActivityIndicator color="#FFF" /> : <Text style={bs.confirmBtnT}>{editingIvCode ? 'Enregistrer' : 'Creer'}</Text>}
                       </TouchableOpacity>
                     </View>
@@ -595,7 +595,7 @@ export default function BackofficeScreen() {
                     <Text style={bs.inputL}>Type d'abonnement</Text>
                     <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
                       {[{ id: 'standard', label: 'Standard', desc: 'Bracelet + App' }, { id: 'care', label: 'Care', desc: 'Standard + Teleassistance' }].map(t => (
-                        <TouchableOpacity key={t.id} data-testid={`sub-type-${t.id}`}
+                        <TouchableOpacity key={t.id} testID={`sub-type-${t.id}`}
                           style={[{ flex: 1, padding: 14, borderRadius: 12, borderWidth: 1.5, borderColor: subForm.subscription_type === t.id ? (t.id === 'care' ? '#9C27B0' : Colors.primary) : Colors.border, backgroundColor: subForm.subscription_type === t.id ? (t.id === 'care' ? '#9C27B0' + '08' : Colors.primary + '08') : Colors.subtle, alignItems: 'center' }]}
                           onPress={() => setSubForm({ ...subForm, subscription_type: t.id })}>
                           <Text style={{ fontSize: 16, fontWeight: '700', color: subForm.subscription_type === t.id ? (t.id === 'care' ? '#9C27B0' : Colors.primary) : Colors.textSecondary }}>{t.label}</Text>
@@ -606,7 +606,7 @@ export default function BackofficeScreen() {
                     <FormField label="Notes" value={subForm.notes} onChange={(v) => setSubForm({ ...subForm, notes: v })} placeholder="Notes optionnelles" testId="sub-notes" />
                     <View style={bs.modalBtns}>
                       <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowSubModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
-                      <TouchableOpacity data-testid="confirm-sub-btn" style={bs.confirmBtn} onPress={saveSub} disabled={creating}>
+                      <TouchableOpacity testID="confirm-sub-btn" style={bs.confirmBtn} onPress={saveSub} disabled={creating}>
                         {creating ? <ActivityIndicator color="#FFF" /> : <Text style={bs.confirmBtnT}>Creer</Text>}
                       </TouchableOpacity>
                     </View>
@@ -625,7 +625,7 @@ function FormField({ label, value, onChange, placeholder, keyboard, testId }: { 
   return (
     <>
       <Text style={bs.inputL}>{label}</Text>
-      <TextInput data-testid={testId} style={bs.modalInp} placeholder={placeholder} placeholderTextColor={Colors.textMuted}
+      <TextInput testID={testId} style={bs.modalInp} placeholder={placeholder} placeholderTextColor={Colors.textMuted}
         value={value} onChangeText={onChange} keyboardType={keyboard as any || 'default'} blurOnSubmit={false} />
     </>
   );
