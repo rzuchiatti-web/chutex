@@ -576,29 +576,31 @@ function AdminIntervenants({ token }: { token: string }) {
 
       <Modal visible={showModal} transparent animationType="slide">
         <View style={s.modalO}><View style={s.modalC}>
-          <Text style={s.modalTitle}>{editCode ? 'Modifier la structure' : 'Nouvelle structure d\'intervention'}</Text>
-          {[
-            { k: 'structure_name', l: 'Nom commercial', p: 'Ex: Ambulances du Sud' },
-            { k: 'raison_sociale', l: 'Raison sociale', p: 'Ex: SARL Ambulances du Sud' },
-            { k: 'siret', l: 'SIRET', p: '12345678900000' },
-            { k: 'tva', l: 'N° TVA', p: 'FR12345678900' },
-            { k: 'adresse', l: 'Adresse', p: '12 rue des Chênes, 75001 Paris' },
-            { k: 'telephone', l: 'Téléphone', p: '+33 1 23 45 67 89' },
-            { k: 'email_contact', l: 'Email contact', p: 'contact@structure.fr' },
-            { k: 'radius_km', l: 'Rayon d\'intervention (km)', p: '30' },
-          ].map(f => (
-            <View key={f.k}>
-              <Text style={{ fontSize: 11, color: Colors.textMuted, marginTop: 8, marginBottom: 2 }}>{f.l}</Text>
-              <TextInput style={s.modalInput} placeholder={f.p} placeholderTextColor={Colors.textMuted}
-                value={(form as any)[f.k]} onChangeText={(v: string) => setForm({ ...form, [f.k]: v })} keyboardType={f.k === 'radius_km' ? 'numeric' : 'default'} />
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Text style={s.modalTitle}>{editCode ? 'Modifier la structure' : 'Nouvelle structure d\'intervention'}</Text>
+            {[
+              { k: 'structure_name', l: 'Nom commercial', p: 'Ex: Ambulances du Sud' },
+              { k: 'raison_sociale', l: 'Raison sociale', p: 'Ex: SARL Ambulances du Sud' },
+              { k: 'siret', l: 'SIRET', p: '12345678900000' },
+              { k: 'tva', l: 'N° TVA', p: 'FR12345678900' },
+              { k: 'adresse', l: 'Adresse', p: '12 rue des Chênes, 75001 Paris' },
+              { k: 'telephone', l: 'Téléphone', p: '+33 1 23 45 67 89' },
+              { k: 'email_contact', l: 'Email contact', p: 'contact@structure.fr' },
+              { k: 'radius_km', l: 'Rayon d\'intervention (km)', p: '30' },
+            ].map(f => (
+              <View key={f.k}>
+                <Text style={{ fontSize: 11, color: Colors.textMuted, marginTop: 8, marginBottom: 2 }}>{f.l}</Text>
+                <TextInput style={s.modalInput} placeholder={f.p} placeholderTextColor={Colors.textMuted}
+                  value={(form as any)[f.k]} onChangeText={(v: string) => setForm({ ...form, [f.k]: v })} keyboardType={f.k === 'radius_km' ? 'numeric' : 'default'} />
+              </View>
+            ))}
+            <View style={s.modalBtns}>
+              <TouchableOpacity style={s.cancelBtn} onPress={() => setShowModal(false)}><Text style={{ color: Colors.textMuted, fontWeight: '600' }}>Annuler</Text></TouchableOpacity>
+              <TouchableOpacity style={s.confirmBtn} onPress={saveCode} disabled={saving}>
+                {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>{editCode ? 'Modifier' : 'Créer'}</Text>}
+              </TouchableOpacity>
             </View>
-          ))}
-          <View style={s.modalBtns}>
-            <TouchableOpacity style={s.cancelBtn} onPress={() => setShowModal(false)}><Text style={{ color: Colors.textMuted, fontWeight: '600' }}>Annuler</Text></TouchableOpacity>
-            <TouchableOpacity style={s.confirmBtn} onPress={saveCode} disabled={saving}>
-              {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>{editCode ? 'Modifier' : 'Créer'}</Text>}
-            </TouchableOpacity>
-          </View>
+          </ScrollView>
         </View></View>
       </Modal>
     </ScrollView>
