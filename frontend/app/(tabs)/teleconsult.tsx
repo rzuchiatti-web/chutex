@@ -717,30 +717,57 @@ function CompanyPrescriptions({ token }: { token: string }) {
           </View>
         )}
       </ScrollView>
-      {/* Detail modal */}
+      {/* Detail modal - Premium Design */}
       <Modal visible={!!selectedPresc} transparent animationType="fade" onRequestClose={() => setSelectedPresc(null)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '80%' }}>
+          <View style={{ backgroundColor: '#F5F0EB', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%' }}>
             {selectedPresc && <>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000' }}>Detail prescription</Text>
-                <TouchableOpacity onPress={() => setSelectedPresc(null)}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12 }}>
+                <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ padding: 4, marginRight: 12 }}>
+                  <Ionicons name="chevron-back" size={24} color="#000" />
+                </TouchableOpacity>
+                <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Fiche Prescription</Text>
+                <TouchableOpacity onPress={() => setSelectedPresc(null)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
               </View>
-              {[
-                { icon: 'person-outline', label: 'Beneficiaire', value: selectedPresc.beneficiary_name },
-                { icon: 'mail-outline', label: 'Email', value: selectedPresc.beneficiary_email },
-                { icon: 'call-outline', label: 'Telephone', value: selectedPresc.beneficiary_phone },
-                { icon: 'person-circle-outline', label: 'Prescripteur', value: selectedPresc.guardian_name },
-                { icon: 'pricetag-outline', label: 'Type', value: selectedPresc.subscription_type },
-                { icon: 'cash-outline', label: 'Commission', value: `${selectedPresc.commission} EUR` },
-                { icon: 'calendar-outline', label: 'Date', value: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleString('fr-FR') : '' },
-              ].map(({ icon, label, value }) => value ? (
-                <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                  <Ionicons name={icon as any} size={16} color="#888" />
-                  <Text style={{ fontSize: 12, color: '#888', width: 90 }}>{label}</Text>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+              <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+                {/* Identity Card */}
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 24, marginBottom: 12, ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)' } : {}) }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+                    <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
+                      <Text style={{ fontSize: 24, fontWeight: '900', color: '#FFF' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>{selectedPresc.beneficiary_name}</Text>
+                      <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+                        <View style={{ backgroundColor: selectedPresc.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                          <Text style={{ fontSize: 10, fontWeight: '800', color: selectedPresc.status === 'subscribed' ? '#2E7D32' : '#E65100', textTransform: 'uppercase', letterSpacing: 0.5 }}>{selectedPresc.status === 'subscribed' ? 'Souscrit' : 'En attente'}</Text>
+                        </View>
+                        <View style={{ backgroundColor: '#E3F2FD', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                          <Text style={{ fontSize: 10, fontWeight: '800', color: '#1565C0', textTransform: 'uppercase' }}>{selectedPresc.subscription_type}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                  {[
+                    { icon: 'mail-outline', label: 'Email', value: selectedPresc.beneficiary_email },
+                    { icon: 'call-outline', label: 'Telephone', value: selectedPresc.beneficiary_phone },
+                    { icon: 'person-circle-outline', label: 'Prescripteur', value: selectedPresc.guardian_name },
+                    { icon: 'cash-outline', label: 'Commission', value: `${selectedPresc.commission} EUR` },
+                    { icon: 'calendar-outline', label: 'Date', value: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleDateString('fr-FR') : '' },
+                  ].map(({ icon, label, value }) => value ? (
+                    <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                      <Ionicons name={icon as any} size={16} color="#888" />
+                      <Text style={{ fontSize: 12, color: '#888', width: 100 }}>{label}</Text>
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+                    </View>
+                  ) : null)}
                 </View>
-              ) : null)}
+                {/* Commission highlight */}
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 32, fontWeight: '900', color: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{selectedPresc.commission} EUR</Text>
+                  <Text style={{ fontSize: 11, color: '#888', fontWeight: '600', marginTop: 4 }}>Commission {selectedPresc.status === 'subscribed' ? 'validee' : 'en attente'}</Text>
+                </View>
+              </ScrollView>
             </>}
           </View>
         </View>
