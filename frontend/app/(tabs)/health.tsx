@@ -101,6 +101,9 @@ function CompanyAgences({ token }: { token: string }) {
   const [newAddr, setNewAddr] = useState('');
   const [creating, setCreating] = useState(false);
   const [assignModal, setAssignModal] = useState<any>(null);
+  const [editAgency, setEditAgency] = useState<any>(null);
+  const [editName, setEditName] = useState('');
+  const [editAddr, setEditAddr] = useState('');
 
   const fetchData = useCallback(async () => {
     try { setData(await apiFetch('/api/company/dashboard', {}, token)); }
