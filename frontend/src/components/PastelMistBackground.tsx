@@ -2,77 +2,79 @@ import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
 /**
- * PastelMistBackground v4 - Force visibility through ALL layers
- * Uses !important on every intermediate div to ensure transparency
+ * PastelMistBackground v5 - Safari mobile compatible
+ * Uses CSS pseudo-elements on body + absolute positioned divs
+ * No position:fixed (breaks on Safari iOS with transforms)
  */
 export function PastelMistBackground() {
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof document === 'undefined') return;
 
-    // Clean previous
-    document.getElementById('pastel-mist-v4')?.remove();
-    document.getElementById('mist-container-v4')?.remove();
-
-    // Create mist container INSIDE the app root, not on body
-    const container = document.createElement('div');
-    container.id = 'mist-container-v4';
-
-    const blobs = [
-      { color1: '#F8D4B4', color2: '#E6A87C', size: 500, x: 30, y: -10, blur: 100, opacity: 0.6, dur: 30, anim: 0 },
-      { color1: '#E9A6B0', color2: '#D67B8A', size: 550, x: 0, y: 15, blur: 90, opacity: 0.55, dur: 26, anim: 1 },
-      { color1: '#DE8D8D', color2: '#E6A87C', size: 350, x: 20, y: 8, blur: 100, opacity: 0.45, dur: 34, anim: 2 },
-      { color1: '#B0A8C9', color2: '#C4A2B4', size: 650, x: 10, y: 40, blur: 110, opacity: 0.50, dur: 38, anim: 3 },
-      { color1: '#97B0D6', color2: '#B0A8C9', size: 400, x: 45, y: 30, blur: 120, opacity: 0.35, dur: 28, anim: 4 },
-    ];
-
-    blobs.forEach((b) => {
-      const blob = document.createElement('div');
-      blob.className = 'mist-b4';
-      blob.style.cssText = `position:fixed;left:${b.x}%;top:${b.y}%;width:${b.size}px;height:${b.size}px;border-radius:45% 55% 50% 50%/50% 45% 55% 50%;background:radial-gradient(ellipse at 40% 40%,${b.color1} 0%,${b.color2} 40%,transparent 70%);opacity:${b.opacity};filter:blur(${b.blur}px);animation:mv4-${b.anim} ${b.dur}s ease-in-out infinite;will-change:transform;pointer-events:none;z-index:-1;`;
-      container.appendChild(blob);
+    // Clean previous versions
+    ['pastel-mist-v3', 'pastel-mist-v4', 'pastel-mist-v5', 'mist-container', 'mist-container-v4'].forEach(id => {
+      document.getElementById(id)?.remove();
     });
 
-    // Inject styles that force ALL layers transparent
     const style = document.createElement('style');
-    style.id = 'pastel-mist-v4';
+    style.id = 'pastel-mist-v5';
     style.textContent = `
-      body { background: #FFFFFF !important; }
-      div[class*="css-view"] { background-color: transparent !important; }
-      [data-testid] { background-color: transparent !important; }
-      [role="tabpanel"] { background-color: transparent !important; }
-      #mist-container-v4 { position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0;overflow:hidden; }
-      @keyframes mv4-0{0%,100%{transform:translate(0,0) scale(1) rotate(0deg)}30%{transform:translate(30px,-20px) scale(1.06) rotate(3deg)}60%{transform:translate(-15px,25px) scale(0.97) rotate(-2deg)}}
-      @keyframes mv4-1{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(-20px,25px) scale(1.05) rotate(-3deg)}55%{transform:translate(15px,-10px) scale(0.96)}80%{transform:translate(-8px,5px) scale(1.02)}}
-      @keyframes mv4-2{0%,100%{transform:translate(0,0) scale(1)}35%{transform:translate(18px,15px) scale(1.04)}65%{transform:translate(-12px,-20px) scale(0.97)}}
-      @keyframes mv4-3{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(-15px,18px) scale(1.03) rotate(2deg)}70%{transform:translate(20px,-12px) scale(0.98) rotate(-1deg)}}
-      @keyframes mv4-4{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(12px,-18px) scale(1.05)}}
-      @media(prefers-reduced-motion:reduce){.mist-b4{animation:none!important}}
+      body {
+        background: 
+          radial-gradient(ellipse 500px 500px at 35% 5%, rgba(248,212,180,0.55) 0%, rgba(230,168,124,0.3) 40%, transparent 70%),
+          radial-gradient(ellipse 550px 550px at 5% 25%, rgba(233,166,176,0.50) 0%, rgba(214,123,138,0.25) 40%, transparent 70%),
+          radial-gradient(ellipse 350px 350px at 25% 15%, rgba(222,141,141,0.40) 0%, rgba(230,168,124,0.2) 40%, transparent 70%),
+          radial-gradient(ellipse 650px 650px at 20% 55%, rgba(176,168,201,0.45) 0%, rgba(196,162,180,0.2) 40%, transparent 70%),
+          radial-gradient(ellipse 400px 400px at 55% 40%, rgba(151,176,214,0.30) 0%, rgba(176,168,201,0.15) 40%, transparent 70%),
+          #FFFFFF !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+      }
+      @supports (-webkit-touch-callout: none) {
+        body {
+          background-attachment: scroll !important;
+        }
+      }
     `;
     document.head.appendChild(style);
-    document.body.insertBefore(container, document.body.firstChild);
 
-    // Force transparency on ALL intermediate layers via JS
-    const forceTransparency = () => {
-      const screens = document.querySelectorAll('[data-testid*="screen"], [role="tabpanel"]');
-      screens.forEach(screen => {
-        let el = screen as HTMLElement;
-        while (el && el !== document.body) {
-          const bg = window.getComputedStyle(el).backgroundColor;
-          if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent' && !el.id?.includes('mist') && !el.classList?.contains('mist-b4')) {
-            el.style.setProperty('background-color', 'transparent', 'important');
+    // Force all RN Web containers transparent
+    const observer = new MutationObserver(() => {
+      document.querySelectorAll('#root div').forEach(el => {
+        const htmlEl = el as HTMLElement;
+        const bg = htmlEl.style.backgroundColor;
+        if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)' && !htmlEl.closest('[class*="modal"]') && !htmlEl.closest('[aria-modal]')) {
+          const rgb = window.getComputedStyle(htmlEl).backgroundColor;
+          if (rgb === 'rgb(242, 242, 242)' || rgb === 'rgb(245, 240, 235)' || rgb === 'rgb(255, 255, 255)') {
+            htmlEl.style.setProperty('background-color', 'transparent', 'important');
           }
-          el = el.parentElement as HTMLElement;
         }
       });
-    };
-    // Run periodically to catch dynamically rendered layers
-    forceTransparency();
-    const interval = setInterval(forceTransparency, 1000);
+    });
+    observer.observe(document.getElementById('root') || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+
+    // Initial pass
+    setTimeout(() => {
+      document.querySelectorAll('#root div').forEach(el => {
+        const htmlEl = el as HTMLElement;
+        const rgb = window.getComputedStyle(htmlEl).backgroundColor;
+        if (rgb === 'rgb(242, 242, 242)' || rgb === 'rgb(245, 240, 235)') {
+          htmlEl.style.setProperty('background-color', 'transparent', 'important');
+        }
+      });
+    }, 500);
+    setTimeout(() => {
+      document.querySelectorAll('#root div').forEach(el => {
+        const htmlEl = el as HTMLElement;
+        const rgb = window.getComputedStyle(htmlEl).backgroundColor;
+        if (rgb === 'rgb(242, 242, 242)' || rgb === 'rgb(245, 240, 235)') {
+          htmlEl.style.setProperty('background-color', 'transparent', 'important');
+        }
+      });
+    }, 2000);
 
     return () => {
-      clearInterval(interval);
-      document.getElementById('mist-container-v4')?.remove();
-      document.getElementById('pastel-mist-v4')?.remove();
+      observer.disconnect();
+      document.getElementById('pastel-mist-v5')?.remove();
     };
   }, []);
 
