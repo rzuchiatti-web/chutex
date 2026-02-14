@@ -310,11 +310,11 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             <Ionicons name="add-circle-outline" size={18} color="#FFF" />
           </TouchableOpacity>
 
-          {/* Prescription list filtered by tab - clickable */}
+          {/* Prescription list filtered by tab - clickable with detail modal */}
           {loading ? <ActivityIndicator size="large" color={Colors.primary} /> : displayedPresc.length > 0 ? (
             displayedPresc.map((p: any) => (
               <TouchableOpacity key={p.id} testID={`prescription-${p.id}`} activeOpacity={0.7}
-                onPress={() => router.push({ pathname: '/admin-prescription-detail', params: { prescriptionId: p.id } })}>
+                onPress={() => setSelectedPresc(p)}>
                 <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 10, borderLeftWidth: 4, borderLeftColor: p.status === 'subscribed' ? '#4CAF50' : '#FF9800', ...glass }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
