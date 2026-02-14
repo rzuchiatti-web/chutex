@@ -448,7 +448,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 40, alignItems: 'center', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } : {}) }}>
           <Ionicons name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
           <Text style={{ fontSize: 15, fontWeight: '700', color: '#888', marginTop: 12 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
-          <Text style={{ fontSize: 12, color: '#AAA', marginTop: 4 }}>{ivTab === 'active' ? 'Vous serez notifie des nouvelles missions' : 'Vos interventions terminees apparaitront ici'}</Text>
+          <Text style={{ fontSize: 12, color: '#AAA', marginTop: 4, textAlign: 'center', paddingHorizontal: 20 }}>{ivTab === 'active' ? 'Vous serez notifie des que vous recevrez une mission d\'intervention' : 'Vos missions completees s\'afficheront ici avec le rapport'}</Text>
         </View>
       ))}
     </ScrollView>);
