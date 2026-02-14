@@ -1120,6 +1120,76 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
           </TouchableOpacity>
         ))}
       </GlassCard>
+
+      {/* Analytics Section */}
+      {analytics && (
+        <>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', marginBottom: 10, marginTop: 4 }}>Performance Interventions</Text>
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+            <GlassCard style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
+              <Ionicons name="timer-outline" size={20} color="#2196F3" />
+              <Text style={{ fontSize: 22, fontWeight: '900', color: '#2196F3', marginTop: 4 }}>{analytics.avg_response_time_min}<Text style={{ fontSize: 12 }}> min</Text></Text>
+              <Text style={{ fontSize: 8, color: '#888', letterSpacing: 0.5, marginTop: 2 }}>Temps reponse</Text>
+            </GlassCard>
+            <GlassCard style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
+              <Ionicons name="hourglass-outline" size={20} color="#FF9800" />
+              <Text style={{ fontSize: 22, fontWeight: '900', color: '#FF9800', marginTop: 4 }}>{analytics.avg_duration_min}<Text style={{ fontSize: 12 }}> min</Text></Text>
+              <Text style={{ fontSize: 8, color: '#888', letterSpacing: 0.5, marginTop: 2 }}>Duree moyenne</Text>
+            </GlassCard>
+            <GlassCard style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
+              <Ionicons name="checkmark-done-outline" size={20} color="#4CAF50" />
+              <Text style={{ fontSize: 22, fontWeight: '900', color: '#4CAF50', marginTop: 4 }}>{analytics.acceptance_rate}<Text style={{ fontSize: 12 }}>%</Text></Text>
+              <Text style={{ fontSize: 8, color: '#888', letterSpacing: 0.5, marginTop: 2 }}>Taux acceptation</Text>
+            </GlassCard>
+          </View>
+
+          {/* Agency performance chart */}
+          {analytics.agency_performance?.length > 0 && (
+            <GlassCard>
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', letterSpacing: 0.5, marginBottom: 12 }}>Performance par agence</Text>
+              {analytics.agency_performance.map((ag: any, idx: number) => {
+                const maxVal = Math.max(...analytics.agency_performance.map((a: any) => a.total || 1), 1);
+                const pct = Math.max((ag.total / maxVal) * 100, 5);
+                return (
+                  <View key={idx} style={{ marginBottom: 10 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 12, fontWeight: '700', color: '#000' }}>{ag.agency_name}</Text>
+                      <Text style={{ fontSize: 11, color: '#888' }}>{ag.intervenants} interv. · {ag.total} missions</Text>
+                    </View>
+                    <View style={{ height: 20, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, overflow: 'hidden', flexDirection: 'row' }}>
+                      {ag.completed > 0 && <View style={{ height: 20, backgroundColor: '#4CAF50', width: `${(ag.completed / maxVal) * 100}%`, justifyContent: 'center', paddingLeft: 6 }}>
+                        <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>{ag.completed}</Text>
+                      </View>}
+                      {ag.active > 0 && <View style={{ height: 20, backgroundColor: '#FF9800', width: `${(ag.active / maxVal) * 100}%` }} />}
+                    </View>
+                  </View>
+                );
+              })}
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 6 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#4CAF50' }} /><Text style={{ fontSize: 9, color: '#888' }}>Terminees</Text></View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#FF9800' }} /><Text style={{ fontSize: 9, color: '#888' }}>En cours</Text></View>
+              </View>
+            </GlassCard>
+          )}
+
+          {/* Top intervenants */}
+          {analytics.intervenant_performance?.length > 0 && (
+            <GlassCard>
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', letterSpacing: 0.5, marginBottom: 12 }}>Top intervenants</Text>
+              {analytics.intervenant_performance.slice(0, 5).map((iv: any, idx: number) => (
+                <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: idx < 4 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                  <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: idx === 0 ? '#9C27B0' : idx === 1 ? '#7B1FA2' : 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 12, fontWeight: '900', color: idx < 2 ? '#FFF' : '#888' }}>{idx + 1}</Text>
+                  </View>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#000', flex: 1 }}>{iv.name}</Text>
+                  <Text style={{ fontSize: 12, color: '#4CAF50', fontWeight: '800' }}>{iv.completed} missions</Text>
+                  {iv.active > 0 && <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '700' }}>+{iv.active} actives</Text>}
+                </View>
+              ))}
+            </GlassCard>
+          )}
+        </>
+      )}
     </ScrollView>
   );
 }
