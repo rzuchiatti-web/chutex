@@ -384,7 +384,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{user.name}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                    <View style={{ backgroundColor: '#4CAF50', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+                    <View style={{ backgroundColor: '#9C27B0', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
                       <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
                     </View>
                     <Text style={{ fontSize: 12, color: '#888' }}>{user.intervention_structure || user.structure_name}</Text>
