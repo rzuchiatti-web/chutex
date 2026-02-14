@@ -241,6 +241,86 @@ async def delete_agency(agency_id: str, user=Depends(get_current_user)):
     return {"status": "deleted"}
 
 
+# ==================== REWARDS PROGRAM ====================
+@router.get("/company/rewards/current")
+async def get_current_reward(user=Depends(get_current_user)):
+    """Get current month's reward program"""
+    now = datetime.now(timezone.utc)
+    month_key = now.strftime("%Y-%m")
+    reward = await db.rewards.find_one({"month": month_key, "active": True}, {"_id": 0})
+    if not reward:
+        reward = {"month": month_key, "prize_1": 100, "prize_2": 70, "prize_3": 30, "description": "Programme de recompenses prescripteurs", "active": True}
+    return reward
+
+
+@router.get("/rewards/ranking")
+async def get_rewards_ranking(user=Depends(get_current_user)):
+    """Get anonymous ranking for current month - for prescribers"""
+    now = datetime.now(timezone.utc)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat()
+    # Get all prescriptions this month
+    all_prescs = await db.prescriptions.find({"created_at": {"$gte": month_start}}, {"_id": 0}).to_list(1000)
+    # Count per prescriber (guardian_id)
+    counts = {}
+    for p in all_prescs:
+        gid = p.get('guardian_id', '')
+        if gid:
+            counts[gid] = counts.get(gid, 0) + 1
+    # Sort by count
+    ranking = sorted(counts.items(), key=lambda x: x[1], reverse=True)
+    # Find user position
+    my_position = None
+    my_count = 0
+    for i, (gid, count) in enumerate(ranking):
+        if gid == user['id']:
+            my_position = i + 1
+            my_count = count
+            break
+    # If user not in ranking, add at end
+    if my_position is None:
+        my_position = len(ranking) + 1
+        my_count = 0
+    # Next position target
+    next_target = 0
+    if my_position > 1 and len(ranking) >= my_position - 1:
+        next_target = ranking[my_position - 2][1] - my_count
+    # Anonymous ranking (just positions and counts)
+    anon_ranking = [{"position": i + 1, "prescriptions": count, "is_me": gid == user['id']} for i, (gid, count) in enumerate(ranking[:20])]
+    # Get reward info
+    month_key = now.strftime("%Y-%m")
+    reward = await db.rewards.find_one({"month": month_key, "active": True}, {"_id": 0})
+    prizes = {"1": reward.get("prize_1", 100) if reward else 100, "2": reward.get("prize_2", 70) if reward else 70, "3": reward.get("prize_3", 30) if reward else 30}
+    # History
+    history = await db.reward_winners.find({}, {"_id": 0}).sort("month", -1).to_list(6)
+    return {
+        "month": month_key,
+        "my_position": my_position,
+        "my_prescriptions": my_count,
+        "prescriptions_to_next": max(next_target, 0),
+        "total_participants": len(ranking),
+        "ranking": anon_ranking,
+        "prizes": prizes,
+        "history": history,
+    }
+
+
+@router.post("/admin/rewards")
+async def set_monthly_reward(data: dict, user=Depends(get_current_user)):
+    """Admin sets monthly reward"""
+    if user.get('role') != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    now = datetime.now(timezone.utc)
+    month_key = data.get('month', now.strftime("%Y-%m"))
+    await db.rewards.update_one({"month": month_key}, {"$set": {
+        "month": month_key, "prize_1": data.get('prize_1', 100),
+        "prize_2": data.get('prize_2', 70), "prize_3": data.get('prize_3', 30),
+        "description": data.get('description', 'Programme de recompenses prescripteurs'),
+        "active": True, "updated_at": now.isoformat(), "updated_by": user.get('name', ''),
+    }}, upsert=True)
+    return {"status": "updated"}
+
+
+
 @router.get("/company/analytics")
 async def company_analytics(user=Depends(get_current_user)):
     if user.get('role') != 'prescriber_company':
