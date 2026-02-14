@@ -1,11 +1,72 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiFetch } from '../../src/services/api';
 import { useRouter } from 'expo-router';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const GlassCard = ({ children, style }: any) => (
+  <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+);
+
+/* ===== COMPANY: PRESCRIBERS LIST ===== */
+function CompanyPrescribers({ token }: { token: string }) {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    try { setData(await apiFetch('/api/company/dashboard', {}, token)); }
+    catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [token]);
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (!data) return null;
+
+  const prescribers = data.prescriber_ranking || [];
+
+  return (
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Prescripteurs</Text>
+        <Text style={{ fontSize: 12, color: '#888' }}>{prescribers.length} prescripteurs actifs</Text>
+      </View>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />}>
+        {prescribers.map((pr: any, idx: number) => (
+          <GlassCard key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
+            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#4CAF5015', justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#4CAF50' }}>{pr.name?.charAt(0)?.toUpperCase()}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{pr.name}</Text>
+              <Text style={{ fontSize: 11, color: '#888' }}>{pr.email}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
+                <Ionicons name="business-outline" size={11} color="#FF9800" />
+                <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '600' }}>{pr.agency_name}</Text>
+              </View>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={{ fontSize: 11, color: '#888' }}>{pr.prescription_count} presc.</Text>
+              <View style={{ flexDirection: 'row', gap: 6, marginTop: 2 }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#4CAF50' }}>{pr.comm_validated}EUR</Text>
+                {pr.comm_pending > 0 && <Text style={{ fontSize: 12, fontWeight: '700', color: '#FF9800' }}>+{pr.comm_pending}</Text>}
+              </View>
+            </View>
+          </GlassCard>
+        ))}
+        {prescribers.length === 0 && (
+          <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+            <Ionicons name="people-outline" size={36} color="#CCC" />
+            <Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucun prescripteur</Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+}
 
 const SEV = { critical: { label: 'CRITIQUE', color: '#E53935' }, high: { label: 'ELEVE', color: '#FF6F00' }, medium: { label: 'MOYEN', color: '#FF9800' }, low: { label: 'FAIBLE', color: '#888' } };
 const TYPE_CFG: Record<string, { icon: string; label: string; color: string }> = {
