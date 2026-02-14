@@ -111,10 +111,13 @@ export default function HealthScreen() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Admin sees Clients page
+  // Admin sees Clients page, Company sees Agences
   const effectiveRole = user?.active_role || user?.role;
   if (effectiveRole === 'admin' && token) {
     return <AdminClients token={token} />;
+  }
+  if (effectiveRole === 'prescriber_company' && token) {
+    return <CompanyAgences token={token} />;
   }
 
   const metrics = vitals ? [
