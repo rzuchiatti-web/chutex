@@ -66,24 +66,25 @@ export default function TabLayout() {
       tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
     }}>
       <Tabs.Screen name="index" options={{
-        title: isAdmin ? 'Dashboard' : 'Accueil',
-        tabBarIcon: ({ color, size }) => <Ionicons name={isAdmin ? 'stats-chart-outline' : 'home-outline'} size={size} color={color} />,
+        title: (isAdmin || isCompany) ? 'Dashboard' : 'Accueil',
+        tabBarIcon: ({ color, size }) => <Ionicons name={(isAdmin || isCompany) ? 'stats-chart-outline' : 'home-outline'} size={size} color={color} />,
       }} />
       <Tabs.Screen name="health" options={{
-        title: isAdmin ? 'Clients' : 'Sante',
+        title: isAdmin ? 'Clients' : isCompany ? 'Agences' : 'Sante',
         tabBarIcon: ({ color, size }) => isAdmin
           ? <Ionicons name="people-outline" size={size} color={color} />
+          : isCompany ? <Ionicons name="business-outline" size={size} color={color} />
           : <MaterialCommunityIcons name="heart-pulse" size={size} color={color} />,
-        href: (!isBen && !isAdmin) ? null : undefined,
+        href: (!isBen && !isAdmin && !isCompany) ? null : undefined,
       }} />
       <Tabs.Screen name="alerts" options={{
-        title: 'Alertes',
-        tabBarIcon: ({ color, size }) => <Ionicons name={isAdmin ? 'warning-outline' : 'notifications-outline'} size={size} color={color} />,
+        title: isCompany ? 'Prescripteurs' : 'Alertes',
+        tabBarIcon: ({ color, size }) => <Ionicons name={isAdmin ? 'warning-outline' : isCompany ? 'people-outline' : 'notifications-outline'} size={size} color={color} />,
       }} />
       <Tabs.Screen name="teleconsult" options={{
-        title: isAdmin ? 'Intervenants' : isTA ? 'Teleassist.' : isG ? 'Interventions' : 'Teleconsult.',
-        tabBarIcon: ({ color, size }) => isAdmin
-          ? <Ionicons name="medkit-outline" size={size} color={color} />
+        title: isAdmin ? 'Intervenants' : isCompany ? 'Prescriptions' : isTA ? 'Teleassist.' : isG ? 'Interventions' : 'Teleconsult.',
+        tabBarIcon: ({ color, size }) => (isAdmin || isCompany)
+          ? <Ionicons name={isCompany ? 'document-text-outline' : 'medkit-outline'} size={size} color={color} />
           : isG ? <MaterialCommunityIcons name="map-marker-radius-outline" size={size} color={color} />
           : <Ionicons name={isTA ? 'headset-outline' : 'videocam-outline'} size={size} color={color} />,
       }} />
@@ -94,6 +95,7 @@ export default function TabLayout() {
           : isG ? <Ionicons name="document-text-outline" size={size} color={color} />
           : isTA ? <Ionicons name="people-outline" size={size} color={color} />
           : <MaterialCommunityIcons name="bluetooth-connect" size={size} color={color} />,
+        href: isCompany ? null : undefined,
       }} />
       <Tabs.Screen name="profile" options={{
         title: 'Profil',
