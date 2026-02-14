@@ -71,10 +71,12 @@ export default function AdminClientDetail() {
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 22, fontWeight: '900', color: '#000' }}>{u.name}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
-                <Badge label={showAsBen ? 'Beneficiaire' : 'Gardien'} color={showAsBen ? '#0288D1' : '#F57F17'} bg={showAsBen ? '#E1F5FE' : '#FFF8E1'} />
-                {u.is_prescriber && <Badge label="Prescripteur" color="#7B1FA2" bg="#F3E5F5" />}
-                {u.is_intervention_provider && <Badge label="Intervenant Care" color="#2E7D32" bg="#E8F5E9" />}
-                {u.has_subscription && <Badge label={`Abon. ${u.subscription_type?.toUpperCase()}`} color={u.subscription_type === 'care' ? '#7B1FA2' : '#1565C0'} bg={u.subscription_type === 'care' ? '#F3E5F5' : '#E3F2FD'} />}
+                <Badge label={roleLabel} color={showAsBen ? '#0288D1' : '#F57F17'} bg={showAsBen ? '#E1F5FE' : '#FFF8E1'} />
+                {showAsGuard && u.is_prescriber && <Badge label="Prescripteur" color="#7B1FA2" bg="#F3E5F5" />}
+                {showAsGuard && u.is_intervention_provider && <Badge label="Intervenant Care" color="#2E7D32" bg="#E8F5E9" />}
+                {showAsBen && u.has_subscription && <Badge label={`Abon. ${u.subscription_type?.toUpperCase()}`} color={u.subscription_type === 'care' ? '#7B1FA2' : '#1565C0'} bg={u.subscription_type === 'care' ? '#F3E5F5' : '#E3F2FD'} />}
+                {(showAsBen && u.has_guardian_space) && <Badge label="Aussi gardien" color="#888" bg="#F5F5F5" />}
+                {(showAsGuard && u.has_beneficiary_space) && <Badge label="Aussi beneficiaire" color="#888" bg="#F5F5F5" />}
               </View>
             </View>
           </View>
