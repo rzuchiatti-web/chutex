@@ -267,16 +267,36 @@ function CompanyAgences({ token }: { token: string }) {
       {assignModal && (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
-            <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', marginBottom: 4 }}>Assigner {assignModal.name}</Text>
-            <Text style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>Choisissez une agence</Text>
-            {(data.agencies || []).map((ag: any) => (
-              <TouchableOpacity key={ag.agency.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}
-                onPress={() => assignToAgency(assignModal.id, ag.agency.id)}>
-                <Ionicons name="business-outline" size={18} color="#FF9800" />
-                <Text style={{ fontSize: 15, fontWeight: '600', color: '#000', flex: 1 }}>{ag.agency.name}</Text>
-                <Ionicons name="chevron-forward" size={16} color="#888" />
-              </TouchableOpacity>
-            ))}
+            {assignModal.targetAgencyId ? (
+              <>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', marginBottom: 4 }}>Ajouter a {assignModal.targetAgencyName}</Text>
+                <Text style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>Prescripteurs non assignes</Text>
+                {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).map((pr: any) => (
+                  <TouchableOpacity key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}
+                    onPress={() => assignToAgency(pr.id, assignModal.targetAgencyId)}>
+                    <Ionicons name="person-outline" size={18} color="#4CAF50" />
+                    <Text style={{ fontSize: 15, fontWeight: '600', color: '#000', flex: 1 }}>{pr.name}</Text>
+                    <Ionicons name="add-circle-outline" size={18} color="#2196F3" />
+                  </TouchableOpacity>
+                ))}
+                {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).length === 0 && (
+                  <Text style={{ fontSize: 13, color: '#888', textAlign: 'center', paddingVertical: 20 }}>Tous les prescripteurs sont deja assignes</Text>
+                )}
+              </>
+            ) : (
+              <>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', marginBottom: 4 }}>Assigner {assignModal.name}</Text>
+                <Text style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>Choisissez une agence</Text>
+                {(data.agencies || []).map((ag: any) => (
+                  <TouchableOpacity key={ag.agency.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}
+                    onPress={() => assignToAgency(assignModal.id, ag.agency.id)}>
+                    <Ionicons name="business-outline" size={18} color="#FF9800" />
+                    <Text style={{ fontSize: 15, fontWeight: '600', color: '#000', flex: 1 }}>{ag.agency.name}</Text>
+                    <Ionicons name="chevron-forward" size={16} color="#888" />
+                  </TouchableOpacity>
+                ))}
+              </>
+            )}
             <TouchableOpacity style={{ padding: 14, alignItems: 'center', marginTop: 10 }} onPress={() => setAssignModal(null)}>
               <Text style={{ color: '#888', fontWeight: '600' }}>Annuler</Text>
             </TouchableOpacity>
