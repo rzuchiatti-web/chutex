@@ -181,12 +181,20 @@ export default function AlertDetailScreen() {
           />
         )}
 
-        {/* GUARDIAN ACTIONS - J'INTERVIENS or SUIVRE */}
+        {/* GUARDIAN ACTIONS - contextual */}
         {isGuardian && isActive && (
           <GlassCard style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
-            {(canIntervene || canSelfIntervene) && (
+            {iAmIntervenant ? (
+              <View style={{ backgroundColor: '#4CAF50', borderRadius: 16, padding: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
+                <Ionicons name="shield-checkmark" size={22} color="#FFF" />
+                <View>
+                  <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VOUS GEREZ CETTE INTERVENTION</Text>
+                  <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, marginTop: 2 }}>Les gardiens peuvent suivre votre position</Text>
+                </View>
+              </View>
+            ) : (canIntervene || canSelfIntervene) ? (
               <TouchableOpacity testID="intervene-btn"
-                style={{ backgroundColor: '#E53935', borderRadius: 16, paddingVertical: 18, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: hasIntervenant ? 8 : 0 }}
+                style={{ backgroundColor: '#E53935', borderRadius: 16, paddingVertical: 18, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}
                 onPress={() => {
                   if (intervention?.id) {
                     handleIntervene(intervention.id);
@@ -202,21 +210,19 @@ export default function AlertDetailScreen() {
                   </>
                 )}
               </TouchableOpacity>
-            )}
-            {hasIntervenant && isEnRoute && (
+            ) : hasIntervenant && isEnRoute ? (
               <TouchableOpacity testID="follow-btn"
                 style={{ backgroundColor: '#009688', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}
                 onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: intervention.id } })}>
                 <Ionicons name="navigate" size={20} color="#FFF" />
                 <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>SUIVRE {intervention.assigned_name?.split(' ')[0]?.toUpperCase()} SUR LA CARTE</Text>
               </TouchableOpacity>
-            )}
-            {!canIntervene && !canSelfIntervene && hasIntervenant && !isEnRoute && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            ) : hasIntervenant ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 4 }}>
                 <Ionicons name="checkmark-circle" size={18} color="#4CAF50" />
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#4CAF50' }}>{intervention.assigned_name} gere l'intervention</Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#4CAF50' }}>{intervention?.assigned_name} gere l'intervention</Text>
               </View>
-            )}
+            ) : null}
           </GlassCard>
         )}
 
