@@ -63,6 +63,116 @@ export default function CompanyInterventionDetail() {
   const isCompleted = iv.status === 'completed';
   const rpt = iv.report;
 
+  // ====== COMPLETED: show classic fiche like resolved alert ======
+  if (isCompleted) {
+    const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+    const GC = ({ children, style: s2 }: any) => <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, s2]}>{children}</View>;
+    const IR = ({ icon, label, value, color: c }: any) => value ? (
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+        <Ionicons name={icon} size={16} color={c || '#888'} /><Text style={{ fontSize: 12, color: '#888', width: 100 }}>{label}</Text><Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+      </View>
+    ) : null;
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
+          <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#000" /></TouchableOpacity>
+          <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Intervention terminee</Text>
+          <View style={{ backgroundColor: '#4CAF50' + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}><Text style={{ fontSize: 10, fontWeight: '800', color: '#4CAF50' }}>TERMINEE</Text></View>
+        </View>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+          {/* Status */}
+          <GC style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50', padding: 20 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="checkmark-circle" size={24} color="#4CAF50" /></View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 11, fontWeight: '800', color: '#4CAF50', letterSpacing: 0.5 }}>INTERVENTION TERMINEE</Text>
+                <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', marginTop: 4 }}>{alert_data?.alert_type === 'sos' ? 'SOS - Urgence' : alert_data?.alert_type === 'fall' ? 'Chute detectee' : 'Alerte'}</Text>
+                <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{iv.alert_message || alert_data?.message}</Text>
+              </View>
+            </View>
+          </GC>
+          {/* Report */}
+          {rpt && (
+            <GC style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="document-text" size={18} color="#4CAF50" /></View>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Rapport d'intervention</Text>
+              </View>
+              {rpt.patient_condition && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
+                  <Ionicons name="heart" size={16} color="#4CAF50" />
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat du patient: {rpt.patient_condition === 'stable' ? 'Stable' : rpt.patient_condition === 'improved' ? 'Ameliore' : 'Soins necessaires'}</Text>
+                </View>
+              )}
+              {rpt.description && <View style={{ marginBottom: 8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 4 }}>Description</Text><Text style={{ fontSize: 13, color: '#333', lineHeight: 20 }}>{rpt.description}</Text></View>}
+              {rpt.actions_taken && <View style={{ marginBottom: 8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 4 }}>Actions effectuees</Text><Text style={{ fontSize: 13, color: '#333', lineHeight: 20 }}>{rpt.actions_taken}</Text></View>}
+              {rpt.follow_up_needed && (
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
+                  <Ionicons name="flag" size={14} color="#FF9800" /><Text style={{ fontSize: 12, color: '#E65100', flex: 1 }}><Text style={{ fontWeight: '700' }}>Suivi necessaire:</Text> {rpt.follow_up_notes}</Text>
+                </View>
+              )}
+              {rpt.completed_by && <Text style={{ fontSize: 10, color: '#888', marginTop: 8 }}>Rapport par {rpt.completed_by} - {rpt.completed_at ? new Date(rpt.completed_at).toLocaleString('fr-FR') : ''}</Text>}
+            </GC>
+          )}
+          {/* Beneficiary */}
+          <GC>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="person" size={18} color="#0288D1" /></View>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Beneficiaire</Text>
+            </View>
+            <IR icon="person-outline" label="Nom" value={ben.name || iv.beneficiary_name} color="#0288D1" />
+            <IR icon="call-outline" label="Telephone" value={ben.phone} />
+            <IR icon="location-outline" label="Adresse" value={ben.address} />
+            <IR icon="fitness-outline" label="Pathologies" value={ben.medical_conditions} color="#E53935" />
+            <IR icon="warning-outline" label="Allergies" value={ben.allergies} color="#FF9800" />
+            <IR icon="water-outline" label="Gr. sanguin" value={ben.blood_type} />
+            <IR icon="person-circle-outline" label="Medecin" value={ben.doctor_name} />
+            <IR icon="call-outline" label="Contact urgence" value={ben.emergency_contact_name ? `${ben.emergency_contact_name} (${ben.emergency_contact_phone || ''})` : ''} color="#E53935" />
+          </GC>
+          {/* Intervenant */}
+          {intervenant && (
+            <GC>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="shield-checkmark" size={18} color="#9C27B0" /></View>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Intervenant</Text>
+              </View>
+              <IR icon="person-outline" label="Nom" value={intervenant.name} color="#9C27B0" />
+              <IR icon="briefcase-outline" label="Profession" value={intervenant.profession} />
+              <IR icon="business-outline" label="Structure" value={intervenant.intervention_structure || intervenant.structure_name} />
+              <IR icon="call-outline" label="Telephone" value={intervenant.phone} />
+            </GC>
+          )}
+          {/* Alert */}
+          {alert_data && (
+            <GC>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="warning" size={18} color="#E53935" /></View>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Alerte</Text>
+              </View>
+              <IR icon="alert-circle-outline" label="Type" value={alert_data.alert_type?.toUpperCase()} color="#E53935" />
+              <IR icon="text-outline" label="Message" value={alert_data.message} />
+              <IR icon="calendar-outline" label="Date" value={alert_data.created_at ? new Date(alert_data.created_at).toLocaleString('fr-FR') : ''} />
+              <IR icon="checkmark-circle-outline" label="Resolu le" value={alert_data.resolved_at ? new Date(alert_data.resolved_at).toLocaleString('fr-FR') : ''} color="#4CAF50" />
+            </GC>
+          )}
+          {/* Timeline */}
+          {(iv.timeline || []).length > 0 && (
+            <GC>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>CHRONOLOGIE</Text>
+              {iv.timeline.map((t: any, i: number) => (
+                <View key={i} style={{ flexDirection: 'row', gap: 10, marginBottom: 4 }}>
+                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: i === iv.timeline.length - 1 ? '#4CAF50' : '#DDD', marginTop: 5 }} />
+                  <View style={{ flex: 1 }}><Text style={{ fontSize: 12, color: '#333' }}>{t.note || t.status}</Text><Text style={{ fontSize: 10, color: '#AAA' }}>{t.time ? new Date(t.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</Text></View>
+                </View>
+              ))}
+            </GC>
+          )}
+        </ScrollView>
+      </View>
+    );
+  }
+
+  // ====== ACTIVE: show Uber-style map + slide card ======
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
       {/* MAP */}
