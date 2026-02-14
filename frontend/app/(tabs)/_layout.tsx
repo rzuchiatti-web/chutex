@@ -41,7 +41,7 @@ export default function TabLayout() {
     }
   }, []);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
   if (!user) return null;
 
   const r = user.active_role || user.role;
@@ -55,7 +55,7 @@ export default function TabLayout() {
   const bottomPad = Platform.OS === 'web' ? 6 : Math.max(12, 6);
 
   return (
-    <Tabs key={r} sceneContainerStyle={{ backgroundColor: 'transparent' }} screenOptions={{
+    <Tabs key={r} sceneContainerStyle={{ backgroundColor: '#F5F0EB' }} screenOptions={{
       headerShown: false,
       tabBarActiveTintColor: '#000',
       tabBarInactiveTintColor: '#999',

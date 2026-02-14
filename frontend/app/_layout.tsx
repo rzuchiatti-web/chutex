@@ -13,7 +13,7 @@ function RootNav() {
 
   if (loading) {
     return (
-      <View style={[st.loading, { backgroundColor: 'transparent' }]}>
+      <View style={[st.loading, { backgroundColor: '#F5F0EB' }]}>
         <StatusBar style={isDark ? 'light' : 'dark'} />
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
@@ -24,7 +24,7 @@ function RootNav() {
     return (
       <>
         <StatusBar style={isDark ? 'light' : 'dark'} />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F5F0EB' } }}>
           <Stack.Screen name="index" />
         </Stack>
       </>
