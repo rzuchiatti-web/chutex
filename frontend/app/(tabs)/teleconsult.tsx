@@ -866,9 +866,9 @@ export default function TeleconsultScreen() {
   if (!user || !token) return null;
   const r = user.active_role || user.role;
 
-  // Company sees prescriptions list
+  // Company sees intervenants list
   if (r === 'prescriber_company') {
-    return <CompanyPrescriptions token={token} />;
+    return <CompanyIntervenants token={token} />;
   }
 
   // key={r} forces complete remount when role changes (Expo Router tab caching fix)
