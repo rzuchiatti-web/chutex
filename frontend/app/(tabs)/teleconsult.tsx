@@ -407,7 +407,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
               ) : null)}
               <TouchableOpacity testID="deactivate-care-modal-btn" style={{ borderWidth: 1.5, borderColor: '#E53935', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 20, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
                 onPress={() => confirmAction('Desactiver', 'Vous ne recevrez plus de missions d\'intervention. Confirmez ?', deactivateCare)}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#E53935' }}>Desactiver mon espace</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#E53935' }}>Desactiver mon espace intervenant</Text>
                 <Ionicons name="close-circle-outline" size={16} color="#E53935" />
               </TouchableOpacity>
             </ScrollView>
