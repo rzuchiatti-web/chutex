@@ -368,6 +368,51 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               </View>
             </View></View>
           </Modal>
+
+          {/* Prescription Detail Modal */}
+          <Modal visible={!!selectedPresc} transparent animationType="fade" onRequestClose={() => setSelectedPresc(null)}>
+            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+              <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
+                {selectedPresc && <>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Detail prescription</Text>
+                    <TouchableOpacity onPress={() => setSelectedPresc(null)}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                    <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: selectedPresc.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
+                      <Ionicons name={selectedPresc.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={24} color={selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{selectedPresc.beneficiary_name}</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                        <View style={{ backgroundColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+                          <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>{selectedPresc.status === 'subscribed' ? 'Souscrit' : 'En attente'}</Text>
+                        </View>
+                      </View>
+                    </View>
+                    <Text style={{ fontSize: 24, fontWeight: '900', color: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{selectedPresc.commission}EUR</Text>
+                  </View>
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    {[
+                      { icon: 'person-outline', label: 'Beneficiaire', value: selectedPresc.beneficiary_name },
+                      { icon: 'mail-outline', label: 'Email', value: selectedPresc.beneficiary_email },
+                      { icon: 'call-outline', label: 'Telephone', value: selectedPresc.beneficiary_phone },
+                      { icon: 'pricetag-outline', label: 'Type', value: selectedPresc.subscription_type === 'standard' ? 'Standard (15EUR/mois)' : 'Teleassistance (25EUR/mois)' },
+                      { icon: 'cash-outline', label: 'Commission', value: `${selectedPresc.commission} EUR` },
+                      { icon: 'business-outline', label: 'Structure', value: selectedPresc.prescriber_structure },
+                      { icon: 'calendar-outline', label: 'Date', value: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleString('fr-FR') : '' },
+                    ].map(({ icon, label, value }) => value ? (
+                      <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                        <Ionicons name={icon as any} size={16} color="#888" />
+                        <Text style={{ fontSize: 12, color: '#888', width: 90 }}>{label}</Text>
+                        <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+                      </View>
+                    ) : null)}
+                  </ScrollView>
+                </>}
+              </View>
+            </View>
+          </Modal>
         </>
       )}
     </ScrollView>
