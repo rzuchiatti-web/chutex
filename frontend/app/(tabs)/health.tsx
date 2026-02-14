@@ -42,7 +42,7 @@ function AdminClients({ token }: { token: string }) {
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></View>;
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Clients</Text>
         <Text style={{ fontSize: 12, color: '#888' }}>{users.length} utilisateurs au total</Text>
@@ -129,7 +129,7 @@ function CompanyAgences({ token }: { token: string }) {
   if (!data) return null;
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Agences</Text>
         <Text style={{ fontSize: 12, color: '#888' }}>{(data.agencies || []).length} agences · {data.total_prescribers} prescripteurs</Text>
@@ -373,7 +373,7 @@ export default function HealthScreen() {
   ] : [];
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'transparent' }} testID="health-screen">
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="health-screen">
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={colors.primary} />} showsVerticalScrollIndicator={false}>
         <Text style={{ fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginTop: 16, marginBottom: 8, letterSpacing: -0.5 }}>Sante</Text>
         <Text style={{ fontSize: 13, color: colors.textMuted, marginBottom: 24 }}>Suivi de vos constantes en temps reel</Text>

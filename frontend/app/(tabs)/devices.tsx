@@ -806,7 +806,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   const prescTotal = displayedPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Prescriptions</Text>
         <Text style={{ fontSize: 12, color: '#888' }}>{allPrescs.length} prescriptions au total</Text>
@@ -913,7 +913,7 @@ export default function DevicesScreen() {
   if (!user || !token) return null;
   const r = user.active_role || user.role;
   return (
-    <View key={r} style={[d.safeArea, { backgroundColor: 'transparent' }]} testID="devices-screen">
+    <View key={r} style={[d.safeArea, { backgroundColor: '#F5F0EB' }]} testID="devices-screen">
       <View style={d.header}>
         <Text style={[d.title, { color: colors.textPrimary }]}>{r === 'admin' ? 'Prescripteurs' : r === 'prescriber_company' ? 'Prescriptions' : r === 'guardian' ? 'Prescriptions' : r === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
       </View>
@@ -927,7 +927,7 @@ export default function DevicesScreen() {
 }
 
 const d = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: 'transparent' },
+  safeArea: { flex: 1, backgroundColor: '#F5F0EB' },
   header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
   title: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, letterSpacing: -0.5 },
   sv: { flex: 1 }, sc: { paddingHorizontal: 20, paddingBottom: 24 },
