@@ -19,6 +19,7 @@ from routes.subscription_routes import router as subscription_router
 from routes.vest_routes import router as vest_router
 from routes.bracelet_routes import router as bracelet_router
 from routes.carewatch_routes import router as carewatch_router
+from routes.company_routes import router as company_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ api_router.include_router(subscription_router)
 api_router.include_router(vest_router)
 api_router.include_router(bracelet_router)
 api_router.include_router(carewatch_router)
+api_router.include_router(company_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
