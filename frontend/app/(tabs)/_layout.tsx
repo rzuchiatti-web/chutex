@@ -51,6 +51,9 @@ export default function TabLayout() {
   const isAdmin = r === 'admin';
   const isCompany = r === 'prescriber_company';
 
+  // Safe bottom padding for devices with navigation bars
+  const bottomPad = Platform.OS === 'web' ? 6 : Math.max(12, 6);
+
   return (
     <Tabs key={r} screenOptions={{
       headerShown: false,
@@ -59,10 +62,14 @@ export default function TabLayout() {
       tabBarStyle: {
         backgroundColor: '#FFFFFF',
         borderTopWidth: 0,
-        height: 60,
-        paddingBottom: 6,
+        height: Platform.OS === 'web' ? 60 : 70,
+        paddingBottom: bottomPad,
         paddingTop: 6,
-        elevation: 0,
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
       },
       tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
     }}>
