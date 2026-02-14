@@ -17,15 +17,28 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "distribution": "internal"
       }
     },
     "production": {
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "distribution": "store",
+        "autoIncrement": true
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "contact@chutex-innovation.com",
+        "ascAppId": "",
+        "appleTeamId": "94YZY663N2"
+      }
+    }
   }
 }
