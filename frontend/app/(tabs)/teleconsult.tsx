@@ -310,12 +310,12 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const statusLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
   const statusColor = (st: string) => ({ pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' }[st] || '#888');
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
-
   const activeIvs = ivs.filter(iv => ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status));
   const doneIvs = ivs.filter(iv => ['completed', 'cancelled'].includes(iv.status));
-  const [ivTab, setIvTab] = React.useState<'active'|'done'>('active');
+  const [ivTab, setIvTab] = useState<'active'|'done'>('active');
   const displayedIvs = ivTab === 'active' ? activeIvs : doneIvs;
+
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
 
   return (
     <ScrollView contentContainerStyle={[s.sc, { paddingBottom: 80 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchIvs(); }} />}>
