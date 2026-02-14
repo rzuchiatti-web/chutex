@@ -33,14 +33,24 @@ export default function AlertsScreen() {
 
   const fetchAlerts = useCallback(async () => {
     try {
-      const [all, active] = await Promise.all([
-        apiFetch('/api/alerts', {}, token).catch(() => []),
+      const isAdmin = effectiveRole === 'admin';
+      const [all, active, incidents] = await Promise.all([
+        apiFetch(isAdmin ? '/api/backoffice/alerts' : '/api/alerts', {}, token).catch(() => []),
         apiFetch('/api/alerts/active-with-interventions', {}, token).catch(() => []),
+        isAdmin ? apiFetch('/api/carewatch/incidents', {}, token).catch(() => []) : Promise.resolve([]),
       ]);
       setAlerts(Array.isArray(all) ? all : []);
-      setActiveAlerts(Array.isArray(active) ? active : []);
+      // Merge active alerts with CARE WATCH incident info
+      const activeArr = Array.isArray(active) ? active : [];
+      const incArr = Array.isArray(incidents) ? incidents : [];
+      // Enrich active alerts with incident state if available
+      const enriched = activeArr.map((a: any) => {
+        const inc = incArr.find((i: any) => i.alert_id === a.id);
+        return inc ? { ...a, incident_state: inc.state, care_provider: inc.care_provider, assigned_guardian: inc.assigned_guardian } : a;
+      });
+      setActiveAlerts(enriched);
     } catch {} finally { setLoading(false); setRefreshing(false); }
-  }, [token]);
+  }, [token, effectiveRole]);
 
   useEffect(() => { fetchAlerts(); const t = setInterval(fetchAlerts, 10000); return () => clearInterval(t); }, [fetchAlerts]);
 
