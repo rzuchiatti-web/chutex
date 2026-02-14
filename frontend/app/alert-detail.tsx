@@ -102,6 +102,7 @@ export default function AlertDetailScreen() {
   // Can this guardian intervene? (is recipient or is a guardian of the beneficiary)
   const canIntervene = isGuardian && isPending && intervention?.recipients?.some((r: any) => r.id === user?.id);
   const canSelfIntervene = isGuardian && isActive && !intervention; // No intervention yet (Cas 1)
+  const iAmIntervenant = intervention?.assigned_to === user?.id;
 
   // Status message for the alert
   let statusMessage = '';
