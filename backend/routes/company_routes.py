@@ -239,3 +239,80 @@ async def delete_agency(agency_id: str, user=Depends(get_current_user)):
     await db.users.update_many({"agency_id": agency_id}, {"$unset": {"agency_id": ""}})
     await db.agencies.delete_one({"id": agency_id, "company_id": user['id']})
     return {"status": "deleted"}
+
+
+@router.get("/company/analytics")
+async def company_analytics(user=Depends(get_current_user)):
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    company_id = user['id']
+    now = datetime.now(timezone.utc)
+    # Get intervenants and their interventions
+    intervenants = await db.users.find({"prescriber_company_id": company_id, "is_intervention_provider": True}, {"_id": 0, "password_hash": 0}).to_list(200)
+    iv_ids = [iv['id'] for iv in intervenants]
+    all_ivs = await db.interventions.find({"assigned_to": {"$in": iv_ids}}, {"_id": 0}).to_list(500)
+    completed = [iv for iv in all_ivs if iv.get('status') == 'completed']
+    active = [iv for iv in all_ivs if iv.get('status') in ('pending_acceptance', 'en_route', 'in_progress')]
+    # Avg response time (created_at -> accepted_at)
+    total_resp = 0
+    count_resp = 0
+    for iv in all_ivs:
+        if iv.get('accepted_at') and iv.get('created_at'):
+            try:
+                c = datetime.fromisoformat(iv['created_at'].replace('Z', '+00:00'))
+                a = datetime.fromisoformat(iv['accepted_at'].replace('Z', '+00:00'))
+                total_resp += (a - c).total_seconds() / 60
+                count_resp += 1
+            except: pass
+    avg_response = round(total_resp / count_resp, 1) if count_resp > 0 else 0
+    # Avg intervention duration (accepted_at -> completed_at)
+    total_dur = 0
+    count_dur = 0
+    for iv in completed:
+        if iv.get('accepted_at') and iv.get('completed_at'):
+            try:
+                a = datetime.fromisoformat(iv['accepted_at'].replace('Z', '+00:00'))
+                d = datetime.fromisoformat(iv['completed_at'].replace('Z', '+00:00'))
+                total_dur += (d - a).total_seconds() / 60
+                count_dur += 1
+            except: pass
+    avg_duration = round(total_dur / count_dur, 1) if count_dur > 0 else 0
+    # Acceptance rate
+    accepted = len([iv for iv in all_ivs if iv.get('assigned_to')])
+    acceptance_rate = round((accepted / len(all_ivs)) * 100) if all_ivs else 0
+    # Per agency stats
+    agencies = await db.agencies.find({"company_id": company_id}, {"_id": 0}).to_list(50)
+    agency_performance = []
+    for ag in agencies:
+        ag_intervenants = [iv for iv in intervenants if iv.get('agency_id') == ag['id']]
+        ag_ids = [iv['id'] for iv in ag_intervenants]
+        ag_ivs = [iv for iv in all_ivs if iv.get('assigned_to') in ag_ids]
+        ag_completed = [iv for iv in ag_ivs if iv.get('status') == 'completed']
+        agency_performance.append({
+            "agency_name": ag['name'], "intervenants": len(ag_intervenants),
+            "total": len(ag_ivs), "completed": len(ag_completed),
+            "active": len([iv for iv in ag_ivs if iv.get('status') in ('pending_acceptance', 'en_route', 'in_progress')]),
+        })
+    # Per intervenant performance
+    iv_performance = []
+    for ivt in intervenants:
+        ivt_missions = [iv for iv in all_ivs if iv.get('assigned_to') == ivt['id']]
+        ivt_completed = [iv for iv in ivt_missions if iv.get('status') == 'completed']
+        iv_performance.append({
+            "name": ivt.get('name', ''), "agency_id": ivt.get('agency_id'),
+            "total": len(ivt_missions), "completed": len(ivt_completed),
+            "active": len([iv for iv in ivt_missions if iv.get('status') in ('pending_acceptance', 'en_route', 'in_progress')]),
+        })
+    iv_performance.sort(key=lambda x: x['completed'], reverse=True)
+    return {
+        "total_intervenants": len(intervenants),
+        "total_interventions": len(all_ivs),
+        "completed_interventions": len(completed),
+        "active_interventions": len(active),
+        "avg_response_time_min": avg_response,
+        "avg_duration_min": avg_duration,
+        "acceptance_rate": acceptance_rate,
+        "agency_performance": agency_performance,
+        "intervenant_performance": iv_performance[:10],
+    }
+
