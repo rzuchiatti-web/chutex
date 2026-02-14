@@ -320,7 +320,7 @@ export default function AdminClientDetail() {
         )}
 
         {/* No data placeholders */}
-        {data.alerts?.length === 0 && isBen && (
+        {data.alerts?.length === 0 && showAsBen && (
           <GlassCard style={{ alignItems: 'center', padding: 24 }}>
             <Ionicons name="checkmark-circle-outline" size={32} color="#4CAF50" />
             <Text style={{ fontSize: 14, fontWeight: '700', color: '#4CAF50', marginTop: 8 }}>Aucune alerte</Text>
