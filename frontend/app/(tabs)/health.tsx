@@ -14,6 +14,7 @@ const GlassCard = ({ children, style }: any) => (
 
 /* ===== ADMIN: CLIENTS ===== */
 function AdminClients({ token }: { token: string }) {
+  const router = useRouter();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
