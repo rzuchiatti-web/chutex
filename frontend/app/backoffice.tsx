@@ -248,7 +248,7 @@ export default function BackofficeScreen() {
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={bs.tabScroll} contentContainerStyle={bs.tabScrollC}>
         {TABS.map(t => (
-          <TouchableOpacity key={t.id} data-testid={`bo-${t.id}`} style={[bs.tabBtn, tab === t.id && bs.tabBtnA]} onPress={() => setTab(t.id)}>
+          <TouchableOpacity key={t.id} testID={`bo-${t.id}`} style={[bs.tabBtn, tab === t.id && bs.tabBtnA]} onPress={() => setTab(t.id)}>
             <Text style={[bs.tabBtnT, tab === t.id && bs.tabBtnTA]}>{t.label}</Text>
           </TouchableOpacity>
         ))}
