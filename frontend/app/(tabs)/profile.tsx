@@ -6,6 +6,7 @@ import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import { apiFetch, API_URL } from '../../src/services/api';
 import { useI18n } from '../../src/context/I18nContext';
+import { HelpCenter } from '../../src/components/HelpSystem';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
 const GlassCard = ({ children, style }: any) => (
