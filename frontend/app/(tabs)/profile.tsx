@@ -106,6 +106,13 @@ export default function ProfileScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const { lang, setLang, t } = useI18n();
+
+  // Admin sees Clients page instead of Profile
+  const effectiveRole = user?.active_role || user?.role;
+  if (effectiveRole === 'admin' && token) {
+    return <AdminClients token={token} />;
+  }
+
   const [editMode, setEditMode] = useState(false);
   const [editName, setEditName] = useState(user?.name || '');
   const [editPhone, setEditPhone] = useState(user?.phone || '');
