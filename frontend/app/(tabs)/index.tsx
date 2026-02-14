@@ -824,6 +824,96 @@ function TeleassistanceHome({ token, user }: { token: string; user: any }) {
   );
 }
 
+/* ───── REWARDS ADMIN CARD ───── */
+function RewardsAdminCard({ token }: { token: string }) {
+  const [reward, setReward] = useState<any>(null);
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({ prize_1: '100', prize_2: '70', prize_3: '30' });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    apiFetch('/api/company/rewards/current', {}, token).then(r => {
+      setReward(r);
+      setForm({ prize_1: String(r.prize_1 || 100), prize_2: String(r.prize_2 || 70), prize_3: String(r.prize_3 || 30) });
+    }).catch(() => {});
+  }, [token]);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await apiFetch('/api/admin/rewards', { method: 'POST', body: JSON.stringify({
+        prize_1: parseInt(form.prize_1) || 100, prize_2: parseInt(form.prize_2) || 70, prize_3: parseInt(form.prize_3) || 30,
+      }) }, token);
+      setEditing(false);
+      setReward({ ...reward, prize_1: parseInt(form.prize_1), prize_2: parseInt(form.prize_2), prize_3: parseInt(form.prize_3) });
+    } catch {} finally { setSaving(false); }
+  };
+
+  const now = new Date();
+  const monthLabel = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
+  return (
+    <View style={{ marginTop: 4, marginBottom: 12 }}>
+      <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', marginBottom: 10 }}>Challenge Prescripteurs</Text>
+      <GlassCard style={{ borderWidth: 1.5, borderColor: '#FFD54F', backgroundColor: 'rgba(255,248,225,0.6)' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFD700', justifyContent: 'center', alignItems: 'center' }}>
+            <Ionicons name="trophy" size={22} color="#FFF" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 16, fontWeight: '900', color: '#000' }}>Recompenses {monthLabel}</Text>
+            <Text style={{ fontSize: 11, color: '#888' }}>Top 3 prescripteurs du mois</Text>
+          </View>
+          <TouchableOpacity onPress={() => setEditing(!editing)} style={{ padding: 6 }}>
+            <Ionicons name={editing ? 'close' : 'create-outline'} size={20} color="#FFB300" />
+          </TouchableOpacity>
+        </View>
+
+        {!editing ? (
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+            {[
+              { pos: '1er', prize: reward?.prize_1 || 100, color: '#FFD700', icon: 'trophy' as any },
+              { pos: '2e', prize: reward?.prize_2 || 70, color: '#C0C0C0', icon: 'medal' as any },
+              { pos: '3e', prize: reward?.prize_3 || 30, color: '#CD7F32', icon: 'ribbon' as any },
+            ].map(t => (
+              <View key={t.pos} style={{ alignItems: 'center' }}>
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: t.color, justifyContent: 'center', alignItems: 'center', marginBottom: 4 }}>
+                  <Ionicons name={t.icon} size={20} color="#FFF" />
+                </View>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000' }}>{t.prize}EUR</Text>
+                <Text style={{ fontSize: 10, color: '#888' }}>{t.pos}</Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View style={{ gap: 8 }}>
+            {[
+              { label: '1er prix (EUR)', key: 'prize_1', color: '#FFD700' },
+              { label: '2e prix (EUR)', key: 'prize_2', color: '#C0C0C0' },
+              { label: '3e prix (EUR)', key: 'prize_3', color: '#CD7F32' },
+            ].map(f => (
+              <View key={f.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: f.color, justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name="trophy" size={14} color="#FFF" />
+                </View>
+                <Text style={{ fontSize: 12, color: '#888', width: 80 }}>{f.label}</Text>
+                <TextInput style={{ flex: 1, borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 10, padding: 10, fontSize: 16, fontWeight: '800', textAlign: 'center' }}
+                  value={(form as any)[f.key]} onChangeText={v => setForm({ ...form, [f.key]: v })} keyboardType="numeric" />
+              </View>
+            ))}
+            <TouchableOpacity onPress={save} disabled={saving}
+              style={{ backgroundColor: '#FFB300', borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 4, flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
+              {saving ? <ActivityIndicator color="#FFF" size="small" /> : (
+                <><Ionicons name="checkmark" size={18} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>ENREGISTRER</Text></>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+      </GlassCard>
+    </View>
+  );
+}
+
 /* ───── ADMIN DASHBOARD ───── */
 function AdminHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
