@@ -25,37 +25,42 @@
 | Admin | admin@chutex.fr | demo123 |
 | Entreprise SAAD | saad@chutex.fr | demo123 |
 | Prescripteurs SAAD | marie.dupont@saad.fr, jean.leroy@saad.fr, sophie.petit@saad.fr, thomas.bernard@saad.fr, julie.moreau@saad.fr, pierre.laurent@saad.fr | demo123 |
+| Intervenants SAAD | marc.dubois@saad.fr, isabelle.roux@saad.fr, antoine.garnier@saad.fr + ludivine.moutio@care.fr | demo123 |
 
-## DONE (Feb 14, 2026 - Fork 2, Session 2)
-- Redesign fiches prescriptions gardien : Modal premium avec fond beige, carte identite avatar+badges, InfoRow pattern, carte commission, section prescripteur
-- Redesign cartes interventions gardien : GlassCard borderRadius 22, icones 44x44, badge distance, badge status uppercase, etats vides descriptifs
-- Redesign fiches prescriptions entreprise : Meme design premium avec avatar, badges, InfoRow, commission highlight
+## Espace Entreprise - Tabs (6)
+1. **Dashboard** : KPIs, commissions, agences, top prescripteurs, filtre date
+2. **Agences** : CRUD agences, gestion prescripteurs/intervenants par agence
+3. **Prescripteurs** : Liste recherchable, fiche detail cliquable
+4. **Intervenants** : Liste recherchable, fiche detail cliquable (missions, rayon, agence)
+5. **Activite** : Prescriptions (En cours/Validees) + Interventions (En cours/Terminees)
+6. **Profil** : Infos entreprise
 
-## DONE (Feb 14, 2026 - Fork 2, Session 1)
-- Fiche prescripteur cliquable : /company-prescriber-detail avec identite, stats, agence, prescriptions
-- Prescripteurs cliquables partout : dashboard, onglet Prescripteurs (avec recherche), onglet Agences
-- UX assignation prescripteur amelioree : bouton toujours visible, retrait possible
-- Filtre calendrier dashboard : Tout / 7 jours / 30 jours avec filtrage backend
-- Backend : /api/company/prescriber/{id} endpoint + filtrage date
+## DONE (Feb 14, 2026 - Fork 2, Session 3)
+- Gestion intervenants entreprise : nouvel onglet avec liste recherchable, fiche detail
+- Gestion interventions entreprise : onglet Activite avec sous-onglets Prescriptions/Interventions
+- Backend : /api/company/intervenants, /api/company/intervenant/{id}, /api/company/interventions, /api/company/intervenant/{id}/assign
+- Seed : 4 intervenants lies a SAAD (Ludivine, Marc, Isabelle, Antoine) + 4 interventions demo
+- Tabs entreprise : Dashboard, Agences, Prescripteurs, Intervenants, Activite, Profil
+
+## DONE (Fork 2, Session 2)
+- Redesign fiches prescriptions gardien + interventions gardien + prescriptions entreprise (glassmorphism premium)
+
+## DONE (Fork 2, Session 1)
+- Fiche prescripteur cliquable, recherche prescripteurs, UX assignation, filtre date dashboard
 
 ## DONE (Fork 1)
-- Bugs P0 : role-switching, backoffice CRUD, suppression codes
-- Refonte admin complete : Dashboard KPI, Clients, Alertes, Intervenants, Prescripteurs, Profil
-- Espace entreprise prescriptrice : Dashboard, Agences, Prescripteurs, Prescriptions
-- Fiches clients admin contextuelles, beneficiaire gardien, prescription admin
-- Menu navigation flottant mobile : fix safe-area
+- Tous les roles de base, admin complet, CARE WATCH, menu navigation, fiches clients
 
 ## Fichiers cles
-- frontend/app/(tabs)/_layout.tsx : Menu navigation (6 roles)
+- frontend/app/(tabs)/_layout.tsx : Menu navigation (6 roles, 6 tabs entreprise)
 - frontend/app/(tabs)/index.tsx : Dashboards + filtre date company
 - frontend/app/(tabs)/health.tsx : Sante | Clients admin | Agences company
-- frontend/app/(tabs)/alerts.tsx : Alertes | Prescripteurs company (recherche + cliquable)
-- frontend/app/(tabs)/teleconsult.tsx : Interventions (redesign) | Intervenants admin | Prescriptions company (redesign)
-- frontend/app/(tabs)/devices.tsx : Appareils | Prescriptions gardien (redesign) | Prescripteurs admin
-- frontend/app/(tabs)/profile.tsx : Profil
+- frontend/app/(tabs)/alerts.tsx : Alertes | Prescripteurs company
+- frontend/app/(tabs)/teleconsult.tsx : Interventions gardien | Intervenants admin | **Intervenants company**
+- frontend/app/(tabs)/devices.tsx : Appareils | Prescriptions gardien | Prescripteurs admin | **Activite company**
 - frontend/app/company-prescriber-detail.tsx : Fiche prescripteur entreprise
-- frontend/app/admin-client-detail.tsx : Fiche client admin (template design)
-- backend/routes/company_routes.py : API entreprise complete
+- frontend/app/company-intervenant-detail.tsx : **NOUVEAU** Fiche intervenant entreprise
+- backend/routes/company_routes.py : API entreprise complete (dashboard, agences, prescripteurs, intervenants, interventions)
 
 ## Backlog
 - P1 : Build natif Android/iOS + BLE (bracelet J-Style, gilet S-AIRBAG)
