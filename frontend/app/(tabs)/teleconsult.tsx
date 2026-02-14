@@ -814,7 +814,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   const stLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Interventions</Text>
         <Text style={{ fontSize: 12, color: '#888' }}>{interventions.length} interventions · {intervenants.length} intervenants</Text>
@@ -947,7 +947,7 @@ function CompanyIntervenants({ token }: { token: string }) {
   const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Intervenants</Text>
         <Text style={{ fontSize: 12, color: '#888' }}>{intervenants.length} intervenants Care</Text>

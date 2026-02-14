@@ -34,7 +34,7 @@ function CompanyPrescribers({ token }: { token: string }) {
     : allPrescribers;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Prescripteurs</Text>
         <Text style={{ fontSize: 12, color: '#888' }}>{allPrescribers.length} prescripteurs actifs</Text>

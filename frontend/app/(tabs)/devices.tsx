@@ -800,7 +800,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   const prescTotal = displayedPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Prescriptions</Text>
         <Text style={{ fontSize: 12, color: '#888' }}>{allPrescs.length} prescriptions au total</Text>
