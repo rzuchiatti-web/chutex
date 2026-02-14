@@ -319,35 +319,40 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
           <Ionicons name="shield-checkmark-outline" size={36} color={Colors.primary} />
           <Text style={s.careTitle}>Devenir Intervenant Care</Text>
           <Text style={s.careDesc}>Activez votre espace pour etre missionne par la teleassistance IA.</Text>
-          <View style={s.careRow}>
-            <TextInput testID="care-code-input" style={s.careInput} placeholder="CODE INTERVENANT" placeholderTextColor={Colors.textMuted}
+          <View style={{ width: '100%', gap: 8 }}>
+            <TextInput testID="care-code-input" style={[s.careInput, { width: '100%' }]} placeholder="CODE INTERVENANT" placeholderTextColor={Colors.textMuted}
               value={ivCode} onChangeText={setIvCode} autoCapitalize="characters" />
-            <TouchableOpacity testID="care-activate-btn" style={s.careBtn} onPress={activateCare} disabled={activating}>
-              {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={s.careBtnT}>Activer</Text>}
+            <TouchableOpacity testID="care-activate-btn" style={{ backgroundColor: Colors.primary, borderRadius: 12, paddingVertical: 14, alignItems: 'center' }} onPress={activateCare} disabled={activating}>
+              {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Activer mon espace</Text>}
             </TouchableOpacity>
           </View>
         </View>
       ) : (
         <TouchableOpacity testID="care-card-active" onPress={() => setShowCareModal(true)} activeOpacity={0.7}>
-          <View style={[s.careActive, { borderWidth: 2, borderColor: 'rgba(76,175,80,0.3)' }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={{ backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 18, padding: 18, marginBottom: 16, borderWidth: 1.5, borderColor: 'rgba(76,175,80,0.2)' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
               <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(76,175,80,0.15)', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="shield-checkmark" size={24} color={Colors.success} />
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Intervenant Care actif</Text>
-                <Text style={{ fontSize: 13, color: '#555', marginTop: 2 }}>{user.intervention_structure || user.structure_name || 'Structure Care'}</Text>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Intervenant Care</Text>
+                  <View style={{ backgroundColor: '#4CAF50', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+                    <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
+                  </View>
+                </View>
+                <Text style={{ fontSize: 12, color: '#555', marginTop: 3 }} numberOfLines={1}>{user.intervention_structure || user.structure_name || 'Structure Care'}</Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color="#888" />
             </View>
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
               <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
                 <Text style={{ fontSize: 18, fontWeight: '900', color: '#000' }}>{user.intervention_radius_km || 30}</Text>
-                <Text style={{ fontSize: 9, color: '#888', textTransform: 'uppercase' }}>km rayon</Text>
+                <Text style={{ fontSize: 9, color: '#888' }}>km rayon</Text>
               </View>
               <View style={{ flex: 1, backgroundColor: 'rgba(76,175,80,0.08)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
-                <Ionicons name="radio-button-on" size={16} color={Colors.success} />
-                <Text style={{ fontSize: 9, color: Colors.success, fontWeight: '700', textTransform: 'uppercase', marginTop: 2 }}>Disponible</Text>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#4CAF50', marginBottom: 4 }} />
+                <Text style={{ fontSize: 9, color: '#4CAF50', fontWeight: '700' }}>Disponible</Text>
               </View>
             </View>
           </View>
