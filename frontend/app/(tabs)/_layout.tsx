@@ -70,9 +70,11 @@ export default function TabLayout() {
         tabBarIcon: ({ color, size }) => <Ionicons name={isAdmin ? 'stats-chart-outline' : 'home-outline'} size={size} color={color} />,
       }} />
       <Tabs.Screen name="health" options={{
-        title: 'Sante',
-        tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="heart-pulse" size={size} color={color} />,
-        href: !isBen ? null : undefined,
+        title: isAdmin ? 'Clients' : 'Sante',
+        tabBarIcon: ({ color, size }) => isAdmin
+          ? <Ionicons name="people-outline" size={size} color={color} />
+          : <MaterialCommunityIcons name="heart-pulse" size={size} color={color} />,
+        href: (!isBen && !isAdmin) ? null : undefined,
       }} />
       <Tabs.Screen name="alerts" options={{
         title: 'Alertes',
@@ -94,8 +96,8 @@ export default function TabLayout() {
           : <MaterialCommunityIcons name="bluetooth-connect" size={size} color={color} />,
       }} />
       <Tabs.Screen name="profile" options={{
-        title: isAdmin ? 'Clients' : 'Profil',
-        tabBarIcon: ({ color, size }) => <Ionicons name={isAdmin ? 'people-outline' : 'person-outline'} size={size} color={color} />,
+        title: 'Profil',
+        tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
       }} />
     </Tabs>
   );
