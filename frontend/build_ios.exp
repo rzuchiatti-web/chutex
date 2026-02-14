@@ -1,0 +1,89 @@
+#!/usr/bin/expect -f
+set timeout 300
+
+spawn env EXPO_TOKEN=bSAaETVb2wyb8CdjB0KYCDDUjvk3yfEeEalSuAZh \
+  EXPO_APPLE_ID=contact@chutex-innovation.com \
+  EXPO_APPLE_PASSWORD=nyzm-xpea-fgjd-pvro \
+  EXPO_APPLE_TEAM_ID=94YZY663N2 \
+  npx eas-cli build --platform ios --profile production
+
+# Handle any prompts - auto-accept defaults
+expect {
+    "Log in to your Apple Developer account" {
+        send "\r"
+        exp_continue
+    }
+    "Apple ID:" {
+        send "contact@chutex-innovation.com\r"
+        exp_continue
+    }
+    "Password" {
+        send "nyzm-xpea-fgjd-pvro\r"
+        exp_continue
+    }
+    "Team ID" {
+        send "94YZY663N2\r"
+        exp_continue
+    }
+    "Would you like to" {
+        send "y\r"
+        exp_continue
+    }
+    "Generate a new" {
+        send "\r"
+        exp_continue
+    }
+    "Select a distribution certificate" {
+        send "\r"
+        exp_continue
+    }
+    "Do you want" {
+        send "y\r"
+        exp_continue
+    }
+    "Would you like to set up" {
+        send "y\r"
+        exp_continue
+    }
+    "Choose a provider" {
+        send "\r"
+        exp_continue
+    }
+    "Select provider" {
+        send "\r"
+        exp_continue
+    }
+    "(Y/n)" {
+        send "Y\r"
+        exp_continue
+    }
+    "(y/N)" {
+        send "y\r"
+        exp_continue
+    }
+    "press any key" {
+        send "\r"
+        exp_continue
+    }
+    -re "\\? .*\\(.*\\)" {
+        send "\r"
+        exp_continue
+    }
+    -re "\\?" {
+        send "\r"
+        exp_continue
+    }
+    "Build details" {
+        puts "\n=== BUILD SUBMITTED SUCCESSFULLY ==="
+        exp_continue
+    }
+    "https://expo.dev" {
+        exp_continue
+    }
+    eof {
+        puts "\n=== Process completed ==="
+    }
+    timeout {
+        puts "\n=== Timeout reached ==="
+    }
+}
