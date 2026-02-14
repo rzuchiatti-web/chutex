@@ -580,6 +580,9 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         </GlassCard>
       )}
 
+      {/* Contextual Tips */}
+      <ContextualTip id="guardian-welcome" icon="people-outline" text="Bienvenue dans votre espace gardien ! Ici, vous suivez la sante de vos proches en temps reel. Si une alerte se declenche, vous serez immediatement prevenu et pourrez intervenir." color="#009688" />
+
       {/* Active Alerts for Guardian */}
       {activeAlertsG.map((a: any) => {
         const myIntervention = a.intervention?.assigned_to === user.id;
