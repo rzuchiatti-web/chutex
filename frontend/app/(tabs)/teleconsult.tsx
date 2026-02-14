@@ -784,7 +784,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState<'interventions' | 'intervenants'>('interventions');
-  const [ivTab, setIvTab] = useState<'active' | 'completed'>('active');
+  const [ivTab, setIvTab] = useState<'pending' | 'active' | 'completed'>('pending');
   const [search, setSearch] = useState('');
 
   const fetchData = useCallback(async () => {
@@ -797,14 +797,15 @@ function CompanyInterventionsTab({ token }: { token: string }) {
       setIntervenants(Array.isArray(ivants) ? ivants : []);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchData(); const t = setInterval(fetchData, 10000); return () => clearInterval(t); }, [fetchData]);
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#000" /></View>;
 
   const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
-  const activeIvs = interventions.filter((iv: any) => ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status));
+  const pendingIvs = interventions.filter((iv: any) => iv.status === 'pending_acceptance');
+  const activeIvs = interventions.filter((iv: any) => ['in_progress', 'en_route', 'dispatched'].includes(iv.status));
   const completedIvs = interventions.filter((iv: any) => iv.status === 'completed');
-  const displayedIvs = ivTab === 'active' ? activeIvs : completedIvs;
+  const displayedIvs = ivTab === 'pending' ? pendingIvs : ivTab === 'active' ? activeIvs : completedIvs;
   const filteredIntervenants = search.trim()
     ? intervenants.filter((iv: any) => iv.name?.toLowerCase().includes(search.toLowerCase()))
     : intervenants;
