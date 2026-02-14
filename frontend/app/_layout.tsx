@@ -65,6 +65,7 @@ export default function RootLayout() {
     <ThemeProvider>
       <I18nProvider>
         <AuthProvider>
+          <PastelMistBackground />
           <RootNav />
         </AuthProvider>
       </I18nProvider>
