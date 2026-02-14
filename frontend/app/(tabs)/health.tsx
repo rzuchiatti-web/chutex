@@ -50,29 +50,27 @@ function AdminClients({ token }: { token: string }) {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchUsers(); }} tintColor="#000" />}>
         {displayed.map(u => (
-          <GlassCard key={u.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
-            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: tab === 'beneficiary' ? '#4FC3F7' : '#FFD54F', justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{u.name?.charAt(0)?.toUpperCase()}</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{u.name}</Text>
-              <Text style={{ fontSize: 12, color: '#888' }}>{u.email}</Text>
-              {u.phone && <Text style={{ fontSize: 11, color: '#AAA' }}>{u.phone}</Text>}
-              {u.is_prescriber && <Text style={{ fontSize: 10, fontWeight: '700', color: '#9C27B0', marginTop: 2 }}>Prescripteur - {u.prescriber_structure}</Text>}
-              {u.is_intervention_provider && <Text style={{ fontSize: 10, fontWeight: '700', color: '#4CAF50', marginTop: 2 }}>Intervenant Care</Text>}
-              {u.subscription_type && u.subscription_type !== 'none' && (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 }}>
-                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: u.subscription_type === 'care' ? '#9C27B0' : '#2196F3' }} />
-                  <Text style={{ fontSize: 10, fontWeight: '600', color: u.subscription_type === 'care' ? '#9C27B0' : '#2196F3' }}>Abonnement {u.subscription_type.toUpperCase()}</Text>
-                </View>
-              )}
-            </View>
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ fontSize: 9, color: '#AAA' }}>{u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : ''}</Text>
-              {u.guardians?.length > 0 && <Text style={{ fontSize: 9, color: '#888', marginTop: 2 }}>{u.guardians.length} gardien(s)</Text>}
-              {u.beneficiaries?.length > 0 && <Text style={{ fontSize: 9, color: '#888', marginTop: 2 }}>{u.beneficiaries.length} beneficiaire(s)</Text>}
-            </View>
-          </GlassCard>
+          <TouchableOpacity key={u.id} onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: u.id } })} activeOpacity={0.7}>
+            <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: tab === 'beneficiary' ? '#4FC3F7' : '#FFD54F', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{u.name?.charAt(0)?.toUpperCase()}</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{u.name}</Text>
+                <Text style={{ fontSize: 12, color: '#888' }}>{u.email}</Text>
+                {u.phone && <Text style={{ fontSize: 11, color: '#AAA' }}>{u.phone}</Text>}
+                {u.is_prescriber && <Text style={{ fontSize: 10, fontWeight: '700', color: '#9C27B0', marginTop: 2 }}>Prescripteur - {u.prescriber_structure}</Text>}
+                {u.is_intervention_provider && <Text style={{ fontSize: 10, fontWeight: '700', color: '#4CAF50', marginTop: 2 }}>Intervenant Care</Text>}
+                {u.subscription_type && u.subscription_type !== 'none' && (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 }}>
+                    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: u.subscription_type === 'care' ? '#9C27B0' : '#2196F3' }} />
+                    <Text style={{ fontSize: 10, fontWeight: '600', color: u.subscription_type === 'care' ? '#9C27B0' : '#2196F3' }}>Abonnement {u.subscription_type.toUpperCase()}</Text>
+                  </View>
+                )}
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#888" />
+            </GlassCard>
+          </TouchableOpacity>
         ))}
         {displayed.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
