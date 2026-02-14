@@ -176,3 +176,137 @@ export function HelpCenter({ visible, onClose }: { visible: boolean; onClose: ()
     </Modal>
   );
 }
+
+/* ===== MINI TUTO - Step-by-step contextual guide, shown once ===== */
+export function MiniTuto({ id, steps, triggerLabel }: { id: string; steps: { title: string; text: string; icon?: string }[]; triggerLabel?: string }) {
+  const [visible, setVisible] = useState(false);
+  const [step, setStep] = useState(0);
+  const [dismissed, setDismissed] = useState(true);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const storageKey = `tuto_done_${id}`;
+
+  useEffect(() => {
+    AsyncStorage.getItem(storageKey).then(v => { if (!v) setDismissed(false); });
+  }, []);
+
+  useEffect(() => {
+    if (visible) Animated.timing(fadeAnim, { toValue: 1, duration: 250, useNativeDriver: true }).start();
+  }, [visible, step]);
+
+  const finish = () => { setVisible(false); setDismissed(true); AsyncStorage.setItem(storageKey, 'true'); };
+  const next = () => { if (step < steps.length - 1) { fadeAnim.setValue(0); setStep(step + 1); } else finish(); };
+
+  if (dismissed && !visible) return null;
+
+  return (
+    <>
+      {!visible && (
+        <TouchableOpacity onPress={() => { setStep(0); setVisible(true); }} data-testid={`tuto-trigger-${id}`}
+          style={{ backgroundColor: '#E3F2FD', borderRadius: 14, padding: 12, marginBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: '#BBDEFB' }}>
+          <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#2196F3', justifyContent: 'center', alignItems: 'center' }}>
+            <Ionicons name="school-outline" size={16} color="#FFF" />
+          </View>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#1565C0', flex: 1 }}>{triggerLabel || 'Decouvrir comment ca marche'}</Text>
+          <Ionicons name="play-circle" size={22} color="#2196F3" />
+          <TouchableOpacity onPress={() => { setDismissed(true); AsyncStorage.setItem(storageKey, 'true'); }} style={{ padding: 2 }}>
+            <Ionicons name="close" size={16} color="#90CAF9" />
+          </TouchableOpacity>
+        </TouchableOpacity>
+      )}
+      <Modal visible={visible} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+          <Animated.View style={{ opacity: fadeAnim, backgroundColor: '#FFF', borderRadius: 28, padding: 28, width: '100%', maxWidth: 400, ...glass }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                {steps.map((_, i) => (
+                  <View key={i} style={{ width: i === step ? 24 : 8, height: 8, borderRadius: 4, backgroundColor: i === step ? '#2196F3' : i < step ? '#4CAF50' : '#E0E0E0' }} />
+                ))}
+              </View>
+              <TouchableOpacity onPress={finish}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
+            </View>
+            <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center', alignSelf: 'center', marginBottom: 16 }}>
+              <Ionicons name={(steps[step]?.icon || 'information-circle') as any} size={28} color="#2196F3" />
+            </View>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', textAlign: 'center', marginBottom: 8 }}>{steps[step]?.title}</Text>
+            <Text style={{ fontSize: 14, color: '#555', lineHeight: 22, textAlign: 'center', marginBottom: 24 }}>{steps[step]?.text}</Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              {step > 0 && (
+                <TouchableOpacity onPress={() => { fadeAnim.setValue(0); setStep(step - 1); }}
+                  style={{ flex: 1, borderWidth: 1.5, borderColor: '#E0E0E0', borderRadius: 14, paddingVertical: 14, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Retour</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity onPress={next} data-testid={`tuto-next-${id}`}
+                style={{ flex: 2, backgroundColor: step === steps.length - 1 ? '#4CAF50' : '#2196F3', borderRadius: 14, paddingVertical: 14, alignItems: 'center' }}>
+                <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>
+                  {step === steps.length - 1 ? 'Compris !' : `Suivant (${step + 1}/${steps.length})`}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </View>
+      </Modal>
+    </>
+  );
+}
+
+/* ===== PAGE EXPLAINER - "Comprendre cette page" bottom sheet ===== */
+export function PageExplainer({ pageId, title, sections }: { pageId: string; title: string; sections: { icon: string; heading: string; text: string }[] }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <>
+      <TouchableOpacity onPress={() => setVisible(true)} data-testid={`explainer-${pageId}`}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'center', marginBottom: 12, paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20, backgroundColor: 'rgba(33,150,243,0.06)', borderWidth: 1, borderColor: 'rgba(33,150,243,0.12)' }}>
+        <Ionicons name="book-outline" size={14} color="#2196F3" />
+        <Text style={{ fontSize: 12, fontWeight: '600', color: '#2196F3' }}>Comprendre cette page</Text>
+      </TouchableOpacity>
+      <Modal visible={visible} transparent animationType="slide">
+        <TouchableOpacity activeOpacity={1} onPress={() => setVisible(false)} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}>
+          <TouchableOpacity activeOpacity={1} onPress={() => {}} style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '80%' }}>
+            <View style={{ alignItems: 'center', paddingTop: 12 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} /></View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, gap: 10 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="book" size={20} color="#2196F3" />
+              </View>
+              <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', flex: 1 }}>{title}</Text>
+              <TouchableOpacity onPress={() => setVisible(false)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
+            </View>
+            <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40, gap: 16 }}>
+              {sections.map((s, i) => (
+                <View key={i} style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center', marginTop: 2 }}>
+                    <Ionicons name={s.icon as any} size={18} color="#2196F3" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '800', color: '#000', marginBottom: 4 }}>{s.heading}</Text>
+                    <Text style={{ fontSize: 13, color: '#555', lineHeight: 20 }}>{s.text}</Text>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+    </>
+  );
+}
+
+/* ===== EMPTY STATE - Pedagogical empty state with action ===== */
+export function EmptyState({ icon, title, subtitle, actionLabel, onAction, testId }: { icon: string; title: string; subtitle: string; actionLabel?: string; onAction?: () => void; testId?: string }) {
+  return (
+    <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 32, alignItems: 'center', ...glass }} data-testid={testId}>
+      <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(33,150,243,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+        <Ionicons name={icon as any} size={30} color="#90CAF9" />
+      </View>
+      <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', textAlign: 'center', marginBottom: 6 }}>{title}</Text>
+      <Text style={{ fontSize: 13, color: '#888', textAlign: 'center', lineHeight: 20, paddingHorizontal: 10 }}>{subtitle}</Text>
+      {actionLabel && onAction && (
+        <TouchableOpacity onPress={onAction} style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, paddingHorizontal: 24, marginTop: 16, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>{actionLabel}</Text>
+          <Ionicons name="arrow-forward" size={14} color="#FFF" />
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+
