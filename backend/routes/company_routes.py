@@ -143,8 +143,93 @@ async def assign_prescriber_to_agency(prescriber_id: str, data: dict, user=Depen
     return {"status": "assigned"}
 
 
-@router.delete("/company/agencies/{agency_id}")
-async def delete_agency(agency_id: str, user=Depends(get_current_user)):
+@router.get("/company/intervenants")
+async def company_intervenants(user=Depends(get_current_user)):
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    company_id = user['id']
+    intervenants = await db.users.find(
+        {"prescriber_company_id": company_id, "is_intervention_provider": True},
+        {"_id": 0, "password_hash": 0}
+    ).to_list(200)
+    agencies = await db.agencies.find({"company_id": company_id}, {"_id": 0}).to_list(50)
+    result = []
+    for iv in intervenants:
+        agency_name = next((a['name'] for a in agencies if a['id'] == iv.get('agency_id')), 'Non assigne')
+        interventions = await db.interventions.find({"assigned_to": iv['id']}, {"_id": 0}).to_list(100)
+        result.append({
+            "id": iv['id'], "name": iv.get('name', ''), "email": iv.get('email', ''),
+            "phone": iv.get('phone', ''), "address": iv.get('address', ''),
+            "intervention_structure": iv.get('intervention_structure', iv.get('structure_name', '')),
+            "intervention_radius_km": iv.get('intervention_radius_km', 30),
+            "agency_id": iv.get('agency_id'), "agency_name": agency_name,
+            "profession": iv.get('profession', ''),
+            "total_interventions": len(interventions),
+            "active_interventions": len([i for i in interventions if i.get('status') in ('pending_acceptance', 'in_progress', 'en_route', 'dispatched')]),
+            "completed_interventions": len([i for i in interventions if i.get('status') == 'completed']),
+        })
+    return result
+
+
+@router.get("/company/intervenant/{intervenant_id}")
+async def get_intervenant_detail(intervenant_id: str, user=Depends(get_current_user)):
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    intervenant = await db.users.find_one(
+        {"id": intervenant_id, "prescriber_company_id": user['id'], "is_intervention_provider": True},
+        {"_id": 0, "password_hash": 0}
+    )
+    if not intervenant:
+        raise HTTPException(status_code=404, detail="Intervenant non trouve")
+    agency = None
+    if intervenant.get('agency_id'):
+        agency = await db.agencies.find_one({"id": intervenant['agency_id']}, {"_id": 0})
+    interventions = await db.interventions.find({"assigned_to": intervenant_id}, {"_id": 0}).to_list(200)
+    return {
+        "intervenant": intervenant,
+        "agency": agency,
+        "interventions": interventions,
+        "total_interventions": len(interventions),
+        "active_interventions": len([i for i in interventions if i.get('status') in ('pending_acceptance', 'in_progress', 'en_route', 'dispatched')]),
+        "completed_interventions": len([i for i in interventions if i.get('status') == 'completed']),
+    }
+
+
+@router.put("/company/intervenant/{intervenant_id}/assign")
+async def assign_intervenant_to_agency(intervenant_id: str, data: dict, user=Depends(get_current_user)):
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    agency_id = data.get('agency_id')
+    await db.users.update_one(
+        {"id": intervenant_id, "prescriber_company_id": user['id']},
+        {"$set": {"agency_id": agency_id}}
+    )
+    return {"status": "assigned"}
+
+
+@router.get("/company/interventions")
+async def company_interventions(user=Depends(get_current_user)):
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    company_id = user['id']
+    # Get intervenants of this company
+    intervenants = await db.users.find(
+        {"prescriber_company_id": company_id, "is_intervention_provider": True},
+        {"_id": 0, "password_hash": 0}
+    ).to_list(200)
+    intervenant_ids = [iv['id'] for iv in intervenants]
+    # Get interventions assigned to these intervenants
+    interventions = await db.interventions.find(
+        {"assigned_to": {"$in": intervenant_ids}},
+        {"_id": 0}
+    ).to_list(500)
+    # Enrich with intervenant names
+    for iv in interventions:
+        assigned = next((i for i in intervenants if i['id'] == iv.get('assigned_to')), None)
+        if assigned:
+            iv['intervenant_name'] = assigned.get('name', '')
+            iv['intervenant_structure'] = assigned.get('intervention_structure', assigned.get('structure_name', ''))
+    return interventions
     if user.get('role') != 'prescriber_company':
         raise HTTPException(status_code=403, detail="Acces entreprise requis")
     # Unassign prescribers from this agency
