@@ -205,6 +205,7 @@ export default function ProfileScreen() {
           )}
           <MenuItem icon="language-outline" label={`${t('language')} (${lang})`} onPress={() => setShowLangPicker(true)} />
           <MenuItem icon="document-text-outline" label={t('terms')} onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
+          <MenuItem icon="help-buoy-outline" label="Centre d'aide" onPress={() => setShowHelp(true)} />
           <MenuItem icon="help-circle-outline" label={t('support')} onPress={() => setShowContact(true)} />
           <MenuItem icon="information-circle-outline" label={`${t('about')} - Chutex v3.0`} onPress={() => Alert.alert('CHUTEX', 'Version 3.0\nChutex Innovation SAS')} />
         </GlassCard>
