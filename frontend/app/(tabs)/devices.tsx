@@ -299,23 +299,28 @@ function SubscribersList({ token }: { token: string }) {
 function AdminPrescripteurs({ token }: { token: string }) {
   const [codes, setCodes] = useState<any[]>([]);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const [prescribers, setPrescribers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editCode, setEditCode] = useState<any>(null);
   const [form, setForm] = useState({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', max_uses: '50' });
   const [saving, setSaving] = useState(false);
+  const [tab, setTab] = useState<'codes'|'prescribers'|'prescriptions'>('codes');
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const [c, p] = await Promise.all([
-          apiFetch('/api/admin/activation-codes', {}, token).catch(() => []),
-          apiFetch('/api/backoffice/prescriptions', {}, token).catch(() => []),
-        ]);
-        setCodes(c); setPrescriptions(p);
-      } catch {} finally { setLoading(false); }
-    })();
-  }, []);
+  const fetchAll = useCallback(async () => {
+    try {
+      const [c, p, u] = await Promise.all([
+        apiFetch('/api/admin/activation-codes', {}, token).catch(() => []),
+        apiFetch('/api/backoffice/prescriptions', {}, token).catch(() => []),
+        apiFetch('/api/backoffice/users', {}, token).catch(() => []),
+      ]);
+      setCodes(c); setPrescriptions(p);
+      setPrescribers((u || []).filter((usr: any) => usr.is_prescriber));
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [token]);
+
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const saveCode = async () => {
     if (!form.structure_name) return Alert.alert('Erreur', 'Nom de structure requis');
