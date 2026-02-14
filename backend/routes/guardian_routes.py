@@ -152,7 +152,7 @@ async def invite_guardian(data: dict, user=Depends(get_current_user)):
             try:
                 ben_name = user.get('name', 'Un proche')
                 twilio_client.messages.create(
-                    body=f"{ben_name} souhaite vous ajouter comme gardien sur Chutex, l'application de teleassistance. Inscrivez-vous sur https://care-dispatch-3.preview.emergentagent.com pour veiller sur votre proche.",
+                    body=f"{ben_name} souhaite vous ajouter comme gardien sur Chutex, l'application de teleassistance. Inscrivez-vous sur https://teleassistance-dash.preview.emergentagent.com pour veiller sur votre proche.",
                     from_=TWILIO_NUMBER,
                     to=cleaned,
                 )

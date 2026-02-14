@@ -7,9 +7,9 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://care-dispatch-3.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://teleassistance-dash.preview.emergentagent.com')
 if not BASE_URL.startswith('http'):
-    BASE_URL = 'https://care-dispatch-3.preview.emergentagent.com'
+    BASE_URL = 'https://teleassistance-dash.preview.emergentagent.com'
 
 # Test credentials
 BENEFICIARY_EMAIL = "robert.martin@email.fr"
