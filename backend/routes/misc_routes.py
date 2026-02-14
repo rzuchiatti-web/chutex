@@ -157,6 +157,117 @@ async def update_intervention(iid: str, data: InterventionUpdate, user=Depends(g
     return {"status": "updated"}
 
 
+@router.post("/interventions/{iid}/accept")
+async def accept_intervention(iid: str, user=Depends(get_current_user)):
+    """First intervenant to accept locks the intervention"""
+    iv = await db.interventions.find_one({"id": iid}, {"_id": 0})
+    if not iv:
+        raise HTTPException(status_code=404, detail="Intervention non trouvee")
+    if iv.get('status') != 'pending_acceptance':
+        raise HTTPException(status_code=409, detail="Intervention deja acceptee par un autre intervenant")
+    # Check user is in recipients
+    recipient_ids = [r['id'] for r in iv.get('recipients', [])]
+    if user['id'] not in recipient_ids:
+        raise HTTPException(status_code=403, detail="Vous n'etes pas destinataire de cette intervention")
+    now = datetime.now(timezone.utc).isoformat()
+    # Get user's location
+    user_full = await db.users.find_one({"id": user['id']}, {"_id": 0, "password_hash": 0})
+    iv_location = None
+    if user_full:
+        iv_location = {"latitude": user_full.get('latitude', 45.44), "longitude": user_full.get('longitude', 4.39)}
+    result = await db.interventions.update_one(
+        {"id": iid, "status": "pending_acceptance"},
+        {"$set": {
+            "status": "en_route", "assigned_to": user['id'], "assigned_name": user.get('name', ''),
+            "accepted_at": now, "intervenant_location": iv_location,
+        }, "$push": {"timeline": {"status": "accepted", "time": now, "note": f"{user.get('name', '')} a accepte l'intervention"}}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=409, detail="Intervention deja acceptee par un autre intervenant")
+    # Update incident
+    if iv.get('incident_id'):
+        await db.incidents.update_one({"id": iv['incident_id']}, {"$set": {"care_provider": user.get('name', ''), "assigned_guardian": {"id": user['id'], "name": user.get('name', '')}}})
+    # Update alert
+    if iv.get('alert_id'):
+        await db.alerts.update_one({"id": iv['alert_id']}, {"$set": {"teleassistance_status": "INTERVENANT_EN_ROUTE"}})
+    return {"status": "accepted", "intervention_id": iid}
+
+
+@router.post("/interventions/{iid}/position")
+async def update_intervention_position(iid: str, data: dict, user=Depends(get_current_user)):
+    """Update intervenant's live position during intervention"""
+    iv = await db.interventions.find_one({"id": iid}, {"_id": 0})
+    if not iv or iv.get('assigned_to') != user['id']:
+        raise HTTPException(status_code=403, detail="Non autorise")
+    lat = data.get('latitude')
+    lng = data.get('longitude')
+    if lat and lng:
+        await db.interventions.update_one({"id": iid}, {"$set": {
+            "intervenant_location": {"latitude": lat, "longitude": lng, "updated_at": datetime.now(timezone.utc).isoformat()}
+        }})
+        # Also update user's location
+        await db.locations.update_one({"user_id": user['id']}, {"$set": {"user_id": user['id'], "latitude": lat, "longitude": lng, "updated_at": datetime.now(timezone.utc).isoformat()}}, upsert=True)
+    return {"status": "updated"}
+
+
+@router.get("/interventions/{iid}/tracking")
+async def get_intervention_tracking(iid: str, user=Depends(get_current_user)):
+    """Get live tracking data for an intervention - for followers"""
+    iv = await db.interventions.find_one({"id": iid}, {"_id": 0})
+    if not iv:
+        raise HTTPException(status_code=404, detail="Intervention non trouvee")
+    # Simulate slight movement if no real GPS
+    ben_loc = iv.get('beneficiary_location', {})
+    iv_loc = iv.get('intervenant_location')
+    if iv_loc and iv.get('status') == 'en_route':
+        # Simulate movement towards beneficiary
+        iv_loc = {
+            "latitude": iv_loc.get('latitude', ben_loc.get('latitude', 45.47)) + random.uniform(-0.002, 0.002),
+            "longitude": iv_loc.get('longitude', ben_loc.get('longitude', 4.51)) + random.uniform(-0.002, 0.002),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+    return {
+        "intervention_id": iid,
+        "status": iv.get('status'),
+        "beneficiary_location": ben_loc,
+        "intervenant_location": iv_loc,
+        "intervenant_name": iv.get('assigned_name'),
+        "beneficiary_name": iv.get('beneficiary_name'),
+        "beneficiary_info": iv.get('beneficiary_info'),
+        "alert_type": iv.get('alert_type'),
+        "alert_message": iv.get('alert_message'),
+        "distance_km": iv.get('distance_km'),
+        "accepted_at": iv.get('accepted_at'),
+        "timeline": iv.get('timeline', []),
+    }
+
+
+@router.get("/interventions/{iid}/detail")
+async def get_intervention_full_detail(iid: str, user=Depends(get_current_user)):
+    """Get full intervention detail with alert, beneficiary, intervenant info"""
+    iv = await db.interventions.find_one({"id": iid}, {"_id": 0})
+    if not iv:
+        raise HTTPException(status_code=404, detail="Intervention non trouvee")
+    # Get alert info
+    alert = None
+    if iv.get('alert_id'):
+        alert = await db.alerts.find_one({"id": iv['alert_id']}, {"_id": 0})
+    # Get intervenant info
+    intervenant = None
+    if iv.get('assigned_to'):
+        intervenant = await db.users.find_one({"id": iv['assigned_to']}, {"_id": 0, "password_hash": 0})
+    # Get beneficiary full info
+    beneficiary = None
+    if iv.get('beneficiary_id'):
+        beneficiary = await db.users.find_one({"id": iv['beneficiary_id']}, {"_id": 0, "password_hash": 0})
+    return {
+        "intervention": iv,
+        "alert": alert,
+        "intervenant": intervenant,
+        "beneficiary": beneficiary,
+    }
+
+
 # ==================== LOCATION ====================
 @router.post("/location/update")
 async def update_location(data: LocationUpdate, user=Depends(get_current_user)):
