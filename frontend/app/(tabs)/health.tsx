@@ -93,6 +93,7 @@ function AdminClients({ token }: { token: string }) {
 
 /* ===== COMPANY: AGENCES ===== */
 function CompanyAgences({ token }: { token: string }) {
+  const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
