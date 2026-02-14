@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal, ScrollView, Platform, TextInput } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, Modal, ScrollView, Platform, TextInput, Animated, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } : {};
+const { width: SCREEN_W } = Dimensions.get('window');
 
 /* ===== HELP BUBBLE - "?" button that shows contextual help ===== */
 export function HelpBubble({ id, title, description, steps }: { id: string; title: string; description: string; steps?: string[] }) {
