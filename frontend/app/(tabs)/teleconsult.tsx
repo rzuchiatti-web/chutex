@@ -878,8 +878,10 @@ function CompanyInterventionsTab({ token }: { token: string }) {
           ))}
           {displayedIvs.length === 0 && (
             <View style={{ alignItems: 'center', paddingVertical: 40, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, ...glass }}>
-              <Ionicons name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
-              <Text style={{ fontSize: 15, fontWeight: '700', color: '#888', marginTop: 12 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
+              <Ionicons name={ivTab === 'pending' ? 'time-outline' : ivTab === 'active' ? 'navigate-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#888', marginTop: 12 }}>
+                {ivTab === 'pending' ? 'Aucune intervention en attente' : ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}
+              </Text>
             </View>
           )}
         </>}
