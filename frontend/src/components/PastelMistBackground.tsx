@@ -37,14 +37,8 @@ export function PastelMistBackground() {
     style.id = 'pastel-mist-v4';
     style.textContent = `
       body { background: #FFFFFF !important; }
-      #root, #root > *, #root > * > *, #root > * > * > *, #root > * > * > * > *, #root > * > * > * > * > * { background-color: transparent !important; }
-      .css-view-g5y9jx { background-color: transparent !important; }
-      [data-testid="dashboard-screen"],
-      [data-testid="alerts-screen"],
-      [data-testid="health-screen"],
-      [data-testid="teleconsult-screen"],
-      [data-testid="devices-screen"],
-      [data-testid="profile-screen"] { background-color: transparent !important; }
+      div[class*="css-view"] { background-color: transparent !important; }
+      [data-testid] { background-color: transparent !important; }
       [role="tabpanel"] { background-color: transparent !important; }
       #mist-container-v4 { position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0;overflow:hidden; }
       @keyframes mv4-0{0%,100%{transform:translate(0,0) scale(1) rotate(0deg)}30%{transform:translate(30px,-20px) scale(1.06) rotate(3deg)}60%{transform:translate(-15px,25px) scale(0.97) rotate(-2deg)}}
