@@ -43,6 +43,9 @@ export default function AlertDetailScreen() {
   const [accepting, setAccepting] = useState(false);
   const [callLoading, setCallLoading] = useState('');
   const [escalating, setEscalating] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [reportForm, setReportForm] = useState({ description: '', actions_taken: '', patient_condition: 'stable', follow_up_needed: false, follow_up_notes: '' });
+  const [submittingReport, setSubmittingReport] = useState(false);
 
   const fetchData = useCallback(async () => {
     try { setData(await apiFetch(`/api/alerts/${alertId}/detail`, {}, token)); }
