@@ -830,6 +830,7 @@ function AdminHome({ token, user }: { token: string; user: any }) {
   const { colors } = useTheme();
   const [stats, setStats] = useState<any>(null);
   const [kpi, setKpi] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -840,6 +841,7 @@ function AdminHome({ token, user }: { token: string; user: any }) {
         apiFetch('/api/backoffice/kpi', {}, token).catch(() => null),
       ]);
       setStats(s); setKpi(k);
+      apiFetch('/api/backoffice/analytics', {}, token).then(a => setAnalytics(a)).catch(() => {});
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
