@@ -17,34 +17,50 @@
 - CSS injecte `position: fixed` sur `[role="tablist"]` via useEffect dans _layout.tsx
 - Fonctionne sur toutes les pages
 
-## EN COURS - Refonte UX/UI Alertes & Interventions
-### Backend ajoute
-- GET /api/alerts/active-with-interventions - retourne alertes actives enrichies avec interventions et infos intervenant
+## Changement de role (FIXED - Feb 14, 2026)
+- Probleme: Contenu des pages ne se mettait pas a jour apres switch de role
+- Solution: key={effectiveRole} sur Tabs (_layout.tsx) + chaque ecran tab (index.tsx, teleconsult.tsx, devices.tsx, alerts.tsx)
+- Force un remount complet quand le role change
 
-### A FAIRE (prochain fork)
-1. **Dashboard beneficiaire** (index.tsx BeneficiaryHome):
-   - Ajouter fetch `/api/alerts/active-with-interventions` dans fetchData
-   - Afficher carte alerte active EN HAUT du dashboard (avant SOS) avec: type, message, heure, statut protocole, qui intervient
-   - Carte disparait quand alerte resolue
-   - Bouton cloche -> ouvre modal notifications (alertes actives, interventions en cours)
+## Backoffice Admin (FIXED - Feb 14, 2026)
+- Probleme: Codes d'activation/intervention sans champ `id` dans la DB (donnees seed)
+- Solution: Migration DB pour ajouter id UUID, seed script mis a jour
+- Probleme 2: useEffect avec [] ne re-fetche pas quand token disponible
+- Solution: Dependance [token] avec guard if (!token) return
+- Probleme 3: data-testid au lieu de testID (React Native Web)
+- Solution: Remplacement par testID
 
-2. **Dashboard gardien** (index.tsx GuardianHome):
-   - Meme fetch alertes actives
-   - Voir alertes beneficiaires avec qui intervient (ex: "Ludivine Moutio en route")
-   - Statut intervention mis a jour en temps reel
+## Refonte UX/UI Alertes & Interventions (DONE)
+### Dashboard beneficiaire (index.tsx)
+- Fetch `/api/alerts/active-with-interventions` toutes les 30s
+- Carte alerte active EN HAUT avec type, message, heure, statut protocole, qui intervient
+- Cloche notifications fonctionnelle avec dropdown alertes + invitations gardien
 
-3. **Carte Intervenant Care** (teleconsult.tsx GuardianInterventions):
-   - Rendre la carte cliquable -> modal avec infos entreprise (nom, SIRET, adresse, rayon)
-   - Bouton desactiver dans le modal
-   - Code deja fait partiellement mais pas modal
+### Dashboard gardien (index.tsx)
+- Fetch alertes actives toutes les 10s
+- Alertes beneficiaires avec qui intervient (ex: "Ludivine Moutio en route")
+- Cartes intervention en attente d'acceptation
 
-4. **Page alertes redesignee** (alerts.tsx):
-   - Chaque carte alerte = infos claires: icone type, message, beneficiaire, heure, statut TA, intervenant
-   - Couleurs selon severite
+### Carte Intervenant Care (teleconsult.tsx)
+- Carte cliquable -> modal avec infos entreprise (structure, SIRET, adresse, rayon)
+- Bouton desactiver dans le modal
 
-5. **Page intervention-detail** (intervention-detail.tsx):
-   - Statut mis a jour en temps reel
-   - Infos intervenant avec coordonnees
+### Page alertes (alerts.tsx)
+- Tabs Actives/Resolues
+- Cartes avec icone type, message, beneficiaire, heure, statut TA, intervenant
+- Couleurs selon severite
+- Auto-refresh 10s
+
+### Page intervention-detail (intervention-detail.tsx)
+- Statut mis a jour en temps reel (polling 5s)
+- Infos beneficiaire + coordonnees GPS
+- Timeline + rapport QCM
+- Actions: Accepter/Cloturer
+
+### Plateau d'ecoute IA (teleconsult.tsx pour teleassistance)
+- Dashboard temps reel incidents CARE WATCH
+- Stats en cours, resolus, dispatches, taux reponse
+- Detail incident avec timeline + transcriptions
 
 ## Comptes de test
 | Role | Email | MdP | Localisation |
@@ -57,7 +73,7 @@
 | Admin | admin@chutex.fr | demo123 | - |
 
 ## Backlog
-- P1: Dashboard Plateau d'ecoute frontend (teleconsult.tsx pour teleassistance)
-- P1: Reporting avance
-- P2: Build natif Android/iOS + BLE
-- P3: Shopify, Balance Lefu
+- P1: Build natif Android/iOS + BLE (bracelet J-Style, gilet S-AIRBAG)
+- P2: Reporting avance
+- P3: Shopify (bloque sur plan utilisateur), Balance Lefu
+- P3: Hypnogramme sommeil avec donnees reelles (actuellement simule)
