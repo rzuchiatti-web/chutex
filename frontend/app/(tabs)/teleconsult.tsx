@@ -776,7 +776,149 @@ function CompanyPrescriptions({ token }: { token: string }) {
   );
 }
 
-/* ===== COMPANY: INTERVENANTS LIST ===== */
+/* ===== COMPANY: INTERVENTIONS TAB (with intervenants sub-section) ===== */
+function CompanyInterventionsTab({ token }: { token: string }) {
+  const router = useRouter();
+  const [interventions, setInterventions] = useState<any[]>([]);
+  const [intervenants, setIntervenants] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [tab, setTab] = useState<'interventions' | 'intervenants'>('interventions');
+  const [ivTab, setIvTab] = useState<'active' | 'completed'>('active');
+  const [search, setSearch] = useState('');
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [ivs, ivants] = await Promise.all([
+        apiFetch('/api/company/interventions', {}, token),
+        apiFetch('/api/company/intervenants', {}, token),
+      ]);
+      setInterventions(Array.isArray(ivs) ? ivs : []);
+      setIntervenants(Array.isArray(ivants) ? ivants : []);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [token]);
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#000" /></View>;
+
+  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+  const activeIvs = interventions.filter((iv: any) => ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status));
+  const completedIvs = interventions.filter((iv: any) => iv.status === 'completed');
+  const displayedIvs = ivTab === 'active' ? activeIvs : completedIvs;
+  const filteredIntervenants = search.trim()
+    ? intervenants.filter((iv: any) => iv.name?.toLowerCase().includes(search.toLowerCase()))
+    : intervenants;
+
+  const stColor = (st: string) => ({ pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' }[st] || '#888');
+  const stLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Interventions</Text>
+        <Text style={{ fontSize: 12, color: '#888' }}>{interventions.length} interventions · {intervenants.length} intervenants</Text>
+      </View>
+
+      {/* Main tabs */}
+      <View style={{ flexDirection: 'row', marginHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'interventions' && { backgroundColor: '#000' }]} onPress={() => setTab('interventions')}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'interventions' ? '#FFF' : '#888' }}>Missions ({interventions.length})</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'intervenants' && { backgroundColor: '#000' }]} onPress={() => setTab('intervenants')}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'intervenants' ? '#FFF' : '#888' }}>Intervenants ({intervenants.length})</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />}>
+
+        {/* INTERVENTIONS SUB */}
+        {tab === 'interventions' && <>
+          <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
+            <TouchableOpacity style={[{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 11 }, ivTab === 'active' && { backgroundColor: '#FF9800' }]} onPress={() => setIvTab('active')}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: ivTab === 'active' ? '#FFF' : '#888' }}>En cours ({activeIvs.length})</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 11 }, ivTab === 'completed' && { backgroundColor: '#4CAF50' }]} onPress={() => setIvTab('completed')}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: ivTab === 'completed' ? '#FFF' : '#888' }}>Terminees ({completedIvs.length})</Text>
+            </TouchableOpacity>
+          </View>
+          {displayedIvs.map((iv: any) => (
+            <TouchableOpacity key={iv.id} activeOpacity={0.7}
+              onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: iv.id } })}>
+              <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: stColor(iv.status), ...glass }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: stColor(iv.status) + '15', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={22} color={stColor(iv.status)} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 15, fontWeight: '800', color: '#000' }}>{iv.beneficiary_name}</Text>
+                    <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{iv.alert_message || 'Intervention'}</Text>
+                  </View>
+                  {iv.distance_km && (
+                    <View style={{ backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, alignItems: 'center' }}>
+                      <Text style={{ fontSize: 14, fontWeight: '900', color: stColor(iv.status) }}>{iv.distance_km}</Text>
+                      <Text style={{ fontSize: 8, fontWeight: '700', color: '#888' }}>KM</Text>
+                    </View>
+                  )}
+                  <Ionicons name="chevron-forward" size={16} color="#888" />
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 10, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
+                  <Ionicons name="person" size={12} color="#9C27B0" />
+                  <Text style={{ fontSize: 11, color: '#9C27B0', fontWeight: '600', flex: 1 }}>{iv.intervenant_name || iv.assigned_name || 'En attente d\'acceptation'}</Text>
+                  <View style={{ backgroundColor: stColor(iv.status) + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: stColor(iv.status) }}>{stLabel(iv.status).toUpperCase()}</Text>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+          {displayedIvs.length === 0 && (
+            <View style={{ alignItems: 'center', paddingVertical: 40, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, ...glass }}>
+              <Ionicons name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#888', marginTop: 12 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
+            </View>
+          )}
+        </>}
+
+        {/* INTERVENANTS SUB */}
+        {tab === 'intervenants' && <>
+          <View style={{ marginBottom: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
+              <Ionicons name="search-outline" size={16} color="#888" />
+              <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: '#000' }}
+                placeholder="Rechercher..." placeholderTextColor="#AAA" value={search} onChangeText={setSearch} />
+            </View>
+          </View>
+          {filteredIntervenants.map((iv: any) => (
+            <TouchableOpacity key={iv.id} activeOpacity={0.7}
+              onPress={() => router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: iv.id } })}>
+              <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 12, ...glass }}>
+                <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#9C27B0', justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.name?.charAt(0)?.toUpperCase()}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{iv.name}</Text>
+                  <Text style={{ fontSize: 11, color: '#888' }}>{iv.profession || 'Intervenant Care'} · {iv.agency_name}</Text>
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={{ fontSize: 11, color: '#888' }}>{iv.total_interventions} missions</Text>
+                  {iv.active_interventions > 0 && (
+                    <View style={{ backgroundColor: '#FF980015', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginTop: 2 }}>
+                      <Text style={{ fontSize: 10, fontWeight: '700', color: '#FF9800' }}>{iv.active_interventions} actives</Text>
+                    </View>
+                  )}
+                </View>
+                <Ionicons name="chevron-forward" size={16} color="#888" />
+              </View>
+            </TouchableOpacity>
+          ))}
+        </>}
+      </ScrollView>
+    </View>
+  );
+}
+
+/* ===== COMPANY: INTERVENANTS LIST (kept for backward compat) ===== */
 function CompanyIntervenants({ token }: { token: string }) {
   const router = useRouter();
   const [intervenants, setIntervenants] = useState<any[]>([]);
