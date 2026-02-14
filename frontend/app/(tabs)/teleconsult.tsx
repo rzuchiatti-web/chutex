@@ -422,6 +422,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
 /* ===== ADMIN: INTERVENANTS MANAGEMENT ===== */
 function AdminIntervenants({ token }: { token: string }) {
+  const router = useRouter();
   const [codes, setCodes] = useState<any[]>([]);
   const [providers, setProviders] = useState<any[]>([]);
   const [interventions, setInterventions] = useState<any[]>([]);
