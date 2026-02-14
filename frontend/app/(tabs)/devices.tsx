@@ -241,6 +241,16 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               {user.phone && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="call-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.phone}</Text></View>}
               {user.email && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="mail-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.email}</Text></View>}
             </View>
+            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14, paddingVertical: 10, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)', borderRadius: 12 }}
+              onPress={() => confirmAction('Desactiver', 'Vous ne pourrez plus prescrire d\'abonnements. Vos prescriptions existantes restent actives. Confirmez ?', async () => {
+                try {
+                  await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_prescriber: false }) }, token);
+                  await refreshUser();
+                } catch {}
+              })}>
+              <Ionicons name="settings-outline" size={14} color="#888" />
+              <Text style={{ fontSize: 13, fontWeight: '600', color: '#555' }}>Gerer mon espace</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Tabs En cours / Validees */}
