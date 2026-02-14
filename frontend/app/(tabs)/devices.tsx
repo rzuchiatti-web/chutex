@@ -221,37 +221,68 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         </View>
       ) : (
         <>
-          {/* Header prescripteur with details */}
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12, ...glass }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="medical" size={22} color="#4CAF50" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Espace Prescripteur</Text>
-                <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{user.prescriber_structure}</Text>
-              </View>
-              <View style={{ backgroundColor: '#4CAF50', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
-                <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>Actif</Text>
+          {/* Prescripteur card - clean, green */}
+          <TouchableOpacity onPress={() => setShowPrescModal(true)} activeOpacity={0.7}>
+            <View style={{ backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 20, padding: 20, marginBottom: 12, borderWidth: 1.5, borderColor: 'rgba(76,175,80,0.15)' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name="medical" size={24} color="#4CAF50" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Text style={{ fontSize: 17, fontWeight: '800', color: '#000' }}>Prescripteur</Text>
+                    <View style={{ backgroundColor: '#4CAF50', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
+                    </View>
+                  </View>
+                  <Text style={{ fontSize: 12, color: '#555', marginTop: 3 }}>{user.prescriber_structure}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color="#4CAF50" />
               </View>
             </View>
-            <View style={{ backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: 12, padding: 12, gap: 6 }}>
-              {user.prescriber_structure && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="business-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.prescriber_structure}</Text></View>}
-              {user.prescriber_code_used && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="key-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>Code : {user.prescriber_code_used}</Text></View>}
-              {user.phone && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="call-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.phone}</Text></View>}
-              {user.email && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="mail-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.email}</Text></View>}
+          </TouchableOpacity>
+
+          {/* Prescripteur Modal */}
+          <Modal visible={showPrescModal} transparent animationType="fade" onRequestClose={() => setShowPrescModal(false)}>
+            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+              <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                  <Text style={{ fontSize: 20, fontWeight: '900', color: '#2E7D32' }}>Espace Prescripteur</Text>
+                  <TouchableOpacity onPress={() => setShowPrescModal(false)}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
+                </View>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                    <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
+                      <Ionicons name="medical" size={24} color="#4CAF50" />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{user.name}</Text>
+                      <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{user.prescriber_structure}</Text>
+                    </View>
+                  </View>
+                  {[
+                    { icon: 'business-outline', label: 'Structure', value: user.prescriber_structure || '-' },
+                    { icon: 'key-outline', label: 'Code utilise', value: user.prescriber_code_used || '-' },
+                    { icon: 'call-outline', label: 'Telephone', value: user.phone || '-' },
+                    { icon: 'mail-outline', label: 'Email', value: user.email || '-' },
+                  ].map(({ icon, label, value }) => value !== '-' ? (
+                    <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                      <Ionicons name={icon as any} size={16} color="#4CAF50" />
+                      <Text style={{ fontSize: 12, color: '#888', width: 90 }}>{label}</Text>
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+                    </View>
+                  ) : null)}
+                  <TouchableOpacity style={{ borderWidth: 1.5, borderColor: '#E53935', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 24, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+                    onPress={() => { setShowPrescModal(false); confirmAction('Desactiver', 'Vous ne pourrez plus prescrire. Vos prescriptions existantes restent actives.', async () => {
+                      try { await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_prescriber: false }) }, token); await refreshUser(); } catch {}
+                    }); }}>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#E53935' }}>Desactiver mon espace prescripteur</Text>
+                    <Ionicons name="close-circle-outline" size={16} color="#E53935" />
+                  </TouchableOpacity>
+                </ScrollView>
+              </View>
             </View>
-            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14, paddingVertical: 10, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)', borderRadius: 12 }}
-              onPress={() => confirmAction('Desactiver', 'Vous ne pourrez plus prescrire d\'abonnements. Vos prescriptions existantes restent actives. Confirmez ?', async () => {
-                try {
-                  await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_prescriber: false }) }, token);
-                  await refreshUser();
-                } catch {}
-              })}>
-              <Ionicons name="settings-outline" size={14} color="#888" />
-              <Text style={{ fontSize: 13, fontWeight: '600', color: '#555' }}>Gerer mon espace</Text>
-            </TouchableOpacity>
-          </View>
+          </Modal>
 
           {/* Tabs En cours / Validees */}
           <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
