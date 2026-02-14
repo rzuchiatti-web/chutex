@@ -311,6 +311,12 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const statusColor = (st: string) => ({ pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' }[st] || '#888');
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
+
+  const activeIvs = ivs.filter(iv => ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status));
+  const doneIvs = ivs.filter(iv => ['completed', 'cancelled'].includes(iv.status));
+  const [ivTab, setIvTab] = React.useState<'active'|'done'>('active');
+  const displayedIvs = ivTab === 'active' ? activeIvs : doneIvs;
+
   return (
     <ScrollView contentContainerStyle={[s.sc, { paddingBottom: 80 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchIvs(); }} />}>
       {/* Intervention Care Card */}
@@ -328,35 +334,45 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
           </View>
         </View>
       ) : (
-        <TouchableOpacity testID="care-card-active" onPress={() => setShowCareModal(true)} activeOpacity={0.7}>
-          <View style={{ backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 18, padding: 18, marginBottom: 16, borderWidth: 1.5, borderColor: 'rgba(76,175,80,0.2)' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(76,175,80,0.15)', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="shield-checkmark" size={24} color={Colors.success} />
+        <>
+          {/* Header intervenant with details */}
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="shield-checkmark" size={22} color="#4CAF50" />
               </View>
               <View style={{ flex: 1, minWidth: 0 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Intervenant Care</Text>
-                  <View style={{ backgroundColor: '#4CAF50', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
-                    <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
-                  </View>
-                </View>
-                <Text style={{ fontSize: 12, color: '#555', marginTop: 3 }} numberOfLines={1}>{user.intervention_structure || user.structure_name || 'Structure Care'}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Intervenant Care</Text>
+                <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }} numberOfLines={1}>{user.intervention_structure || user.structure_name || 'Structure'}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#888" />
-            </View>
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
-              <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000' }}>{user.intervention_radius_km || 30}</Text>
-                <Text style={{ fontSize: 9, color: '#888' }}>km rayon</Text>
-              </View>
-              <View style={{ flex: 1, backgroundColor: 'rgba(76,175,80,0.08)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#4CAF50', marginBottom: 4 }} />
-                <Text style={{ fontSize: 9, color: '#4CAF50', fontWeight: '700' }}>Disponible</Text>
+              <View style={{ backgroundColor: '#4CAF50', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>Actif</Text>
               </View>
             </View>
+            <View style={{ backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: 12, padding: 12, gap: 6 }}>
+              {(user.intervention_structure || user.structure_name) && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="business-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.intervention_structure || user.structure_name}</Text></View>}
+              {user.profession && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="briefcase-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.profession}</Text></View>}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="navigate-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>Rayon : {user.intervention_radius_km || 30} km</Text></View>
+              {user.address && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="location-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.address}</Text></View>}
+              {user.phone && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="call-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.phone}</Text></View>}
+            </View>
+            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14, paddingVertical: 10, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)', borderRadius: 12 }}
+              onPress={() => setShowCareModal(true)}>
+              <Ionicons name="settings-outline" size={14} color="#888" />
+              <Text style={{ fontSize: 13, fontWeight: '600', color: '#555' }}>Gerer mon espace</Text>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+
+          {/* Tabs En cours / Terminees */}
+          <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)' }}>
+            <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, ivTab === 'active' && { backgroundColor: '#2196F3' }]} onPress={() => setIvTab('active')}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: ivTab === 'active' ? '#FFF' : '#888' }}>En cours ({activeIvs.length})</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, ivTab === 'done' && { backgroundColor: '#4CAF50' }]} onPress={() => setIvTab('done')}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: ivTab === 'done' ? '#FFF' : '#888' }}>Terminees ({doneIvs.length})</Text>
+            </TouchableOpacity>
+          </View>
+        </>
       )}
 
       {/* Care Detail Modal */}
@@ -406,32 +422,36 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         </View>
       </Modal>
 
-      {/* Interventions List */}
-      <Text style={s.secTitle}>Mes interventions</Text>
-      {ivs.length > 0 ? ivs.map(iv => (
+      {/* Interventions List filtered by tab */}
+      {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => (
         <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 10 }}>
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 10, borderLeftWidth: 4, borderLeftColor: statusColor(iv.status) }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: statusColor(iv.status) }} />
-              <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', flex: 1 }}>{iv.beneficiary_name}</Text>
-              <View style={{ backgroundColor: statusColor(iv.status) + '20', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 9999 }}>
-                <Text style={{ fontSize: 10, fontWeight: '700', color: statusColor(iv.status), textTransform: 'uppercase' }}>{statusLabel(iv.status)}</Text>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: statusColor(iv.status) + '15', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={18} color={statusColor(iv.status)} />
               </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{iv.beneficiary_name}</Text>
+                <Text style={{ fontSize: 11, color: '#888' }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
+              </View>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: statusColor(iv.status) }}>{iv.distance_km ? `${iv.distance_km}km` : ''}</Text>
             </View>
-            <Text style={{ fontSize: 12, color: '#555', marginBottom: 6 }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              {iv.distance_km && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Ionicons name="navigate-outline" size={12} color="#888" /><Text style={{ fontSize: 11, color: '#888' }}>{iv.distance_km} km</Text></View>}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Ionicons name="time-outline" size={12} color="#888" /><Text style={{ fontSize: 11, color: '#888' }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text></View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
+              <Ionicons name="time-outline" size={12} color="#888" />
+              <Text style={{ fontSize: 11, color: '#888', flex: 1 }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
+              <View style={{ backgroundColor: statusColor(iv.status) + '15', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: statusColor(iv.status) }}>{statusLabel(iv.status)}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={14} color="#888" />
             </View>
           </View>
         </TouchableOpacity>
       )) : (
         <View style={{ backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 18, padding: 32, alignItems: 'center' }}>
-          <Ionicons name="checkmark-circle-outline" size={40} color="#CCC" />
-          <Text style={{ fontSize: 14, fontWeight: '600', color: '#888', marginTop: 10 }}>Aucune intervention</Text>
-          <Text style={{ fontSize: 11, color: '#AAA', marginTop: 4 }}>Les missions apparaitront ici</Text>
+          <Ionicons name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
+          <Text style={{ fontSize: 14, fontWeight: '600', color: '#888', marginTop: 10 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
         </View>
-      )}
+      ))}
     </ScrollView>);
 }
 
