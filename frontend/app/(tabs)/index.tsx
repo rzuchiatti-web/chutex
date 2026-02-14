@@ -522,7 +522,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
 
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
 
-  const roleName = user.is_prescriber ? 'PRESCRIPTEUR' : user.guardian_type === 'professional' ? (user.profession?.toUpperCase() || 'PROFESSIONNEL') : t('guardian').toUpperCase();
+  const roleName = t('guardian').toUpperCase() + (user.is_prescriber ? ' | Prescripteur' : '') + (user.is_intervention_provider ? ' | Intervenant' : '');
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
 
   return (
