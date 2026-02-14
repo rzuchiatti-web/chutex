@@ -581,41 +581,49 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         const myIntervention = a.intervention?.assigned_to === user.id;
         const hasIntervenant = a.intervener_info || a.intervention?.assigned_to;
         const isDispatch = a.incident_state === 'CARE_DISPATCHED' || a.teleassistance_status === 'CARE_DISPATCHED';
+        const interventionId = a.intervention?.id;
         return (
-        <TouchableOpacity key={a.id} onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
-          <GlassCard style={{ backgroundColor: 'rgba(229,57,53,0.06)', borderLeftWidth: 4, borderLeftColor: '#E53935', padding: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E53935', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="alert-circle" size={20} color="#FFF" />
+        <View key={a.id}>
+          <TouchableOpacity onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
+            <GlassCard style={{ backgroundColor: 'rgba(229,57,53,0.06)', borderLeftWidth: 4, borderLeftColor: '#E53935', padding: 16, marginBottom: 0 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E53935', justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name="alert-circle" size={20} color="#FFF" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '900', color: '#E53935' }}>ALERTE - {a.beneficiary_name}</Text>
+                  <Text style={{ fontSize: 12, color: '#555', marginTop: 2 }}>{a.message}</Text>
+                </View>
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 14, fontWeight: '900', color: '#E53935' }}>ALERTE - {a.beneficiary_name}</Text>
-                <Text style={{ fontSize: 12, color: '#555', marginTop: 2 }}>{a.message}</Text>
-              </View>
-            </View>
-            {myIntervention ? (
-              <View style={{ backgroundColor: '#4CAF50', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <Ionicons name="shield-checkmark" size={16} color="#FFF" />
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>VOUS ETES EN INTERVENTION</Text>
-              </View>
-            ) : hasIntervenant && a.intervener_info ? (
-              <View style={{ backgroundColor: '#009688', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <Ionicons name="navigate" size={16} color="#FFF" />
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>SUIVRE {a.intervener_info.name?.split(' ')[0]?.toUpperCase()}</Text>
-              </View>
-            ) : isDispatch ? (
-              <View style={{ backgroundColor: '#FF9800', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <Ionicons name="time" size={16} color="#FFF" />
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>EN ATTENTE D'UN INTERVENANT</Text>
-              </View>
-            ) : (
-              <View style={{ backgroundColor: '#E53935', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <Ionicons name="shield-checkmark" size={16} color="#FFF" />
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>VOIR L'ALERTE</Text>
-              </View>
-            )}
-          </GlassCard>
-        </TouchableOpacity>
+            </GlassCard>
+          </TouchableOpacity>
+          {/* Action button BELOW the alert card - routes appropriately */}
+          {myIntervention ? (
+            <TouchableOpacity style={{ backgroundColor: '#4CAF50', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+              onPress={() => interventionId ? router.push({ pathname: '/company-intervention-detail', params: { interventionId } }) : router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
+              <Ionicons name="shield-checkmark" size={18} color="#FFF" />
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>VOUS ETES EN INTERVENTION</Text>
+            </TouchableOpacity>
+          ) : hasIntervenant && a.intervener_info && interventionId ? (
+            <TouchableOpacity style={{ backgroundColor: '#009688', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+              onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId } })}>
+              <Ionicons name="navigate" size={18} color="#FFF" />
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>SUIVRE {a.intervener_info.name?.split(' ')[0]?.toUpperCase()}</Text>
+            </TouchableOpacity>
+          ) : isDispatch ? (
+            <TouchableOpacity style={{ backgroundColor: '#FF9800', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+              onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
+              <Ionicons name="time" size={18} color="#FFF" />
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>EN ATTENTE D'UN INTERVENANT</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={{ backgroundColor: '#E53935', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+              onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
+              <Ionicons name="shield-checkmark" size={18} color="#FFF" />
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>VOIR L'ALERTE</Text>
+            </TouchableOpacity>
+          )}
+        </View>
         );
       })}
 
