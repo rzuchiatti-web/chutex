@@ -967,6 +967,41 @@ function AdminHome({ token, user }: { token: string; user: any }) {
           </View>
         </GlassCard>
       </>}
+
+      {/* Analytics Section */}
+      {analytics && (
+        <>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', marginBottom: 10 }}>Performance Interventions</Text>
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+            {[
+              { val: analytics.avg_acceptance_time_min, unit: 'min', label: 'Temps reponse', icon: 'timer-outline', color: '#2196F3' },
+              { val: analytics.resolution_rate, unit: '%', label: 'Taux resolution', icon: 'checkmark-done-outline', color: '#4CAF50' },
+              { val: analytics.completed_interventions, unit: '', label: 'Interventions', icon: 'medkit-outline', color: '#9C27B0' },
+            ].map((m, i) => (
+              <GlassCard key={i} style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
+                <Ionicons name={m.icon as any} size={18} color={m.color} />
+                <Text style={{ fontSize: 20, fontWeight: '900', color: m.color, marginTop: 4 }}>{m.val}{m.unit ? <Text style={{ fontSize: 11 }}>{m.unit}</Text> : null}</Text>
+                <Text style={{ fontSize: 8, color: '#888', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{m.label}</Text>
+              </GlassCard>
+            ))}
+          </View>
+
+          {analytics.top_intervenants?.length > 0 && (
+            <GlassCard>
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', letterSpacing: 0.5, marginBottom: 12 }}>Top intervenants</Text>
+              {analytics.top_intervenants.slice(0, 5).map((iv: any, idx: number) => (
+                <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: idx < 4 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                  <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: idx === 0 ? '#9C27B0' : idx === 1 ? '#7B1FA2' : 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 12, fontWeight: '900', color: idx < 2 ? '#FFF' : '#888' }}>{idx + 1}</Text>
+                  </View>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#000', flex: 1 }}>{iv.name}</Text>
+                  <Text style={{ fontSize: 12, color: '#4CAF50', fontWeight: '800' }}>{iv.count} missions</Text>
+                </View>
+              ))}
+            </GlassCard>
+          )}
+        </>
+      )}
     </ScrollView>
   );
 }
