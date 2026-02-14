@@ -2,9 +2,6 @@
 set timeout 300
 
 spawn env EXPO_TOKEN=bSAaETVb2wyb8CdjB0KYCDDUjvk3yfEeEalSuAZh \
-  EXPO_APPLE_ID=contact@chutex-innovation.com \
-  EXPO_APPLE_PASSWORD=ggbf-lklb-lgrw-jytk \
-  EXPO_APPLE_TEAM_ID=94YZY663N2 \
   npx eas-cli build --platform ios --profile production
 
 expect {
@@ -13,11 +10,15 @@ expect {
         exp_continue
     }
     "Do you want to log in to your Apple account?" {
-        send "Y\r"
+        send "n\r"
         exp_continue
     }
     "Would you like to try again?" {
-        send "yes\r"
+        send "no\r"
+        exp_continue
+    }
+    "Distribution Certificate" {
+        send "\r"
         exp_continue
     }
     "Generate a new" {
@@ -28,7 +29,7 @@ expect {
         send "\r"
         exp_continue
     }
-    "Select" {
+    "Provisioning Profile" {
         send "\r"
         exp_continue
     }
@@ -41,7 +42,11 @@ expect {
         exp_continue
     }
     "Would you like to" {
-        send "y\r"
+        send "\r"
+        exp_continue
+    }
+    -re "Upload a .* or .* a new" {
+        send "\r"
         exp_continue
     }
     -re "\\?" {
