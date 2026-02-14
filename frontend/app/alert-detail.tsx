@@ -282,6 +282,71 @@ export default function AlertDetailScreen() {
           </GlassCard>
         )}
 
+        {/* Intervention Report */}
+        {intervention?.report && (
+          <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="document-text" size={18} color="#4CAF50" />
+              </View>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Rapport d'intervention</Text>
+            </View>
+            {intervention.report.patient_condition && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
+                <Ionicons name="heart" size={16} color="#4CAF50" />
+                <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat du patient: {intervention.report.patient_condition === 'stable' ? 'Stable' : intervention.report.patient_condition === 'improved' ? 'Ameliore' : intervention.report.patient_condition === 'needs_care' ? 'Soins necessaires' : intervention.report.patient_condition}</Text>
+              </View>
+            )}
+            {intervention.report.description && (
+              <View style={{ marginBottom: 8 }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 4 }}>Description</Text>
+                <Text style={{ fontSize: 13, color: '#333', lineHeight: 20 }}>{intervention.report.description}</Text>
+              </View>
+            )}
+            {intervention.report.actions_taken && (
+              <View style={{ marginBottom: 8 }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 4 }}>Actions effectuees</Text>
+                <Text style={{ fontSize: 13, color: '#333', lineHeight: 20 }}>{intervention.report.actions_taken}</Text>
+              </View>
+            )}
+            {intervention.report.follow_up_needed && (
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
+                <Ionicons name="flag" size={14} color="#FF9800" />
+                <Text style={{ fontSize: 12, color: '#E65100', flex: 1 }}><Text style={{ fontWeight: '700' }}>Suivi necessaire:</Text> {intervention.report.follow_up_notes}</Text>
+              </View>
+            )}
+            {intervention.report.completed_by && (
+              <Text style={{ fontSize: 10, color: '#888', marginTop: 8 }}>Rapport par {intervention.report.completed_by} - {intervention.report.completed_at ? new Date(intervention.report.completed_at).toLocaleString('fr-FR') : ''}</Text>
+            )}
+          </GlassCard>
+        )}
+
+        {/* Alert-level report (from resolution) */}
+        {!intervention?.report && a.intervention_report && (
+          <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="document-text" size={18} color="#4CAF50" />
+              </View>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Rapport d'intervention</Text>
+            </View>
+            {a.intervention_report.patient_condition && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
+                <Ionicons name="heart" size={16} color="#4CAF50" />
+                <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat: {a.intervention_report.patient_condition === 'stable' ? 'Stable' : a.intervention_report.patient_condition}</Text>
+              </View>
+            )}
+            {a.intervention_report.description && <Text style={{ fontSize: 13, color: '#333', lineHeight: 20, marginBottom: 6 }}>{a.intervention_report.description}</Text>}
+            {a.intervention_report.actions_taken && <Text style={{ fontSize: 13, color: '#333', lineHeight: 20, marginBottom: 6 }}><Text style={{ fontWeight: '700' }}>Actions:</Text> {a.intervention_report.actions_taken}</Text>}
+            {a.intervention_report.follow_up_needed && (
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
+                <Ionicons name="flag" size={14} color="#FF9800" />
+                <Text style={{ fontSize: 12, color: '#E65100', flex: 1 }}>Suivi: {a.intervention_report.follow_up_notes}</Text>
+              </View>
+            )}
+          </GlassCard>
+        )}
+
         {/* Pending - list of notified intervenants */}
         {intervention && isPending && (
           <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
