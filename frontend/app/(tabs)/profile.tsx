@@ -189,16 +189,18 @@ export default function ProfileScreen() {
         <GlassCard>
           <MenuItem testID="edit-profile-btn" icon="person-outline" label={t('modify_profile')} onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
           <MenuItem icon="lock-closed-outline" label={t('security')} onPress={() => setShowPwChange(true)} />
-          <MenuItem testID="switch-role-btn" icon="swap-horizontal-outline" label={otherRole === 'gardien' ? t('my_guardian_space') : t('my_beneficiary_space')} onPress={async () => {
-            if (hasOther) {
-              try {
-                await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: otherRole === 'gardien' ? 'guardian' : 'beneficiary' }) }, token);
-                await refreshUser();
-              } catch (e: any) { Alert.alert('Erreur', e.message); }
-            } else {
-              router.push(otherRole === 'gardien' ? '/activate-guardian' : '/activate-beneficiary' as any);
-            }
-          }} />
+          {effectiveRole !== 'prescriber_company' && effectiveRole !== 'admin' && effectiveRole !== 'teleassistance' && (
+            <MenuItem testID="switch-role-btn" icon="swap-horizontal-outline" label={otherRole === 'gardien' ? t('my_guardian_space') : t('my_beneficiary_space')} onPress={async () => {
+              if (hasOther) {
+                try {
+                  await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: otherRole === 'gardien' ? 'guardian' : 'beneficiary' }) }, token);
+                  await refreshUser();
+                } catch (e: any) { Alert.alert('Erreur', e.message); }
+              } else {
+                router.push(otherRole === 'gardien' ? '/activate-guardian' : '/activate-beneficiary' as any);
+              }
+            }} />
+          )}
           <MenuItem icon="language-outline" label={`${t('language')} (${lang})`} onPress={() => setShowLangPicker(true)} />
           <MenuItem icon="document-text-outline" label={t('terms')} onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
           <MenuItem icon="help-circle-outline" label={t('support')} onPress={() => setShowContact(true)} />
