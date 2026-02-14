@@ -6,6 +6,14 @@ import {
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
+
+const confirmAction = (title: string, message: string, onConfirm: () => void) => {
+  if (Platform.OS === 'web') {
+    if (window.confirm(`${title}\n\n${message}`)) onConfirm();
+  } else {
+    Alert.alert(title, message, [{ text: 'Annuler', style: 'cancel' }, { text: 'Confirmer', style: 'destructive', onPress: onConfirm }]);
+  }
+};
 import { apiFetch } from '../../src/services/api';
 import { Colors } from '../../src/constants/colors';
 import { useTheme } from '../../src/context/ThemeContext';
@@ -333,13 +341,10 @@ function AdminPrescripteurs({ token }: { token: string }) {
   };
 
   const deleteCode = (id: string) => {
-    Alert.alert('Supprimer', 'Supprimer définitivement ce code prescripteur ?', [
-      { text: 'Annuler' },
-      { text: 'Supprimer', style: 'destructive', onPress: async () => {
-        await apiFetch(`/api/admin/activation-codes/${id}`, { method: 'DELETE' }, token);
-        setCodes(codes.filter(c => c.id !== id));
-      }}
-    ]);
+    confirmAction('Supprimer', 'Supprimer définitivement ce code prescripteur ?', async () => {
+      await apiFetch(`/api/admin/activation-codes/${id}`, { method: 'DELETE' }, token);
+      setCodes(codes.filter(c => c.id !== id));
+    });
   };
 
   const openEdit = (c: any) => {
