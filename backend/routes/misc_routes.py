@@ -272,12 +272,15 @@ async def get_intervention_full_detail(iid: str, user=Depends(get_current_user))
 
 @router.post("/interventions/{iid}/complete")
 async def complete_intervention(iid: str, data: dict, user=Depends(get_current_user)):
-    """Complete intervention with report"""
+    """Complete intervention with report - by intervenant OR guardian"""
     iv = await db.interventions.find_one({"id": iid}, {"_id": 0})
     if not iv:
         raise HTTPException(status_code=404, detail="Intervention non trouvee")
-    if iv.get('assigned_to') != user['id']:
-        raise HTTPException(status_code=403, detail="Seul l'intervenant assigne peut cloturer")
+    # Allow assigned intervenant OR guardian of the beneficiary
+    is_assigned = iv.get('assigned_to') == user['id']
+    is_guardian = user['id'] in (await db.users.find_one({"id": iv.get('beneficiary_id')}, {"_id": 0}) or {}).get('guardians', []) if iv.get('beneficiary_id') else False
+    if not is_assigned and not is_guardian and user.get('role') not in ('admin', 'teleassistance'):
+        raise HTTPException(status_code=403, detail="Non autorise a cloturer cette intervention")
     now = datetime.now(timezone.utc).isoformat()
     report = {
         "description": data.get('description', ''),
@@ -291,7 +294,6 @@ async def complete_intervention(iid: str, data: dict, user=Depends(get_current_u
     await db.interventions.update_one({"id": iid}, {"$set": {
         "status": "completed", "completed_at": now, "report": report,
     }, "$push": {"timeline": {"status": "completed", "time": now, "note": f"Intervention terminee par {user.get('name', '')} - {data.get('patient_condition', '')}"}}})
-    # Also resolve the linked alert
     if iv.get('alert_id'):
         await db.alerts.update_one({"id": iv['alert_id']}, {"$set": {
             "status": "resolved", "resolved_at": now,
@@ -299,13 +301,43 @@ async def complete_intervention(iid: str, data: dict, user=Depends(get_current_u
             "resolution": f"Intervention completee par {user.get('name', '')}",
             "intervention_report": report,
         }})
-    # Resolve incident if exists
     if iv.get('incident_id'):
         await db.incidents.update_one({"id": iv['incident_id']}, {"$set": {
             "state": "RESOLVED", "resolved_at": now,
             "resolution": f"Intervention completee par {user.get('name', '')}",
         }, "$push": {"timeline": {"timestamp": now, "state": "RESOLVED", "detail": f"Intervention terminee - {data.get('patient_condition', '')}"}}})
     return {"status": "completed", "report": report}
+
+
+@router.post("/alerts/{alert_id}/complete-with-report")
+async def complete_alert_with_report(alert_id: str, data: dict, user=Depends(get_current_user)):
+    """Complete an alert with report - for guardians without linked intervention"""
+    alert = await db.alerts.find_one({"id": alert_id}, {"_id": 0})
+    if not alert:
+        raise HTTPException(status_code=404, detail="Alerte non trouvee")
+    now = datetime.now(timezone.utc).isoformat()
+    report = {
+        "description": data.get('description', ''),
+        "actions_taken": data.get('actions_taken', ''),
+        "patient_condition": data.get('patient_condition', ''),
+        "follow_up_needed": data.get('follow_up_needed', False),
+        "follow_up_notes": data.get('follow_up_notes', ''),
+        "completed_by": user.get('name', ''),
+        "completed_at": now,
+    }
+    await db.alerts.update_one({"id": alert_id}, {"$set": {
+        "status": "resolved", "resolved_at": now,
+        "teleassistance_status": "RESOLVED",
+        "resolution": f"Cloture par {user.get('name', '')}",
+        "intervention_report": report,
+    }})
+    # Also complete any linked intervention
+    iv = await db.interventions.find_one({"alert_id": alert_id, "status": {"$ne": "completed"}}, {"_id": 0})
+    if iv:
+        await db.interventions.update_one({"id": iv['id']}, {"$set": {
+            "status": "completed", "completed_at": now, "report": report,
+        }, "$push": {"timeline": {"status": "completed", "time": now, "note": f"Cloture par {user.get('name', '')}"}}})
+    return {"status": "resolved", "report": report}
 
 
 # ==================== LOCATION ====================
