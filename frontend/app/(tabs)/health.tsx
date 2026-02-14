@@ -176,23 +176,25 @@ function CompanyAgences({ token }: { token: string }) {
             </View>
             {/* Prescribers in agency */}
             {(data.prescriber_ranking || []).filter((p: any) => p.agency_id === ag.agency.id).map((pr: any) => (
-              <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
+              <TouchableOpacity key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}
+                onPress={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })}>
                 <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#4CAF5015', justifyContent: 'center', alignItems: 'center' }}>
                   <Ionicons name="person" size={14} color="#4CAF50" />
                 </View>
                 <Text style={{ fontSize: 12, fontWeight: '600', color: '#000', flex: 1 }}>{pr.name}</Text>
                 <Text style={{ fontSize: 11, color: '#888' }}>{pr.prescription_count} presc.</Text>
                 <Text style={{ fontSize: 11, fontWeight: '700', color: '#4CAF50' }}>{pr.comm_validated + pr.comm_pending} EUR</Text>
-              </View>
-            ))}
-            {/* Add prescriber button */}
-            {data.unassigned_prescribers > 0 && (
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, marginTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.06)' }}
-                onPress={() => setAssignModal({ ...({} as any), targetAgencyId: ag.agency.id, targetAgencyName: ag.agency.name })}>
-                <Ionicons name="person-add-outline" size={14} color="#2196F3" />
-                <Text style={{ fontSize: 12, fontWeight: '600', color: '#2196F3' }}>Ajouter un prescripteur</Text>
+                <Ionicons name="chevron-forward" size={12} color="#CCC" />
               </TouchableOpacity>
-            )}
+            ))}
+            {/* Add prescriber button - always visible */}
+            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, marginTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.06)', backgroundColor: data.unassigned_prescribers > 0 ? 'rgba(33,150,243,0.04)' : 'transparent', borderRadius: 10 }}
+              onPress={() => setAssignModal({ ...({} as any), targetAgencyId: ag.agency.id, targetAgencyName: ag.agency.name })}>
+              <Ionicons name="person-add-outline" size={14} color={data.unassigned_prescribers > 0 ? '#2196F3' : '#AAA'} />
+              <Text style={{ fontSize: 12, fontWeight: '600', color: data.unassigned_prescribers > 0 ? '#2196F3' : '#AAA' }}>
+                {data.unassigned_prescribers > 0 ? `Ajouter un prescripteur (${data.unassigned_prescribers} dispo.)` : 'Gerer les prescripteurs'}
+              </Text>
+            </TouchableOpacity>
           </GlassCard>
         ))}
 
