@@ -674,8 +674,130 @@ function AdminPrescripteurs({ token }: { token: string }) {
   );
 }
 
-/* ===== COMPANY: ACTIVITY (PRESCRIPTIONS + INTERVENTIONS) ===== */
-function CompanyActivity({ token }: { token: string }) {
+/* ===== COMPANY: PRESCRIPTIONS TAB ===== */
+function CompanyPrescriptionsTab({ token }: { token: string }) {
+  const [dashData, setDashData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedPresc, setSelectedPresc] = useState<any>(null);
+  const [prescTab, setPrescTab] = useState<'pending' | 'subscribed'>('pending');
+
+  const fetchData = useCallback(async () => {
+    try { setDashData(await apiFetch('/api/company/dashboard', {}, token)); }
+    catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [token]);
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  if (loading) return <View style={d.center}><ActivityIndicator size="large" color="#000" /></View>;
+
+  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+
+  const allPrescs = dashData?.prescriptions || [];
+  const pendingPrescs = allPrescs.filter((p: any) => p.status === 'pending');
+  const subscribedPrescs = allPrescs.filter((p: any) => p.status === 'subscribed');
+  const displayedPrescs = prescTab === 'pending' ? pendingPrescs : subscribedPrescs;
+  const prescTotal = displayedPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Prescriptions</Text>
+        <Text style={{ fontSize: 12, color: '#888' }}>{allPrescs.length} prescriptions au total</Text>
+      </View>
+
+      <View style={{ flexDirection: 'row', marginHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, marginBottom: 0, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, prescTab === 'pending' && { backgroundColor: '#FF9800' }]} onPress={() => setPrescTab('pending')}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: prescTab === 'pending' ? '#FFF' : '#888' }}>En cours ({pendingPrescs.length})</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, prescTab === 'subscribed' && { backgroundColor: '#4CAF50' }]} onPress={() => setPrescTab('subscribed')}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: prescTab === 'subscribed' ? '#FFF' : '#888' }}>Validees ({subscribedPrescs.length})</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 10 }}>
+        <Text style={{ fontSize: 12, color: '#888' }}>Total commissions</Text>
+        <Text style={{ fontSize: 16, fontWeight: '900', color: prescTab === 'pending' ? '#FF9800' : '#4CAF50' }}>{prescTotal} EUR</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />}>
+        {displayedPrescs.map((p: any) => (
+          <TouchableOpacity key={p.id} activeOpacity={0.7} onPress={() => setSelectedPresc(p)}>
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 14, marginBottom: 8, borderLeftWidth: 4, borderLeftColor: p.status === 'subscribed' ? '#4CAF50' : '#FF9800', ...glass }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={16} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{p.beneficiary_name}</Text>
+                  <Text style={{ fontSize: 10, color: '#888' }}>Par: {p.guardian_name}</Text>
+                </View>
+                <Text style={{ fontSize: 14, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission}EUR</Text>
+                <Ionicons name="chevron-forward" size={14} color="#888" />
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+        {displayedPrescs.length === 0 && (
+          <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+            <Ionicons name={prescTab === 'pending' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
+            <Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucune prescription {prescTab === 'pending' ? 'en cours' : 'validee'}</Text>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Prescription Detail Modal */}
+      <Modal visible={!!selectedPresc} transparent animationType="fade" onRequestClose={() => setSelectedPresc(null)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#F5F0EB', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%' }}>
+            {selectedPresc && <>
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12 }}>
+                <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ padding: 4, marginRight: 12 }}>
+                  <Ionicons name="chevron-back" size={24} color="#000" />
+                </TouchableOpacity>
+                <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Fiche Prescription</Text>
+                <TouchableOpacity onPress={() => setSelectedPresc(null)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
+              </View>
+              <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 24, marginBottom: 12, ...glass }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+                    <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
+                      <Text style={{ fontSize: 24, fontWeight: '900', color: '#FFF' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>{selectedPresc.beneficiary_name}</Text>
+                      <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }}>
+                        <View style={{ backgroundColor: selectedPresc.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                          <Text style={{ fontSize: 10, fontWeight: '800', color: selectedPresc.status === 'subscribed' ? '#2E7D32' : '#E65100' }}>{selectedPresc.status === 'subscribed' ? 'SOUSCRIT' : 'EN ATTENTE'}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                  {[
+                    { icon: 'mail-outline', label: 'Email', value: selectedPresc.beneficiary_email },
+                    { icon: 'call-outline', label: 'Telephone', value: selectedPresc.beneficiary_phone },
+                    { icon: 'person-circle-outline', label: 'Prescripteur', value: selectedPresc.guardian_name },
+                    { icon: 'cash-outline', label: 'Commission', value: `${selectedPresc.commission} EUR` },
+                    { icon: 'calendar-outline', label: 'Date', value: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleDateString('fr-FR') : '' },
+                  ].map(({ icon, label, value }) => value ? (
+                    <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                      <Ionicons name={icon as any} size={16} color="#888" />
+                      <Text style={{ fontSize: 12, color: '#888', width: 100 }}>{label}</Text>
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+                    </View>
+                  ) : null)}
+                </View>
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, padding: 18, borderLeftWidth: 4, borderLeftColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', alignItems: 'center', ...glass }}>
+                  <Text style={{ fontSize: 32, fontWeight: '900', color: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{selectedPresc.commission} EUR</Text>
+                  <Text style={{ fontSize: 11, color: '#888', fontWeight: '600', marginTop: 4 }}>Commission {selectedPresc.status === 'subscribed' ? 'validee' : 'en attente'}</Text>
+                </View>
+              </ScrollView>
+            </>}
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+}
   const router = useRouter();
   const [tab, setTab] = useState<'prescriptions' | 'interventions'>('prescriptions');
   const [dashData, setDashData] = useState<any>(null);
