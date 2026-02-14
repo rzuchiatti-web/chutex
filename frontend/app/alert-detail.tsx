@@ -411,7 +411,60 @@ export default function AlertDetailScreen() {
           <InfoRow icon="calendar-outline" label="Date" value={new Date(a.created_at).toLocaleString('fr-FR')} />
           {a.resolved_at && <InfoRow icon="checkmark-circle-outline" label="Resolu le" value={new Date(a.resolved_at).toLocaleString('fr-FR')} color="#4CAF50" />}
         </GlassCard>
+
+        {/* Close with report button - for guardians on active alerts */}
+        {(isGuardian || isOperator) && isActive && (
+          <TouchableOpacity onPress={() => setShowReport(true)}
+            style={{ backgroundColor: '#4CAF50', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: 12 }}>
+            <Ionicons name="document-text" size={20} color="#FFF" />
+            <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>CLOTURER AVEC RAPPORT</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
+
+      {/* Report Modal */}
+      <Modal visible={showReport} transparent animationType="slide">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Rapport de cloture</Text>
+              <TouchableOpacity onPress={() => setShowReport(false)}><Ionicons name="close" size={24} color="#888" /></TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Etat du patient</Text>
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
+                {[{k: 'stable', l: 'Stable', c: '#4CAF50'}, {k: 'improved', l: 'Ameliore', c: '#2196F3'}, {k: 'needs_care', l: 'Soins necessaires', c: '#FF9800'}].map(o => (
+                  <TouchableOpacity key={o.k} style={[{ flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center', borderWidth: 2, borderColor: reportForm.patient_condition === o.k ? o.c : '#E0E0E0' }, reportForm.patient_condition === o.k && { backgroundColor: o.c + '15' }]}
+                    onPress={() => setReportForm({...reportForm, patient_condition: o.k})}>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: reportForm.patient_condition === o.k ? o.c : '#888' }}>{o.l}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Description de la situation</Text>
+              <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 80, textAlignVertical: 'top', marginBottom: 12 }}
+                placeholder="Decrivez ce que vous avez constate..." multiline value={reportForm.description} onChangeText={v => setReportForm({...reportForm, description: v})} />
+              <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Actions effectuees</Text>
+              <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 60, textAlignVertical: 'top', marginBottom: 12 }}
+                placeholder="Ex: Aide au relevage, appel medecin..." multiline value={reportForm.actions_taken} onChangeText={v => setReportForm({...reportForm, actions_taken: v})} />
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}
+                onPress={() => setReportForm({...reportForm, follow_up_needed: !reportForm.follow_up_needed})}>
+                <Ionicons name={reportForm.follow_up_needed ? 'checkbox' : 'square-outline'} size={22} color={reportForm.follow_up_needed ? '#FF9800' : '#888'} />
+                <Text style={{ fontSize: 14, color: '#000' }}>Suivi necessaire</Text>
+              </TouchableOpacity>
+              {reportForm.follow_up_needed && (
+                <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, marginBottom: 12 }}
+                  placeholder="Precisions sur le suivi a prevoir..." value={reportForm.follow_up_notes} onChangeText={v => setReportForm({...reportForm, follow_up_notes: v})} />
+              )}
+              <TouchableOpacity style={{ backgroundColor: '#4CAF50', borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+                onPress={handleCompleteWithReport} disabled={submittingReport}>
+                {submittingReport ? <ActivityIndicator color="#FFF" /> : (
+                  <><Ionicons name="checkmark-circle" size={20} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VALIDER ET CLOTURER</Text></>
+                )}
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
