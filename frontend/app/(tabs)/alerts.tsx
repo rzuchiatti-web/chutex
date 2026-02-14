@@ -25,6 +25,12 @@ export default function AlertsScreen() {
   const { token, user } = useAuth();
   const router = useRouter();
   const effectiveRole = user?.active_role || user?.role || '';
+
+  // Company sees prescripteurs list
+  if (effectiveRole === 'prescriber_company' && token) {
+    return <CompanyPrescribers token={token} />;
+  }
+
   const [alerts, setAlerts] = useState<any[]>([]);
   const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
