@@ -102,3 +102,13 @@ async def assign_prescriber_to_agency(prescriber_id: str, data: dict, user=Depen
     agency_id = data.get('agency_id')
     await db.users.update_one({"id": prescriber_id, "prescriber_company_id": user['id']}, {"$set": {"agency_id": agency_id}})
     return {"status": "assigned"}
+
+
+@router.delete("/company/agencies/{agency_id}")
+async def delete_agency(agency_id: str, user=Depends(get_current_user)):
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    # Unassign prescribers from this agency
+    await db.users.update_many({"agency_id": agency_id}, {"$unset": {"agency_id": ""}})
+    await db.agencies.delete_one({"id": agency_id, "company_id": user['id']})
+    return {"status": "deleted"}
