@@ -368,18 +368,18 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         </>
       )}
 
-      {/* Care Detail Modal */}
+      {/* Care Detail Modal - violet theme */}
       <Modal visible={showCareModal} transparent animationType="fade" onRequestClose={() => setShowCareModal(false)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Espace Intervenant Care</Text>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#7B1FA2' }}>Espace Intervenant Care</Text>
               <TouchableOpacity onPress={() => setShowCareModal(false)}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name="shield-checkmark" size={24} color={Colors.success} />
+                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(156,39,176,0.12)', justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name="shield-checkmark" size={24} color="#9C27B0" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{user.name}</Text>
