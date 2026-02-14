@@ -89,15 +89,12 @@ export default function BackofficeScreen() {
   };
 
   const deleteSub = (id: string) => {
-    Alert.alert('Confirmer', 'Supprimer cet abonnement ?', [
-      { text: 'Annuler', style: 'cancel' },
-      { text: 'Supprimer', style: 'destructive', onPress: async () => {
-        try {
-          await apiFetch(`/api/admin/subscriptions/${id}`, { method: 'DELETE' }, token);
-          setSubscriptions(subscriptions.filter(s => s.id !== id));
-        } catch (e: any) { Alert.alert('Erreur', e.message); }
-      }},
-    ]);
+    confirmAction('Confirmer', 'Supprimer cet abonnement ?', async () => {
+      try {
+        await apiFetch(`/api/admin/subscriptions/${id}`, { method: 'DELETE' }, token);
+        setSubscriptions(subscriptions.filter(s => s.id !== id));
+      } catch (e: any) { Alert.alert('Erreur', e.message); }
+    });
   };
 
   const syncShopify = async () => {
@@ -170,15 +167,12 @@ export default function BackofficeScreen() {
   };
 
   const deleteCode = (id: string) => {
-    Alert.alert('Confirmer', 'Supprimer ce code ?', [
-      { text: 'Annuler', style: 'cancel' },
-      { text: 'Supprimer', style: 'destructive', onPress: async () => {
-        try {
-          await apiFetch(`/api/admin/activation-codes/${id}`, { method: 'DELETE' }, token);
-          setCodes(codes.filter(c => c.id !== id && c.code !== id));
-        } catch (e: any) { Alert.alert('Erreur', e.message); }
-      }},
-    ]);
+    confirmAction('Confirmer', 'Supprimer ce code ?', async () => {
+      try {
+        await apiFetch(`/api/admin/activation-codes/${id}`, { method: 'DELETE' }, token);
+        setCodes(codes.filter(c => c.id !== id && c.code !== id));
+      } catch (e: any) { Alert.alert('Erreur', e.message); }
+    });
   };
 
   // ===== Intervention Codes CRUD =====
@@ -225,15 +219,12 @@ export default function BackofficeScreen() {
   };
 
   const deleteIvCode = (id: string) => {
-    Alert.alert('Confirmer', 'Supprimer ce code intervenant ?', [
-      { text: 'Annuler', style: 'cancel' },
-      { text: 'Supprimer', style: 'destructive', onPress: async () => {
-        try {
-          await apiFetch(`/api/admin/intervention-codes/${id}`, { method: 'DELETE' }, token);
-          setInterventionCodes(interventionCodes.filter(c => c.id !== id && c.code !== id));
-        } catch (e: any) { Alert.alert('Erreur', e.message); }
-      }},
-    ]);
+    confirmAction('Confirmer', 'Supprimer ce code intervenant ?', async () => {
+      try {
+        await apiFetch(`/api/admin/intervention-codes/${id}`, { method: 'DELETE' }, token);
+        setInterventionCodes(interventionCodes.filter(c => c.id !== id && c.code !== id));
+      } catch (e: any) { Alert.alert('Erreur', e.message); }
+    });
   };
 
   const TABS = [
