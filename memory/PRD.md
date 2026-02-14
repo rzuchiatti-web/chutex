@@ -1,21 +1,18 @@
 # CHUTEX / CARE WATCH - PRD
 
-## Dashboards Analytics
-### Admin Dashboard
-- KPIs : Temps reponse moyen, Taux resolution, Interventions completees
-- Top intervenants par nombre de missions
-- Graphiques : repartition utilisateurs, types alertes, alertes 7 jours
+## Programme Recompenses Prescripteurs
+- 3 gagnants/mois : 1er=100EUR, 2e=70EUR, 3e=30EUR
+- Carte doree dans espace prescripteur avec position + objectif personnel
+- Classement anonyme (position sans nom) en cliquant
+- "Plus que X prescriptions pour monter !"
+- Regles + historique des gagnants
+- Admin definit les recompenses mensuelles
 
-### SAAD Dashboard
-- KPIs : Temps reponse, Duree moyenne intervention, Taux acceptation
-- Performance par agence (graphique barres)
-- Top intervenants par missions completees
-- Commissions prescriptions (validees/en attente)
-
-## Fonctionnalites
-- Page suivi Uber (carte + fiche glissante) + boutons appel
-- Rapport cloture (gardiens + intervenants + admin)
-- Protocole CARE WATCH 3 cas
+## Fonctionnalites cles
+- Page suivi Uber (carte + fiche) + boutons appel direct
+- Rapport cloture depuis fiche alerte (gardiens + intervenants)
+- Dashboards analytics (admin + SAAD)
+- Protocole CARE WATCH 3 cas avec dispatch SAAD
 - Acceptation verrouillee (premier gagne)
 
 ## Comptes test
@@ -31,5 +28,5 @@
 
 ## Backlog
 - P1 : Build natif + BLE, WebSocket tracking, GPS reel
-- P2 : Exports PDF rapport, itineraire Google Maps
+- P2 : Export PDF rapports, itineraire Google Maps
 - P3 : Shopify, Balance Lefu, hypnogramme reel, notation post-intervention
