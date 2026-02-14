@@ -1,61 +1,45 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, Animated, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
-const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
-);
-const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) => (
-  value ? (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-      <Ionicons name={icon as any} size={16} color={color || '#888'} />
-      <Text style={{ fontSize: 12, color: '#888', width: 100 }}>{label}</Text>
-      <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
-    </View>
-  ) : null
-);
-const Badge = ({ label, color, bg }: { label: string; color: string; bg: string }) => (
-  <View style={{ backgroundColor: bg, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
-    <Text style={{ fontSize: 10, fontWeight: '800', color, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</Text>
-  </View>
-);
+const { height: SCREEN_H } = Dimensions.get('window');
+const MAP_H = SCREEN_H * 0.55;
+
 const statusColor = (st: string) => ({ pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' }[st] || '#888');
 const statusLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
 
-function MapEmbed({ benLat, benLng, ivLat, ivLng, benName }: { benLat: number; benLng: number; ivLat?: number; ivLng?: number; benName: string }) {
-  if (Platform.OS !== 'web') return null;
+function FullMap({ benLat, benLng, ivLat, ivLng, benName, ivName }: any) {
+  if (Platform.OS !== 'web' || !benLat) return <View style={{ flex: 1, backgroundColor: '#E8E8E8', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="map-outline" size={40} color="#CCC" /><Text style={{ color: '#AAA', marginTop: 8 }}>Carte non disponible</Text></View>;
+  const benInit = (benName || 'B').charAt(0);
+  const ivInit = (ivName || 'I').charAt(0);
   const markers = ivLat && ivLng
-    ? `var benM = L.marker([${benLat},${benLng}],{icon:L.divIcon({className:'',html:'<div style="background:#E53935;color:#FFF;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:3px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${benName.charAt(0)}</div>'})}).addTo(map).bindPopup('<b>${benName}</b><br>Beneficiaire');var ivM = L.marker([${ivLat},${ivLng}],{icon:L.divIcon({className:'',html:'<div style="background:#9C27B0;color:#FFF;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:3px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><svg width=\\'14\\' height=\\'14\\' viewBox=\\'0 0 24 24\\' fill=\\'#FFF\\'><path d=\\'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z\\'/></svg></div>'})}).addTo(map).bindPopup('Intervenant en route');L.polyline([[${ivLat},${ivLng}],[${benLat},${benLng}]],{color:'#9C27B0',weight:3,dashArray:'8,8'}).addTo(map);map.fitBounds([[${benLat},${benLng}],[${ivLat},${ivLng}]],{padding:[40,40]});`
-    : `L.marker([${benLat},${benLng}],{icon:L.divIcon({className:'',html:'<div style="background:#E53935;color:#FFF;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:3px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${benName.charAt(0)}</div>'})}).addTo(map).bindPopup('<b>${benName}</b>');map.setView([${benLat},${benLng}],14);`;
-  const html = `<!DOCTYPE html><html><head><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><style>body{margin:0}#map{width:100%;height:100%}</style></head><body><div id="map"></div><script>var map=L.map('map',{zoomControl:false});L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'CartoDB'}).addTo(map);${markers}</script></body></html>`;
-  return (
-    <View style={{ height: 220, borderRadius: 18, overflow: 'hidden', marginBottom: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
-      <iframe srcDoc={html} style={{ width: '100%', height: '100%', border: 'none' } as any} />
-    </View>
-  );
+    ? `var benM=L.marker([${benLat},${benLng}],{icon:L.divIcon({className:'',html:'<div style="background:#E53935;color:#FFF;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;border:3px solid #FFF;box-shadow:0 4px 12px rgba(0,0,0,0.3)">${benInit}</div>'})}).addTo(map);var ivM=L.marker([${ivLat},${ivLng}],{icon:L.divIcon({className:'',html:'<div style="background:#009688;color:#FFF;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;border:3px solid #FFF;box-shadow:0 4px 12px rgba(0,0,0,0.3);animation:pulse 2s infinite"><style>@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}</style>${ivInit}</div>'})}).addTo(map);L.polyline([[${ivLat},${ivLng}],[${benLat},${benLng}]],{color:'#009688',weight:4,dashArray:'12,8',opacity:0.8}).addTo(map);var mid=[(${benLat}+${ivLat})/2,(${benLng}+${ivLng})/2];map.fitBounds([[${benLat},${benLng}],[${ivLat},${ivLng}]],{padding:[60,60]});`
+    : `L.marker([${benLat},${benLng}],{icon:L.divIcon({className:'',html:'<div style="background:#E53935;color:#FFF;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;border:3px solid #FFF;box-shadow:0 4px 12px rgba(0,0,0,0.3)">${benInit}</div>'})}).addTo(map);map.setView([${benLat},${benLng}],15);`;
+  const html = `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><style>*{margin:0;padding:0}html,body,#map{width:100%;height:100%}.leaflet-control-attribution{display:none!important}</style></head><body><div id="map"></div><script>var map=L.map('map',{zoomControl:false,attributionControl:false});L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);${markers}</script></body></html>`;
+  return <iframe srcDoc={html} style={{ width: '100%', height: '100%', border: 'none' } as any} />;
 }
 
 export default function CompanyInterventionDetail() {
   const { interventionId } = useLocalSearchParams<{ interventionId: string }>();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = useCallback(async () => {
-    try { setData(await apiFetch(`/api/interventions/${interventionId}/detail`, {}, token)); }
-    catch {} finally { setLoading(false); setRefreshing(false); }
+    try {
+      const d = await apiFetch(`/api/interventions/${interventionId}/detail`, {}, token);
+      setData(d);
+    } catch {} finally { setLoading(false); }
   }, [interventionId, token]);
 
-  useEffect(() => { fetchData(); const t = setInterval(fetchData, 10000); return () => clearInterval(t); }, [fetchData]);
+  useEffect(() => { fetchData(); const t = setInterval(fetchData, 5000); return () => clearInterval(t); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
-  if (!data?.intervention) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><Text style={{ color: '#888' }}>Intervention non trouvee</Text></View>;
+  if (loading) return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (!data?.intervention) return <View style={{ flex: 1, backgroundColor: '#F5F0EB', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#888' }}>Intervention non trouvee</Text></View>;
 
   const iv = data.intervention;
   const ben = data.beneficiary || iv.beneficiary_info || {};
@@ -64,139 +48,168 @@ export default function CompanyInterventionDetail() {
   const sc = statusColor(iv.status);
   const benLoc = iv.beneficiary_location || {};
   const ivLoc = iv.intervenant_location;
+  const iAmIntervenant = iv.assigned_to === user?.id;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
+      {/* MAP - full top half */}
+      <View style={{ height: MAP_H, position: 'relative' }}>
+        <FullMap benLat={benLoc.latitude} benLng={benLoc.longitude} ivLat={ivLoc?.latitude} ivLng={ivLoc?.longitude} benName={ben.name || iv.beneficiary_name} ivName={iv.assigned_name} />
+
+        {/* Back button overlay */}
+        <TouchableOpacity onPress={() => router.back()} style={{ position: 'absolute', top: 50, left: 16, width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFF', justifyContent: 'center', alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(0,0,0,0.15)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 5 }) }}>
           <Ionicons name="chevron-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Fiche Intervention</Text>
-        <Badge label={statusLabel(iv.status)} color={sc} bg={sc + '15'} />
+
+        {/* Status pill overlay */}
+        <View style={{ position: 'absolute', top: 50, right: 16, backgroundColor: sc, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 6, ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(0,0,0,0.2)' } : {}) }}>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFF' }} />
+          <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800', letterSpacing: 0.5 }}>{statusLabel(iv.status).toUpperCase()}</Text>
+        </View>
+
+        {/* ETA overlay at bottom of map */}
+        {iv.distance_km && (
+          <View style={{ position: 'absolute', bottom: 16, left: '50%', transform: [{ translateX: -60 }], backgroundColor: '#000', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 8, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.3)', left: 'calc(50% - 60px)', transform: 'none' as any } : {}) }}>
+            <Ionicons name="navigate" size={16} color="#FFF" />
+            <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900' }}>{iv.distance_km} km</Text>
+          </View>
+        )}
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />}>
+      {/* SLIDE-UP CARD */}
+      <View style={{ flex: 1, backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24, ...(Platform.OS === 'web' ? { boxShadow: '0 -4px 24px rgba(0,0,0,0.1)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 10 }) }}>
+        {/* Handle bar */}
+        <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 8 }}>
+          <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} />
+        </View>
 
-        {/* Map */}
-        {benLoc.latitude && (
-          <MapEmbed benLat={benLoc.latitude} benLng={benLoc.longitude} ivLat={ivLoc?.latitude} ivLng={ivLoc?.longitude} benName={iv.beneficiary_name || ''} />
-        )}
-
-        {/* Status Banner */}
-        <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: sc, padding: 20 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: sc + '15', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={24} color={sc} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 18, fontWeight: '900', color: sc }}>{statusLabel(iv.status).toUpperCase()}</Text>
-              <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{iv.alert_message}</Text>
-            </View>
-            {iv.distance_km && (
-              <View style={{ alignItems: 'center' }}>
-                <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>{iv.distance_km}</Text>
-                <Text style={{ fontSize: 9, color: '#888', fontWeight: '700' }}>KM</Text>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+          {/* Intervenant or waiting status */}
+          {iv.assigned_name ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+              <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: iAmIntervenant ? '#4CAF50' : '#009688', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 22, fontWeight: '900', color: '#FFF' }}>{iv.assigned_name.charAt(0)}</Text>
               </View>
-            )}
-          </View>
-        </GlassCard>
-
-        {/* Alert Info */}
-        {alert && (
-          <GlassCard>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="warning" size={18} color="#E53935" />
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000' }}>{iAmIntervenant ? 'Vous intervenez' : iv.assigned_name}</Text>
+                <Text style={{ fontSize: 13, color: '#888' }}>{iAmIntervenant ? 'Les gardiens suivent votre position' : `${statusLabel(iv.status)} - ${iv.structure_name || ''}`}</Text>
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Alerte</Text>
-            </View>
-            <InfoRow icon="alert-circle-outline" label="Type" value={alert.alert_type?.toUpperCase()} color="#E53935" />
-            <InfoRow icon="text-outline" label="Message" value={alert.message} />
-            <InfoRow icon="speedometer-outline" label="Severite" value={alert.severity} color="#E53935" />
-            <InfoRow icon="calendar-outline" label="Date" value={alert.created_at ? new Date(alert.created_at).toLocaleString('fr-FR') : ''} />
-          </GlassCard>
-        )}
-
-        {/* Beneficiary Info */}
-        <GlassCard>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name="person" size={18} color="#0288D1" />
-            </View>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Beneficiaire</Text>
-          </View>
-          <InfoRow icon="person-outline" label="Nom" value={ben.name || iv.beneficiary_name} color="#0288D1" />
-          <InfoRow icon="call-outline" label="Telephone" value={ben.phone} />
-          <InfoRow icon="location-outline" label="Adresse" value={ben.address || benLoc.address} />
-          <InfoRow icon="fitness-outline" label="Pathologies" value={ben.medical_conditions} color="#E53935" />
-          <InfoRow icon="warning-outline" label="Allergies" value={ben.allergies} color="#FF9800" />
-          <InfoRow icon="water-outline" label="Gr. sanguin" value={ben.blood_type} />
-          <InfoRow icon="calendar-outline" label="Naissance" value={ben.date_of_birth} />
-          <InfoRow icon="person-circle-outline" label="Medecin" value={ben.doctor_name} />
-          <InfoRow icon="call-outline" label="Urgence" value={ben.emergency_contact_name ? `${ben.emergency_contact_name} (${ben.emergency_contact_phone || ''})` : ''} color="#E53935" />
-        </GlassCard>
-
-        {/* Intervenant Info */}
-        {intervenant ? (
-          <GlassCard>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="shield-checkmark" size={18} color="#9C27B0" />
-              </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Intervenant</Text>
-              <Badge label="Assigne" color="#4CAF50" bg="#E8F5E9" />
-            </View>
-            <InfoRow icon="person-outline" label="Nom" value={intervenant.name} color="#9C27B0" />
-            <InfoRow icon="briefcase-outline" label="Profession" value={intervenant.profession} />
-            <InfoRow icon="business-outline" label="Structure" value={intervenant.intervention_structure || intervenant.structure_name} />
-            <InfoRow icon="call-outline" label="Telephone" value={intervenant.phone} />
-            <InfoRow icon="navigate-outline" label="Rayon" value={`${intervenant.intervention_radius_km || 30} km`} />
-          </GlassCard>
-        ) : (
-          <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Ionicons name="time" size={20} color="#FF9800" />
-              <Text style={{ fontSize: 14, fontWeight: '700', color: '#FF9800' }}>En attente d'acceptation par un intervenant</Text>
-            </View>
-            {(iv.recipients || []).length > 0 && (
-              <View style={{ marginTop: 12 }}>
-                <Text style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>{iv.recipients.length} intervenants notifies</Text>
-                {iv.recipients.map((r: any) => (
-                  <View key={r.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
-                    <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#9C27B015', justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name="person" size={14} color="#9C27B0" />
-                    </View>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#000', flex: 1 }}>{r.name}</Text>
-                    <Text style={{ fontSize: 10, color: '#888' }}>{r.distance_km}km</Text>
-                  </View>
-                ))}
-              </View>
-            )}
-          </GlassCard>
-        )}
-
-        {/* Timeline */}
-        {(iv.timeline || []).length > 0 && (
-          <GlassCard>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.04)', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="time" size={18} color="#000" />
-              </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Timeline</Text>
-            </View>
-            {iv.timeline.map((t: any, i: number) => (
-              <View key={i} style={{ flexDirection: 'row', gap: 10, marginBottom: 8 }}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: i === iv.timeline.length - 1 ? sc : '#DDD', marginTop: 5 }} />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 12, color: '#000', fontWeight: '600' }}>{t.note || t.status}</Text>
-                  <Text style={{ fontSize: 10, color: '#AAA' }}>{t.time ? new Date(t.time).toLocaleString('fr-FR') : ''}</Text>
+              {!iAmIntervenant && iv.distance_km && (
+                <View style={{ alignItems: 'center' }}>
+                  <Text style={{ fontSize: 20, fontWeight: '900', color: sc }}>{iv.distance_km}</Text>
+                  <Text style={{ fontSize: 9, color: '#888', fontWeight: '700' }}>KM</Text>
                 </View>
+              )}
+            </View>
+          ) : (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16, backgroundColor: '#FFF3E0', borderRadius: 16, padding: 14 }}>
+              <Ionicons name="time" size={24} color="#FF9800" />
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#E65100' }}>En attente d'un intervenant</Text>
+                <Text style={{ fontSize: 12, color: '#888' }}>{(iv.recipients || []).length} intervenants notifies</Text>
               </View>
-            ))}
-          </GlassCard>
-        )}
-      </ScrollView>
+            </View>
+          )}
+
+          {/* Alert type banner */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFEBEE', borderRadius: 14, padding: 14, marginBottom: 16 }}>
+            <Ionicons name={alert?.alert_type === 'fall' ? 'trending-down' : 'alert-circle'} size={22} color="#E53935" />
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#E53935' }}>{alert?.alert_type === 'sos' ? 'SOS - Urgence' : alert?.alert_type === 'fall' ? 'Chute detectee' : 'Alerte'}</Text>
+              <Text style={{ fontSize: 12, color: '#C62828' }}>{iv.alert_message || alert?.message}</Text>
+            </View>
+            <Text style={{ fontSize: 10, color: '#888' }}>{iv.created_at ? new Date(iv.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</Text>
+          </View>
+
+          {/* Patient info card */}
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 11, fontWeight: '800', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Patient</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 20, fontWeight: '900', color: '#0288D1' }}>{(ben.name || iv.beneficiary_name || '?').charAt(0)}</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 17, fontWeight: '900', color: '#000' }}>{ben.name || iv.beneficiary_name}</Text>
+                {ben.phone && <Text style={{ fontSize: 13, color: '#555' }}>{ben.phone}</Text>}
+              </View>
+            </View>
+
+            {ben.address && (
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
+                <Ionicons name="location" size={16} color="#E53935" style={{ marginTop: 2 }} />
+                <Text style={{ fontSize: 13, color: '#000', fontWeight: '600', flex: 1 }}>{ben.address}</Text>
+              </View>
+            )}
+
+            {/* Medical info - compact grid */}
+            {(ben.medical_conditions || ben.allergies || ben.blood_type) && (
+              <View style={{ backgroundColor: '#FFF8E1', borderRadius: 12, padding: 12, gap: 6 }}>
+                {ben.medical_conditions && (
+                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                    <Ionicons name="medkit" size={14} color="#E53935" />
+                    <Text style={{ fontSize: 12, color: '#333', flex: 1 }}><Text style={{ fontWeight: '700' }}>Pathologies:</Text> {ben.medical_conditions}</Text>
+                  </View>
+                )}
+                {ben.allergies && (
+                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                    <Ionicons name="warning" size={14} color="#FF9800" />
+                    <Text style={{ fontSize: 12, color: '#333', flex: 1 }}><Text style={{ fontWeight: '700' }}>Allergies:</Text> {ben.allergies}</Text>
+                  </View>
+                )}
+                {ben.blood_type && (
+                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                    <Ionicons name="water" size={14} color="#E53935" />
+                    <Text style={{ fontSize: 12, color: '#333', flex: 1 }}><Text style={{ fontWeight: '700' }}>Groupe:</Text> {ben.blood_type}</Text>
+                  </View>
+                )}
+                {ben.doctor_name && (
+                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                    <Ionicons name="person" size={14} color="#2196F3" />
+                    <Text style={{ fontSize: 12, color: '#333', flex: 1 }}><Text style={{ fontWeight: '700' }}>Medecin:</Text> {ben.doctor_name}</Text>
+                  </View>
+                )}
+              </View>
+            )}
+
+            {/* Emergency contact */}
+            {ben.emergency_contact_name && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, backgroundColor: '#FFEBEE', borderRadius: 10, padding: 10 }}>
+                <Ionicons name="call" size={16} color="#E53935" />
+                <Text style={{ fontSize: 12, color: '#C62828', fontWeight: '700', flex: 1 }}>{ben.emergency_contact_name} {ben.emergency_contact_phone ? `(${ben.emergency_contact_phone})` : ''}</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Intervenant details if assigned */}
+          {intervenant && !iAmIntervenant && (
+            <View style={{ marginBottom: 16 }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Intervenant</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                <Ionicons name="shield-checkmark" size={16} color="#009688" />
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{intervenant.name}</Text>
+              </View>
+              {intervenant.profession && <Text style={{ fontSize: 12, color: '#888', marginLeft: 26 }}>{intervenant.profession} - {intervenant.intervention_structure || intervenant.structure_name}</Text>}
+              {intervenant.phone && <Text style={{ fontSize: 12, color: '#888', marginLeft: 26 }}>{intervenant.phone}</Text>}
+            </View>
+          )}
+
+          {/* Timeline */}
+          {(iv.timeline || []).length > 0 && (
+            <View>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Chronologie</Text>
+              {iv.timeline.map((t: any, i: number) => (
+                <View key={i} style={{ flexDirection: 'row', gap: 10, marginBottom: 6 }}>
+                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: i === iv.timeline.length - 1 ? sc : '#DDD', marginTop: 5 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 12, color: '#333', fontWeight: i === iv.timeline.length - 1 ? '700' : '400' }}>{t.note || t.status}</Text>
+                    <Text style={{ fontSize: 10, color: '#AAA' }}>{t.time ? new Date(t.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+        </ScrollView>
+      </View>
     </View>
   );
 }
