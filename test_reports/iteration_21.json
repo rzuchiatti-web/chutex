@@ -1,0 +1,115 @@
+{
+  "summary": "Iteration 21: COMPANY INTERVENTION MANAGEMENT FEATURE - ALL TESTS PASS. Verified new Intervenants tab (4th) and Activite tab (5th) with Prescriptions/Interventions sub-tabs. All 4 intervenants displayed with correct data, intervenant detail page works. Activite tab shows Prescriptions (15) and Interventions (4) with En cours/Validees and En cours/Terminees sub-tabs. Existing features (Dashboard filters, Agences, Prescripteurs) confirmed working.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "backend_api_tests": {
+      "total": 14,
+      "passed": 14,
+      "failed": 0,
+      "tests": [
+        "test_company_login - PASS",
+        "test_get_intervenants_list - PASS (returns 4 intervenants)",
+        "test_intervenants_names - PASS (Ludivine Moutio, Marc Dubois, Isabelle Roux, Antoine Garnier)",
+        "test_get_intervenant_detail - PASS (returns intervenant, agency, interventions)",
+        "test_intervenant_detail_not_found - PASS (returns 404)",
+        "test_intervenants_require_auth - PASS",
+        "test_get_interventions_list - PASS (returns 4 interventions)",
+        "test_intervention_structure - PASS (has beneficiary_name, status, intervenant_name)",
+        "test_intervention_statuses - PASS (completed, in_progress, pending_acceptance)",
+        "test_interventions_require_auth - PASS",
+        "test_dashboard_returns_data - PASS",
+        "test_dashboard_prescriptions_count - PASS",
+        "test_intervenants_restricted_to_company - PASS (403 for non-company)",
+        "test_interventions_restricted_to_company - PASS (403 for non-company)"
+      ]
+    },
+    "frontend_ui_tests": {
+      "company_tabs": {
+        "status": "PASS",
+        "tabs_found": ["Dashboard", "Agences", "Prescripteurs", "Intervenants", "Activite", "Profil"],
+        "all_6_tabs_visible": true
+      },
+      "intervenants_tab": {
+        "status": "PASS",
+        "header": "Intervenants - 4 intervenants Care",
+        "search_bar": "Present",
+        "intervenants_list": [
+          {"name": "Ludivine Moutio", "profession": "Infirmiere liberale", "agency": "Agence Saint-Etienne", "radius": "30km", "missions": "1 missions, 1 term."},
+          {"name": "Marc Dubois", "profession": "Aide-soignant", "agency": "Agence Saint-Etienne", "radius": "25km", "missions": "1 missions, 1 term."},
+          {"name": "Isabelle Roux", "profession": "Infirmiere", "agency": "Agence Lyon", "radius": "35km", "missions": "1 missions, 1 actives"},
+          {"name": "Antoine Garnier", "profession": "Auxiliaire de vie", "agency": "Agence Saint-Chamond", "radius": "20km", "missions": "1 missions, 1 actives"}
+        ]
+      },
+      "intervenant_detail_page": {
+        "status": "PASS",
+        "page_title": "Fiche Intervenant",
+        "identity_card": {
+          "avatar": "L",
+          "name": "Ludivine Moutio",
+          "badges": ["INTERVENANT CARE", "AGENCE SAINT-ETIENNE"]
+        },
+        "info_rows": ["Email", "Telephone", "Adresse", "Profession", "Structure", "Rayon", "Inscription"],
+        "stats": {"total_missions": 1, "en_cours": 0, "terminees": 1},
+        "agency_info": {"nom": "Agence Saint-Etienne", "adresse": "15 avenue de la Gare, 42000 Saint-Etienne"},
+        "interventions_lists": {
+          "en_cours": "0 - Aucune intervention en cours",
+          "terminees": "1 - Robert Martinbb"
+        }
+      },
+      "activite_tab": {
+        "status": "PASS",
+        "header": "Activite - 15 prescriptions · 4 interventions",
+        "main_tabs": ["Prescriptions (15)", "Interventions (4)"],
+        "prescriptions_subtab": {
+          "sub_tabs": ["En cours (11)", "Validees (4)"],
+          "total_commissions": "185 EUR"
+        },
+        "interventions_subtab": {
+          "sub_tabs": ["En cours (2)", "Terminees (2)"],
+          "en_cours_items": [
+            {"beneficiary": "Robert Martinbb", "message": "Alerte inactivite", "intervenant": "Isabelle Roux", "distance": "9 KM", "status": "EN COURS"},
+            {"beneficiary": "Robert Martinbb", "message": "Alerte anomalie cardiaque", "intervenant": "Antoine Garnier", "distance": "12.5 KM", "status": "EN ATTENTE"}
+          ],
+          "terminees_items": [
+            {"beneficiary": "Robert Martinbb", "message": "Alerte SOS", "intervenant": "Ludivine Moutio", "distance": "2 KM", "status": "TERMINEE"},
+            {"beneficiary": "Robert Martinbb", "message": "Alerte chute", "intervenant": "Marc Dubois", "distance": "5.5 KM", "status": "TERMINEE"}
+          ]
+        }
+      },
+      "existing_features_regression": {
+        "dashboard_date_filters": "PASS - Tout, 7 jours, 30 jours buttons working",
+        "agences_tab": "PASS - 3 agencies displayed",
+        "prescripteurs_tab": "PASS - Search and list working",
+        "prescriber_detail": "PASS - Fiche Prescripteur with stats, agency, prescriptions"
+      }
+    }
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration21_company_intervenants.py",
+    "/app/test_reports/pytest/pytest_results_iter21.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_iteration21_company_intervenants.py"
+  ],
+  "success_rate": {
+    "backend": "100% (14/14 tests passed)",
+    "frontend": "100% (all features working)"
+  },
+  "test_credentials": {
+    "company": "saad@chutex.fr / demo123"
+  },
+  "seed_data_creation": "N/A - 4 intervenants and 4 interventions were pre-seeded",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Company (prescriber_company) role now has 6 tabs: Dashboard, Agences, Prescripteurs, Intervenants, Activite, Profil. The 'Intervenants' tab (4th) shows 4 Care intervenants with clickable cards navigating to /company-intervenant-detail. The 'Activite' tab (5th) has main tabs for Prescriptions (15) and Interventions (4), each with En cours/Validees or En cours/Terminees sub-tabs. Backend APIs verified: GET /api/company/intervenants (4 items), GET /api/company/interventions (4 items), GET /api/company/intervenant/{id}. All tests pass 100%."
+}
