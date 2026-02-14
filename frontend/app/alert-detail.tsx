@@ -78,6 +78,16 @@ export default function AlertDetailScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
+  const handleCompleteWithReport = async () => {
+    setSubmittingReport(true);
+    try {
+      await apiFetch(`/api/alerts/${alertId}/complete-with-report`, { method: 'POST', body: JSON.stringify(reportForm) }, token);
+      Alert.alert('Alerte cloturee', 'Le rapport a ete enregistre.');
+      setShowReport(false);
+      fetchData();
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSubmittingReport(false); }
+  };
+
   const startEscalation = async () => {
     setEscalating(true);
     try {
