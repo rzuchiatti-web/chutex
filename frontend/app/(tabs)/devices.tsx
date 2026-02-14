@@ -410,19 +410,47 @@ function AdminPrescripteurs({ token }: { token: string }) {
           </View>
         </View>
       ))}
+      </>}
 
-      {prescriptions.length > 0 && (
-        <>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginTop: 20, marginBottom: 8 }}>Prescriptions ({prescriptions.length})</Text>
-          {prescriptions.map((p: any) => (
-            <View key={p.id} style={d.deviceCard}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: Colors.textPrimary }}>{p.beneficiary_name}</Text>
-              <Text style={{ fontSize: 12, color: Colors.textMuted }}>{p.beneficiary_email} · {p.subscription_type} · {p.status}</Text>
-              <Text style={{ fontSize: 11, color: Colors.success, marginTop: 4 }}>Commission: {p.commission}€ · Structure: {p.prescriber_structure}</Text>
+      {/* PRESCRIBERS TAB */}
+      {tab === 'prescribers' && <>
+        {prescribers.map((p: any) => (
+          <View key={p.id} style={d.deviceCard}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#CE93D8', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{p.name?.charAt(0)?.toUpperCase()}</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.textPrimary }}>{p.name}</Text>
+                <Text style={{ fontSize: 12, color: Colors.textMuted }}>{p.email}</Text>
+                <Text style={{ fontSize: 11, color: '#9C27B0', fontWeight: '600', marginTop: 2 }}>{p.prescriber_structure}</Text>
+              </View>
             </View>
-          ))}
-        </>
-      )}
+          </View>
+        ))}
+        {prescribers.length === 0 && <View style={d.emptyC}><Ionicons name="medical-outline" size={28} color={Colors.textMuted} /><Text style={d.emptyT}>Aucun prescripteur</Text></View>}
+      </>}
+
+      {/* PRESCRIPTIONS TAB */}
+      {tab === 'prescriptions' && <>
+        {prescriptions.map((p: any) => (
+          <View key={p.id} style={d.deviceCard}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.textPrimary }}>{p.beneficiary_name}</Text>
+              <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: p.status === 'subscribed' ? '#4CAF5015' : '#FF980015' }}>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>{p.status === 'subscribed' ? 'ACTIF' : 'EN ATTENTE'}</Text>
+              </View>
+            </View>
+            <Text style={{ fontSize: 12, color: Colors.textMuted }}>{p.beneficiary_email} · {p.beneficiary_phone}</Text>
+            <Text style={{ fontSize: 12, color: Colors.textMuted, marginTop: 2 }}>Par: {p.guardian_name} ({p.prescriber_structure})</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
+              <Text style={{ fontSize: 12, fontWeight: '500', color: Colors.textSecondary }}>{p.subscription_type === 'standard' ? 'Standard (15€)' : 'Teleassistance (25€)'}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.success }}>+{p.commission}€</Text>
+            </View>
+          </View>
+        ))}
+        {prescriptions.length === 0 && <View style={d.emptyC}><Ionicons name="document-text-outline" size={28} color={Colors.textMuted} /><Text style={d.emptyT}>Aucune souscription</Text></View>}
+      </>}
 
       <Modal visible={showModal} transparent animationType="slide">
         <View style={d.modalO}><View style={d.modalC}>
