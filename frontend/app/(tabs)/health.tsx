@@ -28,7 +28,7 @@ function AdminClients({ token }: { token: string }) {
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   const bens = users.filter(u => u.role === 'beneficiary');
-  const guards = users.filter(u => u.role === 'guardian');
+  const guards = users.filter(u => u.role === 'guardian' || (u.role === 'beneficiary' && u.has_guardian_space));
   const displayed = tab === 'beneficiary' ? bens : guards;
 
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></View>;
