@@ -424,23 +424,27 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 function AdminIntervenants({ token }: { token: string }) {
   const [codes, setCodes] = useState<any[]>([]);
   const [providers, setProviders] = useState<any[]>([]);
+  const [interventions, setInterventions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editCode, setEditCode] = useState<any>(null);
   const [form, setForm] = useState({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' });
   const [saving, setSaving] = useState(false);
+  const [tab, setTab] = useState<'codes'|'providers'|'interventions'>('codes');
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const [c, p] = await Promise.all([
-          apiFetch('/api/admin/intervention-codes', {}, token).catch(() => []),
-          apiFetch('/api/admin/intervention-providers', {}, token).catch(() => []),
-        ]);
-        setCodes(c); setProviders(p);
-      } catch {} finally { setLoading(false); }
-    })();
-  }, []);
+  const fetchAll = useCallback(async () => {
+    try {
+      const [c, p, iv] = await Promise.all([
+        apiFetch('/api/admin/intervention-codes', {}, token).catch(() => []),
+        apiFetch('/api/admin/intervention-providers', {}, token).catch(() => []),
+        apiFetch('/api/backoffice/interventions', {}, token).catch(() => []),
+      ]);
+      setCodes(c); setProviders(p); setInterventions(iv);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [token]);
+
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const saveCode = async () => {
     if (!form.structure_name) return Alert.alert('Erreur', 'Nom de structure requis');
