@@ -51,7 +51,7 @@ async def get_active_alerts_with_interventions(user=Depends(get_current_user)):
 
     result = []
     for a in alerts:
-        iv = await db.interventions.find_one({"alert_id": a['id'], "status": {"$in": ["pending_acceptance", "in_progress"]}}, {"_id": 0})
+        iv = await db.interventions.find_one({"alert_id": a['id'], "status": {"$in": ["pending_acceptance", "in_progress", "en_route"]}}, {"_id": 0})
         incident = await db.incidents.find_one({"alert_id": a['id']}, {"_id": 0, "state": 1, "timeline": 1, "care_provider": 1, "assigned_guardian": 1})
         a['intervention'] = iv
         a['incident_state'] = incident.get('state') if incident else None
