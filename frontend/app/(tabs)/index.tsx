@@ -1011,20 +1011,23 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
         ))}
       </View>
 
-      {/* KPI cards */}
+      {/* KPI cards - clickable */}
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
         {[
-          { val: data.total_prescribers, label: 'Prescripteurs', icon: 'people', color: '#4CAF50' },
-          { val: data.total_prescriptions, label: 'Prescriptions', icon: 'document-text', color: '#2196F3' },
-          { val: (data.agencies || []).length, label: 'Agences', icon: 'business', color: '#FF9800' },
+          { val: data.total_prescribers, label: 'Prescripteurs', icon: 'people', color: '#4CAF50', tab: 2 },
+          { val: data.total_prescriptions, label: 'Prescriptions', icon: 'document-text', color: '#2196F3', tab: 4 },
+          { val: (data.agencies || []).length, label: 'Agences', icon: 'business', color: '#FF9800', tab: 1 },
         ].map((s, i) => (
-          <GlassCard key={i} style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
-            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: s.color + '15', justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
-              <Ionicons name={s.icon as any} size={18} color={s.color} />
-            </View>
-            <Text style={{ fontSize: 26, fontWeight: '900', color: s.color }}>{s.val}</Text>
-            <Text style={{ fontSize: 8, color: '#888', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{s.label}</Text>
-          </GlassCard>
+          <TouchableOpacity key={i} activeOpacity={0.7} style={{ flex: 1 }}
+            onPress={() => router.push({ pathname: '/(tabs)/' + ['index','health','alerts','teleconsult','devices'][s.tab] as any })}>
+            <GlassCard style={{ alignItems: 'center', padding: 14, marginBottom: 0 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: s.color + '15', justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
+                <Ionicons name={s.icon as any} size={18} color={s.color} />
+              </View>
+              <Text style={{ fontSize: 26, fontWeight: '900', color: s.color }}>{s.val}</Text>
+              <Text style={{ fontSize: 8, color: '#888', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{s.label}</Text>
+            </GlassCard>
+          </TouchableOpacity>
         ))}
       </View>
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
