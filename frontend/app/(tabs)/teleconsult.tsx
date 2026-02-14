@@ -586,7 +586,13 @@ function AdminIntervenants({ token }: { token: string }) {
             </View>
           </TouchableOpacity>
         ))}
-        {providers.length === 0 && <View style={{ alignItems: 'center', paddingVertical: 36 }}><Ionicons name="medkit-outline" size={36} color="#CCC" /><Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucun intervenant inscrit</Text></View>}
+        {providers.length === 0 && <View style={{ alignItems: 'center', paddingVertical: 36 }}>
+          <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(76,175,80,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
+            <Ionicons name="medkit-outline" size={28} color="#A5D6A7" />
+          </View>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>Aucun intervenant inscrit</Text>
+          <Text style={{ fontSize: 12, color: '#888', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>Creez un code d'intervention dans l'onglet "Codes" pour permettre aux intervenants de s'inscrire.</Text>
+        </View>}
       </>}
 
       {/* INTERVENTIONS TAB - Redesigned */}
