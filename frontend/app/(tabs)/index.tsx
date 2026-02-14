@@ -580,26 +580,31 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
       {activeAlertsG.map((a: any) => (
         <TouchableOpacity key={a.id} onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
           <GlassCard style={{ backgroundColor: 'rgba(229,57,53,0.06)', borderLeftWidth: 4, borderLeftColor: '#E53935', padding: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-              <Ionicons name="alert-circle" size={20} color="#E53935" />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E53935', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="alert-circle" size={20} color="#FFF" />
+              </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#E53935' }}>ALERTE - {a.beneficiary_name}</Text>
-                <Text style={{ fontSize: 11, color: '#555' }}>{a.message}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '900', color: '#E53935' }}>ALERTE - {a.beneficiary_name}</Text>
+                <Text style={{ fontSize: 12, color: '#555', marginTop: 2 }}>{a.message}</Text>
               </View>
               <Text style={{ fontSize: 9, color: '#888' }}>{new Date(a.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</Text>
             </View>
             {a.intervener_info ? (
-              <View style={{ backgroundColor: 'rgba(76,175,80,0.1)', borderRadius: 10, padding: 8, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Ionicons name="person" size={14} color="#4CAF50" />
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#2E7D32' }}>{a.intervener_info.name} intervient ({a.intervener_info.structure})</Text>
+              <View style={{ backgroundColor: '#009688', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <Ionicons name="navigate" size={16} color="#FFF" />
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>SUIVRE {a.intervener_info.name.split(' ')[0].toUpperCase()} SUR LA CARTE</Text>
               </View>
-            ) : a.incident_state === 'CARE_DISPATCHED' ? (
-              <View style={{ backgroundColor: 'rgba(255,152,0,0.1)', borderRadius: 10, padding: 8, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Ionicons name="navigate" size={14} color="#FF9800" />
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#E65100' }}>Intervenant Care en attente</Text>
+            ) : a.incident_state === 'CARE_DISPATCHED' || a.teleassistance_status === 'CARE_DISPATCHED' ? (
+              <View style={{ backgroundColor: '#FF9800', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <Ionicons name="time" size={16} color="#FFF" />
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>EN ATTENTE D'UN INTERVENANT</Text>
               </View>
             ) : (
-              <Text style={{ fontSize: 10, color: '#888', marginTop: 4 }}>Protocole en cours: {a.incident_state || a.teleassistance_status}</Text>
+              <View style={{ backgroundColor: '#E53935', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <Ionicons name="shield-checkmark" size={16} color="#FFF" />
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>VOIR L'ALERTE ET INTERVENIR</Text>
+              </View>
             )}
           </GlassCard>
         </TouchableOpacity>
