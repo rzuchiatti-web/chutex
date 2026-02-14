@@ -25,7 +25,7 @@ function CompanyPrescribers({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}><ActivityIndicator size="large" color="#000" /></View>;
   if (!data) return null;
 
   const allPrescribers = data.prescriber_ranking || [];

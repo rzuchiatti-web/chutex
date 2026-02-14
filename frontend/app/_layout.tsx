@@ -13,7 +13,7 @@ function RootNav() {
 
   if (loading) {
     return (
-      <View style={[st.loading, { backgroundColor: colors.background }]}>
+      <View style={[st.loading, { backgroundColor: 'transparent' }]}>
         <StatusBar style={isDark ? 'light' : 'dark'} />
         <ActivityIndicator size="large" color={colors.primary} />
       </View>

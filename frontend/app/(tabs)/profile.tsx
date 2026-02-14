@@ -121,7 +121,7 @@ export default function ProfileScreen() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="profile-screen">
+    <View style={{ flex: 1, backgroundColor: 'transparent' }} testID="profile-screen">
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
         <Text style={{ fontSize: 28, fontWeight: '900', color: '#000', marginTop: 16, marginBottom: 20 }}>{t('profile')}</Text>
 
