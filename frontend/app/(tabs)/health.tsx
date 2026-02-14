@@ -149,6 +149,13 @@ function CompanyAgences({ token }: { token: string }) {
                 <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{ag.agency.name}</Text>
                 {ag.agency.address ? <Text style={{ fontSize: 11, color: '#888' }}>{ag.agency.address}</Text> : null}
               </View>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <TouchableOpacity onPress={() => { setEditAgency(ag.agency); setEditName(ag.agency.name); setEditAddr(ag.agency.address || ''); }}
+                  style={{ padding: 6 }}><Ionicons name="create-outline" size={16} color="#888" /></TouchableOpacity>
+                <TouchableOpacity onPress={() => confirmAction('Supprimer', `Supprimer l'agence ${ag.agency.name} ? Les prescripteurs seront desassignes.`, async () => {
+                  await apiFetch(`/api/company/agencies/${ag.agency.id}`, { method: 'DELETE' }, token); fetchData();
+                })} style={{ padding: 6 }}><Ionicons name="trash-outline" size={16} color="#E53935" /></TouchableOpacity>
+              </View>
             </View>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
               <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
@@ -175,6 +182,14 @@ function CompanyAgences({ token }: { token: string }) {
                 <Text style={{ fontSize: 11, fontWeight: '700', color: '#4CAF50' }}>{pr.comm_validated + pr.comm_pending} EUR</Text>
               </View>
             ))}
+            {/* Add prescriber button */}
+            {data.unassigned_prescribers > 0 && (
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, marginTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.06)' }}
+                onPress={() => setAssignModal({ ...({} as any), targetAgencyId: ag.agency.id, targetAgencyName: ag.agency.name })}>
+                <Ionicons name="person-add-outline" size={14} color="#2196F3" />
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#2196F3' }}>Ajouter un prescripteur</Text>
+              </TouchableOpacity>
+            )}
           </GlassCard>
         ))}
 
