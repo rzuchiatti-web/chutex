@@ -1,40 +1,38 @@
 # CHUTEX / CARE WATCH - PRD
 
-## Systeme d'aide UX (AJOUTE SANS MODIFIER LA STRUCTURE)
+## Systeme d'aide UX complet
 
-### Composants crees (/src/components/HelpSystem.tsx)
-- HelpBubble : Bouton "?" contextuel avec modal explicative
-- ContextualTip : Tip dismissable (1 seule fois, AsyncStorage)
-- ActionFeedback : Toast de confirmation apres action
-- OnboardingChecklist : Checklist progressive
+### Composants (/src/components/HelpSystem.tsx)
+- HelpBubble : Bouton "?" contextuel
+- ContextualTip : Tip dismissable 1 fois (AsyncStorage)
+- ActionFeedback : Toast confirmation
+- OnboardingChecklist : Checklist progressive avec barre
 - HelpCenter : FAQ + recherche + contact support
 
-### Tips contextuels ajoutes
-- Beneficiaire dashboard : Explication SOS ("En cas d'urgence, appuyez...")
-- Gardien dashboard : Bienvenue espace gardien ("Suivez la sante de vos proches...")
+### Tips contextuels
+- Beneficiaire : Explication SOS, checklist onboarding (profil, gardien, appareils, seuils)
+- Gardien : Bienvenue espace gardien, guide interventions
 
 ### Centre d'aide (Profil > Centre d'aide)
-- 8 FAQ : SOS, gardien, prescripteur, intervenant, seuils, suivi, donnees, challenge
+- 8 FAQ completes en francais
 - Recherche par mot-cle
 - Contact support@chutex.fr
 
-### Contraintes respectees
-- AUCUN changement de navigation/routes/onglets
-- AUCUN changement de structure de donnees
-- AUCUN changement de droits/roles
-- Compatible avec tous les flux existants
+### Microcopy ameliore
+- Alertes : "Tout va bien !" / "Aucun historique" avec descriptions
+- Interventions : Messages detailles pour missions/terminees
+- SOS : Feedback en 3 etapes (alertes gardiens, teleassistance, intervenant)
+- Escalader -> "LANCER CARE WATCH" (plus clair pour admin)
 
-## Comptes test
-| Role | Email | MdP |
-|---|---|---|
-| Beneficiaire | robert.martin@email.fr | demo123 |
-| Gardien | claire.martin@email.fr | demo123 |
-| Admin | admin@chutex.fr | demo123 |
-| Entreprise SAAD | saad@chutex.fr | demo123 |
+### Checklist onboarding beneficiaire
+- Completer profil medical
+- Ajouter un gardien
+- Connecter un appareil
+- Verifier seuils d'alerte
 
-## Backlog UX
-- Coach marks (bulles etape par etape) sur premiere utilisation
-- Mini-tutos animes pour actions complexes
-- Checklist progressive beneficiaire/gardien
-- Analytics UX (ouverture aides, completion tutos)
-- Microcopy amélioré sur tous les etats vides
+## Contraintes respectees : 0 changement structure/nav/routes/roles
+
+## Backlog
+- P1 : Build natif + BLE, Export PDF rapports
+- P2 : Notation post-intervention, coach marks animes
+- P3 : Analytics UX, Shopify, Balance Lefu
