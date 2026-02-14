@@ -1,0 +1,79 @@
+{
+  "summary": "Iteration 25: CARE WATCH improvements testing - Multiple features verified. Backend APIs working correctly with full intervention report data. Company intervention detail page shows complete report. Alert detail page for guardians MISSING intervention report display.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "alert-detail.tsx",
+        "issue": "Resolved alert detail page does NOT display the intervention report (description, actions_taken, patient_condition, follow_up_notes). The data is available in API but no UI section to show it.",
+        "selector": "N/A - section needs to be added",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Add intervention report section to alert-detail.tsx for resolved alerts - should display: description, actions_taken, patient_condition, follow_up info"
+  ],
+  "critical_code_review_comments": [
+    "alert-detail.tsx (lines 267-283) shows Intervenant section but lacks intervention.report display. Should add report section similar to company-intervention-detail.tsx lines 162-178"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "95%"
+  },
+  "test_credentials": {
+    "claire": "claire.martin@email.fr / demo123",
+    "saad": "saad@chutex.fr / demo123",
+    "admin": "admin@chutex.fr / demo123"
+  },
+  "seed_data_creation": "None - used existing data",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Intervention 3e2781b0 is completed by Marc Dubois with full report. Alert 0235f80c is resolved. Backend APIs work correctly. Company intervention detail page shows full report. Guardian alert-detail page needs UI update to show intervention report for resolved alerts.",
+  "mocked_apis": {
+    "has_mocked_apis": true,
+    "list": ["GPS simulation - intervenant position"]
+  },
+  "features_verified": {
+    "claire_dashboard": {
+      "no_active_alert": "PASS - Dashboard shows 0 ALERTES, Robert in 'BONNE SANTE' status",
+      "alertes_tab": "PASS - Shows Actives (0), Resolues (1)",
+      "resolved_alert_visible": "PASS - SOS alert visible in Resolues tab with CRITIQUE badge"
+    },
+    "claire_alert_detail": {
+      "status_badge": "PASS - Shows 'ALERTE RESOLUE' and 'RESOLUE' badges",
+      "beneficiary_info": "PASS - Robert Martinbb, phone, pathologies, allergies, blood type",
+      "intervenant_section": "PASS - Shows Marc Dubois, SAAD Aide a Domicile, TERMINE badge",
+      "timeline": "PASS - Shows 'Intervention completed', 'Alerte resolue'",
+      "intervention_report_display": "FAIL - Report data (description, actions, patient_condition, follow_up) NOT displayed"
+    },
+    "saad_interventions": {
+      "terminees_tab": "PASS - Shows Terminees (1) with Marc Dubois, TERMINEE badge",
+      "intervention_detail": "PASS - Full detail page with map, patient info, call buttons, RAPPORT D'INTERVENTION section"
+    },
+    "saad_intervention_detail": {
+      "terminee_badge": "PASS - Green TERMINEE badge visible",
+      "map_display": "PASS - Map with Marc (M) and Robert (R) markers",
+      "call_buttons": "PASS - 'Appeler patient' (blue) and 'Urgence' (red) buttons present",
+      "patient_info": "PASS - Name, address, pathologies, allergies, blood type, medecin",
+      "report_section": "PASS - Full report displayed: Etat Stable, description, actions, follow-up with Dr Lefevre"
+    },
+    "admin_dashboard": {
+      "alertes_actives": "PASS - Shows 0 ALERTES ACTIVES",
+      "interventions": "PASS - Shows 1 INTERVENTION"
+    },
+    "backend_api": {
+      "GET /api/interventions/{id}/detail": "PASS - Returns full intervention with report field populated",
+      "GET /api/alerts/{id}/detail": "PASS - Returns alert with intervention_report field",
+      "GET /api/alerts": "PASS - Resolved alert shows status='resolved' with intervention_report",
+      "GET /api/company/interventions": "PASS - Returns intervention with status='completed' and report"
+    }
+  }
+}
