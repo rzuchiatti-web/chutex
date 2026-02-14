@@ -885,7 +885,7 @@ export default function DevicesScreen() {
         <Text style={[d.title, { color: colors.textPrimary }]}>{r === 'admin' ? 'Prescripteurs' : r === 'prescriber_company' ? 'Activite' : r === 'guardian' ? 'Prescriptions' : r === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
       </View>
       {r === 'admin' ? <AdminPrescripteurs token={token} />
-        : r === 'prescriber_company' ? <CompanyActivity token={token} />
+        : r === 'prescriber_company' ? <CompanyPrescriptionsTab token={token} />
         : r === 'guardian' ? <PrescriptionManagement token={token} user={user} />
         : r === 'teleassistance' ? <SubscribersList token={token} />
         : <DeviceManagement token={token} />}
