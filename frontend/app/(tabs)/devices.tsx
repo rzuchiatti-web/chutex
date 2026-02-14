@@ -159,6 +159,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const [actCode, setActCode] = useState('');
   const [activating, setActivating] = useState(false);
   const [showPrescModal, setShowPrescModal] = useState(false);
+  const [selectedPresc, setSelectedPresc] = useState<any>(null);
 
   const fetchPrescriptions = useCallback(async () => {
     try { setPrescriptions(await apiFetch('/api/guardian/prescriptions', {}, token)); } catch (e) { console.error(e); } finally { setLoading(false); }
