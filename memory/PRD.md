@@ -1,19 +1,19 @@
 # CHUTEX / CARE WATCH - PRD
 
-## Programme Recompenses Prescripteurs
-- 3 gagnants/mois : 1er=100EUR, 2e=70EUR, 3e=30EUR
-- Carte doree dans espace prescripteur avec position + objectif personnel
-- Classement anonyme (position sans nom) en cliquant
-- "Plus que X prescriptions pour monter !"
-- Regles + historique des gagnants
-- Admin definit les recompenses mensuelles
+## Programme Recompenses
+- Admin : Carte de gestion avec 3 prix editables (1er/2e/3e) par mois
+- Prescripteurs : Carte doree avec position, objectif personnel, classement anonyme
+- 3 gagnants : 100EUR / 70EUR / 30EUR (par defaut, modifiable par admin)
+- Versement debut du mois suivant
 
-## Fonctionnalites cles
-- Page suivi Uber (carte + fiche) + boutons appel direct
-- Rapport cloture depuis fiche alerte (gardiens + intervenants)
-- Dashboards analytics (admin + SAAD)
-- Protocole CARE WATCH 3 cas avec dispatch SAAD
-- Acceptation verrouillee (premier gagne)
+## Fonctionnalites implementees
+- Portail B2B SAAD (6 tabs, analytics, interventions, prescriptions)
+- Dispatch CARE WATCH vers SAAD la plus proche
+- Page suivi Uber (carte + fiche patient glissante + appels directs)
+- Rapport de cloture + fiche alerte resolue avec rapport
+- Programme recompenses prescripteurs (classement anonyme + objectif)
+- Dashboards analytics admin + SAAD
+- Protocole CARE WATCH 3 cas
 
 ## Comptes test
 | Role | Email | MdP |
@@ -28,5 +28,5 @@
 
 ## Backlog
 - P1 : Build natif + BLE, WebSocket tracking, GPS reel
-- P2 : Export PDF rapports, itineraire Google Maps
-- P3 : Shopify, Balance Lefu, hypnogramme reel, notation post-intervention
+- P2 : Export PDF rapports, itineraire Google Maps, notation post-intervention
+- P3 : Shopify, Balance Lefu, hypnogramme reel
