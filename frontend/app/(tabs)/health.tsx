@@ -271,7 +271,7 @@ function CompanyAgences({ token }: { token: string }) {
           <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
             {assignModal.targetAgencyId ? (
               <>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', marginBottom: 4 }}>Ajouter a {assignModal.targetAgencyName}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', marginBottom: 4 }}>Gerer {assignModal.targetAgencyName}</Text>
                 <Text style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>Prescripteurs non assignes</Text>
                 {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).map((pr: any) => (
                   <TouchableOpacity key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}
@@ -282,7 +282,24 @@ function CompanyAgences({ token }: { token: string }) {
                   </TouchableOpacity>
                 ))}
                 {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).length === 0 && (
-                  <Text style={{ fontSize: 13, color: '#888', textAlign: 'center', paddingVertical: 20 }}>Tous les prescripteurs sont deja assignes</Text>
+                  <Text style={{ fontSize: 13, color: '#888', textAlign: 'center', paddingVertical: 12 }}>Tous les prescripteurs sont deja assignes</Text>
+                )}
+                {/* Show currently assigned prescribers with remove option */}
+                {(data.prescriber_ranking || []).filter((p: any) => p.agency_id === assignModal.targetAgencyId).length > 0 && (
+                  <>
+                    <View style={{ height: 1, backgroundColor: 'rgba(0,0,0,0.08)', marginVertical: 12 }} />
+                    <Text style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>Prescripteurs dans cette agence</Text>
+                    {(data.prescriber_ranking || []).filter((p: any) => p.agency_id === assignModal.targetAgencyId).map((pr: any) => (
+                      <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
+                        <Ionicons name="person" size={18} color="#4CAF50" />
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: '#000', flex: 1 }}>{pr.name}</Text>
+                        <TouchableOpacity style={{ backgroundColor: '#FFEBEE', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}
+                          onPress={() => { assignToAgency(pr.id, null); }}>
+                          <Text style={{ fontSize: 10, fontWeight: '700', color: '#E53935' }}>Retirer</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </>
                 )}
               </>
             ) : (
@@ -300,7 +317,7 @@ function CompanyAgences({ token }: { token: string }) {
               </>
             )}
             <TouchableOpacity style={{ padding: 14, alignItems: 'center', marginTop: 10 }} onPress={() => setAssignModal(null)}>
-              <Text style={{ color: '#888', fontWeight: '600' }}>Annuler</Text>
+              <Text style={{ color: '#888', fontWeight: '600' }}>Fermer</Text>
             </TouchableOpacity>
           </View>
         </View>
