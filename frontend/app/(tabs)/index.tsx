@@ -599,6 +599,13 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
       {/* Contextual Tips */}
       <ContextualTip id="guardian-welcome" icon="people-outline" text="Bienvenue dans votre espace gardien ! Ici, vous suivez la sante de vos proches en temps reel. Si une alerte se declenche, vous serez immediatement prevenu et pourrez intervenir." color="#009688" />
 
+      {/* Mini Tuto for Guardians */}
+      <MiniTuto id="guardian-intro" triggerLabel="Guide du gardien" steps={[
+        { title: 'Votre role de gardien', text: 'Vous veillez sur vos proches a distance. Vous recevrez une notification instantanee en cas d\'alerte et pourrez agir rapidement.', icon: 'shield-outline' },
+        { title: 'Alertes et interventions', text: 'Quand une alerte se declenche, vous pouvez intervenir directement ou suivre l\'intervenant envoye sur place en temps reel.', icon: 'alert-circle-outline' },
+        { title: 'Ajouter un beneficiaire', text: 'Pour surveiller un proche, demandez-lui son code de liaison (QR code ou code texte) et scannez-le depuis le bouton "Ajouter".', icon: 'person-add-outline' },
+      ]} />
+
       {/* Active Alerts for Guardian */}
       {activeAlertsG.map((a: any) => {
         const myIntervention = a.intervention?.assigned_to === user.id;
