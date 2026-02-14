@@ -37,43 +37,34 @@ export function PastelMistBackground() {
     `;
     document.head.appendChild(style);
 
-    // Force all RN Web containers transparent
-    const observer = new MutationObserver(() => {
-      document.querySelectorAll('#root div').forEach(el => {
+    // Force ALL intermediate layers transparent - aggressive approach
+    const forceTransparent = () => {
+      const allDivs = document.querySelectorAll('#root div');
+      allDivs.forEach(el => {
         const htmlEl = el as HTMLElement;
-        const bg = htmlEl.style.backgroundColor;
-        if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)' && !htmlEl.closest('[class*="modal"]') && !htmlEl.closest('[aria-modal]')) {
-          const rgb = window.getComputedStyle(htmlEl).backgroundColor;
-          if (rgb === 'rgb(242, 242, 242)' || rgb === 'rgb(245, 240, 235)' || rgb === 'rgb(255, 255, 255)') {
-            htmlEl.style.setProperty('background-color', 'transparent', 'important');
-          }
+        if (htmlEl.id?.includes('mist') || htmlEl.closest('[aria-modal="true"]')) return;
+        const bg = window.getComputedStyle(htmlEl).backgroundColor;
+        if (bg === 'rgb(242, 242, 242)' || bg === 'rgb(245, 240, 235)' || bg === 'rgb(255, 255, 255)') {
+          htmlEl.style.setProperty('background-color', 'transparent', 'important');
         }
       });
-    });
-    observer.observe(document.getElementById('root') || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+    };
 
-    // Initial pass
-    setTimeout(() => {
-      document.querySelectorAll('#root div').forEach(el => {
-        const htmlEl = el as HTMLElement;
-        const rgb = window.getComputedStyle(htmlEl).backgroundColor;
-        if (rgb === 'rgb(242, 242, 242)' || rgb === 'rgb(245, 240, 235)') {
-          htmlEl.style.setProperty('background-color', 'transparent', 'important');
-        }
-      });
-    }, 500);
-    setTimeout(() => {
-      document.querySelectorAll('#root div').forEach(el => {
-        const htmlEl = el as HTMLElement;
-        const rgb = window.getComputedStyle(htmlEl).backgroundColor;
-        if (rgb === 'rgb(242, 242, 242)' || rgb === 'rgb(245, 240, 235)') {
-          htmlEl.style.setProperty('background-color', 'transparent', 'important');
-        }
-      });
-    }, 2000);
+    // MutationObserver + interval combo for maximum reliability
+    const observer = new MutationObserver(forceTransparent);
+    observer.observe(document.getElementById('root') || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+    
+    // Also run on interval as fallback (RN Web re-applies styles after observer fires)
+    const interval = setInterval(forceTransparent, 300);
+    forceTransparent();
+    setTimeout(forceTransparent, 100);
+    setTimeout(forceTransparent, 500);
+    setTimeout(forceTransparent, 1500);
+    setTimeout(forceTransparent, 3000);
 
     return () => {
       observer.disconnect();
+      clearInterval(interval);
       document.getElementById('pastel-mist-v5')?.remove();
     };
   }, []);
