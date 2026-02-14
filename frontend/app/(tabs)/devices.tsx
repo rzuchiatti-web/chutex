@@ -297,6 +297,7 @@ function SubscribersList({ token }: { token: string }) {
 
 /* ===== ADMIN: PRESCRIPTEURS MANAGEMENT ===== */
 function AdminPrescripteurs({ token }: { token: string }) {
+  const router = useRouter();
   const [codes, setCodes] = useState<any[]>([]);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [prescribers, setPrescribers] = useState<any[]>([]);
