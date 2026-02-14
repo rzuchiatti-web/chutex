@@ -5,6 +5,7 @@
 - Backend: FastAPI (Python) - MongoDB - JWT Auth
 - IA: GPT-5.2 (Emergent LLM Key)
 - Voix: ElevenLabs / Twilio
+- Carte: Leaflet (OpenStreetMap)
 
 ## Roles (6)
 | Role | Description |
@@ -24,45 +25,33 @@
 | Teleassistance | plateau@chutex.fr | demo123 |
 | Admin | admin@chutex.fr | demo123 |
 | Entreprise SAAD | saad@chutex.fr | demo123 |
-| Prescripteurs SAAD | marie.dupont@saad.fr, jean.leroy@saad.fr, sophie.petit@saad.fr, thomas.bernard@saad.fr, julie.moreau@saad.fr, pierre.laurent@saad.fr | demo123 |
-| Intervenants SAAD | marc.dubois@saad.fr, isabelle.roux@saad.fr, antoine.garnier@saad.fr + ludivine.moutio@care.fr | demo123 |
+| Intervenants SAAD | marc.dubois@saad.fr, isabelle.roux@saad.fr, antoine.garnier@saad.fr | demo123 |
+
+## Flux Intervention CARE WATCH
+1. Alerte SOS/chute declenchee -> Teleassistance IA tente levee de doute
+2. Echec levee de doute -> Dispatch vers SAAD la plus proche (geolocalisation)
+3. Tous les intervenants de la SAAD notifies simultanement
+4. Premier a cliquer "J'interviens" -> verrouille (autres bloques, 409 Conflict)
+5. Intervenant en route -> position GPS mise a jour (polling 5s)
+6. Gardiens + autres intervenants peuvent suivre sur carte (Leaflet)
+7. Fiche intervention complete : carte, alerte, beneficiaire (medical), intervenant, timeline
 
 ## Espace Entreprise - Tabs (6)
-1. **Dashboard** : KPIs, commissions, agences, top prescripteurs, filtre date
-2. **Agences** : CRUD agences, gestion prescripteurs/intervenants par agence
-3. **Prescripteurs** : Liste recherchable, fiche detail cliquable
-4. **Intervenants** : Liste recherchable, fiche detail cliquable (missions, rayon, agence)
-5. **Activite** : Prescriptions (En cours/Validees) + Interventions (En cours/Terminees)
+1. **Dashboard** : KPIs cliquables (redirigent), commissions, agences, top prescripteurs, filtre date
+2. **Agences** : CRUD agences, gestion prescripteurs/intervenants
+3. **Prescripteurs** : Liste recherchable, fiche detail
+4. **Interventions** : Missions (En cours/Terminees) + Intervenants (recherchable), fiche detail avec carte Leaflet
+5. **Prescriptions** : En cours/Validees, fiche detail premium
 6. **Profil** : Infos entreprise
 
-## DONE (Feb 14, 2026 - Fork 2, Session 3)
-- Gestion intervenants entreprise : nouvel onglet avec liste recherchable, fiche detail
-- Gestion interventions entreprise : onglet Activite avec sous-onglets Prescriptions/Interventions
-- Backend : /api/company/intervenants, /api/company/intervenant/{id}, /api/company/interventions, /api/company/intervenant/{id}/assign
-- Seed : 4 intervenants lies a SAAD (Ludivine, Marc, Isabelle, Antoine) + 4 interventions demo
-- Tabs entreprise : Dashboard, Agences, Prescripteurs, Intervenants, Activite, Profil
-
-## DONE (Fork 2, Session 2)
-- Redesign fiches prescriptions gardien + interventions gardien + prescriptions entreprise (glassmorphism premium)
-
-## DONE (Fork 2, Session 1)
-- Fiche prescripteur cliquable, recherche prescripteurs, UX assignation, filtre date dashboard
-
-## DONE (Fork 1)
-- Tous les roles de base, admin complet, CARE WATCH, menu navigation, fiches clients
-
-## Fichiers cles
-- frontend/app/(tabs)/_layout.tsx : Menu navigation (6 roles, 6 tabs entreprise)
-- frontend/app/(tabs)/index.tsx : Dashboards + filtre date company
-- frontend/app/(tabs)/health.tsx : Sante | Clients admin | Agences company
-- frontend/app/(tabs)/alerts.tsx : Alertes | Prescripteurs company
-- frontend/app/(tabs)/teleconsult.tsx : Interventions gardien | Intervenants admin | **Intervenants company**
-- frontend/app/(tabs)/devices.tsx : Appareils | Prescriptions gardien | Prescripteurs admin | **Activite company**
-- frontend/app/company-prescriber-detail.tsx : Fiche prescripteur entreprise
-- frontend/app/company-intervenant-detail.tsx : **NOUVEAU** Fiche intervenant entreprise
-- backend/routes/company_routes.py : API entreprise complete (dashboard, agences, prescripteurs, intervenants, interventions)
+## Backend API Interventions
+- POST /api/interventions/{id}/accept : Acceptation verrouillee (premier gagne)
+- POST /api/interventions/{id}/position : Mise a jour GPS intervenant
+- GET /api/interventions/{id}/tracking : Position live pour followers
+- GET /api/interventions/{id}/detail : Fiche complete (alerte + beneficiaire + intervenant)
 
 ## Backlog
 - P1 : Build natif Android/iOS + BLE (bracelet J-Style, gilet S-AIRBAG)
-- P2 : Exports PDF rapports, reporting avance
-- P3 : Shopify (bloque plan utilisateur), Balance Lefu, hypnogramme sommeil reel
+- P1 : WebSocket pour tracking temps reel (remplacer polling)
+- P2 : Exports PDF rapports, carte intervenant natif avec itineraire
+- P3 : Shopify, Balance Lefu, hypnogramme sommeil reel
