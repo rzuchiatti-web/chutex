@@ -947,6 +947,109 @@ function AdminHome({ token, user }: { token: string; user: any }) {
   );
 }
 
+/* ───── COMPANY DASHBOARD ───── */
+function CompanyHome({ token, user }: { token: string; user: any }) {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    try { setData(await apiFetch('/api/company/dashboard', {}, token)); }
+    catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [token]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (!data) return null;
+
+  const barMax = (vals: number[]) => Math.max(...vals, 1);
+
+  return (
+    <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
+      <View style={{ marginTop: 12, marginBottom: 16 }}>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>{data.company.structure_name}</Text>
+        <Text style={{ fontSize: 12, color: '#888' }}>Espace entreprise prescriptrice</Text>
+      </View>
+
+      {/* KPI cards */}
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+        {[
+          { val: data.total_prescribers, label: 'Prescripteurs', icon: 'people', color: '#4CAF50' },
+          { val: data.total_prescriptions, label: 'Prescriptions', icon: 'document-text', color: '#2196F3' },
+          { val: (data.agencies || []).length, label: 'Agences', icon: 'business', color: '#FF9800' },
+        ].map((s, i) => (
+          <GlassCard key={i} style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
+            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: s.color + '15', justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
+              <Ionicons name={s.icon as any} size={18} color={s.color} />
+            </View>
+            <Text style={{ fontSize: 26, fontWeight: '900', color: s.color }}>{s.val}</Text>
+            <Text style={{ fontSize: 8, color: '#888', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{s.label}</Text>
+          </GlassCard>
+        ))}
+      </View>
+
+      {/* Commissions total */}
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+        <GlassCard style={{ flex: 1, padding: 16, marginBottom: 0, borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
+          <Text style={{ fontSize: 10, color: '#4CAF50', fontWeight: '700', marginBottom: 4 }}>Commissions validees</Text>
+          <Text style={{ fontSize: 28, fontWeight: '900', color: '#4CAF50' }}>{data.total_comm_validated} EUR</Text>
+        </GlassCard>
+        <GlassCard style={{ flex: 1, padding: 16, marginBottom: 0, borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
+          <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '700', marginBottom: 4 }}>En attente</Text>
+          <Text style={{ fontSize: 28, fontWeight: '900', color: '#FF9800' }}>{data.total_comm_pending} EUR</Text>
+        </GlassCard>
+      </View>
+
+      {/* Agencies performance */}
+      <GlassCard>
+        <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', letterSpacing: 0.5, marginBottom: 12 }}>Performance par agence</Text>
+        {(data.agencies || []).map((ag: any) => {
+          const total = ag.comm_validated + ag.comm_pending;
+          const maxTotal = barMax((data.agencies || []).map((a: any) => a.comm_validated + a.comm_pending));
+          const pct = (total / maxTotal) * 100;
+          return (
+            <View key={ag.agency.id} style={{ marginBottom: 14 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#000' }}>{ag.agency.name}</Text>
+                <Text style={{ fontSize: 12, fontWeight: '800', color: '#000' }}>{total} EUR</Text>
+              </View>
+              <View style={{ height: 20, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, overflow: 'hidden', flexDirection: 'row' }}>
+                <View style={{ height: 20, backgroundColor: '#4CAF50', width: `${(ag.comm_validated / Math.max(maxTotal, 1)) * 100}%` }} />
+                <View style={{ height: 20, backgroundColor: '#FF9800', width: `${(ag.comm_pending / Math.max(maxTotal, 1)) * 100}%` }} />
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+                <Text style={{ fontSize: 10, color: '#888' }}>{ag.prescriber_count} prescripteurs · {ag.prescription_count} prescriptions</Text>
+                <Text style={{ fontSize: 10, color: '#888' }}>{ag.comm_validated} valid. · {ag.comm_pending} att.</Text>
+              </View>
+            </View>
+          );
+        })}
+      </GlassCard>
+
+      {/* Top prescribers */}
+      <GlassCard>
+        <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', letterSpacing: 0.5, marginBottom: 12 }}>Top prescripteurs</Text>
+        {(data.prescriber_ranking || []).slice(0, 5).map((pr: any, idx: number) => (
+          <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: idx < 4 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+            <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: idx === 0 ? '#FFD700' : idx === 1 ? '#C0C0C0' : idx === 2 ? '#CD7F32' : 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 12, fontWeight: '900', color: idx < 3 ? '#FFF' : '#888' }}>{idx + 1}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#000' }}>{pr.name}</Text>
+              <Text style={{ fontSize: 10, color: '#888' }}>{pr.agency_name} · {pr.prescription_count} prescriptions</Text>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#4CAF50' }}>{pr.comm_validated} EUR</Text>
+              {pr.comm_pending > 0 && <Text style={{ fontSize: 10, color: '#FF9800' }}>+{pr.comm_pending} att.</Text>}
+            </View>
+          </View>
+        ))}
+      </GlassCard>
+    </ScrollView>
+  );
+}
+
 /* ───── MAIN ───── */
 export default function Dashboard() {
   const { user, token } = useAuth();
