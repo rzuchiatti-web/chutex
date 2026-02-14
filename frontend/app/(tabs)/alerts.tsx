@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, ScrollView } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, ScrollView, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiFetch } from '../../src/services/api';
@@ -12,9 +12,11 @@ const GlassCard = ({ children, style }: any) => (
 
 /* ===== COMPANY: PRESCRIBERS LIST ===== */
 function CompanyPrescribers({ token }: { token: string }) {
+  const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [search, setSearch] = useState('');
 
   const fetchData = useCallback(async () => {
     try { setData(await apiFetch('/api/company/dashboard', {}, token)); }
@@ -25,42 +27,58 @@ function CompanyPrescribers({ token }: { token: string }) {
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
   if (!data) return null;
 
-  const prescribers = data.prescriber_ranking || [];
+  const allPrescribers = data.prescriber_ranking || [];
+  const prescribers = search.trim()
+    ? allPrescribers.filter((pr: any) => pr.name?.toLowerCase().includes(search.toLowerCase()) || pr.email?.toLowerCase().includes(search.toLowerCase()))
+    : allPrescribers;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Prescripteurs</Text>
-        <Text style={{ fontSize: 12, color: '#888' }}>{prescribers.length} prescripteurs actifs</Text>
+        <Text style={{ fontSize: 12, color: '#888' }}>{allPrescribers.length} prescripteurs actifs</Text>
+      </View>
+      {/* Search */}
+      <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
+          <Ionicons name="search-outline" size={16} color="#888" />
+          <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: '#000' }}
+            placeholder="Rechercher un prescripteur..." placeholderTextColor="#AAA" value={search} onChangeText={setSearch} />
+          {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Ionicons name="close-circle" size={16} color="#AAA" /></TouchableOpacity>}
+        </View>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />}>
         {prescribers.map((pr: any, idx: number) => (
-          <GlassCard key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
-            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#4CAF5015', justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#4CAF50' }}>{pr.name?.charAt(0)?.toUpperCase()}</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{pr.name}</Text>
-              <Text style={{ fontSize: 11, color: '#888' }}>{pr.email}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
-                <Ionicons name="business-outline" size={11} color="#FF9800" />
-                <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '600' }}>{pr.agency_name}</Text>
+          <TouchableOpacity key={pr.id} activeOpacity={0.7} data-testid={`prescriber-card-${pr.id}`}
+            onPress={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })}>
+            <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{pr.name?.charAt(0)?.toUpperCase()}</Text>
               </View>
-            </View>
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ fontSize: 11, color: '#888' }}>{pr.prescription_count} presc.</Text>
-              <View style={{ flexDirection: 'row', gap: 6, marginTop: 2 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: '#4CAF50' }}>{pr.comm_validated}EUR</Text>
-                {pr.comm_pending > 0 && <Text style={{ fontSize: 12, fontWeight: '700', color: '#FF9800' }}>+{pr.comm_pending}</Text>}
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{pr.name}</Text>
+                <Text style={{ fontSize: 11, color: '#888' }}>{pr.email}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
+                  <Ionicons name="business-outline" size={11} color="#FF9800" />
+                  <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '600' }}>{pr.agency_name}</Text>
+                </View>
               </View>
-            </View>
-          </GlassCard>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={{ fontSize: 11, color: '#888' }}>{pr.prescription_count} presc.</Text>
+                <View style={{ flexDirection: 'row', gap: 6, marginTop: 2 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#4CAF50' }}>{pr.comm_validated}EUR</Text>
+                  {pr.comm_pending > 0 && <Text style={{ fontSize: 12, fontWeight: '700', color: '#FF9800' }}>+{pr.comm_pending}</Text>}
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#888" />
+            </GlassCard>
+          </TouchableOpacity>
         ))}
         {prescribers.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
             <Ionicons name="people-outline" size={36} color="#CCC" />
-            <Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucun prescripteur</Text>
+            <Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>{search ? 'Aucun resultat' : 'Aucun prescripteur'}</Text>
           </View>
         )}
       </ScrollView>
