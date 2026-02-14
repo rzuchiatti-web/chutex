@@ -977,6 +977,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
   const [dateFilter, setDateFilter] = useState<'all'|'week'|'month'|'custom'>('all');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [analytics, setAnalytics] = useState<any>(null);
   const router = useRouter();
 
   const getDateRange = (filter: string) => {
