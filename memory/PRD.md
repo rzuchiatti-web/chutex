@@ -1,32 +1,40 @@
 # CHUTEX / CARE WATCH - PRD
 
-## Programme Recompenses
-- Admin : Carte de gestion avec 3 prix editables (1er/2e/3e) par mois
-- Prescripteurs : Carte doree avec position, objectif personnel, classement anonyme
-- 3 gagnants : 100EUR / 70EUR / 30EUR (par defaut, modifiable par admin)
-- Versement debut du mois suivant
+## Systeme d'aide UX (AJOUTE SANS MODIFIER LA STRUCTURE)
 
-## Fonctionnalites implementees
-- Portail B2B SAAD (6 tabs, analytics, interventions, prescriptions)
-- Dispatch CARE WATCH vers SAAD la plus proche
-- Page suivi Uber (carte + fiche patient glissante + appels directs)
-- Rapport de cloture + fiche alerte resolue avec rapport
-- Programme recompenses prescripteurs (classement anonyme + objectif)
-- Dashboards analytics admin + SAAD
-- Protocole CARE WATCH 3 cas
+### Composants crees (/src/components/HelpSystem.tsx)
+- HelpBubble : Bouton "?" contextuel avec modal explicative
+- ContextualTip : Tip dismissable (1 seule fois, AsyncStorage)
+- ActionFeedback : Toast de confirmation apres action
+- OnboardingChecklist : Checklist progressive
+- HelpCenter : FAQ + recherche + contact support
+
+### Tips contextuels ajoutes
+- Beneficiaire dashboard : Explication SOS ("En cas d'urgence, appuyez...")
+- Gardien dashboard : Bienvenue espace gardien ("Suivez la sante de vos proches...")
+
+### Centre d'aide (Profil > Centre d'aide)
+- 8 FAQ : SOS, gardien, prescripteur, intervenant, seuils, suivi, donnees, challenge
+- Recherche par mot-cle
+- Contact support@chutex.fr
+
+### Contraintes respectees
+- AUCUN changement de navigation/routes/onglets
+- AUCUN changement de structure de donnees
+- AUCUN changement de droits/roles
+- Compatible avec tous les flux existants
 
 ## Comptes test
 | Role | Email | MdP |
 |---|---|---|
 | Beneficiaire | robert.martin@email.fr | demo123 |
 | Gardien | claire.martin@email.fr | demo123 |
-| Intervenant | ludivine.moutio@care.fr | demo123 |
-| Teleassistance | plateau@chutex.fr | demo123 |
 | Admin | admin@chutex.fr | demo123 |
 | Entreprise SAAD | saad@chutex.fr | demo123 |
-| Intervenants SAAD | marc.dubois@saad.fr, isabelle.roux@saad.fr, antoine.garnier@saad.fr | demo123 |
 
-## Backlog
-- P1 : Build natif + BLE, WebSocket tracking, GPS reel
-- P2 : Export PDF rapports, itineraire Google Maps, notation post-intervention
-- P3 : Shopify, Balance Lefu, hypnogramme reel
+## Backlog UX
+- Coach marks (bulles etape par etape) sur premiere utilisation
+- Mini-tutos animes pour actions complexes
+- Checklist progressive beneficiaire/gardien
+- Analytics UX (ouverture aides, completion tutos)
+- Microcopy amélioré sur tous les etats vides
