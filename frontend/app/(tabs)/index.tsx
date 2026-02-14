@@ -577,7 +577,11 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
       )}
 
       {/* Active Alerts for Guardian */}
-      {activeAlertsG.map((a: any) => (
+      {activeAlertsG.map((a: any) => {
+        const myIntervention = a.intervention?.assigned_to === user.id;
+        const hasIntervenant = a.intervener_info || a.intervention?.assigned_to;
+        const isDispatch = a.incident_state === 'CARE_DISPATCHED' || a.teleassistance_status === 'CARE_DISPATCHED';
+        return (
         <TouchableOpacity key={a.id} onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
           <GlassCard style={{ backgroundColor: 'rgba(229,57,53,0.06)', borderLeftWidth: 4, borderLeftColor: '#E53935', padding: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -588,14 +592,18 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
                 <Text style={{ fontSize: 14, fontWeight: '900', color: '#E53935' }}>ALERTE - {a.beneficiary_name}</Text>
                 <Text style={{ fontSize: 12, color: '#555', marginTop: 2 }}>{a.message}</Text>
               </View>
-              <Text style={{ fontSize: 9, color: '#888' }}>{new Date(a.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</Text>
             </View>
-            {a.intervener_info ? (
+            {myIntervention ? (
+              <View style={{ backgroundColor: '#4CAF50', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <Ionicons name="shield-checkmark" size={16} color="#FFF" />
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>VOUS ETES EN INTERVENTION</Text>
+              </View>
+            ) : hasIntervenant && a.intervener_info ? (
               <View style={{ backgroundColor: '#009688', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <Ionicons name="navigate" size={16} color="#FFF" />
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>SUIVRE {a.intervener_info.name.split(' ')[0].toUpperCase()} SUR LA CARTE</Text>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>SUIVRE {a.intervener_info.name?.split(' ')[0]?.toUpperCase()}</Text>
               </View>
-            ) : a.incident_state === 'CARE_DISPATCHED' || a.teleassistance_status === 'CARE_DISPATCHED' ? (
+            ) : isDispatch ? (
               <View style={{ backgroundColor: '#FF9800', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <Ionicons name="time" size={16} color="#FFF" />
                 <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>EN ATTENTE D'UN INTERVENANT</Text>
@@ -603,12 +611,13 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
             ) : (
               <View style={{ backgroundColor: '#E53935', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <Ionicons name="shield-checkmark" size={16} color="#FFF" />
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>VOIR L'ALERTE ET INTERVENIR</Text>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#FFF' }}>VOIR L'ALERTE</Text>
               </View>
             )}
           </GlassCard>
         </TouchableOpacity>
-      ))}
+        );
+      })}
 
       {/* Greeting */}
       <GlassCard style={{ padding: 24, alignItems: 'center' }}>
