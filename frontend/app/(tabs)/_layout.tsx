@@ -47,8 +47,8 @@ export default function TabLayout() {
   const isBen = r === 'beneficiary';
   const isG = r === 'guardian';
   const isTA = r === 'teleassistance';
-
   const isAdmin = r === 'admin';
+  const isCompany = r === 'prescriber_company';
 
   return (
     <Tabs key={r} screenOptions={{
