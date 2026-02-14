@@ -36,7 +36,6 @@
     "production": {
       "ios": {
         "appleId": "contact@chutex-innovation.com",
-        "ascAppId": "",
         "appleTeamId": "94YZY663N2"
       }
     }
