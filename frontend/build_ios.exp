@@ -1,23 +1,40 @@
 #!/usr/bin/expect -f
-set timeout 300
+set timeout 600
 
 spawn env EXPO_TOKEN=bSAaETVb2wyb8CdjB0KYCDDUjvk3yfEeEalSuAZh \
+  ASC_API_KEY_PATH=/app/frontend/keys/AuthKey_Y782NVC834.p8 \
+  ASC_API_KEY_ID=Y782NVC834 \
+  ASC_API_KEY_ISSUER_ID=4c54dcaa-4ea0-4b6a-97b6-dce1c7fac20f \
+  EXPO_APPLE_TEAM_ID=94YZY663N2 \
   npx eas-cli build --platform ios --profile production
 
 expect {
-    "What would you like to do?" {
-        send "\r"
-        exp_continue
-    }
     "Do you want to log in to your Apple account?" {
-        send "n\r"
+        send "Y\r"
         exp_continue
     }
-    "Would you like to try again?" {
-        send "no\r"
+    "How would you like to authenticate" {
+        sleep 1
+        send "\033\[B\r"
         exp_continue
     }
-    "Distribution Certificate" {
+    "App Store Connect API Key path" {
+        send "/app/frontend/keys/AuthKey_Y782NVC834.p8\r"
+        exp_continue
+    }
+    "Key ID" {
+        send "Y782NVC834\r"
+        exp_continue
+    }
+    "Issuer ID" {
+        send "4c54dcaa-4ea0-4b6a-97b6-dce1c7fac20f\r"
+        exp_continue
+    }
+    "Team ID" {
+        send "94YZY663N2\r"
+        exp_continue
+    }
+    "What would you like to do?" {
         send "\r"
         exp_continue
     }
@@ -29,7 +46,7 @@ expect {
         send "\r"
         exp_continue
     }
-    "Provisioning Profile" {
+    "Select" {
         send "\r"
         exp_continue
     }
@@ -45,22 +62,34 @@ expect {
         send "\r"
         exp_continue
     }
-    -re "Upload a .* or .* a new" {
+    "reuse this" {
+        send "Y\r"
+        exp_continue
+    }
+    "Use this" {
         send "\r"
         exp_continue
     }
-    -re "\\?" {
+    -re "\\? .*Use arrow" {
         send "\r"
         exp_continue
     }
     "Build details" {
-        puts "\n=== BUILD SUBMITTED ==="
+        puts "\n=== BUILD SUBMITTED SUCCESSFULLY ==="
+        exp_continue
+    }
+    "Waiting for build" {
+        puts "\n=== WAITING FOR BUILD ==="
+        exp_continue
+    }
+    "Build finished" {
+        puts "\n=== BUILD FINISHED ==="
         exp_continue
     }
     eof {
-        puts "\n=== DONE ==="
+        puts "\n=== PROCESS DONE ==="
     }
     timeout {
-        puts "\n=== TIMEOUT ==="
+        puts "\n=== TIMEOUT (10min) ==="
     }
 }
