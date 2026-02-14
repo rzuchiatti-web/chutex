@@ -48,6 +48,8 @@ export default function TabLayout() {
   const isG = r === 'guardian';
   const isTA = r === 'teleassistance';
 
+  const isAdmin = r === 'admin';
+
   return (
     <Tabs key={r} screenOptions={{
       headerShown: false,
@@ -64,8 +66,8 @@ export default function TabLayout() {
       tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
     }}>
       <Tabs.Screen name="index" options={{
-        title: 'Accueil',
-        tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
+        title: isAdmin ? 'Dashboard' : 'Accueil',
+        tabBarIcon: ({ color, size }) => <Ionicons name={isAdmin ? 'stats-chart-outline' : 'home-outline'} size={size} color={color} />,
       }} />
       <Tabs.Screen name="health" options={{
         title: 'Sante',
@@ -74,24 +76,26 @@ export default function TabLayout() {
       }} />
       <Tabs.Screen name="alerts" options={{
         title: 'Alertes',
-        tabBarIcon: ({ color, size }) => <Ionicons name="notifications-outline" size={size} color={color} />,
+        tabBarIcon: ({ color, size }) => <Ionicons name={isAdmin ? 'warning-outline' : 'notifications-outline'} size={size} color={color} />,
       }} />
       <Tabs.Screen name="teleconsult" options={{
-        title: isTA ? 'Teleassist.' : isG ? 'Interventions' : 'Teleconsult.',
-        tabBarIcon: ({ color, size }) => isG
-          ? <MaterialCommunityIcons name="map-marker-radius-outline" size={size} color={color} />
+        title: isAdmin ? 'Intervenants' : isTA ? 'Teleassist.' : isG ? 'Interventions' : 'Teleconsult.',
+        tabBarIcon: ({ color, size }) => isAdmin
+          ? <Ionicons name="medkit-outline" size={size} color={color} />
+          : isG ? <MaterialCommunityIcons name="map-marker-radius-outline" size={size} color={color} />
           : <Ionicons name={isTA ? 'headset-outline' : 'videocam-outline'} size={size} color={color} />,
       }} />
       <Tabs.Screen name="devices" options={{
-        title: isG ? 'Prescriptions' : isTA ? 'Abonnes' : 'Appareils',
-        tabBarIcon: ({ color, size }) => isG
+        title: isAdmin ? 'Prescripteurs' : isG ? 'Prescriptions' : isTA ? 'Abonnes' : 'Appareils',
+        tabBarIcon: ({ color, size }) => isAdmin
           ? <Ionicons name="document-text-outline" size={size} color={color} />
+          : isG ? <Ionicons name="document-text-outline" size={size} color={color} />
           : isTA ? <Ionicons name="people-outline" size={size} color={color} />
           : <MaterialCommunityIcons name="bluetooth-connect" size={size} color={color} />,
       }} />
       <Tabs.Screen name="profile" options={{
-        title: 'Profil',
-        tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
+        title: isAdmin ? 'Clients' : 'Profil',
+        tabBarIcon: ({ color, size }) => <Ionicons name={isAdmin ? 'people-outline' : 'person-outline'} size={size} color={color} />,
       }} />
     </Tabs>
   );
