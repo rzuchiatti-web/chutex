@@ -286,7 +286,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           </Modal>
 
           {/* Tabs En cours / Validees */}
-          <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
+          <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, marginBottom: 0, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
             <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, prescTab === 'pending' && { backgroundColor: '#FF9800' }]} onPress={() => setPrescTab('pending')}>
               <Text style={{ fontSize: 13, fontWeight: '700', color: prescTab === 'pending' ? '#FFF' : '#888' }}>En cours ({pending.length})</Text>
             </TouchableOpacity>
@@ -295,33 +295,44 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             </TouchableOpacity>
           </View>
 
+          {/* Commission total for current tab */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, paddingHorizontal: 4, marginBottom: 4 }}>
+            <Text style={{ fontSize: 12, color: '#888' }}>Total commissions {prescTab === 'pending' ? 'en attente' : 'validees'}</Text>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: prescTab === 'pending' ? '#FF9800' : '#4CAF50' }}>
+              {displayedPresc.reduce((s: number, p: any) => s + (p.commission || 0), 0).toFixed(0)} EUR
+            </Text>
+          </View>
+
           {/* New prescription button */}
           <TouchableOpacity testID="new-prescription-btn" style={{ backgroundColor: '#000', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }} onPress={() => setShowForm(true)}>
             <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Nouvelle prescription</Text>
             <Ionicons name="add-circle-outline" size={18} color="#FFF" />
           </TouchableOpacity>
 
-          {/* Prescription list filtered by tab */}
+          {/* Prescription list filtered by tab - clickable */}
           {loading ? <ActivityIndicator size="large" color={Colors.primary} /> : displayedPresc.length > 0 ? (
             displayedPresc.map((p: any) => (
-              <View key={p.id} testID={`prescription-${p.id}`}
-                style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 10, borderLeftWidth: 4, borderLeftColor: p.status === 'subscribed' ? '#4CAF50' : '#FF9800', ...glass }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={18} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
+              <TouchableOpacity key={p.id} testID={`prescription-${p.id}`} activeOpacity={0.7}
+                onPress={() => router.push({ pathname: '/admin-prescription-detail', params: { prescriptionId: p.id } })}>
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 10, borderLeftWidth: 4, borderLeftColor: p.status === 'subscribed' ? '#4CAF50' : '#FF9800', ...glass }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
+                      <Ionicons name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={18} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{p.beneficiary_name}</Text>
+                      <Text style={{ fontSize: 11, color: '#888' }}>{p.beneficiary_email}</Text>
+                    </View>
+                    <Text style={{ fontSize: 16, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission}EUR</Text>
+                    <Ionicons name="chevron-forward" size={16} color="#888" />
                   </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{p.beneficiary_name}</Text>
-                    <Text style={{ fontSize: 11, color: '#888' }}>{p.beneficiary_email}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
+                    <Ionicons name="pricetag-outline" size={14} color="#888" />
+                    <Text style={{ fontSize: 12, color: '#555', flex: 1 }}>{p.subscription_type === 'standard' ? 'Standard' : 'Teleassistance'}</Text>
+                    {p.beneficiary_phone && <><Ionicons name="call-outline" size={12} color="#888" /><Text style={{ fontSize: 11, color: '#888' }}>{p.beneficiary_phone}</Text></>}
                   </View>
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission}EUR</Text>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
-                  <Ionicons name="pricetag-outline" size={14} color="#888" />
-                  <Text style={{ fontSize: 12, color: '#555', flex: 1 }}>{p.subscription_type === 'standard' ? 'Standard' : 'Teleassistance'}</Text>
-                  {p.beneficiary_phone && <><Ionicons name="call-outline" size={12} color="#888" /><Text style={{ fontSize: 11, color: '#888' }}>{p.beneficiary_phone}</Text></>}
-                </View>
-              </View>
+              </TouchableOpacity>
             ))
           ) : (
             <View style={{ backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 18, padding: 32, alignItems: 'center' }}>
