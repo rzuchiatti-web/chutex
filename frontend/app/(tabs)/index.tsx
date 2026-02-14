@@ -1077,7 +1077,9 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
       <GlassCard>
         <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', letterSpacing: 0.5, marginBottom: 12 }}>Top prescripteurs</Text>
         {(data.prescriber_ranking || []).slice(0, 5).map((pr: any, idx: number) => (
-          <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: idx < 4 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+          <TouchableOpacity key={pr.id} activeOpacity={0.7}
+            onPress={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: idx < 4 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
             <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: idx === 0 ? '#FFD700' : idx === 1 ? '#C0C0C0' : idx === 2 ? '#CD7F32' : 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
               <Text style={{ fontSize: 12, fontWeight: '900', color: idx < 3 ? '#FFF' : '#888' }}>{idx + 1}</Text>
             </View>
@@ -1089,7 +1091,8 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
               <Text style={{ fontSize: 14, fontWeight: '800', color: '#4CAF50' }}>{pr.comm_validated} EUR</Text>
               {pr.comm_pending > 0 && <Text style={{ fontSize: 10, color: '#FF9800' }}>+{pr.comm_pending} att.</Text>}
             </View>
-          </View>
+            <Ionicons name="chevron-forward" size={14} color="#CCC" />
+          </TouchableOpacity>
         ))}
       </GlassCard>
     </ScrollView>
