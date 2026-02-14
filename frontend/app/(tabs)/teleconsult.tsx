@@ -335,33 +335,26 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         </View>
       ) : (
         <>
-          {/* Header intervenant with details */}
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="shield-checkmark" size={22} color="#4CAF50" />
-              </View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Intervenant Care</Text>
-                <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }} numberOfLines={1}>{user.intervention_structure || user.structure_name || 'Structure'}</Text>
-              </View>
-              <View style={{ backgroundColor: '#4CAF50', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
-                <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>Actif</Text>
+          {/* Intervenant Care card - clean, violet */}
+          <TouchableOpacity onPress={() => setShowCareModal(true)} activeOpacity={0.7}>
+            <View style={{ backgroundColor: 'rgba(156,39,176,0.06)', borderRadius: 20, padding: 20, marginBottom: 12, borderWidth: 1.5, borderColor: 'rgba(156,39,176,0.15)' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(156,39,176,0.12)', justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name="shield-checkmark" size={24} color="#9C27B0" />
+                </View>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Text style={{ fontSize: 17, fontWeight: '800', color: '#000' }}>Intervenant Care</Text>
+                    <View style={{ backgroundColor: '#9C27B0', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
+                    </View>
+                  </View>
+                  <Text style={{ fontSize: 12, color: '#555', marginTop: 3 }} numberOfLines={1}>{user.intervention_structure || user.structure_name || 'Structure'}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color="#9C27B0" />
               </View>
             </View>
-            <View style={{ backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: 12, padding: 12, gap: 6 }}>
-              {(user.intervention_structure || user.structure_name) && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="business-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.intervention_structure || user.structure_name}</Text></View>}
-              {user.profession && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="briefcase-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.profession}</Text></View>}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="navigate-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>Rayon : {user.intervention_radius_km || 30} km</Text></View>
-              {user.address && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="location-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.address}</Text></View>}
-              {user.phone && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="call-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.phone}</Text></View>}
-            </View>
-            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14, paddingVertical: 10, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)', borderRadius: 12 }}
-              onPress={() => setShowCareModal(true)}>
-              <Ionicons name="settings-outline" size={14} color="#888" />
-              <Text style={{ fontSize: 13, fontWeight: '600', color: '#555' }}>Gerer mon espace</Text>
-            </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
 
           {/* Tabs En cours / Terminees */}
           <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)' }}>
