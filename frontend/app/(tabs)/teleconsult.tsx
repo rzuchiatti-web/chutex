@@ -557,18 +557,23 @@ function AdminIntervenants({ token }: { token: string }) {
           const sc: any = { pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' };
           const sl: any = { pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' };
           return (
-            <View key={iv.id} style={s.ivCard}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: sc[iv.status] || '#888' }} />
-                <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary, flex: 1 }}>{iv.beneficiary_name}</Text>
-                <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, backgroundColor: (sc[iv.status] || '#888') + '15' }}>
-                  <Text style={{ fontSize: 9, fontWeight: '700', color: sc[iv.status] || '#888' }}>{sl[iv.status] || iv.status}</Text>
+            <TouchableOpacity key={iv.id} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })} activeOpacity={0.7}>
+              <View style={s.ivCard}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: sc[iv.status] || '#888' }} />
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary, flex: 1 }}>{iv.beneficiary_name}</Text>
+                  <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, backgroundColor: (sc[iv.status] || '#888') + '15' }}>
+                    <Text style={{ fontSize: 9, fontWeight: '700', color: sc[iv.status] || '#888' }}>{sl[iv.status] || iv.status}</Text>
+                  </View>
+                </View>
+                <Text style={{ fontSize: 12, color: Colors.textMuted }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
+                {iv.assigned_name && <Text style={{ fontSize: 11, color: '#4CAF50', fontWeight: '600', marginTop: 4 }}>Intervenant: {iv.assigned_name}</Text>}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                  <Text style={{ fontSize: 10, color: Colors.textMuted }}>{new Date(iv.created_at).toLocaleString('fr-FR')}</Text>
+                  <Ionicons name="chevron-forward" size={14} color="#888" />
                 </View>
               </View>
-              <Text style={{ fontSize: 12, color: Colors.textMuted }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
-              {iv.assigned_name && <Text style={{ fontSize: 11, color: '#4CAF50', fontWeight: '600', marginTop: 4 }}>Intervenant: {iv.assigned_name}</Text>}
-              <Text style={{ fontSize: 10, color: Colors.textMuted, marginTop: 4 }}>{new Date(iv.created_at).toLocaleString('fr-FR')}</Text>
-            </View>
+            </TouchableOpacity>
           );
         })}
         {interventions.length === 0 && <View style={{ alignItems: 'center', paddingVertical: 36 }}><Ionicons name="checkmark-circle-outline" size={36} color="#CCC" /><Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucune intervention</Text></View>}
