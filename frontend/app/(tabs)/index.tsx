@@ -952,24 +952,63 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [dateFilter, setDateFilter] = useState<'all'|'week'|'month'|'custom'>('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const router = useRouter();
+
+  const getDateRange = (filter: string) => {
+    const now = new Date();
+    if (filter === 'week') {
+      const from = new Date(now);
+      from.setDate(now.getDate() - 7);
+      return { from: from.toISOString().split('T')[0], to: now.toISOString().split('T')[0] };
+    }
+    if (filter === 'month') {
+      const from = new Date(now);
+      from.setMonth(now.getMonth() - 1);
+      return { from: from.toISOString().split('T')[0], to: now.toISOString().split('T')[0] };
+    }
+    return { from: '', to: '' };
+  };
 
   const fetchData = useCallback(async () => {
-    try { setData(await apiFetch('/api/company/dashboard', {}, token)); }
-    catch {} finally { setLoading(false); setRefreshing(false); }
-  }, [token]);
+    try {
+      let url = '/api/company/dashboard';
+      const range = dateFilter === 'custom' ? { from: dateFrom, to: dateTo } : getDateRange(dateFilter);
+      const params = [];
+      if (range.from) params.push(`date_from=${range.from}`);
+      if (range.to) params.push(`date_to=${range.to}`);
+      if (params.length > 0) url += '?' + params.join('&');
+      setData(await apiFetch(url, {}, token));
+    } catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [token, dateFilter, dateFrom, dateTo]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
   if (!data) return null;
 
-  const barMax = (vals: number[]) => Math.max(...vals, 1);
-
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
       <View style={{ marginTop: 12, marginBottom: 16 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>{data.company.structure_name}</Text>
         <Text style={{ fontSize: 12, color: '#888' }}>Espace entreprise prescriptrice</Text>
+      </View>
+
+      {/* Date filter bar */}
+      <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12 }}>
+        {([
+          { key: 'all', label: 'Tout' },
+          { key: 'week', label: '7 jours' },
+          { key: 'month', label: '30 jours' },
+        ] as const).map(f => (
+          <TouchableOpacity key={f.key}
+            style={[{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, backgroundColor: dateFilter === f.key ? '#000' : 'rgba(255,255,255,0.5)', borderWidth: 1, borderColor: dateFilter === f.key ? '#000' : 'rgba(255,255,255,0.7)' }]}
+            onPress={() => { setDateFilter(f.key); }} data-testid={`date-filter-${f.key}`}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: dateFilter === f.key ? '#FFF' : '#888' }}>{f.label}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {/* KPI cards */}
