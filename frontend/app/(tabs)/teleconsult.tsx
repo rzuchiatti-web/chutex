@@ -484,43 +484,94 @@ function AdminIntervenants({ token }: { token: string }) {
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
 
   return (
-    <ScrollView contentContainerStyle={s.sc}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{codes.length} structure(s) d'intervention</Text>
-        <TouchableOpacity testID="add-intervenant-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}
-          onPress={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' }); setShowModal(true); }}>
-          <Ionicons name="add" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
-        </TouchableOpacity>
+    <ScrollView contentContainerStyle={[s.sc, { paddingBottom: 80 }]}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAll(); }} />}>
+      {/* Tabs */}
+      <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 12, padding: 3, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)' }}>
+        {([['codes', `Codes (${codes.length})`], ['providers', `Actifs (${providers.length})`], ['interventions', `Missions (${interventions.length})`]] as const).map(([k, l]) => (
+          <TouchableOpacity key={k} style={[{ flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: 10 }, tab === k && { backgroundColor: '#000' }]}
+            onPress={() => setTab(k)}>
+            <Text style={{ fontSize: 10, fontWeight: '700', color: tab === k ? '#FFF' : '#888' }}>{l}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      {codes.map(c => (
-        <View key={c.id} style={[s.ivCard, !c.active && { opacity: 0.5 }]}>
-          <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text style={s.ivName}>{c.structure_name}</Text>
-              <View style={{ backgroundColor: Colors.subtle, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
-                <Text style={{ fontSize: 12, fontWeight: '800', letterSpacing: 1, color: Colors.primary }}>{c.code}</Text>
-              </View>
-            </View>
-            {c.raison_sociale ? <Text style={{ fontSize: 11, color: Colors.textMuted }}>{c.raison_sociale}</Text> : null}
-            {c.siret ? <Text style={{ fontSize: 10, color: Colors.textMuted }}>SIRET: {c.siret} {c.tva ? `· TVA: ${c.tva}` : ''}</Text> : null}
-            <Text style={s.ivSt}>Rayon: {c.default_radius_km || 30}km · {c.uses_count}/{c.max_uses} util. · {c.active ? 'Actif' : 'Désactivé'}</Text>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 4 }}>
-            <TouchableOpacity onPress={() => openEdit(c)} style={{ padding: 6 }}><Ionicons name="create-outline" size={16} color={Colors.primary} /></TouchableOpacity>
-            <TouchableOpacity onPress={() => toggleCode(c.id)} style={{ padding: 6 }}><Ionicons name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={16} color={c.active ? Colors.textMuted : Colors.success} /></TouchableOpacity>
-            <TouchableOpacity onPress={() => deleteCode(c.id)} style={{ padding: 6 }}><Ionicons name="trash-outline" size={16} color={Colors.destructive} /></TouchableOpacity>
-          </View>
+      {/* CODES TAB */}
+      {tab === 'codes' && <>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{codes.length} structure(s)</Text>
+          <TouchableOpacity testID="add-intervenant-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}
+            onPress={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' }); setShowModal(true); }}>
+            <Ionicons name="add" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
+          </TouchableOpacity>
         </View>
-      ))}
 
-      {providers.length > 0 && <>
-        <Text style={[s.secTitle, { marginTop: 16 }]}>Intervenants actifs ({providers.length})</Text>
-        {providers.map((p: any) => (
-          <View key={p.user_id} style={s.ivCard}>
-            <View style={s.ivInfo}><Text style={s.ivName}>{p.name}</Text><Text style={s.ivSt}>{p.structure_name} · {p.radius_km}km</Text></View>
+        {codes.map(c => (
+          <View key={c.id} style={[s.ivCard, !c.active && { opacity: 0.5 }]}>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Text style={s.ivName}>{c.structure_name}</Text>
+                <View style={{ backgroundColor: Colors.subtle, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '800', letterSpacing: 1, color: Colors.primary }}>{c.code}</Text>
+                </View>
+              </View>
+              {c.raison_sociale ? <Text style={{ fontSize: 11, color: Colors.textMuted }}>{c.raison_sociale}</Text> : null}
+              {c.siret ? <Text style={{ fontSize: 10, color: Colors.textMuted }}>SIRET: {c.siret} {c.tva ? `· TVA: ${c.tva}` : ''}</Text> : null}
+              <Text style={s.ivSt}>Rayon: {c.default_radius_km || 30}km · {c.uses_count}/{c.max_uses} util. · {c.active ? 'Actif' : 'Desactive'}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 4 }}>
+              <TouchableOpacity onPress={() => openEdit(c)} style={{ padding: 6 }}><Ionicons name="create-outline" size={16} color={Colors.primary} /></TouchableOpacity>
+              <TouchableOpacity onPress={() => toggleCode(c.id)} style={{ padding: 6 }}><Ionicons name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={16} color={c.active ? Colors.textMuted : Colors.success} /></TouchableOpacity>
+              <TouchableOpacity onPress={() => deleteCode(c.id)} style={{ padding: 6 }}><Ionicons name="trash-outline" size={16} color={Colors.destructive} /></TouchableOpacity>
+            </View>
           </View>
         ))}
+      </>}
+
+      {/* PROVIDERS TAB */}
+      {tab === 'providers' && <>
+        {providers.map((p: any) => (
+          <View key={p.user_id || p.id} style={s.ivCard}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{p.name?.charAt(0)?.toUpperCase()}</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.ivName}>{p.name}</Text>
+                <Text style={s.ivSt}>{p.structure_name || p.intervention_structure} · {p.radius_km || p.intervention_radius_km || 30}km</Text>
+                {p.email && <Text style={{ fontSize: 10, color: Colors.textMuted }}>{p.email}</Text>}
+                {p.phone && <Text style={{ fontSize: 10, color: Colors.textMuted }}>{p.phone}</Text>}
+              </View>
+              <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: '#4CAF5015' }}>
+                <Text style={{ fontSize: 9, fontWeight: '700', color: '#4CAF50' }}>ACTIF</Text>
+              </View>
+            </View>
+          </View>
+        ))}
+        {providers.length === 0 && <View style={{ alignItems: 'center', paddingVertical: 36 }}><Ionicons name="medkit-outline" size={36} color="#CCC" /><Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucun intervenant inscrit</Text></View>}
+      </>}
+
+      {/* INTERVENTIONS TAB */}
+      {tab === 'interventions' && <>
+        {interventions.map((iv: any) => {
+          const sc: any = { pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' };
+          const sl: any = { pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' };
+          return (
+            <View key={iv.id} style={s.ivCard}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: sc[iv.status] || '#888' }} />
+                <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary, flex: 1 }}>{iv.beneficiary_name}</Text>
+                <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, backgroundColor: (sc[iv.status] || '#888') + '15' }}>
+                  <Text style={{ fontSize: 9, fontWeight: '700', color: sc[iv.status] || '#888' }}>{sl[iv.status] || iv.status}</Text>
+                </View>
+              </View>
+              <Text style={{ fontSize: 12, color: Colors.textMuted }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
+              {iv.assigned_name && <Text style={{ fontSize: 11, color: '#4CAF50', fontWeight: '600', marginTop: 4 }}>Intervenant: {iv.assigned_name}</Text>}
+              <Text style={{ fontSize: 10, color: Colors.textMuted, marginTop: 4 }}>{new Date(iv.created_at).toLocaleString('fr-FR')}</Text>
+            </View>
+          );
+        })}
+        {interventions.length === 0 && <View style={{ alignItems: 'center', paddingVertical: 36 }}><Ionicons name="checkmark-circle-outline" size={36} color="#CCC" /><Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucune intervention</Text></View>}
       </>}
 
       <Modal visible={showModal} transparent animationType="slide">
