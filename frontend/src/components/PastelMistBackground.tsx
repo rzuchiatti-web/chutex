@@ -51,7 +51,26 @@ export function PastelMistBackground() {
     document.head.appendChild(style);
     document.body.insertBefore(container, document.body.firstChild);
 
+    // Force transparency on ALL intermediate layers via JS
+    const forceTransparency = () => {
+      const screens = document.querySelectorAll('[data-testid*="screen"], [role="tabpanel"]');
+      screens.forEach(screen => {
+        let el = screen as HTMLElement;
+        while (el && el !== document.body) {
+          const bg = window.getComputedStyle(el).backgroundColor;
+          if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent' && !el.id?.includes('mist') && !el.classList?.contains('mist-b4')) {
+            el.style.setProperty('background-color', 'transparent', 'important');
+          }
+          el = el.parentElement as HTMLElement;
+        }
+      });
+    };
+    // Run periodically to catch dynamically rendered layers
+    forceTransparency();
+    const interval = setInterval(forceTransparency, 1000);
+
     return () => {
+      clearInterval(interval);
       document.getElementById('mist-container-v4')?.remove();
       document.getElementById('pastel-mist-v4')?.remove();
     };
