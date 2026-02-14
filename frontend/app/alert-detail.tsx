@@ -10,20 +10,28 @@ const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBack
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
+const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) => (
+  value ? (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+      <Ionicons name={icon as any} size={16} color={color || '#888'} />
+      <Text style={{ fontSize: 12, color: '#888', width: 100 }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+    </View>
+  ) : null
+);
 
-const STATUS_COLORS: Record<string, string> = {
-  active: '#E53935', resolved: '#4CAF50', pending: '#FF9800',
-  in_progress: '#2196F3', ai_calling: '#9C27B0', dispatched: '#FF5722',
-  guardian_handling: '#00BCD4', manual_control: '#FF9800',
-  intervention_dispatched: '#E91E63', intervenant_en_route: '#009688',
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  active: 'Active', resolved: 'Resolue', pending: 'En attente',
-  in_progress: 'En cours', ai_calling: 'Appel IA', dispatched: 'Dispatch',
-  guardian_handling: 'Gardien en charge', manual_control: 'Controle manuel',
-  intervention_dispatched: 'Intervention envoyee', intervenant_en_route: 'Intervenant en route',
-};
+function MapEmbed({ benLat, benLng, ivLat, ivLng, benName, ivName }: any) {
+  if (Platform.OS !== 'web' || !benLat) return null;
+  const markers = ivLat && ivLng
+    ? `var benM=L.marker([${benLat},${benLng}],{icon:L.divIcon({className:'',html:'<div style="background:#E53935;color:#FFF;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:3px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${(benName||'B').charAt(0)}</div>'})}).addTo(map);var ivM=L.marker([${ivLat},${ivLng}],{icon:L.divIcon({className:'',html:'<div style="background:#9C27B0;color:#FFF;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:3px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${(ivName||'I').charAt(0)}</div>'})}).addTo(map);L.polyline([[${ivLat},${ivLng}],[${benLat},${benLng}]],{color:'#9C27B0',weight:3,dashArray:'8,8'}).addTo(map);map.fitBounds([[${benLat},${benLng}],[${ivLat},${ivLng}]],{padding:[40,40]});`
+    : `L.marker([${benLat},${benLng}],{icon:L.divIcon({className:'',html:'<div style="background:#E53935;color:#FFF;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:3px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${(benName||'B').charAt(0)}</div>'})}).addTo(map);map.setView([${benLat},${benLng}],14);`;
+  const html = `<!DOCTYPE html><html><head><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><style>body{margin:0}#map{width:100%;height:100%}</style></head><body><div id="map"></div><script>var map=L.map('map',{zoomControl:false});L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'CartoDB'}).addTo(map);${markers}</script></body></html>`;
+  return (
+    <View style={{ height: 200, borderRadius: 18, overflow: 'hidden', marginBottom: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
+      <iframe srcDoc={html} style={{ width: '100%', height: '100%', border: 'none' } as any} />
+    </View>
+  );
+}
 
 export default function AlertDetailScreen() {
   const { token, user } = useAuth();
@@ -32,8 +40,7 @@ export default function AlertDetailScreen() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [aiSummary, setAiSummary] = useState('');
-  const [aiLoading, setAiLoading] = useState(false);
+  const [accepting, setAccepting] = useState(false);
   const [callLoading, setCallLoading] = useState('');
   const [escalating, setEscalating] = useState(false);
 
@@ -45,39 +52,19 @@ export default function AlertDetailScreen() {
   useEffect(() => { fetchData(); }, [fetchData]);
   useEffect(() => { const t = setInterval(fetchData, 5000); return () => clearInterval(t); }, [fetchData]);
 
-  const generateAISummary = async () => {
-    setAiLoading(true);
+  const handleIntervene = async (interventionId: string) => {
+    setAccepting(true);
     try {
-      const r = await apiFetch('/api/ai/protocol-summary', { method: 'POST', body: JSON.stringify({ alert_id: alertId }) }, token);
-      setAiSummary(r.summary);
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setAiLoading(false); }
-  };
-
-  const callBeneficiary = async () => {
-    setCallLoading('beneficiary');
-    try {
-      await apiFetch('/api/twilio/call/beneficiary', { method: 'POST', body: JSON.stringify({ alert_id: alertId }) }, token);
-      Alert.alert('Appel lance', 'Appel IA ElevenLabs au beneficiaire avec reconnaissance vocale.');
+      await apiFetch(`/api/interventions/${interventionId}/accept`, { method: 'POST' }, token);
+      Alert.alert('Intervention acceptee', 'Vous etes maintenant en charge de cette intervention.');
       fetchData();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setCallLoading(''); }
-  };
-
-  const callGuardian = async (guardianId: string, phone: string) => {
-    setCallLoading(guardianId);
-    try {
-      await apiFetch('/api/twilio/call/guardian', { method: 'POST', body: JSON.stringify({ alert_id: alertId, guardian_id: guardianId, phone_number: phone }) }, token);
-      Alert.alert('Appel lance', 'Appel ElevenLabs au gardien.');
-      fetchData();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setCallLoading(''); }
-  };
-
-  const startEscalation = async () => {
-    setEscalating(true);
-    try {
-      await apiFetch('/api/teleassistance/escalation/start', { method: 'POST', body: JSON.stringify({ alert_id: alertId }) }, token);
-      Alert.alert('Escalade lancee', 'Le protocole d\'escalade automatique est en cours.');
-      fetchData();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setEscalating(false); }
+    } catch (e: any) {
+      if (e.message?.includes('409') || e.message?.includes('deja')) {
+        Alert.alert('Deja prise', 'Un autre intervenant a deja accepte cette intervention.');
+      } else {
+        Alert.alert('Erreur', e.message);
+      }
+    } finally { setAccepting(false); }
   };
 
   const resolveAlert = async () => {
@@ -88,161 +75,241 @@ export default function AlertDetailScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
+  const startEscalation = async () => {
+    setEscalating(true);
+    try {
+      await apiFetch('/api/teleassistance/escalation/start', { method: 'POST', body: JSON.stringify({ alert_id: alertId }) }, token);
+      fetchData();
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setEscalating(false); }
+  };
+
   if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></SafeAreaView>;
-  if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB', justifyContent: 'center', alignItems: 'center' }}><Text>Erreur</Text></SafeAreaView>;
+  if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB', justifyContent: 'center', alignItems: 'center' }}><Text>Erreur de chargement</Text></SafeAreaView>;
 
   const a = data.alert;
   const ben = data.beneficiary;
-  const taStatus = a.teleassistance_status || 'pending';
-  const taColor = STATUS_COLORS[taStatus] || '#888';
-  const isOperator = user?.role === 'teleassistance' || user?.role === 'admin';
+  const isOperator = user?.role === 'teleassistance' || user?.role === 'admin' || user?.active_role === 'admin';
+  const isGuardian = user?.role === 'guardian' || user?.active_role === 'guardian';
+  const isActive = a.status === 'active';
+
+  // Find intervention linked to this alert
+  const intervention = data.interventions?.[0];
+  const hasIntervenant = intervention?.assigned_to && intervention?.status !== 'pending_acceptance';
+  const isPending = intervention?.status === 'pending_acceptance';
+  const isEnRoute = intervention?.status === 'en_route' || intervention?.status === 'in_progress';
+  const isCompleted = intervention?.status === 'completed';
+
+  // Can this guardian intervene? (is recipient or is a guardian of the beneficiary)
+  const canIntervene = isGuardian && isPending && intervention?.recipients?.some((r: any) => r.id === user?.id);
+  const canSelfIntervene = isGuardian && isActive && !intervention; // No intervention yet (Cas 1)
+
+  // Status message for the alert
+  let statusMessage = '';
+  let statusColor = '#FF9800';
+  let statusIcon = 'time' as any;
+  if (a.status === 'resolved') {
+    statusMessage = 'Alerte resolue';
+    statusColor = '#4CAF50';
+    statusIcon = 'checkmark-circle';
+  } else if (isCompleted) {
+    statusMessage = 'Intervention terminee';
+    statusColor = '#4CAF50';
+    statusIcon = 'checkmark-circle';
+  } else if (isEnRoute && intervention?.assigned_name) {
+    statusMessage = `${intervention.assigned_name} en route`;
+    statusColor = '#009688';
+    statusIcon = 'navigate';
+  } else if (isPending) {
+    statusMessage = 'En attente d\'un intervenant';
+    statusColor = '#FF9800';
+    statusIcon = 'time';
+  } else if (a.teleassistance_status === 'CALLING_PATIENT') {
+    statusMessage = 'Teleassistance IA : appel du patient en cours';
+    statusColor = '#9C27B0';
+    statusIcon = 'call';
+  } else if (a.teleassistance_status?.includes('CALLING_GUARDIAN')) {
+    statusMessage = 'Teleassistance IA : appel des gardiens en cours';
+    statusColor = '#2196F3';
+    statusIcon = 'call';
+  } else if (a.teleassistance_status === 'GUARDIAN_INTERVENTION_ACCEPTED') {
+    statusMessage = 'Un gardien a accepte d\'intervenir';
+    statusColor = '#4CAF50';
+    statusIcon = 'person';
+  } else {
+    statusMessage = 'Alerte en cours de traitement';
+    statusColor = '#E53935';
+    statusIcon = 'alert-circle';
+  }
+
+  const alertTypeLabel = a.alert_type === 'sos' ? 'SOS - Urgence' : a.alert_type === 'fall' ? 'Chute detectee' : a.alert_type === 'heart_rate' ? 'Anomalie cardiaque' : a.alert_type === 'spo2' ? 'SpO2 anormale' : a.alert_type === 'inactivity' ? 'Inactivite' : 'Alerte';
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="alert-detail-screen">
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
-        <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.5)', justifyContent: 'center', alignItems: 'center', ...glass }}>
-          <Ionicons name="chevron-back" size={22} color="#000" />
+        <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={{ padding: 4 }}>
+          <Ionicons name="chevron-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000', textAlign: 'center' }}>Fiche alerte</Text>
-        <View style={{ backgroundColor: (a.status === 'active' ? '#E53935' : '#4CAF50') + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}>
-          <Text style={{ fontSize: 10, fontWeight: '800', color: a.status === 'active' ? '#E53935' : '#4CAF50', textTransform: 'uppercase' }}>{a.status === 'active' ? 'Active' : 'Resolue'}</Text>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Fiche Alerte</Text>
+        <View style={{ backgroundColor: (isActive ? '#E53935' : '#4CAF50') + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}>
+          <Text style={{ fontSize: 10, fontWeight: '800', color: isActive ? '#E53935' : '#4CAF50', textTransform: 'uppercase' }}>{isActive ? 'Active' : 'Resolue'}</Text>
         </View>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />} showsVerticalScrollIndicator={false}>
-        {/* Alert Header */}
-        <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: a.severity === 'critical' ? '#E53935' : a.severity === 'high' ? '#FF9800' : '#000' }}>
+
+        {/* Status Banner - clear and simple */}
+        <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: statusColor, padding: 20 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={{ width: 50, height: 50, borderRadius: 25, backgroundColor: (a.severity === 'critical' ? '#E53935' : '#FF9800') + '15', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name={a.alert_type === 'sos' ? 'alert-circle' : 'warning'} size={24} color={a.severity === 'critical' ? '#E53935' : '#FF9800'} />
+            <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: statusColor + '15', justifyContent: 'center', alignItems: 'center' }}>
+              <Ionicons name={statusIcon} size={24} color={statusColor} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>{a.alert_type === 'sos' ? 'SOS' : a.alert_type === 'fall' ? 'Chute' : 'Anomalie'}</Text>
-              <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{a.severity === 'critical' ? 'Critique' : a.severity === 'high' ? 'Eleve' : 'Moyen'} - {new Date(a.created_at).toLocaleString('fr-FR')}</Text>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: statusColor, textTransform: 'uppercase', letterSpacing: 0.5 }}>{statusMessage}</Text>
+              <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', marginTop: 4 }}>{alertTypeLabel}</Text>
+              <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{a.message}</Text>
             </View>
-          </View>
-          <Text style={{ fontSize: 14, color: '#555', lineHeight: 20, marginTop: 10 }}>{a.message}</Text>
-
-          {/* Teleassistance Status */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12, padding: 10, backgroundColor: taColor + '10', borderRadius: 12 }}>
-            <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: taColor }} />
-            <Text style={{ fontSize: 12, fontWeight: '700', color: taColor, flex: 1 }}>{STATUS_LABELS[taStatus] || taStatus}</Text>
-            <Text style={{ fontSize: 10, color: '#888' }}>Protocole IA</Text>
           </View>
         </GlassCard>
 
-        {/* Beneficiary */}
-        {ben && (
-          <GlassCard>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>BENEFICIAIRE</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '800' }}>{ben.name?.charAt(0)}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{ben.name}</Text>
-                <Text style={{ fontSize: 12, color: '#888' }}>{ben.phone || ben.email}</Text>
-              </View>
-            </View>
-            {ben.medical_conditions && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8, padding: 8, backgroundColor: 'rgba(229,57,53,0.06)', borderRadius: 10 }}>
-                <Ionicons name="medkit" size={14} color="#E53935" />
-                <Text style={{ fontSize: 11, color: '#555', flex: 1 }}>{ben.medical_conditions}</Text>
-              </View>
+        {/* MAP - show if intervention en route */}
+        {isEnRoute && intervention?.beneficiary_location && (
+          <MapEmbed
+            benLat={intervention.beneficiary_location?.latitude} benLng={intervention.beneficiary_location?.longitude}
+            ivLat={intervention.intervenant_location?.latitude} ivLng={intervention.intervenant_location?.longitude}
+            benName={ben?.name} ivName={intervention.assigned_name}
+          />
+        )}
+
+        {/* GUARDIAN ACTIONS - J'INTERVIENS or SUIVRE */}
+        {isGuardian && isActive && (
+          <GlassCard style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
+            {(canIntervene || canSelfIntervene) && (
+              <TouchableOpacity testID="intervene-btn"
+                style={{ backgroundColor: '#E53935', borderRadius: 16, paddingVertical: 18, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: hasIntervenant ? 8 : 0 }}
+                onPress={() => {
+                  if (intervention?.id) {
+                    handleIntervene(intervention.id);
+                  } else {
+                    Alert.alert('Info', 'Le processus de teleassistance est en cours. Vous serez notifie si votre intervention est necessaire.');
+                  }
+                }}
+                disabled={accepting}>
+                {accepting ? <ActivityIndicator color="#FFF" /> : (
+                  <>
+                    <Ionicons name="shield-checkmark" size={22} color="#FFF" />
+                    <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900', letterSpacing: 1 }}>J'INTERVIENS</Text>
+                  </>
+                )}
+              </TouchableOpacity>
             )}
-            {ben.allergies && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4, padding: 8, backgroundColor: 'rgba(255,152,0,0.06)', borderRadius: 10 }}>
-                <Ionicons name="warning" size={14} color="#FF9800" />
-                <Text style={{ fontSize: 11, color: '#555', flex: 1 }}>Allergies: {ben.allergies}</Text>
+            {hasIntervenant && isEnRoute && (
+              <TouchableOpacity testID="follow-btn"
+                style={{ backgroundColor: '#009688', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}
+                onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: intervention.id } })}>
+                <Ionicons name="navigate" size={20} color="#FFF" />
+                <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>SUIVRE {intervention.assigned_name?.split(' ')[0]?.toUpperCase()} SUR LA CARTE</Text>
+              </TouchableOpacity>
+            )}
+            {!canIntervene && !canSelfIntervene && hasIntervenant && !isEnRoute && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Ionicons name="checkmark-circle" size={18} color="#4CAF50" />
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#4CAF50' }}>{intervention.assigned_name} gere l'intervention</Text>
               </View>
             )}
           </GlassCard>
         )}
 
         {/* Operator Actions */}
-        {isOperator && a.status === 'active' && (
+        {isOperator && isActive && (
           <GlassCard style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
             <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>ACTIONS OPERATEUR</Text>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
-              <TouchableOpacity testID="call-beneficiary-btn" style={{ flex: 1, backgroundColor: '#000', borderRadius: 14, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }} onPress={callBeneficiary} disabled={callLoading === 'beneficiary'}>
-                {callLoading === 'beneficiary' ? <ActivityIndicator color="#FFF" size="small" /> : (
-                  <><Ionicons name="call" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>APPELER IA</Text></>
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity testID="start-escalation-btn" style={{ flex: 1, backgroundColor: '#E53935', borderRadius: 14, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }} onPress={startEscalation} disabled={escalating}>
+              <TouchableOpacity style={{ flex: 1, backgroundColor: '#E53935', borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6 }} onPress={startEscalation} disabled={escalating}>
                 {escalating ? <ActivityIndicator color="#FFF" size="small" /> : (
                   <><Ionicons name="git-branch" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>ESCALADER</Text></>
                 )}
               </TouchableOpacity>
-            </View>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              <TouchableOpacity testID="resolve-alert-btn" style={{ flex: 1, borderRadius: 14, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 2, borderColor: '#4CAF50' }} onPress={resolveAlert}>
+              <TouchableOpacity style={{ flex: 1, borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6, borderWidth: 2, borderColor: '#4CAF50' }} onPress={resolveAlert}>
                 <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
                 <Text style={{ color: '#4CAF50', fontSize: 12, fontWeight: '800' }}>CLOTURER</Text>
-              </TouchableOpacity>
-              <TouchableOpacity testID="ai-summary-btn" style={{ flex: 1, borderRadius: 14, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 2, borderColor: '#000' }} onPress={generateAISummary} disabled={aiLoading}>
-                {aiLoading ? <ActivityIndicator color="#000" size="small" /> : (
-                  <><Ionicons name="sparkles" size={16} color="#000" /><Text style={{ color: '#000', fontSize: 12, fontWeight: '800' }}>SYNTHESE IA</Text></>
-                )}
               </TouchableOpacity>
             </View>
           </GlassCard>
         )}
 
-        {/* Guardian Quick Calls */}
-        {isOperator && a.status === 'active' && data.guardians?.length > 0 && (
+        {/* Beneficiary Info */}
+        {ben && (
           <GlassCard>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>APPELER UN GARDIEN</Text>
-            {data.guardians.map((g: any) => (
-              <TouchableOpacity key={g.id} testID={`call-guardian-${g.id}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}
-                onPress={() => callGuardian(g.id, g.phone)} disabled={callLoading === g.id}>
-                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFD54F', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 14, fontWeight: '800' }}>{g.name?.charAt(0)}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="person" size={18} color="#0288D1" />
+              </View>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Beneficiaire</Text>
+            </View>
+            <InfoRow icon="person-outline" label="Nom" value={ben.name} color="#0288D1" />
+            <InfoRow icon="call-outline" label="Telephone" value={ben.phone} />
+            <InfoRow icon="location-outline" label="Adresse" value={ben.address} />
+            <InfoRow icon="fitness-outline" label="Pathologies" value={ben.medical_conditions} color="#E53935" />
+            <InfoRow icon="warning-outline" label="Allergies" value={ben.allergies} color="#FF9800" />
+            <InfoRow icon="water-outline" label="Gr. sanguin" value={ben.blood_type} />
+            <InfoRow icon="person-circle-outline" label="Medecin" value={ben.doctor_name} />
+            <InfoRow icon="call-outline" label="Contact urgence" value={ben.emergency_contact_name ? `${ben.emergency_contact_name} (${ben.emergency_contact_phone || ''})` : ''} color="#E53935" />
+          </GlassCard>
+        )}
+
+        {/* Intervention Info */}
+        {intervention && hasIntervenant && (
+          <GlassCard>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="shield-checkmark" size={18} color="#9C27B0" />
+              </View>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Intervenant</Text>
+              <View style={{ backgroundColor: '#009688' + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                <Text style={{ fontSize: 9, fontWeight: '800', color: '#009688', textTransform: 'uppercase' }}>{intervention.status === 'en_route' ? 'En route' : intervention.status === 'completed' ? 'Termine' : 'Actif'}</Text>
+              </View>
+            </View>
+            <InfoRow icon="person-outline" label="Nom" value={intervention.assigned_name} color="#9C27B0" />
+            <InfoRow icon="business-outline" label="Structure" value={intervention.structure_name} />
+            {intervention.distance_km && <InfoRow icon="navigate-outline" label="Distance" value={`${intervention.distance_km} km`} />}
+          </GlassCard>
+        )}
+
+        {/* Pending - list of notified intervenants */}
+        {intervention && isPending && (
+          <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <Ionicons name="time" size={18} color="#FF9800" />
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FF9800' }}>En attente d'un intervenant</Text>
+            </View>
+            <Text style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>{intervention.recipients?.length || 0} intervenants notifies</Text>
+            {(intervention.recipients || []).map((r: any) => (
+              <View key={r.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
+                <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#9C27B015', justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name="person" size={14} color="#9C27B0" />
                 </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{g.name}</Text>
-                  <Text style={{ fontSize: 11, color: '#888' }}>{g.phone}</Text>
-                </View>
-                {callLoading === g.id ? <ActivityIndicator size="small" color="#000" /> : (
-                  <View style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 6, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <Ionicons name="call" size={12} color="#FFF" />
-                    <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '700' }}>APPELER</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#000', flex: 1 }}>{r.name}</Text>
+                {r.distance_km && <Text style={{ fontSize: 10, color: '#888' }}>{r.distance_km} km</Text>}
+              </View>
             ))}
           </GlassCard>
         )}
 
-        {/* AI Summary */}
-        {aiSummary ? (
-          <GlassCard style={{ backgroundColor: 'rgba(156,39,176,0.04)', borderLeftWidth: 4, borderLeftColor: '#9C27B0' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <Ionicons name="sparkles" size={16} color="#9C27B0" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#9C27B0' }}>Synthese IA du protocole</Text>
-            </View>
-            <Text style={{ fontSize: 13, color: '#333', lineHeight: 20 }}>{aiSummary}</Text>
-          </GlassCard>
-        ) : null}
-
         {/* Timeline */}
         {data.timeline?.length > 0 && (
           <GlassCard>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>TIMELINE DU PROTOCOLE</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>CHRONOLOGIE</Text>
             {data.timeline.map((t: any, i: number) => {
-              const evColor = t.event === 'resolved' ? '#4CAF50' : t.event === 'alert_created' ? '#E53935' : t.event?.includes('call') ? '#2196F3' : t.event === 'intervention' ? '#FF5722' : '#000';
-              const evIcon = t.event === 'resolved' ? 'checkmark-circle' : t.event === 'alert_created' ? 'alert-circle' : t.event?.includes('call') ? 'call' : t.event === 'intervention' ? 'navigate' : 'ellipse';
+              const evColor = t.event === 'resolved' ? '#4CAF50' : t.event === 'alert_created' ? '#E53935' : t.event?.includes('call') ? '#2196F3' : t.event === 'intervention' ? '#9C27B0' : '#000';
               return (
-                <View key={i} style={{ flexDirection: 'row', gap: 10, marginBottom: i < data.timeline.length - 1 ? 0 : 0 }}>
+                <View key={i} style={{ flexDirection: 'row', gap: 10 }}>
                   <View style={{ alignItems: 'center', width: 24 }}>
-                    <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: evColor + '15', justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name={evIcon as any} size={10} color={evColor} />
-                    </View>
-                    {i < data.timeline.length - 1 && <View style={{ width: 2, flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', minHeight: 20 }} />}
+                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: i === 0 ? evColor : '#DDD', marginTop: 4 }} />
+                    {i < data.timeline.length - 1 && <View style={{ width: 2, flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', minHeight: 16 }} />}
                   </View>
-                  <View style={{ flex: 1, paddingBottom: 12 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', lineHeight: 18 }}>{t.detail}</Text>
-                    <Text style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{new Date(t.time).toLocaleString('fr-FR')}</Text>
+                  <View style={{ flex: 1, paddingBottom: 10 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#000' }}>{t.detail}</Text>
+                    <Text style={{ fontSize: 10, color: '#AAA', marginTop: 1 }}>{new Date(t.time).toLocaleString('fr-FR')}</Text>
                   </View>
                 </View>
               );
@@ -250,83 +317,14 @@ export default function AlertDetailScreen() {
           </GlassCard>
         )}
 
-        {/* Escalations */}
-        {data.escalations?.length > 0 && data.escalations.map((esc: any) => (
-          <GlassCard key={esc.id}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: STATUS_COLORS[esc.status] || '#888' }} />
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, flex: 1 }}>ESCALADE - {esc.operator_name}</Text>
-              <Text style={{ fontSize: 10, fontWeight: '700', color: STATUS_COLORS[esc.status] || '#888', textTransform: 'uppercase' }}>{STATUS_LABELS[esc.status] || esc.status}</Text>
-            </View>
-            {esc.timeline?.map((t: any, i: number) => (
-              <View key={i} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 4, paddingLeft: 4 }}>
-                <View style={{ width: 6, height: 6, borderRadius: 3, marginTop: 5, backgroundColor: '#000' }} />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 12, color: '#333', lineHeight: 16 }}>{t.note}</Text>
-                  <Text style={{ fontSize: 9, color: '#AAA' }}>{new Date(t.time).toLocaleTimeString('fr-FR')}</Text>
-                </View>
-              </View>
-            ))}
-          </GlassCard>
-        ))}
-
-        {/* Calls */}
-        {data.calls?.length > 0 && (
-          <GlassCard>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>APPELS ({data.calls.length})</Text>
-            {data.calls.map((c: any) => (
-              <View key={c.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.answered ? 'rgba(76,175,80,0.1)' : 'rgba(0,0,0,0.04)', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name="call" size={14} color={c.answered ? '#4CAF50' : '#888'} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#000' }}>{c.target_name}</Text>
-                  <Text style={{ fontSize: 10, color: '#888' }}>
-                    {c.target_type === 'beneficiary' ? 'Beneficiaire' : 'Gardien'} - {c.status}
-                    {c.voice_engine === 'elevenlabs' ? ' - Voix IA' : ''}
-                    {c.input_mode === 'speech' ? ' - Reco. vocale' : ''}
-                  </Text>
-                  {c.response && <Text style={{ fontSize: 11, color: '#2196F3', fontStyle: 'italic', marginTop: 2 }}>"{c.response}"</Text>}
-                  {c.ai_analysis?.summary && <Text style={{ fontSize: 10, color: '#9C27B0', marginTop: 2 }}>IA: {c.ai_analysis.summary}</Text>}
-                </View>
-                <Text style={{ fontSize: 9, color: '#AAA' }}>{new Date(c.created_at).toLocaleTimeString('fr-FR')}</Text>
-              </View>
-            ))}
-          </GlassCard>
-        )}
-
-        {/* Interventions */}
-        {data.interventions?.length > 0 && (
-          <GlassCard>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>INTERVENTIONS ({data.interventions.length})</Text>
-            {data.interventions.map((iv: any) => (
-              <TouchableOpacity key={iv.id} testID={`intervention-${iv.id}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}
-                onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: iv.status === 'completed' ? '#4CAF50' : iv.status === 'in_progress' ? '#2196F3' : '#FF9800' }} />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#000' }}>{iv.assigned_name || 'Non assigne'} - {iv.structure_name || ''}</Text>
-                  <Text style={{ fontSize: 10, color: '#888' }}>{iv.status} - {new Date(iv.created_at).toLocaleString('fr-FR')}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={14} color="#888" />
-              </TouchableOpacity>
-            ))}
-          </GlassCard>
-        )}
-
-        {/* Details */}
+        {/* Alert Details */}
         <GlassCard>
-          <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>DETAILS TECHNIQUES</Text>
-          {[
-            ['Type', a.alert_type], ['Severite', a.severity], ['Appareil', a.device_type || 'bracelet'],
-            ['Date', new Date(a.created_at).toLocaleString('fr-FR')],
-            ['Statut TA', STATUS_LABELS[taStatus] || taStatus],
-            ...(a.resolved_at ? [['Resolu le', new Date(a.resolved_at).toLocaleString('fr-FR')]] : []),
-          ].map(([l, v]) => (
-            <View key={l as string} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-              <Text style={{ fontSize: 12, color: '#888' }}>{l}</Text>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#000' }}>{v}</Text>
-            </View>
-          ))}
+          <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>DETAILS</Text>
+          <InfoRow icon="alert-circle-outline" label="Type" value={alertTypeLabel} color="#E53935" />
+          <InfoRow icon="speedometer-outline" label="Severite" value={a.severity === 'critical' ? 'Critique' : a.severity === 'high' ? 'Eleve' : 'Moyen'} color="#E53935" />
+          <InfoRow icon="watch-outline" label="Appareil" value={a.device_type || 'bracelet'} />
+          <InfoRow icon="calendar-outline" label="Date" value={new Date(a.created_at).toLocaleString('fr-FR')} />
+          {a.resolved_at && <InfoRow icon="checkmark-circle-outline" label="Resolu le" value={new Date(a.resolved_at).toLocaleString('fr-FR')} color="#4CAF50" />}
         </GlassCard>
       </ScrollView>
     </SafeAreaView>
