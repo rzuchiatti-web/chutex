@@ -302,3 +302,68 @@ async def get_kpi_data():
         "users_by_role": users_by_role, "alert_types": alert_types,
         "interventions_by_status": interventions_by_status, "alerts_by_day": alerts_by_day,
     }
+
+
+@router.get("/backoffice/analytics")
+async def get_analytics():
+    now = datetime.now(timezone.utc)
+    # Intervention analytics
+    all_interventions = await db.interventions.find({}, {"_id": 0}).to_list(500)
+    completed_ivs = [iv for iv in all_interventions if iv.get('status') == 'completed']
+    active_ivs = [iv for iv in all_interventions if iv.get('status') in ('pending_acceptance', 'en_route', 'in_progress')]
+    # Avg intervention time (created_at -> completed_at)
+    total_iv_minutes = 0
+    count_iv = 0
+    for iv in completed_ivs:
+        try:
+            c = datetime.fromisoformat(iv['created_at'].replace('Z', '+00:00'))
+            d = datetime.fromisoformat(iv['completed_at'].replace('Z', '+00:00'))
+            total_iv_minutes += (d - c).total_seconds() / 60
+            count_iv += 1
+        except: pass
+    avg_iv_time = round(total_iv_minutes / count_iv, 1) if count_iv > 0 else 0
+    # Avg acceptance time (created_at -> accepted_at)
+    total_accept = 0
+    count_accept = 0
+    for iv in all_interventions:
+        if iv.get('accepted_at') and iv.get('created_at'):
+            try:
+                c = datetime.fromisoformat(iv['created_at'].replace('Z', '+00:00'))
+                a = datetime.fromisoformat(iv['accepted_at'].replace('Z', '+00:00'))
+                total_accept += (a - c).total_seconds() / 60
+                count_accept += 1
+            except: pass
+    avg_accept_time = round(total_accept / count_accept, 1) if count_accept > 0 else 0
+    # Resolution rate
+    total_alerts = await db.alerts.count_documents({})
+    resolved_alerts = await db.alerts.count_documents({"status": "resolved"})
+    resolution_rate = round((resolved_alerts / total_alerts) * 100) if total_alerts > 0 else 0
+    # Top intervenants
+    intervenant_stats = {}
+    for iv in completed_ivs:
+        name = iv.get('assigned_name', 'Inconnu')
+        if name not in intervenant_stats:
+            intervenant_stats[name] = 0
+        intervenant_stats[name] += 1
+    top_intervenants = sorted([{"name": k, "count": v} for k, v in intervenant_stats.items()], key=lambda x: x['count'], reverse=True)[:10]
+    # Interventions by month (last 6 months)
+    ivs_by_month = []
+    for i in range(5, -1, -1):
+        month_start = (now.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
+        month_end = (month_start + timedelta(days=32)).replace(day=1)
+        month_label = month_start.strftime("%b %Y")
+        count = len([iv for iv in all_interventions if iv.get('created_at', '') >= month_start.isoformat() and iv.get('created_at', '') < month_end.isoformat()])
+        ivs_by_month.append({"month": month_label, "count": count})
+    return {
+        "total_interventions": len(all_interventions),
+        "completed_interventions": len(completed_ivs),
+        "active_interventions": len(active_ivs),
+        "avg_intervention_time_min": avg_iv_time,
+        "avg_acceptance_time_min": avg_accept_time,
+        "resolution_rate": resolution_rate,
+        "total_alerts": total_alerts,
+        "resolved_alerts": resolved_alerts,
+        "top_intervenants": top_intervenants,
+        "interventions_by_month": ivs_by_month,
+    }
+
