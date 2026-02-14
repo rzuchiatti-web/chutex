@@ -260,7 +260,8 @@ export default function AlertsScreen() {
               <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(76,175,80,0.1)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
                 <Ionicons name={tab === 'active' ? 'checkmark-circle' : 'archive-outline'} size={28} color="#4CAF50" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{tab === 'active' ? 'Aucune alerte active' : 'Aucune alerte resolue'}</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{tab === 'active' ? 'Tout va bien !' : 'Aucun historique'}</Text>
+              <Text style={{ fontSize: 12, color: '#888', marginTop: 4, textAlign: 'center', paddingHorizontal: 20 }}>{tab === 'active' ? 'Aucune alerte active pour le moment. Nous veillons sur vous en continu.' : 'Les alertes resolues apparaitront ici pour garder un historique complet.'}</Text>
               <Text style={{ fontSize: 12, color: '#888', marginTop: 4 }}>{tab === 'active' ? 'Tout va bien !' : 'Les alertes resolues apparaitront ici'}</Text>
             </View>
           }
