@@ -361,37 +361,47 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
       {/* Care Detail Modal */}
       <Modal visible={showCareModal} transparent animationType="fade" onRequestClose={() => setShowCareModal(false)}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 }}>
-          <View style={{ backgroundColor: '#FFF', borderRadius: 24, padding: 24, maxHeight: '80%' }}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Espace Intervenant Care</Text>
               <TouchableOpacity onPress={() => setShowCareModal(false)}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
             </View>
-            <ScrollView style={{ maxHeight: 400 }}>
-              <View style={{ backgroundColor: 'rgba(76,175,80,0.08)', borderRadius: 16, padding: 16, marginBottom: 16 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                  <Ionicons name="shield-checkmark" size={28} color={Colors.success} />
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: Colors.success }}>Statut : Actif</Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name="shield-checkmark" size={24} color={Colors.success} />
                 </View>
-                {[
-                  ['Structure', user.intervention_structure || user.structure_name || '-'],
-                  ['Profession', user.profession || '-'],
-                  ['SIRET', user.siret || '-'],
-                  ['Adresse', user.address || '-'],
-                  ['Telephone', user.phone || '-'],
-                  ['Rayon', `${user.intervention_radius_km || 30} km`],
-                ].map(([l, v]) => (
-                  <View key={l as string} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
-                    <Text style={{ fontSize: 13, color: '#888', width: 100 }}>{l}</Text>
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1, textAlign: 'right' }}>{v}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{user.name}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                    <View style={{ backgroundColor: '#4CAF50', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
+                    </View>
+                    <Text style={{ fontSize: 12, color: '#888' }}>{user.intervention_structure || user.structure_name}</Text>
                   </View>
-                ))}
+                </View>
               </View>
+              {[
+                { icon: 'business-outline', label: 'Structure', value: user.intervention_structure || user.structure_name || '-' },
+                { icon: 'briefcase-outline', label: 'Profession', value: user.profession || '-' },
+                { icon: 'card-outline', label: 'SIRET', value: user.siret || '-' },
+                { icon: 'location-outline', label: 'Adresse', value: user.address || '-' },
+                { icon: 'call-outline', label: 'Telephone', value: user.phone || '-' },
+                { icon: 'navigate-outline', label: 'Rayon', value: `${user.intervention_radius_km || 30} km` },
+              ].map(({ icon, label, value }) => value !== '-' ? (
+                <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                  <Ionicons name={icon as any} size={16} color="#888" />
+                  <Text style={{ fontSize: 12, color: '#888', width: 85 }}>{label}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+                </View>
+              ) : null)}
+              <TouchableOpacity testID="deactivate-care-modal-btn" style={{ borderWidth: 1.5, borderColor: '#E53935', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 20, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+                onPress={() => confirmAction('Desactiver', 'Vous ne recevrez plus de missions d\'intervention. Confirmez ?', deactivateCare)}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#E53935' }}>Desactiver mon espace</Text>
+                <Ionicons name="close-circle-outline" size={16} color="#E53935" />
+              </TouchableOpacity>
             </ScrollView>
-            <TouchableOpacity testID="deactivate-care-modal-btn" style={{ borderWidth: 2, borderColor: '#E53935', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', marginTop: 12 }}
-              onPress={() => confirmAction('Desactiver', 'Vous ne recevrez plus de missions d\'intervention. Confirmez ?', deactivateCare)}>
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#E53935' }}>DESACTIVER INTERVENANT CARE</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
