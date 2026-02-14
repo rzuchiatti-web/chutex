@@ -158,12 +158,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSwitching(false); }
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}><ActivityIndicator size="large" color="#000" /></View>;
 
   const activeReminders = reminders.filter((r: any) => r.active);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: 'transparent' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
 
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
@@ -532,13 +532,13 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSwitching(false); }
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}><ActivityIndicator size="large" color="#000" /></View>;
 
   const roleName = t('guardian').toUpperCase() + (user.is_prescriber ? ' | Prescripteur' : '') + (user.is_intervention_provider ? ' | Intervenant' : '');
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: 'transparent' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
         <TouchableOpacity testID="guardian-header-switch" style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={switchToBeneficiary}>
@@ -785,11 +785,11 @@ function TeleassistanceHome({ token, user }: { token: string; user: any }) {
   useEffect(() => { fetchData(); }, [fetchData]);
   useEffect(() => { const iv = setInterval(fetchData, 5000); return () => clearInterval(iv); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}><ActivityIndicator size="large" color="#000" /></View>;
   const active = alerts.filter((a: any) => a.status === 'active');
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: 'transparent' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 20 }}>
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Plateau d'ecoute</Text>
@@ -951,12 +951,12 @@ function AdminHome({ token, user }: { token: string; user: any }) {
   }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}><ActivityIndicator size="large" color="#000" /></View>;
 
   const barMax = (obj: Record<string, number>) => Math.max(...Object.values(obj || {}).map(Number), 1);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: 'transparent' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Dashboard Admin</Text>
@@ -1155,11 +1155,11 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}><ActivityIndicator size="large" color="#000" /></View>;
   if (!data) return null;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: 'transparent' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
       <View style={{ marginTop: 12, marginBottom: 16 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>{data.company.structure_name}</Text>
         <Text style={{ fontSize: 12, color: '#888' }}>Espace entreprise prescriptrice</Text>
