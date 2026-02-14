@@ -29,7 +29,8 @@
       },
       "ios": {
         "distribution": "store",
-        "autoIncrement": true
+        "autoIncrement": true,
+        "credentialsSource": "local"
       }
     }
   },
