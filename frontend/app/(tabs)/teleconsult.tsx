@@ -1,8 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Alert, Modal, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Alert, Modal, RefreshControl, Platform } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
+
+const confirmAction = (title: string, message: string, onConfirm: () => void) => {
+  if (Platform.OS === 'web') {
+    if (window.confirm(`${title}\n\n${message}`)) onConfirm();
+  } else {
+    Alert.alert(title, message, [{ text: 'Annuler', style: 'cancel' }, { text: 'Confirmer', style: 'destructive', onPress: onConfirm }]);
+  }
+};
 import { apiFetch } from '../../src/services/api';
 import { Colors } from '../../src/constants/colors';
 import { useTheme } from '../../src/context/ThemeContext';
@@ -376,10 +384,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
               </View>
             </ScrollView>
             <TouchableOpacity testID="deactivate-care-modal-btn" style={{ borderWidth: 2, borderColor: '#E53935', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', marginTop: 12 }}
-              onPress={() => Alert.alert('Desactiver', 'Vous ne recevrez plus de missions d\'intervention. Confirmez ?', [
-                { text: 'Annuler' },
-                { text: 'Desactiver', style: 'destructive', onPress: deactivateCare },
-              ])}>
+              onPress={() => confirmAction('Desactiver', 'Vous ne recevrez plus de missions d\'intervention. Confirmez ?', deactivateCare)}>
               <Text style={{ fontSize: 14, fontWeight: '800', color: '#E53935' }}>DESACTIVER INTERVENANT CARE</Text>
             </TouchableOpacity>
           </View>
@@ -460,8 +465,10 @@ function AdminIntervenants({ token }: { token: string }) {
   };
 
   const deleteCode = (id: string) => {
-    Alert.alert('Supprimer', 'Supprimer définitivement ce code intervenant ?', [{ text: 'Annuler' },
-      { text: 'Supprimer', style: 'destructive', onPress: async () => { await apiFetch(`/api/admin/intervention-codes/${id}`, { method: 'DELETE' }, token); setCodes(codes.filter(c => c.id !== id)); } }]);
+    confirmAction('Supprimer', 'Supprimer définitivement ce code intervenant ?', async () => {
+      await apiFetch(`/api/admin/intervention-codes/${id}`, { method: 'DELETE' }, token);
+      setCodes(codes.filter(c => c.id !== id));
+    });
   };
 
   const openEdit = (c: any) => {
