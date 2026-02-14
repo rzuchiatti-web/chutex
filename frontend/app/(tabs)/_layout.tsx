@@ -55,7 +55,7 @@ export default function TabLayout() {
   const bottomPad = Platform.OS === 'web' ? 6 : Math.max(12, 6);
 
   return (
-    <Tabs key={r} screenOptions={{
+    <Tabs key={r} sceneContainerStyle={{ backgroundColor: 'transparent' }} screenOptions={{
       headerShown: false,
       tabBarActiveTintColor: '#000',
       tabBarInactiveTintColor: '#999',
