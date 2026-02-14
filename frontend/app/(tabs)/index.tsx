@@ -1002,6 +1002,9 @@ function AdminHome({ token, user }: { token: string; user: any }) {
           )}
         </>
       )}
+
+      {/* Rewards Management Card */}
+      <RewardsAdminCard token={token} />
     </ScrollView>
   );
 }
