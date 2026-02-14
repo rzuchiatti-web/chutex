@@ -532,22 +532,25 @@ function AdminIntervenants({ token }: { token: string }) {
       {/* PROVIDERS TAB */}
       {tab === 'providers' && <>
         {providers.map((p: any) => (
-          <View key={p.user_id || p.id} style={s.ivCard}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{p.name?.charAt(0)?.toUpperCase()}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={s.ivName}>{p.name}</Text>
-                <Text style={s.ivSt}>{p.structure_name || p.intervention_structure} · {p.radius_km || p.intervention_radius_km || 30}km</Text>
-                {p.email && <Text style={{ fontSize: 10, color: Colors.textMuted }}>{p.email}</Text>}
-                {p.phone && <Text style={{ fontSize: 10, color: Colors.textMuted }}>{p.phone}</Text>}
-              </View>
-              <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: '#4CAF5015' }}>
-                <Text style={{ fontSize: 9, fontWeight: '700', color: '#4CAF50' }}>ACTIF</Text>
+          <TouchableOpacity key={p.user_id || p.id} onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: p.user_id || p.id } })} activeOpacity={0.7}>
+            <View style={s.ivCard}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{p.name?.charAt(0)?.toUpperCase()}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.ivName}>{p.name}</Text>
+                  <Text style={s.ivSt}>{p.structure_name || p.intervention_structure} · {p.radius_km || p.intervention_radius_km || 30}km</Text>
+                  {p.email && <Text style={{ fontSize: 10, color: Colors.textMuted }}>{p.email}</Text>}
+                  {p.phone && <Text style={{ fontSize: 10, color: Colors.textMuted }}>{p.phone}</Text>}
+                </View>
+                <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: '#4CAF5015' }}>
+                  <Text style={{ fontSize: 9, fontWeight: '700', color: '#4CAF50' }}>ACTIF</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color="#888" />
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
         {providers.length === 0 && <View style={{ alignItems: 'center', paddingVertical: 36 }}><Ionicons name="medkit-outline" size={36} color="#CCC" /><Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucun intervenant inscrit</Text></View>}
       </>}
