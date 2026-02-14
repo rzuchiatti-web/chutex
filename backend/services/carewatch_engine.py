@@ -447,7 +447,7 @@ async def _resolve_incident(incident_id: str, alert_id: str, resolution: str, de
 
 
 async def _dispatch_care(incident_id: str, alert: dict, ben: dict, guardians: list):
-    """Dispatch intervention to nearest Care provider"""
+    """Dispatch intervention to nearest SAAD company's intervenants"""
     now = _now()
     await _log_event(incident_id, "CARE_DISPATCHED", "Aucun gardien disponible - dispatch intervention Care")
     await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "CARE_DISPATCHED", "severity": "critical"}})
@@ -455,31 +455,67 @@ async def _dispatch_care(incident_id: str, alert: dict, ben: dict, guardians: li
     ben_lat = ben.get('latitude', 45.4737)
     ben_lng = ben.get('longitude', 4.5134)
 
-    # Find nearest care providers
+    # Find ALL care providers with their company info
     interveners = await db.users.find({"is_intervention_provider": True}, {"_id": 0, "password_hash": 0}).to_list(200)
-    nearest = None
-    nearest_dist = float('inf')
-    all_recipients = []
 
+    # Group by company and find nearest company
+    company_groups = {}
+    independents = []
     for iv in interveners:
         iv_lat = iv.get('latitude')
         iv_lng = iv.get('longitude')
         if iv_lat and iv_lng:
             dist = math.sqrt((ben_lat - iv_lat)**2 + (ben_lng - iv_lng)**2) * 111
-            radius = iv.get('intervention_radius_km', 30)
-            if dist <= radius:
-                all_recipients.append(iv)
-                if dist < nearest_dist:
-                    nearest_dist = dist
-                    nearest = iv
+            iv['_distance'] = dist
+            cid = iv.get('prescriber_company_id')
+            if cid:
+                if cid not in company_groups:
+                    company_groups[cid] = []
+                company_groups[cid].append(iv)
+            else:
+                radius = iv.get('intervention_radius_km', 30)
+                if dist <= radius:
+                    independents.append(iv)
+
+    # Find nearest company (average distance of its intervenants)
+    best_company_id = None
+    best_company_dist = float('inf')
+    for cid, members in company_groups.items():
+        in_range = [m for m in members if m['_distance'] <= m.get('intervention_radius_km', 30)]
+        if in_range:
+            avg_dist = sum(m['_distance'] for m in in_range) / len(in_range)
+            if avg_dist < best_company_dist:
+                best_company_dist = avg_dist
+                best_company_id = cid
+
+    # Select recipients: all intervenants of the nearest company, or independents
+    all_recipients = []
+    dispatch_company_id = None
+    if best_company_id:
+        all_recipients = [m for m in company_groups[best_company_id] if m['_distance'] <= m.get('intervention_radius_km', 30)]
+        dispatch_company_id = best_company_id
+    if not all_recipients:
+        all_recipients = independents
+
+    all_recipients.sort(key=lambda x: x.get('_distance', 999))
+    nearest = all_recipients[0] if all_recipients else None
+
+    # Get company info
+    company_info = None
+    if dispatch_company_id:
+        company_user = await db.users.find_one({"id": dispatch_company_id}, {"_id": 0, "password_hash": 0})
+        if company_user:
+            company_info = {"id": dispatch_company_id, "name": company_user.get('structure_name', company_user.get('name', ''))}
 
     # Create intervention
     iv_id = str(uuid.uuid4())
     intervention = {
         "id": iv_id, "alert_id": alert['id'], "incident_id": incident_id,
         "beneficiary_id": ben['id'], "beneficiary_name": ben['name'],
+        "company_id": dispatch_company_id,
+        "company_name": company_info['name'] if company_info else None,
         "structure_name": nearest.get('structure_name', nearest.get('name', '')) if nearest else "Service Care",
-        "recipients": [{"id": r['id'], "name": r['name'], "phone": r.get('phone', '')} for r in all_recipients],
+        "recipients": [{"id": r['id'], "name": r['name'], "phone": r.get('phone', ''), "distance_km": round(r.get('_distance', 0), 1)} for r in all_recipients],
         "assigned_to": None, "assigned_name": None,
         "status": "pending_acceptance",
         "alert_type": alert.get('alert_type', 'sos'),
@@ -490,19 +526,23 @@ async def _dispatch_care(incident_id: str, alert: dict, ben: dict, guardians: li
             "address": ben.get('address', ''),
             "medical_conditions": ben.get('medical_conditions', ''),
             "allergies": ben.get('allergies', ''),
+            "blood_type": ben.get('blood_type', ''),
+            "date_of_birth": ben.get('date_of_birth', ''),
             "emergency_contact_name": ben.get('emergency_contact_name', ''),
             "emergency_contact_phone": ben.get('emergency_contact_phone', ''),
+            "doctor_name": ben.get('doctor_name', ''),
         },
         "beneficiary_location": {"latitude": ben_lat, "longitude": ben_lng, "address": ben.get('address', '')},
-        "distance_km": round(nearest_dist, 1) if nearest else None,
+        "intervenant_location": None,
+        "distance_km": round(nearest.get('_distance', 0), 1) if nearest else None,
         "created_at": now, "accepted_at": None, "completed_at": None,
         "report": None, "report_answers": [],
         "timeline": [{"status": "pending_acceptance", "time": now,
-                      "note": f"Mission Care envoyee - {len(all_recipients)} intervenant(s) notifie(s)"}],
+                      "note": f"Mission Care envoyee a {company_info['name'] if company_info else 'intervenants independants'} - {len(all_recipients)} intervenant(s) notifie(s)"}],
     }
     await db.interventions.insert_one(intervention)
     await db.incidents.update_one({"id": incident_id}, {"$set": {
         "intervention_id": iv_id, "care_provider": nearest.get('name', '') if nearest else None,
     }})
     await _log_event(incident_id, "CARE_DISPATCHED",
-        f"Intervention #{iv_id[:8]} creee - {len(all_recipients)} intervenant(s) - {nearest.get('name', '')} ({nearest_dist:.1f}km)" if nearest else "Aucun intervenant Care disponible")
+        f"Intervention #{iv_id[:8]} creee - {company_info['name'] if company_info else 'independants'} - {len(all_recipients)} intervenant(s) - {nearest.get('name', '')} ({nearest.get('_distance', 0):.1f}km)" if nearest else "Aucun intervenant Care disponible")
