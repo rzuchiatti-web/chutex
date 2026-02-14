@@ -83,6 +83,158 @@ function AdminClients({ token }: { token: string }) {
   );
 }
 
+/* ===== COMPANY: AGENCES ===== */
+function CompanyAgences({ token }: { token: string }) {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newAddr, setNewAddr] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [assignModal, setAssignModal] = useState<any>(null);
+
+  const fetchData = useCallback(async () => {
+    try { setData(await apiFetch('/api/company/dashboard', {}, token)); }
+    catch {} finally { setLoading(false); setRefreshing(false); }
+  }, [token]);
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const createAgency = async () => {
+    if (!newName.trim()) return;
+    setCreating(true);
+    try {
+      await apiFetch('/api/company/agencies', { method: 'POST', body: JSON.stringify({ name: newName.trim(), address: newAddr.trim() }) }, token);
+      setShowCreate(false); setNewName(''); setNewAddr(''); fetchData();
+    } catch {} finally { setCreating(false); }
+  };
+  const assignToAgency = async (prescriberId: string, agencyId: string) => {
+    await apiFetch(`/api/company/prescriber/${prescriberId}/assign`, { method: 'PUT', body: JSON.stringify({ agency_id: agencyId }) }, token);
+    setAssignModal(null); fetchData();
+  };
+
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (!data) return null;
+
+  return (
+    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Agences</Text>
+        <Text style={{ fontSize: 12, color: '#888' }}>{(data.agencies || []).length} agences · {data.total_prescribers} prescripteurs</Text>
+      </View>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />}>
+
+        <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+          onPress={() => setShowCreate(true)}>
+          <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Nouvelle agence</Text>
+          <Ionicons name="add-circle-outline" size={18} color="#FFF" />
+        </TouchableOpacity>
+
+        {(data.agencies || []).map((ag: any) => (
+          <GlassCard key={ag.agency.id} style={{ padding: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FF980015', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="business" size={20} color="#FF9800" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{ag.agency.name}</Text>
+                {ag.agency.address ? <Text style={{ fontSize: 11, color: '#888' }}>{ag.agency.address}</Text> : null}
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+              <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000' }}>{ag.prescriber_count}</Text>
+                <Text style={{ fontSize: 9, color: '#888' }}>prescripteurs</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#4CAF50' }}>{ag.comm_validated}</Text>
+                <Text style={{ fontSize: 9, color: '#4CAF50' }}>EUR validees</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'rgba(255,152,0,0.06)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#FF9800' }}>{ag.comm_pending}</Text>
+                <Text style={{ fontSize: 9, color: '#FF9800' }}>EUR en att.</Text>
+              </View>
+            </View>
+            {/* Prescribers in agency */}
+            {(data.prescriber_ranking || []).filter((p: any) => p.agency_id === ag.agency.id).map((pr: any) => (
+              <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
+                <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#4CAF5015', justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name="person" size={14} color="#4CAF50" />
+                </View>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#000', flex: 1 }}>{pr.name}</Text>
+                <Text style={{ fontSize: 11, color: '#888' }}>{pr.prescription_count} presc.</Text>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#4CAF50' }}>{pr.comm_validated + pr.comm_pending} EUR</Text>
+              </View>
+            ))}
+          </GlassCard>
+        ))}
+
+        {/* Unassigned prescribers */}
+        {data.unassigned_prescribers > 0 && (
+          <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#E53935' }}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#E53935', marginBottom: 8 }}>Non assignes ({data.unassigned_prescribers})</Text>
+            {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).map((pr: any) => (
+              <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
+                <Ionicons name="person-outline" size={14} color="#888" />
+                <Text style={{ fontSize: 12, color: '#000', flex: 1 }}>{pr.name}</Text>
+                <TouchableOpacity style={{ backgroundColor: '#2196F3', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}
+                  onPress={() => setAssignModal(pr)}>
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#FFF' }}>Assigner</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </GlassCard>
+        )}
+      </ScrollView>
+
+      {/* Create agency modal */}
+      {showCreate && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', marginBottom: 16 }}>Nouvelle agence</Text>
+            <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Nom de l'agence</Text>
+            <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 12 }}
+              placeholder="Ex: Agence Paris Nord" value={newName} onChangeText={setNewName} />
+            <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Adresse</Text>
+            <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 16 }}
+              placeholder="Ex: 12 rue de la Paix, 75001 Paris" value={newAddr} onChangeText={setNewAddr} />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity style={{ flex: 1, padding: 14, alignItems: 'center', borderRadius: 12, borderWidth: 1, borderColor: '#E0E0E0' }} onPress={() => setShowCreate(false)}>
+                <Text style={{ color: '#888', fontWeight: '600' }}>Annuler</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, backgroundColor: '#000', padding: 14, alignItems: 'center', borderRadius: 12 }} onPress={createAgency} disabled={creating}>
+                {creating ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>Creer</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {/* Assign modal */}
+      {assignModal && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', marginBottom: 4 }}>Assigner {assignModal.name}</Text>
+            <Text style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>Choisissez une agence</Text>
+            {(data.agencies || []).map((ag: any) => (
+              <TouchableOpacity key={ag.agency.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}
+                onPress={() => assignToAgency(assignModal.id, ag.agency.id)}>
+                <Ionicons name="business-outline" size={18} color="#FF9800" />
+                <Text style={{ fontSize: 15, fontWeight: '600', color: '#000', flex: 1 }}>{ag.agency.name}</Text>
+                <Ionicons name="chevron-forward" size={16} color="#888" />
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={{ padding: 14, alignItems: 'center', marginTop: 10 }} onPress={() => setAssignModal(null)}>
+              <Text style={{ color: '#888', fontWeight: '600' }}>Annuler</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+}
+
 export default function HealthScreen() {
   const { token, user } = useAuth();
   const { colors } = useTheme();
