@@ -56,7 +56,7 @@ export default function AdminClientDetail() {
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
           <Ionicons name="chevron-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Fiche Client</Text>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Fiche {roleLabel}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
