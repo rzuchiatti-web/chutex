@@ -3,53 +3,32 @@ set timeout 300
 
 spawn env EXPO_TOKEN=bSAaETVb2wyb8CdjB0KYCDDUjvk3yfEeEalSuAZh \
   EXPO_APPLE_ID=contact@chutex-innovation.com \
-  EXPO_APPLE_PASSWORD=nyzm-xpea-fgjd-pvro \
+  EXPO_APPLE_PASSWORD=ggbf-lklb-lgrw-jytk \
   EXPO_APPLE_TEAM_ID=94YZY663N2 \
   npx eas-cli build --platform ios --profile production
 
-# Handle any prompts - auto-accept defaults
 expect {
-    "Log in to your Apple Developer account" {
+    "What would you like to do?" {
         send "\r"
         exp_continue
     }
-    "Apple ID:" {
-        send "contact@chutex-innovation.com\r"
+    "Do you want to log in to your Apple account?" {
+        send "Y\r"
         exp_continue
     }
-    "Password" {
-        send "nyzm-xpea-fgjd-pvro\r"
-        exp_continue
-    }
-    "Team ID" {
-        send "94YZY663N2\r"
-        exp_continue
-    }
-    "Would you like to" {
-        send "y\r"
+    "Would you like to try again?" {
+        send "yes\r"
         exp_continue
     }
     "Generate a new" {
         send "\r"
         exp_continue
     }
-    "Select a distribution certificate" {
-        send "\r"
-        exp_continue
-    }
-    "Do you want" {
-        send "y\r"
-        exp_continue
-    }
     "Would you like to set up" {
-        send "y\r"
-        exp_continue
-    }
-    "Choose a provider" {
         send "\r"
         exp_continue
     }
-    "Select provider" {
+    "Select" {
         send "\r"
         exp_continue
     }
@@ -61,12 +40,8 @@ expect {
         send "y\r"
         exp_continue
     }
-    "press any key" {
-        send "\r"
-        exp_continue
-    }
-    -re "\\? .*\\(.*\\)" {
-        send "\r"
+    "Would you like to" {
+        send "y\r"
         exp_continue
     }
     -re "\\?" {
@@ -74,16 +49,13 @@ expect {
         exp_continue
     }
     "Build details" {
-        puts "\n=== BUILD SUBMITTED SUCCESSFULLY ==="
-        exp_continue
-    }
-    "https://expo.dev" {
+        puts "\n=== BUILD SUBMITTED ==="
         exp_continue
     }
     eof {
-        puts "\n=== Process completed ==="
+        puts "\n=== DONE ==="
     }
     timeout {
-        puts "\n=== Timeout reached ==="
+        puts "\n=== TIMEOUT ==="
     }
 }
