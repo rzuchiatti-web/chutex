@@ -190,8 +190,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
   const validated = prescriptions.filter((p: any) => p.status === 'subscribed');
   const pending = prescriptions.filter((p: any) => p.status === 'pending');
-  const validatedComm = validated.reduce((s: number, p: any) => s + (p.commission || 0), 0);
-  const pendingComm = pending.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+  const [prescTab, setPrescTab] = useState<'pending'|'validated'>('pending');
+  const displayedPresc = prescTab === 'pending' ? pending : validated;
 
   const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
 
