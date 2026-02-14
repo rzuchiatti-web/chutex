@@ -119,7 +119,7 @@ function CompanyAgences({ token }: { token: string }) {
       setShowCreate(false); setNewName(''); setNewAddr(''); fetchData();
     } catch {} finally { setCreating(false); }
   };
-  const assignToAgency = async (prescriberId: string, agencyId: string) => {
+  const assignToAgency = async (prescriberId: string, agencyId: string | null) => {
     await apiFetch(`/api/company/prescriber/${prescriberId}/assign`, { method: 'PUT', body: JSON.stringify({ agency_id: agencyId }) }, token);
     setAssignModal(null); fetchData();
   };
