@@ -237,7 +237,33 @@ function CompanyAgences({ token }: { token: string }) {
         </View>
       )}
 
-      {/* Assign modal */}
+      {/* Edit agency modal */}
+      {editAgency && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', marginBottom: 16 }}>Modifier l'agence</Text>
+            <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Nom</Text>
+            <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 12 }}
+              value={editName} onChangeText={setEditName} />
+            <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Adresse</Text>
+            <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 16 }}
+              value={editAddr} onChangeText={setEditAddr} />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity style={{ flex: 1, padding: 14, alignItems: 'center', borderRadius: 12, borderWidth: 1, borderColor: '#E0E0E0' }} onPress={() => setEditAgency(null)}>
+                <Text style={{ color: '#888', fontWeight: '600' }}>Annuler</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, backgroundColor: '#000', padding: 14, alignItems: 'center', borderRadius: 12 }} onPress={async () => {
+                await apiFetch(`/api/company/agencies/${editAgency.id}`, { method: 'PUT', body: JSON.stringify({ name: editName.trim(), address: editAddr.trim() }) }, token);
+                setEditAgency(null); fetchData();
+              }}>
+                <Text style={{ color: '#FFF', fontWeight: '700' }}>Enregistrer</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {/* Assign modal - for unassigned OR for adding to specific agency */}
       {assignModal && (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
