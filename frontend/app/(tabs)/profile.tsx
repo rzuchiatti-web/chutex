@@ -175,6 +175,12 @@ export default function ProfileScreen() {
   };
 
   const effectiveRole = user.active_role || user.role;
+
+  // Admin sees Clients page instead of Profile
+  if (effectiveRole === 'admin') {
+    return <AdminClients token={token!} />;
+  }
+
   const roleName = effectiveRole === 'beneficiary' ? t('beneficiary') : effectiveRole === 'guardian' ? t('guardian') : effectiveRole === 'teleassistance' ? 'Teleassistance' : 'Administrateur';
   const otherRole = effectiveRole === 'beneficiary' ? 'gardien' : 'beneficiaire';
   const hasOther = effectiveRole === 'beneficiary' ? user.has_guardian_space : (user.has_beneficiary_space || user.role === 'beneficiary');
