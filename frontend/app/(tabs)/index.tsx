@@ -324,6 +324,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </GlassCard>
       ))}
 
+      {/* Contextual Tips */}
+      <ContextualTip id="sos-tip" icon="shield-checkmark-outline" text="En cas d'urgence, appuyez sur le bouton SOS ci-dessous. Vos gardiens seront immediatement alertes et, si vous avez un abonnement Care, la teleassistance vous appellera pour verifier votre etat." color="#E53935" />
+
       {/* SOS Button */}
       <Animated.View style={{ transform: [{ scale: sosPulse }], marginBottom: 16 }}>
         <TouchableOpacity testID="sos-button" style={{ backgroundColor: '#E53935', borderRadius: 20, paddingVertical: 20, alignItems: 'center' }} onPress={handleSOS} disabled={sosLoading} activeOpacity={0.8}>
