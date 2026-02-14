@@ -802,60 +802,147 @@ function TeleassistanceHome({ token, user }: { token: string; user: any }) {
   );
 }
 
-/* ───── ADMIN ───── */
+/* ───── ADMIN DASHBOARD ───── */
 function AdminHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
   const { colors } = useTheme();
   const [stats, setStats] = useState<any>(null);
+  const [kpi, setKpi] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = useCallback(async () => {
-    try { setStats(await apiFetch('/api/backoffice/stats', {}, token)); } catch {} finally { setLoading(false); setRefreshing(false); }
+    try {
+      const [s, k] = await Promise.all([
+        apiFetch('/api/backoffice/stats', {}, token).catch(() => null),
+        apiFetch('/api/backoffice/kpi', {}, token).catch(() => null),
+      ]);
+      setStats(s); setKpi(k);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
 
+  const barMax = (obj: Record<string, number>) => Math.max(...Object.values(obj || {}).map(Number), 1);
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 20 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Administration</Text>
-          <Text style={{ fontSize: 12, color: '#888' }}>{user.name}</Text>
+          <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Dashboard Admin</Text>
+          <Text style={{ fontSize: 12, color: '#888' }}>CHUTEX - {user.name}</Text>
         </View>
         <LanguageFlagButton />
       </View>
+
       {stats && <>
-        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
+        {/* Main KPIs */}
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
           {[
-            { val: stats.total_users, label: 'Utilisateurs' },
-            { val: stats.active_alerts, label: 'Alertes', danger: stats.active_alerts > 0 },
-            { val: stats.prescriptions, label: 'Prescriptions' },
+            { val: stats.total_users, label: 'Utilisateurs', icon: 'people', color: '#2196F3' },
+            { val: stats.active_alerts, label: 'Alertes actives', icon: 'warning', color: stats.active_alerts > 0 ? '#E53935' : '#4CAF50' },
+            { val: stats.interventions, label: 'Interventions', icon: 'medkit', color: '#FF9800' },
           ].map((s, i) => (
             <GlassCard key={i} style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
-              <Text style={{ fontSize: 28, fontWeight: '900', color: s.danger ? '#E53935' : '#000' }}>{s.val}</Text>
-              <Text style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>{s.label}</Text>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: s.color + '15', justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
+                <Ionicons name={s.icon as any} size={18} color={s.color} />
+              </View>
+              <Text style={{ fontSize: 26, fontWeight: '900', color: s.color }}>{s.val}</Text>
+              <Text style={{ fontSize: 8, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{s.label}</Text>
             </GlassCard>
           ))}
         </View>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+
+        {/* Secondary stats */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
           {[
-            { l: 'Beneficiaires', v: stats.beneficiaries },
-            { l: 'Gardiens', v: stats.guardians },
-            { l: 'Prescripteurs', v: stats.prescribers },
-            { l: 'Codes actifs', v: stats.activation_codes },
-            { l: 'Interventions', v: stats.interventions },
-            { l: 'Abonnements', v: stats.subscribed_prescriptions },
+            { l: 'Beneficiaires', v: stats.beneficiaries, c: '#4FC3F7' },
+            { l: 'Gardiens', v: stats.guardians, c: '#FFD54F' },
+            { l: 'Prescripteurs', v: stats.prescribers, c: '#CE93D8' },
+            { l: 'Codes actifs', v: stats.activation_codes, c: '#81C784' },
+            { l: 'Abon. Standard', v: stats.subscriptions_standard || 0, c: '#90CAF9' },
+            { l: 'Abon. Care', v: stats.subscriptions_care || 0, c: '#EF9A9A' },
           ].map(x => (
-            <GlassCard key={x.l} style={{ width: '31%', alignItems: 'center', padding: 12, marginBottom: 0 }}>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#000' }}>{x.v}</Text>
-              <Text style={{ fontSize: 9, color: '#888', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 4, textAlign: 'center' }}>{x.l}</Text>
-            </GlassCard>
+            <View key={x.l} style={{ width: '31%', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glassStyle }}>
+              <Text style={{ fontSize: 22, fontWeight: '900', color: x.c }}>{x.v}</Text>
+              <Text style={{ fontSize: 8, color: '#888', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 4, textAlign: 'center' }}>{x.l}</Text>
+            </View>
           ))}
         </View>
       </>}
-      <BlackButton label="OUVRIR LE BACK OFFICE" icon="settings-outline" onPress={() => router.push('/backoffice')} testID="open-backoffice" />
+
+      {kpi && <>
+        {/* Resolution time */}
+        <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(33,150,243,0.1)', justifyContent: 'center', alignItems: 'center' }}>
+            <Ionicons name="timer-outline" size={22} color="#2196F3" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>Temps moyen resolution</Text>
+            <Text style={{ fontSize: 24, fontWeight: '900', color: '#000' }}>{kpi.avg_resolution_minutes}<Text style={{ fontSize: 14, color: '#888' }}> min</Text></Text>
+          </View>
+        </GlassCard>
+
+        {/* Users by role chart */}
+        <GlassCard>
+          <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Repartition utilisateurs</Text>
+          {Object.entries(kpi.users_by_role || {}).map(([role, count]: [string, any]) => {
+            const max = barMax(kpi.users_by_role);
+            const pct = (count / max) * 100;
+            const labels: any = { beneficiary: 'Beneficiaires', guardian: 'Gardiens', admin: 'Admins', teleassistance: 'Teleassistance' };
+            const colors: any = { beneficiary: '#4FC3F7', guardian: '#FFD54F', admin: '#000', teleassistance: '#CE93D8' };
+            return (
+              <View key={role} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <Text style={{ width: 90, fontSize: 11, color: '#555', textAlign: 'right' }}>{labels[role] || role}</Text>
+                <View style={{ flex: 1, height: 18, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 9, overflow: 'hidden' }}>
+                  <View style={{ height: 18, backgroundColor: colors[role] || '#888', borderRadius: 9, width: `${pct}%`, justifyContent: 'center', paddingLeft: 6 }}>
+                    {pct > 20 && <Text style={{ fontSize: 9, fontWeight: '800', color: role === 'admin' ? '#FFF' : '#000' }}>{count}</Text>}
+                  </View>
+                </View>
+                {pct <= 20 && <Text style={{ fontSize: 11, fontWeight: '700', color: '#000', width: 20 }}>{count}</Text>}
+              </View>
+            );
+          })}
+        </GlassCard>
+
+        {/* Alert types chart */}
+        <GlassCard>
+          <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Types d'alertes</Text>
+          {Object.entries(kpi.alert_types || {}).map(([type, count]: [string, any]) => {
+            const max = barMax(kpi.alert_types);
+            const pct = max > 0 ? (count / max) * 100 : 0;
+            const tc: any = { sos: '#E53935', fall: '#FF9800', anomaly: '#9C27B0', inactivity: '#607D8B' };
+            return (
+              <View key={type} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <Text style={{ width: 70, fontSize: 11, color: '#555', textAlign: 'right', textTransform: 'uppercase' }}>{type}</Text>
+                <View style={{ flex: 1, height: 18, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 9, overflow: 'hidden' }}>
+                  <View style={{ height: 18, backgroundColor: tc[type] || '#888', borderRadius: 9, width: `${Math.max(pct, 3)}%` }} />
+                </View>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#000', width: 24 }}>{count}</Text>
+              </View>
+            );
+          })}
+        </GlassCard>
+
+        {/* 7-day alerts chart */}
+        <GlassCard>
+          <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Alertes 7 derniers jours</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 80, gap: 4 }}>
+            {(kpi.alerts_by_day || []).slice(-7).map((d: any, i: number) => {
+              const maxD = Math.max(...(kpi.alerts_by_day || []).slice(-7).map((x: any) => x.count), 1);
+              const h = Math.max((d.count / maxD) * 60, 4);
+              return (
+                <View key={i} style={{ flex: 1, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#000', marginBottom: 4 }}>{d.count}</Text>
+                  <View style={{ width: '80%', height: h, backgroundColor: d.count > 0 ? '#2196F3' : 'rgba(0,0,0,0.06)', borderRadius: 6 }} />
+                  <Text style={{ fontSize: 9, color: '#888', marginTop: 4 }}>{d.date.slice(8)}/{d.date.slice(5, 7)}</Text>
+                </View>
+              );
+            })}
+          </View>
+        </GlassCard>
+      </>}
     </ScrollView>
   );
 }
