@@ -266,8 +266,7 @@ export default function AlertsScreen() {
                 <Ionicons name={tab === 'active' ? 'checkmark-circle' : 'archive-outline'} size={28} color="#4CAF50" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{tab === 'active' ? 'Tout va bien !' : 'Aucun historique'}</Text>
-              <Text style={{ fontSize: 12, color: '#888', marginTop: 4, textAlign: 'center', paddingHorizontal: 20 }}>{tab === 'active' ? 'Aucune alerte active pour le moment. Nous veillons sur vous en continu.' : 'Les alertes resolues apparaitront ici pour garder un historique complet.'}</Text>
-              <Text style={{ fontSize: 12, color: '#888', marginTop: 4 }}>{tab === 'active' ? 'Tout va bien !' : 'Les alertes resolues apparaitront ici'}</Text>
+              <Text style={{ fontSize: 12, color: '#888', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>{tab === 'active' ? 'Aucune alerte active. Notre systeme veille sur vous 24h/24. Si une anomalie est detectee, elle apparaitra ici instantanement.' : 'Vos alertes resolues s\'afficheront ici avec leur rapport d\'intervention, pour un suivi medical complet.'}</Text>
             </View>
           }
         />
