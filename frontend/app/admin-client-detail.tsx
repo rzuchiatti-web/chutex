@@ -71,7 +71,7 @@ export default function AdminClientDetail() {
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 22, fontWeight: '900', color: '#000' }}>{u.name}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
-                <Badge label={isBen ? 'Beneficiaire' : 'Gardien'} color={isBen ? '#0288D1' : '#F57F17'} bg={isBen ? '#E1F5FE' : '#FFF8E1'} />
+                <Badge label={showAsBen ? 'Beneficiaire' : 'Gardien'} color={showAsBen ? '#0288D1' : '#F57F17'} bg={showAsBen ? '#E1F5FE' : '#FFF8E1'} />
                 {u.is_prescriber && <Badge label="Prescripteur" color="#7B1FA2" bg="#F3E5F5" />}
                 {u.is_intervention_provider && <Badge label="Intervenant Care" color="#2E7D32" bg="#E8F5E9" />}
                 {u.has_subscription && <Badge label={`Abon. ${u.subscription_type?.toUpperCase()}`} color={u.subscription_type === 'care' ? '#7B1FA2' : '#1565C0'} bg={u.subscription_type === 'care' ? '#F3E5F5' : '#E3F2FD'} />}
@@ -85,7 +85,7 @@ export default function AdminClientDetail() {
         </GlassCard>
 
         {/* Beneficiary: Medical Info */}
-        {isBen && (
+        {showAsBen && (
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}>
@@ -106,7 +106,7 @@ export default function AdminClientDetail() {
         )}
 
         {/* Beneficiary: Subscription */}
-        {isBen && data.subscription && (
+        {showAsBen && data.subscription && (
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8EAF6', justifyContent: 'center', alignItems: 'center' }}>
@@ -122,7 +122,7 @@ export default function AdminClientDetail() {
         )}
 
         {/* Guardian: Professional Info */}
-        {isG && (
+        {showAsGuard && (
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
@@ -155,7 +155,7 @@ export default function AdminClientDetail() {
         )}
 
         {/* Linked Guardians (for beneficiary) */}
-        {isBen && data.guardians?.length > 0 && (
+        {showAsBen && data.guardians?.length > 0 && (
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF8E1', justifyContent: 'center', alignItems: 'center' }}>
@@ -184,7 +184,7 @@ export default function AdminClientDetail() {
         )}
 
         {/* Linked Beneficiaries (for guardian) */}
-        {isG && data.beneficiaries?.length > 0 && (
+        {showAsGuard && data.beneficiaries?.length > 0 && (
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
@@ -210,7 +210,7 @@ export default function AdminClientDetail() {
         )}
 
         {/* Devices (beneficiary) */}
-        {isBen && data.devices?.length > 0 && (
+        {showAsBen && data.devices?.length > 0 && (
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
