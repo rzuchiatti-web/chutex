@@ -1,24 +1,26 @@
 # CHUTEX / CARE WATCH - PRD
 
-## Protocole CARE WATCH
-- Cas 1 (Sans Care) : Alerte -> Gardiens notifies -> J'INTERVIENS -> Suivi carte
-- Cas 2 (Care + gardien) : Alerte -> IA appelle patient -> Gardiens -> Gardien intervient
-- Cas 3 (Care + SAAD) : Alerte -> IA -> Gardiens injoignables -> Dispatch SAAD -> 1er prend
+## Page Suivi Intervention (Style Uber)
+- Carte plein ecran en haut (55% ecran) avec positions beneficiaire + intervenant
+- Badge statut overlay (EN ROUTE / EN ATTENTE / TERMINEE)
+- Distance overlay au centre
+- Fiche patient glissante depuis le bas : intervenant, alerte, patient (medical), contact urgence
+- Rafraichissement auto 5s
 
-## UX Gardien (verifie)
-- Si JE suis l'intervenant : "VOUS ETES EN INTERVENTION" (vert)
-- Si un autre intervient : "SUIVRE [NOM]" (teal) -> carte Leaflet
-- Si personne : "J'INTERVIENS" (rouge) ou "EN ATTENTE"
-- Pas de doublon, 1 alerte = 1 carte
-- Fiche alerte : statut clair, infos medicales, bouton contextuel
+## UX Gardien
+- Dashboard : 1 carte alerte + bouton action separe
+- SUIVRE MARC -> page Uber directement (pas fiche alerte)
+- VOUS ETES EN INTERVENTION -> page Uber aussi
+- VOIR L'ALERTE -> fiche alerte classique
+- Label role : GARDIEN | Prescripteur | Intervenant
+
+## Protocole CARE WATCH
+- Cas 1 (Sans Care) : Alerte -> Gardiens -> J'INTERVIENS
+- Cas 2 (Care + gardien) : Alerte -> IA -> Patient -> Gardiens -> Gardien intervient
+- Cas 3 (Care + SAAD) : Alerte -> IA -> Gardiens -> Dispatch SAAD -> 1er prend (409 autres)
 
 ## Espace SAAD - 6 Tabs
-1. Dashboard (KPIs cliquables)
-2. Agences (CRUD)
-3. Prescripteurs (recherche, fiche)
-4. Interventions : En attente / En cours / Terminee + Intervenants
-5. Prescriptions (En cours / Validees)
-6. Profil
+Dashboard, Agences, Prescripteurs, Interventions (En attente/En cours/Terminee), Prescriptions, Profil
 
 ## Comptes test
 | Role | Email | MdP |
@@ -32,6 +34,6 @@
 | Intervenants SAAD | marc.dubois@saad.fr, isabelle.roux@saad.fr, antoine.garnier@saad.fr | demo123 |
 
 ## Backlog
-- P1 : Build natif + BLE, WebSocket tracking, page carte Uber-style (carte fullscreen + fiche glissante)
-- P2 : Exports PDF, carte itineraire natif
+- P1 : Build natif + BLE, WebSocket tracking temps reel
+- P2 : Exports PDF, itineraire Google Maps natif
 - P3 : Shopify, Balance Lefu, hypnogramme reel
