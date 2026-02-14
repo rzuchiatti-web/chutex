@@ -170,7 +170,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
     setActivating(true);
     try {
       await apiFetch('/api/guardian/activate-prescriber', { method: 'POST', body: JSON.stringify({ code: actCode.trim().toUpperCase() }) }, token);
-      Alert.alert('Activé', 'Votre espace prescripteur est maintenant actif !');
+      Alert.alert('Active', 'Votre espace prescripteur est maintenant actif !');
       setActCode(''); await refreshUser();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivating(false); }
   };
@@ -184,100 +184,147 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         subscription_type: formData.type, notes: formData.notes,
       }) }, token);
       setShowForm(false); setFormData({ name: '', email: '', phone: '', type: 'standard', notes: '' }); fetchPrescriptions();
-      Alert.alert('Succès', 'Prescription créée');
+      Alert.alert('Prescription creee');
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSubmitting(false); }
   };
 
-  const totalComm = prescriptions.reduce((sum, p) => sum + (p.commission || 0), 0);
+  const validated = prescriptions.filter((p: any) => p.status === 'subscribed');
+  const pending = prescriptions.filter((p: any) => p.status === 'pending');
+  const validatedComm = validated.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+  const pendingComm = pending.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+
+  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
 
   return (
     <ScrollView style={d.sv} contentContainerStyle={[d.sc, { paddingBottom: 80 }]} showsVerticalScrollIndicator={false}>
-      {/* Prescriber activation - show prominently if not yet a prescriber */}
       {!user?.is_prescriber ? (
-        <View style={d.activateCard}>
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 28, alignItems: 'center', ...glass }}>
           <Ionicons name="medical-outline" size={40} color={Colors.primary} />
-          <Text style={d.activateTitle}>Espace Prescripteur</Text>
-          <Text style={d.activateDesc}>
-            Activez votre espace prescripteur avec le code fourni par votre structure partenaire Chutex pour prescrire des abonnements à vos bénéficiaires.
+          <Text style={{ fontSize: 20, fontWeight: '800', color: '#000', marginTop: 12 }}>Espace Prescripteur</Text>
+          <Text style={{ fontSize: 13, color: '#888', textAlign: 'center', lineHeight: 19, marginTop: 8, marginBottom: 20 }}>
+            Activez votre espace prescripteur avec le code fourni par votre structure partenaire Chutex.
           </Text>
-          <View style={d.activateRow}>
-            <TextInput testID="prescriber-code-input" style={d.activateInput} placeholder="CODE PRESCRIPTEUR"
-              placeholderTextColor={Colors.textMuted} value={actCode} onChangeText={setActCode} autoCapitalize="characters" />
-            <TouchableOpacity testID="activate-prescriber-btn" style={d.activateBtn} onPress={activatePrescriber} disabled={activating}>
-              {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={d.activateBtnT}>Activer</Text>}
-            </TouchableOpacity>
+          <TextInput testID="prescriber-code-input" style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 12, padding: 14, fontSize: 16, fontWeight: '700', color: '#000', borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)', textAlign: 'center', letterSpacing: 3, marginBottom: 10 }}
+            placeholder="CODE PRESCRIPTEUR" placeholderTextColor="#BBB" value={actCode} onChangeText={setActCode} autoCapitalize="characters" />
+          <TouchableOpacity testID="activate-prescriber-btn" style={{ width: '100%', backgroundColor: Colors.primary, borderRadius: 12, paddingVertical: 14, alignItems: 'center' }} onPress={activatePrescriber} disabled={activating}>
+            {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Activer mon espace</Text>}
+          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, width: '100%', marginVertical: 16 }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(0,0,0,0.08)' }} />
+            <Text style={{ fontSize: 12, color: '#AAA' }}>ou</Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(0,0,0,0.08)' }} />
           </View>
-          <View style={d.divider}><View style={d.divLine} /><Text style={d.divText}>ou</Text><View style={d.divLine} /></View>
-          <TouchableOpacity style={d.chutexLink} onPress={() => Linking.openURL('https://chutex-innovation.com')}>
-            <Text style={d.chutexLinkT}>Devenir prescripteur sur chutex-innovation.com</Text>
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => Linking.openURL('https://chutex-innovation.com')}>
+            <Text style={{ fontSize: 13, color: Colors.primary, fontWeight: '600' }}>Devenir prescripteur sur chutex-innovation.com</Text>
             <Ionicons name="open-outline" size={14} color={Colors.primary} />
           </TouchableOpacity>
         </View>
       ) : (
         <>
-          <View style={d.commCard}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <Ionicons name="checkmark-circle" size={18} color={Colors.success} />
-              <Text style={{ fontSize: 12, color: Colors.success, fontWeight: '700' }}>Prescripteur actif — {user.prescriber_structure}</Text>
+          {/* Header prescripteur */}
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12, ...glass }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="medical" size={22} color="#4CAF50" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Espace Prescripteur</Text>
+                <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{user.prescriber_structure}</Text>
+              </View>
+              <View style={{ backgroundColor: '#4CAF50', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>Actif</Text>
+              </View>
             </View>
+
+            {/* Commission cards */}
             <View style={{ flexDirection: 'row', gap: 10 }}>
-              <View style={{ flex: 1, backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 12, padding: 12, alignItems: 'center' }}>
-                <Text style={{ fontSize: 9, color: Colors.success, fontWeight: '700', marginBottom: 2 }}>Validees</Text>
-                <Text style={{ fontSize: 22, fontWeight: '900', color: Colors.success }}>{prescriptions.filter((p: any) => p.status === 'subscribed').reduce((s: number, p: any) => s + (p.commission || 0), 0).toFixed(2)} EUR</Text>
-                <Text style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{prescriptions.filter((p: any) => p.status === 'subscribed').length} souscription(s)</Text>
+              <View style={{ flex: 1, backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 16, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(76,175,80,0.1)' }}>
+                <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
+                  <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
+                </View>
+                <Text style={{ fontSize: 24, fontWeight: '900', color: '#4CAF50' }}>{validatedComm.toFixed(0)}EUR</Text>
+                <Text style={{ fontSize: 11, color: '#4CAF50', fontWeight: '600', marginTop: 2 }}>Validees</Text>
+                <Text style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{validated.length} souscription(s)</Text>
               </View>
-              <View style={{ flex: 1, backgroundColor: 'rgba(255,152,0,0.06)', borderRadius: 12, padding: 12, alignItems: 'center' }}>
-                <Text style={{ fontSize: 9, color: '#FF9800', fontWeight: '700', marginBottom: 2 }}>En attente</Text>
-                <Text style={{ fontSize: 22, fontWeight: '900', color: '#FF9800' }}>{prescriptions.filter((p: any) => p.status === 'pending').reduce((s: number, p: any) => s + (p.commission || 0), 0).toFixed(2)} EUR</Text>
-                <Text style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{prescriptions.filter((p: any) => p.status === 'pending').length} en attente</Text>
+              <View style={{ flex: 1, backgroundColor: 'rgba(255,152,0,0.06)', borderRadius: 16, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,152,0,0.1)' }}>
+                <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,152,0,0.12)', justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
+                  <Ionicons name="time" size={16} color="#FF9800" />
+                </View>
+                <Text style={{ fontSize: 24, fontWeight: '900', color: '#FF9800' }}>{pendingComm.toFixed(0)}EUR</Text>
+                <Text style={{ fontSize: 11, color: '#FF9800', fontWeight: '600', marginTop: 2 }}>En attente</Text>
+                <Text style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{pending.length} en attente</Text>
               </View>
             </View>
           </View>
 
-      <TouchableOpacity testID="new-prescription-btn" style={d.newPrescBtn} onPress={() => setShowForm(true)}>
-        <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '600' }}>Nouvelle prescription</Text>
-        <Ionicons name="add" size={18} color="#FFF" />
-      </TouchableOpacity>
+          {/* New prescription button */}
+          <TouchableOpacity testID="new-prescription-btn" style={{ backgroundColor: '#000', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }} onPress={() => setShowForm(true)}>
+            <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Nouvelle prescription</Text>
+            <Ionicons name="add-circle-outline" size={18} color="#FFF" />
+          </TouchableOpacity>
 
-      {loading ? <ActivityIndicator size="large" color={Colors.primary} /> : prescriptions.length > 0 ? (
-        prescriptions.map((p) => (
-          <View key={p.id} style={d.prescCard} testID={`prescription-${p.id}`}>
-            <View style={d.prescHeader}><Text style={d.prescName}>{p.beneficiary_name}</Text>
-              <View style={[d.prescStatus, p.status === 'subscribed' && { backgroundColor: Colors.success + '12' }]}>
-                <Text style={[d.prescStatusText, p.status === 'subscribed' && { color: Colors.success }]}>{p.status === 'pending' ? 'En attente' : 'Actif'}</Text></View></View>
-            <Text style={d.prescEmail}>{p.beneficiary_email}</Text>
-            <View style={d.prescFooter}><Text style={d.prescType}>{p.subscription_type === 'standard' ? 'Standard (15€)' : 'Téléassistance (25€)'}</Text>
-              <Text style={d.prescComm}>+{p.commission}€</Text></View>
-          </View>
-        ))
-      ) : <View style={d.emptyC}><Ionicons name="document-text-outline" size={28} color={Colors.textMuted} /><Text style={d.emptyT}>Aucune prescription</Text></View>}
+          {/* Prescription list */}
+          {loading ? <ActivityIndicator size="large" color={Colors.primary} /> : prescriptions.length > 0 ? (
+            prescriptions.map((p) => (
+              <View key={p.id} testID={`prescription-${p.id}`}
+                style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 10, borderLeftWidth: 4, borderLeftColor: p.status === 'subscribed' ? '#4CAF50' : '#FF9800', ...glass }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
+                      <Ionicons name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={18} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{p.beneficiary_name}</Text>
+                      <Text style={{ fontSize: 11, color: '#888' }}>{p.beneficiary_email}</Text>
+                    </View>
+                  </View>
+                  <View style={{ backgroundColor: p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                    <Text style={{ fontSize: 10, fontWeight: '700', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>{p.status === 'subscribed' ? 'Souscrit' : 'En attente'}</Text>
+                  </View>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <Ionicons name="pricetag-outline" size={14} color="#888" />
+                    <Text style={{ fontSize: 12, color: '#555' }}>{p.subscription_type === 'standard' ? 'Standard' : 'Teleassistance'}</Text>
+                  </View>
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission}EUR</Text>
+                </View>
+              </View>
+            ))
+          ) : (
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 18, padding: 32, alignItems: 'center' }}>
+              <Ionicons name="document-text-outline" size={36} color="#CCC" />
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#888', marginTop: 10 }}>Aucune prescription</Text>
+              <Text style={{ fontSize: 11, color: '#AAA', marginTop: 4 }}>Vos prescriptions apparaitront ici</Text>
+            </View>
+          )}
 
-      <Modal visible={showForm} transparent animationType="slide">
-        <View style={d.modalO}><View style={d.modalC}>
-          <Text style={d.modalT}>Nouvelle Prescription</Text>
-          <Text style={d.inputL}>Nom du bénéficiaire</Text>
-          <TextInput testID="presc-name-input" style={d.modalInp} placeholder="Nom complet" placeholderTextColor={Colors.textMuted}
-            value={formData.name} onChangeText={(v) => setFormData({ ...formData, name: v })} />
-          <Text style={d.inputL}>Email</Text>
-          <TextInput testID="presc-email-input" style={d.modalInp} placeholder="email@exemple.com" placeholderTextColor={Colors.textMuted}
-            value={formData.email} onChangeText={(v) => setFormData({ ...formData, email: v })} keyboardType="email-address" autoCapitalize="none" />
-          <Text style={d.inputL}>Téléphone</Text>
-          <TextInput testID="presc-phone-input" style={d.modalInp} placeholder="06 12 34 56 78" placeholderTextColor={Colors.textMuted}
-            value={formData.phone} onChangeText={(v) => setFormData({ ...formData, phone: v })} keyboardType="phone-pad" />
-          <Text style={d.inputL}>Type d'abonnement</Text>
-          <View style={d.typeSelector}>
-            {[{id:'standard',l:'Standard (15€)'},{id:'teleassistance',l:'Téléassist. (25€)'}].map(t => (
-              <TouchableOpacity key={t.id} testID={`presc-type-${t.id}`} style={[d.typeBtn, formData.type === t.id && d.typeBtnA]} onPress={() => setFormData({ ...formData, type: t.id })}>
-                <Text style={[d.typeBtnT, formData.type === t.id && d.typeBtnTA]}>{t.l}</Text></TouchableOpacity>
-            ))}
-          </View>
-          <View style={d.modalBtns}>
-            <TouchableOpacity style={d.cancelBtn} onPress={() => setShowForm(false)}><Text style={d.cancelBtnT}>Annuler</Text></TouchableOpacity>
-            <TouchableOpacity testID="presc-submit-btn" style={d.submitBtn} onPress={submitPrescription} disabled={submitting}>
-              {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={d.submitBtnT}>Créer</Text>}</TouchableOpacity>
-          </View>
-        </View></View>
-      </Modal>
+          <Modal visible={showForm} transparent animationType="slide">
+            <View style={d.modalO}><View style={d.modalC}>
+              <Text style={d.modalT}>Nouvelle Prescription</Text>
+              <Text style={d.inputL}>Nom du beneficiaire</Text>
+              <TextInput testID="presc-name-input" style={d.modalInp} placeholder="Nom complet" placeholderTextColor={Colors.textMuted}
+                value={formData.name} onChangeText={(v) => setFormData({ ...formData, name: v })} />
+              <Text style={d.inputL}>Email</Text>
+              <TextInput testID="presc-email-input" style={d.modalInp} placeholder="email@exemple.com" placeholderTextColor={Colors.textMuted}
+                value={formData.email} onChangeText={(v) => setFormData({ ...formData, email: v })} keyboardType="email-address" autoCapitalize="none" />
+              <Text style={d.inputL}>Telephone</Text>
+              <TextInput testID="presc-phone-input" style={d.modalInp} placeholder="06 12 34 56 78" placeholderTextColor={Colors.textMuted}
+                value={formData.phone} onChangeText={(v) => setFormData({ ...formData, phone: v })} keyboardType="phone-pad" />
+              <Text style={d.inputL}>Type d'abonnement</Text>
+              <View style={d.typeSelector}>
+                {[{id:'standard',l:'Standard (15EUR)'},{id:'teleassistance',l:'Teleassist. (25EUR)'}].map(t => (
+                  <TouchableOpacity key={t.id} testID={`presc-type-${t.id}`} style={[d.typeBtn, formData.type === t.id && d.typeBtnA]} onPress={() => setFormData({ ...formData, type: t.id })}>
+                    <Text style={[d.typeBtnT, formData.type === t.id && d.typeBtnTA]}>{t.l}</Text></TouchableOpacity>
+                ))}
+              </View>
+              <View style={d.modalBtns}>
+                <TouchableOpacity style={d.cancelBtn} onPress={() => setShowForm(false)}><Text style={d.cancelBtnT}>Annuler</Text></TouchableOpacity>
+                <TouchableOpacity testID="presc-submit-btn" style={d.submitBtn} onPress={submitPrescription} disabled={submitting}>
+                  {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={d.submitBtnT}>Creer</Text>}</TouchableOpacity>
+              </View>
+            </View></View>
+          </Modal>
         </>
       )}
     </ScrollView>
