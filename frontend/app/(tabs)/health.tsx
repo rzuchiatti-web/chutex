@@ -112,6 +112,12 @@ export default function HealthScreen() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Admin sees Clients page
+  const effectiveRole = user?.active_role || user?.role;
+  if (effectiveRole === 'admin' && token) {
+    return <AdminClients token={token} />;
+  }
+
   const metrics = vitals ? [
     { id: 'heart_rate', label: 'Frequence cardiaque', value: vitals.heart_rate, unit: 'bpm', icon: 'heart', color: '#EF4444', range: '60-100' },
     { id: 'spo2', label: 'Saturation O2', value: vitals.spo2, unit: '%', icon: 'water', color: '#3B82F6', range: '95-100' },
