@@ -651,13 +651,19 @@ export default function TeleconsultScreen() {
   
   if (!user || !token) return null;
   const r = user.active_role || user.role;
+
+  // Company sees prescriptions list
+  if (r === 'prescriber_company') {
+    return <CompanyPrescriptions token={token} />;
+  }
+
   // key={r} forces complete remount when role changes (Expo Router tab caching fix)
   return (
     <View key={r} style={[s.safe, { backgroundColor: colors.background }]} testID="teleconsult-screen">
       <View style={s.header}>
-        <Text style={[s.title, { color: colors.textPrimary }]}>{r === 'teleassistance' ? 'Téléassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Intervenants' : 'Téléconsultation'}</Text>
-        {r === 'teleassistance' && <Text style={[s.subtitle, { color: colors.textMuted }]}>Plateau d'écoute — Protocole d'escalade</Text>}
-        {r === 'beneficiary' && <Text style={[s.subtitle, { color: colors.textMuted }]}>Questionnaire pré-consultation</Text>}
+        <Text style={[s.title, { color: colors.textPrimary }]}>{r === 'teleassistance' ? 'Teleassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Intervenants' : 'Teleconsultation'}</Text>
+        {r === 'teleassistance' && <Text style={[s.subtitle, { color: colors.textMuted }]}>Plateau d'ecoute — Protocole d'escalade</Text>}
+        {r === 'beneficiary' && <Text style={[s.subtitle, { color: colors.textMuted }]}>Questionnaire pre-consultation</Text>}
       </View>
       {r === 'teleassistance' ? <TeleassistanceDashboard token={token} />
         : r === 'guardian' ? <GuardianInterventions token={token} user={user} />
