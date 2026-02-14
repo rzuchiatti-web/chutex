@@ -24,7 +24,7 @@ function RootNav() {
     return (
       <>
         <StatusBar style={isDark ? 'light' : 'dark'} />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
           <Stack.Screen name="index" />
         </Stack>
       </>
@@ -34,7 +34,7 @@ function RootNav() {
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F5F0EB' } }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="health-detail" options={{ presentation: 'card' }} />
           <Stack.Screen name="backoffice" options={{ presentation: 'card' }} />
