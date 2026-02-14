@@ -416,18 +416,21 @@ function AdminPrescripteurs({ token }: { token: string }) {
       {/* PRESCRIBERS TAB */}
       {tab === 'prescribers' && <>
         {prescribers.map((p: any) => (
-          <View key={p.id} style={d.deviceCard}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#CE93D8', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{p.name?.charAt(0)?.toUpperCase()}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.textPrimary }}>{p.name}</Text>
-                <Text style={{ fontSize: 12, color: Colors.textMuted }}>{p.email}</Text>
-                <Text style={{ fontSize: 11, color: '#9C27B0', fontWeight: '600', marginTop: 2 }}>{p.prescriber_structure}</Text>
+          <TouchableOpacity key={p.id} onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: p.id } })} activeOpacity={0.7}>
+            <View style={d.deviceCard}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#CE93D8', justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{p.name?.charAt(0)?.toUpperCase()}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.textPrimary }}>{p.name}</Text>
+                  <Text style={{ fontSize: 12, color: Colors.textMuted }}>{p.email}</Text>
+                  <Text style={{ fontSize: 11, color: '#9C27B0', fontWeight: '600', marginTop: 2 }}>{p.prescriber_structure}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color="#888" />
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
         {prescribers.length === 0 && <View style={d.emptyC}><Ionicons name="medical-outline" size={28} color={Colors.textMuted} /><Text style={d.emptyT}>Aucun prescripteur</Text></View>}
       </>}
