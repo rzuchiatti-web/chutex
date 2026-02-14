@@ -1027,8 +1027,6 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
           </GlassCard>
         ))}
       </View>
-
-      {/* Commissions total */}
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
         <GlassCard style={{ flex: 1, padding: 16, marginBottom: 0, borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
           <Text style={{ fontSize: 10, color: '#4CAF50', fontWeight: '700', marginBottom: 4 }}>Commissions validees</Text>
