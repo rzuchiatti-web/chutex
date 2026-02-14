@@ -246,7 +246,7 @@ export default function AlertDetailScreen() {
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#E53935', borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6 }} onPress={startEscalation} disabled={escalating}>
                 {escalating ? <ActivityIndicator color="#FFF" size="small" /> : (
-                  <><Ionicons name="git-branch" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>ESCALADER</Text></>
+                  <><Ionicons name="git-branch" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>LANCER CARE WATCH</Text></>
                 )}
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6, borderWidth: 2, borderColor: '#4CAF50' }} onPress={resolveAlert}>
