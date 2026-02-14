@@ -327,6 +327,14 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       {/* Contextual Tips */}
       <ContextualTip id="sos-tip" icon="shield-checkmark-outline" text="En cas d'urgence, appuyez sur le bouton SOS ci-dessous. Vos gardiens seront immediatement alertes et, si vous avez un abonnement Care, la teleassistance vous appellera pour verifier votre etat." color="#E53935" />
 
+      {/* Mini Tuto - First time setup guide */}
+      <MiniTuto id="beneficiary-intro" triggerLabel="Comment utiliser l'application ?" steps={[
+        { title: 'Bienvenue sur Chutex', text: 'Votre espace personnel pour surveiller votre sante au quotidien. Decouvrez les fonctionnalites principales en quelques etapes.', icon: 'home-outline' },
+        { title: 'Bouton SOS', text: 'En cas de chute ou de malaise, appuyez sur le gros bouton rouge SOS. Vos gardiens seront immediatement alertes et un intervenant peut etre envoye chez vous.', icon: 'alert-circle-outline' },
+        { title: 'Suivi de sante', text: 'Consultez vos constantes vitales (rythme cardiaque, SpO2, temperature) mises a jour en temps reel par vos appareils connectes.', icon: 'heart-outline' },
+        { title: 'Vos gardiens', text: 'Vos proches designes comme gardiens recoivent les alertes et peuvent suivre votre etat. Ajoutez-en via le bouton "+" dans la section gardiens.', icon: 'people-outline' },
+      ]} />
+
       {/* Onboarding Checklist */}
       <OnboardingChecklist title="Configurez votre espace" items={[
         { label: 'Completer votre profil medical', done: !!(user.medical_conditions || user.allergies || user.blood_type), action: () => router.push('/profile') },
