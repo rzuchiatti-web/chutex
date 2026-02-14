@@ -139,7 +139,9 @@ async def get_intervention(iid: str, user=Depends(get_current_user)):
     iv = await db.interventions.find_one({"id": iid}, {"_id": 0})
     if not iv:
         raise HTTPException(status_code=404, detail="Non trouvee")
-    iv['intervener_location'] = {"latitude": iv['beneficiary_location']['latitude'] + random.uniform(-0.005, 0.005), "longitude": iv['beneficiary_location']['longitude'] + random.uniform(-0.005, 0.005)}
+    ben_loc = iv.get('beneficiary_location', {})
+    if ben_loc and ben_loc.get('latitude'):
+        iv['intervener_location'] = {"latitude": ben_loc['latitude'] + random.uniform(-0.005, 0.005), "longitude": ben_loc['longitude'] + random.uniform(-0.005, 0.005)}
     return iv
 
 
