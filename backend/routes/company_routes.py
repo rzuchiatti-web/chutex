@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from datetime import datetime, timezone
+from typing import Optional
 import uuid, logging
 
 from database import db
@@ -10,21 +11,34 @@ router = APIRouter()
 
 
 @router.get("/company/dashboard")
-async def company_dashboard(user=Depends(get_current_user)):
+async def company_dashboard(
+    user=Depends(get_current_user),
+    date_from: Optional[str] = Query(None),
+    date_to: Optional[str] = Query(None),
+):
     if user.get('role') != 'prescriber_company':
         raise HTTPException(status_code=403, detail="Acces entreprise requis")
     company_id = user['id']
-    # Get all agencies
     agencies = await db.agencies.find({"company_id": company_id}, {"_id": 0}).to_list(50)
-    # Get all prescribers linked to this company
     prescribers = await db.users.find({"prescriber_company_id": company_id, "is_prescriber": True}, {"_id": 0, "password_hash": 0}).to_list(200)
-    # Get all prescriptions from these prescribers
     prescriber_ids = [p['id'] for p in prescribers]
     prescriptions = await db.prescriptions.find({"guardian_id": {"$in": prescriber_ids}}, {"_id": 0}).to_list(500)
-    # Compute stats
+
+    # Date filter
+    if date_from or date_to:
+        filtered = []
+        for p in prescriptions:
+            d = p.get('created_at', '')
+            if isinstance(d, str) and d:
+                if date_from and d < date_from:
+                    continue
+                if date_to and d > date_to + 'T23:59:59':
+                    continue
+            filtered.append(p)
+        prescriptions = filtered
+
     total_comm_validated = sum(p.get('commission', 0) for p in prescriptions if p.get('status') == 'subscribed')
     total_comm_pending = sum(p.get('commission', 0) for p in prescriptions if p.get('status') == 'pending')
-    # Stats per agency
     agency_stats = []
     for ag in agencies:
         ag_prescribers = [p for p in prescribers if p.get('agency_id') == ag['id']]
@@ -37,16 +51,15 @@ async def company_dashboard(user=Depends(get_current_user)):
             "comm_validated": sum(p.get('commission', 0) for p in ag_prescs if p.get('status') == 'subscribed'),
             "comm_pending": sum(p.get('commission', 0) for p in ag_prescs if p.get('status') == 'pending'),
         })
-    # Unassigned prescribers
     unassigned = [p for p in prescribers if not p.get('agency_id')]
     unassigned_ids = [p['id'] for p in unassigned]
     unassigned_prescs = [p for p in prescriptions if p.get('guardian_id') in unassigned_ids]
-    # Top prescribers
     prescriber_stats = []
     for pr in prescribers:
         pr_prescs = [p for p in prescriptions if p.get('guardian_id') == pr['id']]
         prescriber_stats.append({
             "id": pr['id'], "name": pr.get('name', ''), "email": pr.get('email', ''),
+            "phone": pr.get('phone', ''),
             "agency_id": pr.get('agency_id'), "agency_name": next((a['name'] for a in agencies if a['id'] == pr.get('agency_id')), 'Non assigne'),
             "prescription_count": len(pr_prescs),
             "comm_validated": sum(p.get('commission', 0) for p in pr_prescs if p.get('status') == 'subscribed'),
@@ -61,6 +74,32 @@ async def company_dashboard(user=Depends(get_current_user)):
         "unassigned_prescribers": len(unassigned), "unassigned_comm": sum(p.get('commission', 0) for p in unassigned_prescs),
         "prescriber_ranking": prescriber_stats[:20],
         "prescriptions": prescriptions,
+    }
+
+
+@router.get("/company/prescriber/{prescriber_id}")
+async def get_prescriber_detail(prescriber_id: str, user=Depends(get_current_user)):
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    prescriber = await db.users.find_one(
+        {"id": prescriber_id, "prescriber_company_id": user['id']},
+        {"_id": 0, "password_hash": 0}
+    )
+    if not prescriber:
+        raise HTTPException(status_code=404, detail="Prescripteur non trouve")
+    agency = None
+    if prescriber.get('agency_id'):
+        agency = await db.agencies.find_one({"id": prescriber['agency_id']}, {"_id": 0})
+    prescriptions = await db.prescriptions.find(
+        {"guardian_id": prescriber_id}, {"_id": 0}
+    ).to_list(200)
+    return {
+        "prescriber": prescriber,
+        "agency": agency,
+        "prescriptions": prescriptions,
+        "total_prescriptions": len(prescriptions),
+        "comm_validated": sum(p.get('commission', 0) for p in prescriptions if p.get('status') == 'subscribed'),
+        "comm_pending": sum(p.get('commission', 0) for p in prescriptions if p.get('status') == 'pending'),
     }
 
 
