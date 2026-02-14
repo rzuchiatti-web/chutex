@@ -25,7 +25,7 @@ const Badge = ({ label, color, bg }: { label: string; color: string; bg: string 
 );
 
 export default function AdminClientDetail() {
-  const { clientId } = useLocalSearchParams<{ clientId: string }>();
+  const { clientId, viewAs } = useLocalSearchParams<{ clientId: string; viewAs?: string }>();
   const { token } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
@@ -43,9 +43,11 @@ export default function AdminClientDetail() {
   if (!data?.user) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><Text style={{ color: '#888' }}>Client non trouve</Text></View>;
 
   const u = data.user;
-  const isBen = u.role === 'beneficiary';
-  const isG = u.role === 'guardian';
-  const roleColor = isBen ? '#4FC3F7' : '#FFD54F';
+  // viewAs determines which "face" of the user to show
+  const showAsBen = viewAs === 'beneficiary' || (!viewAs && u.role === 'beneficiary');
+  const showAsGuard = viewAs === 'guardian' || (!viewAs && u.role === 'guardian');
+  const roleColor = showAsBen ? '#4FC3F7' : '#FFD54F';
+  const roleLabel = showAsBen ? 'Beneficiaire' : 'Gardien';
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
