@@ -241,6 +241,11 @@ export default function AlertsScreen() {
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>
         <Text style={{ fontSize: 28, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Alertes</Text>
       </View>
+      <PageExplainer pageId="alerts" title="Comprendre les alertes" sections={[
+        { icon: 'alert-circle-outline', heading: 'Qu\'est-ce qu\'une alerte ?', text: 'Une alerte est declenchee automatiquement (chute, anomalie cardiaque) ou manuellement via le bouton SOS. Elle previent vos gardiens et la teleassistance.' },
+        { icon: 'git-branch-outline', heading: 'Le protocole CARE WATCH', text: 'L\'IA appelle d\'abord le patient, puis les gardiens, et si besoin dispatch un intervenant SAAD a proximite.' },
+        { icon: 'checkmark-circle-outline', heading: 'Resolution', text: 'Une alerte est resolue quand la situation est maitrisee. Un rapport d\'intervention est alors genere si un intervenant est intervenu.' },
+      ]} />
       <View style={{ flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
         <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'active' && { backgroundColor: '#000' }]} onPress={() => setTab('active')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'active' ? '#FFF' : '#888' }}>Actives ({activeAlerts.length})</Text>
