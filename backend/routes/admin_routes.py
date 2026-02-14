@@ -206,6 +206,47 @@ async def get_bo_user_detail(user_id: str, user=Depends(get_current_user)):
     }
 
 
+@router.get("/backoffice/prescription/{presc_id}")
+async def get_bo_prescription_detail(presc_id: str, user=Depends(get_current_user)):
+    if user.get('role') != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    presc = await db.prescriptions.find_one({"id": presc_id}, {"_id": 0})
+    if not presc:
+        raise HTTPException(status_code=404, detail="Prescription non trouvee")
+    guardian = await db.users.find_one({"id": presc.get("guardian_id")}, {"_id": 0, "password_hash": 0})
+    beneficiary = await db.users.find_one({"id": presc.get("beneficiary_id")}, {"_id": 0, "password_hash": 0})
+    if not beneficiary and presc.get("beneficiary_email"):
+        beneficiary = await db.users.find_one({"email": presc["beneficiary_email"]}, {"_id": 0, "password_hash": 0})
+    subscription = None
+    if beneficiary:
+        subscription = await db.subscriptions.find_one({"beneficiary_id": beneficiary["id"]}, {"_id": 0})
+    return {"prescription": presc, "guardian": guardian, "beneficiary": beneficiary, "subscription": subscription}
+
+@router.get("/backoffice/intervention/{iv_id}")
+async def get_bo_intervention_detail(iv_id: str, user=Depends(get_current_user)):
+    if user.get('role') != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    iv = await db.interventions.find_one({"id": iv_id}, {"_id": 0})
+    if not iv:
+        raise HTTPException(status_code=404, detail="Intervention non trouvee")
+    beneficiary = await db.users.find_one({"id": iv.get("beneficiary_id")}, {"_id": 0, "password_hash": 0})
+    assigned = await db.users.find_one({"id": iv.get("assigned_to")}, {"_id": 0, "password_hash": 0}) if iv.get("assigned_to") else None
+    alert = await db.alerts.find_one({"id": iv.get("alert_id")}, {"_id": 0})
+    return {"intervention": iv, "beneficiary": beneficiary, "assigned_to": assigned, "alert": alert}
+
+@router.get("/backoffice/alert/{alert_id}")
+async def get_bo_alert_detail(alert_id: str, user=Depends(get_current_user)):
+    if user.get('role') != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    alert = await db.alerts.find_one({"id": alert_id}, {"_id": 0})
+    if not alert:
+        raise HTTPException(status_code=404, detail="Alerte non trouvee")
+    beneficiary = await db.users.find_one({"id": alert.get("beneficiary_id", alert.get("user_id"))}, {"_id": 0, "password_hash": 0})
+    interventions = await db.interventions.find({"alert_id": alert_id}, {"_id": 0}).to_list(10)
+    incident = await db.carewatch_incidents.find_one({"alert_id": alert_id}, {"_id": 0})
+    return {"alert": alert, "beneficiary": beneficiary, "interventions": interventions, "incident": incident}
+
+
 @router.get("/backoffice/alerts")
 async def get_bo_alerts():
     return await db.alerts.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
