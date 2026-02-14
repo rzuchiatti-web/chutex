@@ -1001,31 +1001,38 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
         </GlassCard>
       </View>
 
-      {/* Agencies performance */}
-      <GlassCard>
-        <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', letterSpacing: 0.5, marginBottom: 12 }}>Performance par agence</Text>
-        {(data.agencies || []).map((ag: any) => {
-          const total = ag.comm_validated + ag.comm_pending;
-          const maxTotal = barMax((data.agencies || []).map((a: any) => a.comm_validated + a.comm_pending));
-          const pct = (total / maxTotal) * 100;
-          return (
-            <View key={ag.agency.id} style={{ marginBottom: 14 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#000' }}>{ag.agency.name}</Text>
-                <Text style={{ fontSize: 12, fontWeight: '800', color: '#000' }}>{total} EUR</Text>
+      {/* Agencies - clickable cards */}
+      <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', marginBottom: 10 }}>Agences</Text>
+      {(data.agencies || []).map((ag: any) => {
+        const total = ag.comm_validated + ag.comm_pending;
+        return (
+          <GlassCard key={ag.agency.id} style={{ padding: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FF980015', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="business" size={20} color="#FF9800" />
               </View>
-              <View style={{ height: 20, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, overflow: 'hidden', flexDirection: 'row' }}>
-                <View style={{ height: 20, backgroundColor: '#4CAF50', width: `${(ag.comm_validated / Math.max(maxTotal, 1)) * 100}%` }} />
-                <View style={{ height: 20, backgroundColor: '#FF9800', width: `${(ag.comm_pending / Math.max(maxTotal, 1)) * 100}%` }} />
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-                <Text style={{ fontSize: 10, color: '#888' }}>{ag.prescriber_count} prescripteurs · {ag.prescription_count} prescriptions</Text>
-                <Text style={{ fontSize: 10, color: '#888' }}>{ag.comm_validated} valid. · {ag.comm_pending} att.</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 15, fontWeight: '800', color: '#000' }}>{ag.agency.name}</Text>
+                <Text style={{ fontSize: 11, color: '#888' }}>{ag.prescriber_count} prescripteurs · {ag.prescription_count} prescriptions</Text>
               </View>
             </View>
-          );
-        })}
-      </GlassCard>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <View style={{ flex: 1, backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#4CAF50' }}>{ag.comm_validated}</Text>
+                <Text style={{ fontSize: 9, color: '#4CAF50' }}>EUR validees</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'rgba(255,152,0,0.06)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#FF9800' }}>{ag.comm_pending}</Text>
+                <Text style={{ fontSize: 9, color: '#FF9800' }}>EUR en attente</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000' }}>{total}</Text>
+                <Text style={{ fontSize: 9, color: '#888' }}>EUR total</Text>
+              </View>
+            </View>
+          </GlassCard>
+        );
+      })}
 
       {/* Top prescribers */}
       <GlassCard>
