@@ -134,6 +134,12 @@ function DeviceManagement({ token }: { token: string }) {
                   {braceletConnected ? 'Bracelet actif - Voir details' : needsSub ? 'Abonnement requis' : 'Connecter via Bluetooth'}
                 </Text>
               </TouchableOpacity>
+            ) : device.device_type === 'scale' ? (
+              <TouchableOpacity testID="scale-detail-btn" style={[d.syncBtn, { borderColor: '#4CAF50' }]}
+                onPress={() => router.push('/scale-detail')}>
+                <Ionicons name="analytics" size={16} color="#4CAF50" />
+                <Text style={[d.syncBtnText, { color: '#4CAF50' }]}>Voir mes mesures</Text>
+              </TouchableOpacity>
             ) : (
               <TouchableOpacity testID={`sync-${device.device_type}-btn`} style={[d.syncBtn, needsSub && { opacity: 0.5 }]}
                 onPress={() => syncDevice(device.device_type)} disabled={syncingDevice === device.device_type || needsSub}>
