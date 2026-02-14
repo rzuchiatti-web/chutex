@@ -5,23 +5,11 @@ import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { ThemeProvider, useTheme } from '../src/context/ThemeContext';
 import { I18nProvider } from '../src/context/I18nContext';
 import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
-
-const BG_IMAGE = 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/tor5yp57_fond%20couleur%20pastelle.png';
-
-function useWebBackground() {
-  useEffect(() => {
-    if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      document.body.style.background = `url(${BG_IMAGE}) repeat`;
-      document.body.style.backgroundSize = '600px 600px';
-      document.body.style.minHeight = '100vh';
-    }
-  }, []);
-}
+import { PastelMistBackground } from '../src/components/PastelMistBackground';
 
 function RootNav() {
   const { user, loading } = useAuth();
   const { colors, isDark } = useTheme();
-  useWebBackground();
 
   if (loading) {
     return (
