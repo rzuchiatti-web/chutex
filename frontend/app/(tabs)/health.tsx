@@ -373,7 +373,7 @@ export default function HealthScreen() {
   ] : [];
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }} testID="health-screen">
+    <View style={{ flex: 1, backgroundColor: 'transparent' }} testID="health-screen">
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={colors.primary} />} showsVerticalScrollIndicator={false}>
         <Text style={{ fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginTop: 16, marginBottom: 8, letterSpacing: -0.5 }}>Sante</Text>
         <Text style={{ fontSize: 13, color: colors.textMuted, marginBottom: 24 }}>Suivi de vos constantes en temps reel</Text>

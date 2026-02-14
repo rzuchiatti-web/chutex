@@ -1021,7 +1021,7 @@ export default function TeleconsultScreen() {
 
   // key={r} forces complete remount when role changes (Expo Router tab caching fix)
   return (
-    <View key={r} style={[s.safe, { backgroundColor: colors.background }]} testID="teleconsult-screen">
+    <View key={r} style={[s.safe, { backgroundColor: 'transparent' }]} testID="teleconsult-screen">
       <View style={s.header}>
         <Text style={[s.title, { color: colors.textPrimary }]}>{r === 'teleassistance' ? 'Teleassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Intervenants' : 'Teleconsultation'}</Text>
         {r === 'teleassistance' && <Text style={[s.subtitle, { color: colors.textMuted }]}>Plateau d'ecoute — Protocole d'escalade</Text>}
