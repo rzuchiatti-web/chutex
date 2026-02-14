@@ -270,6 +270,44 @@ async def get_intervention_full_detail(iid: str, user=Depends(get_current_user))
     }
 
 
+@router.post("/interventions/{iid}/complete")
+async def complete_intervention(iid: str, data: dict, user=Depends(get_current_user)):
+    """Complete intervention with report"""
+    iv = await db.interventions.find_one({"id": iid}, {"_id": 0})
+    if not iv:
+        raise HTTPException(status_code=404, detail="Intervention non trouvee")
+    if iv.get('assigned_to') != user['id']:
+        raise HTTPException(status_code=403, detail="Seul l'intervenant assigne peut cloturer")
+    now = datetime.now(timezone.utc).isoformat()
+    report = {
+        "description": data.get('description', ''),
+        "actions_taken": data.get('actions_taken', ''),
+        "patient_condition": data.get('patient_condition', ''),
+        "follow_up_needed": data.get('follow_up_needed', False),
+        "follow_up_notes": data.get('follow_up_notes', ''),
+        "completed_by": user.get('name', ''),
+        "completed_at": now,
+    }
+    await db.interventions.update_one({"id": iid}, {"$set": {
+        "status": "completed", "completed_at": now, "report": report,
+    }, "$push": {"timeline": {"status": "completed", "time": now, "note": f"Intervention terminee par {user.get('name', '')} - {data.get('patient_condition', '')}"}}})
+    # Also resolve the linked alert
+    if iv.get('alert_id'):
+        await db.alerts.update_one({"id": iv['alert_id']}, {"$set": {
+            "status": "resolved", "resolved_at": now,
+            "teleassistance_status": "RESOLVED",
+            "resolution": f"Intervention completee par {user.get('name', '')}",
+            "intervention_report": report,
+        }})
+    # Resolve incident if exists
+    if iv.get('incident_id'):
+        await db.incidents.update_one({"id": iv['incident_id']}, {"$set": {
+            "state": "RESOLVED", "resolved_at": now,
+            "resolution": f"Intervention completee par {user.get('name', '')}",
+        }, "$push": {"timeline": {"timestamp": now, "state": "RESOLVED", "detail": f"Intervention terminee - {data.get('patient_condition', '')}"}}})
+    return {"status": "completed", "report": report}
+
+
 # ==================== LOCATION ====================
 @router.post("/location/update")
 async def update_location(data: LocationUpdate, user=Depends(get_current_user)):
