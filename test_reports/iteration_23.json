@@ -1,0 +1,62 @@
+{
+  "summary": "Iteration 23: Guardian UX testing for Claire Martin - Verified role label, alert banners, alert detail page, beneficiary medical info, and company interventions sub-tabs. Overall guardian experience is significantly improved with clear French text and action-oriented buttons.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/alerts/{id}/detail", "issue": "Timeline entries use technical status codes (en_route, pending_acceptance, in_progress) instead of human-readable French text"}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Alert Detail Timeline (CHRONOLOGIE)", "issues": ["Timeline events show technical status codes like 'Intervention en_route' and 'Intervention in_progress' instead of plain French like 'Intervenant en route' or 'Intervention en cours'"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "OPTIONAL: Translate timeline status codes to human-readable French in alert-detail.tsx or backend API"
+  ],
+  "critical_code_review_comments": [
+    "Good: Role label correctly shows 'GARDIEN | Prescripteur' on guardian dashboard",
+    "Good: Alert banner shows clear action buttons based on intervention status",
+    "Good: CLOTURER/RESOUDRE buttons correctly hidden for guardian role (only shown for operators)",
+    "Good: Beneficiary medical info (pathologies, allergies, groupe sanguin, medecin, contact urgence) displayed correctly",
+    "Good: Intervenant info with name, structure, distance shown clearly",
+    "Good: SUIVRE X SUR LA CARTE button appears in teal when intervenant is en_route",
+    "Minor: Timeline uses technical status codes instead of French labels"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (frontend only test)",
+    "frontend": "95%"
+  },
+  "test_credentials": {
+    "guardian": "claire.martin@email.fr / demo123",
+    "company": "saad@chutex.fr / demo123"
+  },
+  "seed_data_creation": "None - used existing alert/intervention data",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Guardian UX is working well. Claire Martin sees GARDIEN | Prescripteur role label. Active alerts show appropriate action buttons: EN ATTENTE D'UN INTERVENANT (orange) when pending, SUIVRE X SUR LA CARTE (teal) when en_route. Alert detail page shows all beneficiary medical info and intervenant details. CLOTURER button correctly hidden for guardians. Company SAAD has 3 sub-tabs (En attente/En cours/Terminees) working correctly.",
+  "mocked_apis": {
+    "has_mocked_apis": true,
+    "list": ["GPS tracking simulation - intervenant position simulated near beneficiary"]
+  },
+  "features_verified": {
+    "guardian_role_label": "PASS - Shows 'GARDIEN | Prescripteur' (not the old 'PRESCRIPTEUR | Beneficiaire')",
+    "alert_banner_actions": {
+      "pending_acceptance": "PASS - Shows 'EN ATTENTE D'UN INTERVENANT' orange button",
+      "en_route": "PASS - Shows 'SUIVRE X SUR LA CARTE' teal button with intervenant name"
+    },
+    "alert_detail_page": {
+      "status_banner": "PASS - Shows human-readable status like 'LUDIVINE MOUTIO EN ROUTE'",
+      "guardian_action_button": "PASS - SUIVRE X SUR LA CARTE button present for en_route intervention",
+      "beneficiary_section": "PASS - Shows Nom, Telephone, Pathologies, Allergies, Gr. sanguin",
+      "intervenant_section": "PASS - Shows Nom, Structure, Distance",
+      "timeline_chronologie": "PARTIAL - Present but uses technical status codes",
+      "resoudre_button_hidden": "PASS - CLOTURER/RESOUDRE correctly NOT shown for guardians"
+    },
+    "company_interventions_subtabs": "PASS - 3 sub-tabs: En attente / En cours / Terminees"
+  }
+}
