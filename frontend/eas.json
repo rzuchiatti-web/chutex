@@ -37,7 +37,10 @@
     "production": {
       "ios": {
         "appleId": "contact@chutex-innovation.com",
-        "appleTeamId": "94YZY663N2"
+        "appleTeamId": "94YZY663N2",
+        "ascApiKeyPath": "./keys/AuthKey_Y782NVC834.p8",
+        "ascApiKeyId": "Y782NVC834",
+        "ascApiKeyIssuerId": "4c54dcaa-4ea0-4b6a-97b6-dce1c7fac20f"
       }
     }
   }
