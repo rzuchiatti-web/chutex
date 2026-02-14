@@ -418,31 +418,37 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       {/* Interventions List filtered by tab */}
       {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => (
         <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 10, borderLeftWidth: 4, borderLeftColor: statusColor(iv.status) }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: statusColor(iv.status) + '15', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={18} color={statusColor(iv.status)} />
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: statusColor(iv.status), ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {}) }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: statusColor(iv.status) + '15', justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={22} color={statusColor(iv.status)} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{iv.beneficiary_name}</Text>
-                <Text style={{ fontSize: 11, color: '#888' }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{iv.beneficiary_name}</Text>
+                <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: statusColor(iv.status) }}>{iv.distance_km ? `${iv.distance_km}km` : ''}</Text>
+              {iv.distance_km && (
+                <View style={{ backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 16, fontWeight: '900', color: statusColor(iv.status) }}>{iv.distance_km}</Text>
+                  <Text style={{ fontSize: 8, fontWeight: '700', color: '#888', letterSpacing: 0.5 }}>KM</Text>
+                </View>
+              )}
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
-              <Ionicons name="time-outline" size={12} color="#888" />
-              <Text style={{ fontSize: 11, color: '#888', flex: 1 }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
-              <View style={{ backgroundColor: statusColor(iv.status) + '15', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
-                <Text style={{ fontSize: 10, fontWeight: '700', color: statusColor(iv.status) }}>{statusLabel(iv.status)}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 10, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
+              <Ionicons name="time-outline" size={14} color="#888" />
+              <Text style={{ fontSize: 12, color: '#888', flex: 1 }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
+              <View style={{ backgroundColor: statusColor(iv.status) + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor(iv.status), letterSpacing: 0.3 }}>{statusLabel(iv.status).toUpperCase()}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={14} color="#888" />
+              <Ionicons name="chevron-forward" size={16} color="#888" />
             </View>
           </View>
         </TouchableOpacity>
       )) : (
-        <View style={{ backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 18, padding: 32, alignItems: 'center' }}>
-          <Ionicons name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
-          <Text style={{ fontSize: 14, fontWeight: '600', color: '#888', marginTop: 10 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 40, alignItems: 'center', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } : {}) }}>
+          <Ionicons name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
+          <Text style={{ fontSize: 15, fontWeight: '700', color: '#888', marginTop: 12 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
+          <Text style={{ fontSize: 12, color: '#AAA', marginTop: 4 }}>{ivTab === 'active' ? 'Vous serez notifie des nouvelles missions' : 'Vos interventions terminees apparaitront ici'}</Text>
         </View>
       ))}
     </ScrollView>);
