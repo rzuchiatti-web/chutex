@@ -1004,6 +1004,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
       if (range.to) params.push(`date_to=${range.to}`);
       if (params.length > 0) url += '?' + params.join('&');
       setData(await apiFetch(url, {}, token));
+      apiFetch('/api/company/analytics', {}, token).then(a => setAnalytics(a)).catch(() => {});
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token, dateFilter, dateFrom, dateTo]);
 
