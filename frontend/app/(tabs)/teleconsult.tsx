@@ -836,11 +836,14 @@ function CompanyInterventionsTab({ token }: { token: string }) {
         {/* INTERVENTIONS SUB */}
         {tab === 'interventions' && <>
           <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
-            <TouchableOpacity style={[{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 11 }, ivTab === 'active' && { backgroundColor: '#FF9800' }]} onPress={() => setIvTab('active')}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: ivTab === 'active' ? '#FFF' : '#888' }}>En cours ({activeIvs.length})</Text>
+            <TouchableOpacity style={[{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 11 }, ivTab === 'pending' && { backgroundColor: '#FF9800' }]} onPress={() => setIvTab('pending')}>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: ivTab === 'pending' ? '#FFF' : '#888' }}>En attente ({pendingIvs.length})</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 11 }, ivTab === 'active' && { backgroundColor: '#2196F3' }]} onPress={() => setIvTab('active')}>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: ivTab === 'active' ? '#FFF' : '#888' }}>En cours ({activeIvs.length})</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 11 }, ivTab === 'completed' && { backgroundColor: '#4CAF50' }]} onPress={() => setIvTab('completed')}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: ivTab === 'completed' ? '#FFF' : '#888' }}>Terminees ({completedIvs.length})</Text>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: ivTab === 'completed' ? '#FFF' : '#888' }}>Terminees ({completedIvs.length})</Text>
             </TouchableOpacity>
           </View>
           {displayedIvs.map((iv: any) => (
