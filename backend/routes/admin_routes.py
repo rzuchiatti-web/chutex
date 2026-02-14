@@ -160,6 +160,52 @@ async def get_bo_users():
     return await db.users.find({}, {"_id": 0, "password_hash": 0}).to_list(500)
 
 
+
+@router.get("/backoffice/user/{user_id}")
+async def get_bo_user_detail(user_id: str, user=Depends(get_current_user)):
+    if user.get('role') != 'admin':
+        raise HTTPException(status_code=403, detail="Admin requis")
+    target = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
+    if not target:
+        raise HTTPException(status_code=404, detail="Utilisateur non trouve")
+    # Get linked users
+    guardians = []
+    for gid in target.get('guardians', []):
+        g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
+        if g:
+            guardians.append({"id": g["id"], "name": g.get("name",""), "email": g.get("email",""), "phone": g.get("phone",""),
+                              "guardian_type": g.get("guardian_type",""), "relationship": g.get("relationship",""),
+                              "profession": g.get("profession",""), "structure_name": g.get("structure_name",""),
+                              "is_prescriber": g.get("is_prescriber", False), "is_intervention_provider": g.get("is_intervention_provider", False),
+                              "intervention_radius_km": g.get("intervention_radius_km", 0)})
+    beneficiaries = []
+    for bid in target.get('beneficiaries', []):
+        b = await db.users.find_one({"id": bid}, {"_id": 0, "password_hash": 0})
+        if b:
+            beneficiaries.append({"id": b["id"], "name": b.get("name",""), "email": b.get("email",""), "phone": b.get("phone",""),
+                                  "date_of_birth": b.get("date_of_birth",""), "address": b.get("address",""),
+                                  "subscription_type": b.get("subscription_type",""), "has_subscription": b.get("has_subscription", False)})
+    # Get alerts
+    alerts = await db.alerts.find({"beneficiary_id": user_id}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    if not alerts:
+        alerts = await db.alerts.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    # Get devices
+    devices = await db.devices.find({"user_id": user_id}, {"_id": 0}).to_list(10)
+    # Get interventions
+    interventions = await db.interventions.find({"$or": [{"beneficiary_id": user_id}, {"assigned_to": user_id}]}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    # Get prescriptions
+    prescriptions = await db.prescriptions.find({"$or": [{"guardian_id": user_id}, {"beneficiary_id": user_id}]}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    # Get subscription
+    subscription = await db.subscriptions.find_one({"beneficiary_id": user_id}, {"_id": 0})
+    # Get latest vitals
+    latest_vitals = await db.health_data.find_one({"user_id": user_id}, {"_id": 0}, sort=[("timestamp", -1)])
+    return {
+        "user": target, "guardians": guardians, "beneficiaries": beneficiaries,
+        "alerts": alerts, "devices": devices, "interventions": interventions,
+        "prescriptions": prescriptions, "subscription": subscription, "latest_vitals": latest_vitals,
+    }
+
+
 @router.get("/backoffice/alerts")
 async def get_bo_alerts():
     return await db.alerts.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
