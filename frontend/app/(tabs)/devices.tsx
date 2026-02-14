@@ -216,17 +216,27 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
       ) : (
         <>
           <View style={d.commCard}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <Ionicons name="checkmark-circle" size={18} color={Colors.success} />
               <Text style={{ fontSize: 12, color: Colors.success, fontWeight: '700' }}>Prescripteur actif — {user.prescriber_structure}</Text>
             </View>
-            <Text style={d.commLabel}>Total Commissions</Text>
-            <Text style={d.commVal}>{totalComm.toFixed(2)} €</Text>
-            <Text style={d.commCount}>{prescriptions.length} prescription(s)</Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <View style={{ flex: 1, backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 12, padding: 12, alignItems: 'center' }}>
+                <Text style={{ fontSize: 9, color: Colors.success, fontWeight: '700', marginBottom: 2 }}>Validees</Text>
+                <Text style={{ fontSize: 22, fontWeight: '900', color: Colors.success }}>{prescriptions.filter((p: any) => p.status === 'subscribed').reduce((s: number, p: any) => s + (p.commission || 0), 0).toFixed(2)} EUR</Text>
+                <Text style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{prescriptions.filter((p: any) => p.status === 'subscribed').length} souscription(s)</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'rgba(255,152,0,0.06)', borderRadius: 12, padding: 12, alignItems: 'center' }}>
+                <Text style={{ fontSize: 9, color: '#FF9800', fontWeight: '700', marginBottom: 2 }}>En attente</Text>
+                <Text style={{ fontSize: 22, fontWeight: '900', color: '#FF9800' }}>{prescriptions.filter((p: any) => p.status === 'pending').reduce((s: number, p: any) => s + (p.commission || 0), 0).toFixed(2)} EUR</Text>
+                <Text style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{prescriptions.filter((p: any) => p.status === 'pending').length} en attente</Text>
+              </View>
+            </View>
           </View>
 
       <TouchableOpacity testID="new-prescription-btn" style={d.newPrescBtn} onPress={() => setShowForm(true)}>
-        <Ionicons name="add" size={18} color="#FFF" /><Text style={d.newPrescBtnText}>Nouvelle Prescription</Text>
+        <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '600' }}>Nouvelle prescription</Text>
+        <Ionicons name="add" size={18} color="#FFF" />
       </TouchableOpacity>
 
       {loading ? <ActivityIndicator size="large" color={Colors.primary} /> : prescriptions.length > 0 ? (
