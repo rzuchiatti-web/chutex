@@ -1063,6 +1063,7 @@ export default function Dashboard() {
       {effectiveRole === 'guardian' ? <GuardianHome token={token} user={user} />
       : effectiveRole === 'teleassistance' ? <TeleassistanceHome token={token} user={user} />
       : effectiveRole === 'admin' ? <AdminHome token={token} user={user} />
+      : effectiveRole === 'prescriber_company' ? <CompanyHome token={token} user={user} />
       : <BeneficiaryHome token={token} user={user} />}
     </View>
   );
