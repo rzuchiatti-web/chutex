@@ -2,11 +2,11 @@
 
 ## Fonctionnalites cles
 - Page suivi style Uber (carte plein ecran + fiche glissante)
-- Boutons appel direct (patient + contact urgence)
-- Formulaire rapport cloture intervention
-- Fiche alerte resolue avec rapport complet
-- Protocole CARE WATCH 3 cas (sans Care / Care+gardien / Care+SAAD dispatch)
-- Acceptation verrouillee (premier gagne, 409 pour les autres)
+- Boutons appel direct (patient + contact urgence)  
+- Formulaire rapport cloture depuis fiche alerte (gardiens + intervenants + admin)
+- Fiche alerte resolue avec rapport complet (etat patient, description, actions, suivi)
+- Protocole CARE WATCH 3 cas
+- Acceptation verrouillee (premier gagne, 409)
 - Tracking GPS simule (polling 5s)
 
 ## Comptes test
