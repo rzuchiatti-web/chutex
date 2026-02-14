@@ -230,9 +230,12 @@ async def company_interventions(user=Depends(get_current_user)):
             iv['intervenant_name'] = assigned.get('name', '')
             iv['intervenant_structure'] = assigned.get('intervention_structure', assigned.get('structure_name', ''))
     return interventions
+
+
+@router.delete("/company/agencies/{agency_id}")
+async def delete_agency(agency_id: str, user=Depends(get_current_user)):
     if user.get('role') != 'prescriber_company':
         raise HTTPException(status_code=403, detail="Acces entreprise requis")
-    # Unassign prescribers from this agency
     await db.users.update_many({"agency_id": agency_id}, {"$unset": {"agency_id": ""}})
     await db.agencies.delete_one({"id": agency_id, "company_id": user['id']})
     return {"status": "deleted"}
