@@ -808,7 +808,7 @@ export default function DevicesScreen() {
   return (
     <View key={r} style={[d.safeArea, { backgroundColor: colors.background }]} testID="devices-screen">
       <View style={d.header}>
-        <Text style={[d.title, { color: colors.textPrimary }]}>{r === 'admin' ? 'Prescripteurs' : r === 'prescriber_company' ? 'Activite' : r === 'guardian' ? 'Prescriptions' : r === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
+        <Text style={[d.title, { color: colors.textPrimary }]}>{r === 'admin' ? 'Prescripteurs' : r === 'prescriber_company' ? 'Prescriptions' : r === 'guardian' ? 'Prescriptions' : r === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
       </View>
       {r === 'admin' ? <AdminPrescripteurs token={token} />
         : r === 'prescriber_company' ? <CompanyPrescriptionsTab token={token} />
