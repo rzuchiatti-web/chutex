@@ -589,32 +589,80 @@ function AdminIntervenants({ token }: { token: string }) {
         {providers.length === 0 && <View style={{ alignItems: 'center', paddingVertical: 36 }}><Ionicons name="medkit-outline" size={36} color="#CCC" /><Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucun intervenant inscrit</Text></View>}
       </>}
 
-      {/* INTERVENTIONS TAB */}
+      {/* INTERVENTIONS TAB - Redesigned */}
       {tab === 'interventions' && <>
+        {interventions.length > 0 && (
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+            {[
+              { val: interventions.filter((i: any) => ['pending_acceptance', 'dispatched'].includes(i.status)).length, label: 'En attente', color: '#FF9800' },
+              { val: interventions.filter((i: any) => ['in_progress', 'en_route'].includes(i.status)).length, label: 'En cours', color: '#2196F3' },
+              { val: interventions.filter((i: any) => i.status === 'completed').length, label: 'Terminees', color: '#4CAF50' },
+            ].map((s, i) => (
+              <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)' }}>
+                <Text style={{ fontSize: 22, fontWeight: '900', color: s.color }}>{s.val}</Text>
+                <Text style={{ fontSize: 8, color: '#888', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.label}</Text>
+              </View>
+            ))}
+          </View>
+        )}
         {interventions.map((iv: any) => {
           const sc: any = { pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' };
           const sl: any = { pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' };
+          const statusIcon: any = { pending_acceptance: 'time', in_progress: 'navigate', en_route: 'car', completed: 'checkmark-circle', dispatched: 'send' };
+          const isActive = ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status);
           return (
-            <TouchableOpacity key={iv.id} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })} activeOpacity={0.7}>
-              <View style={s.ivCard}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: sc[iv.status] || '#888' }} />
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary, flex: 1 }}>{iv.beneficiary_name}</Text>
-                  <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, backgroundColor: (sc[iv.status] || '#888') + '15' }}>
-                    <Text style={{ fontSize: 9, fontWeight: '700', color: sc[iv.status] || '#888' }}>{sl[iv.status] || iv.status}</Text>
+            <TouchableOpacity key={iv.id} onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: iv.id } })} activeOpacity={0.7}
+              data-testid={`admin-intervention-${iv.id}`}>
+              <View style={{ backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', marginBottom: 12, overflow: 'hidden', borderLeftWidth: 4, borderLeftColor: sc[iv.status] || '#888' }}>
+                <View style={{ padding: 16 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: (sc[iv.status] || '#888') + '12', justifyContent: 'center', alignItems: 'center' }}>
+                      <Ionicons name={(statusIcon[iv.status] || 'medical') as any} size={20} color={sc[iv.status] || '#888'} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 15, fontWeight: '800', color: '#000' }}>{iv.beneficiary_name}</Text>
+                      <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }} numberOfLines={1}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
+                    </View>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <View style={{ backgroundColor: (sc[iv.status] || '#888') + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                        <Text style={{ fontSize: 9, fontWeight: '800', color: sc[iv.status] || '#888' }}>{(sl[iv.status] || iv.status).toUpperCase()}</Text>
+                      </View>
+                    </View>
                   </View>
+                  {iv.assigned_name && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10, backgroundColor: 'rgba(76,175,80,0.04)', borderRadius: 10, padding: 8 }}>
+                      <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFF' }}>{iv.assigned_name?.charAt(0)?.toUpperCase()}</Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#2E7D32' }}>{iv.assigned_name}</Text>
+                        <Text style={{ fontSize: 10, color: '#888' }}>{iv.structure_name || 'Intervenant'}</Text>
+                      </View>
+                      {isActive && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#4CAF50' }} />}
+                    </View>
+                  )}
                 </View>
-                <Text style={{ fontSize: 12, color: Colors.textMuted }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
-                {iv.assigned_name && <Text style={{ fontSize: 11, color: '#4CAF50', fontWeight: '600', marginTop: 4 }}>Intervenant: {iv.assigned_name}</Text>}
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                  <Text style={{ fontSize: 10, color: Colors.textMuted }}>{new Date(iv.created_at).toLocaleString('fr-FR')}</Text>
-                  <Ionicons name="chevron-forward" size={14} color="#888" />
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)', backgroundColor: 'rgba(0,0,0,0.015)' }}>
+                  <Ionicons name="time-outline" size={12} color="#AAA" />
+                  <Text style={{ fontSize: 11, color: '#888', flex: 1 }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</Text>
+                  <Text style={{ fontSize: 11, fontWeight: '600', color: '#2196F3' }}>Voir le detail</Text>
+                  <Ionicons name="chevron-forward" size={14} color="#2196F3" />
                 </View>
               </View>
             </TouchableOpacity>
           );
         })}
-        {interventions.length === 0 && <View style={{ alignItems: 'center', paddingVertical: 36 }}><Ionicons name="checkmark-circle-outline" size={36} color="#CCC" /><Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucune intervention</Text></View>}
+        {interventions.length === 0 && (
+          <View style={{ alignItems: 'center', paddingVertical: 40, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 22 }}>
+            <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(33,150,243,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
+              <Ionicons name="medkit-outline" size={28} color="#90CAF9" />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Aucune intervention</Text>
+            <Text style={{ fontSize: 12, color: '#888', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>
+              Les interventions apparaitront ici quand une alerte sera dispatchee a un SAAD partenaire.
+            </Text>
+          </View>
+        )}
       </>}
 
       <Modal visible={showModal} transparent animationType="slide">
