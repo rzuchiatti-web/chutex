@@ -327,6 +327,14 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       {/* Contextual Tips */}
       <ContextualTip id="sos-tip" icon="shield-checkmark-outline" text="En cas d'urgence, appuyez sur le bouton SOS ci-dessous. Vos gardiens seront immediatement alertes et, si vous avez un abonnement Care, la teleassistance vous appellera pour verifier votre etat." color="#E53935" />
 
+      {/* Onboarding Checklist */}
+      <OnboardingChecklist title="Configurez votre espace" items={[
+        { label: 'Completer votre profil medical', done: !!(user.medical_conditions || user.allergies || user.blood_type), action: () => router.push('/profile') },
+        { label: 'Ajouter au moins un gardien', done: (guardians || []).length > 0 },
+        { label: 'Connecter un appareil (bracelet, gilet)', done: !!(health?.devices?.length), action: () => router.push('/(tabs)/devices') },
+        { label: 'Verifier vos seuils d\'alerte sante', done: false, action: () => router.push('/(tabs)/health') },
+      ]} />
+
       {/* SOS Button */}
       <Animated.View style={{ transform: [{ scale: sosPulse }], marginBottom: 16 }}>
         <TouchableOpacity testID="sos-button" style={{ backgroundColor: '#E53935', borderRadius: 20, paddingVertical: 20, alignItems: 'center' }} onPress={handleSOS} disabled={sosLoading} activeOpacity={0.8}>
