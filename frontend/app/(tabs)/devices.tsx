@@ -221,9 +221,9 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         </View>
       ) : (
         <>
-          {/* Header prescripteur */}
+          {/* Header prescripteur with details */}
           <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12, ...glass }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 }}>
               <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="medical" size={22} color="#4CAF50" />
               </View>
@@ -234,6 +234,12 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <View style={{ backgroundColor: '#4CAF50', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
                 <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>Actif</Text>
               </View>
+            </View>
+            <View style={{ backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: 12, padding: 12, gap: 6 }}>
+              {user.prescriber_structure && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="business-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.prescriber_structure}</Text></View>}
+              {user.prescriber_code_used && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="key-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>Code : {user.prescriber_code_used}</Text></View>}
+              {user.phone && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="call-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.phone}</Text></View>}
+              {user.email && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="mail-outline" size={14} color="#888" /><Text style={{ fontSize: 12, color: '#555' }}>{user.email}</Text></View>}
             </View>
           </View>
 
