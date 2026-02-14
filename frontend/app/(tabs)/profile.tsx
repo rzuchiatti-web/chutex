@@ -52,6 +52,7 @@ export default function ProfileScreen() {
   const [contactMsg, setContactMsg] = useState('');
   const [sendingContact, setSendingContact] = useState(false);
   const [showLangPicker, setShowLangPicker] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   if (!user || !token) return null;
