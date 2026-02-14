@@ -105,7 +105,8 @@ export default function ProfileScreen() {
   const effectiveRole = user.active_role || user.role;
   const roleName = effectiveRole === 'beneficiary' ? t('beneficiary') : effectiveRole === 'guardian' ? t('guardian') : effectiveRole === 'teleassistance' ? 'Teleassistance' : 'Administrateur';
   const otherRole = effectiveRole === 'beneficiary' ? 'gardien' : 'beneficiaire';
-  const hasOther = effectiveRole === 'beneficiary' ? user.has_guardian_space : (user.has_beneficiary_space || user.role === 'beneficiary');
+  const hasOther = (effectiveRole === 'prescriber_company' || effectiveRole === 'admin' || effectiveRole === 'teleassistance') ? false
+    : effectiveRole === 'beneficiary' ? user.has_guardian_space : (user.has_beneficiary_space || user.role === 'beneficiary');
 
   const MenuItem = ({ icon, label, onPress, danger, testID }: any) => (
     <TouchableOpacity testID={testID} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }} onPress={onPress}>
