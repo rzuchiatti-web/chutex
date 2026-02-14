@@ -1,0 +1,90 @@
+{
+  "summary": "Iteration 18: Company Portal Improvements Testing - All major features working. Date filters, clickable prescribers in dashboard/tabs, prescriber detail page, agencies with assignment UX all functional. Fixed missing router hook in CompanyAgences component.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "All screens",
+        "issues": ["React Native Web deprecation warnings: 'props.pointerEvents is deprecated' and 'shadow* style props are deprecated'"]
+      }
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_18.json"],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": ["/app/frontend/app/(tabs)/health.tsx"],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "100%"
+  },
+  "test_credentials": "saad@chutex.fr / demo123",
+  "seed_data_creation": "N/A - used existing seed data",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Company portal improvements are complete. Features tested: 1) Date filter buttons (Tout/7 jours/30 jours) on dashboard work, 2) Top prescribers in dashboard are clickable and navigate to /company-prescriber-detail, 3) Prescripteurs tab shows searchable list with clickable items, 4) Agences tab shows agencies with prescribers, 'Gerer les prescripteurs' button always visible, prescribers clickable, 5) Prescriptions tab shows 'En cours'/'Validees' tabs, 6) Prescriber detail page shows identity card, stats, agency info, and prescriptions list. Fixed bug: added missing 'const router = useRouter()' in CompanyAgences function.",
+  "tested_features": {
+    "date_filter": {
+      "status": "PASS",
+      "buttons": ["Tout", "7 jours", "30 jours"],
+      "functionality": "Stats refresh when clicking different date ranges"
+    },
+    "company_dashboard": {
+      "status": "PASS",
+      "kpis_shown": ["7 Prescripteurs", "14 Prescriptions", "3 Agences"],
+      "commissions": "100 EUR validated, 160 EUR pending",
+      "agencies_list": "Shows all 3 agencies with stats",
+      "top_prescribers": "Shows ranked list, items are clickable"
+    },
+    "prescriber_detail_navigation": {
+      "status": "PASS",
+      "from_dashboard_top_prescribers": "Works - navigates to /company-prescriber-detail",
+      "from_prescripteurs_tab": "Works",
+      "from_agences_tab": "Works (after fix)"
+    },
+    "prescriber_detail_page": {
+      "status": "PASS",
+      "header": "Shows 'Fiche Prescripteur'",
+      "identity_card": "Shows name, email, phone, structure, inscription date",
+      "stats": "Shows prescriptions count, EUR validated, EUR pending",
+      "agency_info": "Shows agency name and address",
+      "prescriptions_list": "Shows 'Validees' and 'En cours' sections with prescription items"
+    },
+    "prescripteurs_tab": {
+      "status": "PASS",
+      "search_bar": "Present - 'Rechercher un prescripteur...'",
+      "prescriber_list": "Shows 7 prescripteurs actifs with email, agency, stats",
+      "items_clickable": "Yes - navigate to detail page"
+    },
+    "agences_tab": {
+      "status": "PASS",
+      "nouvelle_agence_button": "Present",
+      "agencies_shown": ["Agence Saint-Etienne", "Agence Lyon", "Agence Saint-Chamond"],
+      "prescribers_in_agency": "Shown with name, presc count, EUR",
+      "gerer_prescripteurs_button": "Always visible for each agency",
+      "prescribers_clickable": "Yes - navigate to detail page"
+    },
+    "prescriptions_tab": {
+      "status": "PASS",
+      "tabs": ["En cours", "Validees"],
+      "prescription_items": "Show beneficiary name, type, date, commission"
+    }
+  },
+  "bugs_fixed_by_tester": [
+    {
+      "file": "/app/frontend/app/(tabs)/health.tsx",
+      "issue": "Missing 'const router = useRouter()' in CompanyAgences function causing 'router is not defined' error when clicking prescribers in agencies",
+      "fix": "Added 'const router = useRouter();' at the start of CompanyAgences function"
+    }
+  ],
+  "backend_api_verification": {
+    "/api/auth/login": "200 OK",
+    "/api/company/dashboard": "200 OK - returns company info, KPIs, agencies, prescribers",
+    "/api/company/dashboard?date_from=&date_to=": "200 OK - date filtering works",
+    "/api/company/prescriber/{id}": "200 OK - returns prescriber info, agency, prescriptions list"
+  }
+}
