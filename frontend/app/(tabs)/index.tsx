@@ -331,7 +331,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       <OnboardingChecklist title="Configurez votre espace" items={[
         { label: 'Completer votre profil medical', done: !!(user.medical_conditions || user.allergies || user.blood_type), action: () => router.push('/profile') },
         { label: 'Ajouter au moins un gardien', done: (guardians || []).length > 0 },
-        { label: 'Connecter un appareil (bracelet, gilet)', done: !!(health?.devices?.length), action: () => router.push('/(tabs)/devices') },
+        { label: 'Connecter un appareil (bracelet, gilet)', done: false, action: () => router.push('/(tabs)/devices') },
         { label: 'Verifier vos seuils d\'alerte sante', done: false, action: () => router.push('/(tabs)/health') },
       ]} />
 
