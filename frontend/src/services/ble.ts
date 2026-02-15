@@ -176,48 +176,52 @@ export async function disconnectScale() {
   }
 }
 
-// Parse Lefu scale BLE data packets
+// Parse Lefu/QN-Scale BLE data packets
 function parseScaleData(bytes: Uint8Array, deviceId: string, deviceName: string, mac: string): ScaleMeasurement | null {
   if (bytes.length < 4) return null;
-  
-  // Lefu protocol: various packet formats
-  // Common format: [header, flags, weight_high, weight_low, impedance_high, impedance_low, ...]
-  const header = bytes[0];
   
   let weight = 0;
   let impedance = 0;
   let stable = false;
   let unit = 'kg';
   
-  // Format 1: CF-series scales (header 0xCF or 0xCE)
-  if (header === 0xCF || header === 0xCE) {
-    const flags = bytes[1];
-    stable = (flags & 0x20) !== 0;
-    weight = ((bytes[2] << 8) | bytes[3]) / 100; // Weight in 0.01 kg
-    if (bytes.length >= 6) {
-      impedance = (bytes[4] << 8) | bytes[5];
+  // QN-Scale protocol (CF597, CF586, QN-S500, Kamtron, RENPHO, Yolanda, Lefu)
+  // Weight is at bytes 15-16 (big-endian, value / 100 = kg)
+  if (bytes.length >= 17) {
+    weight = ((bytes[15] << 8) | bytes[16]) / 100;
+    // Stability flag is often in byte 0 or byte 1
+    stable = (bytes[0] & 0x20) !== 0 || (bytes[0] & 0x10) !== 0;
+    // Impedance may follow in subsequent packets (bytes 17-18 if present)
+    if (bytes.length >= 19) {
+      impedance = (bytes[17] << 8) | bytes[18];
+      if (impedance > 2000 || impedance < 100) impedance = 0; // sanity check
     }
   }
-  // Format 2: Generic BLE scale (header 0x10 or 0xA5)
-  else if (header === 0x10 || header === 0xA5) {
-    stable = (bytes[1] & 0x01) !== 0;
-    weight = ((bytes[2] << 8) | bytes[3]) / 10; // Weight in 0.1 kg
-    if (bytes.length >= 8) {
-      impedance = (bytes[6] << 8) | bytes[7];
-    }
+  // Fallback: try bytes 3-4 (some models)
+  else if (bytes.length >= 5) {
+    weight = ((bytes[3] << 8) | bytes[4]) / 100;
+    stable = (bytes[0] & 0x20) !== 0;
   }
-  // Format 3: Try generic 2-byte weight at offset 2-3
-  else if (bytes.length >= 4) {
-    weight = ((bytes[bytes.length - 4] << 8) | bytes[bytes.length - 3]) / 100;
-    if (bytes.length >= 6) {
-      impedance = (bytes[bytes.length - 2] << 8) | bytes[bytes.length - 1];
-    }
-    stable = weight > 0;
+  // Fallback: try bytes 1-2
+  else if (bytes.length >= 3) {
+    weight = ((bytes[1] << 8) | bytes[2]) / 100;
+    stable = true;
   }
   
-  // Sanity check
-  if (weight < 2 || weight > 300) return null;
+  // Weight sanity check (2 - 300 kg range)
+  if (weight < 2 || weight > 300) {
+    // Try alternative byte positions
+    for (let i = 0; i <= bytes.length - 2; i++) {
+      const candidate = ((bytes[i] << 8) | bytes[i + 1]) / 100;
+      if (candidate >= 20 && candidate <= 250) {
+        weight = candidate;
+        stable = true;
+        break;
+      }
+    }
+    if (weight < 2 || weight > 300) return null;
+  }
   
-  return { weight: Math.round(weight * 10) / 10, impedance, unit, stable, deviceId, deviceName, mac };
+  return { weight: Math.round(weight * 100) / 100, impedance, unit, stable, deviceId, deviceName, mac };
 }
 
