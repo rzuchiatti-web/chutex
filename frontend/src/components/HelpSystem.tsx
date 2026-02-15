@@ -287,7 +287,7 @@ export function PageExplainer({ pageId, title, sections }: { pageId: string; tit
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
-    </>
+    </View>
   );
 }
 
