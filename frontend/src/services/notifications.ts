@@ -1,32 +1,35 @@
 // Push Notification Service for CHUTEX - Expo Push + Web fallback
 import { Platform } from 'react-native';
-import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 
 let permissionGranted = false;
 let expoPushToken: string | null = null;
 
 // Configure notification handler
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+    }),
+  });
+}
 
 // ─── Register for Push Notifications ───
 export async function registerForPushNotifications(apiUrl: string, token: string): Promise<string | null> {
   if (Platform.OS === 'web') {
-    // Web: use browser Notification API
     await requestWebNotificationPermission();
     return null;
   }
 
-  if (!Device.isDevice) {
-    console.log('Push notifications require a physical device');
-    return null;
-  }
+  try {
+    const Device = require('expo-device');
+    if (!Device.isDevice) {
+      console.log('Push notifications require a physical device');
+      return null;
+    }
+  } catch {}
 
   try {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -37,18 +40,13 @@ export async function registerForPushNotifications(apiUrl: string, token: string
       finalStatus = status;
     }
     
-    if (finalStatus !== 'granted') {
-      console.log('Push notification permission denied');
-      return null;
-    }
+    if (finalStatus !== 'granted') return null;
 
-    // Get Expo Push Token
     const tokenData = await Notifications.getExpoPushTokenAsync({
       projectId: '6095040a-fe78-4b71-ae8f-bd1d82f93ef3',
     });
     expoPushToken = tokenData.data;
 
-    // Register token with backend
     try {
       await fetch(`${apiUrl}/api/push/register`, {
         method: 'POST',
@@ -59,29 +57,11 @@ export async function registerForPushNotifications(apiUrl: string, token: string
       console.error('Failed to register push token:', e);
     }
 
-    // Configure Android channel
     if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('sos', {
-        name: 'Alertes SOS',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#E53935',
-        sound: 'default',
-      });
-      await Notifications.setNotificationChannelAsync('health', {
-        name: 'Seuils de sante',
-        importance: Notifications.AndroidImportance.HIGH,
-        sound: 'default',
-      });
-      await Notifications.setNotificationChannelAsync('reminders', {
-        name: 'Rappels',
-        importance: Notifications.AndroidImportance.DEFAULT,
-        sound: 'default',
-      });
-      await Notifications.setNotificationChannelAsync('battery', {
-        name: 'Batterie',
-        importance: Notifications.AndroidImportance.LOW,
-      });
+      await Notifications.setNotificationChannelAsync('sos', { name: 'Alertes SOS', importance: Notifications.AndroidImportance.MAX, vibrationPattern: [0, 250, 250, 250], sound: 'default' });
+      await Notifications.setNotificationChannelAsync('health', { name: 'Seuils de sante', importance: Notifications.AndroidImportance.HIGH, sound: 'default' });
+      await Notifications.setNotificationChannelAsync('reminders', { name: 'Rappels', importance: Notifications.AndroidImportance.DEFAULT, sound: 'default' });
+      await Notifications.setNotificationChannelAsync('battery', { name: 'Batterie', importance: Notifications.AndroidImportance.LOW });
     }
 
     return expoPushToken;
