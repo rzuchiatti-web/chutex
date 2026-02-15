@@ -65,3 +65,156 @@ export function base64ToBytes(b64: string): Uint8Array {
   }
   return new Uint8Array(bytes);
 }
+
+// ─── LEFU SCALE BLE SERVICE ───
+
+// Lefu scale BLE service UUIDs (common for Lefu body fat scales)
+const SCALE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
+const SCALE_NOTIFY_UUID = '0000fff1-0000-1000-8000-00805f9b34fb';
+const SCALE_WRITE_UUID = '0000fff2-0000-1000-8000-00805f9b34fb';
+
+// Alternative UUIDs used by some Lefu models
+const ALT_SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
+const ALT_NOTIFY_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+
+export interface ScaleMeasurement {
+  weight: number;
+  impedance: number;
+  unit: string; // 'kg' | 'lb'
+  stable: boolean;
+  deviceId: string;
+  deviceName: string;
+  mac: string;
+}
+
+type ScaleCallback = (measurement: ScaleMeasurement) => void;
+let scanSubscription: any = null;
+let deviceConnection: any = null;
+
+export async function scanForScales(onFound: (device: { id: string; name: string; rssi: number }) => void, timeoutMs = 15000): Promise<void> {
+  if (Platform.OS === 'web' || !bleManagerInstance) return;
+  
+  stopScaleScan();
+  
+  return new Promise((resolve) => {
+    const seen = new Set<string>();
+    
+    bleManagerInstance.startDeviceScan(
+      [SCALE_SERVICE_UUID, ALT_SERVICE_UUID],
+      { allowDuplicates: false },
+      (error: any, device: any) => {
+        if (error) { console.warn('BLE scan error:', error); return; }
+        if (!device || !device.name) return;
+        const name = device.name.toLowerCase();
+        // Match Lefu scale names
+        if ((name.includes('lefu') || name.includes('lf_') || name.includes('scale') || 
+             name.includes('qn-') || name.includes('adore') || name.includes('health')) && !seen.has(device.id)) {
+          seen.add(device.id);
+          onFound({ id: device.id, name: device.name, rssi: device.rssi });
+        }
+      }
+    );
+    
+    setTimeout(() => { stopScaleScan(); resolve(); }, timeoutMs);
+  });
+}
+
+export function stopScaleScan() {
+  if (bleManagerInstance) {
+    try { bleManagerInstance.stopDeviceScan(); } catch {}
+  }
+}
+
+export async function connectToScale(deviceId: string, onMeasurement: ScaleCallback): Promise<boolean> {
+  if (!bleManagerInstance) return false;
+  
+  try {
+    // Connect
+    const device = await bleManagerInstance.connectToDevice(deviceId, { timeout: 10000 });
+    deviceConnection = device;
+    
+    // Discover services
+    await device.discoverAllServicesAndCharacteristics();
+    
+    // Try primary service UUID
+    let serviceUUID = SCALE_SERVICE_UUID;
+    let notifyUUID = SCALE_NOTIFY_UUID;
+    
+    const services = await device.services();
+    for (const svc of services) {
+      const uuid = svc.uuid.toLowerCase();
+      if (uuid.includes('fff0')) { serviceUUID = svc.uuid; notifyUUID = SCALE_NOTIFY_UUID; break; }
+      if (uuid.includes('ffe0')) { serviceUUID = svc.uuid; notifyUUID = ALT_NOTIFY_UUID; break; }
+    }
+    
+    // Monitor notifications for weight data
+    device.monitorCharacteristicForService(serviceUUID, notifyUUID, (error: any, characteristic: any) => {
+      if (error) { console.warn('BLE notify error:', error); return; }
+      if (!characteristic?.value) return;
+      
+      const bytes = base64ToBytes(characteristic.value);
+      const measurement = parseScaleData(bytes, deviceId, device.name || 'Scale', device.id || '');
+      if (measurement) {
+        onMeasurement(measurement);
+      }
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('BLE connect error:', error);
+    return false;
+  }
+}
+
+export async function disconnectScale() {
+  if (deviceConnection) {
+    try { await deviceConnection.cancelConnection(); } catch {}
+    deviceConnection = null;
+  }
+}
+
+// Parse Lefu scale BLE data packets
+function parseScaleData(bytes: Uint8Array, deviceId: string, deviceName: string, mac: string): ScaleMeasurement | null {
+  if (bytes.length < 4) return null;
+  
+  // Lefu protocol: various packet formats
+  // Common format: [header, flags, weight_high, weight_low, impedance_high, impedance_low, ...]
+  const header = bytes[0];
+  
+  let weight = 0;
+  let impedance = 0;
+  let stable = false;
+  let unit = 'kg';
+  
+  // Format 1: CF-series scales (header 0xCF or 0xCE)
+  if (header === 0xCF || header === 0xCE) {
+    const flags = bytes[1];
+    stable = (flags & 0x20) !== 0;
+    weight = ((bytes[2] << 8) | bytes[3]) / 100; // Weight in 0.01 kg
+    if (bytes.length >= 6) {
+      impedance = (bytes[4] << 8) | bytes[5];
+    }
+  }
+  // Format 2: Generic BLE scale (header 0x10 or 0xA5)
+  else if (header === 0x10 || header === 0xA5) {
+    stable = (bytes[1] & 0x01) !== 0;
+    weight = ((bytes[2] << 8) | bytes[3]) / 10; // Weight in 0.1 kg
+    if (bytes.length >= 8) {
+      impedance = (bytes[6] << 8) | bytes[7];
+    }
+  }
+  // Format 3: Try generic 2-byte weight at offset 2-3
+  else if (bytes.length >= 4) {
+    weight = ((bytes[bytes.length - 4] << 8) | bytes[bytes.length - 3]) / 100;
+    if (bytes.length >= 6) {
+      impedance = (bytes[bytes.length - 2] << 8) | bytes[bytes.length - 1];
+    }
+    stable = weight > 0;
+  }
+  
+  // Sanity check
+  if (weight < 2 || weight > 300) return null;
+  
+  return { weight: Math.round(weight * 10) / 10, impedance, unit, stable, deviceId, deviceName, mac };
+}
+
