@@ -1,34 +1,30 @@
-# CHUTEX HEALTH / CARE WATCH - PRD
+# CHUTEX HEALTH - PRD
 
-## Product Overview
-AI-powered teleassistance platform for elderly care with 6 user roles.
+## iOS App TestFlight
+- https://appstoreconnect.apple.com/apps/6759215592/testflight/ios
+- v1.0.2 build 101 (TextInput natifs + Push)
 
-## iOS App - TestFlight
-- **App Store Connect**: https://appstoreconnect.apple.com/apps/6759215592/testflight/ios
-- **Bundle ID**: com.chutex.app
-- **Latest version**: v1.0.2 build 101 (avec TextInput natifs + push notifications)
+## BLE Bluetooth Scale (Feb 15, 2026)
+### Frontend (`src/services/ble.ts`)
+- `scanForScales()` - Scan BLE for Lefu scales
+- `connectToScale()` - Connect + monitor weight notifications
+- `disconnectScale()` - Clean disconnect
+- `parseScaleData()` - Parse Lefu BLE packets (CF-series, generic)
+- Supports: weight, impedance, stability detection
 
-## Lefu Smart Scale Integration (Feb 15, 2026)
 ### Backend
-- `POST /api/lefu/wifi/register` - Scale WiFi registration
-- `POST /api/lefu/wifi/weighing` - Receive weighing data (30+ body metrics)
-- `GET /api/devices/scale/history` - User measurement history
-- `POST /api/devices/scale/seed-history` - Seed demo data
-- Service `services/lefu_service.py` - Lefu Cloud API integration (token + body calc)
-- **Lefu AppKey**: lefu317d5a502fbb2b77 (needs API authorization for body data calc)
+- `POST /api/devices/scale/link` - Link scale MAC to user
+- `POST /api/devices/scale/ble-measurement` - Store BLE measurement with BIA calc
+- Local BIA formulas as fallback when Lefu API unavailable
+- Calculates: BMI, body fat%, muscle mass, bone mass, hydration, visceral fat, BMR, body age, protein, health score
 
-### 30+ Metrics Stored
-weight, bmi, body_fat_pct, muscle_mass, muscle_rate, bone_mass, hydration_pct, visceral_fat, basal_metabolism, body_age, protein_pct, health_score, subcutaneous_fat, lean_body_mass, fat_free_weight, ideal_weight, body_type, obesity_level, skeletal_muscle_rate, fat_mass, standard_weight, weight_control, fat_control, muscle_control, body_shape, heart_rate, impedance
+## Lefu API Integration
+- `services/lefu_service.py` - Token + body data calculation
+- AppKey needs authorization for body data endpoint (error 4016)
+- 30+ body metrics supported
 
-### Pending
-- Contact Lefu support to authorize AppKey for body data calculation API
-- Configure real scale WiFi to point to server
-- BLE Bluetooth integration for direct iPhone connection
-
-## Push Notifications (Feb 15, 2026)
-- 9 categories: SOS, health thresholds, fall, battery, hydration, medication, alarms, interventions, guardian requests
-- Notification preferences page in Profile with toggles
-- Backend: `/api/push/*` endpoints
+## Push Notifications - 9 categories with preferences UI
+## UX Help Layer - PageExplainers on: Alertes, Santé, Appareils, Teleconsult
 
 ## Accounts
 | Role | Email | Password |
@@ -38,8 +34,6 @@ weight, bmi, body_fat_pct, muscle_mass, muscle_rate, bone_mass, hydration_pct, v
 | Admin | admin@chutex.fr | demo123 |
 
 ## Backlog
-- P1: Deploy backend on HDS server
-- P1: BLE Bluetooth scale connection in app
-- P1: Contact Lefu for API authorization
-- P2: More MiniTutos/PageExplainers
-- P3: Shopify, WebSocket
+- P1: Deploy on HDS server
+- P1: Contact Lefu for API auth
+- P2: Shopify, WebSocket
