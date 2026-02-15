@@ -305,33 +305,53 @@ export default function ScaleDetailScreen() {
             </GC>
           )}
 
-          {/* Detailed metrics - ALL 30+ */}
+          {/* Detailed metrics - ALL 30+ displayed always */}
           <GC>
-            <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', marginBottom: 12 }}>Composition corporelle complete</Text>
+            <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', marginBottom: 4 }}>Composition corporelle complete</Text>
+            <Text style={{ fontSize: 10, color: '#888', marginBottom: 12 }}>{[
+              latest.basal_metabolism, latest.body_age, latest.protein_pct, latest.health_score,
+              latest.subcutaneous_fat, latest.lean_body_mass, latest.fat_free_weight, latest.ideal_weight,
+              latest.muscle_rate, latest.fat_mass, latest.skeletal_muscle_rate, latest.heart_rate,
+              latest.body_type, latest.weight_control, latest.fat_control, latest.muscle_control,
+              latest.standard_weight, latest.obesity_level, latest.body_shape, latest.impedance,
+            ].filter(v => v && v !== 0).length + 10} donnees mesurees</Text>
             {[
-              { icon: 'heart-outline', label: 'Metabolisme basal', value: `${latest.basal_metabolism || '--'} kcal`, color: '#E91E63' },
-              { icon: 'person-outline', label: 'Age corporel', value: `${latest.body_age || '--'} ans`, color: '#9C27B0' },
-              { icon: 'nutrition-outline', label: 'Proteines', value: `${latest.protein_pct || '--'}%`, color: '#FF5722' },
-              { icon: 'star-outline', label: 'Score sante', value: `${latest.health_score || '--'}/100`, color: '#FFB300' },
-              { icon: 'layers-outline', label: 'Graisse sous-cutanee', value: `${latest.subcutaneous_fat || '--'}%`, color: '#795548' },
-              { icon: 'body-outline', label: 'Masse maigre', value: `${latest.lean_body_mass || '--'} kg`, color: '#009688' },
-              { icon: 'barbell-outline', label: 'Masse sans graisse', value: `${latest.fat_free_weight || '--'} kg`, color: '#3F51B5' },
-              { icon: 'trophy-outline', label: 'Poids ideal', value: `${latest.ideal_weight || '--'} kg`, color: '#4CAF50' },
-              { icon: 'speedometer-outline', label: 'Taux musculaire', value: `${latest.muscle_rate || '--'}%`, color: '#00BCD4' },
-              { icon: 'analytics-outline', label: 'Masse graisseuse', value: `${latest.fat_mass || '--'} kg`, color: '#FF9800' },
-              { icon: 'resize-outline', label: 'Muscle squelettique', value: `${latest.skeletal_muscle_rate || '--'}%`, color: '#8BC34A' },
-              { icon: 'pulse-outline', label: 'Frequence cardiaque', value: `${latest.heart_rate || '--'} bpm`, color: '#E53935' },
-              { icon: 'options-outline', label: 'Type corporel', value: latest.body_type ? bodyTypeLabel(latest.body_type) : '--', color: '#607D8B' },
-              { icon: 'trending-up-outline', label: 'Controle poids', value: `${latest.weight_control || '--'} kg`, color: '#FF5722' },
-              { icon: 'flame-outline', label: 'Controle graisse', value: `${latest.fat_control || '--'} kg`, color: '#FF9800' },
-              { icon: 'fitness-outline', label: 'Controle muscle', value: `${latest.muscle_control || '--'} kg`, color: '#4CAF50' },
-            ].filter(m => m.value && !m.value.includes('--') && !m.value.includes('0 ') && m.value !== '0%' && m.value !== '0/100').map((m, i) => (
+              { icon: 'body-outline', label: 'Poids', value: latest.weight, unit: 'kg', color: '#000' },
+              { icon: 'analytics-outline', label: 'IMC', value: latest.bmi, unit: '', color: '#2196F3' },
+              { icon: 'flame-outline', label: 'Masse grasse', value: latest.body_fat_pct, unit: '%', color: '#FF9800' },
+              { icon: 'analytics-outline', label: 'Masse graisseuse', value: latest.fat_mass, unit: 'kg', color: '#FF9800' },
+              { icon: 'fitness-outline', label: 'Masse musculaire', value: latest.muscle_mass, unit: 'kg', color: '#4CAF50' },
+              { icon: 'speedometer-outline', label: 'Taux musculaire', value: latest.muscle_rate, unit: '%', color: '#00BCD4' },
+              { icon: 'resize-outline', label: 'Muscle squelettique', value: latest.skeletal_muscle_rate, unit: '%', color: '#8BC34A' },
+              { icon: 'water-outline', label: 'Hydratation', value: latest.hydration_pct, unit: '%', color: '#03A9F4' },
+              { icon: 'skull-outline', label: 'Masse osseuse', value: latest.bone_mass, unit: 'kg', color: '#795548' },
+              { icon: 'nutrition-outline', label: 'Proteines', value: latest.protein_pct, unit: '%', color: '#FF5722' },
+              { icon: 'heart-outline', label: 'Graisse viscerale', value: latest.visceral_fat, unit: '', color: '#E91E63' },
+              { icon: 'layers-outline', label: 'Graisse sous-cutanee', value: latest.subcutaneous_fat, unit: '%', color: '#795548' },
+              { icon: 'heart-outline', label: 'Metabolisme basal', value: latest.basal_metabolism, unit: 'kcal', color: '#E91E63' },
+              { icon: 'person-outline', label: 'Age corporel', value: latest.body_age, unit: 'ans', color: '#9C27B0' },
+              { icon: 'star-outline', label: 'Score sante', value: latest.health_score, unit: '/100', color: '#FFB300' },
+              { icon: 'body-outline', label: 'Masse maigre', value: latest.lean_body_mass, unit: 'kg', color: '#009688' },
+              { icon: 'barbell-outline', label: 'Masse sans graisse', value: latest.fat_free_weight, unit: 'kg', color: '#3F51B5' },
+              { icon: 'trophy-outline', label: 'Poids ideal', value: latest.ideal_weight, unit: 'kg', color: '#4CAF50' },
+              { icon: 'scale-outline', label: 'Poids standard', value: latest.standard_weight, unit: 'kg', color: '#607D8B' },
+              { icon: 'trending-up-outline', label: 'Controle poids', value: latest.weight_control, unit: 'kg', color: '#FF5722' },
+              { icon: 'flame-outline', label: 'Controle graisse', value: latest.fat_control, unit: 'kg', color: '#FF9800' },
+              { icon: 'fitness-outline', label: 'Controle muscle', value: latest.muscle_control, unit: 'kg', color: '#4CAF50' },
+              { icon: 'options-outline', label: 'Type corporel', value: latest.body_type ? bodyTypeLabel(latest.body_type) : null, unit: '', color: '#607D8B' },
+              { icon: 'bar-chart-outline', label: 'Niveau d\'obesite', value: latest.obesity_level, unit: '', color: '#FF5722' },
+              { icon: 'shapes-outline', label: 'Forme corporelle', value: latest.body_shape, unit: '', color: '#9C27B0' },
+              { icon: 'pulse-outline', label: 'Frequence cardiaque', value: latest.heart_rate, unit: 'bpm', color: '#E53935' },
+              { icon: 'flash-outline', label: 'Impedance', value: latest.impedance, unit: 'ohm', color: '#607D8B' },
+            ].map((m, i) => (
               <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                 <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: m.color + '15', justifyContent: 'center', alignItems: 'center' }}>
                   <Ionicons name={m.icon as any} size={16} color={m.color} />
                 </View>
                 <Text style={{ fontSize: 13, color: '#555', flex: 1 }}>{m.label}</Text>
-                <Text style={{ fontSize: 15, fontWeight: '800', color: '#000' }}>{m.value}</Text>
+                <Text style={{ fontSize: 15, fontWeight: '800', color: m.value ? '#000' : '#CCC' }}>
+                  {m.value ? `${m.value}` : '--'}{m.value && m.unit ? ` ${m.unit}` : ''}
+                </Text>
               </View>
             ))}
           </GC>
