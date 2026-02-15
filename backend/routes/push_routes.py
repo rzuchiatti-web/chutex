@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from database import db
 from auth import get_current_user
 from datetime import datetime, timezone
@@ -11,14 +11,12 @@ EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send"
 
 # ─── Register Push Token ───
 @router.post("/push/register")
-async def register_push_token(request: Request):
-    user = await get_current_user(request)
-    body = await request.json()
+async def register_push_token(body: dict, user=Depends(get_current_user)):
     token = body.get("push_token")
     if not token:
         raise HTTPException(400, "push_token required")
     
-    db.push_tokens.update_one(
+    await db.push_tokens.update_one(
         {"user_id": user["id"]},
         {"$set": {"user_id": user["id"], "push_token": token, "updated_at": datetime.now(timezone.utc).isoformat()}},
         upsert=True
@@ -27,16 +25,14 @@ async def register_push_token(request: Request):
 
 # ─── Unregister Push Token ───
 @router.post("/push/unregister")
-async def unregister_push_token(request: Request):
-    user = await get_current_user(request)
-    db.push_tokens.delete_many({"user_id": user["id"]})
+async def unregister_push_token(user=Depends(get_current_user)):
+    await db.push_tokens.delete_many({"user_id": user["id"]})
     return {"status": "unregistered"}
 
 # ─── Get Push Preferences ───
 @router.get("/push/preferences")
-async def get_push_preferences(request: Request):
-    user = await get_current_user(request)
-    prefs = db.push_preferences.find_one({"user_id": user["id"]}, {"_id": 0})
+async def get_push_preferences(user=Depends(get_current_user)):
+    prefs = await db.push_preferences.find_one({"user_id": user["id"]}, {"_id": 0})
     if not prefs:
         prefs = {
             "user_id": user["id"],
@@ -50,20 +46,18 @@ async def get_push_preferences(request: Request):
             "interventions": True,
             "guardian_requests": True,
         }
-        db.push_preferences.insert_one({**prefs})
+        await db.push_preferences.insert_one({**prefs})
         prefs.pop("_id", None)
     return prefs
 
 # ─── Update Push Preferences ───
 @router.put("/push/preferences")
-async def update_push_preferences(request: Request):
-    user = await get_current_user(request)
-    body = await request.json()
+async def update_push_preferences(body: dict, user=Depends(get_current_user)):
     allowed_keys = ["sos_alerts", "health_thresholds", "fall_detection", "low_battery",
                     "reminders_hydration", "reminders_medication", "reminders_alarm",
                     "interventions", "guardian_requests"]
     update = {k: v for k, v in body.items() if k in allowed_keys}
-    db.push_preferences.update_one(
+    await db.push_preferences.update_one(
         {"user_id": user["id"]},
         {"$set": {**update, "user_id": user["id"]}},
         upsert=True
