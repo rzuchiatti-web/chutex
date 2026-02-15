@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone
-import uuid, random, re
+import uuid, random, re, asyncio
 
 from database import db
 from auth import get_current_user
 from models import DeviceSyncRequest
 from utils import generate_bracelet_data, generate_scale_data, generate_vest_data, check_anomalies
+from routes.push_routes import notify_low_battery, notify_health_threshold
 
 router = APIRouter()
 
