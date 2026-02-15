@@ -10,13 +10,26 @@ const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBack
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
-const WebInput = ({ testID, label, val, onChange, placeholder, type }: any) => Platform.OS === 'web' ? (
-  <div style={{ marginBottom: 14 }}>
-    {label && <div style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>{label}</div>}
-    <input data-testid={testID} type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
-      style={{ width: '100%', fontSize: 15, padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.65)', fontFamily: 'system-ui, -apple-system, sans-serif', boxSizing: 'border-box' as any, backdropFilter: 'blur(20px)' }} />
-  </div>
-) : null;
+const WebInput = ({ testID, label, val, onChange, placeholder, type }: any) => {
+  if (Platform.OS === 'web') {
+    return (
+      <div style={{ marginBottom: 14 }}>
+        {label && <div style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>{label}</div>}
+        <input data-testid={testID} type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
+          style={{ width: '100%', fontSize: 15, padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.65)', fontFamily: 'system-ui, -apple-system, sans-serif', boxSizing: 'border-box' as any, backdropFilter: 'blur(20px)' }} />
+      </div>
+    );
+  }
+  const { TextInput: RNTextInput } = require('react-native');
+  return (
+    <View style={{ marginBottom: 14 }}>
+      {label && <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>{label}</Text>}
+      <RNTextInput testID={testID} value={val} onChangeText={onChange} placeholder={placeholder} placeholderTextColor="#AAA"
+        secureTextEntry={type === 'password'} autoCapitalize="none" keyboardType={type === 'email' ? 'email-address' : type === 'tel' ? 'phone-pad' : 'default'}
+        style={{ fontSize: 15, padding: 14, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.8)', backgroundColor: 'rgba(255,255,255,0.65)', color: '#000' }} />
+    </View>
+  );
+};
 
 export default function AuthScreen() {
   const { user, loading, login, register } = useAuth();
