@@ -1,17 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-from database import db
-from auth import get_current_user
-from datetime import datetime, timezone
-import httpx, logging
-
-router = APIRouter()
-logger = logging.getLogger(__name__)
-
-EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send"
-
-# ─── Register Push Token ───
-@router.post("/push/register")
-async def register_push_token(body: dict, user=Depends(get_current_user)):
     token = body.get("push_token")
     if not token:
         raise HTTPException(400, "push_token required")
