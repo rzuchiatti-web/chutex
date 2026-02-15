@@ -377,7 +377,12 @@ export default function HealthScreen() {
     <View style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="health-screen">
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={colors.primary} />} showsVerticalScrollIndicator={false}>
         <Text style={{ fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginTop: 16, marginBottom: 8, letterSpacing: -0.5 }}>Sante</Text>
-        <Text style={{ fontSize: 13, color: colors.textMuted, marginBottom: 24 }}>Suivi de vos constantes en temps reel</Text>
+        <Text style={{ fontSize: 13, color: colors.textMuted, marginBottom: 16 }}>Suivi de vos constantes en temps reel</Text>
+        <PageExplainer pageId="health" title="Comprendre vos donnees de sante" sections={[
+          { icon: 'heart-outline', heading: 'Constantes vitales', text: 'Votre rythme cardiaque, SpO2, tension et temperature sont mesures par vos appareils connectes (bracelet, gilet) et mis a jour automatiquement.' },
+          { icon: 'trending-up-outline', heading: 'Seuils d\'alerte', text: 'Des seuils sont definis pour chaque constante. Si une valeur depasse le seuil, une alerte est declenchee et vos gardiens sont prevenus.' },
+          { icon: 'fitness-outline', heading: 'Activite physique', text: 'Le nombre de pas, les calories brulees et la distance parcourue sont comptabilises tout au long de la journee.' },
+        ]} />
 
         {loading ? (
           <View style={{ paddingVertical: 60, alignItems: 'center' }}><ActivityIndicator size="large" color={colors.primary} /></View>
