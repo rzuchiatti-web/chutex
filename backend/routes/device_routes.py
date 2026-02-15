@@ -214,3 +214,90 @@ async def seed_scale_history(user=Depends(get_current_user)):
         }
         await db.device_readings.insert_one(reading)
     return {"status": "seeded", "count": 30}
+
+
+@router.post("/devices/scale/link")
+async def link_scale_to_user(body: dict, user=Depends(get_current_user)):
+    """Link a BLE scale to the user by MAC address or device ID"""
+    mac = body.get('mac', body.get('device_id', ''))
+    name = body.get('name', 'Balance Lefu')
+    if not mac:
+        from fastapi import HTTPException
+        raise HTTPException(400, "mac or device_id required")
+    
+    now = datetime.now(timezone.utc).isoformat()
+    # Ensure scale device exists for user
+    existing = await db.devices.find_one({"user_id": user['id'], "device_type": "scale"}, {"_id": 0})
+    if existing:
+        await db.devices.update_one(
+            {"user_id": user['id'], "device_type": "scale"},
+            {"$set": {"mac_address": mac, "name": name, "connected": True, "last_sync": now}}
+        )
+    else:
+        await db.devices.insert_one({
+            "id": str(uuid.uuid4()), "user_id": user['id'], "device_type": "scale",
+            "mac_address": mac, "name": name, "connected": True, "battery": 100,
+            "last_sync": now, "firmware_version": "1.0"
+        })
+    return {"status": "linked", "mac": mac}
+
+
+@router.post("/devices/scale/ble-measurement")
+async def ble_scale_measurement(body: dict, user=Depends(get_current_user)):
+    """Store a BLE measurement from the app (when user weighs via Bluetooth)"""
+    now = datetime.now(timezone.utc).isoformat()
+    weight = body.get('weight', 0)
+    impedance = body.get('impedance', 0)
+    
+    # Try Lefu API for body composition
+    body_data = {}
+    if impedance:
+        from services.lefu_service import calculate_body_data
+        height = user.get('height_cm', 170)
+        age = 50
+        if user.get('date_of_birth'):
+            try:
+                dob = datetime.fromisoformat(user['date_of_birth'].replace('Z', '+00:00'))
+                age = (datetime.now(timezone.utc) - dob).days // 365
+            except: pass
+        sex = 1 if user.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 2
+        body_data = await calculate_body_data(weight, impedance, height, age, sex)
+    
+    # Use local BIA formulas as fallback if API fails
+    if not body_data and impedance and weight > 0:
+        height = user.get('height_cm', 170) / 100
+        age = 50
+        sex = 1 if user.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 2
+        # Standard BIA formulas
+        bmi = round(weight / (height ** 2), 1)
+        fat_pct = round((1.20 * bmi) + (0.23 * age) - (10.8 * sex) - 5.4, 1) if sex == 1 else round((1.20 * bmi) + (0.23 * age) - 5.4, 1)
+        fat_pct = max(5, min(60, fat_pct))
+        lean = weight * (1 - fat_pct / 100)
+        body_data = {
+            "weight": weight, "bmi": bmi, "body_fat_pct": fat_pct,
+            "muscle_mass": round(lean * 0.55, 1), "bone_mass": round(lean * 0.05, 1),
+            "hydration_pct": round(lean / weight * 73, 1),
+            "visceral_fat": round(max(1, bmi - 15), 1),
+            "basal_metabolism": round(10 * weight + 6.25 * (height * 100) - 5 * age + (5 if sex == 1 else -161)),
+            "body_age": max(18, age + round((bmi - 22) * 0.8)),
+            "protein_pct": round(lean / weight * 20, 1),
+            "health_score": round(max(40, min(100, 100 - abs(bmi - 22) * 3 - max(0, fat_pct - 25) * 1.5))),
+        }
+    
+    measurement = {
+        "id": str(uuid.uuid4()), "user_id": user['id'], "device_type": "scale", "timestamp": now,
+        "weight": body_data.get('weight', weight),
+        "bmi": body_data.get('bmi', 0), "body_fat_pct": body_data.get('body_fat_pct', 0),
+        "muscle_mass": body_data.get('muscle_mass', 0), "bone_mass": body_data.get('bone_mass', 0),
+        "hydration_pct": body_data.get('hydration_pct', 0), "visceral_fat": body_data.get('visceral_fat', 0),
+        "basal_metabolism": body_data.get('basal_metabolism', 0), "body_age": body_data.get('body_age', 0),
+        "protein_pct": body_data.get('protein_pct', 0), "health_score": body_data.get('health_score', 0),
+        "impedance": impedance, "source": "ble",
+    }
+    await db.device_readings.insert_one(measurement)
+    # Update device last_sync
+    await db.devices.update_one(
+        {"user_id": user['id'], "device_type": "scale"},
+        {"$set": {"connected": True, "last_sync": now}}
+    )
+    return {k: v for k, v in measurement.items() if k != '_id'}
