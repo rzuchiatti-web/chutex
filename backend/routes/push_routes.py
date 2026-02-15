@@ -185,8 +185,7 @@ async def notify_guardian_request(beneficiary_id: str, guardian_name: str):
 
 # ─── Test Endpoint ───
 @router.post("/push/test")
-async def test_push(request: Request):
-    user = await get_current_user(request)
+async def test_push(user=Depends(get_current_user)):
     await send_push_to_user(
         user["id"],
         "Test Notification CHUTEX",
@@ -198,7 +197,6 @@ async def test_push(request: Request):
 
 # ─── Push History ───
 @router.get("/push/history")
-async def push_history(request: Request):
-    user = await get_current_user(request)
-    logs = list(db.push_log.find({"user_id": user["id"]}, {"_id": 0}).sort("sent_at", -1).limit(20))
+async def push_history(user=Depends(get_current_user)):
+    logs = await db.push_log.find({"user_id": user["id"]}, {"_id": 0}).sort("sent_at", -1).to_list(20)
     return logs
