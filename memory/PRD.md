@@ -1,39 +1,33 @@
-# CHUTEX HEALTH - PRD
+# CHUTEX HEALTH - PRD (Updated Feb 15, 2026)
 
 ## iOS App TestFlight
-- https://appstoreconnect.apple.com/apps/6759215592/testflight/ios
-- v1.0.2 build 101 (TextInput natifs + Push)
+- App Store Connect: https://appstoreconnect.apple.com/apps/6759215592/testflight/ios
+- Latest: v1.0.5 (fix BLE parsing QN-Scale protocol + Lefu SDK plugin)
 
-## BLE Bluetooth Scale (Feb 15, 2026)
-### Frontend (`src/services/ble.ts`)
-- `scanForScales()` - Scan BLE for Lefu scales
-- `connectToScale()` - Connect + monitor weight notifications
-- `disconnectScale()` - Clean disconnect
-- `parseScaleData()` - Parse Lefu BLE packets (CF-series, generic)
-- Supports: weight, impedance, stability detection
+## BLE Scale Integration - CF597_GNLine
+### Protocol: QN-Scale (open-source, reverse-engineered)
+- Weight: bytes 15-16 big-endian, / 100 = kg
+- Impedance: bytes 17-18 (if present)
+- Stability flag: byte 0 bit 5
+- Fallback: scan all byte pairs for valid weight range (20-250 kg)
 
-### Backend
-- `POST /api/devices/scale/link` - Link scale MAC to user
-- `POST /api/devices/scale/ble-measurement` - Store BLE measurement with BIA calc
-- Local BIA formulas as fallback when Lefu API unavailable
-- Calculates: BMI, body fat%, muscle mass, bone mass, hydration, visceral fat, BMR, body age, protein, health score
+### Lefu SDK (Native iOS) - In Progress
+- Plugin Expo: `/app/frontend/plugins/lefu-scale/index.js`
+- CocoaPods: PPBaseKit 1.2.17, PPBluetoothKit 1.2.33, PPCalculateKit 1.2.24
+- BLOCKED: needs lefu.config file from Lefu Open Platform
+- Contact: pengsiyuan@lefu.cc
 
-## Lefu API Integration
-- `services/lefu_service.py` - Token + body data calculation
-- AppKey needs authorization for body data endpoint (error 4016)
-- 30+ body metrics supported
+### Backend Endpoints
+- POST /api/devices/scale/link - Link scale MAC to user
+- POST /api/devices/scale/ble-measurement - Store BLE measurement + BIA calc
+- POST /api/lefu/wifi/weighing - WiFi scale data (30+ fields)
+- GET /api/devices/scale/history - Measurement history
 
-## Push Notifications - 9 categories with preferences UI
-## UX Help Layer - PageExplainers on: Alertes, Santé, Appareils, Teleconsult
-
-## Accounts
-| Role | Email | Password |
-|---|---|---|
-| Beneficiary | robert.martin@email.fr | demo123 |
-| Guardian | claire.martin@email.fr | demo123 |
-| Admin | admin@chutex.fr | demo123 |
+## Push Notifications - 9 categories + preferences UI
+## UX Help Layer - PageExplainers on 4 screens
 
 ## Backlog
-- P1: Deploy on HDS server
-- P1: Contact Lefu for API auth
-- P2: Shopify, WebSocket
+- P1: Lefu SDK native integration (needs lefu.config)
+- P1: Deploy backend on HDS server
+- P2: Design clinique page balance
+- P3: Shopify, WebSocket
