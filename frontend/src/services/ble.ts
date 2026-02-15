@@ -99,18 +99,23 @@ export async function scanForScales(onFound: (device: { id: string; name: string
   return new Promise((resolve) => {
     const seen = new Set<string>();
     
+    // Scan ALL devices (no service UUID filter) to catch all Lefu models
     bleManagerInstance.startDeviceScan(
-      [SCALE_SERVICE_UUID, ALT_SERVICE_UUID],
+      null,
       { allowDuplicates: false },
       (error: any, device: any) => {
         if (error) { console.warn('BLE scan error:', error); return; }
-        if (!device || !device.name) return;
-        const name = device.name.toLowerCase();
-        // Match Lefu scale names
-        if ((name.includes('lefu') || name.includes('lf_') || name.includes('scale') || 
-             name.includes('qn-') || name.includes('adore') || name.includes('health')) && !seen.has(device.id)) {
+        if (!device) return;
+        const name = (device.name || device.localName || '').toLowerCase();
+        if (!name) return;
+        // Match Lefu / CF586 / QN-Scale and similar scale names
+        if ((name.includes('lefu') || name.includes('lf_') || name.includes('lf-') ||
+             name.includes('cf5') || name.includes('cf6') || name.includes('cf8') ||
+             name.includes('qn-') || name.includes('qn_') || name.includes('scale') || 
+             name.includes('adore') || name.includes('health') || name.includes('buzud') ||
+             name.includes('pura') || name.includes('icomon') || name.includes('body')) && !seen.has(device.id)) {
           seen.add(device.id);
-          onFound({ id: device.id, name: device.name, rssi: device.rssi });
+          onFound({ id: device.id, name: device.name || device.localName || 'Balance', rssi: device.rssi });
         }
       }
     );
