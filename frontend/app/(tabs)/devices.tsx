@@ -17,6 +17,7 @@ const confirmAction = (title: string, message: string, onConfirm: () => void) =>
 import { apiFetch } from '../../src/services/api';
 import { Colors } from '../../src/constants/colors';
 import { useTheme } from '../../src/context/ThemeContext';
+import { PageExplainer } from '../../src/components/HelpSystem';
 
 /* ===== BENEFICIARY: DEVICE MANAGEMENT ===== */
 function DeviceManagement({ token }: { token: string }) {
