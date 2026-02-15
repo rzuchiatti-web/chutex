@@ -59,6 +59,16 @@ async def sync_device(data: DeviceSyncRequest, user=Depends(get_current_user)):
             "alert_type": "anomaly", "severity": an['severity'], "message": an['message'], "device_type": data.device_type,
             "status": "active", "created_at": now, "resolved_at": None, "resolved_by": None, "teleassistance_status": "pending",
         })
+        # Push notification for health threshold anomalies
+        guardians = await db.users.find({"beneficiaries": user['id']}, {"_id": 0, "id": 1}).to_list(20)
+        guardian_ids = [g['id'] for g in guardians]
+        if guardian_ids:
+            asyncio.create_task(notify_health_threshold(user['name'], an.get('metric', data.device_type), an.get('value', 0), guardian_ids))
+    
+    # Low battery notification
+    if batt <= 20:
+        asyncio.create_task(notify_low_battery(user['id'], data.device_type, batt))
+    
     return {"status": "synced", "data": device_data, "anomalies": anomalies, "battery": batt, "timestamp": now}
 
 
