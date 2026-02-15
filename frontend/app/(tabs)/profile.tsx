@@ -12,15 +12,26 @@ const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBack
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
-const WebInput = ({ val, onChange, placeholder, type, rows }: any) => Platform.OS === 'web' ? (
-  rows ? (
-    <div style={{ marginBottom: 10 }}><textarea value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder} rows={rows}
-      style={{ width: '100%', fontSize: 14, padding: '12px', borderRadius: 12, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', resize: 'none' as any, boxSizing: 'border-box' as any }} /></div>
-  ) : (
-    <div style={{ marginBottom: 10 }}><input type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
-      style={{ width: '100%', fontSize: 15, padding: '12px 14px', borderRadius: 12, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
-  )
-) : null;
+const WebInput = ({ val, onChange, placeholder, type, rows }: any) => {
+  if (Platform.OS === 'web') {
+    return rows ? (
+      <div style={{ marginBottom: 10 }}><textarea value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder} rows={rows}
+        style={{ width: '100%', fontSize: 14, padding: '12px', borderRadius: 12, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', resize: 'none' as any, boxSizing: 'border-box' as any }} /></div>
+    ) : (
+      <div style={{ marginBottom: 10 }}><input type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
+        style={{ width: '100%', fontSize: 15, padding: '12px 14px', borderRadius: 12, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
+    );
+  }
+  const { TextInput: RNTextInput } = require('react-native');
+  return (
+    <View style={{ marginBottom: 10 }}>
+      <RNTextInput value={val} onChangeText={onChange} placeholder={placeholder} placeholderTextColor="#AAA"
+        secureTextEntry={type === 'password'} autoCapitalize="none" multiline={!!rows} numberOfLines={rows || 1}
+        keyboardType={type === 'email' ? 'email-address' : type === 'tel' ? 'phone-pad' : 'default'}
+        style={{ fontSize: 15, padding: 12, borderRadius: 12, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)', backgroundColor: 'rgba(255,255,255,0.5)', color: '#000' }} />
+    </View>
+  );
+};
 
 const LANGUAGES = [
   { code: 'FR', label: 'Francais', color: '#002395' },
