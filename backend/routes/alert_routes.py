@@ -5,6 +5,7 @@ import uuid, random, asyncio, logging
 from database import db, twilio_client, TWILIO_NUMBER
 from auth import get_current_user, get_effective_role
 from models import AlertCreate
+from routes.push_routes import notify_sos_alert, notify_fall_detected
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -20,6 +21,18 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
         "teleassistance_status": "pending",
     }
     await db.alerts.insert_one(alert)
+    
+    # Send push notifications to guardians
+    guardian_ids = user.get('guardians', [])
+    if not guardian_ids:
+        guardians = await db.users.find({"beneficiaries": user['id']}, {"_id": 0, "id": 1}).to_list(20)
+        guardian_ids = [g['id'] for g in guardians]
+    if guardian_ids:
+        if data.alert_type == 'fall':
+            asyncio.create_task(notify_fall_detected(user['name'], alert['id'], guardian_ids))
+        else:
+            asyncio.create_task(notify_sos_alert(user['name'], alert['id'], guardian_ids))
+    
     if data.severity in ('critical', 'high') and twilio_client:
         from services.carewatch_engine import carewatch_orchestrate
         asyncio.create_task(carewatch_orchestrate(alert))
