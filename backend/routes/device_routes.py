@@ -104,25 +104,54 @@ async def lefu_register(data: dict):
 
 @router.post("/lefu/wifi/weighing")
 async def lefu_weighing(data: dict):
-    """Lefu WiFi scale measurement endpoint - called by the scale after weighing"""
+    """Lefu WiFi scale measurement endpoint - called by the scale after weighing.
+    Receives raw weight + impedance, calls Lefu API for body composition calculation."""
     mac = data.get('mac', '')
     now = datetime.now(timezone.utc).isoformat()
     # Find which user has this scale
     device = await db.devices.find_one({"mac_address": mac, "device_type": "scale"}, {"_id": 0})
     user_id = device.get('user_id') if device else None
+    
+    weight = data.get('weight', 0)
+    impedance = data.get('impedance', data.get('imp', 0))
+    
+    # Get user profile for height/age/sex
+    user_profile = None
+    if user_id:
+        user_profile = await db.users.find_one({"id": user_id}, {"_id": 0})
+    
+    # Calculate body composition via Lefu API if we have impedance
+    body_data = {}
+    if impedance and user_profile:
+        from services.lefu_service import calculate_body_data
+        height = user_profile.get('height_cm', 170)
+        age = 50  # default
+        if user_profile.get('date_of_birth'):
+            try:
+                dob = datetime.fromisoformat(user_profile['date_of_birth'].replace('Z', '+00:00'))
+                age = (datetime.now(timezone.utc) - dob).days // 365
+            except: pass
+        sex = 1 if user_profile.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 2
+        body_data = await calculate_body_data(weight, impedance, height, age, sex)
+    
     measurement = {
         "id": str(uuid.uuid4()), "mac": mac, "user_id": user_id,
         "device_type": "scale", "timestamp": now,
-        "weight": data.get('weight', 0), "bmi": data.get('bmi', 0),
-        "body_fat_pct": data.get('bodyFat', data.get('body_fat_pct', 0)),
-        "muscle_mass": data.get('muscle', data.get('muscle_mass', 0)),
-        "bone_mass": data.get('bone', data.get('bone_mass', 0)),
-        "hydration_pct": data.get('water', data.get('hydration_pct', 0)),
-        "visceral_fat": data.get('visceralFat', data.get('visceral_fat', 0)),
-        "basal_metabolism": data.get('bmr', data.get('basal_metabolism', 0)),
-        "body_age": data.get('bodyAge', data.get('body_age', 0)),
-        "protein_pct": data.get('protein', data.get('protein_pct', 0)),
-        "health_score": data.get('score', data.get('health_score', 0)),
+        "weight": body_data.get('weight', weight),
+        "bmi": body_data.get('bmi', data.get('bmi', 0)),
+        "body_fat_pct": body_data.get('body_fat_pct', data.get('bodyFat', 0)),
+        "muscle_mass": body_data.get('muscle_mass', data.get('muscle', 0)),
+        "bone_mass": body_data.get('bone_mass', data.get('bone', 0)),
+        "hydration_pct": body_data.get('hydration_pct', data.get('water', 0)),
+        "visceral_fat": body_data.get('visceral_fat', data.get('visceralFat', 0)),
+        "basal_metabolism": body_data.get('basal_metabolism', data.get('bmr', 0)),
+        "body_age": body_data.get('body_age', data.get('bodyAge', 0)),
+        "protein_pct": body_data.get('protein_pct', data.get('protein', 0)),
+        "health_score": body_data.get('health_score', data.get('score', 0)),
+        "subcutaneous_fat": body_data.get('subcutaneous_fat', 0),
+        "lean_body_mass": body_data.get('lean_body_mass', 0),
+        "ideal_weight": body_data.get('ideal_weight', 0),
+        "impedance": impedance,
         "raw_data": data,
     }
     await db.device_readings.insert_one(measurement)
