@@ -54,6 +54,23 @@ export default function ProfileScreen() {
   const [showLangPicker, setShowLangPicker] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showNotifPrefs, setShowNotifPrefs] = useState(false);
+  const [notifPrefs, setNotifPrefs] = useState<any>(null);
+  const [savingNotif, setSavingNotif] = useState(false);
+
+  const fetchNotifPrefs = useCallback(async () => {
+    try { setNotifPrefs(await apiFetch('/api/push/preferences', {}, token)); } catch {}
+  }, [token]);
+  
+  const toggleNotifPref = async (key: string, value: boolean) => {
+    setNotifPrefs({ ...notifPrefs, [key]: value });
+    setSavingNotif(true);
+    try { await apiFetch('/api/push/preferences', { method: 'PUT', body: JSON.stringify({ [key]: value }) }, token); } catch {} finally { setSavingNotif(false); }
+  };
+
+  const testPush = async () => {
+    try { await apiFetch('/api/push/test', { method: 'POST' }, token); Alert.alert('Notification envoyee', 'Verifiez votre appareil !'); } catch (e: any) { Alert.alert('Erreur', e.message); }
+  };
 
   if (!user || !token) return null;
 
