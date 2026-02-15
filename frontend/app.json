@@ -64,7 +64,8 @@
           ],
           "bluetoothAlwaysPermission": "Chutex needs Bluetooth to connect to your health devices."
         }
-      ]
+      ],
+      "./plugins/lefu-scale"
     ],
     "experiments": {
       "typedRoutes": true
