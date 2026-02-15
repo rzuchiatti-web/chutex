@@ -254,9 +254,9 @@ export function MiniTuto({ id, steps, triggerLabel }: { id: string; steps: { tit
 export function PageExplainer({ pageId, title, sections }: { pageId: string; title: string; sections: { icon: string; heading: string; text: string }[] }) {
   const [visible, setVisible] = useState(false);
   return (
-    <>
-      <TouchableOpacity onPress={() => setVisible(true)} data-testid={`explainer-${pageId}`}
-        style={{ flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'center', marginBottom: 12, paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20, backgroundColor: 'rgba(33,150,243,0.06)', borderWidth: 1, borderColor: 'rgba(33,150,243,0.12)' }}>
+    <View>
+      <TouchableOpacity onPress={() => setVisible(true)} testID={`explainer-${pageId}`}
+        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 12, paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20, backgroundColor: 'rgba(33,150,243,0.06)', borderWidth: 1, borderColor: 'rgba(33,150,243,0.12)' }}>
         <Ionicons name="book-outline" size={14} color="#2196F3" />
         <Text style={{ fontSize: 12, fontWeight: '600', color: '#2196F3' }}>Comprendre cette page</Text>
       </TouchableOpacity>
