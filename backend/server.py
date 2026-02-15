@@ -20,6 +20,7 @@ from routes.vest_routes import router as vest_router
 from routes.bracelet_routes import router as bracelet_router
 from routes.carewatch_routes import router as carewatch_router
 from routes.company_routes import router as company_router
+from routes.push_routes import router as push_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
