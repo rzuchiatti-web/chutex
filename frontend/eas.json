@@ -30,7 +30,7 @@
       "ios": {
         "distribution": "store",
         "autoIncrement": true,
-        "credentialsSource": "remote"
+        "credentialsSource": "local"
       }
     }
   },
