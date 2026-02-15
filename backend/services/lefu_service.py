@@ -36,7 +36,7 @@ async def get_lefu_token() -> str:
                 timeout=10
             )
             data = resp.json()
-            if data.get("code") == 0 and data.get("data", {}).get("token"):
+            if data.get("code") in (0, 200) and data.get("data", {}).get("token"):
                 _cached_token = data["data"]["token"]
                 _token_expire = data["data"].get("expireTime", now + 3600)
                 logger.info("Lefu token refreshed successfully")
