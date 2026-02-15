@@ -20,7 +20,8 @@
           "bluetooth-central"
         ],
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "buildNumber": "2"
     },
     "android": {
       "package": "com.chutex.app",
@@ -58,7 +59,9 @@
         "react-native-ble-plx",
         {
           "isBackgroundEnabled": true,
-          "modes": ["central"],
+          "modes": [
+            "central"
+          ],
           "bluetoothAlwaysPermission": "Chutex needs Bluetooth to connect to your health devices."
         }
       ]
