@@ -236,6 +236,105 @@ export default function ProfileScreen() {
 
         <HelpCenter visible={showHelp} onClose={() => setShowHelp(false)} />
 
+        {/* Notification Preferences Modal */}
+        <Modal visible={showNotifPrefs} transparent animationType="slide">
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+            <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '85%' }}>
+              <View style={{ alignItems: 'center', paddingTop: 12 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} /></View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, gap: 10 }}>
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
+                  <Ionicons name="notifications" size={20} color="#2196F3" />
+                </View>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', flex: 1 }}>Notifications</Text>
+                {savingNotif && <ActivityIndicator size="small" color="#2196F3" />}
+                <TouchableOpacity onPress={() => setShowNotifPrefs(false)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
+              </View>
+              <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
+                {notifPrefs ? (
+                  <>
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Urgences</Text>
+                    {[
+                      { key: 'sos_alerts', icon: 'alert-circle', label: 'Alertes SOS', desc: 'Notification immediate quand un proche declenche SOS', color: '#E53935' },
+                      { key: 'fall_detection', icon: 'trending-down', label: 'Detection de chute', desc: 'Alerte quand une chute est detectee', color: '#FF6F00' },
+                      { key: 'health_thresholds', icon: 'heart', label: 'Seuils de sante', desc: 'Alerte quand les constantes depassent les limites', color: '#E91E63' },
+                    ].map(item => (
+                      <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
+                          <Ionicons name={item.icon as any} size={18} color={item.color} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{item.label}</Text>
+                          <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{item.desc}</Text>
+                        </View>
+                        <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
+                      </View>
+                    ))}
+
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Appareils</Text>
+                    {[
+                      { key: 'low_battery', icon: 'battery-dead', label: 'Batterie faible', desc: 'Alerte quand un appareil est en dessous de 20%', color: '#FF9800' },
+                    ].map(item => (
+                      <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
+                          <Ionicons name={item.icon as any} size={18} color={item.color} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{item.label}</Text>
+                          <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{item.desc}</Text>
+                        </View>
+                        <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
+                      </View>
+                    ))}
+
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Rappels quotidiens</Text>
+                    {[
+                      { key: 'reminders_hydration', icon: 'water', label: 'Hydratation', desc: 'Rappels pour boire de l\'eau', color: '#2196F3' },
+                      { key: 'reminders_medication', icon: 'medkit', label: 'Traitements', desc: 'Rappels de prise de medicaments', color: '#4CAF50' },
+                      { key: 'reminders_alarm', icon: 'alarm', label: 'Alarmes', desc: 'Rappels personnalises programmes', color: '#9C27B0' },
+                    ].map(item => (
+                      <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
+                          <Ionicons name={item.icon as any} size={18} color={item.color} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{item.label}</Text>
+                          <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{item.desc}</Text>
+                        </View>
+                        <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
+                      </View>
+                    ))}
+
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Autres</Text>
+                    {[
+                      { key: 'interventions', icon: 'navigate', label: 'Interventions', desc: 'Missions d\'intervention a proximite', color: '#009688' },
+                      { key: 'guardian_requests', icon: 'person-add', label: 'Demandes de gardien', desc: 'Quand quelqu\'un souhaite etre votre gardien', color: '#FF9800' },
+                    ].map(item => (
+                      <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
+                          <Ionicons name={item.icon as any} size={18} color={item.color} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{item.label}</Text>
+                          <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{item.desc}</Text>
+                        </View>
+                        <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
+                      </View>
+                    ))}
+
+                    <TouchableOpacity testID="test-push-btn" onPress={testPush}
+                      style={{ backgroundColor: '#2196F3', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 20, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
+                      <Ionicons name="paper-plane" size={16} color="#FFF" />
+                      <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>Envoyer une notification test</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <ActivityIndicator size="large" color="#2196F3" style={{ paddingVertical: 40 }} />
+                )}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
         {/* Language Picker Modal */}
         {showLangPicker && (
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 24, zIndex: 100 }}>
