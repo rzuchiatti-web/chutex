@@ -1,66 +1,45 @@
 # CHUTEX HEALTH / CARE WATCH - PRD
 
 ## Product Overview
-AI-powered teleassistance platform for elderly care with multi-role support (Beneficiary, Guardian, Admin, Teleassistance, Prescriber Company, Intervenant).
+AI-powered teleassistance platform for elderly care with 6 user roles.
 
-## iOS App
-- **App Store Connect ID**: 6759215592
-- **Name**: Chutex Health
+## iOS App - TestFlight
+- **App Store Connect**: https://appstoreconnect.apple.com/apps/6759215592/testflight/ios
 - **Bundle ID**: com.chutex.app
-- **TestFlight**: https://appstoreconnect.apple.com/apps/6759215592/testflight/ios
-- **Latest IPA**: https://expo.dev/artifacts/eas/6BEiAF2QX2oVACymJRHFxt.ipa
-- **Status**: Submitted to TestFlight (Feb 15, 2026) - en attente traitement Apple
+- **Latest version**: v1.0.2 build 101 (avec TextInput natifs + push notifications)
 
-## Push Notifications System (Feb 15, 2026)
-### Backend Endpoints
-- POST `/api/push/register` - Register Expo push token
-- POST `/api/push/unregister` - Remove push token
-- GET `/api/push/preferences` - Get 9 notification categories
-- PUT `/api/push/preferences` - Toggle categories on/off
-- POST `/api/push/test` - Test notification
-- GET `/api/push/history` - Notification log
+## Lefu Smart Scale Integration (Feb 15, 2026)
+### Backend
+- `POST /api/lefu/wifi/register` - Scale WiFi registration
+- `POST /api/lefu/wifi/weighing` - Receive weighing data (30+ body metrics)
+- `GET /api/devices/scale/history` - User measurement history
+- `POST /api/devices/scale/seed-history` - Seed demo data
+- Service `services/lefu_service.py` - Lefu Cloud API integration (token + body calc)
+- **Lefu AppKey**: lefu317d5a502fbb2b77 (needs API authorization for body data calc)
 
-### 9 Categories
-1. SOS Alerts → guardians on SOS
-2. Health Thresholds → guardians on vitals anomaly
-3. Fall Detection → guardians + teleassistance
-4. Low Battery → beneficiary when device < 20%
-5. Hydration Reminders
-6. Medication Reminders
-7. Alarm Reminders
-8. Interventions → intervenants on mission dispatch
-9. Guardian Requests → beneficiary on guardian request
+### 30+ Metrics Stored
+weight, bmi, body_fat_pct, muscle_mass, muscle_rate, bone_mass, hydration_pct, visceral_fat, basal_metabolism, body_age, protein_pct, health_score, subcutaneous_fat, lean_body_mass, fat_free_weight, ideal_weight, body_type, obesity_level, skeletal_muscle_rate, fat_mass, standard_weight, weight_control, fat_control, muscle_control, body_shape, heart_rate, impedance
 
-### Frontend
-- Notification preferences page in Profile (toggles per category)
-- expo-notifications for native push
-- Web fallback with browser Notification API
-- Auto-register push token on login (native only)
+### Pending
+- Contact Lefu support to authorize AppKey for body data calculation API
+- Configure real scale WiFi to point to server
+- BLE Bluetooth integration for direct iPhone connection
 
-## UX Help Layer
-- HelpBubble, ContextualTip, OnboardingChecklist, HelpCenter (Phase 1)
-- MiniTuto, PageExplainer, EmptyState (Phase 2)
-- PageExplainer on Alerts page
-- MiniTutos on Beneficiary + Guardian dashboards
-
-## Intervention Pages Redesign
-- Admin: KPI summary + rich status cards
-- Improved empty states
+## Push Notifications (Feb 15, 2026)
+- 9 categories: SOS, health thresholds, fall, battery, hydration, medication, alarms, interventions, guardian requests
+- Notification preferences page in Profile with toggles
+- Backend: `/api/push/*` endpoints
 
 ## Accounts
 | Role | Email | Password |
 |---|---|---|
 | Beneficiary | robert.martin@email.fr | demo123 |
 | Guardian | claire.martin@email.fr | demo123 |
-| Intervenant | ludivine.moutio@care.fr | demo123 |
-| Teleassistance | plateau@chutex.fr | demo123 |
 | Admin | admin@chutex.fr | demo123 |
-| Company | saad@chutex.fr | demo123 |
 
 ## Backlog
-- P1: Add PageExplainer to Sante, Appareils, Teleconsult screens
-- P1: More MiniTutos (add beneficiary, activate prescriber, connect device)
-- P2: Native BLE testing on real iOS device
-- P2: Lefu Scale live data
+- P1: Deploy backend on HDS server
+- P1: BLE Bluetooth scale connection in app
+- P1: Contact Lefu for API authorization
+- P2: More MiniTutos/PageExplainers
 - P3: Shopify, WebSocket
-- P4: Offline mode
