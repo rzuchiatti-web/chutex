@@ -221,6 +221,7 @@ export default function ProfileScreen() {
             }} />
           )}
           <MenuItem icon="language-outline" label={`${t('language')} (${lang})`} onPress={() => setShowLangPicker(true)} />
+          <MenuItem testID="notif-prefs-btn" icon="notifications-outline" label="Notifications" onPress={() => { setShowNotifPrefs(true); fetchNotifPrefs(); }} />
           <MenuItem icon="document-text-outline" label={t('terms')} onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
           <MenuItem icon="help-buoy-outline" label="Centre d'aide" onPress={() => setShowHelp(true)} />
           <MenuItem icon="help-circle-outline" label={t('support')} onPress={() => setShowContact(true)} />
