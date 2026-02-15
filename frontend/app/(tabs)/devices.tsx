@@ -78,6 +78,12 @@ function DeviceManagement({ token }: { token: string }) {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchDevices(); }} tintColor={Colors.primary} />}
       showsVerticalScrollIndicator={false}>
 
+      <PageExplainer pageId="devices" title="Vos appareils connectes" sections={[
+        { icon: 'watch-outline', heading: 'Bracelet Elio', text: 'Mesure en continu votre rythme cardiaque, SpO2, temperature et detecte les chutes. Necessite un abonnement Standard ou Care.' },
+        { icon: 'shield-outline', heading: 'Gilet Anti-Chute', text: 'Le S-AIRBAG se gonfle automatiquement en cas de chute pour proteger vos hanches. Connexion Bluetooth.' },
+        { icon: 'scale-outline', heading: 'Balance connectee', text: 'Mesurez votre poids et composition corporelle (30+ metriques). Connectez-la en Bluetooth ou WiFi.' },
+      ]} />
+
       {/* Subscription Status */}
       {subscription && (
         <View style={[d.infoText, { flexDirection: 'row', alignItems: 'center', gap: 8, borderColor: subscription.has_subscription ? Colors.success : Colors.border }]}>
