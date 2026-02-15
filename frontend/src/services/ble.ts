@@ -134,37 +134,35 @@ export async function connectToScale(deviceId: string, onMeasurement: ScaleCallb
   if (!bleManagerInstance) return false;
   
   try {
-    // Connect
     const device = await bleManagerInstance.connectToDevice(deviceId, { timeout: 10000 });
     deviceConnection = device;
-    
-    // Discover services
     await device.discoverAllServicesAndCharacteristics();
     
-    // Try primary service UUID
-    let serviceUUID = SCALE_SERVICE_UUID;
-    let notifyUUID = SCALE_NOTIFY_UUID;
-    
+    // Discover all services and find the right one for weight data
     const services = await device.services();
+    let monitorStarted = false;
+    
     for (const svc of services) {
-      const uuid = svc.uuid.toLowerCase();
-      if (uuid.includes('fff0')) { serviceUUID = svc.uuid; notifyUUID = SCALE_NOTIFY_UUID; break; }
-      if (uuid.includes('ffe0')) { serviceUUID = svc.uuid; notifyUUID = ALT_NOTIFY_UUID; break; }
+      const chars = await svc.characteristics();
+      for (const char of chars) {
+        // Monitor any characteristic that supports notifications/indications
+        if (char.isNotifiable || char.isIndicatable) {
+          try {
+            device.monitorCharacteristicForService(svc.uuid, char.uuid, (error: any, characteristic: any) => {
+              if (error || !characteristic?.value) return;
+              const bytes = base64ToBytes(characteristic.value);
+              if (bytes.length >= 4) {
+                const measurement = parseScaleData(bytes, deviceId, device.name || device.localName || 'Scale', deviceId);
+                if (measurement) onMeasurement(measurement);
+              }
+            });
+            monitorStarted = true;
+          } catch {}
+        }
+      }
     }
     
-    // Monitor notifications for weight data
-    device.monitorCharacteristicForService(serviceUUID, notifyUUID, (error: any, characteristic: any) => {
-      if (error) { console.warn('BLE notify error:', error); return; }
-      if (!characteristic?.value) return;
-      
-      const bytes = base64ToBytes(characteristic.value);
-      const measurement = parseScaleData(bytes, deviceId, device.name || 'Scale', device.id || '');
-      if (measurement) {
-        onMeasurement(measurement);
-      }
-    });
-    
-    return true;
+    return monitorStarted;
   } catch (error) {
     console.error('BLE connect error:', error);
     return false;
