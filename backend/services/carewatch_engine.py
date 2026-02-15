@@ -2,7 +2,7 @@
 CARE WATCH - Moteur d'orchestration d'appels vocaux IA
 Machine a etats pour le traitement automatique des alertes
 """
-import uuid, asyncio, logging, math, random, re, base64
+import uuid, asyncio, logging, math, random, re, base64, os
 from datetime import datetime, timezone
 from database import db, twilio_client, TWILIO_NUMBER, EMERGENT_LLM_KEY
 from emergentintegrations.llm.chat import LlmChat, UserMessage
