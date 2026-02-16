@@ -64,6 +64,55 @@ export default function OnboardingScreen() {
     );
   }
 
+  /* ─── HERO SLIDE (fullscreen image + logo + typewriter) ─── */
+  if (Platform.OS === 'web' && slide.hero) {
+    return (
+      <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', position: 'relative' } as any}>
+        {/* Background image */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: `url(${slide.heroImg})`, backgroundSize: 'cover', backgroundPosition: 'center 30%' } as any} />
+        {/* Dark overlay for text readability */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.55) 100%)' } as any} />
+
+        {/* Top bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', position: 'relative', zIndex: 10 } as any}>
+          <button onClick={finish} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', padding: '4px 0' } as any}>Passer</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+            <button onClick={() => setDark(!dark)} style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 999, padding: '6px 14px', color: '#FFF', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.3s' } as any}>
+              {dark ? '● Light' : '● Dark'}
+            </button>
+            <div style={{ width: 28, height: 20, borderRadius: 4, overflow: 'hidden', display: 'flex', border: '1px solid rgba(255,255,255,0.2)' } as any}>
+              <div style={{ flex: 1, background: '#002395' }} /><div style={{ flex: 1, background: '#FFF' }} /><div style={{ flex: 1, background: '#ED2939' }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Center content */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px' } as any}>
+          <img src={LOGO} alt="Chutex" className="anim-up" style={{ height: 32, width: 'auto', marginBottom: 28 } as any} />
+          <div className="anim-up d2" style={{ textAlign: 'center', maxWidth: 340 } as any}>
+            <Typewriter text={slide.title} speed={28} delay={600} color="#FFF" />
+          </div>
+        </div>
+
+        {/* Bottom button */}
+        <div style={{ padding: '16px 24px 36px', position: 'relative', zIndex: 10 } as any}>
+          <button onClick={next} data-testid="onboarding-next-btn" style={{
+            width: '100%', padding: '18px', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 999,
+            background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+            color: '#FFF', border: '1px solid rgba(255,255,255,0.25)',
+            boxShadow: '0 0 30px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.15)',
+            position: 'relative', overflow: 'hidden', transition: 'all 0.3s',
+          } as any}>
+            <span style={{ position: 'relative', zIndex: 2 }}>Commencer</span>
+            <span style={{ position: 'absolute', top: 0, left: '-100%', width: '60%', height: '100%', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)', animation: 'scan-sweep 3s ease-in-out infinite', pointerEvents: 'none' } as any} />
+          </button>
+        </div>
+
+        <style>{`@keyframes scan-line { 0%{transform:translateY(-60%);opacity:0} 15%{opacity:0.25} 50%{opacity:0.4} 85%{opacity:0.25} 100%{transform:translateY(60%);opacity:0} }`}</style>
+      </div>
+    );
+  }
+
   return (
     <div className={dark ? 'clinic-grid-dark' : 'clinic-grid-light'} style={{ height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', transition: 'background-color 0.4s' } as any}>
 
