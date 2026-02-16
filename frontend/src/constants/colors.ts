@@ -1,208 +1,144 @@
-// CHUTEX HEALTH — Ultra Clinical Design System
-// Direction: Black & White dominant, colors ONLY on micro-elements
-// Font: Inter (Regular body, ExtraBold titles/buttons)
-// Glass cards, generous spacing, fluid motion
+// CHUTEX HEALTH — Deep Ocean Clinical Design System
+// Dark premium medical tech aesthetic with electric blue accents
+import { Platform } from 'react-native';
 
-// ─── COLOR TOKENS ───
 export const LightTheme = {
-  // Backgrounds
-  background: '#F8F8F8',
+  background: '#F1F5F9',
   backgroundSecondary: '#FFFFFF',
-
-  // Surfaces — Glass
-  surface: 'rgba(255, 255, 255, 0.72)',
-  surfaceHighlight: 'rgba(255, 255, 255, 0.50)',
-  surfaceGlass: 'rgba(255, 255, 255, 0.60)',
-  glassBorder: 'rgba(0, 0, 0, 0.06)',
-
-  // Text
-  textPrimary: '#000000',
-  textSecondary: '#3A3A3A',
-  textMuted: '#999999',
+  surface: 'rgba(255, 255, 255, 0.85)',
+  surfaceHighlight: 'rgba(241, 245, 249, 0.8)',
+  surfaceGlass: 'rgba(255, 255, 255, 0.7)',
+  glassBorder: 'rgba(0, 0, 0, 0.05)',
+  textPrimary: '#0F172A',
+  textSecondary: '#475569',
+  textMuted: '#94A3B8',
   textInverse: '#FFFFFF',
-
-  // Primary — Black
-  primary: '#000000',
-  primaryDark: '#000000',
-  primaryLight: '#F2F2F2',
-  primaryGlow: 'rgba(0, 0, 0, 0.04)',
-
-  // Accent — micro-elements only
-  accent: '#34C759',
-  accentDark: '#28A745',
-  accentLight: '#E8F8ED',
-
-  // Semantic — micro-elements only
-  danger: '#FF3B30',
-  dangerLight: '#FFF0EF',
-  dangerGlow: 'rgba(255, 59, 48, 0.10)',
-  warning: '#FF9500',
-  warningLight: '#FFF8EC',
-  success: '#34C759',
-  successLight: '#E8F8ED',
-  successBadge: '#D4F5DD',
-  info: '#5856D6',
-  infoLight: '#F0F0FF',
-
-  // Borders
+  primary: '#3B82F6',
+  primaryDark: '#2563EB',
+  primaryLight: '#EFF6FF',
+  primaryGlow: 'rgba(59, 130, 246, 0.12)',
+  accent: '#10B981',
+  accentDark: '#059669',
+  accentLight: '#ECFDF5',
+  danger: '#EF4444',
+  dangerLight: '#FEF2F2',
+  dangerGlow: 'rgba(239, 68, 68, 0.12)',
+  warning: '#F59E0B',
+  warningLight: '#FFFBEB',
+  success: '#10B981',
+  successLight: '#ECFDF5',
+  successBadge: '#D1FAE5',
+  info: '#8B5CF6',
+  infoLight: '#F5F3FF',
   border: 'rgba(0, 0, 0, 0.06)',
   borderLight: 'rgba(0, 0, 0, 0.03)',
-
-  // Backward-compat aliases
-  care: '#000000',
-  careLight: '#F2F2F2',
-  standard: '#000000',
-  tabBar: 'rgba(255, 255, 255, 0.80)',
+  care: '#3B82F6',
+  careLight: '#EFF6FF',
+  standard: '#0F172A',
+  tabBar: 'rgba(255, 255, 255, 0.90)',
   tabBarBorder: 'rgba(0, 0, 0, 0.05)',
-  cardShadow: 'rgba(0, 0, 0, 0.06)',
-  overlay: 'rgba(0, 0, 0, 0.50)',
-  skeleton: '#EFEFEF',
-  subtle: 'rgba(255, 255, 255, 0.60)',
+  cardShadow: 'rgba(59, 130, 246, 0.08)',
+  overlay: 'rgba(15, 23, 42, 0.6)',
+  skeleton: '#E2E8F0',
+  subtle: 'rgba(255, 255, 255, 0.6)',
   paper: '#FFFFFF',
   elevated: '#FFFFFF',
-  card: 'rgba(255, 255, 255, 0.72)',
-  destructive: '#FF3B30',
-  destructiveLight: '#FFF0EF',
-  text: '#000000',
-  secondary: '#F2F2F2',
-  secondaryDark: '#E5E5E5',
-  accentLight2: '#E8F8ED',
-  backgroundGradientStart: '#F8F8F8',
-  backgroundGradientMid: '#F4F4F4',
-  backgroundGradientEnd: '#F8F8F8',
+  card: 'rgba(255, 255, 255, 0.85)',
+  destructive: '#EF4444',
+  destructiveLight: '#FEF2F2',
+  text: '#0F172A',
+  secondary: '#F1F5F9',
+  secondaryDark: '#E2E8F0',
+  accentLight2: '#ECFDF5',
+  backgroundGradientStart: '#F1F5F9',
+  backgroundGradientMid: '#FFFFFF',
+  backgroundGradientEnd: '#F1F5F9',
 };
 
 export const DarkTheme = {
-  background: '#000000',
-  backgroundSecondary: '#0A0A0A',
-
-  surface: 'rgba(28, 28, 30, 0.80)',
-  surfaceHighlight: 'rgba(44, 44, 46, 0.60)',
-  surfaceGlass: 'rgba(28, 28, 30, 0.72)',
+  background: '#0F172A',
+  backgroundSecondary: '#1E293B',
+  surface: 'rgba(30, 41, 59, 0.85)',
+  surfaceHighlight: 'rgba(51, 65, 85, 0.6)',
+  surfaceGlass: 'rgba(30, 41, 59, 0.75)',
   glassBorder: 'rgba(255, 255, 255, 0.08)',
-
-  textPrimary: '#FFFFFF',
-  textSecondary: '#BBBBBB',
-  textMuted: '#666666',
-  textInverse: '#000000',
-
-  primary: '#FFFFFF',
-  primaryDark: '#E0E0E0',
-  primaryLight: '#1C1C1E',
-  primaryGlow: 'rgba(255, 255, 255, 0.06)',
-
-  accent: '#30D158',
-  accentDark: '#28A745',
-  accentLight: '#0D2818',
-
-  danger: '#FF453A',
-  dangerLight: '#2C1215',
-  dangerGlow: 'rgba(255, 69, 58, 0.12)',
-  warning: '#FF9F0A',
-  warningLight: '#2C1F0A',
-  success: '#30D158',
-  successLight: '#0D2818',
-  successBadge: '#0D2818',
-  info: '#5E5CE6',
-  infoLight: '#1C1C2E',
-
+  textPrimary: '#F8FAFC',
+  textSecondary: '#CBD5E1',
+  textMuted: '#64748B',
+  textInverse: '#0F172A',
+  primary: '#3B82F6',
+  primaryDark: '#60A5FA',
+  primaryLight: 'rgba(59, 130, 246, 0.15)',
+  primaryGlow: 'rgba(59, 130, 246, 0.25)',
+  accent: '#10B981',
+  accentDark: '#34D399',
+  accentLight: 'rgba(16, 185, 129, 0.15)',
+  danger: '#EF4444',
+  dangerLight: 'rgba(239, 68, 68, 0.15)',
+  dangerGlow: 'rgba(239, 68, 68, 0.20)',
+  warning: '#F59E0B',
+  warningLight: 'rgba(245, 158, 11, 0.15)',
+  success: '#10B981',
+  successLight: 'rgba(16, 185, 129, 0.15)',
+  successBadge: 'rgba(16, 185, 129, 0.2)',
+  info: '#8B5CF6',
+  infoLight: 'rgba(139, 92, 246, 0.15)',
   border: 'rgba(255, 255, 255, 0.08)',
   borderLight: 'rgba(255, 255, 255, 0.04)',
-
-  care: '#FFFFFF',
-  careLight: '#1C1C1E',
-  standard: '#FFFFFF',
-  tabBar: 'rgba(0, 0, 0, 0.90)',
+  care: '#60A5FA',
+  careLight: 'rgba(59, 130, 246, 0.15)',
+  standard: '#F8FAFC',
+  tabBar: 'rgba(15, 23, 42, 0.95)',
   tabBarBorder: 'rgba(255, 255, 255, 0.06)',
-  cardShadow: 'rgba(0, 0, 0, 0.40)',
-  overlay: 'rgba(0, 0, 0, 0.70)',
-  skeleton: '#1C1C1E',
-  subtle: 'rgba(28, 28, 30, 0.72)',
-  paper: '#1C1C1E',
-  elevated: '#2C2C2E',
-  card: 'rgba(28, 28, 30, 0.80)',
-  destructive: '#FF453A',
-  destructiveLight: '#2C1215',
-  text: '#FFFFFF',
-  secondary: '#1C1C1E',
-  secondaryDark: '#2C2C2E',
-  accentLight2: '#0D2818',
-  backgroundGradientStart: '#000000',
-  backgroundGradientMid: '#0A0A0A',
-  backgroundGradientEnd: '#000000',
+  cardShadow: 'rgba(0, 0, 0, 0.3)',
+  overlay: 'rgba(0, 0, 0, 0.7)',
+  skeleton: '#1E293B',
+  subtle: 'rgba(30, 41, 59, 0.8)',
+  paper: '#1E293B',
+  elevated: '#334155',
+  card: 'rgba(30, 41, 59, 0.85)',
+  destructive: '#EF4444',
+  destructiveLight: 'rgba(239, 68, 68, 0.15)',
+  text: '#F8FAFC',
+  secondary: '#1E293B',
+  secondaryDark: '#334155',
+  accentLight2: 'rgba(16, 185, 129, 0.15)',
+  backgroundGradientStart: '#0F172A',
+  backgroundGradientMid: '#1E293B',
+  backgroundGradientEnd: '#0F172A',
 };
 
 export type ThemeColors = typeof LightTheme;
 export const Colors = LightTheme;
 
-// ─── SPACING ───
-export const Space = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  xxl: 32,
-  xxxl: 48,
-} as const;
-
-// ─── RADIUS ───
-export const Radius = {
-  sm: 8,
-  md: 14,
-  lg: 20,
-  xl: 28,
-  full: 9999,
-} as const;
-
-// ─── TYPOGRAPHY ───
+export const Space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 } as const;
+export const Radius = { sm: 12, md: 16, lg: 24, xl: 32, full: 9999 } as const;
 export const Type = {
-  h1: { fontSize: 32, fontWeight: '800' as const, letterSpacing: -0.8 },
-  h2: { fontSize: 22, fontWeight: '800' as const, letterSpacing: -0.4 },
+  h1: { fontSize: 34, fontWeight: '800' as const, letterSpacing: -0.8 },
+  h2: { fontSize: 24, fontWeight: '800' as const, letterSpacing: -0.4 },
   h3: { fontSize: 17, fontWeight: '700' as const, letterSpacing: -0.2 },
   body: { fontSize: 15, fontWeight: '400' as const, lineHeight: 22 },
   bodySmall: { fontSize: 13, fontWeight: '400' as const, lineHeight: 18 },
-  caption: { fontSize: 11, fontWeight: '500' as const, letterSpacing: 0.2 },
-  micro: { fontSize: 9, fontWeight: '600' as const, letterSpacing: 0.4 },
-  button: { fontSize: 15, fontWeight: '800' as const },
-  buttonSmall: { fontSize: 13, fontWeight: '700' as const },
-  stat: { fontSize: 28, fontWeight: '800' as const, letterSpacing: -0.5 },
+  caption: { fontSize: 11, fontWeight: '500' as const, letterSpacing: 0.3 },
+  micro: { fontSize: 9, fontWeight: '600' as const, letterSpacing: 0.5 },
+  button: { fontSize: 15, fontWeight: '700' as const },
+  buttonSmall: { fontSize: 13, fontWeight: '600' as const },
+  stat: { fontSize: 36, fontWeight: '800' as const, letterSpacing: -1 },
 } as const;
 
-// ─── GLASS STYLE (Platform-aware) ───
-import { Platform } from 'react-native';
-
 export const Glass = Platform.OS === 'web'
-  ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' }
-  : {};
+  ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } : {};
 
 export const GlassCard = {
-  backgroundColor: LightTheme.surface,
   borderRadius: Radius.lg,
   borderWidth: 1,
-  borderColor: LightTheme.glassBorder,
   ...Glass,
 } as const;
 
-// ─── MOTION TOKENS ───
-export const Motion = {
-  fast: 150,
-  normal: 250,
-  slow: 400,
-  spring: { damping: 15, stiffness: 150, mass: 1 },
-  easeOut: 'cubic-bezier(0.16, 1, 0.3, 1)',
-} as const;
+export const Motion = { fast: 150, normal: 250, slow: 400, spring: { damping: 15, stiffness: 150, mass: 1 }, easeOut: 'cubic-bezier(0.16, 1, 0.3, 1)' } as const;
 
-// ─── STATUS COLORS (micro-elements only) ───
 export const StatusColors: Record<string, string> = {
-  active: '#FF3B30',
-  pending: '#FF9500',
-  in_progress: '#5856D6',
-  en_route: '#007AFF',
-  completed: '#34C759',
-  resolved: '#34C759',
-  dispatched: '#FF9500',
-  pending_acceptance: '#FF9500',
-  connected: '#34C759',
-  disconnected: '#999999',
+  active: '#EF4444', pending: '#F59E0B', in_progress: '#8B5CF6', en_route: '#3B82F6',
+  completed: '#10B981', resolved: '#10B981', dispatched: '#F59E0B', pending_acceptance: '#F59E0B',
+  connected: '#10B981', disconnected: '#64748B',
 };
