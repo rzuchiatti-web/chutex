@@ -81,7 +81,7 @@ export default function AuthScreen() {
 
         {/* ── Logo CHUTEX ── */}
         <div className="anim-up" style={{ marginBottom: 28 } as any}>
-          <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/59sf9nvw_Logo_chutex_Noir.png" alt="Chutex" style={{ height: 26, width: 'auto', filter: 'invert(1)' } as any} />
+          <img src="https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429" alt="Chutex" style={{ height: 26, width: 'auto' } as any} />
         </div>
 
         {/* ── Glass pill badge ── */}
