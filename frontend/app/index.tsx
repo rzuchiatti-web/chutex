@@ -80,28 +80,28 @@ export default function AuthScreen() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [step, setStep] = useState(0);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [role, setRole] = useState('');
-  const [dob, setDob] = useState('');
-  const [gender, setGender] = useState('');
-  const [address, setAddress] = useState('');
-  const [allergies, setAllergies] = useState('');
-  const [ecName, setEcName] = useState('');
-  const [doctorName, setDoctorName] = useState('');
-  const [guardianType, setGuardianType] = useState('particular');
-  const [relationship, setRelationship] = useState('');
-  const [structureName, setStructureName] = useState('');
-  const [profession, setProfession] = useState('');
-  const [siret, setSiret] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const hasRedirected = useRef(false);
   const [ready, setReady] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(16)).current;
+
+  // Use refs for input values to avoid re-renders on each keystroke
+  const emailRef = useRef('');
+  const passwordRef = useRef('');
+  const nameRef = useRef('');
+  const phoneRef = useRef('');
+  const [role, setRole] = useState('');
+  const dobRef = useRef('');
+  const addressRef = useRef('');
+  const allergiesRef = useRef('');
+  const ecNameRef = useRef('');
+  const [guardianType, setGuardianType] = useState('particular');
+  const relationshipRef = useRef('');
+  const structureRef = useRef('');
+  const professionRef = useRef('');
+  const siretRef = useRef('');
 
   useEffect(() => { injectCSS(); return cleanupCSS; }, []);
 
