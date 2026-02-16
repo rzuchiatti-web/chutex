@@ -117,15 +117,22 @@ export function PastelMistBackground() {
       .btn-scan {
         display: inline-flex; align-items: center; justify-content: center; gap: 8px;
         padding: 14px 32px; border-radius: 999px;
-        background: #111; color: #FFF;
+        background: #FFF; color: #111;
         font-size: 14px; font-weight: 600;
         border: none; cursor: pointer;
         position: relative; overflow: hidden;
-        box-shadow: 0 0 20px rgba(255,255,255,0.06), inset 0 0 0 1px rgba(255,255,255,0.1);
+        box-shadow: 0 0 24px rgba(255,255,255,0.1), 0 0 60px rgba(255,255,255,0.04), inset 0 0 0 1px rgba(255,255,255,0.3);
         transition: all 0.35s cubic-bezier(.4,0,.15,1);
       }
+      .btn-scan::after {
+        content: '';
+        position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: scan-sweep 3s ease-in-out infinite;
+        pointer-events: none;
+      }
       .btn-scan:hover {
-        box-shadow: 0 0 30px rgba(255,255,255,0.12), inset 0 0 0 1px rgba(255,255,255,0.2);
+        box-shadow: 0 0 36px rgba(255,255,255,0.15), 0 0 80px rgba(255,255,255,0.06), inset 0 0 0 1px rgba(255,255,255,0.4);
         transform: scale(1.02);
       }
       .btn-scan:active { transform: scale(0.97); }
