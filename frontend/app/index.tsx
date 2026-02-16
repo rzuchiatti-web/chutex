@@ -154,12 +154,16 @@ export default function AuthScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }} data-testid="auth-screen">
-      {/* Native only: bg image */}
       {Platform.OS !== 'web' && <Image source={{ uri: BG_URL }} style={StyleSheet.absoluteFill} resizeMode="cover" />}
 
-      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 22, paddingVertical: 40, maxWidth: 440, width: '100%', alignSelf: 'center' }}
-          keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 22, paddingVertical: 40, maxWidth: 440, width: '100%', alignSelf: 'center' }}
+            keyboardShouldPersistTaps="always"
+            keyboardDismissMode="none"
+            showsVerticalScrollIndicator={false}
+          >
 
           {/* Logo */}
           <Animated.View style={{ alignItems: 'center', marginBottom: 28, transform: [{ translateY: slideAnim }] }}>
