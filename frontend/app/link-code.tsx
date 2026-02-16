@@ -114,7 +114,7 @@ export default function LinkScreen() {
               </div>
             ) : (
               <View style={{ marginBottom: 12 }}>
-                <View style={{ backgroundColor: '#FFFFFF'Highlight, borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.06)', paddingHorizontal: 14 }}>
+                <View style={{ backgroundColor: '#F0F1F3', borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.06)', paddingHorizontal: 14 }}>
                   <Text>Phone input placeholder</Text>
                 </View>
               </View>

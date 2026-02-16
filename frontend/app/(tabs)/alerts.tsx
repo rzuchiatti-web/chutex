@@ -158,7 +158,7 @@ export default function AlertsScreen() {
 
     return (
       <TouchableOpacity testID={`alert-card-${item.id}`}
-        style={[{ backgroundColor: '#FFFFFF'Highlight, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginBottom: 12, overflow: 'hidden', ...glass },
+        style={[{ backgroundColor: '#F0F1F3', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginBottom: 12, overflow: 'hidden', ...glass },
           isActive && { borderLeftWidth: 4, borderLeftColor: cfg.color }]}
         onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: item.id } })}>
 

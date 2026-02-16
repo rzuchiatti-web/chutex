@@ -139,7 +139,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
             { val: stats.care_dispatched || 0, label: 'Dispatches', color: '#9C27B0' },
             { val: `${stats.patient_response_rate || 0}%`, label: 'Reponse', color: '#2196F3' },
           ].map((s, i) => (
-            <View key={i} style={{ flex: 1, backgroundColor: '#FFFFFF'Highlight, borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
+            <View key={i} style={{ flex: 1, backgroundColor: '#F0F1F3', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
               <Text style={{ fontSize: 22, fontWeight: '900', color: s.color }}>{s.val}</Text>
               <Text style={{ fontSize: 8, color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.label}</Text>
             </View>
@@ -234,7 +234,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
       {/* Incidents List */}
       {displayed.length > 0 ? displayed.map(inc => (
         <TouchableOpacity key={inc.id} testID={`incident-${inc.id}`} onPress={() => setSelectedIncident(inc)}>
-          <View style={{ backgroundColor: '#FFFFFF'Highlight, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginBottom: 10, overflow: 'hidden', borderLeftWidth: 4, borderLeftColor: stateColor(inc.state) }}>
+          <View style={{ backgroundColor: '#F0F1F3', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginBottom: 10, overflow: 'hidden', borderLeftWidth: 4, borderLeftColor: stateColor(inc.state) }}>
             <View style={{ padding: 14 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: stateColor(inc.state) + '15', justifyContent: 'center', alignItems: 'center' }}>
@@ -605,7 +605,7 @@ function AdminIntervenants({ token }: { token: string }) {
               { val: interventions.filter((i: any) => ['in_progress', 'en_route'].includes(i.status)).length, label: 'En cours', color: '#2196F3' },
               { val: interventions.filter((i: any) => i.status === 'completed').length, label: 'Terminees', color: '#10B981' },
             ].map((s, i) => (
-              <View key={i} style={{ flex: 1, backgroundColor: '#FFFFFF'Highlight, borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
+              <View key={i} style={{ flex: 1, backgroundColor: '#F0F1F3', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
                 <Text style={{ fontSize: 22, fontWeight: '900', color: s.color }}>{s.val}</Text>
                 <Text style={{ fontSize: 8, color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.label}</Text>
               </View>
@@ -620,7 +620,7 @@ function AdminIntervenants({ token }: { token: string }) {
           return (
             <TouchableOpacity key={iv.id} onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: iv.id } })} activeOpacity={0.7}
               data-testid={`admin-intervention-${iv.id}`}>
-              <View style={{ backgroundColor: '#FFFFFF'Highlight, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginBottom: 12, overflow: 'hidden', borderLeftWidth: 4, borderLeftColor: sc[iv.status] || '#888' }}>
+              <View style={{ backgroundColor: '#F0F1F3', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginBottom: 12, overflow: 'hidden', borderLeftWidth: 4, borderLeftColor: sc[iv.status] || '#888' }}>
                 <View style={{ padding: 16 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                     <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: (sc[iv.status] || '#888') + '12', justifyContent: 'center', alignItems: 'center' }}>

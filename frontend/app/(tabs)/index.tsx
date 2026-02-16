@@ -181,7 +181,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           </View>
         </TouchableOpacity>
         <LanguageFlagButton />
-        <TouchableOpacity testID="notification-bell" onPress={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFFFFF'Highlight, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginLeft: 8 }}>
+        <TouchableOpacity testID="notification-bell" onPress={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F0F1F3', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginLeft: 8 }}>
           <Ionicons name="notifications-outline" size={18} color="rgba(255,255,255,0.10)" />
           {(guardianRequests.length > 0 || activeAlerts.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: '#000' }} />}
         </TouchableOpacity>
@@ -563,7 +563,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           </View>
         </TouchableOpacity>
         <LanguageFlagButton />
-        <TouchableOpacity testID="guardian-notification-bell" onPress={() => setShowNotifsG(!showNotifsG)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFFFFF'Highlight, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginLeft: 8, ...glassStyle }}>
+        <TouchableOpacity testID="guardian-notification-bell" onPress={() => setShowNotifsG(!showNotifsG)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F0F1F3', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginLeft: 8, ...glassStyle }}>
           <Ionicons name="notifications-outline" size={18} color="#000" />
           {(invitations.length > 0 || pendingInterventions.length > 0 || activeAlertsG.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: '#000' }} />}
         </TouchableOpacity>
@@ -1008,7 +1008,7 @@ function AdminHome({ token, user }: { token: string; user: any }) {
             { l: 'Abon. Standard', v: stats.subscriptions_standard || 0, c: '#90CAF9' },
             { l: 'Abon. Care', v: stats.subscriptions_care || 0, c: '#EF9A9A' },
           ].map(x => (
-            <View key={x.l} style={{ width: '31%', backgroundColor: '#FFFFFF'Highlight, borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glassStyle }}>
+            <View key={x.l} style={{ width: '31%', backgroundColor: '#F0F1F3', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glassStyle }}>
               <Text style={{ fontSize: 22, fontWeight: '900', color: x.c }}>{x.v}</Text>
               <Text style={{ fontSize: 8, color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 4, textAlign: 'center' }}>{x.l}</Text>
             </View>

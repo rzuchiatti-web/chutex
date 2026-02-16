@@ -102,7 +102,7 @@ export default function InterventionDetailScreen() {
                 style={{ width: '100%', fontSize: 14, padding: '12px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(255,255,255,0.04)', fontFamily: 'system-ui', resize: 'none' as any, boxSizing: 'border-box' as any }} /></div>
             ) : (
               <TextInput value={closeNotes} onChangeText={setCloseNotes} placeholder="Decrivez ce qui s'est passe..." multiline numberOfLines={4}
-                style={{ backgroundColor: '#FFFFFF'Highlight, borderRadius: 14, padding: 12, fontSize: 14, color: '#1A1D21', minHeight: 100, textAlignVertical: 'top', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }} placeholderTextColor="#999" />
+                style={{ backgroundColor: '#F0F1F3', borderRadius: 14, padding: 12, fontSize: 14, color: '#1A1D21', minHeight: 100, textAlignVertical: 'top', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }} placeholderTextColor="#999" />
             )}
           </GlassCard>
 
