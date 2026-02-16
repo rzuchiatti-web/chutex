@@ -16,15 +16,15 @@ export function DoctorCard({ onPress }: DoctorCardProps) {
         backgroundColor: '#FFFFFF',
         borderRadius: 24,
         borderWidth: 1,
-        borderColor: 'rgba(28,25,23,0.06)',
+        borderColor: 'rgba(20,20,30,0.06)',
         padding: 18,
         marginBottom: 14,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 14,
         ...(Platform.OS === 'web'
-          ? { boxShadow: '0 2px 20px rgba(28,25,23,0.05)', transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)' }
-          : { shadowColor: '#1C1917', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 2 }),
+          ? { boxShadow: '0 2px 20px rgba(20,20,30,0.05)', transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)' }
+          : { shadowColor: '#1E1F24', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 2 }),
       }}
     >
       <View style={{
@@ -37,7 +37,7 @@ export function DoctorCard({ onPress }: DoctorCardProps) {
 
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#1C1917' }}>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: '#1E1F24' }}>
             Teleconsultation
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(16,185,129,0.08)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 }}>
@@ -45,14 +45,14 @@ export function DoctorCard({ onPress }: DoctorCardProps) {
             <Text style={{ fontSize: 9, fontWeight: '700', color: '#10B981', letterSpacing: 0.5 }}>DISPONIBLE</Text>
           </View>
         </View>
-        <Text style={{ fontSize: 12, color: '#78716C', lineHeight: 16 }}>
+        <Text style={{ fontSize: 12, color: '#6B7084', lineHeight: 16 }}>
           Medecin generaliste · 24/7
         </Text>
       </View>
 
       <View style={{
         width: 40, height: 40, borderRadius: 14,
-        backgroundColor: '#C67A4F',
+        backgroundColor: '#D4845A',
         justifyContent: 'center', alignItems: 'center',
       }}>
         <Icon name="chevron-forward" size={18} color="#FFF" />

@@ -31,8 +31,8 @@ export default function GuardianDetailScreen() {
     })();
   }, [guardianId, token]);
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1C1917" /></SafeAreaView>;
-  if (!guardian) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#78716C' }}>Gardien non trouve</Text></SafeAreaView>;
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1E1F24" /></SafeAreaView>;
+  if (!guardian) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#6B7084' }}>Gardien non trouve</Text></SafeAreaView>;
 
   const infoRows = [
     { icon: 'call-outline', label: 'Telephone', val: guardian.phone },
@@ -45,12 +45,12 @@ export default function GuardianDetailScreen() {
   ].filter(r => r.val);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-          <Icon name="chevron-back" size={24} color="#1C1917" />
+          <Icon name="chevron-back" size={24} color="#1E1F24" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1C1917' }}>Fiche Gardien</Text>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1E1F24' }}>Fiche Gardien</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
@@ -59,9 +59,9 @@ export default function GuardianDetailScreen() {
           <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#FFB74D', justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF' }}>{guardian.name?.charAt(0)}</Text>
           </View>
-          <Text style={{ fontSize: 22, fontWeight: '900', color: '#1C1917', marginTop: 12 }}>{guardian.name}</Text>
-          {guardian.profession && <Text style={{ fontSize: 13, color: '#78716C', marginTop: 4 }}>{guardian.profession}</Text>}
-          {guardian.structure_name && <Text style={{ fontSize: 13, color: '#78716C', marginTop: 2 }}>{guardian.structure_name}</Text>}
+          <Text style={{ fontSize: 22, fontWeight: '900', color: '#1E1F24', marginTop: 12 }}>{guardian.name}</Text>
+          {guardian.profession && <Text style={{ fontSize: 13, color: '#6B7084', marginTop: 4 }}>{guardian.profession}</Text>}
+          {guardian.structure_name && <Text style={{ fontSize: 13, color: '#6B7084', marginTop: 2 }}>{guardian.structure_name}</Text>}
         </GlassCard>
 
         {/* Info rows */}
@@ -70,8 +70,8 @@ export default function GuardianDetailScreen() {
             <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: i < infoRows.length - 1 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
               <Icon name={r.icon as any} size={20} color="#888" />
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 10, color: '#78716C', textTransform: 'uppercase', letterSpacing: 0.5 }}>{r.label}</Text>
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#1C1917', marginTop: 2 }}>{r.val}</Text>
+                <Text style={{ fontSize: 10, color: '#6B7084', textTransform: 'uppercase', letterSpacing: 0.5 }}>{r.label}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#1E1F24', marginTop: 2 }}>{r.val}</Text>
               </View>
             </View>
           ))}
@@ -83,8 +83,8 @@ export default function GuardianDetailScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <Icon name="navigate-outline" size={20} color="#888" />
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 10, color: '#78716C', textTransform: 'uppercase', letterSpacing: 0.5 }}>Coordonnees GPS</Text>
-                <Text style={{ fontSize: 15, fontWeight: '600', color: '#1C1917', marginTop: 2 }}>{guardian.latitude?.toFixed(4)}, {guardian.longitude?.toFixed(4)}</Text>
+                <Text style={{ fontSize: 10, color: '#6B7084', textTransform: 'uppercase', letterSpacing: 0.5 }}>Coordonnees GPS</Text>
+                <Text style={{ fontSize: 15, fontWeight: '600', color: '#1E1F24', marginTop: 2 }}>{guardian.latitude?.toFixed(4)}, {guardian.longitude?.toFixed(4)}</Text>
               </View>
             </View>
           </GlassCard>
@@ -102,7 +102,7 @@ export default function GuardianDetailScreen() {
               } catch (e: any) { Alert.alert('Erreur', e.message); }
             }},
           ])}>
-          <Icon name="trash-outline" size={18} color="#1C1917" />
+          <Icon name="trash-outline" size={18} color="#1E1F24" />
           <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>SUPPRIMER CE GARDIEN</Text>
         </TouchableOpacity>
       </ScrollView>

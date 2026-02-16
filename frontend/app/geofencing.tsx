@@ -68,7 +68,7 @@ export default function GeofencingScreen() {
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Icon name="arrow-back" size={22} color={Colors.text} /></TouchableOpacity>
         <Text style={s.headerT}>Zones de sécurité</Text>
         <TouchableOpacity testID="add-zone-btn" style={s.addBtn} onPress={() => setShowModal(true)}>
-          <Icon name="add" size={22} color="#1C1917" />
+          <Icon name="add" size={22} color="#1E1F24" />
         </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={s.scroll}>
@@ -80,7 +80,7 @@ export default function GeofencingScreen() {
 
         {/* Check position button */}
         <TouchableOpacity testID="check-pos-btn" style={s.checkBtn} onPress={checkPosition}>
-          <Icon name="navigate-circle-outline" size={18} color="#1C1917" />
+          <Icon name="navigate-circle-outline" size={18} color="#1E1F24" />
           <Text style={s.checkBtnT}>Vérifier ma position</Text>
         </TouchableOpacity>
 
@@ -127,7 +127,7 @@ export default function GeofencingScreen() {
               <View style={s.modalBtns}>
                 <TouchableOpacity style={s.cancelBtn} onPress={() => setShowModal(false)}><Text style={s.cancelBtnT}>Annuler</Text></TouchableOpacity>
                 <TouchableOpacity testID="save-zone-btn" style={s.saveBtn} onPress={createZone} disabled={saving}>
-                  {saving ? <ActivityIndicator color="#1C1917" /> : <Text style={s.saveBtnT}>Créer</Text>}
+                  {saving ? <ActivityIndicator color="#1E1F24" /> : <Text style={s.saveBtnT}>Créer</Text>}
                 </TouchableOpacity>
               </View>
             </View></TouchableWithoutFeedback></View>

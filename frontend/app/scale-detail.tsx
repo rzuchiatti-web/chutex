@@ -143,7 +143,7 @@ export default function ScaleDetailScreen() {
     setLiveMeasurement(null);
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAF8F5' }}><ActivityIndicator size="large" color="#1C1917" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color="#1E1F24" /></View>;
 
   const days = parseInt(period);
   const filtered = history.slice(0, days);
@@ -160,7 +160,7 @@ export default function ScaleDetailScreen() {
     <GC style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
       <Icon name={icon} size={20} color={color} />
       <Text style={{ fontSize: 22, fontWeight: '900', color, marginTop: 4 }}>{value}<Text style={{ fontSize: 11 }}>{unit}</Text></Text>
-      <Text style={{ fontSize: 8, color: '#78716C', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{label}</Text>
+      <Text style={{ fontSize: 8, color: '#6B7084', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{label}</Text>
       {trend !== null && trend !== undefined && Math.abs(trend) > 0.05 && (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginTop: 2 }}>
           <Icon name={trend > 0 ? 'arrow-up' : 'arrow-down'} size={10} color={trend > 0 ? '#E53935' : '#4CAF50'} />
@@ -174,10 +174,10 @@ export default function ScaleDetailScreen() {
   const isNative = Platform.OS !== 'web';
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAF8F5' }}>
+    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1C1917" /></TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1C1917' }}>Balance Connectee</Text>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1E1F24" /></TouchableOpacity>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1E1F24' }}>Balance Connectee</Text>
         {isConnected && (
           <View style={{ backgroundColor: '#10B981' + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}>
             <Text style={{ fontSize: 10, fontWeight: '800', color: '#10B981' }}>CONNECTEE</Text>
@@ -194,13 +194,13 @@ export default function ScaleDetailScreen() {
             <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
               <Icon name="bluetooth" size={30} color="#2196F3" />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1C1917', marginBottom: 4 }}>Connecter votre balance</Text>
-            <Text style={{ fontSize: 12, color: '#78716C', textAlign: 'center', marginBottom: 16, lineHeight: 18 }}>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1E1F24', marginBottom: 4 }}>Connecter votre balance</Text>
+            <Text style={{ fontSize: 12, color: '#6B7084', textAlign: 'center', marginBottom: 16, lineHeight: 18 }}>
               {isNative ? 'Allumez votre balance Lefu et placez-la a proximite de votre telephone.' : 'La connexion Bluetooth est disponible uniquement sur l\'app mobile (TestFlight).'}
             </Text>
             <TouchableOpacity testID="scan-scale-btn" onPress={isNative ? startScan : () => Alert.alert('Bluetooth', 'Utilisez l\'app mobile pour connecter la balance.')}
               style={{ backgroundColor: '#2196F3', borderRadius: 9999, paddingVertical: 14, paddingHorizontal: 32, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              {bleState === 'scanning' ? <ActivityIndicator color="#1C1917" size="small" /> : <Icon name="bluetooth" size={18} color="#1C1917" />}
+              {bleState === 'scanning' ? <ActivityIndicator color="#1E1F24" size="small" /> : <Icon name="bluetooth" size={18} color="#1E1F24" />}
               <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>{bleState === 'scanning' ? 'Recherche...' : 'Connecter ma balance'}</Text>
             </TouchableOpacity>
           </GC>
@@ -211,7 +211,7 @@ export default function ScaleDetailScreen() {
                 <Icon name="bluetooth" size={22} color="#4CAF50" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '800', color: '#1C1917' }}>{connectedDevice || 'Balance Lefu'}</Text>
+                <Text style={{ fontSize: 15, fontWeight: '800', color: '#1E1F24' }}>{connectedDevice || 'Balance Lefu'}</Text>
                 <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '600' }}>
                   {bleState === 'weighing' ? 'Pesee en cours...' : bleState === 'done' ? 'Pesee terminee !' : 'Connectee - Prete'}
                 </Text>
@@ -224,22 +224,22 @@ export default function ScaleDetailScreen() {
             {bleState === 'weighing' && liveMeasurement && (
               <View style={{ alignItems: 'center', marginTop: 16 }}>
                 <Text style={{ fontSize: 42, fontWeight: '900', color: '#2196F3' }}>{liveMeasurement.weight}<Text style={{ fontSize: 16 }}> kg</Text></Text>
-                <Text style={{ fontSize: 11, color: '#78716C' }}>Stabilisation en cours...</Text>
+                <Text style={{ fontSize: 11, color: '#6B7084' }}>Stabilisation en cours...</Text>
                 <ActivityIndicator color="#2196F3" style={{ marginTop: 8 }} />
               </View>
             )}
             {/* Weighing button */}
             {bleState === 'connected' && (
               <TouchableOpacity testID="start-weighing-btn" onPress={startWeighing}
-                style={{ backgroundColor: '#FAF8F5', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', marginTop: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
-                <Icon name="scale-outline" size={18} color="#1C1917" />
+                style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', marginTop: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
+                <Icon name="scale-outline" size={18} color="#1E1F24" />
                 <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>Lancer une pesee</Text>
               </TouchableOpacity>
             )}
             {bleState === 'done' && (
               <TouchableOpacity onPress={() => { setBleState('connected'); setLiveMeasurement(null); }}
                 style={{ backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', marginTop: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
-                <Icon name="refresh" size={18} color="#1C1917" />
+                <Icon name="refresh" size={18} color="#1E1F24" />
                 <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>Nouvelle pesee</Text>
               </TouchableOpacity>
             )}
@@ -249,15 +249,15 @@ export default function ScaleDetailScreen() {
         {/* Main weight display */}
         {latest && (
           <GC style={{ alignItems: 'center', padding: 24 }}>
-            <Text style={{ fontSize: 48, fontWeight: '900', color: '#1C1917' }}>{latest.weight}<Text style={{ fontSize: 18 }}> kg</Text></Text>
-            <Text style={{ fontSize: 13, color: '#78716C', marginTop: 4 }}>
+            <Text style={{ fontSize: 48, fontWeight: '900', color: '#1E1F24' }}>{latest.weight}<Text style={{ fontSize: 18 }}> kg</Text></Text>
+            <Text style={{ fontSize: 13, color: '#6B7084', marginTop: 4 }}>
               {liveMeasurement ? 'Pesee du moment' : `Derniere pesee : ${new Date(latest.timestamp).toLocaleDateString('fr-FR')}`}
             </Text>
             {diff('weight') !== null && Math.abs(diff('weight')) > 0.05 && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 }}>
                 <Icon name={diff('weight') > 0 ? 'trending-up' : 'trending-down'} size={16} color={diff('weight') > 0 ? '#E53935' : '#4CAF50'} />
                 <Text style={{ fontSize: 13, fontWeight: '700', color: diff('weight') > 0 ? '#E53935' : '#4CAF50' }}>{diff('weight') > 0 ? '+' : ''}{diff('weight').toFixed(1)} kg</Text>
-                <Text style={{ fontSize: 11, color: '#78716C' }}>vs precedent</Text>
+                <Text style={{ fontSize: 11, color: '#6B7084' }}>vs precedent</Text>
               </View>
             )}
           </GC>
@@ -266,7 +266,7 @@ export default function ScaleDetailScreen() {
         {/* Period selector */}
         <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12 }}>
           {(['7', '30', '90'] as const).map(p => (
-            <TouchableOpacity key={p} style={[{ flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: period === p ? '#000' : 'rgba(255,255,255,0.10)' }, period === p && { backgroundColor: '#FAF8F5' }]}
+            <TouchableOpacity key={p} style={[{ flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: period === p ? '#000' : 'rgba(255,255,255,0.10)' }, period === p && { backgroundColor: '#F5F6F8' }]}
               onPress={() => setPeriod(p)}>
               <Text style={{ fontSize: 12, fontWeight: '700', color: period === p ? '#FFF' : '#888' }}>{p}j</Text>
             </TouchableOpacity>
@@ -276,7 +276,7 @@ export default function ScaleDetailScreen() {
         {/* Weight chart */}
         {chartData.length > 1 && (
           <GC style={{ padding: 16 }}>
-            <Text style={{ fontSize: 13, fontWeight: '800', color: '#1C1917', marginBottom: 12 }}>Evolution du poids</Text>
+            <Text style={{ fontSize: 13, fontWeight: '800', color: '#1E1F24', marginBottom: 12 }}>Evolution du poids</Text>
             <MiniChart data={chartData.map((d: any) => d.weight)} color="#2196F3" width={SW - 72} height={100} />
           </GC>
         )}
@@ -297,21 +297,21 @@ export default function ScaleDetailScreen() {
           {/* Body fat + muscle chart */}
           {chartData.length > 1 && (
             <GC style={{ padding: 16 }}>
-              <Text style={{ fontSize: 13, fontWeight: '800', color: '#1C1917', marginBottom: 12 }}>Masse grasse / Muscles</Text>
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#1E1F24', marginBottom: 12 }}>Masse grasse / Muscles</Text>
               <MiniChart data={chartData.map((d: any) => d.body_fat_pct)} color="#FF9800" width={SW - 72} height={80} />
               <View style={{ height: 8 }} />
               <MiniChart data={chartData.map((d: any) => d.muscle_mass)} color="#4CAF50" width={SW - 72} height={80} />
               <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><View style={{ width: 10, height: 3, borderRadius: 2, backgroundColor: '#FF9800' }} /><Text style={{ fontSize: 9, color: '#78716C' }}>Masse grasse %</Text></View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><View style={{ width: 10, height: 3, borderRadius: 2, backgroundColor: '#10B981' }} /><Text style={{ fontSize: 9, color: '#78716C' }}>Muscles kg</Text></View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><View style={{ width: 10, height: 3, borderRadius: 2, backgroundColor: '#FF9800' }} /><Text style={{ fontSize: 9, color: '#6B7084' }}>Masse grasse %</Text></View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><View style={{ width: 10, height: 3, borderRadius: 2, backgroundColor: '#10B981' }} /><Text style={{ fontSize: 9, color: '#6B7084' }}>Muscles kg</Text></View>
               </View>
             </GC>
           )}
 
           {/* Detailed metrics - ALL 30+ displayed always */}
           <GC>
-            <Text style={{ fontSize: 13, fontWeight: '800', color: '#1C1917', marginBottom: 4 }}>Composition corporelle complete</Text>
-            <Text style={{ fontSize: 10, color: '#78716C', marginBottom: 12 }}>{[
+            <Text style={{ fontSize: 13, fontWeight: '800', color: '#1E1F24', marginBottom: 4 }}>Composition corporelle complete</Text>
+            <Text style={{ fontSize: 10, color: '#6B7084', marginBottom: 12 }}>{[
               latest.basal_metabolism, latest.body_age, latest.protein_pct, latest.health_score,
               latest.subcutaneous_fat, latest.lean_body_mass, latest.fat_free_weight, latest.ideal_weight,
               latest.muscle_rate, latest.fat_mass, latest.skeletal_muscle_rate, latest.heart_rate,
@@ -319,7 +319,7 @@ export default function ScaleDetailScreen() {
               latest.standard_weight, latest.obesity_level, latest.body_shape, latest.impedance,
             ].filter(v => v && v !== 0).length + 10} donnees mesurees</Text>
             {[
-              { icon: 'body-outline', label: 'Poids', value: latest.weight, unit: 'kg', color: '#1C1917' },
+              { icon: 'body-outline', label: 'Poids', value: latest.weight, unit: 'kg', color: '#1E1F24' },
               { icon: 'analytics-outline', label: 'IMC', value: latest.bmi, unit: '', color: '#2196F3' },
               { icon: 'flame-outline', label: 'Masse grasse', value: latest.body_fat_pct, unit: '%', color: '#FF9800' },
               { icon: 'analytics-outline', label: 'Masse graisseuse', value: latest.fat_mass, unit: 'kg', color: '#FF9800' },
@@ -361,11 +361,11 @@ export default function ScaleDetailScreen() {
 
           {/* History list */}
           <GC>
-            <Text style={{ fontSize: 13, fontWeight: '800', color: '#1C1917', marginBottom: 12 }}>Historique des pesees</Text>
+            <Text style={{ fontSize: 13, fontWeight: '800', color: '#1E1F24', marginBottom: 12 }}>Historique des pesees</Text>
             {filtered.slice(0, 10).map((r: any, i: number) => (
               <View key={r.id} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: i < 9 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                <Text style={{ fontSize: 12, color: '#78716C', width: 70 }}>{new Date(r.timestamp).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}</Text>
-                <Text style={{ fontSize: 15, fontWeight: '800', color: '#1C1917', flex: 1 }}>{r.weight} kg</Text>
+                <Text style={{ fontSize: 12, color: '#6B7084', width: 70 }}>{new Date(r.timestamp).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}</Text>
+                <Text style={{ fontSize: 15, fontWeight: '800', color: '#1E1F24', flex: 1 }}>{r.weight} kg</Text>
                 <Text style={{ fontSize: 11, color: '#FF9800' }}>{r.body_fat_pct}%</Text>
                 <Text style={{ fontSize: 11, color: '#10B981', marginLeft: 8 }}>{r.muscle_mass}kg</Text>
                 {r.source === 'ble' && <Icon name="bluetooth" size={10} color="#2196F3" style={{ marginLeft: 4 }} />}
@@ -376,8 +376,8 @@ export default function ScaleDetailScreen() {
           {!history.length && (
             <GC style={{ alignItems: 'center', padding: 32 }}>
               <Icon name="scale-outline" size={40} color="#CCC" />
-              <Text style={{ fontSize: 15, fontWeight: '700', color: '#1C1917', marginTop: 12 }}>Aucune pesee</Text>
-              <Text style={{ fontSize: 12, color: '#78716C', marginTop: 4, textAlign: 'center' }}>Connectez votre balance et pesez-vous pour voir vos donnees ici.</Text>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#1E1F24', marginTop: 12 }}>Aucune pesee</Text>
+              <Text style={{ fontSize: 12, color: '#6B7084', marginTop: 4, textAlign: 'center' }}>Connectez votre balance et pesez-vous pour voir vos donnees ici.</Text>
             </GC>
           )}
         </>}
@@ -392,19 +392,19 @@ export default function ScaleDetailScreen() {
               <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="bluetooth" size={20} color="#2196F3" />
               </View>
-              <Text style={{ fontSize: 18, fontWeight: '900', color: '#1C1917', flex: 1 }}>Balances detectees</Text>
+              <Text style={{ fontSize: 18, fontWeight: '900', color: '#1E1F24', flex: 1 }}>Balances detectees</Text>
               <TouchableOpacity onPress={() => { setShowBleModal(false); stopScaleScan(); setBleState('idle'); }}><Icon name="close" size={22} color="#888" /></TouchableOpacity>
             </View>
             {bleState === 'scanning' && (
               <View style={{ alignItems: 'center', paddingVertical: 24 }}>
                 <ActivityIndicator size="large" color="#2196F3" />
-                <Text style={{ fontSize: 13, color: '#78716C', marginTop: 12 }}>Recherche de balances a proximite...</Text>
+                <Text style={{ fontSize: 13, color: '#6B7084', marginTop: 12 }}>Recherche de balances a proximite...</Text>
               </View>
             )}
             {bleState === 'connecting' && (
               <View style={{ alignItems: 'center', paddingVertical: 24 }}>
                 <ActivityIndicator size="large" color="#4CAF50" />
-                <Text style={{ fontSize: 13, color: '#78716C', marginTop: 12 }}>Connexion en cours...</Text>
+                <Text style={{ fontSize: 13, color: '#6B7084', marginTop: 12 }}>Connexion en cours...</Text>
               </View>
             )}
             {foundDevices.map(d => (
@@ -414,8 +414,8 @@ export default function ScaleDetailScreen() {
                   <Icon name="scale-outline" size={22} color="#2196F3" />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#1C1917' }}>{d.name}</Text>
-                  <Text style={{ fontSize: 11, color: '#78716C' }}>Signal : {Math.min(100, Math.max(0, 100 + d.rssi))}%</Text>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#1E1F24' }}>{d.name}</Text>
+                  <Text style={{ fontSize: 11, color: '#6B7084' }}>Signal : {Math.min(100, Math.max(0, 100 + d.rssi))}%</Text>
                 </View>
                 <Icon name="chevron-forward" size={18} color="#2196F3" />
               </TouchableOpacity>
@@ -423,7 +423,7 @@ export default function ScaleDetailScreen() {
             {foundDevices.length === 0 && bleState !== 'scanning' && bleState !== 'connecting' && (
               <View style={{ alignItems: 'center', paddingVertical: 24 }}>
                 <Icon name="search-outline" size={36} color="#CCC" />
-                <Text style={{ fontSize: 13, color: '#78716C', marginTop: 8, textAlign: 'center' }}>Aucune balance trouvee. Verifiez qu'elle est allumee.</Text>
+                <Text style={{ fontSize: 13, color: '#6B7084', marginTop: 8, textAlign: 'center' }}>Aucune balance trouvee. Verifiez qu'elle est allumee.</Text>
                 <TouchableOpacity onPress={startScan} style={{ backgroundColor: '#2196F3', borderRadius: 9999, paddingVertical: 10, paddingHorizontal: 24, marginTop: 12 }}>
                   <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>Relancer la recherche</Text>
                 </TouchableOpacity>

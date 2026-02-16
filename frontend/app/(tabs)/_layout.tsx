@@ -7,7 +7,7 @@ import { View, ActivityIndicator, Platform } from 'react-native';
 export default function TabLayout() {
   const { user, loading } = useAuth();
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAF8F5' }}><ActivityIndicator size="large" color="#C67A4F" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color="#D4845A" /></View>;
   if (!user) return null;
 
   const r = user.active_role || user.role;
@@ -18,10 +18,10 @@ export default function TabLayout() {
   const isCompany = r === 'prescriber_company';
 
   return (
-    <Tabs key={r} sceneContainerStyle={{ backgroundColor: '#FAF8F5' }} screenOptions={{
+    <Tabs key={r} sceneContainerStyle={{ backgroundColor: '#F5F6F8' }} screenOptions={{
       headerShown: false,
-      tabBarActiveTintColor: '#C67A4F',
-      tabBarInactiveTintColor: '#A8A29E',
+      tabBarActiveTintColor: '#D4845A',
+      tabBarInactiveTintColor: '#9CA3B0',
       tabBarStyle: {
         backgroundColor: 'rgba(255,255,255,0.96)',
         borderTopWidth: 0, height: Platform.OS === 'web' ? 64 : 70,
