@@ -132,23 +132,28 @@ export default function AuthScreen() {
 
   const handleLogin = async () => {
     setError('');
-    if (!email || !password) return setError('Identifiant et mot de passe requis');
+    const em = emailRef.current.trim();
+    const pw = passwordRef.current;
+    if (!em || !pw) return setError('Identifiant et mot de passe requis');
     setSubmitting(true);
     try {
-      let id = email.trim();
+      let id = em;
       if (!id.includes('@') && !id.startsWith('+') && id.startsWith('0') && id.length >= 10) id = '+33' + id.substring(1).replace(/\s/g, '');
-      await login(id.toLowerCase(), password);
+      await login(id.toLowerCase(), pw);
       hasRedirected.current = true; router.replace('/(tabs)');
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
   };
 
   const handleRegister = async () => {
     setError('');
-    if (!name || !email || !password) return setError('Remplissez tous les champs');
+    const nm = nameRef.current.trim();
+    const em = emailRef.current.trim();
+    const pw = passwordRef.current;
+    if (!nm || !em || !pw) return setError('Remplissez tous les champs');
     if (!role) return setError('Choisissez un espace');
     setSubmitting(true);
     try {
-      await register({ email: email.trim().toLowerCase(), password, name, phone, role, date_of_birth: dob, gender, address, allergies, emergency_contact_name: ecName, doctor_name: doctorName, guardian_type: guardianType, structure_name: structureName, siret, profession, relationship } as any);
+      await register({ email: em.toLowerCase(), password: pw, name: nm, phone: phoneRef.current, role, date_of_birth: dobRef.current, address: addressRef.current, allergies: allergiesRef.current, emergency_contact_name: ecNameRef.current, guardian_type: guardianType, structure_name: structureRef.current, siret: siretRef.current, profession: professionRef.current, relationship: relationshipRef.current } as any);
       hasRedirected.current = true; router.replace('/(tabs)');
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
   };
