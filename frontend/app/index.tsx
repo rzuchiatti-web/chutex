@@ -7,28 +7,17 @@ import { useAuth } from '../src/context/AuthContext';
 
 const BG_URL = 'https://customer-assets.emergentagent.com/job_237132d4-a477-4487-91a8-3e2e50160498/artifacts/fxnu9p7b_banner_mobile%281%29.jpg';
 
-// Inject Inter font + body bg via ::before pseudo-element (avoids Safari keyboard re-layout bug)
+// Minimal CSS - no position:fixed, no body background manipulation (Safari keyboard fix)
 const injectCSS = () => {
   if (Platform.OS !== 'web' || typeof document === 'undefined') return;
   if (document.getElementById('login-css')) return;
   const s = document.createElement('style');
   s.id = 'login-css';
   s.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    * { font-family: 'Inter', system-ui, -apple-system, sans-serif !important; }
-    #root::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: url('${BG_URL}') center/cover no-repeat;
-      z-index: -1;
-      pointer-events: none;
-    }
-    body { background: transparent !important; }
+    input { font-size: 16px !important; -webkit-appearance: none; }
   `;
   document.head.appendChild(s);
 };
-const cleanupCSS = () => { if (Platform.OS === 'web') document.getElementById('login-css')?.remove(); };
 
 // Glass styles for web (backdrop-filter via RN style)
 const glassPanel = Platform.OS === 'web' ? {
