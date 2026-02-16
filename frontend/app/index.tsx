@@ -66,23 +66,23 @@ export default function AuthScreen() {
 
         {/* Background warm gradient blob */}
         <div style={{
-          position: 'absolute', top: '-20%', right: '-10%', width: '70vw', height: '70vw', maxWidth: 600, maxHeight: 600,
-          borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,132,90,0.15) 0%, rgba(245,203,167,0.08) 50%, transparent 70%)',
-          pointerEvents: 'none', animation: 'float 8s ease-in-out infinite',
+          position: 'absolute', top: '-15%', right: '-8%', width: '60vw', height: '60vw', maxWidth: 500, maxHeight: 500,
+          borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(212,132,90,0.12) 0%, rgba(245,203,167,0.06) 40%, transparent 70%)',
+          pointerEvents: 'none', animation: 'haloGlow 6s ease-in-out infinite',
         } as any} />
         <div style={{
-          position: 'absolute', bottom: '-15%', left: '-10%', width: '50vw', height: '50vw', maxWidth: 400, maxHeight: 400,
-          borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,132,90,0.1) 0%, transparent 60%)',
-          pointerEvents: 'none', animation: 'float 10s ease-in-out infinite reverse',
+          position: 'absolute', bottom: '-12%', left: '-8%', width: '45vw', height: '45vw', maxWidth: 350, maxHeight: 350,
+          borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(212,132,90,0.08) 0%, transparent 60%)',
+          pointerEvents: 'none', animation: 'haloGlow 8s ease-in-out infinite reverse',
         } as any} />
 
-        {/* Hero card with gradient */}
+        {/* Hero card with soft gradient */}
         <div style={{
-          width: '100%', maxWidth: 420, marginBottom: 32, borderRadius: 28,
-          background: 'linear-gradient(135deg, #D4845A 0%, #E8A87C 40%, #F5CBA7 100%)',
-          backgroundSize: '200% 200%', animation: 'gradientShift 8s ease infinite',
-          padding: '40px 28px 32px', position: 'relative', overflow: 'hidden',
-          boxShadow: '0 8px 40px rgba(212,132,90,0.2), 0 2px 8px rgba(212,132,90,0.1)',
+          width: '100%', maxWidth: 420, marginBottom: 28, borderRadius: 24,
+          background: 'linear-gradient(135deg, #D4845A 0%, #E8A87C 45%, #F5CBA7 100%)',
+          backgroundSize: '200% 200%', animation: 'gradientDrift 12s ease infinite, pageEnter 500ms cubic-bezier(0.22, 1, 0.36, 1) both',
+          padding: '36px 28px 28px', position: 'relative', overflow: 'hidden',
+          boxShadow: '0 10px 30px rgba(212,132,90,0.18)',
         } as any}>
           {/* Decorative circles */}
           <div style={{
