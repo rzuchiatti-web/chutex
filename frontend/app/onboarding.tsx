@@ -39,7 +39,7 @@ const Card = ({ children, style, care }: any) => (
     backgroundColor: 'rgba(255,255,255,0.03)',
     borderRadius: Radius.lg,
     borderWidth: 1,
-    borderColor: care ? Palette.careVioletWeak : Palette.line,
+    borderColor: care ? C.careVioletWeak : C.line,
     overflow: 'hidden',
     position: 'relative' as const,
     ...webShadow,
@@ -52,14 +52,14 @@ const Card = ({ children, style, care }: any) => (
 // ─── Chip/Tag ───
 const Chip = ({ label, active, care }: { label: string; active?: boolean; care?: boolean }) => (
   <View style={{
-    backgroundColor: care ? Palette.careVioletWeak : active ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)',
+    backgroundColor: care ? C.careVioletWeak : active ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)',
     borderRadius: Radius.full,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderWidth: 1,
     borderColor: care ? 'rgba(124,92,255,0.3)' : 'rgba(255,255,255,0.08)',
   }}>
-    <Text style={{ fontSize: 9, fontWeight: '700', letterSpacing: 1.2, color: care ? Palette.careViolet : Palette.text, textTransform: 'uppercase' }}>{label}</Text>
+    <Text style={{ fontSize: 9, fontWeight: '700', letterSpacing: 1.2, color: care ? C.careViolet : C.text, textTransform: 'uppercase' }}>{label}</Text>
   </View>
 );
 
@@ -84,12 +84,12 @@ const PulseDot = ({ color }: { color: string }) => {
 const ProductCard = ({ name, subtitle, features, imageUrl }: any) => (
   <Card style={{ padding: 16, marginBottom: 12, width: '100%' }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-      <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Palette.lineFaint }}>
+      <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.lineFaint }}>
         <Image source={{ uri: imageUrl }} style={{ width: 36, height: 36 }} resizeMode="contain" />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ color: Palette.text, fontSize: 17, fontWeight: '800', letterSpacing: -0.3 }}>{name}</Text>
-        <Text style={{ color: Palette.textMuted, fontSize: 12, marginTop: 2 }}>{subtitle}</Text>
+        <Text style={{ color: C.text, fontSize: 17, fontWeight: '800', letterSpacing: -0.3 }}>{name}</Text>
+        <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>{subtitle}</Text>
       </View>
     </View>
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
@@ -105,10 +105,10 @@ const ProductCard = ({ name, subtitle, features, imageUrl }: any) => (
 function Slide1() {
   return (
     <View style={{ flex: 1, paddingHorizontal: 24 }}>
-      <Text style={{ color: Palette.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
+      <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
         Ecosysteme CHUTEX
       </Text>
-      <Text style={{ color: Palette.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
+      <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
         Trois dispositifs medicaux connectes, un seul ecosysteme de sante.
       </Text>
       <ProductCard
@@ -136,27 +136,27 @@ function Slide1() {
 function Slide2() {
   return (
     <View style={{ flex: 1, paddingHorizontal: 24 }}>
-      <Text style={{ color: Palette.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
+      <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
         Donnees & Prevention
       </Text>
-      <Text style={{ color: Palette.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
+      <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
         Lecture claire de vos donnees. Tendances, signaux faibles, prevention active.
       </Text>
       <Card style={{ padding: 20, marginBottom: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
           <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(16,185,129,0.12)', alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name="heart" size={20} color={Palette.success} />
+            <Ionicons name="heart" size={20} color={C.success} />
           </View>
           <View>
-            <Text style={{ color: Palette.text, fontSize: 16, fontWeight: '700' }}>Vision sante complete</Text>
-            <Text style={{ color: Palette.textMuted, fontSize: 12, marginTop: 2 }}>Tous vos indicateurs au meme endroit</Text>
+            <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>Vision sante complete</Text>
+            <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>Tous vos indicateurs au meme endroit</Text>
           </View>
         </View>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           {[{ label: 'FC', value: '72', unit: 'bpm' }, { label: 'SpO2', value: '98', unit: '%' }, { label: 'Temp', value: '36.5', unit: 'C' }].map(m => (
-            <View key={m.label} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: Palette.lineFaint }}>
-              <Text style={{ color: Palette.textDim, fontSize: 9, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>{m.label}</Text>
-              <Text style={{ color: Palette.text, fontSize: 22, fontWeight: '800', letterSpacing: -0.5 }}>{m.value}<Text style={{ fontSize: 11, color: Palette.textMuted }}> {m.unit}</Text></Text>
+            <View key={m.label} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: C.lineFaint }}>
+              <Text style={{ color: C.textDim, fontSize: 9, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>{m.label}</Text>
+              <Text style={{ color: C.text, fontSize: 22, fontWeight: '800', letterSpacing: -0.5 }}>{m.value}<Text style={{ fontSize: 11, color: C.textMuted }}> {m.unit}</Text></Text>
             </View>
           ))}
         </View>
@@ -164,17 +164,17 @@ function Slide2() {
       <Card style={{ padding: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
           <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(245,158,11,0.12)', alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name="analytics" size={20} color={Palette.warning} />
+            <Ionicons name="analytics" size={20} color={C.warning} />
           </View>
           <View>
-            <Text style={{ color: Palette.text, fontSize: 16, fontWeight: '700' }}>Estimation glycemique</Text>
-            <Text style={{ color: Palette.textMuted, fontSize: 12, marginTop: 2 }}>Analyse non-invasive via votre bracelet</Text>
+            <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>Estimation glycemique</Text>
+            <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>Analyse non-invasive via votre bracelet</Text>
           </View>
         </View>
-        <View style={{ height: 60, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 12, borderWidth: 1, borderColor: Palette.lineFaint, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ height: 60, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 12, borderWidth: 1, borderColor: C.lineFaint, justifyContent: 'center', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-            <Text style={{ color: Palette.text, fontSize: 32, fontWeight: '800' }}>5.4</Text>
-            <Text style={{ color: Palette.textMuted, fontSize: 13 }}>mmol/L</Text>
+            <Text style={{ color: C.text, fontSize: 32, fontWeight: '800' }}>5.4</Text>
+            <Text style={{ color: C.textMuted, fontSize: 13 }}>mmol/L</Text>
           </View>
         </View>
         <View style={{ flexDirection: 'row', gap: 6, marginTop: 10 }}>
@@ -188,23 +188,23 @@ function Slide2() {
 function Slide3() {
   return (
     <View style={{ flex: 1, paddingHorizontal: 24 }}>
-      <Text style={{ color: Palette.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
+      <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
         Teleassistance Care
       </Text>
-      <Text style={{ color: Palette.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
+      <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
         Intervention d'urgence en temps reel. Suivi GPS, equipes de proximite.
       </Text>
       {/* Care-context card with violet */}
       <Card care style={{ padding: 20, marginBottom: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Palette.careVioletWeak, alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name="shield-checkmark" size={20} color={Palette.careViolet} />
+          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.careVioletWeak, alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name="shield-checkmark" size={20} color={C.careViolet} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ color: Palette.text, fontSize: 16, fontWeight: '700' }}>Care active</Text>
-            <Text style={{ color: Palette.textMuted, fontSize: 12, marginTop: 2 }}>Protection 24/7 avec equipe dediee</Text>
+            <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>Care active</Text>
+            <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>Protection 24/7 avec equipe dediee</Text>
           </View>
-          <PulseDot color={Palette.careViolet} />
+          <PulseDot color={C.careViolet} />
         </View>
         <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
           <Chip label="SOS" care /><Chip label="Chute" care /><Chip label="GPS" care /><Chip label="24/7" care />
@@ -212,16 +212,16 @@ function Slide3() {
       </Card>
       {/* Intervention example */}
       <Card style={{ padding: 20 }}>
-        <Text style={{ ...Type.caption, color: Palette.textDim, marginBottom: 12 }}>Exemple d'intervention</Text>
+        <Text style={{ ...Type.caption, color: C.textDim, marginBottom: 12 }}>Exemple d'intervention</Text>
         {[
-          { time: '14:32', label: 'Alerte SOS declenchee', color: Palette.danger },
-          { time: '14:33', label: 'Intervenant dispatche', color: Palette.careViolet },
-          { time: '14:38', label: 'Arrivee sur place', color: Palette.success },
+          { time: '14:32', label: 'Alerte SOS declenchee', color: C.danger },
+          { time: '14:33', label: 'Intervenant dispatche', color: C.careViolet },
+          { time: '14:38', label: 'Arrivee sur place', color: C.success },
         ].map((e, i) => (
           <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: i < 2 ? 10 : 0 }}>
-            <Text style={{ color: Palette.textDim, fontSize: 11, fontWeight: '600', width: 36 }}>{e.time}</Text>
+            <Text style={{ color: C.textDim, fontSize: 11, fontWeight: '600', width: 36 }}>{e.time}</Text>
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: e.color }} />
-            <Text style={{ color: Palette.textMuted, fontSize: 13 }}>{e.label}</Text>
+            <Text style={{ color: C.textMuted, fontSize: 13 }}>{e.label}</Text>
           </View>
         ))}
       </Card>
@@ -232,10 +232,10 @@ function Slide3() {
 function Slide4() {
   return (
     <View style={{ flex: 1, paddingHorizontal: 24 }}>
-      <Text style={{ color: Palette.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
+      <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
         Teleconsultation 24/7
       </Text>
-      <Text style={{ color: Palette.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
+      <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
         Acces medecin, orientation, suivi continu. Partout, a tout moment.
       </Text>
       {/* Video card with HUD overlay */}
@@ -252,7 +252,7 @@ function Slide4() {
             />
           ) : (
             <View style={{ flex: 1, backgroundColor: '#0A0A0A', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name="videocam" size={40} color={Palette.textDim} />
+              <Ionicons name="videocam" size={40} color={C.textDim} />
             </View>
           )}
           {/* HUD overlay chips */}
@@ -266,8 +266,8 @@ function Slide4() {
             flexDirection: 'row', alignItems: 'center', gap: 6,
             ...webGlass,
           }}>
-            <PulseDot color={Palette.success} />
-            <Text style={{ color: Palette.textMuted, fontSize: 9, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase' }}>
+            <PulseDot color={C.success} />
+            <Text style={{ color: C.textMuted, fontSize: 9, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase' }}>
               Scan en cours  ·  Analyse multi-dimensionnelle
             </Text>
           </View>
@@ -275,10 +275,10 @@ function Slide4() {
       </Card>
       <Card style={{ padding: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-          <Ionicons name="videocam" size={22} color={Palette.text} />
-          <Text style={{ color: Palette.text, fontSize: 16, fontWeight: '700' }}>Medecin disponible</Text>
+          <Ionicons name="videocam" size={22} color={C.text} />
+          <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>Medecin disponible</Text>
         </View>
-        <Text style={{ color: Palette.textMuted, fontSize: 13, lineHeight: 20 }}>
+        <Text style={{ color: C.textMuted, fontSize: 13, lineHeight: 20 }}>
           Consultez un professionnel de sante a distance. Orientation, diagnostic, prescription electronique.
         </Text>
         <View style={{ flexDirection: 'row', gap: 6, marginTop: 12 }}>
@@ -292,10 +292,10 @@ function Slide4() {
 function Slide5() {
   return (
     <View style={{ flex: 1, paddingHorizontal: 24 }}>
-      <Text style={{ color: Palette.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
+      <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
         Securite & Confidentialite
       </Text>
-      <Text style={{ color: Palette.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
+      <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
         Vos donnees de sante sont protegees. Consentement eclaire, notifications utiles.
       </Text>
       <Card style={{ padding: 20, marginBottom: 16 }}>
@@ -305,12 +305,12 @@ function Slide5() {
           { icon: 'notifications', label: 'Notifications intelligentes', desc: 'Alertes sante personnalisees' },
         ].map((item, i) => (
           <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: i < 2 ? 18 : 0 }}>
-            <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Palette.lineFaint }}>
-              <Ionicons name={item.icon as any} size={20} color={Palette.text} />
+            <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.lineFaint }}>
+              <Ionicons name={item.icon as any} size={20} color={C.text} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: Palette.text, fontSize: 14, fontWeight: '700' }}>{item.label}</Text>
-              <Text style={{ color: Palette.textMuted, fontSize: 12, marginTop: 2 }}>{item.desc}</Text>
+              <Text style={{ color: C.text, fontSize: 14, fontWeight: '700' }}>{item.label}</Text>
+              <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>{item.desc}</Text>
             </View>
           </View>
         ))}
@@ -394,10 +394,10 @@ export default function OnboardingScreen() {
             <>
               <TouchableOpacity
                 data-testid="onboarding-skip-care"
-                style={{ flex: 1, paddingVertical: 16, borderRadius: Radius.full, borderWidth: 1, borderColor: Palette.line, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)' }}
+                style={{ flex: 1, paddingVertical: 16, borderRadius: Radius.full, borderWidth: 1, borderColor: C.line, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)' }}
                 onPress={complete}
               >
-                <Text style={{ color: Palette.textMuted, fontSize: 14, fontWeight: '600' }}>Activer Care plus tard</Text>
+                <Text style={{ color: C.textMuted, fontSize: 14, fontWeight: '600' }}>Activer Care plus tard</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 data-testid="onboarding-start-btn"
@@ -414,7 +414,7 @@ export default function OnboardingScreen() {
                 style={{ flex: 0.5, paddingVertical: 16, alignItems: 'center' }}
                 onPress={complete}
               >
-                <Text style={{ color: Palette.textDim, fontSize: 13, fontWeight: '600' }}>Passer</Text>
+                <Text style={{ color: C.textDim, fontSize: 13, fontWeight: '600' }}>Passer</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 data-testid="onboarding-next-btn"
