@@ -54,7 +54,7 @@ function LanguageFlagButton() {
         style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: current.color, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)' }}
         onPress={() => setOpen(!open)}
       >
-        <Text style={{ fontSize: 10, fontWeight: '900', color: '#000' }}>{current.code}</Text>
+        <Text style={{ fontSize: 10, fontWeight: '900', color: '#FFF' }}>{current.code}</Text>
       </TouchableOpacity>
       {open && (
         <View style={{ position: 'absolute', top: 38, right: 0, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 14, padding: 6, minWidth: 120, zIndex: 99999, ...( Platform.OS === 'web' ? { boxShadow: '0 8px 24px rgba(0,0,0,0.5)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 10 }) }}>
@@ -62,7 +62,7 @@ function LanguageFlagButton() {
             <TouchableOpacity key={f.code} testID={`lang-option-${f.code}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, backgroundColor: lang === f.code ? 'rgba(0,0,0,0.04)' : 'transparent', zIndex: 99999 }}
               onPress={() => { setLang(f.code); setOpen(false); }}>
               <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: f.color, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 8, fontWeight: '800', color: '#000' }}>{f.code}</Text>
+                <Text style={{ fontSize: 8, fontWeight: '800', color: '#FFF' }}>{f.code}</Text>
               </View>
               <Text style={{ fontSize: 13, fontWeight: lang === f.code ? '700' : '500', color: 'rgba(255,255,255,0.92)' }}>{f.code}</Text>
               {lang === f.code && <Ionicons name="checkmark" size={14} color="#000" />}
@@ -293,7 +293,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         {guardians.map((g: any, i: number) => (
           <TouchableOpacity key={g.id || i} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: i > 0 ? 0.5 : 0, borderTopColor: 'rgba(0,0,0,0.06)' }} onPress={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })}>
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: ['#FFB74D', '#4FC3F7', '#AED581', '#FF8A65', '#CE93D8'][i % 5], justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>{g.name?.charAt(0)}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>{g.name?.charAt(0)}</Text>
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{g.name}</Text>
@@ -314,7 +314,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
             <TouchableOpacity testID={`accept-guardian-${req.id}`} style={{ flex: 1, backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
               onPress={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/accept`, { method: 'POST' }, token); Alert.alert('Accepte', `${req.guardian_name} est maintenant votre gardien.`); fetchData(); } catch (e: any) { Alert.alert('Erreur', e.message); } }}>
-              <Text style={{ color: '#000', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>{t('accept')}</Text>
+              <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>{t('accept')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)' }}
               onPress={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }}>
@@ -349,7 +349,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {sosLoading ? <ActivityIndicator color="#FFF" size="large" /> : (
             <>
               <Ionicons name="alert-circle" size={32} color="#FFF" />
-              <Text style={{ color: '#000', fontSize: 24, fontWeight: '900', letterSpacing: 4, marginTop: 4 }}>{t('sos')}</Text>
+              <Text style={{ color: '#FFF', fontSize: 24, fontWeight: '900', letterSpacing: 4, marginTop: 4 }}>{t('sos')}</Text>
               <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginTop: 2 }}>{t('sos_sub')}</Text>
             </>
           )}
@@ -420,7 +420,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <Text style={{ fontSize: 12, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('daily_goal')} | <Text style={{ color: '#E53935' }}>500 KCAL</Text></Text>
             <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
               <View style={{ height: 24, backgroundColor: '#10B981', borderRadius: 12, width: '40%', justifyContent: 'center', paddingLeft: 8 }}>
-                <Text style={{ fontSize: 10, fontWeight: '800', color: '#000' }}>0 KCAL</Text>
+                <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>0 KCAL</Text>
               </View>
             </View>
           </View>
@@ -430,7 +430,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <Text style={{ fontSize: 12, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('daily_goal')} | <Text style={{ color: '#E53935' }}>2000 {t('steps').toUpperCase()}</Text></Text>
             <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
               <View style={{ height: 24, backgroundColor: '#10B981', borderRadius: 12, width: `${Math.min(100, ((vitals?.steps || 0) / 2000) * 100)}%`, justifyContent: 'center', paddingLeft: 8 }}>
-                <Text style={{ fontSize: 10, fontWeight: '800', color: '#000' }}>{vitals?.steps || 0} {t('steps').toUpperCase()}</Text>
+                <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>{vitals?.steps || 0} {t('steps').toUpperCase()}</Text>
               </View>
             </View>
           </View>
@@ -632,25 +632,25 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
             <TouchableOpacity style={{ backgroundColor: '#10B981', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
               onPress={() => interventionId ? router.push({ pathname: '/company-intervention-detail', params: { interventionId } }) : router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
               <Ionicons name="shield-checkmark" size={18} color="#FFF" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>VOUS ETES EN INTERVENTION</Text>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>VOUS ETES EN INTERVENTION</Text>
             </TouchableOpacity>
           ) : hasIntervenant && a.intervener_info && interventionId ? (
             <TouchableOpacity style={{ backgroundColor: '#009688', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
               onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId } })}>
               <Ionicons name="navigate" size={18} color="#FFF" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>SUIVRE {a.intervener_info.name?.split(' ')[0]?.toUpperCase()}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>SUIVRE {a.intervener_info.name?.split(' ')[0]?.toUpperCase()}</Text>
             </TouchableOpacity>
           ) : isDispatch ? (
             <TouchableOpacity style={{ backgroundColor: '#FF9800', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
               onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
               <Ionicons name="time" size={18} color="#FFF" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>EN ATTENTE D'UN INTERVENANT</Text>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>EN ATTENTE D'UN INTERVENANT</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={{ backgroundColor: '#E53935', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
               onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
               <Ionicons name="shield-checkmark" size={18} color="#FFF" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>VOIR L'ALERTE</Text>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>VOIR L'ALERTE</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -690,12 +690,12 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
             <Text style={{ fontSize: 13, color: '#555', marginTop: 4 }}>{piv.beneficiary_name} {piv.distance_km ? `- ${piv.distance_km}km` : ''}</Text>
             {piv.status === 'pending_acceptance' && (
               <View style={{ backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }}>
-                <Text style={{ color: '#000', fontSize: 14, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2 }}>{t('i_intervene')}</Text>
+                <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2 }}>{t('i_intervene')}</Text>
               </View>
             )}
             {piv.status === 'in_progress' && piv.assigned_to === user.id && (
               <View style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }}>
-                <Text style={{ color: '#000', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' }}>VOIR L'INTERVENTION</Text>
+                <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' }}>VOIR L'INTERVENTION</Text>
               </View>
             )}
           </GlassCard>
@@ -711,7 +711,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
             <TouchableOpacity testID={`accept-inv-${inv.id}`} style={{ flex: 1, backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
               onPress={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/accept`, { method: 'POST' }, token); Alert.alert('Accepte', 'Vous etes maintenant gardien.'); fetchData(); } catch (e: any) { Alert.alert('Erreur', e.message); } }}>
-              <Text style={{ color: '#000', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>{t('accept')}</Text>
+              <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>{t('accept')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)' }}
               onPress={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }}>
@@ -768,7 +768,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           </View>
           <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{user.prescriber_structure || 'Structure'}</Text>
           <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }} onPress={() => router.push({ pathname: '/(tabs)/devices' })}>
-            <Text style={{ color: '#000', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>VOIR MES PRESCRIPTIONS</Text>
+            <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>VOIR MES PRESCRIPTIONS</Text>
           </TouchableOpacity>
         </GlassCard>
       )}
@@ -934,7 +934,7 @@ function RewardsAdminCard({ token }: { token: string }) {
             <TouchableOpacity onPress={save} disabled={saving}
               style={{ backgroundColor: '#FFB300', borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 4, flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
               {saving ? <ActivityIndicator color="#FFF" size="small" /> : (
-                <><Ionicons name="checkmark" size={18} color="#FFF" /><Text style={{ color: '#000', fontSize: 14, fontWeight: '800' }}>ENREGISTRER</Text></>
+                <><Ionicons name="checkmark" size={18} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>ENREGISTRER</Text></>
               )}
             </TouchableOpacity>
           </View>
@@ -1318,7 +1318,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
                     </View>
                     <View style={{ height: 20, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, overflow: 'hidden', flexDirection: 'row' }}>
                       {ag.completed > 0 && <View style={{ height: 20, backgroundColor: '#10B981', width: `${(ag.completed / maxVal) * 100}%`, justifyContent: 'center', paddingLeft: 6 }}>
-                        <Text style={{ fontSize: 9, fontWeight: '800', color: '#000' }}>{ag.completed}</Text>
+                        <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>{ag.completed}</Text>
                       </View>}
                       {ag.active > 0 && <View style={{ height: 20, backgroundColor: '#FF9800', width: `${(ag.active / maxVal) * 100}%` }} />}
                     </View>
