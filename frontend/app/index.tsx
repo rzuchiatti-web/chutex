@@ -125,7 +125,7 @@ export default function AuthScreen() {
             width: '100%', maxWidth: 420, padding: '32px 28px', borderRadius: 24,
             background: '#FFFFFF',
             border: '1px solid rgba(0,0,0,0.06)',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
             animation: 'pageEnter 500ms cubic-bezier(0.22, 1, 0.36, 1) both',
             animationDelay: '120ms',
           } as any}
@@ -180,12 +180,12 @@ export default function AuthScreen() {
             style={{
               display: 'block', width: '100%', padding: '18px', borderRadius: 9999,
               border: 'none', cursor: 'pointer',
-              background: 'linear-gradient(135deg, #111827, #2D2E34)', color: '#FFFFFF',
+              background: '#111827', color: '#FFFFFF',
               fontSize: 15, fontWeight: 700, letterSpacing: 0.5,
               fontFamily: 'inherit', WebkitAppearance: 'none',
               opacity: submitting ? 0.6 : 1,
               transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             } as any}
           >
             {submitting ? (
