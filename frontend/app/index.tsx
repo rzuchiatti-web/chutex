@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../src/context/AuthContext';
 
-const BG = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/banner_login_mobile.jpg?v=1771242072';
+const BG = 'https://customer-assets.emergentagent.com/job_237132d4-a477-4487-91a8-3e2e50160498/artifacts/rl5i1353_ChatGPT%20Image%2016%20f%C3%A9vr.%202026%2C%2013_42_09.png';
 const web = (s: any) => Platform.OS === 'web' ? s : {};
 
 // ─── GLASS CSS (injected once) ───
