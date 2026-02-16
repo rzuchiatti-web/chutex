@@ -297,24 +297,24 @@ export default function AuthScreen() {
 
           {/* Logo above glass panel */}
           <View style={{ alignItems: 'center', marginBottom: 28 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 16, overflow: 'hidden', marginBottom: 18, flexDirection: 'row', borderWidth: 0.5, borderColor: 'rgba(255,255,255,0.30)' }}>
+            <View style={{ width: 32, height: 32, borderRadius: 16, overflow: 'hidden', marginBottom: 18, flexDirection: 'row', borderWidth: 0.5, borderColor: 'rgba(100,80,140,0.25)' }}>
               <View style={{ flex: 1, backgroundColor: '#002395' }} /><View style={{ flex: 1, backgroundColor: '#FFF' }} /><View style={{ flex: 1, backgroundColor: '#ED2939' }} />
             </View>
-            <Image source={require('../assets/images/logo_black.png')} style={{ width: 160, height: 50 }} resizeMode="contain" />
-            <Text style={{ fontSize: 10, fontWeight: '500', color: 'rgba(255,255,255,0.60)', marginTop: 10, letterSpacing: 2.5, textTransform: 'uppercase' }}>
+            <Image source={require('../assets/images/logo_white.png')} style={{ width: 160, height: 50 }} resizeMode="contain" />
+            <Text style={{ fontSize: 10, fontWeight: '600', color: 'rgba(40,30,70,0.55)', marginTop: 10, letterSpacing: 2.5, textTransform: 'uppercase' }}>
               L'innovation au service de la sante
             </Text>
           </View>
 
-          {/* ─── GLASS PANEL (the frosted card) ─── */}
+          {/* ─── GLASS PANEL ─── */}
           {Platform.OS === 'web' ? (
             <div style={{
               padding: 28, borderRadius: 30,
-              background: 'rgba(255,255,255,0.15)',
+              background: 'rgba(255,255,255,0.25)',
               backdropFilter: 'blur(20px) saturate(140%)',
               WebkitBackdropFilter: 'blur(20px) saturate(140%)',
-              border: '1px solid rgba(255,255,255,0.35)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.30)',
+              border: '1px solid rgba(255,255,255,0.50)',
+              boxShadow: '0 8px 32px rgba(100,80,140,0.10), inset 0 1px 0 rgba(255,255,255,0.50)',
             } as any}>
               {formContent}
             </div>
