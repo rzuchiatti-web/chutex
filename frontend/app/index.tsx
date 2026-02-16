@@ -202,33 +202,33 @@ export default function AuthScreen() {
     }
     return (
       <TouchableOpacity testID={testID} disabled={ld} onPress={onPress} activeOpacity={0.8}
-        style={{ paddingVertical: 18, borderRadius: 16, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.30)' }}>
-        {ld ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: 'rgba(255,255,255,0.95)', fontSize: 15, fontWeight: '800', letterSpacing: 1.5, textTransform: 'uppercase' }}>{label}</Text>}
+        style={{ paddingVertical: 18, borderRadius: 16, alignItems: 'center', backgroundColor: 'rgba(30,20,60,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.30)' }}>
+        {ld ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: 'rgba(30,20,60,0.90)', fontSize: 15, fontWeight: '800', letterSpacing: 1.5, textTransform: 'uppercase' }}>{label}</Text>}
       </TouchableOpacity>
     );
   };
 
   const formContent = isLogin ? (
     <>
-      <Text style={{ fontSize: 26, fontWeight: '900', color: 'rgba(255,255,255,0.95)', textAlign: 'center', letterSpacing: 2, marginBottom: 28, textTransform: 'uppercase' }}>Connexion</Text>
+      <Text style={{ fontSize: 26, fontWeight: '900', color: 'rgba(30,20,60,0.90)', textAlign: 'center', letterSpacing: 2, marginBottom: 28, textTransform: 'uppercase' }}>Connexion</Text>
       <ErrorBanner />
       <GlassInput testID="reg-email" label="Email" val={email} onChange={setEmail} placeholder="votre@email.com" />
       <GlassInput testID="auth-input-password" label="Mot de passe" val={password} onChange={setPassword} placeholder="..." type={showPw ? 'text' : 'password'} />
       <View style={{ height: 8 }} />
       <GlassCTA testID="auth-submit-btn" label="Connexion" onPress={handleLogin} loading={submitting} />
       <TouchableOpacity style={{ alignItems: 'center', marginTop: 18 }}>
-        <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, fontWeight: '500', fontStyle: 'italic' }}>Mot de passe oublie ?</Text>
+        <Text style={{ color: 'rgba(30,20,60,0.55)', fontSize: 14, fontWeight: '500', fontStyle: 'italic' }}>Mot de passe oublie ?</Text>
       </TouchableOpacity>
       <View style={{ alignItems: 'center', marginTop: 28 }}>
-        <Text style={{ color: 'rgba(255,255,255,0.50)', fontSize: 14 }}>
+        <Text style={{ color: 'rgba(30,20,60,0.45)', fontSize: 14 }}>
           Pas encore de compte ?{' '}
-          <Text style={{ fontWeight: '700', color: 'rgba(255,255,255,0.90)', textDecorationLine: 'underline' }} onPress={() => { setIsLogin(false); setStep(0); setError(''); }}>S'inscrire ici.</Text>
+          <Text style={{ fontWeight: '700', color: 'rgba(30,20,60,0.85)', textDecorationLine: 'underline' }} onPress={() => { setIsLogin(false); setStep(0); setError(''); }}>S'inscrire ici.</Text>
         </Text>
       </View>
     </>
   ) : (
     <>
-      <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.95)', textAlign: 'center', letterSpacing: 1, marginBottom: 20, textTransform: 'uppercase' }}>Inscription</Text>
+      <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(30,20,60,0.90)', textAlign: 'center', letterSpacing: 1, marginBottom: 20, textTransform: 'uppercase' }}>Inscription</Text>
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 22 }}>
         {[0,1,2].map(i => <View key={i} style={{ width: i <= step ? 20 : 5, height: 3, borderRadius: 1.5, backgroundColor: i <= step ? 'rgba(255,255,255,0.80)' : 'rgba(255,255,255,0.18)' }} />)}
       </View>
@@ -240,11 +240,11 @@ export default function AuthScreen() {
         <GlassInput testID="reg-password" label="Mot de passe" val={password} onChange={setPassword} placeholder="Min. 6 caracteres" type="password" />
         <GlassCTA testID="next-step" label="Suivant" onPress={() => { if (!name || !email || !password) return setError('Remplissez tous les champs'); setError(''); setStep(1); }} />
         <View style={{ alignItems: 'center', marginTop: 20 }}>
-          <Text style={{ color: 'rgba(255,255,255,0.50)', fontSize: 14 }}>Deja un compte ? <Text style={{ fontWeight: '700', color: 'rgba(255,255,255,0.90)', textDecorationLine: 'underline' }} onPress={() => { setIsLogin(true); setStep(0); setError(''); }}>Se connecter.</Text></Text>
+          <Text style={{ color: 'rgba(30,20,60,0.45)', fontSize: 14 }}>Deja un compte ? <Text style={{ fontWeight: '700', color: 'rgba(30,20,60,0.85)', textDecorationLine: 'underline' }} onPress={() => { setIsLogin(true); setStep(0); setError(''); }}>Se connecter.</Text></Text>
         </View>
       </>)}
       {step === 1 && (<>
-        <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', textAlign: 'center', marginBottom: 20 }}>Selectionnez votre usage</Text>
+        <Text style={{ fontSize: 13, color: 'rgba(30,20,60,0.55)', textAlign: 'center', marginBottom: 20 }}>Selectionnez votre usage</Text>
         {[{ r: 'beneficiary', icon: 'person-outline', t: 'Beneficiaire', d: 'Porteur de dispositifs de sante' },
           { r: 'guardian', icon: 'people-outline', t: 'Gardien', d: 'Aidant ou professionnel' }].map(o => (
           <TouchableOpacity key={o.r} activeOpacity={0.75} onPress={() => { setRole(o.r); setStep(2); }}
@@ -257,13 +257,13 @@ export default function AuthScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 16, fontWeight: '700', color: 'rgba(255,255,255,0.95)' }}>{o.t}</Text>
-              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 3 }}>{o.d}</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(30,20,60,0.45)', marginTop: 3 }}>{o.d}</Text>
             </View>
             <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.40)" />
           </TouchableOpacity>
         ))}
         <TouchableOpacity style={{ alignItems: 'center', paddingVertical: 14 }} onPress={() => setStep(0)}>
-          <Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.45)' }}>Retour</Text>
+          <Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(30,20,60,0.40)' }}>Retour</Text>
         </TouchableOpacity>
       </>)}
       {step === 2 && (<>
