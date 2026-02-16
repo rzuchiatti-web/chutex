@@ -10,6 +10,29 @@ import { Radius, Space, Type } from '../src/constants/colors';
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = Math.min(SCREEN_W - 48, 380);
 
+// Theme-aware color helper
+function useOnboardingColors() {
+  const { colors, isDark } = useTheme();
+  return {
+    bg: colors.background,
+    text: colors.textPrimary,
+    textMuted: colors.textSecondary,
+    textDim: colors.textMuted,
+    line: colors.border,
+    lineFaint: colors.borderLight,
+    surface: colors.surface,
+    careViolet: '#7C5CFF',
+    careVioletWeak: 'rgba(124,92,255,0.18)',
+    success: colors.success,
+    danger: colors.danger,
+    warning: colors.warning,
+    buttonBg: colors.buttonBg,
+    buttonText: colors.buttonText,
+    isDark,
+    logoSource: isDark ? require('../assets/images/logo_white.png') : require('../assets/images/logo_black.png'),
+  };
+}
+
 const VIDEO_URL = 'https://cdn.shopify.com/videos/c/o/v/9ece2e3b8dd449f2bfbe21695ff47dd8.webm';
 const PRODUCTS = {
   elder: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/bague_vita_donnees_de_sante_chutex_2.svg?v=1766141409',
