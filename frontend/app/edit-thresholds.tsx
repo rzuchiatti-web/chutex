@@ -19,7 +19,7 @@ const METRIC_CONFIG: Record<string, any> = {
   temperature: { title: 'Temperature', unit: '°C', min: 34, max: 42, color: '#F57C00' },
 };
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
 export default function EditThresholdsScreen() {
   const { colors } = useTheme();

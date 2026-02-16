@@ -409,7 +409,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             { val: '0', label: t('kcal') },
             { val: '0', label: t('km') },
           ].map((s, i) => (
-            <View key={i} style={{ alignItems: 'center', flex: 1, borderRightWidth: i < 2 ? 1 : 0, borderColor: 'rgba(0,0,0,0.08)' }}>
+            <View key={i} style={{ alignItems: 'center', flex: 1, borderRightWidth: i < 2 ? 1 : 0, borderColor: 'rgba(255,255,255,0.08)' }}>
               <Text style={{ fontSize: 28, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{s.val}</Text>
               <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{s.label}</Text>
             </View>
@@ -563,9 +563,9 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           </View>
         </TouchableOpacity>
         <LanguageFlagButton />
-        <TouchableOpacity testID="guardian-notification-bell" onPress={() => setShowNotifsG(!showNotifsG)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.5)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginLeft: 8, ...glassStyle }}>
+        <TouchableOpacity testID="guardian-notification-bell" onPress={() => setShowNotifsG(!showNotifsG)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.5)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginLeft: 8, ...glassStyle }}>
           <Ionicons name="notifications-outline" size={18} color="#000" />
-          {(invitations.length > 0 || pendingInterventions.length > 0 || activeAlertsG.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: '#F5F0EB' }} />}
+          {(invitations.length > 0 || pendingInterventions.length > 0 || activeAlertsG.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: '#000' }} />}
         </TouchableOpacity>
       </View>
 

@@ -8,7 +8,7 @@ import { scanForScales, connectToScale, disconnectScale, stopScaleScan } from '.
 import type { ScaleMeasurement } from '../src/services/ble';
 
 const { width: SW } = Dimensions.get('window');
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GC = ({ children, style }: any) => <View style={[{ backgroundColor: 'rgba(255,255,255,0.55)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>;
 
 function MiniChart({ data, color, width: chartW, height: chartH }: { data: number[]; color: string; width: number; height: number }) {

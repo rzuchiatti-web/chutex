@@ -419,7 +419,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       {/* Interventions List filtered by tab */}
       {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => (
         <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: statusColor(iv.status), ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {}) }}>
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: statusColor(iv.status), ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {}) }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
               <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: statusColor(iv.status) + '15', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={22} color={statusColor(iv.status)} />
@@ -446,7 +446,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
           </View>
         </TouchableOpacity>
       )) : (
-        <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 40, alignItems: 'center', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } : {}) }}>
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 40, alignItems: 'center', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } : {}) }}>
           <Ionicons name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
           <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.50)', marginTop: 12 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
           <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.38)', marginTop: 4, textAlign: 'center', paddingHorizontal: 20 }}>{ivTab === 'active' ? 'Vous serez notifie des que vous recevrez une mission d\'intervention' : 'Vos missions completees s\'afficheront ici avec le rapport'}</Text>
@@ -786,7 +786,7 @@ function CompanyPrescriptions({ token }: { token: string }) {
               </View>
               <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
                 {/* Identity Card */}
-                <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 24, marginBottom: 12, ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)' } : {}) }}>
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 24, marginBottom: 12, ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px)' } : {}) }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
                     <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
                       <Text style={{ fontSize: 24, fontWeight: '900', color: '#FFF' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
@@ -856,7 +856,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#FFF" /></View>;
 
-  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
+  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
   const pendingIvs = interventions.filter((iv: any) => iv.status === 'pending_acceptance');
   const activeIvs = interventions.filter((iv: any) => ['in_progress', 'en_route', 'dispatched'].includes(iv.status));
   const completedIvs = interventions.filter((iv: any) => iv.status === 'completed');
@@ -999,7 +999,7 @@ function CompanyIntervenants({ token }: { token: string }) {
     ? intervenants.filter((iv: any) => iv.name?.toLowerCase().includes(search.toLowerCase()) || iv.email?.toLowerCase().includes(search.toLowerCase()))
     : intervenants;
 
-  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
+  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000' }}>

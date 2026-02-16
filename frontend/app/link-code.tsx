@@ -7,7 +7,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
@@ -110,11 +110,11 @@ export default function LinkScreen() {
               <div style={{ marginBottom: 12 }}>
                 <input data-testid="invite-phone-input" type="tel" placeholder="06 12 34 56 78" value={invitePhone}
                   onChange={(e: any) => setInvitePhone(e.target.value)}
-                  style={{ width: '100%', fontSize: 16, padding: '14px', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} />
+                  style={{ width: '100%', fontSize: 16, padding: '14px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(255,255,255,0.04)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} />
               </div>
             ) : (
               <View style={{ marginBottom: 12 }}>
-                <View style={{ backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)', paddingHorizontal: 14 }}>
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 14 }}>
                   <Text>Phone input placeholder</Text>
                 </View>
               </View>
@@ -167,7 +167,7 @@ export default function LinkScreen() {
             <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginBottom: 8 }}>Saisir le code</Text>
             <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', marginBottom: 16 }}>Entrez le code a 6 caracteres du beneficiaire</Text>
             {Platform.OS === 'web' ? (
-              <div style={{ marginBottom: 16 }}><input data-testid="link-code-input" type="text" placeholder="EX: A1B2C3" value={code} onChange={(e: any) => setCode(e.target.value.toUpperCase())} maxLength={6} style={{ width: '100%', fontSize: 24, fontWeight: '800', padding: '16px', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', textAlign: 'center', letterSpacing: 8, boxSizing: 'border-box' as any }} /></div>
+              <div style={{ marginBottom: 16 }}><input data-testid="link-code-input" type="text" placeholder="EX: A1B2C3" value={code} onChange={(e: any) => setCode(e.target.value.toUpperCase())} maxLength={6} style={{ width: '100%', fontSize: 24, fontWeight: '800', padding: '16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(255,255,255,0.04)', fontFamily: 'system-ui', textAlign: 'center', letterSpacing: 8, boxSizing: 'border-box' as any }} /></div>
             ) : null}
             {result && <View style={{ backgroundColor: result.error ? '#FFEBEE' : '#E8F5E9', borderRadius: 12, padding: 12, marginBottom: 12 }}><Text style={{ fontSize: 13, fontWeight: '600', color: result.error ? '#C62828' : '#2E7D32' }}>{result.error || result.message}</Text></View>}
             <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, alignItems: 'center' }} onPress={linkWithCode} disabled={loading}>
@@ -180,7 +180,7 @@ export default function LinkScreen() {
             <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginBottom: 8 }}>Numero de telephone</Text>
             <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', marginBottom: 16 }}>Le beneficiaire recevra une demande sur son compte</Text>
             {Platform.OS === 'web' ? (
-              <div style={{ marginBottom: 16 }}><input data-testid="link-phone-input" type="tel" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)} style={{ width: '100%', fontSize: 18, padding: '16px', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
+              <div style={{ marginBottom: 16 }}><input data-testid="link-phone-input" type="tel" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)} style={{ width: '100%', fontSize: 18, padding: '16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(255,255,255,0.04)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
             ) : null}
             {result && <View style={{ backgroundColor: result.error ? '#FFEBEE' : '#E8F5E9', borderRadius: 12, padding: 12, marginBottom: 12 }}><Text style={{ fontSize: 13, fontWeight: '600', color: result.error ? '#C62828' : '#2E7D32' }}>{result.error || result.message}</Text></View>}
             <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, alignItems: 'center' }} onPress={linkWithPhone} disabled={loading}>

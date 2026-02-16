@@ -308,7 +308,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const [prescTab, setPrescTab] = useState<'pending'|'validated'>('pending');
   const displayedPresc = prescTab === 'pending' ? pending : validated;
 
-  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
+  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
   return (
     <ScrollView style={d.sv} contentContainerStyle={[d.sc, { paddingBottom: 80 }]} showsVerticalScrollIndicator={false}>
@@ -319,7 +319,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', textAlign: 'center', lineHeight: 19, marginTop: 8, marginBottom: 20 }}>
             Activez votre espace prescripteur avec le code fourni par votre structure partenaire Chutex.
           </Text>
-          <TextInput testID="prescriber-code-input" style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 12, padding: 14, fontSize: 16, fontWeight: '700', color: 'rgba(255,255,255,0.92)', borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)', textAlign: 'center', letterSpacing: 3, marginBottom: 10 }}
+          <TextInput testID="prescriber-code-input" style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 12, padding: 14, fontSize: 16, fontWeight: '700', color: 'rgba(255,255,255,0.92)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.08)', textAlign: 'center', letterSpacing: 3, marginBottom: 10 }}
             placeholder="CODE PRESCRIPTEUR" placeholderTextColor="#BBB" value={actCode} onChangeText={setActCode} autoCapitalize="characters" />
           <TouchableOpacity testID="activate-prescriber-btn" style={{ width: '100%', backgroundColor: Colors.primary, borderRadius: 12, paddingVertical: 14, alignItems: 'center' }} onPress={activatePrescriber} disabled={activating}>
             {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Activer mon espace</Text>}
@@ -804,7 +804,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
 
   if (loading) return <View style={d.center}><ActivityIndicator size="large" color="#FFF" /></View>;
 
-  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
+  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
   const allPrescs = dashData?.prescriptions || [];
   const pendingPrescs = allPrescs.filter((p: any) => p.status === 'pending');
