@@ -79,10 +79,10 @@ export default function AuthScreen() {
         {/* Hero card with soft gradient */}
         <div style={{
           width: '100%', maxWidth: 420, marginBottom: 28, borderRadius: 24,
-          background: 'linear-gradient(135deg, #111827 0%, #6B7280 45%, #E5E7EB 100%)',
-          backgroundSize: '200% 200%', animation: 'gradientDrift 12s ease infinite, pageEnter 500ms cubic-bezier(0.22, 1, 0.36, 1) both',
+          background: '#F3F4F6',
+          backgroundSize: '200% 200%',
           padding: '36px 28px 28px', position: 'relative', overflow: 'hidden',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.18)',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.08)', border: '1px solid #E5E7EB', borderRadius: 16,
         } as any}>
           {/* Decorative circles */}
           <div style={{
