@@ -186,7 +186,7 @@ export default function HealthDetailScreen() {
             </View>
           </View>
           <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }} onPress={() => router.push({ pathname: '/edit-thresholds', params: { metricId: metricId || 'heart_rate' } })}>
-            <Text style={{ color: '#000', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>MODIFIER LES SEUILS</Text>
+            <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>MODIFIER LES SEUILS</Text>
           </TouchableOpacity>
         </GlassCard>
       </ScrollView>

@@ -66,7 +66,7 @@ export default function AdminClientDetail() {
         <GlassCard style={{ padding: 24 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
             <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: roleColor, justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
-              <Text style={{ fontSize: 28, fontWeight: '900', color: '#000' }}>{u.name?.charAt(0)?.toUpperCase()}</Text>
+              <Text style={{ fontSize: 28, fontWeight: '900', color: '#FFF' }}>{u.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{u.name}</Text>
@@ -169,7 +169,7 @@ export default function AdminClientDetail() {
               <TouchableOpacity key={g.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}
                 onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: g.id } })}>
                 <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#FFD54F', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 15, fontWeight: '800', color: '#000' }}>{g.name?.charAt(0)?.toUpperCase()}</Text>
+                  <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>{g.name?.charAt(0)?.toUpperCase()}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{g.name}</Text>
@@ -198,7 +198,7 @@ export default function AdminClientDetail() {
               <TouchableOpacity key={b.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}
                 onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: b.id } })}>
                 <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#4FC3F7', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 15, fontWeight: '800', color: '#000' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
+                  <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{b.name}</Text>

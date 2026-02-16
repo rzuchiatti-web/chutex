@@ -114,11 +114,11 @@ export default function ActivateBeneficiaryScreen() {
           </TouchableOpacity>}
           {step === 0 ? (
             <TouchableOpacity testID="next-step-btn" style={{ flex: 1, backgroundColor: '#000', paddingVertical: 14, borderRadius: 9999, alignItems: 'center' }} onPress={() => setStep(1)}>
-              <Text style={{ color: '#000', fontSize: 15, fontWeight: '800' }}>SUIVANT</Text>
+              <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>SUIVANT</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity testID="activate-btn" style={{ flex: 1, backgroundColor: '#000', paddingVertical: 14, borderRadius: 9999, alignItems: 'center' }} onPress={submit} disabled={saving}>
-              {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#000', fontSize: 15, fontWeight: '800' }}>ACTIVER</Text>}
+              {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>ACTIVER</Text>}
             </TouchableOpacity>
           )}
         </View>

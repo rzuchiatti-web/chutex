@@ -322,7 +322,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           <TextInput testID="prescriber-code-input" style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 12, padding: 14, fontSize: 16, fontWeight: '700', color: 'rgba(255,255,255,0.92)', borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)', textAlign: 'center', letterSpacing: 3, marginBottom: 10 }}
             placeholder="CODE PRESCRIPTEUR" placeholderTextColor="#BBB" value={actCode} onChangeText={setActCode} autoCapitalize="characters" />
           <TouchableOpacity testID="activate-prescriber-btn" style={{ width: '100%', backgroundColor: Colors.primary, borderRadius: 12, paddingVertical: 14, alignItems: 'center' }} onPress={activatePrescriber} disabled={activating}>
-            {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ color: '#000', fontSize: 15, fontWeight: '700' }}>Activer mon espace</Text>}
+            {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Activer mon espace</Text>}
           </TouchableOpacity>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, width: '100%', marginVertical: 16 }}>
             <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(0,0,0,0.08)' }} />
@@ -347,7 +347,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <Text style={{ fontSize: 17, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Prescripteur</Text>
                     <View style={{ backgroundColor: '#10B981', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
-                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#000' }}>Actif</Text>
+                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
                     </View>
                   </View>
                   <Text style={{ fontSize: 12, color: '#555', marginTop: 3 }}>{user.prescriber_structure}</Text>
@@ -420,7 +420,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
           {/* New prescription button */}
           <TouchableOpacity testID="new-prescription-btn" style={{ backgroundColor: '#000', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }} onPress={() => setShowForm(true)}>
-            <Text style={{ color: '#000', fontSize: 14, fontWeight: '700' }}>Nouvelle prescription</Text>
+            <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Nouvelle prescription</Text>
             <Ionicons name="add-circle-outline" size={18} color="#FFF" />
           </TouchableOpacity>
 
@@ -502,7 +502,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                     <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 24, marginBottom: 12, ...glass }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
                         <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
-                          <Text style={{ fontSize: 24, fontWeight: '900', color: '#000' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
+                          <Text style={{ fontSize: 24, fontWeight: '900', color: '#FFF' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
                         </View>
                         <View style={{ flex: 1 }}>
                           <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{selectedPresc.beneficiary_name}</Text>
@@ -677,7 +677,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
           <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{codes.length} structure(s) prescriptrice(s)</Text>
           <TouchableOpacity testID="add-prescripteur-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}
             onPress={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', max_uses: '50' }); setShowModal(true); }}>
-            <Ionicons name="add" size={16} color="#FFF" /><Text style={{ color: '#000', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
+            <Ionicons name="add" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
           </TouchableOpacity>
         </View>
 
@@ -717,7 +717,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
             <View style={d.deviceCard}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#CE93D8', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{p.name?.charAt(0)?.toUpperCase()}</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{p.name?.charAt(0)?.toUpperCase()}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.textPrimary }}>{p.name}</Text>
@@ -875,7 +875,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
                 <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 24, marginBottom: 12, ...glass }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
                     <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
-                      <Text style={{ fontSize: 24, fontWeight: '900', color: '#000' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
+                      <Text style={{ fontSize: 24, fontWeight: '900', color: '#FFF' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{selectedPresc.beneficiary_name}</Text>
@@ -958,7 +958,7 @@ const d = StyleSheet.create({
   commVal: { fontSize: 28, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
   commCount: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
   newPrescBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: Colors.primary, paddingVertical: 14, borderRadius: 12, marginBottom: 16 },
-  newPrescBtnText: { color: '#000', fontSize: 14, fontWeight: '600' },
+  newPrescBtnText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
   prescCard: { backgroundColor: Colors.subtle, borderRadius: 12, padding: 14, marginBottom: 6 },
   prescHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   prescName: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
@@ -975,7 +975,7 @@ const d = StyleSheet.create({
   activateRow: { flexDirection: 'row', gap: 8, width: '100%' },
   activateInput: { flex: 1, backgroundColor: Colors.paper, borderRadius: 10, padding: 14, fontSize: 15, fontWeight: '600', color: Colors.text, borderWidth: 1, borderColor: Colors.border, textAlign: 'center', letterSpacing: 2 },
   activateBtn: { paddingHorizontal: 20, borderRadius: 10, backgroundColor: Colors.primary, justifyContent: 'center' },
-  activateBtnT: { fontSize: 14, fontWeight: '700', color: '#000' },
+  activateBtnT: { fontSize: 14, fontWeight: '700', color: '#FFF' },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 10, width: '100%', marginVertical: 14 },
   divLine: { flex: 1, height: 1, backgroundColor: Colors.border },
   divText: { fontSize: 12, color: Colors.textMuted },
@@ -985,12 +985,12 @@ const d = StyleSheet.create({
   subCount: { fontSize: 12, color: Colors.textMuted, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
   subCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.subtle, borderRadius: 10, padding: 12, marginBottom: 6, gap: 10 },
   subAv: { width: 36, height: 36, borderRadius: 18, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
-  subAvT: { fontSize: 14, fontWeight: '700', color: '#000' },
+  subAvT: { fontSize: 14, fontWeight: '700', color: '#FFF' },
   subInfo: { flex: 1 },
   subName: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
   subEmail: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
   alertBdg: { backgroundColor: Colors.destructive, borderRadius: 10, minWidth: 20, height: 20, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5 },
-  alertBdgT: { color: '#000', fontSize: 10, fontWeight: '700' },
+  alertBdgT: { color: '#FFF', fontSize: 10, fontWeight: '700' },
   // Empty & Modal
   emptyC: { alignItems: 'center', paddingVertical: 36 },
   emptyT: { fontSize: 13, color: Colors.textMuted, marginTop: 8 },
@@ -1008,5 +1008,5 @@ const d = StyleSheet.create({
   cancelBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.subtle, alignItems: 'center' },
   cancelBtnT: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
   submitBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center' },
-  submitBtnT: { fontSize: 15, fontWeight: '600', color: '#000' },
+  submitBtnT: { fontSize: 15, fontWeight: '600', color: '#FFF' },
 });

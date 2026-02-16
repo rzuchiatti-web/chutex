@@ -278,15 +278,15 @@ const s = StyleSheet.create({
   // Subscription card
   subCard: { borderRadius: 16, padding: 20 },
   subIcon: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
-  subType: { fontSize: 20, fontWeight: '900', color: '#000' },
-  subDesc: { fontSize: 13, color: '#000', opacity: 0.8, marginTop: 2 },
+  subType: { fontSize: 20, fontWeight: '900', color: '#FFF' },
+  subDesc: { fontSize: 13, color: '#FFF', opacity: 0.8, marginTop: 2 },
   careFeature: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 10, padding: 10, marginTop: 14 },
-  careFeatureT: { fontSize: 13, fontWeight: '700', color: '#000' },
+  careFeatureT: { fontSize: 13, fontWeight: '700', color: '#FFF' },
   // Guardians
   guardianCount: { fontSize: 12, color: Colors.textMuted },
   guardianRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
   orderBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
-  orderBadgeT: { fontSize: 13, fontWeight: '800', color: '#000' },
+  orderBadgeT: { fontSize: 13, fontWeight: '800', color: '#FFF' },
   guardianName: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   guardianPhone: { fontSize: 12, color: Colors.textMuted, marginTop: 1 },
   firstGuardian: { fontSize: 10, fontWeight: '700', color: Colors.success, marginTop: 2 },
@@ -305,9 +305,9 @@ const s = StyleSheet.create({
   alertStatusT: { fontSize: 10, fontWeight: '700' },
   // SOS
   sosBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: Colors.destructive, borderRadius: 14, paddingVertical: 16 },
-  sosBtnT: { fontSize: 17, fontWeight: '800', color: '#000' },
+  sosBtnT: { fontSize: 17, fontWeight: '800', color: '#FFF' },
   addGuardianBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 },
-  addGuardianBtnT: { fontSize: 12, fontWeight: '700', color: '#000' },
+  addGuardianBtnT: { fontSize: 12, fontWeight: '700', color: '#FFF' },
   modalOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   modalContent: { backgroundColor: Colors.background, borderRadius: 16, padding: 20, width: '100%', maxWidth: 400 },
   modalTitle: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },
@@ -317,5 +317,5 @@ const s = StyleSheet.create({
   modalCancelBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.subtle, alignItems: 'center' },
   modalCancelBtnT: { fontSize: 15, fontWeight: '700', color: Colors.textSecondary },
   modalConfirmBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center' },
-  modalConfirmBtnT: { fontSize: 15, fontWeight: '700', color: '#000' },
+  modalConfirmBtnT: { fontSize: 15, fontWeight: '700', color: '#FFF' },
 });

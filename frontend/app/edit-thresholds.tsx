@@ -109,7 +109,7 @@ export default function EditThresholdsScreen() {
 
         {/* Confirm */}
         <TouchableOpacity style={{ width: '100%', backgroundColor: '#000', borderRadius: 9999, paddingVertical: 18, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={save} disabled={saving}>
-          {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#000', fontSize: 16, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 }}>CONFIRMER LES NOUVEAUX SEUILS</Text>}
+          {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 }}>CONFIRMER LES NOUVEAUX SEUILS</Text>}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

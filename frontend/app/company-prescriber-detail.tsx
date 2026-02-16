@@ -63,7 +63,7 @@ export default function CompanyPrescriberDetail() {
         <GlassCard style={{ padding: 24 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
             <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
-              <Text style={{ fontSize: 28, fontWeight: '900', color: '#000' }}>{pr.name?.charAt(0)?.toUpperCase()}</Text>
+              <Text style={{ fontSize: 28, fontWeight: '900', color: '#FFF' }}>{pr.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{pr.name}</Text>

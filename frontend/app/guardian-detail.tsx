@@ -56,7 +56,7 @@ export default function GuardianDetailScreen() {
         {/* Avatar + Name */}
         <GlassCard style={{ alignItems: 'center', padding: 28 }}>
           <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#FFB74D', justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 32, fontWeight: '800', color: '#000' }}>{guardian.name?.charAt(0)}</Text>
+            <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF' }}>{guardian.name?.charAt(0)}</Text>
           </View>
           <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginTop: 12 }}>{guardian.name}</Text>
           {guardian.profession && <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', marginTop: 4 }}>{guardian.profession}</Text>}
@@ -102,7 +102,7 @@ export default function GuardianDetailScreen() {
             }},
           ])}>
           <Ionicons name="trash-outline" size={18} color="#FFF" />
-          <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>SUPPRIMER CE GARDIEN</Text>
+          <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>SUPPRIMER CE GARDIEN</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

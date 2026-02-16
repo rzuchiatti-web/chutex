@@ -79,7 +79,7 @@ export default function BeneficiaryDetailScreen() {
         <GlassCard style={{ padding: 24 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
             <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#4FC3F7', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
-              <Text style={{ fontSize: 28, fontWeight: '900', color: '#000' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
+              <Text style={{ fontSize: 28, fontWeight: '900', color: '#FFF' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{b.name}</Text>
@@ -149,7 +149,7 @@ export default function BeneficiaryDetailScreen() {
             <InfoRow icon="location-outline" label="Coordonnees" value={`${b.latitude?.toFixed(4)}, ${b.longitude?.toFixed(4)}`} color="#1565C0" />
             <TouchableOpacity style={{ backgroundColor: '#1565C0', borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 10, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
               onPress={() => openDirections(b.latitude, b.longitude)}>
-              <Text style={{ color: '#000', fontSize: 14, fontWeight: '700' }}>Ouvrir dans Maps</Text>
+              <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Ouvrir dans Maps</Text>
               <Ionicons name="navigate-outline" size={16} color="#FFF" />
             </TouchableOpacity>
           </GlassCard>
@@ -192,7 +192,7 @@ export default function BeneficiaryDetailScreen() {
         <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
           onPress={generateReport} disabled={reportLoading}>
           {reportLoading ? <ActivityIndicator color="#FFF" /> : <>
-            <Text style={{ color: '#000', fontSize: 14, fontWeight: '700' }}>Generer un rapport IA</Text>
+            <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Generer un rapport IA</Text>
             <Ionicons name="sparkles" size={16} color="#FFF" />
           </>}
         </TouchableOpacity>

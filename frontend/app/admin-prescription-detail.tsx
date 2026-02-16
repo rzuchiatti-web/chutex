@@ -26,7 +26,7 @@ const Badge = ({ label, color, bg }: { label: string; color: string; bg: string 
 const PersonCard = ({ name, subtitle, color, onPress }: { name: string; subtitle: string; color: string; onPress?: () => void }) => (
   <TouchableOpacity onPress={onPress} disabled={!onPress} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 }}>
     <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: color, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{name?.charAt(0)?.toUpperCase()}</Text>
+      <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{name?.charAt(0)?.toUpperCase()}</Text>
     </View>
     <View style={{ flex: 1 }}>
       <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{name}</Text>

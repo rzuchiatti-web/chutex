@@ -73,7 +73,7 @@ export default function ActivateGuardianScreen() {
           )}
         </GlassCard>
         <TouchableOpacity testID="activate-guardian-btn" style={{ backgroundColor: '#000', paddingVertical: 16, borderRadius: 9999, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={submit} disabled={saving}>
-          {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>ACTIVER</Text>}
+          {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>ACTIVER</Text>}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

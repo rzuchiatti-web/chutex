@@ -78,7 +78,7 @@ export default function InterventionMapScreen() {
                   testID="open-maps-btn"
                   style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, paddingHorizontal: 24, marginTop: 16 }}
                   onPress={() => openMaps(benLoc.latitude, benLoc.longitude)}>
-                  <Text style={{ color: '#000', fontSize: 14, fontWeight: '800' }}>OUVRIR DANS MAPS</Text>
+                  <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>OUVRIR DANS MAPS</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -126,7 +126,7 @@ export default function InterventionMapScreen() {
               style={{ backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 12 }}
               onPress={() => Linking.openURL(`tel:${ben.phone}`)}>
               <Ionicons name="call" size={16} color="#FFF" />
-              <Text style={{ color: '#000', fontSize: 14, fontWeight: '800' }}>APPELER</Text>
+              <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>APPELER</Text>
             </TouchableOpacity>
           )}
         </GlassCard>
@@ -137,7 +137,7 @@ export default function InterventionMapScreen() {
             <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>INTERVENANT</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{iv.assigned_name?.charAt(0)}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.assigned_name?.charAt(0)}</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{iv.assigned_name}</Text>
@@ -161,7 +161,7 @@ export default function InterventionMapScreen() {
             style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 8, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }}
             onPress={() => openMaps(benLoc.latitude, benLoc.longitude)}>
             <Ionicons name="navigate" size={20} color="#FFF" />
-            <Text style={{ color: '#000', fontSize: 16, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 }}>LANCER LA NAVIGATION</Text>
+            <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 }}>LANCER LA NAVIGATION</Text>
           </TouchableOpacity>
         )}
 

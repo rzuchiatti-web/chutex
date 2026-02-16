@@ -183,12 +183,12 @@ export default function CompanyInterventionDetail() {
         </TouchableOpacity>
         <View style={{ position: 'absolute', top: 50, right: 16, backgroundColor: sc, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 6, ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(0,0,0,0.2)' } : {}) }}>
           <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.04)' }} />
-          <Text style={{ color: '#000', fontSize: 12, fontWeight: '800' }}>{stLabel(iv.status).toUpperCase()}</Text>
+          <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>{stLabel(iv.status).toUpperCase()}</Text>
         </View>
         {iv.distance_km && !isCompleted && (
           <View style={{ position: 'absolute', bottom: 16, alignSelf: 'center', backgroundColor: '#000', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 8, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.3)', left: '50%', transform: 'translateX(-50%)' as any } : {}) }}>
             <Ionicons name="navigate" size={16} color="#FFF" />
-            <Text style={{ color: '#000', fontSize: 16, fontWeight: '900' }}>{iv.distance_km} km</Text>
+            <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900' }}>{iv.distance_km} km</Text>
           </View>
         )}
       </View>
@@ -202,7 +202,7 @@ export default function CompanyInterventionDetail() {
           {iv.assigned_name ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 14 }}>
               <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: iAmIntervenant ? '#4CAF50' : '#009688', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 22, fontWeight: '900', color: '#000' }}>{iv.assigned_name.charAt(0)}</Text>
+                <Text style={{ fontSize: 22, fontWeight: '900', color: '#FFF' }}>{iv.assigned_name.charAt(0)}</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{iAmIntervenant ? 'Vous intervenez' : iv.assigned_name}</Text>
@@ -210,7 +210,7 @@ export default function CompanyInterventionDetail() {
               </View>
               {iAmIntervenant && !isCompleted && (
                 <TouchableOpacity onPress={() => setShowReport(true)} style={{ backgroundColor: '#10B981', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12 }}>
-                  <Text style={{ color: '#000', fontSize: 11, fontWeight: '800' }}>TERMINER</Text>
+                  <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '800' }}>TERMINER</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -341,7 +341,7 @@ export default function CompanyInterventionDetail() {
               <TouchableOpacity style={{ backgroundColor: '#10B981', borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
                 onPress={handleComplete} disabled={submitting}>
                 {submitting ? <ActivityIndicator color="#FFF" /> : (
-                  <><Ionicons name="checkmark-circle" size={20} color="#FFF" /><Text style={{ color: '#000', fontSize: 15, fontWeight: '900' }}>TERMINER L'INTERVENTION</Text></>
+                  <><Ionicons name="checkmark-circle" size={20} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>TERMINER L'INTERVENTION</Text></>
                 )}
               </TouchableOpacity>
             </ScrollView>
