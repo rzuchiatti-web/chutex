@@ -3,45 +3,44 @@ import { Tabs } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { View, ActivityIndicator, Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Palette } from '../../src/constants/colors';
 
 export default function TabLayout() {
   const { user, loading } = useAuth();
 
-  // Inject CSS on web to force floating tab bar
+  // Inject CSS for dark floating tab bar
   useEffect(() => {
     if (Platform.OS === 'web') {
       const style = document.createElement('style');
+      style.id = 'clinic-tabbar';
       style.textContent = `
-        /* Force floating tab bar on ALL screens */
         [role="tablist"] {
           position: fixed !important;
           bottom: 12px !important;
           left: 12px !important;
           right: 12px !important;
-          border-radius: 24px !important;
-          background: rgba(255,255,255,0.97) !important;
-          backdrop-filter: blur(20px) !important;
-          -webkit-backdrop-filter: blur(20px) !important;
-          box-shadow: 0 4px 24px rgba(0,0,0,0.12) !important;
-          border: 1px solid rgba(0,0,0,0.06) !important;
+          border-radius: 22px !important;
+          background: rgba(10,10,10,0.88) !important;
+          backdrop-filter: blur(24px) !important;
+          -webkit-backdrop-filter: blur(24px) !important;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.08) !important;
+          border: none !important;
           z-index: 99999 !important;
           height: 60px !important;
           padding-bottom: 4px !important;
           border-top: none !important;
         }
-        /* Add bottom padding to all tab content so it doesn't hide behind the floating bar */
         [role="tablist"] ~ div,
         [role="tabpanel"] {
           padding-bottom: 80px !important;
         }
       `;
       document.head.appendChild(style);
-      return () => { document.head.removeChild(style); };
+      return () => { document.getElementById('clinic-tabbar')?.remove(); };
     }
   }, []);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
   if (!user) return null;
 
   const r = user.active_role || user.role;
@@ -51,27 +50,23 @@ export default function TabLayout() {
   const isAdmin = r === 'admin';
   const isCompany = r === 'prescriber_company';
 
-  // Safe bottom padding for devices with navigation bars
   const bottomPad = Platform.OS === 'web' ? 6 : Math.max(12, 6);
 
   return (
-    <Tabs key={r} sceneContainerStyle={{ backgroundColor: '#F5F0EB' }} screenOptions={{
+    <Tabs key={r} sceneContainerStyle={{ backgroundColor: '#000' }} screenOptions={{
       headerShown: false,
-      tabBarActiveTintColor: '#000',
-      tabBarInactiveTintColor: '#999',
+      tabBarActiveTintColor: '#FFFFFF',
+      tabBarInactiveTintColor: 'rgba(255,255,255,0.35)',
       tabBarStyle: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'rgba(10,10,10,0.88)',
         borderTopWidth: 0,
         height: Platform.OS === 'web' ? 60 : 70,
         paddingBottom: bottomPad,
         paddingTop: 6,
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
+        elevation: 0,
+        shadowColor: 'transparent',
       },
-      tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
+      tabBarLabelStyle: { fontSize: 10, fontWeight: '600', letterSpacing: 0.3 },
     }}>
       <Tabs.Screen name="index" options={{
         title: (isAdmin || isCompany) ? 'Dashboard' : 'Accueil',
