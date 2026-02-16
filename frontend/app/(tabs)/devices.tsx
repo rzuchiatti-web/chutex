@@ -934,7 +934,7 @@ export default function DevicesScreen() {
 }
 
 const d = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
+  safeArea: { flex: 1, backgroundColor: '#F5F6F8' },
   header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
   title: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, letterSpacing: -0.5 },
   sv: { flex: 1 }, sc: { paddingHorizontal: 20, paddingBottom: 24 },
