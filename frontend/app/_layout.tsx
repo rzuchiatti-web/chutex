@@ -24,7 +24,7 @@ function RootNav() {
     return (
       <>
         <StatusBar style={isDark ? 'light' : 'dark'} />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F5F6F8' } }}>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="onboarding" />
         </Stack>
