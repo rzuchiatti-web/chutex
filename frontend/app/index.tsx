@@ -90,7 +90,7 @@ const GlassInput = ({ testID, label, val, onChange, placeholder, type }: any) =>
   if (Platform.OS === 'web') {
     return (
       <div style={{ marginBottom: 18 }}>
-        {label && <div style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.70)', marginBottom: 7, letterSpacing: 0.5, fontFamily: 'Inter, system-ui' }}>{label}</div>}
+        {label && <div style={{ fontSize: 12, fontWeight: '600', color: 'rgba(30,20,60,0.55)', marginBottom: 7, letterSpacing: 0.5, fontFamily: 'Inter, system-ui' }}>{label}</div>}
         <input data-testid={testID} type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder} className="glass-input" />
       </div>
     );
@@ -98,11 +98,11 @@ const GlassInput = ({ testID, label, val, onChange, placeholder, type }: any) =>
   const { TextInput: RNTextInput } = require('react-native');
   return (
     <View style={{ marginBottom: 18 }}>
-      {label && <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.70)', marginBottom: 7, letterSpacing: 0.5 }}>{label}</Text>}
+      {label && <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(30,20,60,0.55)', marginBottom: 7, letterSpacing: 0.5 }}>{label}</Text>}
       <RNTextInput testID={testID} value={val} onChangeText={onChange} placeholder={placeholder}
         placeholderTextColor="rgba(255,255,255,0.40)" secureTextEntry={type === 'password'}
         autoCapitalize="none" keyboardType={type === 'email' ? 'email-address' : type === 'tel' ? 'phone-pad' : 'default'}
-        style={{ fontSize: 16, paddingVertical: 16, paddingHorizontal: 22, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.95)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)' }} />
+        style={{ fontSize: 16, paddingVertical: 16, paddingHorizontal: 22, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.35)', color: 'rgba(30,20,60,0.90)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.50)' }} />
     </View>
   );
 };
@@ -252,11 +252,11 @@ export default function AuthScreen() {
               backgroundColor: role === o.r ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)',
               borderWidth: 1, borderColor: role === o.r ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.18)',
               ...web({ backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)' }) }}>
-            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.10)', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name={o.icon as any} size={20} color="rgba(255,255,255,0.80)" />
+            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.22)', justifyContent: 'center', alignItems: 'center' }}>
+              <Ionicons name={o.icon as any} size={20} color="rgba(30,20,60,0.65)" />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 16, fontWeight: '700', color: 'rgba(255,255,255,0.95)' }}>{o.t}</Text>
+              <Text style={{ fontSize: 16, fontWeight: '700', color: 'rgba(30,20,60,0.90)' }}>{o.t}</Text>
               <Text style={{ fontSize: 12, color: 'rgba(30,20,60,0.45)', marginTop: 3 }}>{o.d}</Text>
             </View>
             <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.40)" />
@@ -319,7 +319,7 @@ export default function AuthScreen() {
               {formContent}
             </div>
           ) : (
-            <View style={{ backgroundColor: 'rgba(255,255,255,0.10)', borderRadius: 30, borderWidth: 1, borderColor: 'rgba(255,255,255,0.30)', padding: 28, overflow: 'hidden' }}>
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 30, borderWidth: 1, borderColor: 'rgba(255,255,255,0.30)', padding: 28, overflow: 'hidden' }}>
               {formContent}
             </View>
           )}
