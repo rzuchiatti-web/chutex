@@ -4,7 +4,7 @@ set timeout 600
 spawn env EXPO_TOKEN=bSAaETVb2wyb8CdjB0KYCDDUjvk3yfEeEalSuAZh \
   ASC_API_KEY_PATH=/app/frontend/keys/AuthKey_Y782NVC834.p8 \
   ASC_API_KEY_ID=Y782NVC834 \
-  ASC_API_KEY_ISSUER_ID=4c54dcaa-4ea0-4b6a-97b6-dce1c7fac20f \
+  ASC_API_KEY_ISSUER_ID=dispatch-hub-164 \
   EXPO_APPLE_TEAM_ID=94YZY663N2 \
   npx eas-cli build --platform ios --profile production
 
