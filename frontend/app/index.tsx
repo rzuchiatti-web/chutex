@@ -15,6 +15,7 @@ const injectGlassCSS = () => {
   const s = document.createElement('style');
   s.id = 'glass-login';
   s.textContent = `
+    body { background: transparent !important; }
     .glass-panel {
       background: rgba(255,255,255,0.10);
       backdrop-filter: blur(16px) saturate(130%);
