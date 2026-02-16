@@ -14,7 +14,7 @@ function RootNav() {
     return (
       <View style={st.loading}>
         <StatusBar style="dark" />
-        <ActivityIndicator size="large" color="#C67A4F" />
+        <ActivityIndicator size="large" color="#D4845A" />
       </View>
     );
   }
@@ -34,7 +34,7 @@ function RootNav() {
   return (
     <>
       <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#FAF8F5' }, animation: 'none' }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F5F6F8' }, animation: 'none' }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="health-detail" options={{ presentation: 'card' }} />
         <Stack.Screen name="backoffice" options={{ presentation: 'card' }} />
@@ -74,5 +74,5 @@ export default function RootLayout() {
 }
 
 const st = StyleSheet.create({
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAF8F5' },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' },
 });
