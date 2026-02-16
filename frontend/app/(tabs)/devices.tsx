@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
@@ -87,7 +88,7 @@ function DeviceManagement({ token }: { token: string }) {
       {/* Subscription Status */}
       {subscription && (
         <View style={[d.infoText, { flexDirection: 'row', alignItems: 'center', gap: 8, borderColor: subscription.has_subscription ? Colors.success : Colors.border }]}>
-          <Ionicons name={subscription.has_subscription ? "checkmark-circle" : "alert-circle"} size={16} color={subscription.has_subscription ? Colors.success : Colors.textMuted} />
+          <Icon name={subscription.has_subscription ? "checkmark-circle" : "alert-circle"} size={16} color={subscription.has_subscription ? Colors.success : Colors.textMuted} />
           <Text style={{ fontSize: 12, color: subscription.has_subscription ? Colors.success : Colors.textSecondary, flex: 1, fontWeight: '600' }}>
             {subscription.has_subscription
               ? `Abonnement ${subscription.subscription_type?.toUpperCase()} actif${subscription.has_teleassistance ? ' - Teleassistance incluse' : ''}`
@@ -108,7 +109,7 @@ function DeviceManagement({ token }: { token: string }) {
         return (
           <View key={device.id} style={[d.deviceCard, needsSub && { opacity: 0.6 }]} testID={`device-card-${device.device_type}`}>
             <View style={d.deviceHeader}>
-              <View style={d.deviceIconBg}><MaterialCommunityIcons name={getDeviceIcon(device.device_type) as any} size={24} color={Colors.textPrimary} /></View>
+              <View style={d.deviceIconBg}><MCIcon name={getDeviceIcon(device.device_type) as any} size={24} color={Colors.textPrimary} /></View>
               <View style={d.deviceInfo}>
                 <Text style={d.deviceName}>{getDeviceName(device.device_type)}</Text>
                 <View style={d.deviceMeta}>
@@ -121,14 +122,14 @@ function DeviceManagement({ token }: { token: string }) {
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={d.batteryT}>{realBattery}%</Text>
-                <Ionicons name={(realBattery > 50) ? "battery-full" : (realBattery > 20) ? "battery-half" : "battery-dead"} size={16} color={(realBattery > 20) ? Colors.success : Colors.destructive} />
+                <Icon name={(realBattery > 50) ? "battery-full" : (realBattery > 20) ? "battery-half" : "battery-dead"} size={16} color={(realBattery > 20) ? Colors.success : Colors.destructive} />
               </View>
             </View>
 
             {isVest ? (
               <TouchableOpacity testID="connect-vest-ble-btn" style={[d.syncBtn, vestConnected && { borderColor: Colors.success }]}
                 onPress={() => router.push('/vest-connect')}>
-                <Ionicons name="bluetooth" size={16} color={vestConnected ? Colors.success : Colors.primary} />
+                <Icon name="bluetooth" size={16} color={vestConnected ? Colors.success : Colors.primary} />
                 <Text style={[d.syncBtnText, vestConnected && { color: Colors.success }]}>
                   {vestConnected ? 'Gilet actif - Voir details' : 'Connecter via Bluetooth'}
                 </Text>
@@ -136,7 +137,7 @@ function DeviceManagement({ token }: { token: string }) {
             ) : isBracelet ? (
               <TouchableOpacity testID="connect-bracelet-ble-btn" style={[d.syncBtn, braceletConnected && { borderColor: Colors.success }, needsSub && { opacity: 0.5 }]}
                 onPress={() => syncDevice('bracelet')} disabled={needsSub}>
-                <Ionicons name="bluetooth" size={16} color={braceletConnected ? Colors.success : Colors.primary} />
+                <Icon name="bluetooth" size={16} color={braceletConnected ? Colors.success : Colors.primary} />
                 <Text style={[d.syncBtnText, braceletConnected && { color: Colors.success }]}>
                   {braceletConnected ? 'Bracelet actif - Voir details' : needsSub ? 'Abonnement requis' : 'Connecter via Bluetooth'}
                 </Text>
@@ -144,14 +145,14 @@ function DeviceManagement({ token }: { token: string }) {
             ) : device.device_type === 'scale' ? (
               <TouchableOpacity testID="scale-detail-btn" style={[d.syncBtn, { borderColor: '#4CAF50' }]}
                 onPress={() => router.push('/scale-detail')}>
-                <Ionicons name="analytics" size={16} color="#4CAF50" />
+                <Icon name="analytics" size={16} color="#4CAF50" />
                 <Text style={[d.syncBtnText, { color: '#10B981' }]}>Voir mes mesures</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity testID={`sync-${device.device_type}-btn`} style={[d.syncBtn, needsSub && { opacity: 0.5 }]}
                 onPress={() => syncDevice(device.device_type)} disabled={syncingDevice === device.device_type || needsSub}>
                 {syncingDevice === device.device_type ? <ActivityIndicator color={Colors.primary} size="small" /> : (
-                  <><MaterialCommunityIcons name="bluetooth-connect" size={16} color={Colors.primary} /><Text style={d.syncBtnText}>Synchroniser</Text></>)}
+                  <><MCIcon name="bluetooth-connect" size={16} color={Colors.primary} /><Text style={d.syncBtnText}>Synchroniser</Text></>)}
               </TouchableOpacity>
             )}
           </View>
@@ -174,7 +175,7 @@ function RewardsCard({ token }: { token: string }) {
       <TouchableOpacity onPress={() => setShowDetail(true)} activeOpacity={0.8}>
         <View style={{ backgroundColor: '#FFF8E1', borderRadius: 20, padding: 16, marginBottom: 12, borderWidth: 1.5, borderColor: '#FFD54F', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#FFD700', justifyContent: 'center', alignItems: 'center' }}>
-            <Ionicons name="trophy" size={24} color="#1A1D21" />
+            <Icon name="trophy" size={24} color="#1A1D21" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 14, fontWeight: '900', color: '#1A1D21' }}>Challenge du mois</Text>
@@ -184,12 +185,12 @@ function RewardsCard({ token }: { token: string }) {
             <Text style={{ fontSize: 24, fontWeight: '900', color: posColor }}>{data.my_position}<Text style={{ fontSize: 11 }}>e</Text></Text>
             <Text style={{ fontSize: 9, color: '#5A6068' }}>position</Text>
           </View>
-          <Ionicons name="chevron-forward" size={16} color="#FFB300" />
+          <Icon name="chevron-forward" size={16} color="#FFB300" />
         </View>
       </TouchableOpacity>
       {data.prescriptions_to_next > 0 && (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12, marginTop: -8, paddingHorizontal: 4 }}>
-          <Ionicons name="flame" size={14} color="#FF9800" />
+          <Icon name="flame" size={14} color="#FF9800" />
           <Text style={{ fontSize: 12, color: '#E65100', fontWeight: '700' }}>Plus que {data.prescriptions_to_next} prescription{data.prescriptions_to_next > 1 ? 's' : ''} pour monter !</Text>
         </View>
       )}
@@ -198,7 +199,7 @@ function RewardsCard({ token }: { token: string }) {
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '90%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <Text style={{ fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>Challenge Prescripteurs</Text>
-              <TouchableOpacity onPress={() => setShowDetail(false)}><Ionicons name="close" size={24} color="#888" /></TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowDetail(false)}><Icon name="close" size={24} color="#888" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={{ backgroundColor: '#FFF8E1', borderRadius: 16, padding: 16, marginBottom: 16 }}>
@@ -207,7 +208,7 @@ function RewardsCard({ token }: { token: string }) {
                   {[{pos: '1er', prize: data.prizes?.['1'], color: '#FFD700', icon: 'trophy'}, {pos: '2e', prize: data.prizes?.['2'], color: '#C0C0C0', icon: 'medal'}, {pos: '3e', prize: data.prizes?.['3'], color: '#CD7F32', icon: 'ribbon'}].map(t => (
                     <View key={t.pos} style={{ alignItems: 'center' }}>
                       <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: t.color, justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
-                        <Ionicons name={t.icon as any} size={22} color="#1A1D21" />
+                        <Icon name={t.icon as any} size={22} color="#1A1D21" />
                       </View>
                       <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21' }}>{t.prize}EUR</Text>
                       <Text style={{ fontSize: 11, color: '#5A6068' }}>{t.pos}</Text>
@@ -222,7 +223,7 @@ function RewardsCard({ token }: { token: string }) {
                 {myPrize > 0 && <Text style={{ fontSize: 13, color: '#10B981', textAlign: 'center', fontWeight: '800', marginTop: 4 }}>Vous gagnez {myPrize}EUR !</Text>}
                 {data.prescriptions_to_next > 0 && (
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 8 }}>
-                    <Ionicons name="flame" size={16} color="#FF9800" />
+                    <Icon name="flame" size={16} color="#FF9800" />
                     <Text style={{ fontSize: 13, color: '#E65100', fontWeight: '700' }}>Plus que {data.prescriptions_to_next} pour monter !</Text>
                   </View>
                 )}
@@ -247,7 +248,7 @@ function RewardsCard({ token }: { token: string }) {
                   {data.history.map((h: any, i: number) => (
                     <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8 }}>
                       <Text style={{ fontSize: 12, color: '#5A6068', width: 60 }}>{h.month}</Text>
-                      <Ionicons name="trophy" size={14} color="#FFD700" />
+                      <Icon name="trophy" size={14} color="#FFD700" />
                       <Text style={{ fontSize: 12, fontWeight: '700', color: '#1A1D21' }}>{h.winner_name || 'Prescripteur #1'}</Text>
                     </View>
                   ))}
@@ -314,7 +315,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
     <ScrollView style={d.sv} contentContainerStyle={[d.sc, { paddingBottom: 80 }]} showsVerticalScrollIndicator={false}>
       {!user?.is_prescriber ? (
         <View style={{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 28, alignItems: 'center', ...glass }}>
-          <Ionicons name="medical-outline" size={40} color={Colors.primary} />
+          <Icon name="medical-outline" size={40} color={Colors.primary} />
           <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A1D21', marginTop: 12 }}>Espace Prescripteur</Text>
           <Text style={{ fontSize: 13, color: '#5A6068', textAlign: 'center', lineHeight: 19, marginTop: 8, marginBottom: 20 }}>
             Activez votre espace prescripteur avec le code fourni par votre structure partenaire Chutex.
@@ -331,7 +332,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           </View>
           <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => Linking.openURL('https://chutex-innovation.com')}>
             <Text style={{ fontSize: 13, color: Colors.primary, fontWeight: '600' }}>Devenir prescripteur sur chutex-innovation.com</Text>
-            <Ionicons name="open-outline" size={14} color={Colors.primary} />
+            <Icon name="open-outline" size={14} color={Colors.primary} />
           </TouchableOpacity>
         </View>
       ) : (
@@ -341,7 +342,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             <View style={{ backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 20, padding: 20, marginBottom: 12, borderWidth: 1.5, borderColor: 'rgba(76,175,80,0.15)' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
                 <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name="medical" size={24} color="#4CAF50" />
+                  <Icon name="medical" size={24} color="#4CAF50" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -352,7 +353,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                   </View>
                   <Text style={{ fontSize: 12, color: '#555', marginTop: 3 }}>{user.prescriber_structure}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color="#4CAF50" />
+                <Icon name="chevron-forward" size={18} color="#4CAF50" />
               </View>
             </View>
           </TouchableOpacity>
@@ -364,12 +365,12 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                   <Text style={{ fontSize: 20, fontWeight: '900', color: '#2E7D32' }}>Espace Prescripteur</Text>
-                  <TouchableOpacity onPress={() => setShowPrescModal(false)}><Ionicons name="close" size={24} color="#1A1D21" /></TouchableOpacity>
+                  <TouchableOpacity onPress={() => setShowPrescModal(false)}><Icon name="close" size={24} color="#1A1D21" /></TouchableOpacity>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                     <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name="medical" size={24} color="#4CAF50" />
+                      <Icon name="medical" size={24} color="#4CAF50" />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>{user.name}</Text>
@@ -383,7 +384,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                     { icon: 'mail-outline', label: 'Email', value: user.email || '-' },
                   ].map(({ icon, label, value }) => value !== '-' ? (
                     <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                      <Ionicons name={icon as any} size={16} color="#4CAF50" />
+                      <Icon name={icon as any} size={16} color="#4CAF50" />
                       <Text style={{ fontSize: 12, color: '#5A6068', width: 90 }}>{label}</Text>
                       <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
                     </View>
@@ -393,7 +394,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                       try { await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_prescriber: false }) }, token); await refreshUser(); } catch {}
                     }); }}>
                     <Text style={{ fontSize: 14, fontWeight: '700', color: '#E53935' }}>Desactiver mon espace prescripteur</Text>
-                    <Ionicons name="close-circle-outline" size={16} color="#E53935" />
+                    <Icon name="close-circle-outline" size={16} color="#E53935" />
                   </TouchableOpacity>
                 </ScrollView>
               </View>
@@ -421,7 +422,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           {/* New prescription button */}
           <TouchableOpacity testID="new-prescription-btn" style={{ backgroundColor: '#F5F6F8', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }} onPress={() => setShowForm(true)}>
             <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Nouvelle prescription</Text>
-            <Ionicons name="add-circle-outline" size={18} color="#1A1D21" />
+            <Icon name="add-circle-outline" size={18} color="#1A1D21" />
           </TouchableOpacity>
 
           {/* Prescription list filtered by tab - clickable with detail modal */}
@@ -432,26 +433,26 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 <View style={{ backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 16, marginBottom: 10, borderLeftWidth: 4, borderLeftColor: p.status === 'subscribed' ? '#4CAF50' : '#FF9800', ...glass }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={18} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
+                      <Icon name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={18} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21' }}>{p.beneficiary_name}</Text>
                       <Text style={{ fontSize: 11, color: '#5A6068' }}>{p.beneficiary_email}</Text>
                     </View>
                     <Text style={{ fontSize: 16, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission}EUR</Text>
-                    <Ionicons name="chevron-forward" size={16} color="#888" />
+                    <Icon name="chevron-forward" size={16} color="#888" />
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
-                    <Ionicons name="pricetag-outline" size={14} color="#888" />
+                    <Icon name="pricetag-outline" size={14} color="#888" />
                     <Text style={{ fontSize: 12, color: '#555', flex: 1 }}>{p.subscription_type === 'standard' ? 'Standard' : 'Teleassistance'}</Text>
-                    {p.beneficiary_phone && <><Ionicons name="call-outline" size={12} color="#888" /><Text style={{ fontSize: 11, color: '#5A6068' }}>{p.beneficiary_phone}</Text></>}
+                    {p.beneficiary_phone && <><Icon name="call-outline" size={12} color="#888" /><Text style={{ fontSize: 11, color: '#5A6068' }}>{p.beneficiary_phone}</Text></>}
                   </View>
                 </View>
               </TouchableOpacity>
             ))
           ) : (
             <View style={{ backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 18, padding: 32, alignItems: 'center' }}>
-              <Ionicons name={prescTab === 'pending' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
+              <Icon name={prescTab === 'pending' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
               <Text style={{ fontSize: 14, fontWeight: '600', color: '#5A6068', marginTop: 10 }}>{prescTab === 'pending' ? 'Aucune prescription en cours' : 'Aucune prescription validee'}</Text>
             </View>
           )}
@@ -491,10 +492,10 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                   {/* Header */}
                   <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12 }}>
                     <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ padding: 4, marginRight: 12 }}>
-                      <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+                      <Icon name="chevron-back" size={24} color="#1A1D21" />
                     </TouchableOpacity>
                     <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche Prescription</Text>
-                    <TouchableOpacity onPress={() => setSelectedPresc(null)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
+                    <TouchableOpacity onPress={() => setSelectedPresc(null)}><Icon name="close" size={22} color="#888" /></TouchableOpacity>
                   </View>
 
                   <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
@@ -522,7 +523,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                         { icon: 'calendar-outline', label: 'Date', value: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleDateString('fr-FR') : '' },
                       ].map(({ icon, label, value }) => value ? (
                         <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                          <Ionicons name={icon as any} size={16} color="#888" />
+                          <Icon name={icon as any} size={16} color="#888" />
                           <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
                           <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
                         </View>
@@ -545,7 +546,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                     <View style={{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                         <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
-                          <Ionicons name="medical" size={18} color="#7B1FA2" />
+                          <Icon name="medical" size={18} color="#7B1FA2" />
                         </View>
                         <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Prescripteur</Text>
                       </View>
@@ -554,7 +555,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                         { icon: 'business-outline', label: 'Structure', value: selectedPresc.prescriber_structure || user.prescriber_structure, color: '#7B1FA2' },
                       ].map(({ icon, label, value, color }) => value ? (
                         <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                          <Ionicons name={icon as any} size={16} color={color || '#888'} />
+                          <Icon name={icon as any} size={16} color={color || '#888'} />
                           <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
                           <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
                         </View>
@@ -677,7 +678,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
           <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{codes.length} structure(s) prescriptrice(s)</Text>
           <TouchableOpacity testID="add-prescripteur-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}
             onPress={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', max_uses: '50' }); setShowModal(true); }}>
-            <Ionicons name="add" size={16} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
+            <Icon name="add" size={16} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
           </TouchableOpacity>
         </View>
 
@@ -702,9 +703,9 @@ function AdminPrescripteurs({ token }: { token: string }) {
           )}
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 4 }}>
             <Text style={{ fontSize: 11, color: Colors.textMuted, flex: 1 }}>Utilisations: {c.uses_count}/{c.max_uses} · {c.active ? 'Actif' : 'Désactivé'}</Text>
-            <TouchableOpacity onPress={() => openEdit(c)} style={{ padding: 6 }}><Ionicons name="create-outline" size={16} color={Colors.primary} /></TouchableOpacity>
-            <TouchableOpacity onPress={() => toggleCode(c.id)} style={{ padding: 6 }}><Ionicons name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={16} color={c.active ? Colors.textMuted : Colors.success} /></TouchableOpacity>
-            <TouchableOpacity onPress={() => deleteCode(c.id)} style={{ padding: 6 }}><Ionicons name="trash-outline" size={16} color={Colors.destructive} /></TouchableOpacity>
+            <TouchableOpacity onPress={() => openEdit(c)} style={{ padding: 6 }}><Icon name="create-outline" size={16} color={Colors.primary} /></TouchableOpacity>
+            <TouchableOpacity onPress={() => toggleCode(c.id)} style={{ padding: 6 }}><Icon name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={16} color={c.active ? Colors.textMuted : Colors.success} /></TouchableOpacity>
+            <TouchableOpacity onPress={() => deleteCode(c.id)} style={{ padding: 6 }}><Icon name="trash-outline" size={16} color={Colors.destructive} /></TouchableOpacity>
           </View>
         </View>
       ))}
@@ -724,12 +725,12 @@ function AdminPrescripteurs({ token }: { token: string }) {
                   <Text style={{ fontSize: 12, color: Colors.textMuted }}>{p.email}</Text>
                   <Text style={{ fontSize: 11, color: '#9C27B0', fontWeight: '600', marginTop: 2 }}>{p.prescriber_structure}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={16} color="#888" />
+                <Icon name="chevron-forward" size={16} color="#888" />
               </View>
             </View>
           </TouchableOpacity>
         ))}
-        {prescribers.length === 0 && <View style={d.emptyC}><Ionicons name="medical-outline" size={28} color={Colors.textMuted} /><Text style={d.emptyT}>Aucun prescripteur</Text></View>}
+        {prescribers.length === 0 && <View style={d.emptyC}><Icon name="medical-outline" size={28} color={Colors.textMuted} /><Text style={d.emptyT}>Aucun prescripteur</Text></View>}
       </>}
 
       {/* PRESCRIPTIONS TAB */}
@@ -749,13 +750,13 @@ function AdminPrescripteurs({ token }: { token: string }) {
                 <Text style={{ fontSize: 12, fontWeight: '500', color: Colors.textSecondary }}>{p.subscription_type}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.success }}>+{p.commission}EUR</Text>
-                  <Ionicons name="chevron-forward" size={14} color="#888" />
+                  <Icon name="chevron-forward" size={14} color="#888" />
                 </View>
               </View>
             </View>
           </TouchableOpacity>
         ))}
-        {prescriptions.length === 0 && <View style={d.emptyC}><Ionicons name="document-text-outline" size={28} color={Colors.textMuted} /><Text style={d.emptyT}>Aucune souscription</Text></View>}
+        {prescriptions.length === 0 && <View style={d.emptyC}><Icon name="document-text-outline" size={28} color={Colors.textMuted} /><Text style={d.emptyT}>Aucune souscription</Text></View>}
       </>}
 
       <Modal visible={showModal} transparent animationType="slide">
@@ -839,21 +840,21 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
             <View style={{ backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 14, marginBottom: 8, borderLeftWidth: 4, borderLeftColor: p.status === 'subscribed' ? '#4CAF50' : '#FF9800', ...glass }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={16} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
+                  <Icon name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={16} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A1D21' }}>{p.beneficiary_name}</Text>
                   <Text style={{ fontSize: 10, color: '#5A6068' }}>Par: {p.guardian_name}</Text>
                 </View>
                 <Text style={{ fontSize: 14, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission}EUR</Text>
-                <Ionicons name="chevron-forward" size={14} color="#888" />
+                <Icon name="chevron-forward" size={14} color="#888" />
               </View>
             </View>
           </TouchableOpacity>
         ))}
         {displayedPrescs.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-            <Ionicons name={prescTab === 'pending' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
+            <Icon name={prescTab === 'pending' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
             <Text style={{ fontSize: 14, color: '#5A6068', marginTop: 8 }}>Aucune prescription {prescTab === 'pending' ? 'en cours' : 'validee'}</Text>
           </View>
         )}
@@ -866,10 +867,10 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
             {selectedPresc && <>
               <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12 }}>
                 <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ padding: 4, marginRight: 12 }}>
-                  <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+                  <Icon name="chevron-back" size={24} color="#1A1D21" />
                 </TouchableOpacity>
                 <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche Prescription</Text>
-                <TouchableOpacity onPress={() => setSelectedPresc(null)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setSelectedPresc(null)}><Icon name="close" size={22} color="#888" /></TouchableOpacity>
               </View>
               <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
                 <View style={{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 24, marginBottom: 12, ...glass }}>
@@ -894,7 +895,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
                     { icon: 'calendar-outline', label: 'Date', value: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleDateString('fr-FR') : '' },
                   ].map(({ icon, label, value }) => value ? (
                     <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                      <Ionicons name={icon as any} size={16} color="#888" />
+                      <Icon name={icon as any} size={16} color="#888" />
                       <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
                       <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
                     </View>

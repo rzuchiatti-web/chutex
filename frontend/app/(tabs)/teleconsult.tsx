@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Alert, Modal, RefreshControl, Platform } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -41,10 +42,10 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
   if (submitted && callInfo) return (
     <ScrollView contentContainerStyle={s.sc}>
       <View style={s.successCard}>
-        <Ionicons name="checkmark-circle" size={48} color={Colors.success} />
+        <Icon name="checkmark-circle" size={48} color={Colors.success} />
         <Text style={s.successT}>Demande envoyée</Text>
         <Text style={s.successSub}>Un médecin vous rappellera sous peu</Text>
-        <View style={s.callCard}><Ionicons name="call" size={18} color={Colors.textPrimary} /><Text style={s.callNum}>{callInfo.call_number}</Text></View>
+        <View style={s.callCard}><Icon name="call" size={18} color={Colors.textPrimary} /><Text style={s.callNum}>{callInfo.call_number}</Text></View>
         <TouchableOpacity testID="new-consult-btn" style={s.newBtn} onPress={() => { setSubmitted(false); setStep(0); setAnswers({}); }}>
           <Text style={s.newBtnT}>Nouvelle consultation</Text></TouchableOpacity>
       </View>
@@ -65,9 +66,9 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
             onPress={() => { setPainLevel(n); setAnswers({ ...answers, [q.id]: n.toString() }); }}><Text style={[s.scaleBT, painLevel === n && { color: '#FFF' }]}>{n}</Text></TouchableOpacity>)}</View></View>}
         {q.type === 'text' && <TextInput testID="qcm-text" style={s.textInp} placeholder="Décrivez..." placeholderTextColor={Colors.textMuted} value={freeText} onChangeText={v => { setFreeText(v); setAnswers({ ...answers, [q.id]: v }); }} multiline />}
       </View>}
-      <View style={s.navR}>{step > 0 && <TouchableOpacity style={s.prevB} onPress={() => setStep(step - 1)}><Ionicons name="chevron-back" size={16} color={Colors.textSecondary} /><Text style={s.prevBT}>Précédent</Text></TouchableOpacity>}
-        <View style={{ flex: 1 }} />{step < questions.length - 1 ? <TouchableOpacity style={s.nextB} onPress={() => setStep(step + 1)}><Text style={s.nextBT}>Suivant</Text><Ionicons name="chevron-forward" size={16} color="#1A1D21" /></TouchableOpacity>
-          : <TouchableOpacity testID="submit-qcm" style={s.submitB} onPress={submitQCM}><Ionicons name="send" size={14} color="#1A1D21" /><Text style={s.submitBT}>Envoyer</Text></TouchableOpacity>}</View>
+      <View style={s.navR}>{step > 0 && <TouchableOpacity style={s.prevB} onPress={() => setStep(step - 1)}><Icon name="chevron-back" size={16} color={Colors.textSecondary} /><Text style={s.prevBT}>Précédent</Text></TouchableOpacity>}
+        <View style={{ flex: 1 }} />{step < questions.length - 1 ? <TouchableOpacity style={s.nextB} onPress={() => setStep(step + 1)}><Text style={s.nextBT}>Suivant</Text><Icon name="chevron-forward" size={16} color="#1A1D21" /></TouchableOpacity>
+          : <TouchableOpacity testID="submit-qcm" style={s.submitB} onPress={submitQCM}><Icon name="send" size={14} color="#1A1D21" /><Text style={s.submitBT}>Envoyer</Text></TouchableOpacity>}</View>
     </ScrollView>);
 }
 
@@ -165,7 +166,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
         <View style={{ backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 20, padding: 16, marginBottom: 12, borderWidth: 2, borderColor: stateColor(selectedIncident.state) + '40' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21' }}>Incident #{selectedIncident.id?.slice(0, 8)}</Text>
-            <TouchableOpacity onPress={() => setSelectedIncident(null)}><Ionicons name="close-circle" size={24} color="#888" /></TouchableOpacity>
+            <TouchableOpacity onPress={() => setSelectedIncident(null)}><Icon name="close-circle" size={24} color="#888" /></TouchableOpacity>
           </View>
 
           {/* Beneficiary */}
@@ -211,7 +212,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
               placeholder="Note operateur..." value={noteText} onChangeText={setNoteText} />
             <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 10, paddingHorizontal: 16, justifyContent: 'center' }}
               onPress={() => addNote(selectedIncident.id)}>
-              <Ionicons name="send" size={14} color="#1A1D21" />
+              <Icon name="send" size={14} color="#1A1D21" />
             </TouchableOpacity>
           </View>
 
@@ -238,7 +239,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
             <View style={{ padding: 14 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: stateColor(inc.state) + '15', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name={inc.state.includes('CALLING') ? 'call' : inc.state === 'RESOLVED' ? 'checkmark' : inc.state === 'CARE_DISPATCHED' ? 'navigate' : 'alert-circle'} size={16} color={stateColor(inc.state)} />
+                  <Icon name={inc.state.includes('CALLING') ? 'call' : inc.state === 'RESOLVED' ? 'checkmark' : inc.state === 'CARE_DISPATCHED' ? 'navigate' : 'alert-circle'} size={16} color={stateColor(inc.state)} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 14, fontWeight: '800', color: '#1A1D21' }}>{inc.beneficiary_name}</Text>
@@ -255,7 +256,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
                 <View style={{ flexDirection: 'row', gap: 4, marginTop: 6 }}>
                   {inc.guardians_contacted.map((g: any, i: number) => (
                     <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: g.answered ? 'rgba(76,175,80,0.1)' : 'rgba(0,0,0,0.04)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                      <Ionicons name={g.answered ? 'checkmark-circle' : 'close-circle'} size={10} color={g.answered ? '#4CAF50' : '#888'} />
+                      <Icon name={g.answered ? 'checkmark-circle' : 'close-circle'} size={10} color={g.answered ? '#4CAF50' : '#888'} />
                       <Text style={{ fontSize: 9, color: g.answered ? '#4CAF50' : '#888' }}>{g.name?.split(' ')[0]}</Text>
                     </View>
                   ))}
@@ -266,7 +267,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
         </TouchableOpacity>
       )) : (
         <View style={{ alignItems: 'center', paddingVertical: 40, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 18 }}>
-          <Ionicons name="checkmark-circle-outline" size={40} color="#CCC" />
+          <Icon name="checkmark-circle-outline" size={40} color="#CCC" />
           <Text style={{ fontSize: 14, fontWeight: '600', color: '#5A6068', marginTop: 10 }}>{tab === 'active' ? 'Aucun incident en cours' : 'Aucun historique'}</Text>
         </View>
       )}
@@ -323,7 +324,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       {/* Intervention Care Card */}
       {!user?.is_intervention_provider ? (
         <View style={s.careCard}>
-          <Ionicons name="shield-checkmark-outline" size={36} color={Colors.primary} />
+          <Icon name="shield-checkmark-outline" size={36} color={Colors.primary} />
           <Text style={s.careTitle}>Devenir Intervenant Care</Text>
           <Text style={s.careDesc}>Activez votre espace pour etre missionne par la teleassistance IA.</Text>
           <View style={{ width: '100%', gap: 8 }}>
@@ -341,7 +342,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
             <View style={{ backgroundColor: 'rgba(156,39,176,0.06)', borderRadius: 20, padding: 20, marginBottom: 12, borderWidth: 1.5, borderColor: 'rgba(156,39,176,0.15)' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
                 <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(156,39,176,0.12)', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name="shield-checkmark" size={24} color="#9C27B0" />
+                  <Icon name="shield-checkmark" size={24} color="#9C27B0" />
                 </View>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -352,7 +353,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
                   </View>
                   <Text style={{ fontSize: 12, color: '#555', marginTop: 3 }} numberOfLines={1}>{user.intervention_structure || user.structure_name || 'Structure'}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color="#9C27B0" />
+                <Icon name="chevron-forward" size={18} color="#9C27B0" />
               </View>
             </View>
           </TouchableOpacity>
@@ -375,12 +376,12 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <Text style={{ fontSize: 20, fontWeight: '900', color: '#7B1FA2' }}>Espace Intervenant Care</Text>
-              <TouchableOpacity onPress={() => setShowCareModal(false)}><Ionicons name="close" size={24} color="#1A1D21" /></TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowCareModal(false)}><Icon name="close" size={24} color="#1A1D21" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(156,39,176,0.12)', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name="shield-checkmark" size={24} color="#9C27B0" />
+                  <Icon name="shield-checkmark" size={24} color="#9C27B0" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>{user.name}</Text>
@@ -401,7 +402,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
                 { icon: 'navigate-outline', label: 'Rayon', value: `${user.intervention_radius_km || 30} km` },
               ].map(({ icon, label, value }) => value !== '-' ? (
                 <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                  <Ionicons name={icon as any} size={16} color="#888" />
+                  <Icon name={icon as any} size={16} color="#888" />
                   <Text style={{ fontSize: 12, color: '#5A6068', width: 85 }}>{label}</Text>
                   <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
                 </View>
@@ -409,7 +410,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
               <TouchableOpacity testID="deactivate-care-modal-btn" style={{ borderWidth: 1.5, borderColor: '#E53935', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 20, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
                 onPress={() => confirmAction('Desactiver', 'Vous ne recevrez plus de missions d\'intervention. Confirmez ?', deactivateCare)}>
                 <Text style={{ fontSize: 14, fontWeight: '700', color: '#E53935' }}>Desactiver mon espace intervenant</Text>
-                <Ionicons name="close-circle-outline" size={16} color="#E53935" />
+                <Icon name="close-circle-outline" size={16} color="#E53935" />
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -422,7 +423,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
           <View style={{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: statusColor(iv.status), ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {}) }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
               <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: statusColor(iv.status) + '15', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={22} color={statusColor(iv.status)} />
+                <Icon name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={22} color={statusColor(iv.status)} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>{iv.beneficiary_name}</Text>
@@ -436,18 +437,18 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
               )}
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 10, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
-              <Ionicons name="time-outline" size={14} color="#888" />
+              <Icon name="time-outline" size={14} color="#888" />
               <Text style={{ fontSize: 12, color: '#5A6068', flex: 1 }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
               <View style={{ backgroundColor: statusColor(iv.status) + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
                 <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor(iv.status), letterSpacing: 0.3 }}>{statusLabel(iv.status).toUpperCase()}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color="#888" />
+              <Icon name="chevron-forward" size={16} color="#888" />
             </View>
           </View>
         </TouchableOpacity>
       )) : (
         <View style={{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 40, alignItems: 'center', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } : {}) }}>
-          <Ionicons name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
+          <Icon name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
           <Text style={{ fontSize: 15, fontWeight: '700', color: '#5A6068', marginTop: 12 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
           <Text style={{ fontSize: 12, color: '#9BA3AD', marginTop: 4, textAlign: 'center', paddingHorizontal: 20 }}>{ivTab === 'active' ? 'Vous serez notifie des que vous recevrez une mission d\'intervention' : 'Vos missions completees s\'afficheront ici avec le rapport'}</Text>
         </View>
@@ -538,7 +539,7 @@ function AdminIntervenants({ token }: { token: string }) {
           <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{codes.length} structure(s)</Text>
           <TouchableOpacity testID="add-intervenant-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}
             onPress={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' }); setShowModal(true); }}>
-            <Ionicons name="add" size={16} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
+            <Icon name="add" size={16} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
           </TouchableOpacity>
         </View>
 
@@ -556,9 +557,9 @@ function AdminIntervenants({ token }: { token: string }) {
               <Text style={s.ivSt}>Rayon: {c.default_radius_km || 30}km · {c.uses_count}/{c.max_uses} util. · {c.active ? 'Actif' : 'Desactive'}</Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 4 }}>
-              <TouchableOpacity onPress={() => openEdit(c)} style={{ padding: 6 }}><Ionicons name="create-outline" size={16} color={Colors.primary} /></TouchableOpacity>
-              <TouchableOpacity onPress={() => toggleCode(c.id)} style={{ padding: 6 }}><Ionicons name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={16} color={c.active ? Colors.textMuted : Colors.success} /></TouchableOpacity>
-              <TouchableOpacity onPress={() => deleteCode(c.id)} style={{ padding: 6 }}><Ionicons name="trash-outline" size={16} color={Colors.destructive} /></TouchableOpacity>
+              <TouchableOpacity onPress={() => openEdit(c)} style={{ padding: 6 }}><Icon name="create-outline" size={16} color={Colors.primary} /></TouchableOpacity>
+              <TouchableOpacity onPress={() => toggleCode(c.id)} style={{ padding: 6 }}><Icon name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={16} color={c.active ? Colors.textMuted : Colors.success} /></TouchableOpacity>
+              <TouchableOpacity onPress={() => deleteCode(c.id)} style={{ padding: 6 }}><Icon name="trash-outline" size={16} color={Colors.destructive} /></TouchableOpacity>
             </View>
           </View>
         ))}
@@ -582,14 +583,14 @@ function AdminIntervenants({ token }: { token: string }) {
                 <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: '#4CAF5015' }}>
                   <Text style={{ fontSize: 9, fontWeight: '700', color: '#10B981' }}>ACTIF</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={16} color="#888" />
+                <Icon name="chevron-forward" size={16} color="#888" />
               </View>
             </View>
           </TouchableOpacity>
         ))}
         {providers.length === 0 && <View style={{ alignItems: 'center', paddingVertical: 36 }}>
           <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(76,175,80,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
-            <Ionicons name="medkit-outline" size={28} color="#A5D6A7" />
+            <Icon name="medkit-outline" size={28} color="#A5D6A7" />
           </View>
           <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21' }}>Aucun intervenant inscrit</Text>
           <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>Creez un code d'intervention dans l'onglet "Codes" pour permettre aux intervenants de s'inscrire.</Text>
@@ -624,7 +625,7 @@ function AdminIntervenants({ token }: { token: string }) {
                 <View style={{ padding: 16 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                     <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: (sc[iv.status] || '#888') + '12', justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name={(statusIcon[iv.status] || 'medical') as any} size={20} color={sc[iv.status] || '#888'} />
+                      <Icon name={(statusIcon[iv.status] || 'medical') as any} size={20} color={sc[iv.status] || '#888'} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21' }}>{iv.beneficiary_name}</Text>
@@ -650,10 +651,10 @@ function AdminIntervenants({ token }: { token: string }) {
                   )}
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)', backgroundColor: 'rgba(0,0,0,0.015)' }}>
-                  <Ionicons name="time-outline" size={12} color="#AAA" />
+                  <Icon name="time-outline" size={12} color="#AAA" />
                   <Text style={{ fontSize: 11, color: '#5A6068', flex: 1 }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</Text>
                   <Text style={{ fontSize: 11, fontWeight: '600', color: '#2196F3' }}>Voir le detail</Text>
-                  <Ionicons name="chevron-forward" size={14} color="#2196F3" />
+                  <Icon name="chevron-forward" size={14} color="#2196F3" />
                 </View>
               </View>
             </TouchableOpacity>
@@ -662,7 +663,7 @@ function AdminIntervenants({ token }: { token: string }) {
         {interventions.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 22 }}>
             <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(33,150,243,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
-              <Ionicons name="medkit-outline" size={28} color="#90CAF9" />
+              <Icon name="medkit-outline" size={28} color="#90CAF9" />
             </View>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Aucune intervention</Text>
             <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>
@@ -753,21 +754,21 @@ function CompanyPrescriptions({ token }: { token: string }) {
             <View style={{ backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 14, marginBottom: 8, borderLeftWidth: 4, borderLeftColor: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={16} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
+                  <Icon name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={16} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A1D21' }}>{p.beneficiary_name}</Text>
                   <Text style={{ fontSize: 10, color: '#5A6068' }}>Par: {p.guardian_name}</Text>
                 </View>
                 <Text style={{ fontSize: 14, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission}EUR</Text>
-                <Ionicons name="chevron-forward" size={14} color="#888" />
+                <Icon name="chevron-forward" size={14} color="#888" />
               </View>
             </View>
           </TouchableOpacity>
         ))}
         {displayed.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-            <Ionicons name={tab === 'pending' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
+            <Icon name={tab === 'pending' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
             <Text style={{ fontSize: 14, color: '#5A6068', marginTop: 8 }}>Aucune prescription {tab === 'pending' ? 'en cours' : 'validee'}</Text>
           </View>
         )}
@@ -779,10 +780,10 @@ function CompanyPrescriptions({ token }: { token: string }) {
             {selectedPresc && <>
               <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12 }}>
                 <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ padding: 4, marginRight: 12 }}>
-                  <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+                  <Icon name="chevron-back" size={24} color="#1A1D21" />
                 </TouchableOpacity>
                 <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche Prescription</Text>
-                <TouchableOpacity onPress={() => setSelectedPresc(null)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setSelectedPresc(null)}><Icon name="close" size={22} color="#888" /></TouchableOpacity>
               </View>
               <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
                 {/* Identity Card */}
@@ -811,7 +812,7 @@ function CompanyPrescriptions({ token }: { token: string }) {
                     { icon: 'calendar-outline', label: 'Date', value: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleDateString('fr-FR') : '' },
                   ].map(({ icon, label, value }) => value ? (
                     <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                      <Ionicons name={icon as any} size={16} color="#888" />
+                      <Icon name={icon as any} size={16} color="#888" />
                       <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
                       <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
                     </View>
@@ -907,7 +908,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
               <View style={{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 16, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: stColor(iv.status), ...glass }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                   <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: stColor(iv.status) + '15', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={22} color={stColor(iv.status)} />
+                    <Icon name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={22} color={stColor(iv.status)} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21' }}>{iv.beneficiary_name}</Text>
@@ -919,10 +920,10 @@ function CompanyInterventionsTab({ token }: { token: string }) {
                       <Text style={{ fontSize: 8, fontWeight: '700', color: '#5A6068' }}>KM</Text>
                     </View>
                   )}
-                  <Ionicons name="chevron-forward" size={16} color="#888" />
+                  <Icon name="chevron-forward" size={16} color="#888" />
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 10, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
-                  <Ionicons name="person" size={12} color="#9C27B0" />
+                  <Icon name="person" size={12} color="#9C27B0" />
                   <Text style={{ fontSize: 11, color: '#9C27B0', fontWeight: '600', flex: 1 }}>{iv.intervenant_name || iv.assigned_name || 'En attente d\'acceptation'}</Text>
                   <View style={{ backgroundColor: stColor(iv.status) + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
                     <Text style={{ fontSize: 10, fontWeight: '800', color: stColor(iv.status) }}>{stLabel(iv.status).toUpperCase()}</Text>
@@ -933,7 +934,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
           ))}
           {displayedIvs.length === 0 && (
             <View style={{ alignItems: 'center', paddingVertical: 40, backgroundColor: '#FFFFFF', borderRadius: 22, ...glass }}>
-              <Ionicons name={ivTab === 'pending' ? 'time-outline' : ivTab === 'active' ? 'navigate-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
+              <Icon name={ivTab === 'pending' ? 'time-outline' : ivTab === 'active' ? 'navigate-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
               <Text style={{ fontSize: 15, fontWeight: '700', color: '#5A6068', marginTop: 12 }}>
                 {ivTab === 'pending' ? 'Aucune intervention en attente' : ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}
               </Text>
@@ -945,7 +946,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
         {tab === 'intervenants' && <>
           <View style={{ marginBottom: 8 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glass }}>
-              <Ionicons name="search-outline" size={16} color="#888" />
+              <Icon name="search-outline" size={16} color="#888" />
               <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: '#1A1D21' }}
                 placeholder="Rechercher..." placeholderTextColor="#AAA" value={search} onChangeText={setSearch} />
             </View>
@@ -969,7 +970,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
                     </View>
                   )}
                 </View>
-                <Ionicons name="chevron-forward" size={16} color="#888" />
+                <Icon name="chevron-forward" size={16} color="#888" />
               </View>
             </TouchableOpacity>
           ))}
@@ -1009,10 +1010,10 @@ function CompanyIntervenants({ token }: { token: string }) {
       </View>
       <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glass }}>
-          <Ionicons name="search-outline" size={16} color="#888" />
+          <Icon name="search-outline" size={16} color="#888" />
           <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: '#1A1D21' }}
             placeholder="Rechercher un intervenant..." placeholderTextColor="#AAA" value={search} onChangeText={setSearch} />
-          {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Ionicons name="close-circle" size={16} color="#AAA" /></TouchableOpacity>}
+          {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Icon name="close-circle" size={16} color="#AAA" /></TouchableOpacity>}
         </View>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
@@ -1028,7 +1029,7 @@ function CompanyIntervenants({ token }: { token: string }) {
                 <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21' }}>{iv.name}</Text>
                 <Text style={{ fontSize: 11, color: '#5A6068' }}>{iv.profession || 'Intervenant Care'}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
-                  <Ionicons name="business-outline" size={11} color="#FF9800" />
+                  <Icon name="business-outline" size={11} color="#FF9800" />
                   <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '600' }}>{iv.agency_name}</Text>
                   <Text style={{ fontSize: 10, color: '#9BA3AD' }}>· {iv.intervention_radius_km}km</Text>
                 </View>
@@ -1046,13 +1047,13 @@ function CompanyIntervenants({ token }: { token: string }) {
                   </View>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={16} color="#888" />
+              <Icon name="chevron-forward" size={16} color="#888" />
             </View>
           </TouchableOpacity>
         ))}
         {filtered.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-            <Ionicons name="medkit-outline" size={36} color="#CCC" />
+            <Icon name="medkit-outline" size={36} color="#CCC" />
             <Text style={{ fontSize: 14, color: '#5A6068', marginTop: 8 }}>{search ? 'Aucun resultat' : 'Aucun intervenant'}</Text>
           </View>
         )}

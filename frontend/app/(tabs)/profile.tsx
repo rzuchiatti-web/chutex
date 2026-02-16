@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Platform, Image, Modal, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -141,10 +142,10 @@ export default function ProfileScreen() {
   const MenuItem = ({ icon, label, onPress, danger, testID }: any) => (
     <TouchableOpacity testID={testID} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }} onPress={onPress}>
       <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: danger ? 'rgba(229,57,53,0.08)' : 'rgba(0,0,0,0.04)', justifyContent: 'center', alignItems: 'center' }}>
-        <Ionicons name={icon} size={18} color={danger ? '#E53935' : '#000'} />
+        <Icon name={icon} size={18} color={danger ? '#E53935' : '#000'} />
       </View>
       <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: danger ? '#E53935' : '#000' }}>{label}</Text>
-      <Ionicons name="chevron-forward" size={16} color="#888" />
+      <Icon name="chevron-forward" size={16} color="#888" />
     </TouchableOpacity>
   );
 
@@ -164,7 +165,7 @@ export default function ProfileScreen() {
               )}
             </View>
             <View style={{ position: 'absolute', bottom: 0, right: -4, width: 28, height: 28, borderRadius: 14, backgroundColor: '#F5F6F8', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.06)' }}>
-              {uploading ? <ActivityIndicator size="small" color="#1A1D21" /> : <Ionicons name="camera" size={14} color="#1A1D21" />}
+              {uploading ? <ActivityIndicator size="small" color="#1A1D21" /> : <Icon name="camera" size={14} color="#1A1D21" />}
             </View>
           </TouchableOpacity>
           <Text style={{ fontSize: 22, fontWeight: '900', color: '#1A1D21', marginTop: 12 }}>{user.name}</Text>
@@ -240,7 +241,7 @@ export default function ProfileScreen() {
         </GlassCard>
 
         <TouchableOpacity testID="logout-btn" style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }} onPress={logout}>
-          <Ionicons name="log-out-outline" size={16} color="#1A1D21" />
+          <Icon name="log-out-outline" size={16} color="#1A1D21" />
           <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21', textTransform: 'uppercase' }}>{t('logout')}</Text>
         </TouchableOpacity>
         <Text style={{ textAlign: 'center', fontSize: 11, color: '#5A6068', marginTop: 16 }}>Chutex Innovation SAS - v3.0</Text>
@@ -254,11 +255,11 @@ export default function ProfileScreen() {
               <View style={{ alignItems: 'center', paddingTop: 12 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} /></View>
               <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, gap: 10 }}>
                 <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name="notifications" size={20} color="#2196F3" />
+                  <Icon name="notifications" size={20} color="#2196F3" />
                 </View>
                 <Text style={{ fontSize: 18, fontWeight: '900', color: '#1A1D21', flex: 1 }}>Notifications</Text>
                 {savingNotif && <ActivityIndicator size="small" color="#2196F3" />}
-                <TouchableOpacity onPress={() => setShowNotifPrefs(false)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowNotifPrefs(false)}><Icon name="close" size={22} color="#888" /></TouchableOpacity>
               </View>
               <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
                 {notifPrefs ? (
@@ -271,7 +272,7 @@ export default function ProfileScreen() {
                     ].map(item => (
                       <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                         <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
-                          <Ionicons name={item.icon as any} size={18} color={item.color} />
+                          <Icon name={item.icon as any} size={18} color={item.color} />
                         </View>
                         <View style={{ flex: 1 }}>
                           <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A1D21' }}>{item.label}</Text>
@@ -287,7 +288,7 @@ export default function ProfileScreen() {
                     ].map(item => (
                       <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                         <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
-                          <Ionicons name={item.icon as any} size={18} color={item.color} />
+                          <Icon name={item.icon as any} size={18} color={item.color} />
                         </View>
                         <View style={{ flex: 1 }}>
                           <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A1D21' }}>{item.label}</Text>
@@ -305,7 +306,7 @@ export default function ProfileScreen() {
                     ].map(item => (
                       <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                         <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
-                          <Ionicons name={item.icon as any} size={18} color={item.color} />
+                          <Icon name={item.icon as any} size={18} color={item.color} />
                         </View>
                         <View style={{ flex: 1 }}>
                           <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A1D21' }}>{item.label}</Text>
@@ -322,7 +323,7 @@ export default function ProfileScreen() {
                     ].map(item => (
                       <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                         <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
-                          <Ionicons name={item.icon as any} size={18} color={item.color} />
+                          <Icon name={item.icon as any} size={18} color={item.color} />
                         </View>
                         <View style={{ flex: 1 }}>
                           <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A1D21' }}>{item.label}</Text>
@@ -334,7 +335,7 @@ export default function ProfileScreen() {
 
                     <TouchableOpacity testID="test-push-btn" onPress={testPush}
                       style={{ backgroundColor: '#2196F3', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 20, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
-                      <Ionicons name="paper-plane" size={16} color="#1A1D21" />
+                      <Icon name="paper-plane" size={16} color="#1A1D21" />
                       <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>Envoyer une notification test</Text>
                     </TouchableOpacity>
                   </>
@@ -352,7 +353,7 @@ export default function ProfileScreen() {
             <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, padding: 24 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                 <Text style={{ fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>{t('language')}</Text>
-                <TouchableOpacity onPress={() => setShowLangPicker(false)}><Ionicons name="close" size={24} color="#1A1D21" /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowLangPicker(false)}><Icon name="close" size={24} color="#1A1D21" /></TouchableOpacity>
               </View>
               {LANGUAGES.map(l => (
                 <TouchableOpacity key={l.code} testID={`lang-pick-${l.code}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }} onPress={() => { setLang(l.code); setShowLangPicker(false); }}>
@@ -360,7 +361,7 @@ export default function ProfileScreen() {
                     <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFF' }}>{l.code}</Text>
                   </View>
                   <Text style={{ flex: 1, fontSize: 16, fontWeight: '600', color: '#1A1D21' }}>{l.label}</Text>
-                  {lang === l.code && <Ionicons name="checkmark-circle" size={22} color="#1A1D21" />}
+                  {lang === l.code && <Icon name="checkmark-circle" size={22} color="#1A1D21" />}
                 </TouchableOpacity>
               ))}
             </View>

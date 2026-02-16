@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, TextInput, Alert, Modal } from 'react-native';
 
@@ -77,13 +78,13 @@ function AdminClients({ token }: { token: string }) {
                   </View>
                 )}
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#888" />
+              <Icon name="chevron-forward" size={18} color="#888" />
             </GlassCard>
           </TouchableOpacity>
         ))}
         {displayed.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-            <Ionicons name="people-outline" size={36} color="#CCC" />
+            <Icon name="people-outline" size={36} color="#CCC" />
             <Text style={{ fontSize: 14, color: '#5A6068', marginTop: 8 }}>Aucun {tab === 'beneficiary' ? 'beneficiaire' : 'gardien'}</Text>
           </View>
         )}
@@ -141,14 +142,14 @@ function CompanyAgences({ token }: { token: string }) {
         <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
           onPress={() => setShowCreate(true)}>
           <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Nouvelle agence</Text>
-          <Ionicons name="add-circle-outline" size={18} color="#1A1D21" />
+          <Icon name="add-circle-outline" size={18} color="#1A1D21" />
         </TouchableOpacity>
 
         {(data.agencies || []).map((ag: any) => (
           <GlassCard key={ag.agency.id} style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
               <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FF980015', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="business" size={20} color="#FF9800" />
+                <Icon name="business" size={20} color="#FF9800" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>{ag.agency.name}</Text>
@@ -156,10 +157,10 @@ function CompanyAgences({ token }: { token: string }) {
               </View>
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 <TouchableOpacity onPress={() => { setEditAgency(ag.agency); setEditName(ag.agency.name); setEditAddr(ag.agency.address || ''); }}
-                  style={{ padding: 6 }}><Ionicons name="create-outline" size={16} color="#888" /></TouchableOpacity>
+                  style={{ padding: 6 }}><Icon name="create-outline" size={16} color="#888" /></TouchableOpacity>
                 <TouchableOpacity onPress={() => confirmAction('Supprimer', `Supprimer l'agence ${ag.agency.name} ? Les prescripteurs seront desassignes.`, async () => {
                   await apiFetch(`/api/company/agencies/${ag.agency.id}`, { method: 'DELETE' }, token); fetchData();
-                })} style={{ padding: 6 }}><Ionicons name="trash-outline" size={16} color="#E53935" /></TouchableOpacity>
+                })} style={{ padding: 6 }}><Icon name="trash-outline" size={16} color="#E53935" /></TouchableOpacity>
               </View>
             </View>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
@@ -181,18 +182,18 @@ function CompanyAgences({ token }: { token: string }) {
               <TouchableOpacity key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}
                 onPress={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })}>
                 <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#4CAF5015', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name="person" size={14} color="#4CAF50" />
+                  <Icon name="person" size={14} color="#4CAF50" />
                 </View>
                 <Text style={{ fontSize: 12, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{pr.name}</Text>
                 <Text style={{ fontSize: 11, color: '#5A6068' }}>{pr.prescription_count} presc.</Text>
                 <Text style={{ fontSize: 11, fontWeight: '700', color: '#10B981' }}>{pr.comm_validated + pr.comm_pending} EUR</Text>
-                <Ionicons name="chevron-forward" size={12} color="#CCC" />
+                <Icon name="chevron-forward" size={12} color="#CCC" />
               </TouchableOpacity>
             ))}
             {/* Add prescriber button - always visible */}
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, marginTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.06)', backgroundColor: data.unassigned_prescribers > 0 ? 'rgba(33,150,243,0.04)' : 'transparent', borderRadius: 10 }}
               onPress={() => setAssignModal({ ...({} as any), targetAgencyId: ag.agency.id, targetAgencyName: ag.agency.name })}>
-              <Ionicons name="person-add-outline" size={14} color={data.unassigned_prescribers > 0 ? '#2196F3' : '#AAA'} />
+              <Icon name="person-add-outline" size={14} color={data.unassigned_prescribers > 0 ? '#2196F3' : '#AAA'} />
               <Text style={{ fontSize: 12, fontWeight: '600', color: data.unassigned_prescribers > 0 ? '#2196F3' : '#AAA' }}>
                 {data.unassigned_prescribers > 0 ? `Ajouter un prescripteur (${data.unassigned_prescribers} dispo.)` : 'Gerer les prescripteurs'}
               </Text>
@@ -206,7 +207,7 @@ function CompanyAgences({ token }: { token: string }) {
             <Text style={{ fontSize: 14, fontWeight: '700', color: '#E53935', marginBottom: 8 }}>Non assignes ({data.unassigned_prescribers})</Text>
             {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).map((pr: any) => (
               <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
-                <Ionicons name="person-outline" size={14} color="#888" />
+                <Icon name="person-outline" size={14} color="#888" />
                 <Text style={{ fontSize: 12, color: '#1A1D21', flex: 1 }}>{pr.name}</Text>
                 <TouchableOpacity style={{ backgroundColor: '#2196F3', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}
                   onPress={() => setAssignModal(pr)}>
@@ -278,9 +279,9 @@ function CompanyAgences({ token }: { token: string }) {
                 {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).map((pr: any) => (
                   <TouchableOpacity key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}
                     onPress={() => assignToAgency(pr.id, assignModal.targetAgencyId)}>
-                    <Ionicons name="person-outline" size={18} color="#4CAF50" />
+                    <Icon name="person-outline" size={18} color="#4CAF50" />
                     <Text style={{ fontSize: 15, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{pr.name}</Text>
-                    <Ionicons name="add-circle-outline" size={18} color="#2196F3" />
+                    <Icon name="add-circle-outline" size={18} color="#2196F3" />
                   </TouchableOpacity>
                 ))}
                 {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).length === 0 && (
@@ -293,7 +294,7 @@ function CompanyAgences({ token }: { token: string }) {
                     <Text style={{ fontSize: 12, color: '#5A6068', marginBottom: 8 }}>Prescripteurs dans cette agence</Text>
                     {(data.prescriber_ranking || []).filter((p: any) => p.agency_id === assignModal.targetAgencyId).map((pr: any) => (
                       <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
-                        <Ionicons name="person" size={18} color="#4CAF50" />
+                        <Icon name="person" size={18} color="#4CAF50" />
                         <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{pr.name}</Text>
                         <TouchableOpacity style={{ backgroundColor: '#FFEBEE', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}
                           onPress={() => { assignToAgency(pr.id, null); }}>
@@ -311,9 +312,9 @@ function CompanyAgences({ token }: { token: string }) {
                 {(data.agencies || []).map((ag: any) => (
                   <TouchableOpacity key={ag.agency.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}
                     onPress={() => assignToAgency(assignModal.id, ag.agency.id)}>
-                    <Ionicons name="business-outline" size={18} color="#FF9800" />
+                    <Icon name="business-outline" size={18} color="#FF9800" />
                     <Text style={{ fontSize: 15, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{ag.agency.name}</Text>
-                    <Ionicons name="chevron-forward" size={16} color="#888" />
+                    <Icon name="chevron-forward" size={16} color="#888" />
                   </TouchableOpacity>
                 ))}
               </>
@@ -393,7 +394,7 @@ export default function HealthScreen() {
                 style={{ backgroundColor: '#FFFFFF', borderRadius: 16, padding: 18, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', flexDirection: 'row', alignItems: 'center', gap: 16 }}
                 onPress={() => router.push({ pathname: '/health-detail', params: { metricId: m.id } })}>
                 <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: m.color + '15', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name={m.icon as any} size={22} color={m.color} />
+                  <Icon name={m.icon as any} size={22} color={m.color} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 13, color: '#9BA3AD', fontWeight: '500' }}>{m.label}</Text>
@@ -403,7 +404,7 @@ export default function HealthScreen() {
                   </View>
                   <Text style={{ fontSize: 11, color: '#9BA3AD', marginTop: 2 }}>Normal: {m.range}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color="#9BA3AD" />
+                <Icon name="chevron-forward" size={18} color="#9BA3AD" />
               </TouchableOpacity>
             ))}
 
@@ -411,18 +412,18 @@ export default function HealthScreen() {
             <Text style={{ fontSize: 17, fontWeight: '700', color: '#1A1D21', marginTop: 12, marginBottom: 12, letterSpacing: -0.3 }}>Examens</Text>
             <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', alignItems: 'center', gap: 8 }} onPress={() => router.push('/ecg')}>
-                <Ionicons name="pulse-outline" size={28} color="#1A1D21" />
+                <Icon name="pulse-outline" size={28} color="#1A1D21" />
                 <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A1D21' }}>ECG</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', alignItems: 'center', gap: 8 }} onPress={() => router.push('/sleep')}>
-                <Ionicons name="moon-outline" size={28} color="#1A1D21" />
+                <Icon name="moon-outline" size={28} color="#1A1D21" />
                 <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A1D21' }}>Sommeil</Text>
               </TouchableOpacity>
             </View>
           </>
         ) : (
           <View style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 40, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
-            <MaterialCommunityIcons name="bluetooth-off" size={40} color="#9BA3AD" />
+            <MCIcon name="bluetooth-off" size={40} color="#9BA3AD" />
             <Text style={{ fontSize: 17, fontWeight: '700', color: '#1A1D21', marginTop: 16 }}>Aucune donnee</Text>
             <Text style={{ fontSize: 13, color: '#9BA3AD', marginTop: 6, textAlign: 'center' }}>Connectez votre bracelet pour suivre vos constantes</Text>
             <TouchableOpacity style={{ marginTop: 20, backgroundColor: '#1A1D21', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 9999 }} onPress={() => router.push('/bracelet-connect')}>

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Icon, MCIcon } from '../../src/components/WebIcon';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import { View, ActivityIndicator, Platform } from 'react-native';
@@ -62,12 +63,12 @@ export default function TabLayout() {
       },
       tabBarLabelStyle: { fontSize: 10, fontWeight: '600', letterSpacing: 0.3 },
     }}>
-      <Tabs.Screen name="index" options={{ title: (isAdmin || isCompany) ? 'Dashboard' : 'Accueil', tabBarIcon: ({ color, size }) => <Ionicons name={(isAdmin || isCompany) ? 'stats-chart-outline' : 'home-outline'} size={size} color={color} /> }} />
-      <Tabs.Screen name="health" options={{ title: isAdmin ? 'Clients' : isCompany ? 'Agences' : 'Sante', tabBarIcon: ({ color, size }) => isAdmin ? <Ionicons name="people-outline" size={size} color={color} /> : isCompany ? <Ionicons name="business-outline" size={size} color={color} /> : <MaterialCommunityIcons name="heart-pulse" size={size} color={color} />, href: (!isBen && !isAdmin && !isCompany) ? null : undefined }} />
-      <Tabs.Screen name="alerts" options={{ title: isCompany ? 'Prescripteurs' : 'Alertes', tabBarIcon: ({ color, size }) => <Ionicons name={isAdmin ? 'warning-outline' : isCompany ? 'people-outline' : 'notifications-outline'} size={size} color={color} /> }} />
-      <Tabs.Screen name="teleconsult" options={{ title: isAdmin ? 'Intervenants' : isCompany ? 'Interventions' : isTA ? 'Teleassist.' : isG ? 'Interventions' : 'Teleconsult.', tabBarIcon: ({ color, size }) => (isAdmin || isCompany) ? <Ionicons name="medkit-outline" size={size} color={color} /> : isG ? <MaterialCommunityIcons name="map-marker-radius-outline" size={size} color={color} /> : <Ionicons name={isTA ? 'headset-outline' : 'videocam-outline'} size={size} color={color} /> }} />
-      <Tabs.Screen name="devices" options={{ title: isAdmin ? 'Prescripteurs' : isCompany ? 'Prescriptions' : isG ? 'Prescriptions' : isTA ? 'Abonnes' : 'Appareils', tabBarIcon: ({ color, size }) => isAdmin ? <Ionicons name="document-text-outline" size={size} color={color} /> : isCompany ? <Ionicons name="document-text-outline" size={size} color={color} /> : isG ? <Ionicons name="document-text-outline" size={size} color={color} /> : isTA ? <Ionicons name="people-outline" size={size} color={color} /> : <MaterialCommunityIcons name="bluetooth-connect" size={size} color={color} /> }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profil', tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} /> }} />
+      <Tabs.Screen name="index" options={{ title: (isAdmin || isCompany) ? 'Dashboard' : 'Accueil', tabBarIcon: ({ color, size }) => <Icon name={(isAdmin || isCompany) ? 'stats-chart-outline' : 'home-outline'} size={size} color={color} /> }} />
+      <Tabs.Screen name="health" options={{ title: isAdmin ? 'Clients' : isCompany ? 'Agences' : 'Sante', tabBarIcon: ({ color, size }) => isAdmin ? <Icon name="people-outline" size={size} color={color} /> : isCompany ? <Icon name="business-outline" size={size} color={color} /> : <MCIcon name="heart-pulse" size={size} color={color} />, href: (!isBen && !isAdmin && !isCompany) ? null : undefined }} />
+      <Tabs.Screen name="alerts" options={{ title: isCompany ? 'Prescripteurs' : 'Alertes', tabBarIcon: ({ color, size }) => <Icon name={isAdmin ? 'warning-outline' : isCompany ? 'people-outline' : 'notifications-outline'} size={size} color={color} /> }} />
+      <Tabs.Screen name="teleconsult" options={{ title: isAdmin ? 'Intervenants' : isCompany ? 'Interventions' : isTA ? 'Teleassist.' : isG ? 'Interventions' : 'Teleconsult.', tabBarIcon: ({ color, size }) => (isAdmin || isCompany) ? <Icon name="medkit-outline" size={size} color={color} /> : isG ? <MCIcon name="map-marker-radius-outline" size={size} color={color} /> : <Icon name={isTA ? 'headset-outline' : 'videocam-outline'} size={size} color={color} /> }} />
+      <Tabs.Screen name="devices" options={{ title: isAdmin ? 'Prescripteurs' : isCompany ? 'Prescriptions' : isG ? 'Prescriptions' : isTA ? 'Abonnes' : 'Appareils', tabBarIcon: ({ color, size }) => isAdmin ? <Icon name="document-text-outline" size={size} color={color} /> : isCompany ? <Icon name="document-text-outline" size={size} color={color} /> : isG ? <Icon name="document-text-outline" size={size} color={color} /> : isTA ? <Icon name="people-outline" size={size} color={color} /> : <MCIcon name="bluetooth-connect" size={size} color={color} /> }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profil', tabBarIcon: ({ color, size }) => <Icon name="person-outline" size={size} color={color} /> }} />
     </Tabs>
   );
 }

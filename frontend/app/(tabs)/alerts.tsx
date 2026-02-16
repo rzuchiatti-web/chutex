@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../../src/components/WebIcon';
 import { useTheme } from '../../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, ScrollView, TextInput } from 'react-native';
@@ -43,10 +44,10 @@ function CompanyPrescribers({ token }: { token: string }) {
       {/* Search */}
       <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glass }}>
-          <Ionicons name="search-outline" size={16} color="#888" />
+          <Icon name="search-outline" size={16} color="#888" />
           <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: '#1A1D21' }}
             placeholder="Rechercher un prescripteur..." placeholderTextColor="#AAA" value={search} onChangeText={setSearch} />
-          {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Ionicons name="close-circle" size={16} color="#AAA" /></TouchableOpacity>}
+          {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Icon name="close-circle" size={16} color="#AAA" /></TouchableOpacity>}
         </View>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
@@ -62,7 +63,7 @@ function CompanyPrescribers({ token }: { token: string }) {
                 <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21' }}>{pr.name}</Text>
                 <Text style={{ fontSize: 11, color: '#5A6068' }}>{pr.email}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
-                  <Ionicons name="business-outline" size={11} color="#FF9800" />
+                  <Icon name="business-outline" size={11} color="#FF9800" />
                   <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '600' }}>{pr.agency_name}</Text>
                 </View>
               </View>
@@ -73,13 +74,13 @@ function CompanyPrescribers({ token }: { token: string }) {
                   {pr.comm_pending > 0 && <Text style={{ fontSize: 12, fontWeight: '700', color: '#FF9800' }}>+{pr.comm_pending}</Text>}
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={16} color="#888" />
+              <Icon name="chevron-forward" size={16} color="#888" />
             </GlassCard>
           </TouchableOpacity>
         ))}
         {prescribers.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-            <Ionicons name="people-outline" size={36} color="#CCC" />
+            <Icon name="people-outline" size={36} color="#CCC" />
             <Text style={{ fontSize: 14, color: '#5A6068', marginTop: 8 }}>{search ? 'Aucun resultat' : 'Aucun prescripteur'}</Text>
           </View>
         )}
@@ -166,7 +167,7 @@ export default function AlertsScreen() {
         <View style={{ padding: 16, paddingBottom: 10 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: cfg.color + '15', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name={cfg.icon as any} size={20} color={cfg.color} />
+              <Icon name={cfg.icon as any} size={20} color={cfg.color} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21' }}>{cfg.label}</Text>
@@ -200,13 +201,13 @@ export default function AlertsScreen() {
             </View>
             {item.intervener_info && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
-                <Ionicons name="person" size={12} color="#4CAF50" />
+                <Icon name="person" size={12} color="#4CAF50" />
                 <Text style={{ fontSize: 11, color: '#2E7D32', fontWeight: '600' }}>{item.intervener_info.name} - {item.intervener_info.structure}</Text>
               </View>
             )}
             {item.care_provider && !item.intervener_info && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
-                <Ionicons name="navigate" size={12} color="#FF9800" />
+                <Icon name="navigate" size={12} color="#FF9800" />
                 <Text style={{ fontSize: 11, color: '#E65100', fontWeight: '600' }}>Intervenant: {item.care_provider}</Text>
               </View>
             )}
@@ -230,7 +231,7 @@ export default function AlertsScreen() {
         {/* Resolved */}
         {!isActive && (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingBottom: 12 }}>
-            <Ionicons name="checkmark-circle" size={14} color="#4CAF50" />
+            <Icon name="checkmark-circle" size={14} color="#4CAF50" />
             <Text style={{ fontSize: 11, fontWeight: '600', color: '#10B981' }}>Resolue {item.resolved_at ? `le ${new Date(item.resolved_at).toLocaleDateString('fr-FR')}` : ''}</Text>
           </View>
         )}
@@ -267,7 +268,7 @@ export default function AlertsScreen() {
           ListEmptyComponent={
             <View style={[{ alignItems: 'center', paddingVertical: 48, backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glass }]}>
               <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(76,175,80,0.1)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
-                <Ionicons name={tab === 'active' ? 'checkmark-circle' : 'archive-outline'} size={28} color="#4CAF50" />
+                <Icon name={tab === 'active' ? 'checkmark-circle' : 'archive-outline'} size={28} color="#4CAF50" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>{tab === 'active' ? 'Tout va bien !' : 'Aucun historique'}</Text>
               <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>{tab === 'active' ? 'Aucune alerte active. Notre systeme veille sur vous 24h/24. Si une anomalie est detectee, elle apparaitra ici instantanement.' : 'Vos alertes resolues s\'afficheront ici avec leur rapport d\'intervention, pour un suivi medical complet.'}</Text>
