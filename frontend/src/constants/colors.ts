@@ -1,167 +1,110 @@
-// CARE WATCH — Ultra-Premium Soft Glass Design System
-// Soft glassmorphism + subtle neumorphism, light neutral, warm gradients
+// CARE WATCH — Clean Neutral Base (no design personality — waiting for DA)
 import { Platform } from 'react-native';
 
-// ─── PREMIUM PALETTE ───
-export const Palette = {
-  bg: '#F5F6F8',
-  bgSubtle: '#EDEEF1',
-  surface: '#FFFFFF',
-  surfaceGlass: 'rgba(255,255,255,0.72)',
-  glassBorder: 'rgba(255,255,255,0.65)',
-  text: '#1E1F24',
-  textSecondary: '#6B7084',
-  textMuted: '#9CA3B0',
-  accent: '#D4845A',
-  accentLight: '#E8A87C',
-  accentPeach: '#F5CBA7',
-  accentWarmBeige: '#FAE5CD',
-  care: '#7C5CFF',
-  danger: '#EF4444',
-  dangerLight: 'rgba(239,68,68,0.08)',
-  success: '#10B981',
-  successLight: 'rgba(16,185,129,0.08)',
-  warning: '#F59E0B',
-  warningLight: 'rgba(245,158,11,0.08)',
-} as const;
-
-// ─── DESIGN TOKENS ───
-export const Token = {
-  frameRadius: 34,
-  cardLg: 24,
-  cardSm: 20,
-  pill: 999,
-  borderWidth: 1,
-  borderColor: 'rgba(255,255,255,0.65)',
-  borderSubtle: 'rgba(20,20,30,0.06)',
-  shadow: '0 10px 30px rgba(20,20,30,0.08)',
-  shadowHover: '0 16px 40px rgba(20,20,30,0.12)',
-  shadowSoft: '0 4px 16px rgba(20,20,30,0.05)',
-  glass: 'blur(12px) saturate(120%)',
-  glassHeavy: 'blur(20px) saturate(140%)',
-} as const;
-
-// ─── LIGHT THEME (single theme) ───
 export const LightTheme = {
-  background: Palette.bg,
-  backgroundSecondary: '#FFFFFF',
+  background: '#FFFFFF',
+  backgroundSecondary: '#F9FAFB',
   surface: '#FFFFFF',
-  surfaceHighlight: Palette.bgSubtle,
-  surfaceGlass: Palette.surfaceGlass,
-  glassBorder: Token.borderSubtle,
-  textPrimary: Palette.text,
-  textSecondary: Palette.textSecondary,
-  textMuted: Palette.textMuted,
+  surfaceHighlight: '#F3F4F6',
+  surfaceGlass: '#FFFFFF',
+  glassBorder: '#E5E7EB',
+  textPrimary: '#111827',
+  textSecondary: '#6B7280',
+  textMuted: '#9CA3AF',
   textInverse: '#FFFFFF',
-  primary: Palette.text,
-  primaryDark: '#0C0A09',
-  primaryLight: 'rgba(30,31,36,0.04)',
-  primaryGlow: 'rgba(30,31,36,0.06)',
-  accent: Palette.accent,
-  accentDark: '#B56A3F',
-  accentLight: 'rgba(212,132,90,0.10)',
-  care: Palette.care,
-  careLight: 'rgba(124,92,255,0.10)',
-  careGlow: 'rgba(124,92,255,0.08)',
-  danger: Palette.danger,
-  dangerLight: Palette.dangerLight,
-  dangerGlow: 'rgba(239,68,68,0.10)',
-  warning: Palette.warning,
-  warningLight: Palette.warningLight,
-  success: Palette.success,
-  successLight: Palette.successLight,
-  successBadge: 'rgba(16,185,129,0.12)',
+  primary: '#111827',
+  primaryDark: '#000000',
+  primaryLight: '#F3F4F6',
+  primaryGlow: '#F3F4F6',
+  accent: '#6B7280',
+  accentDark: '#4B5563',
+  accentLight: '#F3F4F6',
+  care: '#6B7280',
+  careLight: '#F3F4F6',
+  careGlow: '#F3F4F6',
+  danger: '#EF4444',
+  dangerLight: '#FEF2F2',
+  dangerGlow: '#FEF2F2',
+  warning: '#F59E0B',
+  warningLight: '#FFFBEB',
+  success: '#10B981',
+  successLight: '#ECFDF5',
+  successBadge: '#ECFDF5',
   info: '#6B7280',
-  infoLight: 'rgba(107,114,128,0.08)',
-  border: Token.borderSubtle,
-  borderLight: 'rgba(20,20,30,0.03)',
-  standard: Palette.text,
-  tabBar: 'rgba(255,255,255,0.82)',
-  tabBarBorder: 'rgba(20,20,30,0.04)',
-  cardShadow: 'rgba(20,20,30,0.06)',
-  overlay: 'rgba(20,20,30,0.4)',
-  skeleton: Palette.bgSubtle,
-  subtle: Palette.bg,
+  infoLight: '#F3F4F6',
+  border: '#E5E7EB',
+  borderLight: '#F3F4F6',
+  standard: '#111827',
+  tabBar: '#FFFFFF',
+  tabBarBorder: '#E5E7EB',
+  cardShadow: 'rgba(0,0,0,0.05)',
+  overlay: 'rgba(0,0,0,0.4)',
+  skeleton: '#F3F4F6',
+  subtle: '#F9FAFB',
   paper: '#FFFFFF',
   elevated: '#FFFFFF',
   card: '#FFFFFF',
-  destructive: Palette.danger,
-  destructiveLight: Palette.dangerLight,
-  text: Palette.text,
-  secondary: Palette.bgSubtle,
-  secondaryDark: '#D4D6DC',
-  accentLight2: 'rgba(212,132,90,0.06)',
-  inputBg: 'rgba(20,20,30,0.03)',
-  inputBorder: 'rgba(20,20,30,0.08)',
-  buttonBg: Palette.text,
+  destructive: '#EF4444',
+  destructiveLight: '#FEF2F2',
+  text: '#111827',
+  secondary: '#F3F4F6',
+  secondaryDark: '#E5E7EB',
+  accentLight2: '#F3F4F6',
+  inputBg: '#F9FAFB',
+  inputBorder: '#E5E7EB',
+  buttonBg: '#111827',
   buttonText: '#FFFFFF',
-  badgeBg: 'rgba(212,132,90,0.08)',
-  iconColor: Palette.textSecondary,
-  heroGradientStart: Palette.accent,
-  heroGradientMid: Palette.accentLight,
-  heroGradientEnd: Palette.accentPeach,
-  warmBg: Palette.bg,
-  warmCard: 'rgba(212,132,90,0.04)',
+  badgeBg: '#F3F4F6',
+  iconColor: '#6B7280',
+  heroGradientStart: '#6B7280',
+  heroGradientMid: '#9CA3AF',
+  heroGradientEnd: '#D1D5DB',
+  warmBg: '#F9FAFB',
+  warmCard: '#F3F4F6',
 };
 
 export const DarkTheme = { ...LightTheme };
 export type ThemeColors = typeof LightTheme;
 export const Colors = LightTheme;
 
-// ─── SPACING ───
 export const Space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 } as const;
-export const Radius = { sm: 14, md: Token.cardSm, lg: Token.cardLg, xl: Token.frameRadius, full: Token.pill } as const;
+export const Radius = { sm: 8, md: 12, lg: 16, xl: 24, full: 9999 } as const;
 
-// ─── TYPOGRAPHY ───
 export const Type = {
-  h1: { fontSize: 32, fontWeight: '700' as const, letterSpacing: -0.8, lineHeight: 38 },
-  h2: { fontSize: 22, fontWeight: '600' as const, letterSpacing: -0.4, lineHeight: 28 },
-  h3: { fontSize: 17, fontWeight: '600' as const, letterSpacing: -0.2 },
-  body: { fontSize: 15, fontWeight: '400' as const, lineHeight: 22 },
+  h1: { fontSize: 28, fontWeight: '700' as const, letterSpacing: -0.5 },
+  h2: { fontSize: 20, fontWeight: '600' as const, letterSpacing: -0.3 },
+  h3: { fontSize: 16, fontWeight: '600' as const },
+  body: { fontSize: 14, fontWeight: '400' as const, lineHeight: 20 },
   bodySmall: { fontSize: 13, fontWeight: '400' as const, lineHeight: 18 },
-  caption: { fontSize: 11, fontWeight: '600' as const, letterSpacing: 0.8, textTransform: 'uppercase' as const },
-  micro: { fontSize: 9, fontWeight: '700' as const, letterSpacing: 1.0, textTransform: 'uppercase' as const },
-  button: { fontSize: 15, fontWeight: '600' as const },
-  buttonSmall: { fontSize: 13, fontWeight: '600' as const },
-  stat: { fontSize: 40, fontWeight: '700' as const, letterSpacing: -1.5 },
-  statMd: { fontSize: 28, fontWeight: '700' as const, letterSpacing: -0.8 },
+  caption: { fontSize: 11, fontWeight: '600' as const, letterSpacing: 0.5, textTransform: 'uppercase' as const },
+  micro: { fontSize: 9, fontWeight: '600' as const, letterSpacing: 0.8, textTransform: 'uppercase' as const },
+  button: { fontSize: 14, fontWeight: '600' as const },
+  buttonSmall: { fontSize: 13, fontWeight: '500' as const },
+  stat: { fontSize: 32, fontWeight: '700' as const, letterSpacing: -1 },
+  statMd: { fontSize: 24, fontWeight: '700' as const, letterSpacing: -0.5 },
 } as const;
 
-export const Glass = Platform.OS === 'web'
-  ? { backdropFilter: Token.glass, WebkitBackdropFilter: Token.glass } : {};
-
-export const GlassHeavy = Platform.OS === 'web'
-  ? { backdropFilter: Token.glassHeavy, WebkitBackdropFilter: Token.glassHeavy } : {};
-
-export const Motion = {
-  fast: 150, normal: 280, slow: 420, reveal: 700,
-  pageEnter: { duration: 380, ease: 'cubic-bezier(0.22, 1, 0.36, 1)' },
-  stagger: 55,
-  spring: { damping: 18, stiffness: 120, mass: 1 },
-  easeOut: 'cubic-bezier(0.22, 1, 0.36, 1)',
-} as const;
+export const Glass = Platform.OS === 'web' ? {} : {};
+export const Motion = { fast: 150, normal: 250, slow: 400, reveal: 600, spring: { damping: 18, stiffness: 120, mass: 1 }, easeOut: 'ease-out', stagger: 50 } as const;
 
 export const StatusColors: Record<string, string> = {
-  active: '#EF4444', pending: '#F59E0B', in_progress: '#7C5CFF', en_route: '#3478F6',
+  active: '#EF4444', pending: '#F59E0B', in_progress: '#3B82F6', en_route: '#3B82F6',
   completed: '#10B981', resolved: '#10B981', dispatched: '#F59E0B', pending_acceptance: '#F59E0B',
-  connected: '#10B981', disconnected: '#9CA3B0',
+  connected: '#10B981', disconnected: '#9CA3AF',
 };
 
 export function cardStyle(_isDark: boolean) {
   return {
     backgroundColor: '#FFFFFF',
-    borderRadius: Token.cardLg,
-    borderWidth: Token.borderWidth,
-    borderColor: Token.borderSubtle,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
     ...(Platform.OS === 'web'
-      ? { boxShadow: Token.shadow }
-      : { shadowColor: '#14141E', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.08, shadowRadius: 30, elevation: 3 }),
+      ? { boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
+      : { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 3, elevation: 1 }),
   } as const;
 }
 
 export const CardStyle = cardStyle(false);
 export const GlassCard = cardStyle(false);
-
-export function resolveAccent(isCareContext: boolean) {
-  return isCareContext ? Palette.care : Palette.accent;
-}
+export function resolveAccent(_isCareContext: boolean) { return '#111827'; }
