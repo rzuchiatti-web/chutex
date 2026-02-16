@@ -349,12 +349,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
       {/* SOS Button */}
       <Animated.View style={{ transform: [{ scale: sosPulse }], marginBottom: 16 }}>
-        <TouchableOpacity testID="sos-button" style={{ backgroundColor: '#E53935', borderRadius: 22, paddingVertical: 20, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(229,57,53,0.4)' }} onPress={handleSOS} disabled={sosLoading} activeOpacity={0.8}>
-          {sosLoading ? <ActivityIndicator color="#1A1D21" size="large" /> : (
+        <TouchableOpacity testID="sos-button" style={{ backgroundColor: '#E53935', borderRadius: 22, paddingVertical: 20, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(229,57,53,0.3)' }} onPress={handleSOS} disabled={sosLoading} activeOpacity={0.8}>
+          {sosLoading ? <ActivityIndicator color="#FFF" size="large" /> : (
             <>
-              <Ionicons name="alert-circle" size={32} color="#1A1D21" />
+              <Ionicons name="alert-circle" size={32} color="#FFF" />
               <Text style={{ color: '#FFF', fontSize: 24, fontWeight: '900', letterSpacing: 4, marginTop: 4 }}>{t('sos')}</Text>
-              <Text style={{ color: 'rgba(255,255,255,0.10)', fontSize: 11, marginTop: 2 }}>{t('sos_sub')}</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginTop: 2 }}>{t('sos_sub')}</Text>
             </>
           )}
         </TouchableOpacity>
