@@ -55,11 +55,12 @@ const C = {
 };
 
 // IMPORTANT: Defined OUTSIDE component to prevent re-mount on each keystroke
-const GInput = ({ testID, label, val, onChange, placeholder, secure }: any) => (
+// Uses defaultValue + ref pattern (uncontrolled) to avoid re-renders
+const GInput = ({ testID, label, inputRef, defaultValue, placeholder, secure }: any) => (
   <View style={{ marginBottom: 18 }}>
     {label && <Text style={{ fontSize: 12, fontWeight: '600', color: C.textMid, marginBottom: 7, letterSpacing: 0.5 }}>{label}</Text>}
-    <TextInput testID={testID} value={val} onChangeText={onChange} placeholder={placeholder}
-      placeholderTextColor={C.placeholder} secureTextEntry={secure} autoCapitalize="none"
+    <TextInput testID={testID} defaultValue={defaultValue} onChangeText={(t: string) => { if (inputRef) inputRef.current = t; }}
+      placeholder={placeholder} placeholderTextColor={C.placeholder} secureTextEntry={secure} autoCapitalize="none"
       style={[{ fontSize: 16, paddingVertical: 16, paddingHorizontal: 22, borderRadius: 999, color: C.text, borderWidth: 1 }, glassInput] as any} />
   </View>
 );
