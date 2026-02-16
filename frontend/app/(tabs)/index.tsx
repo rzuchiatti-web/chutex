@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Animated, Platform, Image, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ContextualTip, OnboardingChecklist, HelpBubble, MiniTuto, PageExplainer } from '../../src/components/HelpSystem';
+import { DoctorCard } from '../../src/components/DoctorCard';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
