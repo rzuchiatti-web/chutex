@@ -96,6 +96,7 @@ async def invite_guardian(data: dict, user=Depends(get_current_user)):
     """Invite a guardian by phone number. If exists, send notification. If not, send SMS."""
     import re
     phone = data.get('phone', '').strip()
+    relationship = data.get('relationship', '')
     if not phone:
         raise HTTPException(status_code=400, detail="Numero de telephone requis")
 
