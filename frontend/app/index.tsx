@@ -130,7 +130,7 @@ export default function AuthScreen() {
   );
 
   const cStyle = cardStyle(isDark);
-  const logoSource = isDark ? require('../assets/images/logo_white.png') : require('../assets/images/logo_black.png');
+  const logoSource = isDark ? require('../assets/images/logo_black.png') : require('../assets/images/logo_white.png');
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }} data-testid="auth-screen">

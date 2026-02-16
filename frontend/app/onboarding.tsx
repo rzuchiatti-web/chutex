@@ -29,7 +29,7 @@ function useOnboardingColors() {
     buttonBg: colors.buttonBg,
     buttonText: colors.buttonText,
     isDark,
-    logoSource: isDark ? require('../assets/images/logo_white.png') : require('../assets/images/logo_black.png'),
+    logoSource: isDark ? require('../assets/images/logo_black.png') : require('../assets/images/logo_white.png'),
   };
 }
 
