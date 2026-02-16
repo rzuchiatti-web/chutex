@@ -14,6 +14,12 @@ function Typewriter({ text, speed = 30, delay = 300, color = '#FFF' }: any) {
 }
 
 const SLIDES = [
+  {
+    hero: true,
+    heroImg: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/banner_login_mobile.jpg?v=1771242072',
+    title: "Construire un avenir ou la longevite, la vitalite et la sante sont portees par la prevention.",
+    btnLabel: 'Commencer',
+  },
   { img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/diagnsotick_sante_connecte_chutex.svg?v=1769015947', pill: 'VISION 360°', title: 'Vision de sante complete.', subtitle: 'Tendances, signaux faibles, priorites et recommandations.' },
   { img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/analyse_sante_connecte_glycemique_chutex_1.svg?v=1769087565', pill: 'GLYCEMIE', title: 'Estimation glycemique.', subtitle: "Estimation au quotidien — sans geste invasif.", imgSize: '140%' },
   { img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/teleconsultation_medical_chutex_1.svg?v=1769087585', pill: '24/7', title: 'Teleconsultation 24/7.', subtitle: 'Acces continu a des medecins diplomes.', imgSize: '135%' },
