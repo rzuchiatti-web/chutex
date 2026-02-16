@@ -137,6 +137,7 @@ async def invite_guardian(data: dict, user=Depends(get_current_user)):
             "guardian_id": existing['id'],
             "guardian_name": existing['name'],
             "guardian_phone": cleaned,
+            "relationship": relationship,
             "status": "pending",
             "created_at": now,
         })
