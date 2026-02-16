@@ -24,20 +24,30 @@ export function PastelMistBackground() {
       * { font-family: 'Inter', system-ui, -apple-system, sans-serif !important; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
       body { background: #FFFFFF !important; color: #111 !important; -webkit-font-smoothing: antialiased; margin:0; }
 
-      /* ── Clinical grid background ── */
+      /* ── Animated clinical grid ── */
+      .clinic-grid-dark {
+        background-color: #0A0A0A;
+        background-image:
+          linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+        background-size: 44px 44px;
+        animation: grid-drift 20s linear infinite;
+      }
+      @keyframes grid-drift {
+        0% { background-position: 0 0; }
+        100% { background-position: 44px 44px; }
+      }
       .clinic-grid-light {
         background-color: #FAFAFA;
         background-image:
           linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
           linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
-        background-size: 40px 40px;
+        background-size: 44px 44px;
+        animation: grid-drift-light 25s linear infinite;
       }
-      .clinic-grid-dark {
-        background-color: #0A0A0A;
-        background-image:
-          linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-        background-size: 40px 40px;
+      @keyframes grid-drift-light {
+        0% { background-position: 0 0; }
+        100% { background-position: 44px 44px; }
       }
 
       /* ── Typewriter animation ── */
