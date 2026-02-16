@@ -53,17 +53,23 @@ const StatusBadge = ({ label, color }: { label: string; color?: string }) => (
   </View>
 );
 
-/* ─── PILL BUTTON (primary dark) ─── */
+/* ─── PILL BUTTON (primary dark gradient) ─── */
 const PillButton = ({ label, icon, onPress, testID, variant = 'dark' }: any) => {
-  const bg = variant === 'warm' ? '#D4845A' : '#1E1F24';
+  const isDark = variant === 'dark';
+  const isWarm = variant === 'warm';
   return (
     <TouchableOpacity testID={testID} activeOpacity={0.85} style={{
-      backgroundColor: bg, borderRadius: 9999, paddingVertical: 16, paddingHorizontal: 24,
-      flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 14,
-      ...(Platform.OS === 'web' ? { boxShadow: `0 4px 16px ${variant === 'warm' ? 'rgba(212,132,90,0.25)' : 'rgba(20,20,30,0.15)'}`, transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)' } : { shadowColor: bg, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 12, elevation: 6 }),
+      backgroundColor: isDark ? '#1E1F24' : isWarm ? '#D4845A' : '#EDEEF1',
+      borderRadius: 9999, paddingVertical: 16, paddingHorizontal: 28,
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 16,
+      ...(Platform.OS === 'web' ? {
+        background: isDark ? 'linear-gradient(135deg, #1E1F24, #2D2E34)' : isWarm ? 'linear-gradient(135deg, #D4845A, #E8A87C)' : '#EDEEF1',
+        boxShadow: isDark ? '0 10px 30px rgba(20,20,30,0.15)' : isWarm ? '0 10px 30px rgba(212,132,90,0.2)' : '0 4px 16px rgba(20,20,30,0.05)',
+        transition: 'all 280ms cubic-bezier(0.22, 1, 0.36, 1)',
+      } : { shadowColor: isDark ? '#14141E' : '#D4845A', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 6 }),
     }} onPress={onPress}>
-      {icon && <Icon name={icon} size={18} color="#FFF" />}
-      <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '700' }}>{label}</Text>
+      {icon && <Icon name={icon} size={18} color={isDark || isWarm ? '#FFF' : '#1E1F24'} />}
+      <Text style={{ color: isDark || isWarm ? '#FFFFFF' : '#1E1F24', fontSize: 15, fontWeight: '600' }}>{label}</Text>
     </TouchableOpacity>
   );
 };
