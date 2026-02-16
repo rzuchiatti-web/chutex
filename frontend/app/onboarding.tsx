@@ -87,8 +87,8 @@ export default function OnboardingScreen() {
         </div>
 
         {/* Center content — pushed higher */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', position: 'relative', zIndex: 5, padding: '0 24px', paddingTop: '12vh' } as any}>
-          <img src={LOGO} alt="Chutex" className="anim-up" style={{ height: 52, width: 'auto', marginBottom: 36 } as any} />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', position: 'relative', zIndex: 5, padding: '0 24px', paddingTop: '10vh' } as any}>
+          <img src={LOGO} alt="Chutex" className="anim-up" style={{ height: 68, width: 'auto', marginBottom: 36 } as any} />
           <div className="anim-up d2" style={{ textAlign: 'center', maxWidth: 340 } as any}>
             <Typewriter text={slide.title} speed={28} delay={600} color="#FFF" />
           </div>
@@ -98,8 +98,8 @@ export default function OnboardingScreen() {
         <div style={{ padding: '16px 24px 36px', position: 'relative', zIndex: 10 } as any}>
           <div data-testid="onboarding-next-btn" style={{
             width: '100%', height: 62, borderRadius: 999, position: 'relative', overflow: 'hidden', cursor: 'pointer',
-            background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
-            backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+            backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
           } as any}
             onMouseDown={(e: any) => {
               const bar = e.currentTarget;
