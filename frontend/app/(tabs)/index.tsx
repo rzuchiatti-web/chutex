@@ -37,7 +37,7 @@ const HealthBadge = ({ status }: { status: string }) => (
 
 const BlackButton = ({ label, icon, onPress, testID }: any) => (
   <TouchableOpacity testID={testID} style={{ backgroundColor: '#FFF', borderRadius: 9999, paddingVertical: 16, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 20px rgba(255,255,255,0.08)' } : { shadowColor: '#FFF', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 6 }) }} onPress={onPress}>
-    <Text style={{ color: '#000', fontSize: 15, fontWeight: '700' }}>{label}</Text>
+    <Text style={{ color: 'rgba(255,255,255,0.92)', fontSize: 15, fontWeight: '700' }}>{label}</Text>
     {icon && <Ionicons name={icon} size={18} color="#000" />}
   </TouchableOpacity>
 );
@@ -64,7 +64,7 @@ function LanguageFlagButton() {
               <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: f.color, justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontSize: 8, fontWeight: '800', color: '#FFF' }}>{f.code}</Text>
               </View>
-              <Text style={{ fontSize: 13, fontWeight: lang === f.code ? '700' : '500', color: '#000' }}>{f.code}</Text>
+              <Text style={{ fontSize: 13, fontWeight: lang === f.code ? '700' : '500', color: 'rgba(255,255,255,0.92)' }}>{f.code}</Text>
               {lang === f.code && <Ionicons name="checkmark" size={14} color="#000" />}
             </TouchableOpacity>
           ))}
@@ -172,7 +172,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 48, height: 48 }} /> : <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>}
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{user.name}</Text>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{user.name}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <View style={{ backgroundColor: '#4CAF50', width: 6, height: 6, borderRadius: 3 }} />
               <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', letterSpacing: 0.5 }}>{t('beneficiary').toUpperCase()}</Text>
@@ -191,7 +191,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       {showNotifs && (
         <GlassCard style={{ marginBottom: 12, borderLeftWidth: 4, borderLeftColor: '#2196F3' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>Notifications</Text>
+            <Text style={{ fontSize: 14, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Notifications</Text>
             <TouchableOpacity onPress={() => setShowNotifs(false)}><Ionicons name="close" size={18} color="#888" /></TouchableOpacity>
           </View>
           {activeAlerts.length === 0 && guardianRequests.length === 0 && (
@@ -202,7 +202,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               onPress={() => { setShowNotifs(false); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }}>
               <Ionicons name="alert-circle" size={16} color="#E53935" />
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: '#000' }}>{a.message}</Text>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{a.message}</Text>
                 <Text style={{ fontSize: 10, color: '#888' }}>{a.incident_state || a.teleassistance_status}</Text>
               </View>
             </TouchableOpacity>
@@ -210,7 +210,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {guardianRequests.map((req: any) => (
             <View key={req.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8 }}>
               <Ionicons name="person-add" size={16} color="#FF9800" />
-              <Text style={{ fontSize: 12, color: '#000', flex: 1 }}>{req.guardian_name} veut devenir gardien</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.92)', flex: 1 }}>{req.guardian_name} veut devenir gardien</Text>
             </View>
           ))}
         </GlassCard>
@@ -226,7 +226,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 14, fontWeight: '900', color: '#E53935', textTransform: 'uppercase' }}>ALERTE EN COURS</Text>
-                <Text style={{ fontSize: 12, color: '#000', marginTop: 2 }}>{a.message}</Text>
+                <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.92)', marginTop: 2 }}>{a.message}</Text>
               </View>
               <Text style={{ fontSize: 10, color: '#888' }}>{new Date(a.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</Text>
             </View>
@@ -240,7 +240,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     <Ionicons name="person" size={14} color="#FFF" />
                   </View>
                   <View>
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#000' }}>{a.intervener_info.name}</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{a.intervener_info.name}</Text>
                     <Text style={{ fontSize: 10, color: '#888' }}>{a.intervener_info.structure}</Text>
                   </View>
                 </View>
@@ -266,7 +266,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <Text style={{ fontSize: 13, fontWeight: '800', color: '#E53935', marginLeft: 2 }}>{braceletData.battery}%</Text>
             </View>
           )}
-          <Text style={{ fontSize: 13, fontWeight: '700', color: '#000', flex: 1 }}>Bracelet Elio</Text>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.92)', flex: 1 }}>Bracelet Elio</Text>
           <Ionicons name="chevron-forward" size={16} color="#888" />
         </TouchableOpacity>
         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => router.push('/vest-connect')}>
@@ -285,7 +285,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <View style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
             <Ionicons name="people" size={22} color="#000" />
           </View>
-          <Text style={{ fontSize: 14, fontWeight: '800', color: '#000', flex: 1 }}>{guardians.length} {t('guardians')}</Text>
+          <Text style={{ fontSize: 14, fontWeight: '800', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{guardians.length} {t('guardians')}</Text>
           <TouchableOpacity onPress={() => router.push('/link-code')} style={{ padding: 4 }}>
             <Ionicons name="add-circle-outline" size={22} color="#000" />
           </TouchableOpacity>
@@ -296,7 +296,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>{g.name?.charAt(0)}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{g.name}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{g.name}</Text>
               <Text style={{ fontSize: 11, color: '#888' }}>{g.relationship || g.profession || g.guardian_type || t('guardian')}{g.structure_name ? ` - ${g.structure_name}` : ''}</Text>
             </View>
             <Ionicons name="chevron-forward" size={16} color="#888" />
@@ -309,7 +309,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       {guardianRequests.length > 0 && guardianRequests.map((req: any) => (
         <GlassCard key={req.id} style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
           <Text style={{ fontSize: 11, fontWeight: '800', color: '#FF9800', textTransform: 'uppercase', letterSpacing: 1 }}>{t('guardian_request')}</Text>
-          <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', marginTop: 4 }}>{req.guardian_name}</Text>
+          <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginTop: 4 }}>{req.guardian_name}</Text>
           <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Souhaite devenir votre gardien</Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
             <TouchableOpacity testID={`accept-guardian-${req.id}`} style={{ flex: 1, backgroundColor: '#4CAF50', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
@@ -368,7 +368,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <View style={{ height: 110, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,235,238,0.3)' }}>
               <Image source={{ uri: cat.img }} style={{ width: 90, height: 90, resizeMode: 'contain' }} />
             </View>
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#000', textAlign: 'center', paddingVertical: 12, paddingHorizontal: 8 }}>{cat.title}</Text>
+            <Text style={{ fontSize: 14, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textAlign: 'center', paddingVertical: 12, paddingHorizontal: 8 }}>{cat.title}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -385,7 +385,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             onPress={() => router.push({ pathname: '/health-detail', params: { metricId: v.id } })}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View>
-                <Text style={{ fontSize: 16, fontWeight: '900', color: '#000' }}>{v.label}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{v.label}</Text>
                 <Text style={{ fontSize: 14, color: '#888', marginTop: 2 }}>{v.val}{v.unit ? ` ${v.unit}` : ''}</Text>
               </View>
               <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}>
@@ -402,7 +402,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         <View style={{ alignItems: 'center', marginBottom: 8 }}>
           <Image source={{ uri: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/mdk4g3eq_Muscle.png' }} style={{ width: 60, height: 60, resizeMode: 'contain' }} />
         </View>
-        <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>{t('physical_activity')}</Text>
+        <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>{t('physical_activity')}</Text>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 16 }}>
           {[
             { val: vitals?.steps || '0', label: t('steps') },
@@ -410,14 +410,14 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             { val: '0', label: t('km') },
           ].map((s, i) => (
             <View key={i} style={{ alignItems: 'center', flex: 1, borderRightWidth: i < 2 ? 1 : 0, borderColor: 'rgba(0,0,0,0.08)' }}>
-              <Text style={{ fontSize: 28, fontWeight: '900', color: '#000' }}>{s.val}</Text>
+              <Text style={{ fontSize: 28, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{s.val}</Text>
               <Text style={{ fontSize: 12, color: '#888' }}>{s.label}</Text>
             </View>
           ))}
         </View>
         <View style={{ backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 14, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 12, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('daily_goal')} | <Text style={{ color: '#E53935' }}>500 KCAL</Text></Text>
+            <Text style={{ fontSize: 12, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('daily_goal')} | <Text style={{ color: '#E53935' }}>500 KCAL</Text></Text>
             <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
               <View style={{ height: 24, backgroundColor: '#4CAF50', borderRadius: 12, width: '40%', justifyContent: 'center', paddingLeft: 8 }}>
                 <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>0 KCAL</Text>
@@ -427,7 +427,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </View>
         <View style={{ backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 12, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('daily_goal')} | <Text style={{ color: '#E53935' }}>2000 {t('steps').toUpperCase()}</Text></Text>
+            <Text style={{ fontSize: 12, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('daily_goal')} | <Text style={{ color: '#E53935' }}>2000 {t('steps').toUpperCase()}</Text></Text>
             <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
               <View style={{ height: 24, backgroundColor: '#4CAF50', borderRadius: 12, width: `${Math.min(100, ((vitals?.steps || 0) / 2000) * 100)}%`, justifyContent: 'center', paddingLeft: 8 }}>
                 <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>{vitals?.steps || 0} {t('steps').toUpperCase()}</Text>
@@ -447,9 +447,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <TouchableOpacity key={cat.key} onPress={() => router.push('/reminders')} activeOpacity={0.7}>
             <GlassCard style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{cat.title}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{cat.title}</Text>
                 <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{cat.count} rappel{cat.count !== 1 ? 's' : ''} par jour</Text>
-                <Text style={{ fontSize: 12, fontWeight: '800', color: '#000', marginTop: 8 }}>{t('time_remaining')} | --:--</Text>
+                <Text style={{ fontSize: 12, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginTop: 8 }}>{t('time_remaining')} | --:--</Text>
               </View>
               <Image source={{ uri: cat.img }} style={{ width: 56, height: 56, resizeMode: 'contain' }} />
             </GlassCard>
@@ -468,7 +468,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         ].map((a, i) => (
           <TouchableOpacity key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glassStyle }} onPress={() => router.push(a.route as any)}>
             <Ionicons name={a.icon as any} size={22} color="#000" />
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#000', marginTop: 4 }}>{a.label}</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.92)', marginTop: 4 }}>{a.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -478,7 +478,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         <GlassCard>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <Ionicons name="sparkles" size={16} color="#000" />
-            <Text style={{ fontSize: 13, fontWeight: '800', color: '#000' }}>Recommandation IA</Text>
+            <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Recommandation IA</Text>
           </View>
           <Text style={{ fontSize: 12, color: '#555', lineHeight: 18 }} numberOfLines={4}>{rec}</Text>
         </GlassCard>
@@ -540,21 +540,21 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSwitching(false); }
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#000" /></View>;
 
   const roleName = t('guardian').toUpperCase() + (user.is_prescriber ? ' | Prescripteur' : '') + (user.is_intervention_provider ? ' | Intervenant' : '');
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#000' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
         <TouchableOpacity testID="guardian-header-switch" style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={switchToBeneficiary}>
           <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#FFD54F', justifyContent: 'center', alignItems: 'center', marginRight: 12, overflow: 'hidden' }}>
-            {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 48, height: 48 }} /> : <Text style={{ fontSize: 20, fontWeight: '800', color: '#000' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>}
+            {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 48, height: 48 }} /> : <Text style={{ fontSize: 20, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>}
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{user.name}</Text>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{user.name}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <View style={{ backgroundColor: '#FFD54F', width: 6, height: 6, borderRadius: 3 }} />
               <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', letterSpacing: 0.5 }}>{roleName}</Text>
@@ -573,7 +573,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
       {showNotifsG && (
         <GlassCard style={{ marginBottom: 12, borderLeftWidth: 4, borderLeftColor: '#2196F3' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>Notifications</Text>
+            <Text style={{ fontSize: 14, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Notifications</Text>
             <TouchableOpacity onPress={() => setShowNotifsG(false)}><Ionicons name="close" size={18} color="#888" /></TouchableOpacity>
           </View>
           {activeAlertsG.length === 0 && invitations.length === 0 && pendingInterventions.length === 0 && (
@@ -583,14 +583,14 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
             <TouchableOpacity key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}
               onPress={() => { setShowNotifsG(false); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }}>
               <Ionicons name="alert-circle" size={14} color="#E53935" />
-              <Text style={{ fontSize: 11, color: '#000', flex: 1 }}>{a.beneficiary_name}: {a.message}</Text>
+              <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.92)', flex: 1 }}>{a.beneficiary_name}: {a.message}</Text>
             </TouchableOpacity>
           ))}
           {pendingInterventions.map((p: any) => (
             <TouchableOpacity key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}
               onPress={() => { setShowNotifsG(false); router.push({ pathname: '/intervention-detail', params: { interventionId: p.id } }); }}>
               <Ionicons name="navigate" size={14} color="#FF9800" />
-              <Text style={{ fontSize: 11, color: '#000', flex: 1 }}>Intervention: {p.beneficiary_name}</Text>
+              <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.92)', flex: 1 }}>Intervention: {p.beneficiary_name}</Text>
             </TouchableOpacity>
           ))}
         </GlassCard>
@@ -659,7 +659,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
 
       {/* Greeting */}
       <GlassCard style={{ padding: 24, alignItems: 'center' }}>
-        <Text style={{ fontSize: 20, fontWeight: '700', color: '#000', textAlign: 'center', lineHeight: 28 }}>
+        <Text style={{ fontSize: 20, fontWeight: '700', color: 'rgba(255,255,255,0.92)', textAlign: 'center', lineHeight: 28 }}>
           {t('hello')} {user.name?.split(' ')[0]},
         </Text>
         <Text style={{ fontSize: 14, color: '#888', textAlign: 'center', marginTop: 4 }}>
@@ -686,7 +686,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         <TouchableOpacity key={piv.id} testID={`intervention-${piv.id}`} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: piv.id } })}>
           <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#E53935', backgroundColor: 'rgba(255,205,210,0.4)' }}>
             <Text style={{ fontSize: 11, fontWeight: '800', color: '#E53935', textTransform: 'uppercase', letterSpacing: 1 }}>{t('intervention_required')}</Text>
-            <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', marginTop: 4 }}>{piv.alert_message || piv.notes || 'Alerte'}</Text>
+            <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginTop: 4 }}>{piv.alert_message || piv.notes || 'Alerte'}</Text>
             <Text style={{ fontSize: 13, color: '#555', marginTop: 4 }}>{piv.beneficiary_name} {piv.distance_km ? `- ${piv.distance_km}km` : ''}</Text>
             {piv.status === 'pending_acceptance' && (
               <View style={{ backgroundColor: '#4CAF50', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }}>
@@ -706,7 +706,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
       {invitations.length > 0 && invitations.map((inv: any) => (
         <GlassCard key={inv.id} style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
           <Text style={{ fontSize: 11, fontWeight: '800', color: '#FF9800', textTransform: 'uppercase', letterSpacing: 1 }}>INVITATION</Text>
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', marginTop: 4 }}>{inv.beneficiary_name} vous invite</Text>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginTop: 4 }}>{inv.beneficiary_name} vous invite</Text>
           <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Souhaite que vous deveniez son gardien</Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
             <TouchableOpacity testID={`accept-inv-${inv.id}`} style={{ flex: 1, backgroundColor: '#4CAF50', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
@@ -722,7 +722,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
       ))}
 
       {/* Beneficiary Cards */}
-      <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', marginBottom: 10, marginTop: 4, textTransform: 'uppercase', letterSpacing: 1 }}>
+      <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginBottom: 10, marginTop: 4, textTransform: 'uppercase', letterSpacing: 1 }}>
         Mes beneficiaires
       </Text>
       {bens.map((b: any) => (
@@ -730,10 +730,10 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           <GlassCard style={{ padding: 20 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
               <View style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.7)' }}>
-                <Text style={{ fontSize: 24, fontWeight: '800', color: '#000' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
+                <Text style={{ fontSize: 24, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 17, fontWeight: '900', color: '#000', textTransform: 'uppercase' }}>{b.name}</Text>
+                <Text style={{ fontSize: 17, fontWeight: '900', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase' }}>{b.name}</Text>
                 <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{b.latest_vitals ? `${b.latest_vitals.heart_rate || '--'} bpm | SpO2 ${b.latest_vitals.spo2 || '--'}%` : 'Pas de donnees'}</Text>
                 {b.active_alerts > 0 && (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
@@ -752,7 +752,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
       {bens.length === 0 && (
         <GlassCard style={{ alignItems: 'center', padding: 32 }}>
           <Ionicons name="people-outline" size={40} color="#888" />
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#000', marginTop: 12 }}>Aucun beneficiaire lie</Text>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)', marginTop: 12 }}>Aucun beneficiaire lie</Text>
           <Text style={{ fontSize: 12, color: '#888', marginTop: 4, textAlign: 'center' }}>Ajoutez un beneficiaire pour commencer a veiller sur lui</Text>
         </GlassCard>
       )}
@@ -764,7 +764,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         <GlassCard style={{ padding: 18 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
             <Ionicons name="document-text" size={20} color="#000" />
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5 }}>Prescriptions</Text>
+            <Text style={{ fontSize: 14, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Prescriptions</Text>
           </View>
           <Text style={{ fontSize: 12, color: '#888' }}>{user.prescriber_structure || 'Structure'}</Text>
           <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }} onPress={() => router.push({ pathname: '/(tabs)/devices' })}>
@@ -800,14 +800,14 @@ function TeleassistanceHome({ token, user }: { token: string; user: any }) {
   useEffect(() => { fetchData(); }, [fetchData]);
   useEffect(() => { const iv = setInterval(fetchData, 5000); return () => clearInterval(iv); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#000" /></View>;
   const active = alerts.filter((a: any) => a.status === 'active');
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#000' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 20 }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Plateau d'ecoute</Text>
+          <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Plateau d'ecoute</Text>
           <Text style={{ fontSize: 12, color: '#888' }}>{user.name}</Text>
         </View>
         <LanguageFlagButton />
@@ -825,25 +825,25 @@ function TeleassistanceHome({ token, user }: { token: string; user: any }) {
         ))}
       </View>
       {active.length > 0 && <>
-        <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', marginBottom: 10 }}>Alertes en attente</Text>
+        <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginBottom: 10 }}>Alertes en attente</Text>
         {active.slice(0, 3).map((a: any) => (
           <TouchableOpacity key={a.id} onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
             <GlassCard style={{ borderLeftWidth: 3, borderLeftColor: a.severity === 'critical' ? '#E53935' : '#000' }}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{a.message}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{a.message}</Text>
               <Text style={{ fontSize: 11, color: '#888', marginTop: 4 }}>{a.beneficiary_name} - {new Date(a.created_at).toLocaleTimeString('fr-FR')}</Text>
             </GlassCard>
           </TouchableOpacity>
         ))}
       </>}
-      <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', marginBottom: 10, marginTop: 8 }}>Abonnes</Text>
+      <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginBottom: 10, marginTop: 8 }}>Abonnes</Text>
       {subs.slice(0, 10).map((su: any) => (
         <TouchableOpacity key={su.id} onPress={() => router.push({ pathname: '/subscriber-detail', params: { subscriberId: su.id } })}>
           <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, marginBottom: 6 }}>
             <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E0E0E0', justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ fontSize: 16, fontWeight: '700', color: '#000' }}>{su.name?.charAt(0)?.toUpperCase()}</Text>
+              <Text style={{ fontSize: 16, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{su.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{su.name}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{su.name}</Text>
               <Text style={{ fontSize: 11, color: '#888' }}>{su.latest_vitals ? `${su.latest_vitals.heart_rate} bpm` : 'Pas de donnees'}</Text>
             </View>
             <Ionicons name="chevron-forward" size={16} color="#888" />
@@ -884,14 +884,14 @@ function RewardsAdminCard({ token }: { token: string }) {
 
   return (
     <View style={{ marginTop: 4, marginBottom: 12 }}>
-      <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', marginBottom: 10 }}>Challenge Prescripteurs</Text>
+      <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginBottom: 10 }}>Challenge Prescripteurs</Text>
       <GlassCard style={{ borderWidth: 1.5, borderColor: '#FFD54F', backgroundColor: 'rgba(255,248,225,0.6)' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
           <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFD700', justifyContent: 'center', alignItems: 'center' }}>
             <Ionicons name="trophy" size={22} color="#FFF" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 16, fontWeight: '900', color: '#000' }}>Recompenses {monthLabel}</Text>
+            <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Recompenses {monthLabel}</Text>
             <Text style={{ fontSize: 11, color: '#888' }}>Top 3 prescripteurs du mois</Text>
           </View>
           <TouchableOpacity onPress={() => setEditing(!editing)} style={{ padding: 6 }}>
@@ -910,7 +910,7 @@ function RewardsAdminCard({ token }: { token: string }) {
                 <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: t.color, justifyContent: 'center', alignItems: 'center', marginBottom: 4 }}>
                   <Ionicons name={t.icon} size={20} color="#FFF" />
                 </View>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000' }}>{t.prize}EUR</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{t.prize}EUR</Text>
                 <Text style={{ fontSize: 10, color: '#888' }}>{t.pos}</Text>
               </View>
             ))}
@@ -966,15 +966,15 @@ function AdminHome({ token, user }: { token: string; user: any }) {
   }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#000" /></View>;
 
   const barMax = (obj: Record<string, number>) => Math.max(...Object.values(obj || {}).map(Number), 1);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#000' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Dashboard Admin</Text>
+          <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', letterSpacing: -0.5 }}>Dashboard Admin</Text>
           <Text style={{ fontSize: 12, color: '#888' }}>CHUTEX - {user.name}</Text>
         </View>
         <LanguageFlagButton />
@@ -1024,13 +1024,13 @@ function AdminHome({ token, user }: { token: string; user: any }) {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>Temps moyen resolution</Text>
-            <Text style={{ fontSize: 24, fontWeight: '900', color: '#000' }}>{kpi.avg_resolution_minutes}<Text style={{ fontSize: 14, color: '#888' }}> min</Text></Text>
+            <Text style={{ fontSize: 24, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{kpi.avg_resolution_minutes}<Text style={{ fontSize: 14, color: '#888' }}> min</Text></Text>
           </View>
         </GlassCard>
 
         {/* Users by role chart */}
         <GlassCard>
-          <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Repartition utilisateurs</Text>
+          <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Repartition utilisateurs</Text>
           {Object.entries(kpi.users_by_role || {}).map(([role, count]: [string, any]) => {
             const max = barMax(kpi.users_by_role);
             const pct = (count / max) * 100;
@@ -1044,7 +1044,7 @@ function AdminHome({ token, user }: { token: string; user: any }) {
                     {pct > 20 && <Text style={{ fontSize: 9, fontWeight: '800', color: role === 'admin' ? '#FFF' : '#000' }}>{count}</Text>}
                   </View>
                 </View>
-                {pct <= 20 && <Text style={{ fontSize: 11, fontWeight: '700', color: '#000', width: 20 }}>{count}</Text>}
+                {pct <= 20 && <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.92)', width: 20 }}>{count}</Text>}
               </View>
             );
           })}
@@ -1052,7 +1052,7 @@ function AdminHome({ token, user }: { token: string; user: any }) {
 
         {/* Alert types chart */}
         <GlassCard>
-          <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Types d'alertes</Text>
+          <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Types d'alertes</Text>
           {Object.entries(kpi.alert_types || {}).map(([type, count]: [string, any]) => {
             const max = barMax(kpi.alert_types);
             const pct = max > 0 ? (count / max) * 100 : 0;
@@ -1063,7 +1063,7 @@ function AdminHome({ token, user }: { token: string; user: any }) {
                 <View style={{ flex: 1, height: 18, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 9, overflow: 'hidden' }}>
                   <View style={{ height: 18, backgroundColor: tc[type] || '#888', borderRadius: 9, width: `${Math.max(pct, 3)}%` }} />
                 </View>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#000', width: 24 }}>{count}</Text>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.92)', width: 24 }}>{count}</Text>
               </View>
             );
           })}
@@ -1071,14 +1071,14 @@ function AdminHome({ token, user }: { token: string; user: any }) {
 
         {/* 7-day alerts chart */}
         <GlassCard>
-          <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Alertes 7 derniers jours</Text>
+          <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Alertes 7 derniers jours</Text>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 80, gap: 4 }}>
             {(kpi.alerts_by_day || []).slice(-7).map((d: any, i: number) => {
               const maxD = Math.max(...(kpi.alerts_by_day || []).slice(-7).map((x: any) => x.count), 1);
               const h = Math.max((d.count / maxD) * 60, 4);
               return (
                 <View key={i} style={{ flex: 1, alignItems: 'center' }}>
-                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#000', marginBottom: 4 }}>{d.count}</Text>
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: 'rgba(255,255,255,0.92)', marginBottom: 4 }}>{d.count}</Text>
                   <View style={{ width: '80%', height: h, backgroundColor: d.count > 0 ? '#2196F3' : 'rgba(0,0,0,0.06)', borderRadius: 6 }} />
                   <Text style={{ fontSize: 9, color: '#888', marginTop: 4 }}>{d.date.slice(8)}/{d.date.slice(5, 7)}</Text>
                 </View>
@@ -1091,7 +1091,7 @@ function AdminHome({ token, user }: { token: string; user: any }) {
       {/* Analytics Section */}
       {analytics && (
         <>
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', marginBottom: 10 }}>Performance Interventions</Text>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginBottom: 10 }}>Performance Interventions</Text>
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
             {[
               { val: analytics.avg_acceptance_time_min, unit: 'min', label: 'Temps reponse', icon: 'timer-outline', color: '#2196F3' },
@@ -1108,13 +1108,13 @@ function AdminHome({ token, user }: { token: string; user: any }) {
 
           {analytics.top_intervenants?.length > 0 && (
             <GlassCard>
-              <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', letterSpacing: 0.5, marginBottom: 12 }}>Top intervenants</Text>
+              <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)', letterSpacing: 0.5, marginBottom: 12 }}>Top intervenants</Text>
               {analytics.top_intervenants.slice(0, 5).map((iv: any, idx: number) => (
                 <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: idx < 4 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                   <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: idx === 0 ? '#9C27B0' : idx === 1 ? '#7B1FA2' : 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
                     <Text style={{ fontSize: 12, fontWeight: '900', color: idx < 2 ? '#FFF' : '#888' }}>{idx + 1}</Text>
                   </View>
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#000', flex: 1 }}>{iv.name}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{iv.name}</Text>
                   <Text style={{ fontSize: 12, color: '#4CAF50', fontWeight: '800' }}>{iv.count} missions</Text>
                 </View>
               ))}
@@ -1170,13 +1170,13 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#000" /></View>;
   if (!data) return null;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F0EB' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#000' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
       <View style={{ marginTop: 12, marginBottom: 16 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>{data.company.structure_name}</Text>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', letterSpacing: -0.5 }}>{data.company.structure_name}</Text>
         <Text style={{ fontSize: 12, color: '#888' }}>Espace entreprise prescriptrice</Text>
       </View>
 
@@ -1226,7 +1226,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
       </View>
 
       {/* Agencies - clickable cards */}
-      <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', marginBottom: 10 }}>Agences</Text>
+      <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginBottom: 10 }}>Agences</Text>
       {(data.agencies || []).map((ag: any) => {
         const total = ag.comm_validated + ag.comm_pending;
         return (
@@ -1236,7 +1236,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
                 <Ionicons name="business" size={20} color="#FF9800" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '800', color: '#000' }}>{ag.agency.name}</Text>
+                <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{ag.agency.name}</Text>
                 <Text style={{ fontSize: 11, color: '#888' }}>{ag.prescriber_count} prescripteurs · {ag.prescription_count} prescriptions</Text>
               </View>
             </View>
@@ -1250,7 +1250,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
                 <Text style={{ fontSize: 9, color: '#FF9800' }}>EUR en attente</Text>
               </View>
               <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000' }}>{total}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{total}</Text>
                 <Text style={{ fontSize: 9, color: '#888' }}>EUR total</Text>
               </View>
             </View>
@@ -1260,7 +1260,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
 
       {/* Top prescribers */}
       <GlassCard>
-        <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', letterSpacing: 0.5, marginBottom: 12 }}>Top prescripteurs</Text>
+        <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)', letterSpacing: 0.5, marginBottom: 12 }}>Top prescripteurs</Text>
         {(data.prescriber_ranking || []).slice(0, 5).map((pr: any, idx: number) => (
           <TouchableOpacity key={pr.id} activeOpacity={0.7}
             onPress={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })}
@@ -1269,7 +1269,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
               <Text style={{ fontSize: 12, fontWeight: '900', color: idx < 3 ? '#FFF' : '#888' }}>{idx + 1}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#000' }}>{pr.name}</Text>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{pr.name}</Text>
               <Text style={{ fontSize: 10, color: '#888' }}>{pr.agency_name} · {pr.prescription_count} prescriptions</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
@@ -1284,7 +1284,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
       {/* Analytics Section */}
       {analytics && (
         <>
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', marginBottom: 10, marginTop: 4 }}>Performance Interventions</Text>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginBottom: 10, marginTop: 4 }}>Performance Interventions</Text>
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
             <GlassCard style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
               <Ionicons name="timer-outline" size={20} color="#2196F3" />
@@ -1306,14 +1306,14 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
           {/* Agency performance chart */}
           {analytics.agency_performance?.length > 0 && (
             <GlassCard>
-              <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', letterSpacing: 0.5, marginBottom: 12 }}>Performance par agence</Text>
+              <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)', letterSpacing: 0.5, marginBottom: 12 }}>Performance par agence</Text>
               {analytics.agency_performance.map((ag: any, idx: number) => {
                 const maxVal = Math.max(...analytics.agency_performance.map((a: any) => a.total || 1), 1);
                 const pct = Math.max((ag.total / maxVal) * 100, 5);
                 return (
                   <View key={idx} style={{ marginBottom: 10 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <Text style={{ fontSize: 12, fontWeight: '700', color: '#000' }}>{ag.agency_name}</Text>
+                      <Text style={{ fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{ag.agency_name}</Text>
                       <Text style={{ fontSize: 11, color: '#888' }}>{ag.intervenants} interv. · {ag.total} missions</Text>
                     </View>
                     <View style={{ height: 20, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, overflow: 'hidden', flexDirection: 'row' }}>
@@ -1335,13 +1335,13 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
           {/* Top intervenants */}
           {analytics.intervenant_performance?.length > 0 && (
             <GlassCard>
-              <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', letterSpacing: 0.5, marginBottom: 12 }}>Top intervenants</Text>
+              <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)', letterSpacing: 0.5, marginBottom: 12 }}>Top intervenants</Text>
               {analytics.intervenant_performance.slice(0, 5).map((iv: any, idx: number) => (
                 <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: idx < 4 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                   <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: idx === 0 ? '#9C27B0' : idx === 1 ? '#7B1FA2' : 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
                     <Text style={{ fontSize: 12, fontWeight: '900', color: idx < 2 ? '#FFF' : '#888' }}>{idx + 1}</Text>
                   </View>
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#000', flex: 1 }}>{iv.name}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{iv.name}</Text>
                   <Text style={{ fontSize: 12, color: '#4CAF50', fontWeight: '800' }}>{iv.completed} missions</Text>
                   {iv.active > 0 && <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '700' }}>+{iv.active} actives</Text>}
                 </View>
@@ -1363,7 +1363,7 @@ export default function Dashboard() {
 
   // key={effectiveRole} forces complete remount when role changes (Expo Router tab caching fix)
   return (
-    <View key={effectiveRole} style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="dashboard-screen">
+    <View key={effectiveRole} style={{ flex: 1, backgroundColor: '#000' }} testID="dashboard-screen">
       {effectiveRole === 'guardian' ? <GuardianHome token={token} user={user} />
       : effectiveRole === 'teleassistance' ? <TeleassistanceHome token={token} user={user} />
       : effectiveRole === 'admin' ? <AdminHome token={token} user={user} />
