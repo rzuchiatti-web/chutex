@@ -138,7 +138,13 @@ export default function AuthScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(16)).current;
 
-  useEffect(() => { injectGlassCSS(); }, []);
+  useEffect(() => {
+    injectGlassCSS();
+    return () => {
+      // Cleanup: remove login bg CSS when navigating away
+      if (Platform.OS === 'web') document.getElementById('glass-login')?.remove();
+    };
+  }, []);
 
   useEffect(() => {
     AsyncStorage.getItem('chutex_onboarding_done').then(val => {
