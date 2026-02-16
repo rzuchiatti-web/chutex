@@ -67,12 +67,12 @@ export default function AuthScreen() {
         {/* Background warm gradient blob */}
         <div style={{
           position: 'absolute', top: '-15%', right: '-8%', width: '60vw', height: '60vw', maxWidth: 500, maxHeight: 500,
-          borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,0,0,0.12) 0%, rgba(245,203,167,0.06) 40%, transparent 70%)',
+          borderRadius: '50%', background: 'transparent',
           pointerEvents: 'none', animation: 'haloGlow 6s ease-in-out infinite',
         } as any} />
         <div style={{
           position: 'absolute', bottom: '-12%', left: '-8%', width: '45vw', height: '45vw', maxWidth: 350, maxHeight: 350,
-          borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,0,0,0.08) 0%, transparent 60%)',
+          borderRadius: '50%', background: 'transparent',
           pointerEvents: 'none', animation: 'haloGlow 8s ease-in-out infinite reverse',
         } as any} />
 
@@ -102,16 +102,16 @@ export default function AuthScreen() {
               border: '1px solid rgba(255,255,255,0.3)',
             } as any}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: 3, textTransform: 'uppercase' } as any}>CARE WATCH</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', letterSpacing: 3, textTransform: 'uppercase' } as any}>CARE WATCH</div>
           </div>
 
-          <div style={{ fontSize: 28, fontWeight: 900, color: '#FFFFFF', letterSpacing: -0.5, lineHeight: 1.2, marginBottom: 6 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: '#111827', letterSpacing: -0.5, lineHeight: 1.2, marginBottom: 6 }}>
             Bienvenue
           </div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+          <div style={{ fontSize: 14, color: '#6B7280', fontWeight: 500 }}>
             Votre plateforme de teleassistance intelligente
           </div>
         </div>
