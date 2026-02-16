@@ -168,7 +168,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
         <TouchableOpacity testID="beneficiary-header-switch" style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={switchToGuardian}>
-          <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#E5E7EB', justifyContent: 'center', alignItems: 'center', marginRight: 12, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
+          <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#1A1D21', justifyContent: 'center', alignItems: 'center', marginRight: 12, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
             {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 48, height: 48 }} /> : <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>}
           </View>
           <View style={{ flex: 1 }}>
@@ -314,7 +314,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
             <TouchableOpacity testID={`accept-guardian-${req.id}`} style={{ flex: 1, backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
               onPress={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/accept`, { method: 'POST' }, token); Alert.alert('Accepte', `${req.guardian_name} est maintenant votre gardien.`); fetchData(); } catch (e: any) { Alert.alert('Erreur', e.message); } }}>
-              <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>{t('accept')}</Text>
+              <Text style={{ color: '#1A1D21', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>{t('accept')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)' }}
               onPress={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }}>
@@ -690,7 +690,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
             <Text style={{ fontSize: 13, color: '#555', marginTop: 4 }}>{piv.beneficiary_name} {piv.distance_km ? `- ${piv.distance_km}km` : ''}</Text>
             {piv.status === 'pending_acceptance' && (
               <View style={{ backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }}>
-                <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2 }}>{t('i_intervene')}</Text>
+                <Text style={{ color: '#1A1D21', fontSize: 14, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2 }}>{t('i_intervene')}</Text>
               </View>
             )}
             {piv.status === 'in_progress' && piv.assigned_to === user.id && (
@@ -711,7 +711,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
             <TouchableOpacity testID={`accept-inv-${inv.id}`} style={{ flex: 1, backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
               onPress={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/accept`, { method: 'POST' }, token); Alert.alert('Accepte', 'Vous etes maintenant gardien.'); fetchData(); } catch (e: any) { Alert.alert('Erreur', e.message); } }}>
-              <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>{t('accept')}</Text>
+              <Text style={{ color: '#1A1D21', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>{t('accept')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)' }}
               onPress={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }}>
@@ -768,7 +768,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           </View>
           <Text style={{ fontSize: 12, color: '#5A6068' }}>{user.prescriber_structure || 'Structure'}</Text>
           <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }} onPress={() => router.push({ pathname: '/(tabs)/devices' })}>
-            <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>VOIR MES PRESCRIPTIONS</Text>
+            <Text style={{ color: '#1A1D21', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>VOIR MES PRESCRIPTIONS</Text>
           </TouchableOpacity>
         </GlassCard>
       )}

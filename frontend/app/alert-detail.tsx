@@ -230,7 +230,7 @@ export default function AlertDetailScreen() {
                 style={{ backgroundColor: '#009688', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}
                 onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: intervention.id } })}>
                 <Ionicons name="navigate" size={20} color="#1A1D21" />
-                <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>SUIVRE {intervention.assigned_name?.split(' ')[0]?.toUpperCase()} SUR LA CARTE</Text>
+                <Text style={{ color: '#1A1D21', fontSize: 14, fontWeight: '800' }}>SUIVRE {intervention.assigned_name?.split(' ')[0]?.toUpperCase()} SUR LA CARTE</Text>
               </TouchableOpacity>
             ) : hasIntervenant ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 4 }}>

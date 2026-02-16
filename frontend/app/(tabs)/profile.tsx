@@ -241,7 +241,7 @@ export default function ProfileScreen() {
 
         <TouchableOpacity testID="logout-btn" style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }} onPress={logout}>
           <Ionicons name="log-out-outline" size={16} color="#1A1D21" />
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF', textTransform: 'uppercase' }}>{t('logout')}</Text>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21', textTransform: 'uppercase' }}>{t('logout')}</Text>
         </TouchableOpacity>
         <Text style={{ textAlign: 'center', fontSize: 11, color: '#5A6068', marginTop: 16 }}>Chutex Innovation SAS - v3.0</Text>
 
