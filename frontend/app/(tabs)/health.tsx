@@ -18,7 +18,7 @@ import { PageExplainer } from '../../src/components/HelpSystem';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+  <View style={[{ backgroundColor: colors.surface, borderRadius: 22, borderWidth: 1, borderColor: colors.border, padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
 
 /* ===== ADMIN: CLIENTS ===== */
@@ -40,24 +40,24 @@ function AdminClients({ token }: { token: string }) {
   const guards = users.filter(u => u.role === 'guardian' || u.has_guardian_space);
   const displayed = tab === 'beneficiary' ? bens : guards;
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={colors.textPrimary} /></View>;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#000' }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', letterSpacing: -0.5 }}>Clients</Text>
-        <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{users.length} utilisateurs au total</Text>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: colors.textPrimary, letterSpacing: -0.5 }}>Clients</Text>
+        <Text style={{ fontSize: 12, color: colors.textSecondary }}>{users.length} utilisateurs au total</Text>
       </View>
-      <View style={{ flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', ...glass }}>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'beneficiary' && { backgroundColor: '#000' }]} onPress={() => setTab('beneficiary')}>
+      <View style={{ flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: colors.surface, borderRadius: 14, padding: 4, borderWidth: 1, borderColor: colors.border, ...glass }}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'beneficiary' && { backgroundColor: colors.background }]} onPress={() => setTab('beneficiary')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'beneficiary' ? '#FFF' : '#888' }}>Beneficiaires ({bens.length})</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'guardian' && { backgroundColor: '#000' }]} onPress={() => setTab('guardian')}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'guardian' && { backgroundColor: colors.background }]} onPress={() => setTab('guardian')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'guardian' ? '#FFF' : '#888' }}>Gardiens ({guards.length})</Text>
         </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchUsers(); }} tintColor="#FFF" />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchUsers(); }} tintColor={colors.textPrimary} />}>
         {displayed.map(u => (
           <TouchableOpacity key={u.id} onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: u.id, viewAs: tab } })} activeOpacity={0.7}>
             <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
@@ -65,9 +65,9 @@ function AdminClients({ token }: { token: string }) {
                 <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{u.name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{u.name}</Text>
-                <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{u.email}</Text>
-                {u.phone && <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)' }}>{u.phone}</Text>}
+                <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>{u.name}</Text>
+                <Text style={{ fontSize: 12, color: colors.textSecondary }}>{u.email}</Text>
+                {u.phone && <Text style={{ fontSize: 11, color: colors.textMuted }}>{u.phone}</Text>}
                 {u.is_prescriber && <Text style={{ fontSize: 10, fontWeight: '700', color: '#9C27B0', marginTop: 2 }}>Prescripteur - {u.prescriber_structure}</Text>}
                 {u.is_intervention_provider && <Text style={{ fontSize: 10, fontWeight: '700', color: '#10B981', marginTop: 2 }}>Intervenant Care</Text>}
                 {u.subscription_type && u.subscription_type !== 'none' && (
@@ -84,7 +84,7 @@ function AdminClients({ token }: { token: string }) {
         {displayed.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
             <Ionicons name="people-outline" size={36} color="#CCC" />
-            <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.50)', marginTop: 8 }}>Aucun {tab === 'beneficiary' ? 'beneficiaire' : 'gardien'}</Text>
+            <Text style={{ fontSize: 14, color: colors.textSecondary, marginTop: 8 }}>Aucun {tab === 'beneficiary' ? 'beneficiaire' : 'gardien'}</Text>
           </View>
         )}
       </ScrollView>
@@ -126,22 +126,22 @@ function CompanyAgences({ token }: { token: string }) {
     setAssignModal(null); fetchData();
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={colors.textPrimary} /></View>;
   if (!data) return null;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#000' }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', letterSpacing: -0.5 }}>Agences</Text>
-        <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{(data.agencies || []).length} agences · {data.total_prescribers} prescripteurs</Text>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: colors.textPrimary, letterSpacing: -0.5 }}>Agences</Text>
+        <Text style={{ fontSize: 12, color: colors.textSecondary }}>{(data.agencies || []).length} agences · {data.total_prescribers} prescripteurs</Text>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#FFF" />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={colors.textPrimary} />}>
 
-        <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+        <TouchableOpacity style={{ backgroundColor: colors.background, borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
           onPress={() => setShowCreate(true)}>
           <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Nouvelle agence</Text>
-          <Ionicons name="add-circle-outline" size={18} color="#FFF" />
+          <Ionicons name="add-circle-outline" size={18} color={colors.textPrimary} />
         </TouchableOpacity>
 
         {(data.agencies || []).map((ag: any) => (
@@ -151,8 +151,8 @@ function CompanyAgences({ token }: { token: string }) {
                 <Ionicons name="business" size={20} color="#FF9800" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{ag.agency.name}</Text>
-                {ag.agency.address ? <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{ag.agency.address}</Text> : null}
+                <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>{ag.agency.name}</Text>
+                {ag.agency.address ? <Text style={{ fontSize: 11, color: colors.textSecondary }}>{ag.agency.address}</Text> : null}
               </View>
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 <TouchableOpacity onPress={() => { setEditAgency(ag.agency); setEditName(ag.agency.name); setEditAddr(ag.agency.address || ''); }}
@@ -164,8 +164,8 @@ function CompanyAgences({ token }: { token: string }) {
             </View>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
               <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{ag.prescriber_count}</Text>
-                <Text style={{ fontSize: 9, color: 'rgba(255,255,255,0.50)' }}>prescripteurs</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: colors.textPrimary }}>{ag.prescriber_count}</Text>
+                <Text style={{ fontSize: 9, color: colors.textSecondary }}>prescripteurs</Text>
               </View>
               <View style={{ flex: 1, backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
                 <Text style={{ fontSize: 18, fontWeight: '900', color: '#10B981' }}>{ag.comm_validated}</Text>
@@ -183,8 +183,8 @@ function CompanyAgences({ token }: { token: string }) {
                 <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#4CAF5015', justifyContent: 'center', alignItems: 'center' }}>
                   <Ionicons name="person" size={14} color="#4CAF50" />
                 </View>
-                <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{pr.name}</Text>
-                <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{pr.prescription_count} presc.</Text>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: colors.textPrimary, flex: 1 }}>{pr.name}</Text>
+                <Text style={{ fontSize: 11, color: colors.textSecondary }}>{pr.prescription_count} presc.</Text>
                 <Text style={{ fontSize: 11, fontWeight: '700', color: '#10B981' }}>{pr.comm_validated + pr.comm_pending} EUR</Text>
                 <Ionicons name="chevron-forward" size={12} color="#CCC" />
               </TouchableOpacity>
@@ -207,7 +207,7 @@ function CompanyAgences({ token }: { token: string }) {
             {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).map((pr: any) => (
               <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
                 <Ionicons name="person-outline" size={14} color="#888" />
-                <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.92)', flex: 1 }}>{pr.name}</Text>
+                <Text style={{ fontSize: 12, color: colors.textPrimary, flex: 1 }}>{pr.name}</Text>
                 <TouchableOpacity style={{ backgroundColor: '#2196F3', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}
                   onPress={() => setAssignModal(pr)}>
                   <Text style={{ fontSize: 10, fontWeight: '700', color: '#FFF' }}>Assigner</Text>
@@ -221,20 +221,20 @@ function CompanyAgences({ token }: { token: string }) {
       {/* Create agency modal */}
       {showCreate && (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
-            <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginBottom: 16 }}>Nouvelle agence</Text>
-            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Nom de l'agence</Text>
+          <View style={{ backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: colors.textPrimary, marginBottom: 16 }}>Nouvelle agence</Text>
+            <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 4 }}>Nom de l'agence</Text>
             <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 12 }}
               placeholder="Ex: Agence Paris Nord" value={newName} onChangeText={setNewName} />
-            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Adresse</Text>
+            <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 4 }}>Adresse</Text>
             <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 16 }}
               placeholder="Ex: 12 rue de la Paix, 75001 Paris" value={newAddr} onChangeText={setNewAddr} />
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TouchableOpacity style={{ flex: 1, padding: 14, alignItems: 'center', borderRadius: 12, borderWidth: 1, borderColor: '#E0E0E0' }} onPress={() => setShowCreate(false)}>
-                <Text style={{ color: 'rgba(255,255,255,0.50)', fontWeight: '600' }}>Annuler</Text>
+                <Text style={{ color: colors.textSecondary, fontWeight: '600' }}>Annuler</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, backgroundColor: '#000', padding: 14, alignItems: 'center', borderRadius: 12 }} onPress={createAgency} disabled={creating}>
-                {creating ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>Creer</Text>}
+              <TouchableOpacity style={{ flex: 1, backgroundColor: colors.background, padding: 14, alignItems: 'center', borderRadius: 12 }} onPress={createAgency} disabled={creating}>
+                {creating ? <ActivityIndicator color={colors.textPrimary} /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>Creer</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -244,19 +244,19 @@ function CompanyAgences({ token }: { token: string }) {
       {/* Edit agency modal */}
       {editAgency && (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
-            <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginBottom: 16 }}>Modifier l'agence</Text>
-            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Nom</Text>
+          <View style={{ backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: colors.textPrimary, marginBottom: 16 }}>Modifier l'agence</Text>
+            <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 4 }}>Nom</Text>
             <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 12 }}
               value={editName} onChangeText={setEditName} />
-            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Adresse</Text>
+            <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 4 }}>Adresse</Text>
             <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 16 }}
               value={editAddr} onChangeText={setEditAddr} />
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TouchableOpacity style={{ flex: 1, padding: 14, alignItems: 'center', borderRadius: 12, borderWidth: 1, borderColor: '#E0E0E0' }} onPress={() => setEditAgency(null)}>
-                <Text style={{ color: 'rgba(255,255,255,0.50)', fontWeight: '600' }}>Annuler</Text>
+                <Text style={{ color: colors.textSecondary, fontWeight: '600' }}>Annuler</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, backgroundColor: '#000', padding: 14, alignItems: 'center', borderRadius: 12 }} onPress={async () => {
+              <TouchableOpacity style={{ flex: 1, backgroundColor: colors.background, padding: 14, alignItems: 'center', borderRadius: 12 }} onPress={async () => {
                 await apiFetch(`/api/company/agencies/${editAgency.id}`, { method: 'PUT', body: JSON.stringify({ name: editName.trim(), address: editAddr.trim() }) }, token);
                 setEditAgency(null); fetchData();
               }}>
@@ -270,31 +270,31 @@ function CompanyAgences({ token }: { token: string }) {
       {/* Assign modal - for unassigned OR for adding to specific agency */}
       {assignModal && (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
+          <View style={{ backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
             {assignModal.targetAgencyId ? (
               <>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginBottom: 4 }}>Gerer {assignModal.targetAgencyName}</Text>
-                <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 16 }}>Prescripteurs non assignes</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: colors.textPrimary, marginBottom: 4 }}>Gerer {assignModal.targetAgencyName}</Text>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 16 }}>Prescripteurs non assignes</Text>
                 {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).map((pr: any) => (
                   <TouchableOpacity key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}
                     onPress={() => assignToAgency(pr.id, assignModal.targetAgencyId)}>
                     <Ionicons name="person-outline" size={18} color="#4CAF50" />
-                    <Text style={{ fontSize: 15, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{pr.name}</Text>
+                    <Text style={{ fontSize: 15, fontWeight: '600', color: colors.textPrimary, flex: 1 }}>{pr.name}</Text>
                     <Ionicons name="add-circle-outline" size={18} color="#2196F3" />
                   </TouchableOpacity>
                 ))}
                 {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).length === 0 && (
-                  <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', textAlign: 'center', paddingVertical: 12 }}>Tous les prescripteurs sont deja assignes</Text>
+                  <Text style={{ fontSize: 13, color: colors.textSecondary, textAlign: 'center', paddingVertical: 12 }}>Tous les prescripteurs sont deja assignes</Text>
                 )}
                 {/* Show currently assigned prescribers with remove option */}
                 {(data.prescriber_ranking || []).filter((p: any) => p.agency_id === assignModal.targetAgencyId).length > 0 && (
                   <>
                     <View style={{ height: 1, backgroundColor: 'rgba(0,0,0,0.08)', marginVertical: 12 }} />
-                    <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 8 }}>Prescripteurs dans cette agence</Text>
+                    <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 8 }}>Prescripteurs dans cette agence</Text>
                     {(data.prescriber_ranking || []).filter((p: any) => p.agency_id === assignModal.targetAgencyId).map((pr: any) => (
                       <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
                         <Ionicons name="person" size={18} color="#4CAF50" />
-                        <Text style={{ fontSize: 14, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{pr.name}</Text>
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, flex: 1 }}>{pr.name}</Text>
                         <TouchableOpacity style={{ backgroundColor: '#FFEBEE', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}
                           onPress={() => { assignToAgency(pr.id, null); }}>
                           <Text style={{ fontSize: 10, fontWeight: '700', color: '#E53935' }}>Retirer</Text>
@@ -306,20 +306,20 @@ function CompanyAgences({ token }: { token: string }) {
               </>
             ) : (
               <>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginBottom: 4 }}>Assigner {assignModal.name}</Text>
-                <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 16 }}>Choisissez une agence</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: colors.textPrimary, marginBottom: 4 }}>Assigner {assignModal.name}</Text>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 16 }}>Choisissez une agence</Text>
                 {(data.agencies || []).map((ag: any) => (
                   <TouchableOpacity key={ag.agency.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}
                     onPress={() => assignToAgency(assignModal.id, ag.agency.id)}>
                     <Ionicons name="business-outline" size={18} color="#FF9800" />
-                    <Text style={{ fontSize: 15, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{ag.agency.name}</Text>
+                    <Text style={{ fontSize: 15, fontWeight: '600', color: colors.textPrimary, flex: 1 }}>{ag.agency.name}</Text>
                     <Ionicons name="chevron-forward" size={16} color="#888" />
                   </TouchableOpacity>
                 ))}
               </>
             )}
             <TouchableOpacity style={{ padding: 14, alignItems: 'center', marginTop: 10 }} onPress={() => setAssignModal(null)}>
-              <Text style={{ color: 'rgba(255,255,255,0.50)', fontWeight: '600' }}>Fermer</Text>
+              <Text style={{ color: colors.textSecondary, fontWeight: '600' }}>Fermer</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -374,7 +374,7 @@ export default function HealthScreen() {
   ] : [];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#000' }} testID="health-screen">
+    <View style={{ flex: 1, backgroundColor: colors.background }} testID="health-screen">
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={colors.primary} />} showsVerticalScrollIndicator={false}>
         <Text style={{ fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginTop: 16, marginBottom: 8, letterSpacing: -0.5 }}>Sante</Text>
         <Text style={{ fontSize: 13, color: colors.textMuted, marginBottom: 16 }}>Suivi de vos constantes en temps reel</Text>

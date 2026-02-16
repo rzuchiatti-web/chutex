@@ -101,7 +101,7 @@ export default function SubscriptionScreen() {
         <View style={[s.subCard, { backgroundColor: isCare ? '#7B1FA2' : hasSubscription ? Colors.primary : Colors.textMuted }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={s.subIcon}>
-              <Ionicons name={hasSubscription ? "shield-checkmark" : "shield-outline"} size={32} color="#FFF" />
+              <Ionicons name={hasSubscription ? "shield-checkmark" : "shield-outline"} size={32} color={colors.textPrimary} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.subType}>
@@ -114,7 +114,7 @@ export default function SubscriptionScreen() {
           </View>
           {isCare && (
             <View style={s.careFeature}>
-              <Ionicons name="call" size={16} color="#FFF" />
+              <Ionicons name="call" size={16} color={colors.textPrimary} />
               <Text style={s.careFeatureT}>Teleassistance IA active</Text>
             </View>
           )}
@@ -125,7 +125,7 @@ export default function SubscriptionScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={s.sectionTitle}>Mes gardiens</Text>
             <TouchableOpacity style={s.addGuardianBtn} onPress={() => { setShowAddGuardian(true); setAddResult(null); setGuardianPhone(''); }} data-testid="add-guardian-btn">
-              <Ionicons name="add" size={16} color="#FFF" />
+              <Ionicons name="add" size={16} color={colors.textPrimary} />
               <Text style={s.addGuardianBtnT}>Ajouter</Text>
             </TouchableOpacity>
           </View>
@@ -206,7 +206,7 @@ export default function SubscriptionScreen() {
             await apiFetch('/api/alerts/sos', { method: 'POST' }, token);
           } catch {}
         }} data-testid="subscription-sos-btn">
-          <Ionicons name="alert-circle" size={24} color="#FFF" />
+          <Ionicons name="alert-circle" size={24} color={colors.textPrimary} />
           <Text style={s.sosBtnT}>SOS Urgence</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -256,7 +256,7 @@ export default function SubscriptionScreen() {
                 <Text style={s.modalCancelBtnT}>Annuler</Text>
               </TouchableOpacity>
               <TouchableOpacity style={s.modalConfirmBtn} onPress={addGuardian} disabled={adding || !guardianPhone.trim()} data-testid="confirm-add-guardian">
-                {adding ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={s.modalConfirmBtnT}>Ajouter</Text>}
+                {adding ? <ActivityIndicator color={colors.textPrimary} size="small" /> : <Text style={s.modalConfirmBtnT}>Ajouter</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -280,11 +280,11 @@ const s = StyleSheet.create({
   subIcon: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
   subType: { fontSize: 20, fontWeight: '900', color: '#FFF' },
   subDesc: { fontSize: 13, color: '#FFF', opacity: 0.8, marginTop: 2 },
-  careFeature: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 10, padding: 10, marginTop: 14 },
+  careFeature: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.secondary, borderRadius: 10, padding: 10, marginTop: 14 },
   careFeatureT: { fontSize: 13, fontWeight: '700', color: '#FFF' },
   // Guardians
   guardianCount: { fontSize: 12, color: Colors.textMuted },
-  guardianRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  guardianRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.borderLight },
   orderBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
   orderBadgeT: { fontSize: 13, fontWeight: '800', color: '#FFF' },
   guardianName: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },

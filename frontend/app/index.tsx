@@ -31,7 +31,7 @@ const ClinicInput = ({ testID, label, val, onChange, placeholder, type }: any) =
           style={{
             width: '100%', fontSize: 15, fontFamily: 'system-ui, Inter, sans-serif', fontWeight: '500',
             padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.10)',
-            background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.92)',
+            background: 'rgba(255,255,255,0.04)', color: colors.textPrimary,
             boxSizing: 'border-box' as any, outline: 'none', transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
           } as any}
           onFocus={(e: any) => { e.target.style.borderColor = 'rgba(255,255,255,0.25)'; e.target.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.04)'; }}
@@ -47,7 +47,7 @@ const ClinicInput = ({ testID, label, val, onChange, placeholder, type }: any) =
       <RNTextInput testID={testID} value={val} onChangeText={onChange} placeholder={placeholder}
         placeholderTextColor="rgba(255,255,255,0.25)" secureTextEntry={type === 'password'}
         autoCapitalize="none" keyboardType={type === 'email' ? 'email-address' : type === 'tel' ? 'phone-pad' : 'default'}
-        style={{ fontSize: 15, padding: 14, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.04)', color: Palette.text, borderWidth: 1, borderColor: Palette.line }} />
+        style={{ fontSize: 15, padding: 14, borderRadius: 14, backgroundColor: colors.surface, color: Palette.text, borderWidth: 1, borderColor: Palette.line }} />
     </View>
   );
 };
@@ -110,7 +110,7 @@ export default function AuthScreen() {
   }, []);
 
   if (loading || user || !onboardingChecked) {
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}><ActivityIndicator size="large" color={colors.textPrimary} /></View>;
   }
 
   const handleLogin = async () => {
@@ -141,7 +141,7 @@ export default function AuthScreen() {
       style={[{
         paddingVertical: 16, borderRadius: Radius.full, alignItems: 'center',
       }, outline
-        ? { backgroundColor: 'rgba(255,255,255,0.04)', flex: 1, borderWidth: 1, borderColor: Palette.line }
+        ? { backgroundColor: colors.surface, flex: 1, borderWidth: 1, borderColor: Palette.line }
         : { backgroundColor: '#FFFFFF', ...webGlow }
       ]}>
       {ld ? <ActivityIndicator color={outline ? Palette.textMuted : '#000'} />
@@ -150,7 +150,7 @@ export default function AuthScreen() {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }} data-testid="auth-screen">
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} data-testid="auth-screen">
       <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40, flexGrow: 1, maxWidth: 420, width: '100%', alignSelf: 'center' }}
           keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
@@ -165,7 +165,7 @@ export default function AuthScreen() {
 
           {/* Glass card container */}
           <View style={{
-            backgroundColor: 'rgba(255,255,255,0.03)',
+            backgroundColor: colors.surface,
             borderRadius: Radius.lg,
             borderWidth: 1,
             borderColor: Palette.line,
@@ -178,16 +178,16 @@ export default function AuthScreen() {
             <HudCorner pos="tl" /><HudCorner pos="tr" /><HudCorner pos="bl" /><HudCorner pos="br" />
 
             {/* Tab selector */}
-            <View style={{ flexDirection: 'row', marginBottom: 24, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: Radius.full, padding: 3, borderWidth: 1, borderColor: Palette.lineFaint }}>
+            <View style={{ flexDirection: 'row', marginBottom: 24, backgroundColor: colors.surface, borderRadius: Radius.full, padding: 3, borderWidth: 1, borderColor: Palette.lineFaint }}>
               <TouchableOpacity testID="auth-tab-login"
                 style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.full },
-                  isLogin && { backgroundColor: 'rgba(255,255,255,0.10)' }]}
+                  isLogin && { backgroundColor: colors.secondary }]}
                 onPress={() => { setIsLogin(true); setStep(0); setError(''); }}>
                 <Text style={{ fontSize: 13, fontWeight: '700', color: isLogin ? Palette.text : Palette.textDim }}>Connexion</Text>
               </TouchableOpacity>
               <TouchableOpacity testID="auth-tab-register"
                 style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.full },
-                  !isLogin && { backgroundColor: 'rgba(255,255,255,0.10)' }]}
+                  !isLogin && { backgroundColor: colors.secondary }]}
                 onPress={() => { setIsLogin(false); setStep(0); setError(''); }}>
                 <Text style={{ fontSize: 13, fontWeight: '700', color: !isLogin ? Palette.text : Palette.textDim }}>Inscription</Text>
               </TouchableOpacity>

@@ -57,7 +57,7 @@ export default function ECGScreen() {
 
           {!recording && !result && (
             <TouchableOpacity testID="start-ecg-btn" style={s.startBtn} onPress={startECG}>
-              <Ionicons name="pulse" size={18} color="#FFF" /><Text style={s.startBtnT}>Démarrer l'ECG</Text>
+              <Ionicons name="pulse" size={18} color={colors.textPrimary} /><Text style={s.startBtnT}>Démarrer l'ECG</Text>
             </TouchableOpacity>
           )}
         </View>

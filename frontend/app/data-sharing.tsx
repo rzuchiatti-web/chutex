@@ -90,7 +90,7 @@ export default function DataSharingScreen() {
         ))}
 
         <TouchableOpacity data-testid="save-sharing-btn" style={s.saveBtn} onPress={save} disabled={saving}>
-          {saving ? <ActivityIndicator color="#FFF" /> : <Text style={s.saveBtnT}>Enregistrer</Text>}
+          {saving ? <ActivityIndicator color={colors.textPrimary} /> : <Text style={s.saveBtnT}>Enregistrer</Text>}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

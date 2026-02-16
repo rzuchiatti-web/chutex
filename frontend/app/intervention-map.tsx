@@ -9,7 +9,7 @@ import { apiFetch } from '../src/services/api';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+  <View style={[{ backgroundColor: colors.surface, borderRadius: 22, borderWidth: 1, borderColor: colors.border, padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
 
 export default function InterventionMapScreen() {
@@ -39,8 +39,8 @@ export default function InterventionMapScreen() {
     Linking.openURL(url).catch(() => Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`));
   };
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
-  if (!iv) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.50)' }}>Intervention non trouvee</Text></SafeAreaView>;
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={colors.textPrimary} /></SafeAreaView>;
+  if (!iv) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: colors.textSecondary }}>Intervention non trouvee</Text></SafeAreaView>;
 
   const ben = iv.beneficiary_info || {};
   const benLoc = iv.beneficiary_location || {};
@@ -49,12 +49,12 @@ export default function InterventionMapScreen() {
   const statusColor = iv.status === 'pending_acceptance' ? '#FF9800' : iv.status === 'in_progress' ? '#4CAF50' : '#000';
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }} testID="intervention-map-screen">
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} testID="intervention-map-screen">
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity testID="map-back-btn" onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-          <Ionicons name="chevron-back" size={24} color="#FFF" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Suivi intervention</Text>
+        <Text style={{ flex: 1, fontSize: 20, fontWeight: '900', color: colors.textPrimary }}>Suivi intervention</Text>
         <View style={{ backgroundColor: statusColor + '20', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 9999 }}>
           <Text style={{ fontSize: 11, fontWeight: '800', color: statusColor, textTransform: 'uppercase' }}>{statusLabel}</Text>
         </View>
@@ -72,11 +72,11 @@ export default function InterventionMapScreen() {
           ) : (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.03)' }}>
               <Ionicons name="map-outline" size={60} color="#888" />
-              <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.50)', marginTop: 10 }}>Carte de suivi</Text>
+              <Text style={{ fontSize: 14, color: colors.textSecondary, marginTop: 10 }}>Carte de suivi</Text>
               {benLoc.latitude && (
                 <TouchableOpacity
                   testID="open-maps-btn"
-                  style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, paddingHorizontal: 24, marginTop: 16 }}
+                  style={{ backgroundColor: colors.background, borderRadius: 9999, paddingVertical: 12, paddingHorizontal: 24, marginTop: 16 }}
                   onPress={() => openMaps(benLoc.latitude, benLoc.longitude)}>
                   <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>OUVRIR DANS MAPS</Text>
                 </TouchableOpacity>
@@ -91,26 +91,26 @@ export default function InterventionMapScreen() {
             <Ionicons name="car" size={24} color={statusColor} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 1 }}>TEMPS ESTIME</Text>
-            <Text style={{ fontSize: 24, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{iv.distance_km ? `~${Math.ceil(iv.distance_km * 2)} min` : '--'}</Text>
-            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{iv.distance_km ? `${iv.distance_km} km` : 'Distance inconnue'}</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>TEMPS ESTIME</Text>
+            <Text style={{ fontSize: 24, fontWeight: '900', color: colors.textPrimary }}>{iv.distance_km ? `~${Math.ceil(iv.distance_km * 2)} min` : '--'}</Text>
+            <Text style={{ fontSize: 12, color: colors.textSecondary }}>{iv.distance_km ? `${iv.distance_km} km` : 'Distance inconnue'}</Text>
           </View>
           <View style={{ alignItems: 'center' }}>
             <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: iv.status === 'in_progress' ? '#4CAF50' : '#FF9800' }} />
-            <Text style={{ fontSize: 9, color: 'rgba(255,255,255,0.50)', marginTop: 4, textTransform: 'uppercase' }}>{iv.status === 'in_progress' ? 'EN ROUTE' : 'EN ATTENTE'}</Text>
+            <Text style={{ fontSize: 9, color: colors.textSecondary, marginTop: 4, textTransform: 'uppercase' }}>{iv.status === 'in_progress' ? 'EN ROUTE' : 'EN ATTENTE'}</Text>
           </View>
         </GlassCard>
 
         {/* Beneficiary */}
         <GlassCard>
-          <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>BENEFICIAIRE</Text>
+          <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>BENEFICIAIRE</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ width: 50, height: 50, borderRadius: 25, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
               <Text style={{ fontSize: 22, fontWeight: '800' }}>{ben.name?.charAt(0) || '?'}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{ben.name || iv.beneficiary_name}</Text>
-              {ben.phone && <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{ben.phone}</Text>}
+              <Text style={{ fontSize: 18, fontWeight: '800', color: colors.textPrimary }}>{ben.name || iv.beneficiary_name}</Text>
+              {ben.phone && <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>{ben.phone}</Text>}
               {ben.address && <Text style={{ fontSize: 12, color: '#555', marginTop: 2 }}>{ben.address}</Text>}
             </View>
           </View>
@@ -125,7 +125,7 @@ export default function InterventionMapScreen() {
               testID="call-beneficiary-btn"
               style={{ backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 12 }}
               onPress={() => Linking.openURL(`tel:${ben.phone}`)}>
-              <Ionicons name="call" size={16} color="#FFF" />
+              <Ionicons name="call" size={16} color={colors.textPrimary} />
               <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>APPELER</Text>
             </TouchableOpacity>
           )}
@@ -134,14 +134,14 @@ export default function InterventionMapScreen() {
         {/* Intervener Info */}
         {iv.assigned_name && (
           <GlassCard>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>INTERVENANT</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>INTERVENANT</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.assigned_name?.charAt(0)}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{iv.assigned_name}</Text>
-                {iv.structure_name && <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{iv.structure_name}</Text>}
+                <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>{iv.assigned_name}</Text>
+                {iv.structure_name && <Text style={{ fontSize: 12, color: colors.textSecondary }}>{iv.structure_name}</Text>}
               </View>
             </View>
           </GlassCard>
@@ -150,17 +150,17 @@ export default function InterventionMapScreen() {
         {/* Alert Info */}
         <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#E53935' }}>
           <Text style={{ fontSize: 11, fontWeight: '700', color: '#E53935', textTransform: 'uppercase', letterSpacing: 1 }}>ALERTE DECLENCHANTE</Text>
-          <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginTop: 6 }}>{iv.alert_message || 'SOS'}</Text>
-          <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 4 }}>{new Date(iv.created_at).toLocaleString('fr-FR')}</Text>
+          <Text style={{ fontSize: 16, fontWeight: '900', color: colors.textPrimary, marginTop: 6 }}>{iv.alert_message || 'SOS'}</Text>
+          <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>{new Date(iv.created_at).toLocaleString('fr-FR')}</Text>
         </GlassCard>
 
         {/* Navigation Button */}
         {benLoc.latitude && (
           <TouchableOpacity
             testID="navigate-btn"
-            style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 8, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }}
+            style={{ backgroundColor: colors.background, borderRadius: 9999, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 8, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }}
             onPress={() => openMaps(benLoc.latitude, benLoc.longitude)}>
-            <Ionicons name="navigate" size={20} color="#FFF" />
+            <Ionicons name="navigate" size={20} color={colors.textPrimary} />
             <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 }}>LANCER LA NAVIGATION</Text>
           </TouchableOpacity>
         )}
@@ -170,8 +170,8 @@ export default function InterventionMapScreen() {
           testID="back-to-detail-btn"
           style={{ borderRadius: 9999, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, borderWidth: 2, borderColor: '#000' }}
           onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: interventionId } })}>
-          <Ionicons name="document-text-outline" size={16} color="#FFF" />
-          <Text style={{ color: 'rgba(255,255,255,0.92)', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' }}>DETAIL DE L'INTERVENTION</Text>
+          <Ionicons name="document-text-outline" size={16} color={colors.textPrimary} />
+          <Text style={{ color: colors.textPrimary, fontSize: 14, fontWeight: '800', textTransform: 'uppercase' }}>DETAIL DE L'INTERVENTION</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

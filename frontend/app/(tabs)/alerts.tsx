@@ -8,7 +8,7 @@ import { ContextualTip, HelpBubble, PageExplainer, MiniTuto } from '../../src/co
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+  <View style={[{ backgroundColor: colors.surface, borderRadius: 22, borderWidth: 1, borderColor: colors.border, padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
 
 /* ===== COMPANY: PRESCRIBERS LIST ===== */
@@ -25,7 +25,7 @@ function CompanyPrescribers({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}><ActivityIndicator size="large" color={colors.textPrimary} /></View>;
   if (!data) return null;
 
   const allPrescribers = data.prescriber_ranking || [];
@@ -34,22 +34,22 @@ function CompanyPrescribers({ token }: { token: string }) {
     : allPrescribers;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#000' }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', letterSpacing: -0.5 }}>Prescripteurs</Text>
-        <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{allPrescribers.length} prescripteurs actifs</Text>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: colors.textPrimary, letterSpacing: -0.5 }}>Prescripteurs</Text>
+        <Text style={{ fontSize: 12, color: colors.textSecondary }}>{allPrescribers.length} prescripteurs actifs</Text>
       </View>
       {/* Search */}
       <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', ...glass }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: colors.border, ...glass }}>
           <Ionicons name="search-outline" size={16} color="#888" />
-          <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: 'rgba(255,255,255,0.92)' }}
+          <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: colors.textPrimary }}
             placeholder="Rechercher un prescripteur..." placeholderTextColor="#AAA" value={search} onChangeText={setSearch} />
           {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Ionicons name="close-circle" size={16} color="#AAA" /></TouchableOpacity>}
         </View>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#FFF" />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={colors.textPrimary} />}>
         {prescribers.map((pr: any, idx: number) => (
           <TouchableOpacity key={pr.id} activeOpacity={0.7} data-testid={`prescriber-card-${pr.id}`}
             onPress={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })}>
@@ -58,15 +58,15 @@ function CompanyPrescribers({ token }: { token: string }) {
                 <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{pr.name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{pr.name}</Text>
-                <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{pr.email}</Text>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>{pr.name}</Text>
+                <Text style={{ fontSize: 11, color: colors.textSecondary }}>{pr.email}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
                   <Ionicons name="business-outline" size={11} color="#FF9800" />
                   <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '600' }}>{pr.agency_name}</Text>
                 </View>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{pr.prescription_count} presc.</Text>
+                <Text style={{ fontSize: 11, color: colors.textSecondary }}>{pr.prescription_count} presc.</Text>
                 <View style={{ flexDirection: 'row', gap: 6, marginTop: 2 }}>
                   <Text style={{ fontSize: 12, fontWeight: '700', color: '#10B981' }}>{pr.comm_validated}EUR</Text>
                   {pr.comm_pending > 0 && <Text style={{ fontSize: 12, fontWeight: '700', color: '#FF9800' }}>+{pr.comm_pending}</Text>}
@@ -79,7 +79,7 @@ function CompanyPrescribers({ token }: { token: string }) {
         {prescribers.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
             <Ionicons name="people-outline" size={36} color="#CCC" />
-            <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.50)', marginTop: 8 }}>{search ? 'Aucun resultat' : 'Aucun prescripteur'}</Text>
+            <Text style={{ fontSize: 14, color: colors.textSecondary, marginTop: 8 }}>{search ? 'Aucun resultat' : 'Aucun prescripteur'}</Text>
           </View>
         )}
       </ScrollView>
@@ -87,7 +87,7 @@ function CompanyPrescribers({ token }: { token: string }) {
   );
 }
 
-const SEV = { critical: { label: 'CRITIQUE', color: '#E53935' }, high: { label: 'ELEVE', color: '#FF6F00' }, medium: { label: 'MOYEN', color: '#FF9800' }, low: { label: 'FAIBLE', color: 'rgba(255,255,255,0.50)' } };
+const SEV = { critical: { label: 'CRITIQUE', color: '#E53935' }, high: { label: 'ELEVE', color: '#FF6F00' }, medium: { label: 'MOYEN', color: '#FF9800' }, low: { label: 'FAIBLE', color: colors.textSecondary } };
 const TYPE_CFG: Record<string, { icon: string; label: string; color: string }> = {
   sos: { icon: 'alert-circle', label: 'SOS - Urgence', color: '#E53935' },
   fall: { icon: 'trending-down', label: 'Chute detectee', color: '#FF6F00' },
@@ -156,7 +156,7 @@ export default function AlertsScreen() {
 
     return (
       <TouchableOpacity testID={`alert-card-${item.id}`}
-        style={[{ backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', marginBottom: 12, overflow: 'hidden', ...glass },
+        style={[{ backgroundColor: colors.surfaceHighlight, borderRadius: 20, borderWidth: 1, borderColor: colors.border, marginBottom: 12, overflow: 'hidden', ...glass },
           isActive && { borderLeftWidth: 4, borderLeftColor: cfg.color }]}
         onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: item.id } })}>
 
@@ -167,8 +167,8 @@ export default function AlertsScreen() {
               <Ionicons name={cfg.icon as any} size={20} color={cfg.color} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{cfg.label}</Text>
-              <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', marginTop: 1 }}>
+              <Text style={{ fontSize: 15, fontWeight: '800', color: colors.textPrimary }}>{cfg.label}</Text>
+              <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 1 }}>
                 {new Date(item.created_at).toLocaleDateString('fr-FR')} a {new Date(item.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
               </Text>
             </View>
@@ -176,7 +176,7 @@ export default function AlertsScreen() {
               <Text style={{ fontSize: 9, fontWeight: '800', color: sev.color }}>{sev.label}</Text>
             </View>
           </View>
-          <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 18, marginTop: 8 }}>{item.message}</Text>
+          <Text style={{ fontSize: 13, color: colors.textPrimary, lineHeight: 18, marginTop: 8 }}>{item.message}</Text>
         </View>
 
         {/* Beneficiary info */}
@@ -214,7 +214,7 @@ export default function AlertsScreen() {
         {/* Actions */}
         {isActive && (
           <View style={{ flexDirection: 'row', gap: 8, padding: 12, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
-            <TouchableOpacity testID={`resolve-${item.id}`} style={{ flex: 1, backgroundColor: '#000', borderRadius: 9999, paddingVertical: 10, alignItems: 'center' }}
+            <TouchableOpacity testID={`resolve-${item.id}`} style={{ flex: 1, backgroundColor: colors.background, borderRadius: 9999, paddingVertical: 10, alignItems: 'center' }}
               onPress={(e) => { e.stopPropagation(); resolveAlert(item.id); }}>
               <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>RESOUDRE</Text>
             </TouchableOpacity>
@@ -237,9 +237,9 @@ export default function AlertsScreen() {
   };
 
   return (
-    <View key={effectiveRole} style={{ flex: 1, backgroundColor: '#000' }} testID="alerts-screen">
+    <View key={effectiveRole} style={{ flex: 1, backgroundColor: colors.background }} testID="alerts-screen">
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>
-        <Text style={{ fontSize: 28, fontWeight: '900', color: 'rgba(255,255,255,0.92)', letterSpacing: -0.5 }}>Alertes</Text>
+        <Text style={{ fontSize: 28, fontWeight: '900', color: colors.textPrimary, letterSpacing: -0.5 }}>Alertes</Text>
       </View>
       <View style={{ paddingHorizontal: 16 }}>
         <PageExplainer pageId="alerts" title="Comprendre les alertes" sections={[
@@ -248,27 +248,27 @@ export default function AlertsScreen() {
           { icon: 'checkmark-circle-outline', heading: 'Resolution', text: 'Une alerte est resolue quand la situation est maitrisee. Un rapport d\'intervention est alors genere si un intervenant est intervenu.' },
         ]} />
       </View>
-      <View style={{ flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', ...glass }}>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'active' && { backgroundColor: '#000' }]} onPress={() => setTab('active')}>
+      <View style={{ flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: colors.surface, borderRadius: 14, padding: 4, borderWidth: 1, borderColor: colors.border, ...glass }}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'active' && { backgroundColor: colors.background }]} onPress={() => setTab('active')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'active' ? '#FFF' : '#888' }}>Actives ({activeAlerts.length})</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'resolved' && { backgroundColor: '#000' }]} onPress={() => setTab('resolved')}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'resolved' && { backgroundColor: colors.background }]} onPress={() => setTab('resolved')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'resolved' ? '#FFF' : '#888' }}>Resolues ({resolved.length})</Text>
         </TouchableOpacity>
       </View>
       {loading ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={colors.textPrimary} /></View>
       ) : (
         <FlatList data={filtered} renderItem={renderAlert} keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAlerts(); }} tintColor="#FFF" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAlerts(); }} tintColor={colors.textPrimary} />}
           ListEmptyComponent={
-            <View style={[{ alignItems: 'center', paddingVertical: 48, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', ...glass }]}>
+            <View style={[{ alignItems: 'center', paddingVertical: 48, backgroundColor: colors.surface, borderRadius: 22, borderWidth: 1, borderColor: colors.border, ...glass }]}>
               <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(76,175,80,0.1)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
                 <Ionicons name={tab === 'active' ? 'checkmark-circle' : 'archive-outline'} size={28} color="#4CAF50" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{tab === 'active' ? 'Tout va bien !' : 'Aucun historique'}</Text>
-              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>{tab === 'active' ? 'Aucune alerte active. Notre systeme veille sur vous 24h/24. Si une anomalie est detectee, elle apparaitra ici instantanement.' : 'Vos alertes resolues s\'afficheront ici avec leur rapport d\'intervention, pour un suivi medical complet.'}</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>{tab === 'active' ? 'Tout va bien !' : 'Aucun historique'}</Text>
+              <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>{tab === 'active' ? 'Aucune alerte active. Notre systeme veille sur vous 24h/24. Si une anomalie est detectee, elle apparaitra ici instantanement.' : 'Vos alertes resolues s\'afficheront ici avec leur rapport d\'intervention, pour un suivi medical complet.'}</Text>
             </View>
           }
         />
