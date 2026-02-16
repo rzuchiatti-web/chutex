@@ -86,26 +86,68 @@ export default function OnboardingScreen() {
           </div>
         </div>
 
-        {/* Center content */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px' } as any}>
-          <img src={LOGO} alt="Chutex" className="anim-up" style={{ height: 32, width: 'auto', marginBottom: 28 } as any} />
+        {/* Center content — pushed higher */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', position: 'relative', zIndex: 5, padding: '0 28px', paddingTop: '18vh' } as any}>
+          <img src={LOGO} alt="Chutex" className="anim-up" style={{ height: 44, width: 'auto', marginBottom: 32 } as any} />
           <div className="anim-up d2" style={{ textAlign: 'center', maxWidth: 340 } as any}>
             <Typewriter text={slide.title} speed={28} delay={600} color="#FFF" />
           </div>
         </div>
 
-        {/* Bottom button */}
+        {/* Bottom: slide-to-confirm button */}
         <div style={{ padding: '16px 24px 36px', position: 'relative', zIndex: 10 } as any}>
-          <button onClick={next} data-testid="onboarding-next-btn" style={{
-            width: '100%', padding: '18px', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', borderRadius: 999,
-            background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)',
-            color: '#FFF', border: '1px solid rgba(255,255,255,0.25)',
-            boxShadow: '0 0 30px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.15)',
-            position: 'relative', overflow: 'hidden', transition: 'all 0.3s',
-          } as any}>
-            <span style={{ position: 'relative', zIndex: 2 }}>Commencer</span>
-            <span style={{ position: 'absolute', top: 0, left: '-100%', width: '60%', height: '100%', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)', animation: 'scan-sweep 3s ease-in-out infinite', pointerEvents: 'none' } as any} />
-          </button>
+          <div data-testid="onboarding-next-btn" style={{
+            width: '100%', height: 62, borderRadius: 999, position: 'relative', overflow: 'hidden', cursor: 'pointer',
+            background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
+            backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+          } as any}
+            onMouseDown={(e: any) => {
+              const bar = e.currentTarget;
+              const thumb = bar.querySelector('[data-thumb]') as HTMLElement;
+              if (!thumb) return;
+              const rect = bar.getBoundingClientRect();
+              const maxX = rect.width - 56;
+              let startX = e.clientX;
+              const onMove = (ev: any) => {
+                const dx = Math.max(0, Math.min(ev.clientX - startX, maxX));
+                thumb.style.transform = `translateX(${dx}px)`;
+                if (dx > maxX * 0.85) { thumb.style.transform = `translateX(${maxX}px)`; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); next(); }
+              };
+              const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s ease'; setTimeout(() => { thumb.style.transition = ''; }, 300); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+              document.addEventListener('mousemove', onMove);
+              document.addEventListener('mouseup', onUp);
+            }}
+            onTouchStart={(e: any) => {
+              const bar = e.currentTarget;
+              const thumb = bar.querySelector('[data-thumb]') as HTMLElement;
+              if (!thumb) return;
+              const rect = bar.getBoundingClientRect();
+              const maxX = rect.width - 56;
+              const startX = e.touches[0].clientX;
+              const onMove = (ev: any) => {
+                const dx = Math.max(0, Math.min(ev.touches[0].clientX - startX, maxX));
+                thumb.style.transform = `translateX(${dx}px)`;
+                if (dx > maxX * 0.85) { thumb.style.transform = `translateX(${maxX}px)`; bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); next(); }
+              };
+              const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s ease'; setTimeout(() => { thumb.style.transition = ''; }, 300); bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); };
+              bar.addEventListener('touchmove', onMove, { passive: true });
+              bar.addEventListener('touchend', onUp);
+            }}
+          >
+            {/* Thumb */}
+            <div data-thumb style={{
+              position: 'absolute', top: 4, left: 4, width: 54, height: 54, borderRadius: 999,
+              background: 'rgba(255,255,255,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+              willChange: 'transform', touchAction: 'none',
+            } as any}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+            {/* Label */}
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.7)', fontSize: 15, fontWeight: 600, pointerEvents: 'none', paddingLeft: 40 } as any}>
+              Glisser pour commencer
+            </div>
+          </div>
         </div>
 
         <style>{`@keyframes scan-line { 0%{transform:translateY(-60%);opacity:0} 15%{opacity:0.25} 50%{opacity:0.4} 85%{opacity:0.25} 100%{transform:translateY(60%);opacity:0} }`}</style>
