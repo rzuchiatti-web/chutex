@@ -279,10 +279,13 @@ export default function AuthScreen() {
   );
 
   return (
-    <View style={{ flex: 1 }} data-testid="auth-screen">
+    <View style={{ flex: 1, backgroundColor: 'transparent' }} data-testid="auth-screen">
       {/* BG Image — clearly visible, the glass panels handle contrast */}
       {Platform.OS === 'web' ? (
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${BG})`, backgroundSize: 'cover', backgroundPosition: 'center 35%' } as any} />
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 0, backgroundImage: `url(${BG})`, backgroundSize: 'cover', backgroundPosition: 'center 35%' } as any} />
+          <div style={{ position: 'fixed', inset: 0, zIndex: 1, background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.35) 100%)' } as any} />
+        </>
       ) : (
         <Image source={{ uri: BG }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }} resizeMode="cover" />
       )}
