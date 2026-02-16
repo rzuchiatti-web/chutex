@@ -16,12 +16,12 @@ const ClinicInput = ({ testID, label, val, onChange, placeholder, type, colors, 
         <input data-testid={testID} type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
           style={{
             width: '100%', fontSize: 15, fontFamily: 'system-ui, Inter, sans-serif', fontWeight: '500',
-            padding: '14px 16px', borderRadius: 14, border: `1px solid ${colors.inputBorder}`,
+            padding: '14px 16px', borderRadius: 14, border: `1px solid ${'rgba(0,0,0,0.08)'}`,
             background: colors.inputBg, color: '#1A1D21',
             boxSizing: 'border-box' as any, outline: 'none', transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
           } as any}
           onFocus={(e: any) => { e.target.style.borderColor = colors.textSecondary; }}
-          onBlur={(e: any) => { e.target.style.borderColor = colors.inputBorder; }}
+          onBlur={(e: any) => { e.target.style.borderColor = 'rgba(0,0,0,0.08)'; }}
         />
       </div>
     );
@@ -33,7 +33,7 @@ const ClinicInput = ({ testID, label, val, onChange, placeholder, type, colors, 
       <RNTextInput testID={testID} value={val} onChangeText={onChange} placeholder={placeholder}
         placeholderTextColor={colors.textMuted} secureTextEntry={type === 'password'}
         autoCapitalize="none" keyboardType={type === 'email' ? 'email-address' : type === 'tel' ? 'phone-pad' : 'default'}
-        style={{ fontSize: 15, padding: 14, borderRadius: 14, backgroundColor: colors.inputBg, color: '#1A1D21', borderWidth: 1, borderColor: colors.inputBorder }} />
+        style={{ fontSize: 15, padding: 14, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.02)', color: '#1A1D21', borderWidth: 1, borderColor: 'rgba(0,0,0,0.08)' }} />
     </View>
   );
 };
@@ -122,7 +122,7 @@ export default function AuthScreen() {
     <TouchableOpacity testID={testID} disabled={ld} onPress={onPress} activeOpacity={0.8}
       style={[{ paddingVertical: 16, borderRadius: Radius.full, alignItems: 'center' },
         outline ? { backgroundColor: 'rgba(0,0,0,0.04)', flex: 1, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }
-               : { backgroundColor: colors.buttonBg }
+               : { backgroundColor: '#1A1D21' }
       ]}>
       {ld ? <ActivityIndicator color={outline ? colors.textMuted : colors.buttonText} />
         : <Text style={{ color: outline ? colors.textSecondary : colors.buttonText, fontSize: 15, fontWeight: '700' }}>{label}</Text>}

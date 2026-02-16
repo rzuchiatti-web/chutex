@@ -375,7 +375,7 @@ export default function HealthScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6F8' }} testID="health-screen">
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={colors.primary} />} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#1A1D21" />} showsVerticalScrollIndicator={false}>
         <Text style={{ fontSize: 28, fontWeight: '800', color: '#1A1D21', marginTop: 16, marginBottom: 8, letterSpacing: -0.5 }}>Sante</Text>
         <Text style={{ fontSize: 13, color: '#9BA3AD', marginBottom: 16 }}>Suivi de vos constantes en temps reel</Text>
         <PageExplainer pageId="health" title="Comprendre vos donnees de sante" sections={[
@@ -385,7 +385,7 @@ export default function HealthScreen() {
         ]} />
 
         {loading ? (
-          <View style={{ paddingVertical: 60, alignItems: 'center' }}><ActivityIndicator size="large" color={colors.primary} /></View>
+          <View style={{ paddingVertical: 60, alignItems: 'center' }}><ActivityIndicator size="large" color="#1A1D21" /></View>
         ) : vitals ? (
           <>
             {metrics.map(m => (
@@ -411,11 +411,11 @@ export default function HealthScreen() {
             <Text style={{ fontSize: 17, fontWeight: '700', color: '#1A1D21', marginTop: 12, marginBottom: 12, letterSpacing: -0.3 }}>Examens</Text>
             <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', alignItems: 'center', gap: 8 }} onPress={() => router.push('/ecg')}>
-                <Ionicons name="pulse-outline" size={28} color={colors.primary} />
+                <Ionicons name="pulse-outline" size={28} color="#1A1D21" />
                 <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A1D21' }}>ECG</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', alignItems: 'center', gap: 8 }} onPress={() => router.push('/sleep')}>
-                <Ionicons name="moon-outline" size={28} color={colors.primary} />
+                <Ionicons name="moon-outline" size={28} color="#1A1D21" />
                 <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A1D21' }}>Sommeil</Text>
               </TouchableOpacity>
             </View>
@@ -425,7 +425,7 @@ export default function HealthScreen() {
             <MaterialCommunityIcons name="bluetooth-off" size={40} color="#9BA3AD" />
             <Text style={{ fontSize: 17, fontWeight: '700', color: '#1A1D21', marginTop: 16 }}>Aucune donnee</Text>
             <Text style={{ fontSize: 13, color: '#9BA3AD', marginTop: 6, textAlign: 'center' }}>Connectez votre bracelet pour suivre vos constantes</Text>
-            <TouchableOpacity style={{ marginTop: 20, backgroundColor: colors.primary, paddingVertical: 12, paddingHorizontal: 24, borderRadius: 9999 }} onPress={() => router.push('/bracelet-connect')}>
+            <TouchableOpacity style={{ marginTop: 20, backgroundColor: '#1A1D21', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 9999 }} onPress={() => router.push('/bracelet-connect')}>
               <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 14 }}>Connecter le bracelet</Text>
             </TouchableOpacity>
           </View>
