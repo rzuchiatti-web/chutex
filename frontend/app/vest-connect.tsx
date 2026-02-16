@@ -203,9 +203,9 @@ export default function VestConnectScreen() {
           <TouchableOpacity style={s.pairBtn} onPress={connectVest}
             disabled={bleStatus === 'scanning' || bleStatus === 'connecting'}>
             {bleStatus === 'scanning' || bleStatus === 'connecting' ? (
-              <><ActivityIndicator color="#1E1F24" size="small" /><Text style={s.pairBtnT}>Recherche...</Text></>
+              <><ActivityIndicator color="#111827" size="small" /><Text style={s.pairBtnT}>Recherche...</Text></>
             ) : (
-              <><Icon name="bluetooth" size={20} color="#1E1F24" /><Text style={s.pairBtnT}>Appairer un gilet</Text></>
+              <><Icon name="bluetooth" size={20} color="#111827" /><Text style={s.pairBtnT}>Appairer un gilet</Text></>
             )}
           </TouchableOpacity>
         </View>
@@ -231,7 +231,7 @@ export default function VestConnectScreen() {
         {/* SOS Banner */}
         {sosTriggered && (
           <View style={s.sosCard}>
-            <Icon name="warning" size={24} color="#1E1F24" />
+            <Icon name="warning" size={24} color="#111827" />
             <View style={{ flex: 1, marginLeft: 10 }}>
               <Text style={s.sosTitle}>CHUTE DETECTEE</Text>
               <Text style={s.sosDesc}>Les gardiens ont ete alertes.</Text>

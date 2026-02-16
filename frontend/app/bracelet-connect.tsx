@@ -300,7 +300,7 @@ export default function BraceletConnectScreen() {
         <Text style={s.emptyTitle}>Aucun bracelet connecte</Text>
         <Text style={s.emptyDesc}>Connectez votre bracelet Elio via Bluetooth pour suivre vos constantes de sante.</Text>
         <TouchableOpacity style={s.pairBtn} onPress={connectBracelet}>
-          <Icon name="bluetooth" size={20} color="#1E1F24" /><Text style={s.pairBtnT}>Appairer le bracelet</Text>
+          <Icon name="bluetooth" size={20} color="#111827" /><Text style={s.pairBtnT}>Appairer le bracelet</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

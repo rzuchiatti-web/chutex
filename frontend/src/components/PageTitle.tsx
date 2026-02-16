@@ -39,22 +39,22 @@ export function PageTitle({ kicker, title, subtitle }: PageTitleProps) {
   return (
     <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }], paddingHorizontal: 4, marginBottom: 20 }}>
       {kicker && (
-        <Text style={{ fontSize: 10, fontWeight: '700', color: '#9BA3AD', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>
+        <Text style={{ fontSize: 10, fontWeight: '700', color: '#9CA3AF', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>
           {kicker}
         </Text>
       )}
-      <Text style={{ fontSize: 30, fontWeight: '800', color: '#1A1D21', letterSpacing: -0.8, lineHeight: 34 }}>
+      <Text style={{ fontSize: 30, fontWeight: '800', color: '#111827', letterSpacing: -0.8, lineHeight: 34 }}>
         {displayed}
         {showCaret && (
           <Text style={{
-            color: '#1A1D21',
+            color: '#111827',
             opacity: 0.6,
             ...(Platform.OS === 'web' ? { animation: 'blink 1.1s steps(2,end) infinite' } as any : {}),
           }}>|</Text>
         )}
       </Text>
       {subtitle && (
-        <Text style={{ fontSize: 14, color: '#5A6068', marginTop: 6, lineHeight: 20 }}>{subtitle}</Text>
+        <Text style={{ fontSize: 14, color: '#6B7280', marginTop: 6, lineHeight: 20 }}>{subtitle}</Text>
       )}
     </Animated.View>
   );

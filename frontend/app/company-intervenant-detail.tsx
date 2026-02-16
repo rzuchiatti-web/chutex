@@ -15,8 +15,8 @@ const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; v
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
       <Icon name={icon as any} size={16} color={color || '#888'} />
-      <Text style={{ fontSize: 12, color: '#6B7084', width: 100 }}>{label}</Text>
-      <Text style={{ fontSize: 13, fontWeight: '600', color: '#1E1F24', flex: 1 }}>{value}</Text>
+      <Text style={{ fontSize: 12, color: '#6B7280', width: 100 }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: '#111827', flex: 1 }}>{value}</Text>
     </View>
   ) : null
 );
@@ -45,8 +45,8 @@ export default function CompanyIntervenantDetail() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color="#1E1F24" /></View>;
-  if (!data?.intervenant) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><Text style={{ color: '#6B7084' }}>Intervenant non trouve</Text></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}><ActivityIndicator size="large" color="#111827" /></View>;
+  if (!data?.intervenant) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}><Text style={{ color: '#6B7280' }}>Intervenant non trouve</Text></View>;
 
   const iv = data.intervenant;
   const interventions = data.interventions || [];
@@ -54,16 +54,16 @@ export default function CompanyIntervenantDetail() {
   const completed = interventions.filter((i: any) => i.status === 'completed');
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }} data-testid="intervenant-detail-back">
-          <Icon name="chevron-back" size={24} color="#1E1F24" />
+          <Icon name="chevron-back" size={24} color="#111827" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1E1F24' }}>Fiche Intervenant</Text>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#111827' }}>Fiche Intervenant</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#1E1F24" />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#111827" />}>
 
         {/* Identity Card */}
         <GlassCard style={{ padding: 24 }}>
@@ -72,7 +72,7 @@ export default function CompanyIntervenantDetail() {
               <Text style={{ fontSize: 28, fontWeight: '900', color: '#FFF' }}>{iv.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#1E1F24' }}>{iv.name}</Text>
+              <Text style={{ fontSize: 22, fontWeight: '900', color: '#111827' }}>{iv.name}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                 <Badge label="Intervenant Care" color="#7B1FA2" bg="#F3E5F5" />
                 {data.agency && <Badge label={data.agency.name} color="#E65100" bg="#FFF3E0" />}
@@ -93,7 +93,7 @@ export default function CompanyIntervenantDetail() {
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
           <GlassCard style={{ flex: 1, alignItems: 'center', padding: 16, marginBottom: 0 }}>
             <Text style={{ fontSize: 28, fontWeight: '900', color: '#2196F3' }}>{data.total_interventions}</Text>
-            <Text style={{ fontSize: 9, color: '#6B7084', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Total missions</Text>
+            <Text style={{ fontSize: 9, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Total missions</Text>
           </GlassCard>
           <GlassCard style={{ flex: 1, alignItems: 'center', padding: 16, marginBottom: 0, borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
             <Text style={{ fontSize: 28, fontWeight: '900', color: '#FF9800' }}>{data.active_interventions}</Text>
@@ -112,7 +112,7 @@ export default function CompanyIntervenantDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="business" size={18} color="#FF9800" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1E1F24' }}>Agence</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Agence</Text>
             </View>
             <InfoRow icon="business-outline" label="Nom" value={data.agency.name} color="#FF9800" />
             <InfoRow icon="location-outline" label="Adresse" value={data.agency.address} />
@@ -125,18 +125,18 @@ export default function CompanyIntervenantDetail() {
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
               <Icon name="navigate" size={18} color="#FF9800" />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1E1F24' }}>En cours ({active.length})</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>En cours ({active.length})</Text>
           </View>
           {active.length === 0 ? (
-            <Text style={{ fontSize: 12, color: '#6B7084', textAlign: 'center', paddingVertical: 12 }}>Aucune intervention en cours</Text>
+            <Text style={{ fontSize: 12, color: '#6B7280', textAlign: 'center', paddingVertical: 12 }}>Aucune intervention en cours</Text>
           ) : active.map((i: any) => (
             <View key={i.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
               <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: statusColor(i.status) + '15', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="navigate" size={14} color={statusColor(i.status)} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#1E1F24' }}>{i.beneficiary_name}</Text>
-                <Text style={{ fontSize: 10, color: '#6B7084' }}>{i.alert_message || 'Intervention'}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827' }}>{i.beneficiary_name}</Text>
+                <Text style={{ fontSize: 10, color: '#6B7280' }}>{i.alert_message || 'Intervention'}</Text>
               </View>
               <View style={{ backgroundColor: statusColor(i.status) + '15', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
                 <Text style={{ fontSize: 9, fontWeight: '800', color: statusColor(i.status) }}>{statusLabel(i.status).toUpperCase()}</Text>
@@ -151,18 +151,18 @@ export default function CompanyIntervenantDetail() {
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
               <Icon name="checkmark-circle" size={18} color="#4CAF50" />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1E1F24' }}>Terminees ({completed.length})</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Terminees ({completed.length})</Text>
           </View>
           {completed.length === 0 ? (
-            <Text style={{ fontSize: 12, color: '#6B7084', textAlign: 'center', paddingVertical: 12 }}>Aucune intervention terminee</Text>
+            <Text style={{ fontSize: 12, color: '#6B7280', textAlign: 'center', paddingVertical: 12 }}>Aucune intervention terminee</Text>
           ) : completed.map((i: any) => (
             <View key={i.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
               <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="checkmark-circle" size={14} color="#4CAF50" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#1E1F24' }}>{i.beneficiary_name}</Text>
-                <Text style={{ fontSize: 10, color: '#6B7084' }}>{i.created_at ? new Date(i.created_at).toLocaleDateString('fr-FR') : ''}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827' }}>{i.beneficiary_name}</Text>
+                <Text style={{ fontSize: 10, color: '#6B7280' }}>{i.created_at ? new Date(i.created_at).toLocaleDateString('fr-FR') : ''}</Text>
               </View>
               <View style={{ backgroundColor: '#E8F5E9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
                 <Text style={{ fontSize: 9, fontWeight: '800', color: '#10B981' }}>TERMINEE</Text>

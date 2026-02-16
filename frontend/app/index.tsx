@@ -44,8 +44,8 @@ export default function AuthScreen() {
 
   if (loading || user || !ready) {
     if (Platform.OS === 'web') {
-      return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: '#F5F6F8' }}>
-        <div style={{ width: 32, height: 32, border: '3px solid rgba(212,132,90,0.15)', borderTopColor: '#D4845A', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: '#FFFFFF' }}>
+        <div style={{ width: 32, height: 32, border: '3px solid rgba(0,0,0,0.15)', borderTopColor: '#111827', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>;
     }
@@ -58,7 +58,7 @@ export default function AuthScreen() {
     return (
       <div data-testid="login-screen" style={{
         minHeight: '100vh',
-        background: '#F5F6F8',
+        background: '#FFFFFF',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         padding: 20, fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
         position: 'relative', overflow: 'hidden',
@@ -67,22 +67,22 @@ export default function AuthScreen() {
         {/* Background warm gradient blob */}
         <div style={{
           position: 'absolute', top: '-15%', right: '-8%', width: '60vw', height: '60vw', maxWidth: 500, maxHeight: 500,
-          borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(212,132,90,0.12) 0%, rgba(245,203,167,0.06) 40%, transparent 70%)',
+          borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,0,0,0.12) 0%, rgba(245,203,167,0.06) 40%, transparent 70%)',
           pointerEvents: 'none', animation: 'haloGlow 6s ease-in-out infinite',
         } as any} />
         <div style={{
           position: 'absolute', bottom: '-12%', left: '-8%', width: '45vw', height: '45vw', maxWidth: 350, maxHeight: 350,
-          borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(212,132,90,0.08) 0%, transparent 60%)',
+          borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,0,0,0.08) 0%, transparent 60%)',
           pointerEvents: 'none', animation: 'haloGlow 8s ease-in-out infinite reverse',
         } as any} />
 
         {/* Hero card with soft gradient */}
         <div style={{
           width: '100%', maxWidth: 420, marginBottom: 28, borderRadius: 24,
-          background: 'linear-gradient(135deg, #D4845A 0%, #E8A87C 45%, #F5CBA7 100%)',
+          background: 'linear-gradient(135deg, #111827 0%, #6B7280 45%, #E5E7EB 100%)',
           backgroundSize: '200% 200%', animation: 'gradientDrift 12s ease infinite, pageEnter 500ms cubic-bezier(0.22, 1, 0.36, 1) both',
           padding: '36px 28px 28px', position: 'relative', overflow: 'hidden',
-          boxShadow: '0 10px 30px rgba(212,132,90,0.18)',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.18)',
         } as any}>
           {/* Decorative circles */}
           <div style={{
@@ -124,13 +124,13 @@ export default function AuthScreen() {
           style={{
             width: '100%', maxWidth: 420, padding: '32px 28px', borderRadius: 24,
             background: '#FFFFFF',
-            border: '1px solid rgba(20,20,30,0.06)',
-            boxShadow: '0 10px 30px rgba(20,20,30,0.08)',
+            border: '1px solid rgba(0,0,0,0.06)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
             animation: 'pageEnter 500ms cubic-bezier(0.22, 1, 0.36, 1) both',
             animationDelay: '120ms',
           } as any}
         >
-          <div style={{ fontSize: 20, fontWeight: 800, color: '#1E1F24', marginBottom: 24, letterSpacing: -0.3 }}>Connexion</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: '#111827', marginBottom: 24, letterSpacing: -0.3 }}>Connexion</div>
 
           {error && (
             <div data-testid="login-error" style={{
@@ -139,7 +139,7 @@ export default function AuthScreen() {
             }}>{error}</div>
           )}
 
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#6B7084', marginBottom: 8, letterSpacing: 0.3 }}>Email</label>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#6B7280', marginBottom: 8, letterSpacing: 0.3 }}>Email</label>
           <input
             name="email"
             type="email"
@@ -148,15 +148,15 @@ export default function AuthScreen() {
             placeholder="votre@email.com"
             style={{
               display: 'block', width: '100%', fontSize: 16, padding: '16px 20px', marginBottom: 20,
-              borderRadius: 16, border: '1.5px solid rgba(20,20,30,0.08)',
-              background: '#F5F6F8', color: '#1E1F24',
+              borderRadius: 16, border: '1.5px solid rgba(0,0,0,0.08)',
+              background: '#FFFFFF', color: '#111827',
               outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
               WebkitAppearance: 'none',
               transition: 'border-color 0.2s, box-shadow 0.2s',
             } as any}
           />
 
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#6B7084', marginBottom: 8, letterSpacing: 0.3 }}>Mot de passe</label>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#6B7280', marginBottom: 8, letterSpacing: 0.3 }}>Mot de passe</label>
           <input
             name="password"
             type="password"
@@ -165,8 +165,8 @@ export default function AuthScreen() {
             placeholder="..."
             style={{
               display: 'block', width: '100%', fontSize: 16, padding: '16px 20px', marginBottom: 28,
-              borderRadius: 16, border: '1.5px solid rgba(20,20,30,0.08)',
-              background: '#F5F6F8', color: '#1E1F24',
+              borderRadius: 16, border: '1.5px solid rgba(0,0,0,0.08)',
+              background: '#FFFFFF', color: '#111827',
               outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
               WebkitAppearance: 'none',
               transition: 'border-color 0.2s, box-shadow 0.2s',
@@ -180,12 +180,12 @@ export default function AuthScreen() {
             style={{
               display: 'block', width: '100%', padding: '18px', borderRadius: 9999,
               border: 'none', cursor: 'pointer',
-              background: 'linear-gradient(135deg, #1E1F24, #2D2E34)', color: '#FFFFFF',
+              background: 'linear-gradient(135deg, #111827, #2D2E34)', color: '#FFFFFF',
               fontSize: 15, fontWeight: 700, letterSpacing: 0.5,
               fontFamily: 'inherit', WebkitAppearance: 'none',
               opacity: submitting ? 0.6 : 1,
               transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: '0 10px 30px rgba(20,20,30,0.15)',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
             } as any}
           >
             {submitting ? (
@@ -196,19 +196,19 @@ export default function AuthScreen() {
             ) : 'Se connecter'}
           </button>
 
-          <div style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: '#9CA3B0' } as any}>
+          <div style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: '#9CA3AF' } as any}>
             Mot de passe oublie ?
           </div>
-          <div style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: '#6B7084' } as any}>
+          <div style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: '#6B7280' } as any}>
             Pas encore de compte ?{' '}
             <a href="#" data-testid="register-link" onClick={(e) => { e.preventDefault(); router.push('/activate-beneficiary'); }}
-              style={{ fontWeight: 700, color: '#D4845A', textDecoration: 'none' }}>
+              style={{ fontWeight: 700, color: '#111827', textDecoration: 'none' }}>
               S'inscrire
             </a>
           </div>
         </form>
 
-        <div style={{ marginTop: 24, fontSize: 11, color: '#9CA3B0', letterSpacing: 0.5 }}>
+        <div style={{ marginTop: 24, fontSize: 11, color: '#9CA3AF', letterSpacing: 0.5 }}>
           Chutex Innovation — v2.0
         </div>
       </div>
@@ -222,11 +222,11 @@ export default function AuthScreen() {
   const passwordRef = useRef('');
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 60, paddingBottom: 40 }} keyboardShouldPersistTaps="always" keyboardDismissMode="none">
           {/* Hero gradient card */}
-          <View style={{ borderRadius: 28, padding: 32, marginBottom: 28, backgroundColor: '#D4845A', overflow: 'hidden' }}>
+          <View style={{ borderRadius: 28, padding: 32, marginBottom: 28, backgroundColor: '#111827', overflow: 'hidden' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 20 }}>
               <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.25)', justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontSize: 20, color: '#FFF' }}>+</Text>
@@ -238,18 +238,18 @@ export default function AuthScreen() {
           </View>
 
           {/* Login form */}
-          <View style={{ backgroundColor: '#FFFFFF', borderRadius: 28, padding: 28, borderWidth: 1, borderColor: 'rgba(20,20,30,0.06)' }}>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: '#1E1F24', marginBottom: 24 }}>Connexion</Text>
+          <View style={{ backgroundColor: '#FFFFFF', borderRadius: 28, padding: 28, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: '#111827', marginBottom: 24 }}>Connexion</Text>
 
             {error ? <View style={{ backgroundColor: 'rgba(239,68,68,0.06)', borderRadius: 16, padding: 12, marginBottom: 20 }}><Text style={{ fontSize: 13, color: '#DC2626' }}>{error}</Text></View> : null}
 
-            <Text style={{ fontSize: 12, fontWeight: '600', color: '#6B7084', marginBottom: 8 }}>Email</Text>
-            <TextInput defaultValue="" onChangeText={(t: string) => emailRef.current = t} placeholder="votre@email.com" placeholderTextColor="#9CA3B0" autoCapitalize="none" keyboardType="email-address"
-              style={{ fontSize: 16, padding: 16, paddingHorizontal: 20, borderRadius: 16, backgroundColor: '#F5F6F8', color: '#1E1F24', marginBottom: 20, borderWidth: 1.5, borderColor: 'rgba(20,20,30,0.08)' }} />
+            <Text style={{ fontSize: 12, fontWeight: '600', color: '#6B7280', marginBottom: 8 }}>Email</Text>
+            <TextInput defaultValue="" onChangeText={(t: string) => emailRef.current = t} placeholder="votre@email.com" placeholderTextColor="#9CA3AF" autoCapitalize="none" keyboardType="email-address"
+              style={{ fontSize: 16, padding: 16, paddingHorizontal: 20, borderRadius: 16, backgroundColor: '#FFFFFF', color: '#111827', marginBottom: 20, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)' }} />
 
-            <Text style={{ fontSize: 12, fontWeight: '600', color: '#6B7084', marginBottom: 8 }}>Mot de passe</Text>
-            <TextInput defaultValue="" onChangeText={(t: string) => passwordRef.current = t} placeholder="..." placeholderTextColor="#9CA3B0" secureTextEntry autoCapitalize="none"
-              style={{ fontSize: 16, padding: 16, paddingHorizontal: 20, borderRadius: 16, backgroundColor: '#F5F6F8', color: '#1E1F24', marginBottom: 28, borderWidth: 1.5, borderColor: 'rgba(20,20,30,0.08)' }} />
+            <Text style={{ fontSize: 12, fontWeight: '600', color: '#6B7280', marginBottom: 8 }}>Mot de passe</Text>
+            <TextInput defaultValue="" onChangeText={(t: string) => passwordRef.current = t} placeholder="..." placeholderTextColor="#9CA3AF" secureTextEntry autoCapitalize="none"
+              style={{ fontSize: 16, padding: 16, paddingHorizontal: 20, borderRadius: 16, backgroundColor: '#FFFFFF', color: '#111827', marginBottom: 28, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)' }} />
 
             <TouchableOpacity disabled={submitting} onPress={async () => {
               setError('');
@@ -263,7 +263,7 @@ export default function AuthScreen() {
                 await login(id.toLowerCase(), pw);
                 hasRedirected.current = true; router.replace('/(tabs)');
               } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
-            }} style={{ backgroundColor: '#1E1F24', borderRadius: 9999, paddingVertical: 18, alignItems: 'center', shadowColor: '#1E1F24', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 6 }}>
+            }} style={{ backgroundColor: '#111827', borderRadius: 9999, paddingVertical: 18, alignItems: 'center', shadowColor: '#111827', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 6 }}>
               {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Se connecter</Text>}
             </TouchableOpacity>
           </View>

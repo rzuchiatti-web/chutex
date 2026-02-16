@@ -41,24 +41,24 @@ function AdminClients({ token }: { token: string }) {
   const guards = users.filter(u => u.role === 'guardian' || u.has_guardian_space);
   const displayed = tab === 'beneficiary' ? bens : guards;
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1E1F24" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></View>;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: '#1E1F24', letterSpacing: -0.5 }}>Clients</Text>
-        <Text style={{ fontSize: 12, color: '#6B7084' }}>{users.length} utilisateurs au total</Text>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: '#111827', letterSpacing: -0.5 }}>Clients</Text>
+        <Text style={{ fontSize: 12, color: '#6B7280' }}>{users.length} utilisateurs au total</Text>
       </View>
       <View style={{ flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: '#FFFFFF', borderRadius: 14, padding: 4, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glass }}>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'beneficiary' && { backgroundColor: '#F5F6F8' }]} onPress={() => setTab('beneficiary')}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'beneficiary' && { backgroundColor: '#FFFFFF' }]} onPress={() => setTab('beneficiary')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'beneficiary' ? '#FFF' : '#888' }}>Beneficiaires ({bens.length})</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'guardian' && { backgroundColor: '#F5F6F8' }]} onPress={() => setTab('guardian')}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'guardian' && { backgroundColor: '#FFFFFF' }]} onPress={() => setTab('guardian')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'guardian' ? '#FFF' : '#888' }}>Gardiens ({guards.length})</Text>
         </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchUsers(); }} tintColor="#1E1F24" />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchUsers(); }} tintColor="#111827" />}>
         {displayed.map(u => (
           <TouchableOpacity key={u.id} onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: u.id, viewAs: tab } })} activeOpacity={0.7}>
             <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
@@ -66,9 +66,9 @@ function AdminClients({ token }: { token: string }) {
                 <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{u.name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: '#1E1F24' }}>{u.name}</Text>
-                <Text style={{ fontSize: 12, color: '#6B7084' }}>{u.email}</Text>
-                {u.phone && <Text style={{ fontSize: 11, color: '#9CA3B0' }}>{u.phone}</Text>}
+                <Text style={{ fontSize: 15, fontWeight: '700', color: '#111827' }}>{u.name}</Text>
+                <Text style={{ fontSize: 12, color: '#6B7280' }}>{u.email}</Text>
+                {u.phone && <Text style={{ fontSize: 11, color: '#9CA3AF' }}>{u.phone}</Text>}
                 {u.is_prescriber && <Text style={{ fontSize: 10, fontWeight: '700', color: '#9C27B0', marginTop: 2 }}>Prescripteur - {u.prescriber_structure}</Text>}
                 {u.is_intervention_provider && <Text style={{ fontSize: 10, fontWeight: '700', color: '#10B981', marginTop: 2 }}>Intervenant Care</Text>}
                 {u.subscription_type && u.subscription_type !== 'none' && (
@@ -85,7 +85,7 @@ function AdminClients({ token }: { token: string }) {
         {displayed.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
             <Icon name="people-outline" size={36} color="#CCC" />
-            <Text style={{ fontSize: 14, color: '#6B7084', marginTop: 8 }}>Aucun {tab === 'beneficiary' ? 'beneficiaire' : 'gardien'}</Text>
+            <Text style={{ fontSize: 14, color: '#6B7280', marginTop: 8 }}>Aucun {tab === 'beneficiary' ? 'beneficiaire' : 'gardien'}</Text>
           </View>
         )}
       </ScrollView>
@@ -127,22 +127,22 @@ function CompanyAgences({ token }: { token: string }) {
     setAssignModal(null); fetchData();
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1E1F24" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></View>;
   if (!data) return null;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: '#1E1F24', letterSpacing: -0.5 }}>Agences</Text>
-        <Text style={{ fontSize: 12, color: '#6B7084' }}>{(data.agencies || []).length} agences · {data.total_prescribers} prescripteurs</Text>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: '#111827', letterSpacing: -0.5 }}>Agences</Text>
+        <Text style={{ fontSize: 12, color: '#6B7280' }}>{(data.agencies || []).length} agences · {data.total_prescribers} prescripteurs</Text>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#1E1F24" />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#111827" />}>
 
-        <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+        <TouchableOpacity style={{ backgroundColor: '#FFFFFF', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
           onPress={() => setShowCreate(true)}>
           <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Nouvelle agence</Text>
-          <Icon name="add-circle-outline" size={18} color="#1E1F24" />
+          <Icon name="add-circle-outline" size={18} color="#111827" />
         </TouchableOpacity>
 
         {(data.agencies || []).map((ag: any) => (
@@ -152,8 +152,8 @@ function CompanyAgences({ token }: { token: string }) {
                 <Icon name="business" size={20} color="#FF9800" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#1E1F24' }}>{ag.agency.name}</Text>
-                {ag.agency.address ? <Text style={{ fontSize: 11, color: '#6B7084' }}>{ag.agency.address}</Text> : null}
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>{ag.agency.name}</Text>
+                {ag.agency.address ? <Text style={{ fontSize: 11, color: '#6B7280' }}>{ag.agency.address}</Text> : null}
               </View>
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 <TouchableOpacity onPress={() => { setEditAgency(ag.agency); setEditName(ag.agency.name); setEditAddr(ag.agency.address || ''); }}
@@ -165,8 +165,8 @@ function CompanyAgences({ token }: { token: string }) {
             </View>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
               <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#1E1F24' }}>{ag.prescriber_count}</Text>
-                <Text style={{ fontSize: 9, color: '#6B7084' }}>prescripteurs</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#111827' }}>{ag.prescriber_count}</Text>
+                <Text style={{ fontSize: 9, color: '#6B7280' }}>prescripteurs</Text>
               </View>
               <View style={{ flex: 1, backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
                 <Text style={{ fontSize: 18, fontWeight: '900', color: '#10B981' }}>{ag.comm_validated}</Text>
@@ -184,8 +184,8 @@ function CompanyAgences({ token }: { token: string }) {
                 <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#4CAF5015', justifyContent: 'center', alignItems: 'center' }}>
                   <Icon name="person" size={14} color="#4CAF50" />
                 </View>
-                <Text style={{ fontSize: 12, fontWeight: '600', color: '#1E1F24', flex: 1 }}>{pr.name}</Text>
-                <Text style={{ fontSize: 11, color: '#6B7084' }}>{pr.prescription_count} presc.</Text>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#111827', flex: 1 }}>{pr.name}</Text>
+                <Text style={{ fontSize: 11, color: '#6B7280' }}>{pr.prescription_count} presc.</Text>
                 <Text style={{ fontSize: 11, fontWeight: '700', color: '#10B981' }}>{pr.comm_validated + pr.comm_pending} EUR</Text>
                 <Icon name="chevron-forward" size={12} color="#CCC" />
               </TouchableOpacity>
@@ -208,7 +208,7 @@ function CompanyAgences({ token }: { token: string }) {
             {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).map((pr: any) => (
               <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
                 <Icon name="person-outline" size={14} color="#888" />
-                <Text style={{ fontSize: 12, color: '#1E1F24', flex: 1 }}>{pr.name}</Text>
+                <Text style={{ fontSize: 12, color: '#111827', flex: 1 }}>{pr.name}</Text>
                 <TouchableOpacity style={{ backgroundColor: '#2196F3', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}
                   onPress={() => setAssignModal(pr)}>
                   <Text style={{ fontSize: 10, fontWeight: '700', color: '#FFF' }}>Assigner</Text>
@@ -223,19 +223,19 @@ function CompanyAgences({ token }: { token: string }) {
       {showCreate && (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
-            <Text style={{ fontSize: 18, fontWeight: '900', color: '#1E1F24', marginBottom: 16 }}>Nouvelle agence</Text>
-            <Text style={{ fontSize: 12, color: '#6B7084', marginBottom: 4 }}>Nom de l'agence</Text>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: '#111827', marginBottom: 16 }}>Nouvelle agence</Text>
+            <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Nom de l'agence</Text>
             <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 12 }}
               placeholder="Ex: Agence Paris Nord" value={newName} onChangeText={setNewName} />
-            <Text style={{ fontSize: 12, color: '#6B7084', marginBottom: 4 }}>Adresse</Text>
+            <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Adresse</Text>
             <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 16 }}
               placeholder="Ex: 12 rue de la Paix, 75001 Paris" value={newAddr} onChangeText={setNewAddr} />
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TouchableOpacity style={{ flex: 1, padding: 14, alignItems: 'center', borderRadius: 12, borderWidth: 1, borderColor: '#E0E0E0' }} onPress={() => setShowCreate(false)}>
-                <Text style={{ color: '#6B7084', fontWeight: '600' }}>Annuler</Text>
+                <Text style={{ color: '#6B7280', fontWeight: '600' }}>Annuler</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, backgroundColor: '#F5F6F8', padding: 14, alignItems: 'center', borderRadius: 12 }} onPress={createAgency} disabled={creating}>
-                {creating ? <ActivityIndicator color="#1E1F24" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>Creer</Text>}
+              <TouchableOpacity style={{ flex: 1, backgroundColor: '#FFFFFF', padding: 14, alignItems: 'center', borderRadius: 12 }} onPress={createAgency} disabled={creating}>
+                {creating ? <ActivityIndicator color="#111827" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>Creer</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -246,18 +246,18 @@ function CompanyAgences({ token }: { token: string }) {
       {editAgency && (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
-            <Text style={{ fontSize: 18, fontWeight: '900', color: '#1E1F24', marginBottom: 16 }}>Modifier l'agence</Text>
-            <Text style={{ fontSize: 12, color: '#6B7084', marginBottom: 4 }}>Nom</Text>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: '#111827', marginBottom: 16 }}>Modifier l'agence</Text>
+            <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Nom</Text>
             <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 12 }}
               value={editName} onChangeText={setEditName} />
-            <Text style={{ fontSize: 12, color: '#6B7084', marginBottom: 4 }}>Adresse</Text>
+            <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Adresse</Text>
             <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 16 }}
               value={editAddr} onChangeText={setEditAddr} />
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TouchableOpacity style={{ flex: 1, padding: 14, alignItems: 'center', borderRadius: 12, borderWidth: 1, borderColor: '#E0E0E0' }} onPress={() => setEditAgency(null)}>
-                <Text style={{ color: '#6B7084', fontWeight: '600' }}>Annuler</Text>
+                <Text style={{ color: '#6B7280', fontWeight: '600' }}>Annuler</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, backgroundColor: '#F5F6F8', padding: 14, alignItems: 'center', borderRadius: 12 }} onPress={async () => {
+              <TouchableOpacity style={{ flex: 1, backgroundColor: '#FFFFFF', padding: 14, alignItems: 'center', borderRadius: 12 }} onPress={async () => {
                 await apiFetch(`/api/company/agencies/${editAgency.id}`, { method: 'PUT', body: JSON.stringify({ name: editName.trim(), address: editAddr.trim() }) }, token);
                 setEditAgency(null); fetchData();
               }}>
@@ -274,28 +274,28 @@ function CompanyAgences({ token }: { token: string }) {
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
             {assignModal.targetAgencyId ? (
               <>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#1E1F24', marginBottom: 4 }}>Gerer {assignModal.targetAgencyName}</Text>
-                <Text style={{ fontSize: 12, color: '#6B7084', marginBottom: 16 }}>Prescripteurs non assignes</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#111827', marginBottom: 4 }}>Gerer {assignModal.targetAgencyName}</Text>
+                <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 16 }}>Prescripteurs non assignes</Text>
                 {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).map((pr: any) => (
                   <TouchableOpacity key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}
                     onPress={() => assignToAgency(pr.id, assignModal.targetAgencyId)}>
                     <Icon name="person-outline" size={18} color="#4CAF50" />
-                    <Text style={{ fontSize: 15, fontWeight: '600', color: '#1E1F24', flex: 1 }}>{pr.name}</Text>
+                    <Text style={{ fontSize: 15, fontWeight: '600', color: '#111827', flex: 1 }}>{pr.name}</Text>
                     <Icon name="add-circle-outline" size={18} color="#2196F3" />
                   </TouchableOpacity>
                 ))}
                 {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).length === 0 && (
-                  <Text style={{ fontSize: 13, color: '#6B7084', textAlign: 'center', paddingVertical: 12 }}>Tous les prescripteurs sont deja assignes</Text>
+                  <Text style={{ fontSize: 13, color: '#6B7280', textAlign: 'center', paddingVertical: 12 }}>Tous les prescripteurs sont deja assignes</Text>
                 )}
                 {/* Show currently assigned prescribers with remove option */}
                 {(data.prescriber_ranking || []).filter((p: any) => p.agency_id === assignModal.targetAgencyId).length > 0 && (
                   <>
                     <View style={{ height: 1, backgroundColor: 'rgba(0,0,0,0.08)', marginVertical: 12 }} />
-                    <Text style={{ fontSize: 12, color: '#6B7084', marginBottom: 8 }}>Prescripteurs dans cette agence</Text>
+                    <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 8 }}>Prescripteurs dans cette agence</Text>
                     {(data.prescriber_ranking || []).filter((p: any) => p.agency_id === assignModal.targetAgencyId).map((pr: any) => (
                       <View key={pr.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
                         <Icon name="person" size={18} color="#4CAF50" />
-                        <Text style={{ fontSize: 14, fontWeight: '600', color: '#1E1F24', flex: 1 }}>{pr.name}</Text>
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', flex: 1 }}>{pr.name}</Text>
                         <TouchableOpacity style={{ backgroundColor: '#FFEBEE', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}
                           onPress={() => { assignToAgency(pr.id, null); }}>
                           <Text style={{ fontSize: 10, fontWeight: '700', color: '#E53935' }}>Retirer</Text>
@@ -307,20 +307,20 @@ function CompanyAgences({ token }: { token: string }) {
               </>
             ) : (
               <>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#1E1F24', marginBottom: 4 }}>Assigner {assignModal.name}</Text>
-                <Text style={{ fontSize: 12, color: '#6B7084', marginBottom: 16 }}>Choisissez une agence</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#111827', marginBottom: 4 }}>Assigner {assignModal.name}</Text>
+                <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 16 }}>Choisissez une agence</Text>
                 {(data.agencies || []).map((ag: any) => (
                   <TouchableOpacity key={ag.agency.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}
                     onPress={() => assignToAgency(assignModal.id, ag.agency.id)}>
                     <Icon name="business-outline" size={18} color="#FF9800" />
-                    <Text style={{ fontSize: 15, fontWeight: '600', color: '#1E1F24', flex: 1 }}>{ag.agency.name}</Text>
+                    <Text style={{ fontSize: 15, fontWeight: '600', color: '#111827', flex: 1 }}>{ag.agency.name}</Text>
                     <Icon name="chevron-forward" size={16} color="#888" />
                   </TouchableOpacity>
                 ))}
               </>
             )}
             <TouchableOpacity style={{ padding: 14, alignItems: 'center', marginTop: 10 }} onPress={() => setAssignModal(null)}>
-              <Text style={{ color: '#6B7084', fontWeight: '600' }}>Fermer</Text>
+              <Text style={{ color: '#6B7280', fontWeight: '600' }}>Fermer</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -375,10 +375,10 @@ export default function HealthScreen() {
   ] : [];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }} testID="health-screen">
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#1E1F24" />} showsVerticalScrollIndicator={false}>
-        <Text style={{ fontSize: 28, fontWeight: '800', color: '#1E1F24', marginTop: 16, marginBottom: 8, letterSpacing: -0.5 }}>Sante</Text>
-        <Text style={{ fontSize: 13, color: '#9CA3B0', marginBottom: 16 }}>Suivi de vos constantes en temps reel</Text>
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} testID="health-screen">
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#111827" />} showsVerticalScrollIndicator={false}>
+        <Text style={{ fontSize: 28, fontWeight: '800', color: '#111827', marginTop: 16, marginBottom: 8, letterSpacing: -0.5 }}>Sante</Text>
+        <Text style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>Suivi de vos constantes en temps reel</Text>
         <PageExplainer pageId="health" title="Comprendre vos donnees de sante" sections={[
           { icon: 'heart-outline', heading: 'Constantes vitales', text: 'Votre rythme cardiaque, SpO2, tension et temperature sont mesures par vos appareils connectes (bracelet, gilet) et mis a jour automatiquement.' },
           { icon: 'trending-up-outline', heading: 'Seuils d\'alerte', text: 'Des seuils sont definis pour chaque constante. Si une valeur depasse le seuil, une alerte est declenchee et vos gardiens sont prevenus.' },
@@ -386,7 +386,7 @@ export default function HealthScreen() {
         ]} />
 
         {loading ? (
-          <View style={{ paddingVertical: 60, alignItems: 'center' }}><ActivityIndicator size="large" color="#1E1F24" /></View>
+          <View style={{ paddingVertical: 60, alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></View>
         ) : vitals ? (
           <>
             {metrics.map(m => (
@@ -397,36 +397,36 @@ export default function HealthScreen() {
                   <Icon name={m.icon as any} size={22} color={m.color} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 13, color: '#9CA3B0', fontWeight: '500' }}>{m.label}</Text>
+                  <Text style={{ fontSize: 13, color: '#9CA3AF', fontWeight: '500' }}>{m.label}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4, marginTop: 2 }}>
-                    <Text style={{ fontSize: 26, fontWeight: '800', color: '#1E1F24' }}>{m.value}</Text>
-                    <Text style={{ fontSize: 13, color: '#9CA3B0' }}>{m.unit}</Text>
+                    <Text style={{ fontSize: 26, fontWeight: '800', color: '#111827' }}>{m.value}</Text>
+                    <Text style={{ fontSize: 13, color: '#9CA3AF' }}>{m.unit}</Text>
                   </View>
-                  <Text style={{ fontSize: 11, color: '#9CA3B0', marginTop: 2 }}>Normal: {m.range}</Text>
+                  <Text style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>Normal: {m.range}</Text>
                 </View>
-                <Icon name="chevron-forward" size={18} color="#9CA3B0" />
+                <Icon name="chevron-forward" size={18} color="#9CA3AF" />
               </TouchableOpacity>
             ))}
 
             {/* Quick links */}
-            <Text style={{ fontSize: 17, fontWeight: '700', color: '#1E1F24', marginTop: 12, marginBottom: 12, letterSpacing: -0.3 }}>Examens</Text>
+            <Text style={{ fontSize: 17, fontWeight: '700', color: '#111827', marginTop: 12, marginBottom: 12, letterSpacing: -0.3 }}>Examens</Text>
             <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', alignItems: 'center', gap: 8 }} onPress={() => router.push('/ecg')}>
-                <Icon name="pulse-outline" size={28} color="#1E1F24" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1E1F24' }}>ECG</Text>
+                <Icon name="pulse-outline" size={28} color="#111827" />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827' }}>ECG</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', alignItems: 'center', gap: 8 }} onPress={() => router.push('/sleep')}>
-                <Icon name="moon-outline" size={28} color="#1E1F24" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1E1F24' }}>Sommeil</Text>
+                <Icon name="moon-outline" size={28} color="#111827" />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827' }}>Sommeil</Text>
               </TouchableOpacity>
             </View>
           </>
         ) : (
           <View style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 40, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
-            <MCIcon name="bluetooth-off" size={40} color="#9CA3B0" />
-            <Text style={{ fontSize: 17, fontWeight: '700', color: '#1E1F24', marginTop: 16 }}>Aucune donnee</Text>
-            <Text style={{ fontSize: 13, color: '#9CA3B0', marginTop: 6, textAlign: 'center' }}>Connectez votre bracelet pour suivre vos constantes</Text>
-            <TouchableOpacity style={{ marginTop: 20, backgroundColor: '#1E1F24', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 9999 }} onPress={() => router.push('/bracelet-connect')}>
+            <MCIcon name="bluetooth-off" size={40} color="#9CA3AF" />
+            <Text style={{ fontSize: 17, fontWeight: '700', color: '#111827', marginTop: 16 }}>Aucune donnee</Text>
+            <Text style={{ fontSize: 13, color: '#9CA3AF', marginTop: 6, textAlign: 'center' }}>Connectez votre bracelet pour suivre vos constantes</Text>
+            <TouchableOpacity style={{ marginTop: 20, backgroundColor: '#111827', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 9999 }} onPress={() => router.push('/bracelet-connect')}>
               <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 14 }}>Connecter le bracelet</Text>
             </TouchableOpacity>
           </View>

@@ -102,7 +102,7 @@ export default function SubscriptionScreen() {
         <View style={[s.subCard, { backgroundColor: isCare ? '#7B1FA2' : hasSubscription ? Colors.primary : Colors.textMuted }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={s.subIcon}>
-              <Icon name={hasSubscription ? "shield-checkmark" : "shield-outline"} size={32} color="#1E1F24" />
+              <Icon name={hasSubscription ? "shield-checkmark" : "shield-outline"} size={32} color="#111827" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.subType}>
@@ -115,7 +115,7 @@ export default function SubscriptionScreen() {
           </View>
           {isCare && (
             <View style={s.careFeature}>
-              <Icon name="call" size={16} color="#1E1F24" />
+              <Icon name="call" size={16} color="#111827" />
               <Text style={s.careFeatureT}>Teleassistance IA active</Text>
             </View>
           )}
@@ -126,7 +126,7 @@ export default function SubscriptionScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={s.sectionTitle}>Mes gardiens</Text>
             <TouchableOpacity style={s.addGuardianBtn} onPress={() => { setShowAddGuardian(true); setAddResult(null); setGuardianPhone(''); }} data-testid="add-guardian-btn">
-              <Icon name="add" size={16} color="#1E1F24" />
+              <Icon name="add" size={16} color="#111827" />
               <Text style={s.addGuardianBtnT}>Ajouter</Text>
             </TouchableOpacity>
           </View>
@@ -207,7 +207,7 @@ export default function SubscriptionScreen() {
             await apiFetch('/api/alerts/sos', { method: 'POST' }, token);
           } catch {}
         }} data-testid="subscription-sos-btn">
-          <Icon name="alert-circle" size={24} color="#1E1F24" />
+          <Icon name="alert-circle" size={24} color="#111827" />
           <Text style={s.sosBtnT}>SOS Urgence</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -257,7 +257,7 @@ export default function SubscriptionScreen() {
                 <Text style={s.modalCancelBtnT}>Annuler</Text>
               </TouchableOpacity>
               <TouchableOpacity style={s.modalConfirmBtn} onPress={addGuardian} disabled={adding || !guardianPhone.trim()} data-testid="confirm-add-guardian">
-                {adding ? <ActivityIndicator color="#1E1F24" size="small" /> : <Text style={s.modalConfirmBtnT}>Ajouter</Text>}
+                {adding ? <ActivityIndicator color="#111827" size="small" /> : <Text style={s.modalConfirmBtnT}>Ajouter</Text>}
               </TouchableOpacity>
             </View>
           </View>
