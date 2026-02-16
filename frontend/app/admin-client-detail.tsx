@@ -13,8 +13,8 @@ const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; v
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
       <Ionicons name={icon as any} size={16} color={color || '#888'} />
-      <Text style={{ fontSize: 12, color: '#888', width: 100 }}>{label}</Text>
-      <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+      <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', width: 100 }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{value}</Text>
     </View>
   ) : null
 );
@@ -39,8 +39,8 @@ export default function AdminClientDetail() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
-  if (!data?.user) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><Text style={{ color: '#888' }}>Client non trouve</Text></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (!data?.user) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><Text style={{ color: 'rgba(255,255,255,0.50)' }}>Client non trouve</Text></View>;
 
   const u = data.user;
   // viewAs determines which "face" of the user to show
@@ -50,17 +50,17 @@ export default function AdminClientDetail() {
   const roleLabel = showAsBen ? 'Beneficiaire' : 'Gardien';
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color="#FFF" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Fiche {roleLabel}</Text>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Fiche {roleLabel}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#FFF" />}>
 
         {/* Identity Card */}
         <GlassCard style={{ padding: 24 }}>
@@ -69,7 +69,7 @@ export default function AdminClientDetail() {
               <Text style={{ fontSize: 28, fontWeight: '900', color: '#FFF' }}>{u.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#000' }}>{u.name}</Text>
+              <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{u.name}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                 <Badge label={roleLabel} color={showAsBen ? '#0288D1' : '#F57F17'} bg={showAsBen ? '#E1F5FE' : '#FFF8E1'} />
                 {showAsGuard && u.is_prescriber && <Badge label="Prescripteur" color="#7B1FA2" bg="#F3E5F5" />}
@@ -93,7 +93,7 @@ export default function AdminClientDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="medkit" size={18} color="#E53935" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Informations Medicales</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Informations Medicales</Text>
             </View>
             <InfoRow icon="calendar-outline" label="Naissance" value={u.date_of_birth} />
             <InfoRow icon="person-outline" label="Genre" value={u.gender} />
@@ -114,7 +114,7 @@ export default function AdminClientDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8EAF6', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="card-outline" size={18} color="#3F51B5" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Abonnement</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Abonnement</Text>
             </View>
             <InfoRow icon="pricetag-outline" label="Type" value={data.subscription.subscription_type?.toUpperCase()} />
             <InfoRow icon="checkmark-circle-outline" label="Statut" value={data.subscription.status === 'active' ? 'Actif' : data.subscription.status} color="#4CAF50" />
@@ -130,7 +130,7 @@ export default function AdminClientDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="briefcase-outline" size={18} color="#FF9800" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Informations Professionnelles</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Informations Professionnelles</Text>
             </View>
             <InfoRow icon="shield-outline" label="Type gardien" value={u.guardian_type === 'professional' ? 'Professionnel' : 'Particulier'} />
             <InfoRow icon="heart-outline" label="Relation" value={u.relationship} />
@@ -163,7 +163,7 @@ export default function AdminClientDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF8E1', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="people" size={18} color="#F57F17" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Gardiens ({data.guardians.length})</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Gardiens ({data.guardians.length})</Text>
             </View>
             {data.guardians.map((g: any) => (
               <TouchableOpacity key={g.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}
@@ -172,8 +172,8 @@ export default function AdminClientDetail() {
                   <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>{g.name?.charAt(0)?.toUpperCase()}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{g.name}</Text>
-                  <Text style={{ fontSize: 11, color: '#888' }}>{g.relationship || g.guardian_type || 'Gardien'}{g.profession ? ` - ${g.profession}` : ''}{g.structure_name ? ` (${g.structure_name})` : ''}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{g.name}</Text>
+                  <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{g.relationship || g.guardian_type || 'Gardien'}{g.profession ? ` - ${g.profession}` : ''}{g.structure_name ? ` (${g.structure_name})` : ''}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', gap: 4 }}>
                   {g.is_prescriber && <Badge label="Presc." color="#7B1FA2" bg="#F3E5F5" />}
@@ -192,7 +192,7 @@ export default function AdminClientDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="heart" size={18} color="#0288D1" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Beneficiaires ({data.beneficiaries.length})</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Beneficiaires ({data.beneficiaries.length})</Text>
             </View>
             {data.beneficiaries.map((b: any) => (
               <TouchableOpacity key={b.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}
@@ -201,8 +201,8 @@ export default function AdminClientDetail() {
                   <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{b.name}</Text>
-                  <Text style={{ fontSize: 11, color: '#888' }}>{b.email} {b.date_of_birth ? `- Ne(e) le ${b.date_of_birth}` : ''}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{b.name}</Text>
+                  <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{b.email} {b.date_of_birth ? `- Ne(e) le ${b.date_of_birth}` : ''}</Text>
                 </View>
                 {b.has_subscription && <Badge label={b.subscription_type?.toUpperCase() || 'ABON.'} color="#7B1FA2" bg="#F3E5F5" />}
                 <Ionicons name="chevron-forward" size={16} color="#888" />
@@ -218,17 +218,17 @@ export default function AdminClientDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
                 <MaterialCommunityIcons name="bluetooth-connect" size={18} color="#4CAF50" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Appareils ({data.devices.length})</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Appareils ({data.devices.length})</Text>
             </View>
             {data.devices.map((d: any) => {
               const names: any = { bracelet: 'Bracelet Elio', vest: 'Gilet Anti-Chute', scale: 'Balance Connectee' };
               const icons: any = { bracelet: 'watch', vest: 'tshirt-crew', scale: 'scale-bathroom' };
               return (
                 <View key={d.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                  <MaterialCommunityIcons name={icons[d.device_type] || 'devices'} size={20} color="#000" />
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{names[d.device_type] || d.device_type}</Text>
+                  <MaterialCommunityIcons name={icons[d.device_type] || 'devices'} size={20} color="#FFF" />
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{names[d.device_type] || d.device_type}</Text>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: d.connected ? '#4CAF50' : '#E0E0E0' }} />
-                  <Text style={{ fontSize: 12, color: '#888' }}>{d.battery || 0}%</Text>
+                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{d.battery || 0}%</Text>
                 </View>
               );
             })}
@@ -242,15 +242,15 @@ export default function AdminClientDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="document-text" size={18} color="#7B1FA2" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Prescriptions ({data.prescriptions.length})</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Prescriptions ({data.prescriptions.length})</Text>
             </View>
             {data.prescriptions.map((p: any) => (
               <View key={p.id} style={{ paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#000' }}>{p.beneficiary_name}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{p.beneficiary_name}</Text>
                   <Badge label={p.status === 'subscribed' ? 'Actif' : 'En attente'} color={p.status === 'subscribed' ? '#2E7D32' : '#FF9800'} bg={p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0'} />
                 </View>
-                <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{p.subscription_type} - Commission: {p.commission}EUR</Text>
+                <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{p.subscription_type} - Commission: {p.commission}EUR</Text>
               </View>
             ))}
           </GlassCard>
@@ -263,7 +263,7 @@ export default function AdminClientDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="warning" size={18} color="#E53935" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Historique Alertes ({data.alerts.length})</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Historique Alertes ({data.alerts.length})</Text>
             </View>
             {data.alerts.slice(0, 10).map((a: any) => {
               const tc: any = { sos: '#E53935', fall: '#FF9800', anomaly: '#9C27B0', inactivity: '#607D8B', heart_rate: '#E91E63', spo2: '#2196F3' };
@@ -271,8 +271,8 @@ export default function AdminClientDetail() {
                 <View key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tc[a.alert_type] || '#888' }} />
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#000' }}>{a.message?.slice(0, 60)}</Text>
-                    <Text style={{ fontSize: 10, color: '#888' }}>{a.alert_type?.toUpperCase()} - {new Date(a.created_at).toLocaleString('fr-FR')}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.92)' }}>{a.message?.slice(0, 60)}</Text>
+                    <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)' }}>{a.alert_type?.toUpperCase()} - {new Date(a.created_at).toLocaleString('fr-FR')}</Text>
                   </View>
                   <Badge label={a.status === 'active' ? 'Active' : 'Resolue'} color={a.status === 'active' ? '#E53935' : '#4CAF50'} bg={a.status === 'active' ? '#FFEBEE' : '#E8F5E9'} />
                 </View>
@@ -288,17 +288,17 @@ export default function AdminClientDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="medkit" size={18} color="#4CAF50" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Interventions ({data.interventions.length})</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Interventions ({data.interventions.length})</Text>
             </View>
             {data.interventions.map((iv: any) => {
               const sc: any = { pending_acceptance: '#FF9800', in_progress: '#2196F3', completed: '#4CAF50', dispatched: '#FF5722' };
               return (
                 <View key={iv.id} style={{ paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#000' }}>{iv.beneficiary_name || iv.alert_message || 'Intervention'}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.92)' }}>{iv.beneficiary_name || iv.alert_message || 'Intervention'}</Text>
                     <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: sc[iv.status] || '#888' }} />
                   </View>
-                  <Text style={{ fontSize: 10, color: '#888', marginTop: 2 }}>{iv.status} - {new Date(iv.created_at).toLocaleString('fr-FR')}</Text>
+                  <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{iv.status} - {new Date(iv.created_at).toLocaleString('fr-FR')}</Text>
                 </View>
               );
             })}
@@ -312,7 +312,7 @@ export default function AdminClientDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="navigate" size={18} color="#1565C0" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Localisation</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Localisation</Text>
             </View>
             <InfoRow icon="location-outline" label="Coordonnees" value={`${u.latitude?.toFixed(4)}, ${u.longitude?.toFixed(4)}`} color="#1565C0" />
             <InfoRow icon="share-outline" label="Partage" value={u.location_sharing === 'always' ? 'Toujours' : u.location_sharing === 'alert_only' ? 'Alertes uniquement' : 'Desactive'} />
@@ -323,8 +323,8 @@ export default function AdminClientDetail() {
         {data.alerts?.length === 0 && showAsBen && (
           <GlassCard style={{ alignItems: 'center', padding: 24 }}>
             <Ionicons name="checkmark-circle-outline" size={32} color="#4CAF50" />
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#4CAF50', marginTop: 8 }}>Aucune alerte</Text>
-            <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>Ce beneficiaire n'a pas d'historique d'alertes</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#10B981', marginTop: 8 }}>Aucune alerte</Text>
+            <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>Ce beneficiaire n'a pas d'historique d'alertes</Text>
           </GlassCard>
         )}
       </ScrollView>

@@ -14,8 +14,8 @@ const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; v
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
       <Ionicons name={icon as any} size={16} color={color || '#888'} />
-      <Text style={{ fontSize: 12, color: '#888', width: 100 }}>{label}</Text>
-      <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+      <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', width: 100 }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{value}</Text>
     </View>
   ) : null
 );
@@ -59,19 +59,19 @@ export default function BeneficiaryDetailScreen() {
     Linking.openURL(url!).catch(() => Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`));
   };
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></SafeAreaView>;
-  if (!data?.beneficiary) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#888' }}>Beneficiaire non trouve</Text></SafeAreaView>;
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
+  if (!data?.beneficiary) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.50)' }}>Beneficiaire non trouve</Text></SafeAreaView>;
 
   const b = data.beneficiary;
   const activeAlerts = (data.alerts || []).filter((a: any) => a.status === 'active');
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color="#FFF" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Fiche beneficiaire</Text>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Fiche beneficiaire</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}>
@@ -82,7 +82,7 @@ export default function BeneficiaryDetailScreen() {
               <Text style={{ fontSize: 28, fontWeight: '900', color: '#FFF' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#000' }}>{b.name}</Text>
+              <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{b.name}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                 {activeAlerts.length > 0 && <Badge label={`${activeAlerts.length} alerte(s)`} color="#E53935" bg="#FFEBEE" />}
                 {b.has_subscription && <Badge label={`Abon. ${b.subscription_type?.toUpperCase()}`} color={b.subscription_type === 'care' ? '#7B1FA2' : '#1565C0'} bg={b.subscription_type === 'care' ? '#F3E5F5' : '#E3F2FD'} />}
@@ -100,7 +100,7 @@ export default function BeneficiaryDetailScreen() {
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons name="medkit" size={18} color="#E53935" />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Informations medicales</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Informations medicales</Text>
           </View>
           <InfoRow icon="calendar-outline" label="Naissance" value={b.date_of_birth} />
           <InfoRow icon="person-outline" label="Genre" value={b.gender} />
@@ -120,17 +120,17 @@ export default function BeneficiaryDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
                 <MaterialCommunityIcons name="bluetooth-connect" size={18} color="#4CAF50" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Appareils ({data.devices.length})</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Appareils ({data.devices.length})</Text>
             </View>
             {data.devices.map((d: any) => {
               const names: any = { bracelet: 'Bracelet Elio', vest: 'Gilet Anti-Chute', scale: 'Balance Connectee' };
               const icons: any = { bracelet: 'watch', vest: 'tshirt-crew', scale: 'scale-bathroom' };
               return (
                 <View key={d.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                  <MaterialCommunityIcons name={icons[d.device_type] || 'devices'} size={20} color="#000" />
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{names[d.device_type] || d.device_type}</Text>
+                  <MaterialCommunityIcons name={icons[d.device_type] || 'devices'} size={20} color="#FFF" />
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{names[d.device_type] || d.device_type}</Text>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: d.connected ? '#4CAF50' : '#E0E0E0' }} />
-                  <Text style={{ fontSize: 12, color: '#888' }}>{d.battery || 0}%</Text>
+                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{d.battery || 0}%</Text>
                 </View>
               );
             })}
@@ -144,7 +144,7 @@ export default function BeneficiaryDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="navigate" size={18} color="#1565C0" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', flex: 1 }}>Localisation</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)', flex: 1 }}>Localisation</Text>
             </View>
             <InfoRow icon="location-outline" label="Coordonnees" value={`${b.latitude?.toFixed(4)}, ${b.longitude?.toFixed(4)}`} color="#1565C0" />
             <TouchableOpacity style={{ backgroundColor: '#1565C0', borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 10, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
@@ -162,7 +162,7 @@ export default function BeneficiaryDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="warning" size={18} color="#E53935" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Historique alertes ({data.alerts.length})</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Historique alertes ({data.alerts.length})</Text>
             </View>
             {data.alerts.slice(0, 10).map((a: any) => {
               const tc: any = { sos: '#E53935', fall: '#FF9800', anomaly: '#9C27B0', inactivity: '#607D8B' };
@@ -171,8 +171,8 @@ export default function BeneficiaryDetailScreen() {
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tc[a.alert_type] || '#888' }} />
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#000' }}>{a.message?.slice(0, 60)}</Text>
-                    <Text style={{ fontSize: 10, color: '#888' }}>{a.alert_type} - {new Date(a.created_at).toLocaleString('fr-FR')}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.92)' }}>{a.message?.slice(0, 60)}</Text>
+                    <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)' }}>{a.alert_type} - {new Date(a.created_at).toLocaleString('fr-FR')}</Text>
                   </View>
                   <Badge label={a.status === 'active' ? 'Active' : 'Resolue'} color={a.status === 'active' ? '#E53935' : '#4CAF50'} bg={a.status === 'active' ? '#FFEBEE' : '#E8F5E9'} />
                   <Ionicons name="chevron-forward" size={14} color="#888" />
@@ -184,7 +184,7 @@ export default function BeneficiaryDetailScreen() {
         {data.alerts?.length === 0 && (
           <GlassCard style={{ alignItems: 'center', padding: 24 }}>
             <Ionicons name="checkmark-circle-outline" size={32} color="#4CAF50" />
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#4CAF50', marginTop: 8 }}>Aucune alerte</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#10B981', marginTop: 8 }}>Aucune alerte</Text>
           </GlassCard>
         )}
 
@@ -200,10 +200,10 @@ export default function BeneficiaryDetailScreen() {
         {report ? (
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <Ionicons name="sparkles" size={16} color="#000" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>Rapport IA</Text>
+              <Ionicons name="sparkles" size={16} color="#FFF" />
+              <Text style={{ fontSize: 14, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Rapport IA</Text>
             </View>
-            <Text style={{ fontSize: 13, color: '#333', lineHeight: 20 }}>{report}</Text>
+            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 20 }}>{report}</Text>
           </GlassCard>
         ) : null}
       </ScrollView>

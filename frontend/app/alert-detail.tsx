@@ -14,8 +14,8 @@ const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; v
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
       <Ionicons name={icon as any} size={16} color={color || '#888'} />
-      <Text style={{ fontSize: 12, color: '#888', width: 100 }}>{label}</Text>
-      <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+      <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', width: 100 }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{value}</Text>
     </View>
   ) : null
 );
@@ -96,8 +96,8 @@ export default function AlertDetailScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setEscalating(false); }
   };
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></SafeAreaView>;
-  if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB', justifyContent: 'center', alignItems: 'center' }}><Text>Erreur de chargement</Text></SafeAreaView>;
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
+  if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text>Erreur de chargement</Text></SafeAreaView>;
 
   const a = data.alert;
   const ben = data.beneficiary;
@@ -158,12 +158,12 @@ export default function AlertDetailScreen() {
   const alertTypeLabel = a.alert_type === 'sos' ? 'SOS - Urgence' : a.alert_type === 'fall' ? 'Chute detectee' : a.alert_type === 'heart_rate' ? 'Anomalie cardiaque' : a.alert_type === 'spo2' ? 'SpO2 anormale' : a.alert_type === 'inactivity' ? 'Inactivite' : 'Alerte';
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="alert-detail-screen">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }} testID="alert-detail-screen">
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
         <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={{ padding: 4 }}>
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color="#FFF" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Fiche Alerte</Text>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Fiche Alerte</Text>
         <View style={{ backgroundColor: (isActive ? '#E53935' : '#4CAF50') + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}>
           <Text style={{ fontSize: 10, fontWeight: '800', color: isActive ? '#E53935' : '#4CAF50', textTransform: 'uppercase' }}>{isActive ? 'Active' : 'Resolue'}</Text>
         </View>
@@ -179,8 +179,8 @@ export default function AlertDetailScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 11, fontWeight: '800', color: statusColor, textTransform: 'uppercase', letterSpacing: 0.5 }}>{statusMessage}</Text>
-              <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', marginTop: 4 }}>{alertTypeLabel}</Text>
-              <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{a.message}</Text>
+              <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginTop: 4 }}>{alertTypeLabel}</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{a.message}</Text>
             </View>
           </View>
         </GlassCard>
@@ -198,7 +198,7 @@ export default function AlertDetailScreen() {
         {isGuardian && isActive && (
           <GlassCard style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
             {iAmIntervenant ? (
-              <View style={{ backgroundColor: '#4CAF50', borderRadius: 16, padding: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
+              <View style={{ backgroundColor: '#10B981', borderRadius: 16, padding: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
                 <Ionicons name="shield-checkmark" size={22} color="#FFF" />
                 <View>
                   <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VOUS GEREZ CETTE INTERVENTION</Text>
@@ -233,7 +233,7 @@ export default function AlertDetailScreen() {
             ) : hasIntervenant ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 4 }}>
                 <Ionicons name="checkmark-circle" size={18} color="#4CAF50" />
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#4CAF50' }}>{intervention?.assigned_name} gere l'intervention</Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#10B981' }}>{intervention?.assigned_name} gere l'intervention</Text>
               </View>
             ) : null}
           </GlassCard>
@@ -242,7 +242,7 @@ export default function AlertDetailScreen() {
         {/* Operator Actions */}
         {isOperator && isActive && (
           <GlassCard style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>ACTIONS OPERATEUR</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>ACTIONS OPERATEUR</Text>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#E53935', borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6 }} onPress={startEscalation} disabled={escalating}>
                 {escalating ? <ActivityIndicator color="#FFF" size="small" /> : (
@@ -251,7 +251,7 @@ export default function AlertDetailScreen() {
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6, borderWidth: 2, borderColor: '#4CAF50' }} onPress={resolveAlert}>
                 <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-                <Text style={{ color: '#4CAF50', fontSize: 12, fontWeight: '800' }}>CLOTURER</Text>
+                <Text style={{ color: '#10B981', fontSize: 12, fontWeight: '800' }}>CLOTURER</Text>
               </TouchableOpacity>
             </View>
           </GlassCard>
@@ -264,7 +264,7 @@ export default function AlertDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="person" size={18} color="#0288D1" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Beneficiaire</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Beneficiaire</Text>
             </View>
             <InfoRow icon="person-outline" label="Nom" value={ben.name} color="#0288D1" />
             <InfoRow icon="call-outline" label="Telephone" value={ben.phone} />
@@ -284,7 +284,7 @@ export default function AlertDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="shield-checkmark" size={18} color="#9C27B0" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Intervenant</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Intervenant</Text>
               <View style={{ backgroundColor: '#009688' + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
                 <Text style={{ fontSize: 9, fontWeight: '800', color: '#009688', textTransform: 'uppercase' }}>{intervention.status === 'en_route' ? 'En route' : intervention.status === 'completed' ? 'Termine' : 'Actif'}</Text>
               </View>
@@ -302,7 +302,7 @@ export default function AlertDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="document-text" size={18} color="#4CAF50" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Rapport d'intervention</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Rapport d'intervention</Text>
             </View>
             {intervention.report.patient_condition && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
@@ -312,14 +312,14 @@ export default function AlertDetailScreen() {
             )}
             {intervention.report.description && (
               <View style={{ marginBottom: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 4 }}>Description</Text>
-                <Text style={{ fontSize: 13, color: '#333', lineHeight: 20 }}>{intervention.report.description}</Text>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Description</Text>
+                <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 20 }}>{intervention.report.description}</Text>
               </View>
             )}
             {intervention.report.actions_taken && (
               <View style={{ marginBottom: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 4 }}>Actions effectuees</Text>
-                <Text style={{ fontSize: 13, color: '#333', lineHeight: 20 }}>{intervention.report.actions_taken}</Text>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Actions effectuees</Text>
+                <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 20 }}>{intervention.report.actions_taken}</Text>
               </View>
             )}
             {intervention.report.follow_up_needed && (
@@ -329,7 +329,7 @@ export default function AlertDetailScreen() {
               </View>
             )}
             {intervention.report.completed_by && (
-              <Text style={{ fontSize: 10, color: '#888', marginTop: 8 }}>Rapport par {intervention.report.completed_by} - {intervention.report.completed_at ? new Date(intervention.report.completed_at).toLocaleString('fr-FR') : ''}</Text>
+              <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)', marginTop: 8 }}>Rapport par {intervention.report.completed_by} - {intervention.report.completed_at ? new Date(intervention.report.completed_at).toLocaleString('fr-FR') : ''}</Text>
             )}
           </GlassCard>
         )}
@@ -341,7 +341,7 @@ export default function AlertDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="document-text" size={18} color="#4CAF50" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Rapport d'intervention</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Rapport d'intervention</Text>
             </View>
             {a.intervention_report.patient_condition && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
@@ -349,8 +349,8 @@ export default function AlertDetailScreen() {
                 <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat: {a.intervention_report.patient_condition === 'stable' ? 'Stable' : a.intervention_report.patient_condition}</Text>
               </View>
             )}
-            {a.intervention_report.description && <Text style={{ fontSize: 13, color: '#333', lineHeight: 20, marginBottom: 6 }}>{a.intervention_report.description}</Text>}
-            {a.intervention_report.actions_taken && <Text style={{ fontSize: 13, color: '#333', lineHeight: 20, marginBottom: 6 }}><Text style={{ fontWeight: '700' }}>Actions:</Text> {a.intervention_report.actions_taken}</Text>}
+            {a.intervention_report.description && <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 20, marginBottom: 6 }}>{a.intervention_report.description}</Text>}
+            {a.intervention_report.actions_taken && <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 20, marginBottom: 6 }}><Text style={{ fontWeight: '700' }}>Actions:</Text> {a.intervention_report.actions_taken}</Text>}
             {a.intervention_report.follow_up_needed && (
               <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
                 <Ionicons name="flag" size={14} color="#FF9800" />
@@ -367,14 +367,14 @@ export default function AlertDetailScreen() {
               <Ionicons name="time" size={18} color="#FF9800" />
               <Text style={{ fontSize: 14, fontWeight: '800', color: '#FF9800' }}>En attente d'un intervenant</Text>
             </View>
-            <Text style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>{intervention.recipients?.length || 0} intervenants notifies</Text>
+            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 8 }}>{intervention.recipients?.length || 0} intervenants notifies</Text>
             {(intervention.recipients || []).map((r: any) => (
               <View key={r.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
                 <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#9C27B015', justifyContent: 'center', alignItems: 'center' }}>
                   <Ionicons name="person" size={14} color="#9C27B0" />
                 </View>
-                <Text style={{ fontSize: 12, fontWeight: '600', color: '#000', flex: 1 }}>{r.name}</Text>
-                {r.distance_km && <Text style={{ fontSize: 10, color: '#888' }}>{r.distance_km} km</Text>}
+                <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{r.name}</Text>
+                {r.distance_km && <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)' }}>{r.distance_km} km</Text>}
               </View>
             ))}
           </GlassCard>
@@ -383,7 +383,7 @@ export default function AlertDetailScreen() {
         {/* Timeline */}
         {data.timeline?.length > 0 && (
           <GlassCard>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>CHRONOLOGIE</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>CHRONOLOGIE</Text>
             {data.timeline.map((t: any, i: number) => {
               const evColor = t.event === 'resolved' ? '#4CAF50' : t.event === 'alert_created' ? '#E53935' : t.event?.includes('call') ? '#2196F3' : t.event === 'intervention' ? '#9C27B0' : '#000';
               return (
@@ -393,8 +393,8 @@ export default function AlertDetailScreen() {
                     {i < data.timeline.length - 1 && <View style={{ width: 2, flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', minHeight: 16 }} />}
                   </View>
                   <View style={{ flex: 1, paddingBottom: 10 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#000' }}>{t.detail}</Text>
-                    <Text style={{ fontSize: 10, color: '#AAA', marginTop: 1 }}>{new Date(t.time).toLocaleString('fr-FR')}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.92)' }}>{t.detail}</Text>
+                    <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.38)', marginTop: 1 }}>{new Date(t.time).toLocaleString('fr-FR')}</Text>
                   </View>
                 </View>
               );
@@ -404,7 +404,7 @@ export default function AlertDetailScreen() {
 
         {/* Alert Details */}
         <GlassCard>
-          <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>DETAILS</Text>
+          <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>DETAILS</Text>
           <InfoRow icon="alert-circle-outline" label="Type" value={alertTypeLabel} color="#E53935" />
           <InfoRow icon="speedometer-outline" label="Severite" value={a.severity === 'critical' ? 'Critique' : a.severity === 'high' ? 'Eleve' : 'Moyen'} color="#E53935" />
           <InfoRow icon="watch-outline" label="Appareil" value={a.device_type || 'bracelet'} />
@@ -415,7 +415,7 @@ export default function AlertDetailScreen() {
         {/* Close with report button - for guardians on active alerts */}
         {(isGuardian || isOperator) && isActive && (
           <TouchableOpacity onPress={() => setShowReport(true)}
-            style={{ backgroundColor: '#4CAF50', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: 12 }}>
+            style={{ backgroundColor: '#10B981', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: 12 }}>
             <Ionicons name="document-text" size={20} color="#FFF" />
             <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>CLOTURER AVEC RAPPORT</Text>
           </TouchableOpacity>
@@ -425,13 +425,13 @@ export default function AlertDetailScreen() {
       {/* Report Modal */}
       <Modal visible={showReport} transparent animationType="slide">
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Rapport de cloture</Text>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Rapport de cloture</Text>
               <TouchableOpacity onPress={() => setShowReport(false)}><Ionicons name="close" size={24} color="#888" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Etat du patient</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Etat du patient</Text>
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
                 {[{k: 'stable', l: 'Stable', c: '#4CAF50'}, {k: 'improved', l: 'Ameliore', c: '#2196F3'}, {k: 'needs_care', l: 'Soins necessaires', c: '#FF9800'}].map(o => (
                   <TouchableOpacity key={o.k} style={[{ flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center', borderWidth: 2, borderColor: reportForm.patient_condition === o.k ? o.c : '#E0E0E0' }, reportForm.patient_condition === o.k && { backgroundColor: o.c + '15' }]}
@@ -440,22 +440,22 @@ export default function AlertDetailScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
-              <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Description de la situation</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Description de la situation</Text>
               <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 80, textAlignVertical: 'top', marginBottom: 12 }}
                 placeholder="Decrivez ce que vous avez constate..." multiline value={reportForm.description} onChangeText={v => setReportForm({...reportForm, description: v})} />
-              <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Actions effectuees</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Actions effectuees</Text>
               <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 60, textAlignVertical: 'top', marginBottom: 12 }}
                 placeholder="Ex: Aide au relevage, appel medecin..." multiline value={reportForm.actions_taken} onChangeText={v => setReportForm({...reportForm, actions_taken: v})} />
               <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}
                 onPress={() => setReportForm({...reportForm, follow_up_needed: !reportForm.follow_up_needed})}>
                 <Ionicons name={reportForm.follow_up_needed ? 'checkbox' : 'square-outline'} size={22} color={reportForm.follow_up_needed ? '#FF9800' : '#888'} />
-                <Text style={{ fontSize: 14, color: '#000' }}>Suivi necessaire</Text>
+                <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.92)' }}>Suivi necessaire</Text>
               </TouchableOpacity>
               {reportForm.follow_up_needed && (
                 <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, marginBottom: 12 }}
                   placeholder="Precisions sur le suivi a prevoir..." value={reportForm.follow_up_notes} onChangeText={v => setReportForm({...reportForm, follow_up_notes: v})} />
               )}
-              <TouchableOpacity style={{ backgroundColor: '#4CAF50', borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+              <TouchableOpacity style={{ backgroundColor: '#10B981', borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
                 onPress={handleCompleteWithReport} disabled={submittingReport}>
                 {submittingReport ? <ActivityIndicator color="#FFF" /> : (
                   <><Ionicons name="checkmark-circle" size={20} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VALIDER ET CLOTURER</Text></>

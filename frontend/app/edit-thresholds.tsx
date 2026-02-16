@@ -57,7 +57,7 @@ export default function EditThresholdsScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
   };
 
-  if (!loaded) return <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></SafeAreaView>;
+  if (!loaded) return <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
 
   const basVal = parseFloat(seuilBas) || config.min;
   const hautVal = parseFloat(seuilHaut) || config.max;
@@ -65,13 +65,13 @@ export default function EditThresholdsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#000" /></TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#000' }}>Modifier les seuils</Text>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#FFF" /></TouchableOpacity>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Modifier les seuils</Text>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, alignItems: 'center' }}>
         {/* Big illustration */}
         {img && <Image source={{ uri: img }} style={{ width: 140, height: 140, resizeMode: 'contain', marginBottom: 16 }} />}
-        <Text style={{ fontSize: 20, fontWeight: '900', color: '#000', textAlign: 'center', textTransform: 'uppercase', marginBottom: 24 }}>{config.title}</Text>
+        <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)', textAlign: 'center', textTransform: 'uppercase', marginBottom: 24 }}>{config.title}</Text>
 
         {/* Seuil inputs */}
         <View style={[{ width: '100%', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 24, marginBottom: 16, ...glass }]}>
@@ -102,8 +102,8 @@ export default function EditThresholdsScreen() {
             </View>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888' }}>{config.min}{config.unit}</Text>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#888' }}>{config.max}{config.unit}</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>{config.min}{config.unit}</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>{config.max}{config.unit}</Text>
           </View>
         </View>
 

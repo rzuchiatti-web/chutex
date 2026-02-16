@@ -30,8 +30,8 @@ export default function GuardianDetailScreen() {
     })();
   }, [guardianId, token]);
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></SafeAreaView>;
-  if (!guardian) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#888' }}>Gardien non trouve</Text></SafeAreaView>;
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
+  if (!guardian) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.50)' }}>Gardien non trouve</Text></SafeAreaView>;
 
   const infoRows = [
     { icon: 'call-outline', label: 'Telephone', val: guardian.phone },
@@ -47,9 +47,9 @@ export default function GuardianDetailScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color="#FFF" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#000' }}>Fiche Gardien</Text>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Fiche Gardien</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
@@ -58,9 +58,9 @@ export default function GuardianDetailScreen() {
           <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#FFB74D', justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF' }}>{guardian.name?.charAt(0)}</Text>
           </View>
-          <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', marginTop: 12 }}>{guardian.name}</Text>
-          {guardian.profession && <Text style={{ fontSize: 13, color: '#888', marginTop: 4 }}>{guardian.profession}</Text>}
-          {guardian.structure_name && <Text style={{ fontSize: 13, color: '#888', marginTop: 2 }}>{guardian.structure_name}</Text>}
+          <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginTop: 12 }}>{guardian.name}</Text>
+          {guardian.profession && <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', marginTop: 4 }}>{guardian.profession}</Text>}
+          {guardian.structure_name && <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{guardian.structure_name}</Text>}
         </GlassCard>
 
         {/* Info rows */}
@@ -69,8 +69,8 @@ export default function GuardianDetailScreen() {
             <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: i < infoRows.length - 1 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
               <Ionicons name={r.icon as any} size={20} color="#888" />
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>{r.label}</Text>
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#000', marginTop: 2 }}>{r.val}</Text>
+                <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{r.label}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: 'rgba(255,255,255,0.92)', marginTop: 2 }}>{r.val}</Text>
               </View>
             </View>
           ))}
@@ -82,8 +82,8 @@ export default function GuardianDetailScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <Ionicons name="navigate-outline" size={20} color="#888" />
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>Coordonnees GPS</Text>
-                <Text style={{ fontSize: 15, fontWeight: '600', color: '#000', marginTop: 2 }}>{guardian.latitude?.toFixed(4)}, {guardian.longitude?.toFixed(4)}</Text>
+                <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Coordonnees GPS</Text>
+                <Text style={{ fontSize: 15, fontWeight: '600', color: 'rgba(255,255,255,0.92)', marginTop: 2 }}>{guardian.latitude?.toFixed(4)}, {guardian.longitude?.toFixed(4)}</Text>
               </View>
             </View>
           </GlassCard>

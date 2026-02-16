@@ -284,7 +284,7 @@ const s = StyleSheet.create({
   careFeatureT: { fontSize: 13, fontWeight: '700', color: '#FFF' },
   // Guardians
   guardianCount: { fontSize: 12, color: Colors.textMuted },
-  guardianRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: 'transparent' },
+  guardianRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
   orderBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
   orderBadgeT: { fontSize: 13, fontWeight: '800', color: '#FFF' },
   guardianName: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },

@@ -13,8 +13,8 @@ const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; v
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
       <Ionicons name={icon as any} size={16} color={color || '#888'} />
-      <Text style={{ fontSize: 12, color: '#888', width: 110 }}>{label}</Text>
-      <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+      <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', width: 110 }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{value}</Text>
     </View>
   ) : null
 );
@@ -29,8 +29,8 @@ const PersonCard = ({ name, subtitle, color, onPress }: { name: string; subtitle
       <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{name?.charAt(0)?.toUpperCase()}</Text>
     </View>
     <View style={{ flex: 1 }}>
-      <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{name}</Text>
-      <Text style={{ fontSize: 11, color: '#888' }}>{subtitle}</Text>
+      <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{name}</Text>
+      <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{subtitle}</Text>
     </View>
     {onPress && <Ionicons name="chevron-forward" size={16} color="#888" />}
   </TouchableOpacity>
@@ -50,8 +50,8 @@ export default function AdminPrescriptionDetail() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><ActivityIndicator size="large" color="#000" /></View>;
-  if (!data?.prescription) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0EB' }}><Text style={{ color: '#888' }}>Prescription non trouvee</Text></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (!data?.prescription) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><Text style={{ color: 'rgba(255,255,255,0.50)' }}>Prescription non trouvee</Text></View>;
 
   const p = data.prescription;
   const g = data.guardian;
@@ -59,10 +59,10 @@ export default function AdminPrescriptionDetail() {
   const sub = data.subscription;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#000" /></TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Fiche Prescription</Text>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#FFF" /></TouchableOpacity>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Fiche Prescription</Text>
         <Badge label={p.status === 'subscribed' ? 'Souscrit' : 'En attente'} color={p.status === 'subscribed' ? '#2E7D32' : '#FF9800'} bg={p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0'} />
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}>
@@ -71,7 +71,7 @@ export default function AdminPrescriptionDetail() {
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons name="document-text" size={18} color="#7B1FA2" />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Details Prescription</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Details Prescription</Text>
           </View>
           <InfoRow icon="person-outline" label="Beneficiaire" value={p.beneficiary_name} />
           <InfoRow icon="mail-outline" label="Email" value={p.beneficiary_email} />
@@ -90,10 +90,10 @@ export default function AdminPrescriptionDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="mail" size={18} color="#1565C0" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Email envoye</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Email envoye</Text>
             </View>
-            <Text style={{ fontSize: 11, fontWeight: '600', color: '#888', marginBottom: 4 }}>Objet: {p.email_content.subject}</Text>
-            <Text style={{ fontSize: 12, color: '#333', lineHeight: 18 }}>{p.email_content.body}</Text>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Objet: {p.email_content.subject}</Text>
+            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 18 }}>{p.email_content.body}</Text>
           </GlassCard>
         )}
 
@@ -103,7 +103,7 @@ export default function AdminPrescriptionDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF8E1', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="person" size={18} color="#F57F17" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Prescripteur</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Prescripteur</Text>
             </View>
             <PersonCard name={g.name} subtitle={`${g.email} - ${g.prescriber_structure || g.structure_name || ''}`} color="#FFD54F"
               onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: g.id } })} />
@@ -116,13 +116,13 @@ export default function AdminPrescriptionDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="heart" size={18} color="#0288D1" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Beneficiaire inscrit</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Beneficiaire inscrit</Text>
             </View>
             <PersonCard name={b.name} subtitle={`${b.email} - ${b.phone || ''}`} color="#4FC3F7"
               onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: b.id } })} />
             {sub && (
               <View style={{ backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 12, padding: 12, marginTop: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#4CAF50', textTransform: 'uppercase', marginBottom: 6 }}>Abonnement actif</Text>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#10B981', textTransform: 'uppercase', marginBottom: 6 }}>Abonnement actif</Text>
                 <InfoRow icon="pricetag-outline" label="Type" value={sub.subscription_type?.toUpperCase()} />
                 <InfoRow icon="storefront-outline" label="Source" value={sub.source === 'shopify' ? 'Shopify' : 'Manuel'} />
               </View>

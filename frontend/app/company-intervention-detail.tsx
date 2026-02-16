@@ -50,7 +50,7 @@ export default function CompanyInterventionDetail() {
   };
 
   if (loading) return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></View>;
-  if (!data?.intervention) return <View style={{ flex: 1, backgroundColor: '#F5F0EB', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#888' }}>Intervention non trouvee</Text></View>;
+  if (!data?.intervention) return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.50)' }}>Intervention non trouvee</Text></View>;
 
   const iv = data.intervention;
   const ben = data.beneficiary || iv.beneficiary_info || {};
@@ -69,15 +69,15 @@ export default function CompanyInterventionDetail() {
     const GC = ({ children, style: s2 }: any) => <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, s2]}>{children}</View>;
     const IR = ({ icon, label, value, color: c }: any) => value ? (
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-        <Ionicons name={icon} size={16} color={c || '#888'} /><Text style={{ fontSize: 12, color: '#888', width: 100 }}>{label}</Text><Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+        <Ionicons name={icon} size={16} color={c || '#888'} /><Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', width: 100 }}>{label}</Text><Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{value}</Text>
       </View>
     ) : null;
     return (
-      <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+      <View style={{ flex: 1, backgroundColor: '#000' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-          <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#000" /></TouchableOpacity>
-          <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Intervention terminee</Text>
-          <View style={{ backgroundColor: '#4CAF50' + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}><Text style={{ fontSize: 10, fontWeight: '800', color: '#4CAF50' }}>TERMINEE</Text></View>
+          <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#FFF" /></TouchableOpacity>
+          <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Intervention terminee</Text>
+          <View style={{ backgroundColor: '#10B981' + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}><Text style={{ fontSize: 10, fontWeight: '800', color: '#10B981' }}>TERMINEE</Text></View>
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
           {/* Status */}
@@ -85,9 +85,9 @@ export default function CompanyInterventionDetail() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="checkmark-circle" size={24} color="#4CAF50" /></View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 11, fontWeight: '800', color: '#4CAF50', letterSpacing: 0.5 }}>INTERVENTION TERMINEE</Text>
-                <Text style={{ fontSize: 16, fontWeight: '900', color: '#000', marginTop: 4 }}>{alert_data?.alert_type === 'sos' ? 'SOS - Urgence' : alert_data?.alert_type === 'fall' ? 'Chute detectee' : 'Alerte'}</Text>
-                <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{iv.alert_message || alert_data?.message}</Text>
+                <Text style={{ fontSize: 11, fontWeight: '800', color: '#10B981', letterSpacing: 0.5 }}>INTERVENTION TERMINEE</Text>
+                <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginTop: 4 }}>{alert_data?.alert_type === 'sos' ? 'SOS - Urgence' : alert_data?.alert_type === 'fall' ? 'Chute detectee' : 'Alerte'}</Text>
+                <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{iv.alert_message || alert_data?.message}</Text>
               </View>
             </View>
           </GC>
@@ -96,7 +96,7 @@ export default function CompanyInterventionDetail() {
             <GC style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="document-text" size={18} color="#4CAF50" /></View>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Rapport d'intervention</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Rapport d'intervention</Text>
               </View>
               {rpt.patient_condition && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
@@ -104,21 +104,21 @@ export default function CompanyInterventionDetail() {
                   <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat du patient: {rpt.patient_condition === 'stable' ? 'Stable' : rpt.patient_condition === 'improved' ? 'Ameliore' : 'Soins necessaires'}</Text>
                 </View>
               )}
-              {rpt.description && <View style={{ marginBottom: 8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 4 }}>Description</Text><Text style={{ fontSize: 13, color: '#333', lineHeight: 20 }}>{rpt.description}</Text></View>}
-              {rpt.actions_taken && <View style={{ marginBottom: 8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 4 }}>Actions effectuees</Text><Text style={{ fontSize: 13, color: '#333', lineHeight: 20 }}>{rpt.actions_taken}</Text></View>}
+              {rpt.description && <View style={{ marginBottom: 8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Description</Text><Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 20 }}>{rpt.description}</Text></View>}
+              {rpt.actions_taken && <View style={{ marginBottom: 8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Actions effectuees</Text><Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 20 }}>{rpt.actions_taken}</Text></View>}
               {rpt.follow_up_needed && (
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
                   <Ionicons name="flag" size={14} color="#FF9800" /><Text style={{ fontSize: 12, color: '#E65100', flex: 1 }}><Text style={{ fontWeight: '700' }}>Suivi necessaire:</Text> {rpt.follow_up_notes}</Text>
                 </View>
               )}
-              {rpt.completed_by && <Text style={{ fontSize: 10, color: '#888', marginTop: 8 }}>Rapport par {rpt.completed_by} - {rpt.completed_at ? new Date(rpt.completed_at).toLocaleString('fr-FR') : ''}</Text>}
+              {rpt.completed_by && <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)', marginTop: 8 }}>Rapport par {rpt.completed_by} - {rpt.completed_at ? new Date(rpt.completed_at).toLocaleString('fr-FR') : ''}</Text>}
             </GC>
           )}
           {/* Beneficiary */}
           <GC>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="person" size={18} color="#0288D1" /></View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Beneficiaire</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Beneficiaire</Text>
             </View>
             <IR icon="person-outline" label="Nom" value={ben.name || iv.beneficiary_name} color="#0288D1" />
             <IR icon="call-outline" label="Telephone" value={ben.phone} />
@@ -134,7 +134,7 @@ export default function CompanyInterventionDetail() {
             <GC>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="shield-checkmark" size={18} color="#9C27B0" /></View>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Intervenant</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Intervenant</Text>
               </View>
               <IR icon="person-outline" label="Nom" value={intervenant.name} color="#9C27B0" />
               <IR icon="briefcase-outline" label="Profession" value={intervenant.profession} />
@@ -147,7 +147,7 @@ export default function CompanyInterventionDetail() {
             <GC>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="warning" size={18} color="#E53935" /></View>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Alerte</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Alerte</Text>
               </View>
               <IR icon="alert-circle-outline" label="Type" value={alert_data.alert_type?.toUpperCase()} color="#E53935" />
               <IR icon="text-outline" label="Message" value={alert_data.message} />
@@ -158,11 +158,11 @@ export default function CompanyInterventionDetail() {
           {/* Timeline */}
           {(iv.timeline || []).length > 0 && (
             <GC>
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>CHRONOLOGIE</Text>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>CHRONOLOGIE</Text>
               {iv.timeline.map((t: any, i: number) => (
                 <View key={i} style={{ flexDirection: 'row', gap: 10, marginBottom: 4 }}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: i === iv.timeline.length - 1 ? '#4CAF50' : '#DDD', marginTop: 5 }} />
-                  <View style={{ flex: 1 }}><Text style={{ fontSize: 12, color: '#333' }}>{t.note || t.status}</Text><Text style={{ fontSize: 10, color: '#AAA' }}>{t.time ? new Date(t.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</Text></View>
+                  <View style={{ flex: 1 }}><Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }}>{t.note || t.status}</Text><Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.38)' }}>{t.time ? new Date(t.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</Text></View>
                 </View>
               ))}
             </GC>
@@ -174,15 +174,15 @@ export default function CompanyInterventionDetail() {
 
   // ====== ACTIVE: show Uber-style map + slide card ======
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
       {/* MAP */}
       <View style={{ height: MAP_H, position: 'relative' }}>
         <FullMap benLat={benLoc.latitude} benLng={benLoc.longitude} ivLat={ivLoc?.latitude} ivLng={ivLoc?.longitude} benName={ben.name || iv.beneficiary_name} ivName={iv.assigned_name} />
-        <TouchableOpacity onPress={() => router.back()} style={{ position: 'absolute', top: 50, left: 16, width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFF', justifyContent: 'center', alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(0,0,0,0.15)' } : {}) }}>
-          <Ionicons name="chevron-back" size={24} color="#000" />
+        <TouchableOpacity onPress={() => router.back()} style={{ position: 'absolute', top: 50, left: 16, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.04)', justifyContent: 'center', alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(0,0,0,0.15)' } : {}) }}>
+          <Ionicons name="chevron-back" size={24} color="#FFF" />
         </TouchableOpacity>
         <View style={{ position: 'absolute', top: 50, right: 16, backgroundColor: sc, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 6, ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(0,0,0,0.2)' } : {}) }}>
-          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFF' }} />
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.04)' }} />
           <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>{stLabel(iv.status).toUpperCase()}</Text>
         </View>
         {iv.distance_km && !isCompleted && (
@@ -194,7 +194,7 @@ export default function CompanyInterventionDetail() {
       </View>
 
       {/* SLIDE-UP CARD */}
-      <View style={{ flex: 1, backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24, ...(Platform.OS === 'web' ? { boxShadow: '0 -4px 24px rgba(0,0,0,0.1)' } : {}) }}>
+      <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24, ...(Platform.OS === 'web' ? { boxShadow: '0 -4px 24px rgba(0,0,0,0.1)' } : {}) }}>
         <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 6 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} /></View>
 
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
@@ -205,11 +205,11 @@ export default function CompanyInterventionDetail() {
                 <Text style={{ fontSize: 22, fontWeight: '900', color: '#FFF' }}>{iv.assigned_name.charAt(0)}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000' }}>{iAmIntervenant ? 'Vous intervenez' : iv.assigned_name}</Text>
-                <Text style={{ fontSize: 12, color: '#888' }}>{iv.structure_name || ''}{iv.distance_km ? ` - ${iv.distance_km} km` : ''}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{iAmIntervenant ? 'Vous intervenez' : iv.assigned_name}</Text>
+                <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{iv.structure_name || ''}{iv.distance_km ? ` - ${iv.distance_km} km` : ''}</Text>
               </View>
               {iAmIntervenant && !isCompleted && (
-                <TouchableOpacity onPress={() => setShowReport(true)} style={{ backgroundColor: '#4CAF50', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12 }}>
+                <TouchableOpacity onPress={() => setShowReport(true)} style={{ backgroundColor: '#10B981', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12 }}>
                   <Text style={{ color: '#FFF', fontSize: 11, fontWeight: '800' }}>TERMINER</Text>
                 </TouchableOpacity>
               )}
@@ -231,13 +231,13 @@ export default function CompanyInterventionDetail() {
           </View>
 
           {/* Patient info */}
-          <Text style={{ fontSize: 11, fontWeight: '800', color: '#888', letterSpacing: 1, marginBottom: 8 }}>PATIENT</Text>
+          <Text style={{ fontSize: 11, fontWeight: '800', color: 'rgba(255,255,255,0.50)', letterSpacing: 1, marginBottom: 8 }}>PATIENT</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
             <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
               <Text style={{ fontSize: 18, fontWeight: '900', color: '#0288D1' }}>{(ben.name || '?').charAt(0)}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 16, fontWeight: '900', color: '#000' }}>{ben.name || iv.beneficiary_name}</Text>
+              <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{ben.name || iv.beneficiary_name}</Text>
               {ben.address && <Text style={{ fontSize: 12, color: '#555' }}>{ben.address}</Text>}
             </View>
           </View>
@@ -261,17 +261,17 @@ export default function CompanyInterventionDetail() {
           {/* Medical info */}
           {(ben.medical_conditions || ben.allergies || ben.blood_type) && (
             <View style={{ backgroundColor: '#FFF8E1', borderRadius: 12, padding: 12, marginBottom: 14, gap: 4 }}>
-              {ben.medical_conditions && <Text style={{ fontSize: 12, color: '#333' }}><Text style={{ fontWeight: '700' }}>Pathologies:</Text> {ben.medical_conditions}</Text>}
-              {ben.allergies && <Text style={{ fontSize: 12, color: '#333' }}><Text style={{ fontWeight: '700' }}>Allergies:</Text> {ben.allergies}</Text>}
-              {ben.blood_type && <Text style={{ fontSize: 12, color: '#333' }}><Text style={{ fontWeight: '700' }}>Groupe:</Text> {ben.blood_type}</Text>}
-              {ben.doctor_name && <Text style={{ fontSize: 12, color: '#333' }}><Text style={{ fontWeight: '700' }}>Medecin:</Text> {ben.doctor_name}</Text>}
+              {ben.medical_conditions && <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }}><Text style={{ fontWeight: '700' }}>Pathologies:</Text> {ben.medical_conditions}</Text>}
+              {ben.allergies && <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }}><Text style={{ fontWeight: '700' }}>Allergies:</Text> {ben.allergies}</Text>}
+              {ben.blood_type && <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }}><Text style={{ fontWeight: '700' }}>Groupe:</Text> {ben.blood_type}</Text>}
+              {ben.doctor_name && <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }}><Text style={{ fontWeight: '700' }}>Medecin:</Text> {ben.doctor_name}</Text>}
             </View>
           )}
 
           {/* Report section if completed */}
           {isCompleted && rpt && (
             <View style={{ marginBottom: 14 }}>
-              <Text style={{ fontSize: 11, fontWeight: '800', color: '#888', letterSpacing: 1, marginBottom: 8 }}>RAPPORT D'INTERVENTION</Text>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: 'rgba(255,255,255,0.50)', letterSpacing: 1, marginBottom: 8 }}>RAPPORT D'INTERVENTION</Text>
               <View style={{ backgroundColor: '#E8F5E9', borderRadius: 14, padding: 14, borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
                 {rpt.patient_condition && (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
@@ -279,10 +279,10 @@ export default function CompanyInterventionDetail() {
                     <Text style={{ fontSize: 13, fontWeight: '800', color: '#2E7D32' }}>Etat: {rpt.patient_condition === 'stable' ? 'Stable' : rpt.patient_condition === 'improved' ? 'Ameliore' : rpt.patient_condition === 'needs_care' ? 'Necessite des soins' : rpt.patient_condition}</Text>
                   </View>
                 )}
-                {rpt.description && <Text style={{ fontSize: 12, color: '#333', marginBottom: 4 }}>{rpt.description}</Text>}
-                {rpt.actions_taken && <Text style={{ fontSize: 12, color: '#333', marginBottom: 4 }}><Text style={{ fontWeight: '700' }}>Actions:</Text> {rpt.actions_taken}</Text>}
+                {rpt.description && <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', marginBottom: 4 }}>{rpt.description}</Text>}
+                {rpt.actions_taken && <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', marginBottom: 4 }}><Text style={{ fontWeight: '700' }}>Actions:</Text> {rpt.actions_taken}</Text>}
                 {rpt.follow_up_needed && <Text style={{ fontSize: 12, color: '#E65100', fontWeight: '600' }}>Suivi necessaire: {rpt.follow_up_notes}</Text>}
-                {rpt.completed_by && <Text style={{ fontSize: 10, color: '#888', marginTop: 6 }}>Par {rpt.completed_by} - {rpt.completed_at ? new Date(rpt.completed_at).toLocaleString('fr-FR') : ''}</Text>}
+                {rpt.completed_by && <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)', marginTop: 6 }}>Par {rpt.completed_by} - {rpt.completed_at ? new Date(rpt.completed_at).toLocaleString('fr-FR') : ''}</Text>}
               </View>
             </View>
           )}
@@ -290,13 +290,13 @@ export default function CompanyInterventionDetail() {
           {/* Timeline */}
           {(iv.timeline || []).length > 0 && (
             <View>
-              <Text style={{ fontSize: 11, fontWeight: '800', color: '#888', letterSpacing: 1, marginBottom: 8 }}>CHRONOLOGIE</Text>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: 'rgba(255,255,255,0.50)', letterSpacing: 1, marginBottom: 8 }}>CHRONOLOGIE</Text>
               {iv.timeline.map((t: any, i: number) => (
                 <View key={i} style={{ flexDirection: 'row', gap: 10, marginBottom: 4 }}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: i === iv.timeline.length - 1 ? sc : '#DDD', marginTop: 5 }} />
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, color: '#333' }}>{t.note || t.status}</Text>
-                    <Text style={{ fontSize: 10, color: '#AAA' }}>{t.time ? new Date(t.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</Text>
+                    <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }}>{t.note || t.status}</Text>
+                    <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.38)' }}>{t.time ? new Date(t.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</Text>
                   </View>
                 </View>
               ))}
@@ -308,13 +308,13 @@ export default function CompanyInterventionDetail() {
       {/* Completion Report Modal */}
       <Modal visible={showReport} transparent animationType="slide">
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>Rapport d'intervention</Text>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Rapport d'intervention</Text>
               <TouchableOpacity onPress={() => setShowReport(false)}><Ionicons name="close" size={24} color="#888" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Etat du patient</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Etat du patient</Text>
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
                 {[{k: 'stable', l: 'Stable', c: '#4CAF50'}, {k: 'improved', l: 'Ameliore', c: '#2196F3'}, {k: 'needs_care', l: 'Soins necessaires', c: '#FF9800'}].map(o => (
                   <TouchableOpacity key={o.k} style={[{ flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center', borderWidth: 2, borderColor: report.patient_condition === o.k ? o.c : '#E0E0E0' }, report.patient_condition === o.k && { backgroundColor: o.c + '15' }]}
@@ -323,22 +323,22 @@ export default function CompanyInterventionDetail() {
                   </TouchableOpacity>
                 ))}
               </View>
-              <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Description</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Description</Text>
               <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 80, textAlignVertical: 'top', marginBottom: 12 }}
                 placeholder="Decrivez la situation a votre arrivee..." multiline value={report.description} onChangeText={v => setReport({...report, description: v})} />
-              <Text style={{ fontSize: 12, color: '#888', marginBottom: 4 }}>Actions effectuees</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 4 }}>Actions effectuees</Text>
               <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 60, textAlignVertical: 'top', marginBottom: 12 }}
                 placeholder="Ex: Aide au relevage, verification constantes..." multiline value={report.actions_taken} onChangeText={v => setReport({...report, actions_taken: v})} />
               <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}
                 onPress={() => setReport({...report, follow_up_needed: !report.follow_up_needed})}>
                 <Ionicons name={report.follow_up_needed ? 'checkbox' : 'square-outline'} size={22} color={report.follow_up_needed ? '#FF9800' : '#888'} />
-                <Text style={{ fontSize: 14, color: '#000' }}>Suivi necessaire</Text>
+                <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.92)' }}>Suivi necessaire</Text>
               </TouchableOpacity>
               {report.follow_up_needed && (
                 <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, marginBottom: 12 }}
                   placeholder="Precisions sur le suivi..." value={report.follow_up_notes} onChangeText={v => setReport({...report, follow_up_notes: v})} />
               )}
-              <TouchableOpacity style={{ backgroundColor: '#4CAF50', borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+              <TouchableOpacity style={{ backgroundColor: '#10B981', borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
                 onPress={handleComplete} disabled={submitting}>
                 {submitting ? <ActivityIndicator color="#FFF" /> : (
                   <><Ionicons name="checkmark-circle" size={20} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>TERMINER L'INTERVENTION</Text></>

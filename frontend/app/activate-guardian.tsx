@@ -12,7 +12,7 @@ const GlassCard = ({ children, style }: any) => (
 );
 const WebInput = ({ label, val, onChange, placeholder, type }: any) => Platform.OS === 'web' ? (
   <div style={{ marginBottom: 14 }}>
-    <div style={{ fontSize: 11, fontWeight: '700', color: '#888', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>{label}</div>
+    <div style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.50)', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>{label}</div>
     <input type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
       style={{ width: '100%', fontSize: 15, padding: '14px', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.08)', background: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} />
   </div>
@@ -41,10 +41,10 @@ export default function ActivateGuardianScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="activate-guardian-screen">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }} testID="activate-guardian-screen">
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#000" /></TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#000' }}>Espace gardien</Text>
+        <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#FFF" /></TouchableOpacity>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Espace gardien</Text>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
         {/* Pre-filled notice */}
@@ -55,7 +55,7 @@ export default function ActivateGuardianScreen() {
         )}
 
         <GlassCard>
-          <Text style={{ fontSize: 18, fontWeight: '800', color: '#000', marginBottom: 16 }}>Type de gardien</Text>
+          <Text style={{ fontSize: 18, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginBottom: 16 }}>Type de gardien</Text>
           <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
             {[{ id: 'particular', l: 'Particulier' }, { id: 'professional', l: 'Professionnel' }].map(t => (
               <TouchableOpacity key={t.id} testID={`guardian-type-${t.id}`} style={{ flex: 1, paddingVertical: 14, borderRadius: 14, borderWidth: 2, borderColor: guardianType === t.id ? '#000' : '#DDD', backgroundColor: guardianType === t.id ? 'rgba(0,0,0,0.05)' : 'transparent', alignItems: 'center' }} onPress={() => setGuardianType(t.id)}>

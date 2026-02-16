@@ -101,13 +101,13 @@ export default function HealthDetailScreen() {
   const maxVal = history.length > 0 ? Math.max(...history) : 0;
   const avgVal = history.length > 0 ? Math.round((history.reduce((a, b) => a + b, 0) / history.length) * 10) / 10 : 0;
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#000" /></TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#000', textAlign: 'center', marginRight: 36 }}>{cfg.title}</Text>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#FFF" /></TouchableOpacity>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', textAlign: 'center', marginRight: 36 }}>{cfg.title}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
@@ -119,7 +119,7 @@ export default function HealthDetailScreen() {
         {/* Value + Chart card - overlapping image */}
         <GlassCard style={{ paddingTop: 70, zIndex: 2 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <Text style={{ fontSize: 38, fontWeight: '900', color: '#000' }}>{currentVal || '--'}<Text style={{ fontSize: 14, color: '#888' }}> {cfg.unit}</Text></Text>
+            <Text style={{ fontSize: 38, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{currentVal || '--'}<Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.50)' }}> {cfg.unit}</Text></Text>
             <View style={{ backgroundColor: isNormal ? '#C8E6C9' : '#FFCDD2', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 8 }}>
               <Text style={{ fontSize: 11, fontWeight: '800', color: isNormal ? '#2E7D32' : '#C62828' }}>{isNormal ? 'BONNE SANTE' : 'ATTENTION'}</Text>
             </View>
@@ -136,13 +136,13 @@ export default function HealthDetailScreen() {
             </View>
             {Platform.OS === 'web' && (
               <div><input type="date" value={selectedDate} onChange={(e: any) => setSelectedDate(e.target.value)} max={new Date().toISOString().split('T')[0]}
-                style={{ fontSize: 12, padding: '6px 10px', borderRadius: 10, border: '1px solid rgba(0,0,0,0.08)', background: 'transparent', fontFamily: 'system-ui', cursor: 'pointer', color: '#888' }} /></div>
+                style={{ fontSize: 12, padding: '6px 10px', borderRadius: 10, border: '1px solid rgba(0,0,0,0.08)', background: 'transparent', fontFamily: 'system-ui', cursor: 'pointer', color: 'rgba(255,255,255,0.50)' }} /></div>
             )}
           </View>
 
           {history.length > 1 && <SimpleChart data={history} color={cfg.color} width={screenW} />}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-            {history.map((_, i) => { const d = new Date(); d.setDate(d.getDate() - (history.length - 1 - i)); return <Text key={i} style={{ fontSize: 8, color: '#AAA' }}>{d.getDate()}/{d.getMonth() + 1}</Text>; })}
+            {history.map((_, i) => { const d = new Date(); d.setDate(d.getDate() - (history.length - 1 - i)); return <Text key={i} style={{ fontSize: 8, color: 'rgba(255,255,255,0.38)' }}>{d.getDate()}/{d.getMonth() + 1}</Text>; })}
           </View>
         </GlassCard>
 
@@ -150,8 +150,8 @@ export default function HealthDetailScreen() {
         <GlassCard style={{ flexDirection: 'row', padding: 14 }}>
           {[{ label: 'Plus bas', val: minVal }, { label: 'Moyenne', val: avgVal }, { label: 'Plus haut', val: maxVal }].map((s, i) => (
             <View key={i} style={{ flex: 1, alignItems: 'center', borderRightWidth: i < 2 ? 1 : 0, borderRightColor: 'rgba(0,0,0,0.06)' }}>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#000' }}>{s.val}</Text>
-              <Text style={{ fontSize: 10, color: '#888' }}>{s.label}</Text>
+              <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{s.val}</Text>
+              <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)' }}>{s.label}</Text>
             </View>
           ))}
         </GlassCard>
@@ -159,8 +159,8 @@ export default function HealthDetailScreen() {
         {/* AI Recommendation */}
         <GlassCard>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <Ionicons name="sparkles" size={18} color="#000" />
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>Analyse IA</Text>
+            <Ionicons name="sparkles" size={18} color="#FFF" />
+            <Text style={{ fontSize: 14, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Analyse IA</Text>
           </View>
           <Text style={{ fontSize: 13, color: '#555', lineHeight: 20 }}>{aiRec}</Text>
         </GlassCard>
@@ -170,7 +170,7 @@ export default function HealthDetailScreen() {
           <View style={{ alignItems: 'center', marginBottom: 6 }}>
             <Image source={{ uri: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/kjf5ae40_exclamation.png' }} style={{ width: 28, height: 28, resizeMode: 'contain' }} />
           </View>
-          <Text style={{ fontSize: 14, fontWeight: '900', color: '#000', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Seuils d'alertes</Text>
+          <Text style={{ fontSize: 14, fontWeight: '900', color: 'rgba(255,255,255,0.92)', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Seuils d'alertes</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16, marginBottom: 10 }}>
             <View style={{ alignItems: 'center' }}>
               <View style={{ paddingHorizontal: 14, paddingVertical: 6, borderRadius: 8, borderWidth: 1.5, borderColor: '#1E88E5' }}>
