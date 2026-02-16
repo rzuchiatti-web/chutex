@@ -357,6 +357,9 @@ export default function OnboardingScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
+  // Set module-level colors for sub-components
+  C = useOnboardingColors();
+
   useEffect(() => {
     fadeAnim.setValue(0);
     slideAnim.setValue(20);
@@ -379,36 +382,28 @@ export default function OnboardingScreen() {
   const SlideComponent = SLIDES[current];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }} data-testid="onboarding-screen">
+    <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} data-testid="onboarding-screen">
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
-        {/* Logo header */}
         <View style={{ alignItems: 'center', paddingTop: 32, paddingBottom: 24 }}>
-          <Image source={require('../assets/images/logo_white.png')} style={{ width: 120, height: 40 }} resizeMode="contain" />
+          <Image source={C.logoSource} style={{ width: 120, height: 40 }} resizeMode="contain" />
         </View>
-
-        {/* Slide content */}
         <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           <SlideComponent />
         </Animated.View>
       </ScrollView>
 
-      {/* Bottom controls */}
       <View style={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
         paddingHorizontal: 24, paddingBottom: Platform.OS === 'web' ? 24 : 40, paddingTop: 16,
-        backgroundColor: 'rgba(0,0,0,0.9)',
+        backgroundColor: C.isDark ? 'rgba(0,0,0,0.9)' : 'rgba(245,246,248,0.95)',
         ...webGlass,
       }}>
-        {/* Progress dots */}
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 16 }}>
           {SLIDES.map((_, i) => (
             <TouchableOpacity key={i} onPress={() => setCurrent(i)}>
               <View style={{
-                width: i === current ? 24 : 6,
-                height: 6,
-                borderRadius: 3,
-                backgroundColor: i === current ? '#FFFFFF' : 'rgba(255,255,255,0.20)',
-                transition: 'all 0.3s ease',
+                width: i === current ? 24 : 6, height: 6, borderRadius: 3,
+                backgroundColor: i === current ? C.text : C.line,
               } as any} />
             </TouchableOpacity>
           ))}
