@@ -14,13 +14,13 @@ const CARD_W = Math.min(SCREEN_W - 48, 380);
 function useOnboardingColors() {
   const { colors, isDark } = useTheme();
   return {
-    bg: colors.background,
+    bg: C.bg,
     text: colors.textPrimary,
     textMuted: colors.textSecondary,
     textDim: colors.textMuted,
     line: colors.border,
     lineFaint: colors.borderLight,
-    surface: colors.surface,
+    surface: C.surface,
     careViolet: '#7C5CFF',
     careVioletWeak: 'rgba(124,92,255,0.18)',
     success: colors.success,
@@ -62,7 +62,7 @@ const HudCorner = ({ pos }: { pos: 'tl' | 'tr' | 'bl' | 'br' }) => {
 // ─── Clinic Card ───
 const Card = ({ children, style, care }: any) => (
   <View style={[{
-    backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : colors.surface,
+    backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : C.surface,
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: care ? C.careVioletWeak : C.line,
@@ -197,7 +197,7 @@ function Slide2() {
             <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>Analyse non-invasive via votre bracelet</Text>
           </View>
         </View>
-        <View style={{ height: 60, backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : colors.surface, borderRadius: 12, borderWidth: 1, borderColor: C.lineFaint, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ height: 60, backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : C.surface, borderRadius: 12, borderWidth: 1, borderColor: C.lineFaint, justifyContent: 'center', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
             <Text style={{ color: C.text, fontSize: 32, fontWeight: '800' }}>5.4</Text>
             <Text style={{ color: C.textMuted, fontSize: 13 }}>mmol/L</Text>
@@ -415,7 +415,7 @@ export default function OnboardingScreen() {
             <>
               <TouchableOpacity
                 data-testid="onboarding-skip-care"
-                style={{ flex: 1, paddingVertical: 16, borderRadius: Radius.full, borderWidth: 1, borderColor: C.line, alignItems: 'center', backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : colors.surface }}
+                style={{ flex: 1, paddingVertical: 16, borderRadius: Radius.full, borderWidth: 1, borderColor: C.line, alignItems: 'center', backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : C.surface }}
                 onPress={complete}
               >
                 <Text style={{ color: C.textMuted, fontSize: 14, fontWeight: '600' }}>Activer Care plus tard</Text>
