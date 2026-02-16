@@ -16,13 +16,13 @@ export function HelpBubble({ id, title, description, steps }: { id: string; titl
       </TouchableOpacity>
       <Modal visible={show} transparent animationType="fade">
         <TouchableOpacity activeOpacity={1} onPress={() => setShow(false)} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}>
-          <TouchableOpacity activeOpacity={1} onPress={() => {}} style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '70%' }}>
+          <TouchableOpacity activeOpacity={1} onPress={() => {}} style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '70%' }}>
             <View style={{ alignItems: 'center', paddingBottom: 8 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} /></View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 16 }}>
               <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="information-circle" size={22} color="#2196F3" />
               </View>
-              <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', flex: 1 }}>{title}</Text>
+              <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{title}</Text>
               <TouchableOpacity onPress={() => setShow(false)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
             </View>
             <Text style={{ fontSize: 14, color: '#555', lineHeight: 22, marginBottom: 16 }}>{description}</Text>
@@ -91,8 +91,8 @@ export function OnboardingChecklist({ items, title }: { items: { label: string; 
           <Ionicons name="rocket-outline" size={18} color="#2196F3" />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>{title}</Text>
-          <Text style={{ fontSize: 11, color: '#888' }}>{completed}/{total} etapes completees</Text>
+          <Text style={{ fontSize: 14, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{title}</Text>
+          <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{completed}/{total} etapes completees</Text>
         </View>
       </View>
       <View style={{ height: 6, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 3, marginBottom: 12, overflow: 'hidden' }}>
@@ -129,13 +129,13 @@ export function HelpCenter({ visible, onClose }: { visible: boolean; onClose: ()
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-        <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%', flex: 1 }}>
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%', flex: 1 }}>
           <View style={{ alignItems: 'center', paddingTop: 12 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} /></View>
           <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, gap: 10 }}>
             <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons name="help-buoy" size={22} color="#2196F3" />
             </View>
-            <Text style={{ fontSize: 20, fontWeight: '900', color: '#000', flex: 1 }}>Centre d'aide</Text>
+            <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)', flex: 1 }}>Centre d'aide</Text>
             <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} color="#888" /></TouchableOpacity>
           </View>
           <View style={{ paddingHorizontal: 20, marginBottom: 12 }}>
@@ -145,13 +145,13 @@ export function HelpCenter({ visible, onClose }: { visible: boolean; onClose: ()
             </View>
           </View>
           <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
-            <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', marginBottom: 12 }}>Questions frequentes</Text>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginBottom: 12 }}>Questions frequentes</Text>
             {filtered.map((f, i) => (
               <TouchableOpacity key={i} onPress={() => setExpanded(expanded === i ? null : i)}
                 style={{ backgroundColor: expanded === i ? '#F5F9FF' : '#FAFAFA', borderRadius: 14, padding: 14, marginBottom: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                   <Ionicons name={expanded === i ? 'chevron-down' : 'chevron-forward'} size={16} color="#2196F3" />
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#000', flex: 1 }}>{f.q}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{f.q}</Text>
                 </View>
                 {expanded === i && <Text style={{ fontSize: 13, color: '#555', lineHeight: 20, marginTop: 10, marginLeft: 26 }}>{f.a}</Text>}
               </TouchableOpacity>
@@ -159,13 +159,13 @@ export function HelpCenter({ visible, onClose }: { visible: boolean; onClose: ()
             {filtered.length === 0 && (
               <View style={{ alignItems: 'center', paddingVertical: 30 }}>
                 <Ionicons name="search-outline" size={36} color="#DDD" />
-                <Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucun resultat</Text>
+                <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.50)', marginTop: 8 }}>Aucun resultat</Text>
               </View>
             )}
             <View style={{ backgroundColor: '#F5F5F5', borderRadius: 14, padding: 16, marginTop: 16, alignItems: 'center' }}>
               <Ionicons name="mail-outline" size={24} color="#2196F3" />
-              <Text style={{ fontSize: 14, fontWeight: '700', color: '#000', marginTop: 8 }}>Besoin d'aide supplementaire ?</Text>
-              <Text style={{ fontSize: 12, color: '#888', marginTop: 4, textAlign: 'center' }}>Contactez notre equipe support</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)', marginTop: 8 }}>Besoin d'aide supplementaire ?</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 4, textAlign: 'center' }}>Contactez notre equipe support</Text>
               <TouchableOpacity style={{ backgroundColor: '#2196F3', borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginTop: 12 }}>
                 <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>support@chutex.fr</Text>
               </TouchableOpacity>
@@ -215,7 +215,7 @@ export function MiniTuto({ id, steps, triggerLabel }: { id: string; steps: { tit
       )}
       <Modal visible={visible} transparent animationType="fade">
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 24 }}>
-          <Animated.View style={{ opacity: fadeAnim, backgroundColor: '#FFF', borderRadius: 28, padding: 28, width: '100%', maxWidth: 400, ...glass }}>
+          <Animated.View style={{ opacity: fadeAnim, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 28, padding: 28, width: '100%', maxWidth: 400, ...glass }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 {steps.map((_, i) => (
@@ -227,13 +227,13 @@ export function MiniTuto({ id, steps, triggerLabel }: { id: string; steps: { tit
             <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center', alignSelf: 'center', marginBottom: 16 }}>
               <Ionicons name={(steps[step]?.icon || 'information-circle') as any} size={28} color="#2196F3" />
             </View>
-            <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', textAlign: 'center', marginBottom: 8 }}>{steps[step]?.title}</Text>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)', textAlign: 'center', marginBottom: 8 }}>{steps[step]?.title}</Text>
             <Text style={{ fontSize: 14, color: '#555', lineHeight: 22, textAlign: 'center', marginBottom: 24 }}>{steps[step]?.text}</Text>
             <View style={{ flexDirection: 'row', gap: 10 }}>
               {step > 0 && (
                 <TouchableOpacity onPress={() => { fadeAnim.setValue(0); setStep(step - 1); }}
                   style={{ flex: 1, borderWidth: 1.5, borderColor: '#E0E0E0', borderRadius: 14, paddingVertical: 14, alignItems: 'center' }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>Retour</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>Retour</Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity onPress={next} data-testid={`tuto-next-${id}`}
@@ -262,13 +262,13 @@ export function PageExplainer({ pageId, title, sections }: { pageId: string; tit
       </TouchableOpacity>
       <Modal visible={visible} transparent animationType="slide">
         <TouchableOpacity activeOpacity={1} onPress={() => setVisible(false)} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}>
-          <TouchableOpacity activeOpacity={1} onPress={() => {}} style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '80%' }}>
+          <TouchableOpacity activeOpacity={1} onPress={() => {}} style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '80%' }}>
             <View style={{ alignItems: 'center', paddingTop: 12 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} /></View>
             <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, gap: 10 }}>
               <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="book" size={20} color="#2196F3" />
               </View>
-              <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', flex: 1 }}>{title}</Text>
+              <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{title}</Text>
               <TouchableOpacity onPress={() => setVisible(false)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
             </View>
             <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40, gap: 16 }}>
@@ -278,7 +278,7 @@ export function PageExplainer({ pageId, title, sections }: { pageId: string; tit
                     <Ionicons name={s.icon as any} size={18} color="#2196F3" />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 14, fontWeight: '800', color: '#000', marginBottom: 4 }}>{s.heading}</Text>
+                    <Text style={{ fontSize: 14, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginBottom: 4 }}>{s.heading}</Text>
                     <Text style={{ fontSize: 13, color: '#555', lineHeight: 20 }}>{s.text}</Text>
                   </View>
                 </View>
@@ -298,8 +298,8 @@ export function EmptyState({ icon, title, subtitle, actionLabel, onAction, testI
       <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(33,150,243,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
         <Ionicons name={icon as any} size={30} color="#90CAF9" />
       </View>
-      <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', textAlign: 'center', marginBottom: 6 }}>{title}</Text>
-      <Text style={{ fontSize: 13, color: '#888', textAlign: 'center', lineHeight: 20, paddingHorizontal: 10 }}>{subtitle}</Text>
+      <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textAlign: 'center', marginBottom: 6 }}>{title}</Text>
+      <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', textAlign: 'center', lineHeight: 20, paddingHorizontal: 10 }}>{subtitle}</Text>
       {actionLabel && onAction && (
         <TouchableOpacity onPress={onAction} style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 12, paddingHorizontal: 24, marginTop: 16, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>{actionLabel}</Text>
