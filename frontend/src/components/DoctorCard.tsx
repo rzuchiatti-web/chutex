@@ -1,66 +1,61 @@
 import { Icon } from './WebIcon';
 import React from 'react';
-import { View, Text, TouchableOpacity, Platform, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, Platform } from 'react-native';
 
 interface DoctorCardProps {
   onPress: () => void;
 }
 
 export function DoctorCard({ onPress }: DoctorCardProps) {
-  const webShadow = Platform.OS === 'web' ? { boxShadow: '0 2px 20px rgba(0,0,0,0.06)' } : {};
-
   return (
     <TouchableOpacity
       testID="doctor-teleconsult-card"
-      activeOpacity={0.8}
+      activeOpacity={0.85}
       onPress={onPress}
       style={{
         backgroundColor: '#FFFFFF',
-        borderRadius: 22,
+        borderRadius: 24,
         borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.04)',
+        borderColor: 'rgba(28,25,23,0.06)',
         padding: 18,
         marginBottom: 14,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 14,
-        ...webShadow,
+        ...(Platform.OS === 'web'
+          ? { boxShadow: '0 2px 20px rgba(28,25,23,0.05)', transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)' }
+          : { shadowColor: '#1C1917', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 2 }),
       }}
     >
-      {/* Doctor avatar */}
       <View style={{
-        width: 56, height: 56, borderRadius: 28,
-        backgroundColor: '#F0F1F3',
+        width: 52, height: 52, borderRadius: 18,
+        backgroundColor: 'rgba(124,92,255,0.08)',
         justifyContent: 'center', alignItems: 'center',
-        borderWidth: 1, borderColor: 'rgba(0,0,0,0.04)',
       }}>
-        <Icon name="medkit" size={24} color="#1A1D21" />
+        <Icon name="videocam-outline" size={24} color="#7C5CFF" />
       </View>
 
-      {/* Info */}
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-          <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21', letterSpacing: -0.2 }}>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: '#1C1917' }}>
             Teleconsultation
           </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(16,185,129,0.08)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(16,185,129,0.08)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 }}>
             <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#10B981' }} />
             <Text style={{ fontSize: 9, fontWeight: '700', color: '#10B981', letterSpacing: 0.5 }}>DISPONIBLE</Text>
           </View>
         </View>
-        <Text style={{ fontSize: 12, color: '#5A6068', lineHeight: 16 }}>
-          Medecin generaliste · Consultation 24/7
+        <Text style={{ fontSize: 12, color: '#78716C', lineHeight: 16 }}>
+          Medecin generaliste · 24/7
         </Text>
       </View>
 
-      {/* CTA arrow */}
       <View style={{
-        width: 36, height: 36, borderRadius: 18,
-        backgroundColor: '#1A1D21',
+        width: 40, height: 40, borderRadius: 14,
+        backgroundColor: '#C67A4F',
         justifyContent: 'center', alignItems: 'center',
       }}>
-        <Icon name="videocam" size={16} color="#FFF" />
+        <Icon name="chevron-forward" size={18} color="#FFF" />
       </View>
     </TouchableOpacity>
   );
