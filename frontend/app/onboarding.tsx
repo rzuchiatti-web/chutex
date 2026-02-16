@@ -87,8 +87,8 @@ export default function OnboardingScreen() {
         </div>
 
         {/* Center content — pushed higher */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', position: 'relative', zIndex: 5, padding: '0 24px', paddingTop: '7vh' } as any}>
-          <img src={LOGO} alt="Chutex" className="anim-up" style={{ height: 88, width: 'auto', marginBottom: 32, filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.15))' } as any} />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', position: 'relative', zIndex: 5, padding: '0 24px', paddingTop: '4vh' } as any}>
+          <img src={LOGO} alt="Chutex" className="anim-up" style={{ height: 120, width: 'auto', marginBottom: 28, filter: 'drop-shadow(0 0 40px rgba(255,255,255,0.2)) drop-shadow(0 0 80px rgba(255,255,255,0.08))' } as any} />
           <div className="anim-up d2" style={{ textAlign: 'center', maxWidth: 340 } as any}>
             <Typewriter text={slide.title} speed={28} delay={600} color="#FFF" />
           </div>
@@ -98,9 +98,9 @@ export default function OnboardingScreen() {
         <div style={{ padding: '16px 24px 36px', position: 'relative', zIndex: 10 } as any}>
           <div data-testid="onboarding-next-btn" style={{
             width: '100%', height: 62, borderRadius: 999, position: 'relative', overflow: 'hidden', cursor: 'pointer',
-            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-            backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)',
-            boxShadow: '0 0 40px rgba(255,255,255,0.04)',
+            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)',
+            boxShadow: '0 0 50px rgba(255,255,255,0.05), 0 0 100px rgba(255,255,255,0.02), inset 0 0 0 1px rgba(255,255,255,0.04)',
           } as any}
             onMouseDown={(e: any) => {
               const bar = e.currentTarget;
