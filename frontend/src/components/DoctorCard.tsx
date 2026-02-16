@@ -17,45 +17,61 @@ export function DoctorCard({ onPress }: DoctorCardProps) {
         borderRadius: 24,
         borderWidth: 1,
         borderColor: 'rgba(20,20,30,0.06)',
-        padding: 18,
-        marginBottom: 14,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 14,
+        padding: 20,
+        marginBottom: 16,
+        overflow: 'hidden',
         ...(Platform.OS === 'web'
-          ? { boxShadow: '0 2px 20px rgba(20,20,30,0.05)', transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)' }
-          : { shadowColor: '#1E1F24', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 2 }),
+          ? { boxShadow: '0 10px 30px rgba(20,20,30,0.08)', transition: 'all 320ms cubic-bezier(0.22, 1, 0.36, 1)' }
+          : { shadowColor: '#14141E', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.08, shadowRadius: 30, elevation: 3 }),
       }}
     >
+      {/* Soft gradient top strip */}
       <View style={{
-        width: 52, height: 52, borderRadius: 18,
-        backgroundColor: 'rgba(124,92,255,0.08)',
-        justifyContent: 'center', alignItems: 'center',
-      }}>
-        <Icon name="videocam-outline" size={24} color="#7C5CFF" />
-      </View>
+        position: 'absolute', top: 0, left: 0, right: 0, height: 4,
+        ...(Platform.OS === 'web' ? { background: 'linear-gradient(90deg, #D4845A, #E8A87C, #F5CBA7)' } : { backgroundColor: '#D4845A' }),
+      }} />
 
-      <View style={{ flex: 1 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#1E1F24' }}>
-            Teleconsultation
-          </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(16,185,129,0.08)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 }}>
-            <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#10B981' }} />
-            <Text style={{ fontSize: 9, fontWeight: '700', color: '#10B981', letterSpacing: 0.5 }}>DISPONIBLE</Text>
-          </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        {/* Doctor avatar */}
+        <View style={{
+          width: 56, height: 56, borderRadius: 20,
+          justifyContent: 'center', alignItems: 'center',
+          ...(Platform.OS === 'web'
+            ? { background: 'linear-gradient(135deg, rgba(124,92,255,0.12), rgba(124,92,255,0.04))', backdropFilter: 'blur(8px)' }
+            : { backgroundColor: 'rgba(124,92,255,0.10)' }),
+        }}>
+          <Icon name="videocam-outline" size={26} color="#7C5CFF" />
         </View>
-        <Text style={{ fontSize: 12, color: '#6B7084', lineHeight: 16 }}>
-          Medecin generaliste · 24/7
-        </Text>
-      </View>
 
-      <View style={{
-        width: 40, height: 40, borderRadius: 14,
-        backgroundColor: '#D4845A',
-        justifyContent: 'center', alignItems: 'center',
-      }}>
-        <Icon name="chevron-forward" size={18} color="#FFF" />
+        {/* Info */}
+        <View style={{ flex: 1 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: '#1E1F24', letterSpacing: -0.2 }}>
+              Teleconsultation
+            </Text>
+            <View style={{
+              flexDirection: 'row', alignItems: 'center', gap: 5,
+              backgroundColor: 'rgba(16,185,129,0.08)', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 999,
+            }}>
+              <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#10B981' }} />
+              <Text style={{ fontSize: 10, fontWeight: '600', color: '#10B981', letterSpacing: 0.3 }}>DISPONIBLE</Text>
+            </View>
+          </View>
+          <Text style={{ fontSize: 13, color: '#6B7084', lineHeight: 18 }}>
+            Medecin generaliste · Consultation 24/7
+          </Text>
+        </View>
+
+        {/* CTA arrow - circular soft-raised */}
+        <View style={{
+          width: 42, height: 42, borderRadius: 14,
+          justifyContent: 'center', alignItems: 'center',
+          ...(Platform.OS === 'web'
+            ? { background: 'linear-gradient(135deg, #1E1F24, #2D2E34)', boxShadow: '0 4px 16px rgba(20,20,30,0.12)' }
+            : { backgroundColor: '#1E1F24' }),
+        }}>
+          <Icon name="chevron-forward" size={18} color="#FFF" />
+        </View>
       </View>
     </TouchableOpacity>
   );
