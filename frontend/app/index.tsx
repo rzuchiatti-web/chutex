@@ -212,7 +212,7 @@ export default function AuthScreen() {
                 <GInput testID="reg-email" label="Email" inputRef={emailRef} defaultValue="" placeholder="email@exemple.com" />
                 <GInput testID="reg-phone" label="Telephone" inputRef={phoneRef} defaultValue="" placeholder="06 12 34 56 78" />
                 <GInput testID="reg-password" label="Mot de passe" inputRef={passwordRef} defaultValue="" placeholder="Min. 6 caracteres" secure />
-                <CTA testID="next-step" label="Suivant" onPress={() => { if (!name || !email || !password) return setError('Remplissez tous les champs'); setError(''); setStep(1); }} />
+                <CTA testID="next-step" label="Suivant" onPress={() => { if (!nameRef.current || !emailRef.current || !passwordRef.current) return setError('Remplissez tous les champs'); setError(''); setStep(1); }} />
                 <View style={{ alignItems: 'center', marginTop: 20 }}>
                   <Text style={{ color: C.textSoft, fontSize: 14 }}>Deja un compte ? <Text style={{ fontWeight: '700', color: C.text, textDecorationLine: 'underline' }} onPress={() => { setIsLogin(true); setStep(0); setError(''); }}>Se connecter.</Text></Text>
                 </View>
