@@ -168,7 +168,7 @@ export default function InterventionMapScreen() {
         {/* Back to intervention detail */}
         <TouchableOpacity
           testID="back-to-detail-btn"
-          style={{ borderRadius: 9999, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, borderWidth: 2, borderColor: '#000' }}
+          style={{ borderRadius: 9999, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, borderWidth: 2, borderColor: 'rgba(0,0,0,0.06)' }}
           onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: interventionId } })}>
           <Ionicons name="document-text-outline" size={16} color="#1A1D21" />
           <Text style={{ color: '#1A1D21', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' }}>DETAIL DE L'INTERVENTION</Text>

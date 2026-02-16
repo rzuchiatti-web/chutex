@@ -222,7 +222,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
                 onPress={() => { resolveIncident(selectedIncident.id); setSelectedIncident(null); }}>
                 <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>CLOTURER</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, borderWidth: 2, borderColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
+              <TouchableOpacity style={{ flex: 1, borderWidth: 2, borderColor: 'rgba(0,0,0,0.06)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
                 onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: selectedIncident.alert_id } })}>
                 <Text style={{ color: '#1A1D21', fontSize: 12, fontWeight: '800' }}>FICHE ALERTE</Text>
               </TouchableOpacity>
