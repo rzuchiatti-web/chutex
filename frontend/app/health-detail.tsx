@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, Image, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -106,7 +107,7 @@ export default function HealthDetailScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21', textAlign: 'center', marginRight: 36 }}>{cfg.title}</Text>
       </View>
 
@@ -159,7 +160,7 @@ export default function HealthDetailScreen() {
         {/* AI Recommendation */}
         <GlassCard>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <Ionicons name="sparkles" size={18} color="#1A1D21" />
+            <Icon name="sparkles" size={18} color="#1A1D21" />
             <Text style={{ fontSize: 14, fontWeight: '800', color: '#1A1D21' }}>Analyse IA</Text>
           </View>
           <Text style={{ fontSize: 13, color: '#555', lineHeight: 20 }}>{aiRec}</Text>

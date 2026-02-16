@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, Dimensions, TextInput, Alert, Linking, Modal } from 'react-native';
@@ -12,7 +13,7 @@ const stColor = (st: string) => ({ pending_acceptance: '#FF9800', in_progress: '
 const stLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
 
 function FullMap({ benLat, benLng, ivLat, ivLng, benName, ivName }: any) {
-  if (Platform.OS !== 'web' || !benLat) return <View style={{ flex: 1, backgroundColor: '#E0E0E0', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="map-outline" size={48} color="#BBB" /></View>;
+  if (Platform.OS !== 'web' || !benLat) return <View style={{ flex: 1, backgroundColor: '#E0E0E0', justifyContent: 'center', alignItems: 'center' }}><Icon name="map-outline" size={48} color="#BBB" /></View>;
   const bi = (benName || 'B').charAt(0), ii = (ivName || 'I').charAt(0);
   const m = ivLat && ivLng
     ? `var b=L.marker([${benLat},${benLng}],{icon:L.divIcon({className:'',html:'<div style="background:#E53935;color:#FFF;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;border:3px solid #FFF;box-shadow:0 4px 16px rgba(0,0,0,0.3)">${bi}</div>'})}).addTo(map);var i=L.marker([${ivLat},${ivLng}],{icon:L.divIcon({className:'',html:'<div style="background:#009688;color:#FFF;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;border:3px solid #FFF;box-shadow:0 4px 16px rgba(0,0,0,0.3);animation:p 2s infinite"><style>@keyframes p{0%,100%{box-shadow:0 0 0 0 rgba(0,150,136,0.4)}70%{box-shadow:0 0 0 20px rgba(0,150,136,0)}}</style>${ii}</div>'})}).addTo(map);L.polyline([[${ivLat},${ivLng}],[${benLat},${benLng}]],{color:'#009688',weight:4,dashArray:'10,8',opacity:0.7}).addTo(map);map.fitBounds([[${benLat},${benLng}],[${ivLat},${ivLng}]],{padding:[50,50]});`
@@ -71,13 +72,13 @@ export default function CompanyInterventionDetail() {
     const GC = ({ children, style: s2 }: any) => <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, s2]}>{children}</View>;
     const IR = ({ icon, label, value, color: c }: any) => value ? (
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-        <Ionicons name={icon} size={16} color={c || '#888'} /><Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text><Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
+        <Icon name={icon} size={16} color={c || '#888'} /><Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text><Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
       </View>
     ) : null;
     return (
       <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-          <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
+          <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
           <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Intervention terminee</Text>
           <View style={{ backgroundColor: '#10B981' + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}><Text style={{ fontSize: 10, fontWeight: '800', color: '#10B981' }}>TERMINEE</Text></View>
         </View>
@@ -85,7 +86,7 @@ export default function CompanyInterventionDetail() {
           {/* Status */}
           <GC style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50', padding: 20 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="checkmark-circle" size={24} color="#4CAF50" /></View>
+              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}><Icon name="checkmark-circle" size={24} color="#4CAF50" /></View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 11, fontWeight: '800', color: '#10B981', letterSpacing: 0.5 }}>INTERVENTION TERMINEE</Text>
                 <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21', marginTop: 4 }}>{alert_data?.alert_type === 'sos' ? 'SOS - Urgence' : alert_data?.alert_type === 'fall' ? 'Chute detectee' : 'Alerte'}</Text>
@@ -97,12 +98,12 @@ export default function CompanyInterventionDetail() {
           {rpt && (
             <GC style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="document-text" size={18} color="#4CAF50" /></View>
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}><Icon name="document-text" size={18} color="#4CAF50" /></View>
                 <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Rapport d'intervention</Text>
               </View>
               {rpt.patient_condition && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
-                  <Ionicons name="heart" size={16} color="#4CAF50" />
+                  <Icon name="heart" size={16} color="#4CAF50" />
                   <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat du patient: {rpt.patient_condition === 'stable' ? 'Stable' : rpt.patient_condition === 'improved' ? 'Ameliore' : 'Soins necessaires'}</Text>
                 </View>
               )}
@@ -110,7 +111,7 @@ export default function CompanyInterventionDetail() {
               {rpt.actions_taken && <View style={{ marginBottom: 8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', marginBottom: 4 }}>Actions effectuees</Text><Text style={{ fontSize: 13, color: '#1A1D21', lineHeight: 20 }}>{rpt.actions_taken}</Text></View>}
               {rpt.follow_up_needed && (
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
-                  <Ionicons name="flag" size={14} color="#FF9800" /><Text style={{ fontSize: 12, color: '#E65100', flex: 1 }}><Text style={{ fontWeight: '700' }}>Suivi necessaire:</Text> {rpt.follow_up_notes}</Text>
+                  <Icon name="flag" size={14} color="#FF9800" /><Text style={{ fontSize: 12, color: '#E65100', flex: 1 }}><Text style={{ fontWeight: '700' }}>Suivi necessaire:</Text> {rpt.follow_up_notes}</Text>
                 </View>
               )}
               {rpt.completed_by && <Text style={{ fontSize: 10, color: '#5A6068', marginTop: 8 }}>Rapport par {rpt.completed_by} - {rpt.completed_at ? new Date(rpt.completed_at).toLocaleString('fr-FR') : ''}</Text>}
@@ -119,7 +120,7 @@ export default function CompanyInterventionDetail() {
           {/* Beneficiary */}
           <GC>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="person" size={18} color="#0288D1" /></View>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}><Icon name="person" size={18} color="#0288D1" /></View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Beneficiaire</Text>
             </View>
             <IR icon="person-outline" label="Nom" value={ben.name || iv.beneficiary_name} color="#0288D1" />
@@ -135,7 +136,7 @@ export default function CompanyInterventionDetail() {
           {intervenant && (
             <GC>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="shield-checkmark" size={18} color="#9C27B0" /></View>
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}><Icon name="shield-checkmark" size={18} color="#9C27B0" /></View>
                 <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Intervenant</Text>
               </View>
               <IR icon="person-outline" label="Nom" value={intervenant.name} color="#9C27B0" />
@@ -148,7 +149,7 @@ export default function CompanyInterventionDetail() {
           {alert_data && (
             <GC>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}><Ionicons name="warning" size={18} color="#E53935" /></View>
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}><Icon name="warning" size={18} color="#E53935" /></View>
                 <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Alerte</Text>
               </View>
               <IR icon="alert-circle-outline" label="Type" value={alert_data.alert_type?.toUpperCase()} color="#E53935" />
@@ -181,7 +182,7 @@ export default function CompanyInterventionDetail() {
       <View style={{ height: MAP_H, position: 'relative' }}>
         <FullMap benLat={benLoc.latitude} benLng={benLoc.longitude} ivLat={ivLoc?.latitude} ivLng={ivLoc?.longitude} benName={ben.name || iv.beneficiary_name} ivName={iv.assigned_name} />
         <TouchableOpacity onPress={() => router.back()} style={{ position: 'absolute', top: 50, left: 16, width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(0,0,0,0.15)' } : {}) }}>
-          <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+          <Icon name="chevron-back" size={24} color="#1A1D21" />
         </TouchableOpacity>
         <View style={{ position: 'absolute', top: 50, right: 16, backgroundColor: sc, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 6, ...(Platform.OS === 'web' ? { boxShadow: '0 2px 12px rgba(0,0,0,0.2)' } : {}) }}>
           <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFFFFF' }} />
@@ -189,7 +190,7 @@ export default function CompanyInterventionDetail() {
         </View>
         {iv.distance_km && !isCompleted && (
           <View style={{ position: 'absolute', bottom: 16, alignSelf: 'center', backgroundColor: '#F5F6F8', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 8, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.3)', left: '50%', transform: 'translateX(-50%)' as any } : {}) }}>
-            <Ionicons name="navigate" size={16} color="#1A1D21" />
+            <Icon name="navigate" size={16} color="#1A1D21" />
             <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900' }}>{iv.distance_km} km</Text>
           </View>
         )}
@@ -218,14 +219,14 @@ export default function CompanyInterventionDetail() {
             </View>
           ) : (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14, backgroundColor: '#FFF3E0', borderRadius: 14, padding: 14 }}>
-              <Ionicons name="time" size={24} color="#FF9800" />
+              <Icon name="time" size={24} color="#FF9800" />
               <Text style={{ fontSize: 15, fontWeight: '800', color: '#E65100', flex: 1 }}>En attente d'un intervenant</Text>
             </View>
           )}
 
           {/* Alert banner */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFEBEE', borderRadius: 14, padding: 14, marginBottom: 14 }}>
-            <Ionicons name={alert_data?.alert_type === 'fall' ? 'trending-down' : 'alert-circle'} size={20} color="#E53935" />
+            <Icon name={alert_data?.alert_type === 'fall' ? 'trending-down' : 'alert-circle'} size={20} color="#E53935" />
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 13, fontWeight: '800', color: '#E53935' }}>{alert_data?.alert_type === 'sos' ? 'SOS - Urgence' : alert_data?.alert_type === 'fall' ? 'Chute detectee' : 'Alerte'}</Text>
               <Text style={{ fontSize: 11, color: '#C62828' }}>{iv.alert_message || alert_data?.message}</Text>
@@ -248,13 +249,13 @@ export default function CompanyInterventionDetail() {
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
             {ben.phone && (
               <TouchableOpacity onPress={() => makeCall(ben.phone)} style={{ flex: 1, backgroundColor: '#E3F2FD', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                <Ionicons name="call" size={16} color="#1565C0" />
+                <Icon name="call" size={16} color="#1565C0" />
                 <Text style={{ fontSize: 12, fontWeight: '700', color: '#1565C0' }}>Appeler patient</Text>
               </TouchableOpacity>
             )}
             {ben.emergency_contact_phone && (
               <TouchableOpacity onPress={() => makeCall(ben.emergency_contact_phone)} style={{ flex: 1, backgroundColor: '#FFEBEE', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                <Ionicons name="call" size={16} color="#E53935" />
+                <Icon name="call" size={16} color="#E53935" />
                 <Text style={{ fontSize: 12, fontWeight: '700', color: '#E53935' }}>Urgence</Text>
               </TouchableOpacity>
             )}
@@ -277,7 +278,7 @@ export default function CompanyInterventionDetail() {
               <View style={{ backgroundColor: '#E8F5E9', borderRadius: 14, padding: 14, borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
                 {rpt.patient_condition && (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                    <Ionicons name="heart" size={14} color="#4CAF50" />
+                    <Icon name="heart" size={14} color="#4CAF50" />
                     <Text style={{ fontSize: 13, fontWeight: '800', color: '#2E7D32' }}>Etat: {rpt.patient_condition === 'stable' ? 'Stable' : rpt.patient_condition === 'improved' ? 'Ameliore' : rpt.patient_condition === 'needs_care' ? 'Necessite des soins' : rpt.patient_condition}</Text>
                   </View>
                 )}
@@ -313,7 +314,7 @@ export default function CompanyInterventionDetail() {
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <Text style={{ fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>Rapport d'intervention</Text>
-              <TouchableOpacity onPress={() => setShowReport(false)}><Ionicons name="close" size={24} color="#888" /></TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowReport(false)}><Icon name="close" size={24} color="#888" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text style={{ fontSize: 12, color: '#5A6068', marginBottom: 4 }}>Etat du patient</Text>
@@ -333,7 +334,7 @@ export default function CompanyInterventionDetail() {
                 placeholder="Ex: Aide au relevage, verification constantes..." multiline value={report.actions_taken} onChangeText={v => setReport({...report, actions_taken: v})} />
               <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}
                 onPress={() => setReport({...report, follow_up_needed: !report.follow_up_needed})}>
-                <Ionicons name={report.follow_up_needed ? 'checkbox' : 'square-outline'} size={22} color={report.follow_up_needed ? '#FF9800' : '#888'} />
+                <Icon name={report.follow_up_needed ? 'checkbox' : 'square-outline'} size={22} color={report.follow_up_needed ? '#FF9800' : '#888'} />
                 <Text style={{ fontSize: 14, color: '#1A1D21' }}>Suivi necessaire</Text>
               </TouchableOpacity>
               {report.follow_up_needed && (
@@ -343,7 +344,7 @@ export default function CompanyInterventionDetail() {
               <TouchableOpacity style={{ backgroundColor: '#10B981', borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
                 onPress={handleComplete} disabled={submitting}>
                 {submitting ? <ActivityIndicator color="#1A1D21" /> : (
-                  <><Ionicons name="checkmark-circle" size={20} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>TERMINER L'INTERVENTION</Text></>
+                  <><Icon name="checkmark-circle" size={20} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>TERMINER L'INTERVENTION</Text></>
                 )}
               </TouchableOpacity>
             </ScrollView>

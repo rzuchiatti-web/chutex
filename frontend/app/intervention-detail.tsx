@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -78,7 +79,7 @@ export default function InterventionDetailScreen() {
       <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
           <TouchableOpacity onPress={() => setShowQCM(false)} style={{ padding: 4, marginRight: 12 }}>
-            <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+            <Icon name="chevron-back" size={24} color="#1A1D21" />
           </TouchableOpacity>
           <Text style={{ flex: 1, fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>Compte-rendu</Text>
         </View>
@@ -118,7 +119,7 @@ export default function InterventionDetailScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-          <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+          <Icon name="chevron-back" size={24} color="#1A1D21" />
         </TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>Intervention</Text>
         <View style={{ backgroundColor: statusColor + '20', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 9999 }}>
@@ -147,10 +148,10 @@ export default function InterventionDetailScreen() {
               {ben.phone ? <Text style={{ fontSize: 13, color: '#5A6068', marginTop: 2 }}>{ben.phone}</Text> : null}
             </View>
           </View>
-          {ben.address ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}><Ionicons name="location-outline" size={16} color="#1A1D21" /><Text style={{ fontSize: 14, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{ben.address}</Text></View> : null}
-          {ben.medical_conditions ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}><Ionicons name="medkit-outline" size={16} color="#E53935" /><Text style={{ fontSize: 13, color: '#555' }}>{ben.medical_conditions}</Text></View> : null}
-          {ben.allergies ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}><Ionicons name="warning-outline" size={16} color="#FF9800" /><Text style={{ fontSize: 13, color: '#555' }}>Allergies: {ben.allergies}</Text></View> : null}
-          {ben.emergency_contact_name ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Ionicons name="call-outline" size={16} color="#1A1D21" /><Text style={{ fontSize: 13, color: '#555' }}>Contact urgence: {ben.emergency_contact_name} ({ben.emergency_contact_phone})</Text></View> : null}
+          {ben.address ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}><Icon name="location-outline" size={16} color="#1A1D21" /><Text style={{ fontSize: 14, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{ben.address}</Text></View> : null}
+          {ben.medical_conditions ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}><Icon name="medkit-outline" size={16} color="#E53935" /><Text style={{ fontSize: 13, color: '#555' }}>{ben.medical_conditions}</Text></View> : null}
+          {ben.allergies ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}><Icon name="warning-outline" size={16} color="#FF9800" /><Text style={{ fontSize: 13, color: '#555' }}>Allergies: {ben.allergies}</Text></View> : null}
+          {ben.emergency_contact_name ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Icon name="call-outline" size={16} color="#1A1D21" /><Text style={{ fontSize: 13, color: '#555' }}>Contact urgence: {ben.emergency_contact_name} ({ben.emergency_contact_phone})</Text></View> : null}
         </GlassCard>
 
         {/* Coordinates */}
@@ -175,8 +176,8 @@ export default function InterventionDetailScreen() {
                 {iv.structure_name ? <Text style={{ fontSize: 12, color: '#5A6068' }}>{iv.structure_name}</Text> : null}
               </View>
             </View>
-            {iv.intervener_location?.address ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}><Ionicons name="location-outline" size={16} color="#1A1D21" /><Text style={{ fontSize: 13, color: '#555', flex: 1 }}>{iv.intervener_location.address}</Text></View> : null}
-            {iv.distance_km ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}><Ionicons name="navigate-outline" size={16} color="#1A1D21" /><Text style={{ fontSize: 13, color: '#555' }}>Distance : {iv.distance_km} km</Text></View> : null}
+            {iv.intervener_location?.address ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}><Icon name="location-outline" size={16} color="#1A1D21" /><Text style={{ fontSize: 13, color: '#555', flex: 1 }}>{iv.intervener_location.address}</Text></View> : null}
+            {iv.distance_km ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}><Icon name="navigate-outline" size={16} color="#1A1D21" /><Text style={{ fontSize: 13, color: '#555' }}>Distance : {iv.distance_km} km</Text></View> : null}
           </GlassCard>
         )}
 
@@ -224,7 +225,7 @@ export default function InterventionDetailScreen() {
 
         {iv.status === 'in_progress' && !isAssigned && iv.assigned_name && (
           <GlassCard style={{ alignItems: 'center' }}>
-            <Ionicons name="person-circle" size={32} color="#4CAF50" />
+            <Icon name="person-circle" size={32} color="#4CAF50" />
             <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21', marginTop: 6 }}>{iv.assigned_name} intervient</Text>
             <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 2 }}>Intervention en cours...</Text>
           </GlassCard>

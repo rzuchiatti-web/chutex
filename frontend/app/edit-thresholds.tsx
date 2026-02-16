@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -65,7 +66,7 @@ export default function EditThresholdsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>Modifier les seuils</Text>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, alignItems: 'center' }}>

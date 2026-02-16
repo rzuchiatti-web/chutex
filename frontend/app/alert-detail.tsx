@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform, RefreshControl, TextInput, Modal } from 'react-native';
@@ -14,7 +15,7 @@ const GlassCard = ({ children, style }: any) => (
 const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) => (
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-      <Ionicons name={icon as any} size={16} color={color || '#888'} />
+      <Icon name={icon as any} size={16} color={color || '#888'} />
       <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
       <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
     </View>
@@ -163,7 +164,7 @@ export default function AlertDetailScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }} testID="alert-detail-screen">
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
         <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={{ padding: 4 }}>
-          <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+          <Icon name="chevron-back" size={24} color="#1A1D21" />
         </TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche Alerte</Text>
         <View style={{ backgroundColor: (isActive ? '#E53935' : '#4CAF50') + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}>
@@ -177,7 +178,7 @@ export default function AlertDetailScreen() {
         <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: statusColor, padding: 20 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: statusColor + '15', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name={statusIcon} size={24} color={statusColor} />
+              <Icon name={statusIcon} size={24} color={statusColor} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 11, fontWeight: '800', color: statusColor, textTransform: 'uppercase', letterSpacing: 0.5 }}>{statusMessage}</Text>
@@ -201,7 +202,7 @@ export default function AlertDetailScreen() {
           <GlassCard style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
             {iAmIntervenant ? (
               <View style={{ backgroundColor: '#10B981', borderRadius: 16, padding: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
-                <Ionicons name="shield-checkmark" size={22} color="#1A1D21" />
+                <Icon name="shield-checkmark" size={22} color="#1A1D21" />
                 <View>
                   <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VOUS GEREZ CETTE INTERVENTION</Text>
                   <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, marginTop: 2 }}>Les gardiens peuvent suivre votre position</Text>
@@ -220,7 +221,7 @@ export default function AlertDetailScreen() {
                 disabled={accepting}>
                 {accepting ? <ActivityIndicator color="#1A1D21" /> : (
                   <>
-                    <Ionicons name="shield-checkmark" size={22} color="#1A1D21" />
+                    <Icon name="shield-checkmark" size={22} color="#1A1D21" />
                     <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900', letterSpacing: 1 }}>J'INTERVIENS</Text>
                   </>
                 )}
@@ -229,12 +230,12 @@ export default function AlertDetailScreen() {
               <TouchableOpacity testID="follow-btn"
                 style={{ backgroundColor: '#009688', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}
                 onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: intervention.id } })}>
-                <Ionicons name="navigate" size={20} color="#1A1D21" />
+                <Icon name="navigate" size={20} color="#1A1D21" />
                 <Text style={{ color: '#1A1D21', fontSize: 14, fontWeight: '800' }}>SUIVRE {intervention.assigned_name?.split(' ')[0]?.toUpperCase()} SUR LA CARTE</Text>
               </TouchableOpacity>
             ) : hasIntervenant ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 4 }}>
-                <Ionicons name="checkmark-circle" size={18} color="#4CAF50" />
+                <Icon name="checkmark-circle" size={18} color="#4CAF50" />
                 <Text style={{ fontSize: 13, fontWeight: '700', color: '#10B981' }}>{intervention?.assigned_name} gere l'intervention</Text>
               </View>
             ) : null}
@@ -248,11 +249,11 @@ export default function AlertDetailScreen() {
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#E53935', borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6 }} onPress={startEscalation} disabled={escalating}>
                 {escalating ? <ActivityIndicator color="#1A1D21" size="small" /> : (
-                  <><Ionicons name="git-branch" size={16} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>LANCER CARE WATCH</Text></>
+                  <><Icon name="git-branch" size={16} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>LANCER CARE WATCH</Text></>
                 )}
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6, borderWidth: 2, borderColor: '#4CAF50' }} onPress={resolveAlert}>
-                <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
+                <Icon name="checkmark-circle" size={16} color="#4CAF50" />
                 <Text style={{ color: '#10B981', fontSize: 12, fontWeight: '800' }}>CLOTURER</Text>
               </TouchableOpacity>
             </View>
@@ -264,7 +265,7 @@ export default function AlertDetailScreen() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="person" size={18} color="#0288D1" />
+                <Icon name="person" size={18} color="#0288D1" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Beneficiaire</Text>
             </View>
@@ -284,7 +285,7 @@ export default function AlertDetailScreen() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="shield-checkmark" size={18} color="#9C27B0" />
+                <Icon name="shield-checkmark" size={18} color="#9C27B0" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Intervenant</Text>
               <View style={{ backgroundColor: '#009688' + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
@@ -302,13 +303,13 @@ export default function AlertDetailScreen() {
           <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="document-text" size={18} color="#4CAF50" />
+                <Icon name="document-text" size={18} color="#4CAF50" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Rapport d'intervention</Text>
             </View>
             {intervention.report.patient_condition && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
-                <Ionicons name="heart" size={16} color="#4CAF50" />
+                <Icon name="heart" size={16} color="#4CAF50" />
                 <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat du patient: {intervention.report.patient_condition === 'stable' ? 'Stable' : intervention.report.patient_condition === 'improved' ? 'Ameliore' : intervention.report.patient_condition === 'needs_care' ? 'Soins necessaires' : intervention.report.patient_condition}</Text>
               </View>
             )}
@@ -326,7 +327,7 @@ export default function AlertDetailScreen() {
             )}
             {intervention.report.follow_up_needed && (
               <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
-                <Ionicons name="flag" size={14} color="#FF9800" />
+                <Icon name="flag" size={14} color="#FF9800" />
                 <Text style={{ fontSize: 12, color: '#E65100', flex: 1 }}><Text style={{ fontWeight: '700' }}>Suivi necessaire:</Text> {intervention.report.follow_up_notes}</Text>
               </View>
             )}
@@ -341,13 +342,13 @@ export default function AlertDetailScreen() {
           <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="document-text" size={18} color="#4CAF50" />
+                <Icon name="document-text" size={18} color="#4CAF50" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Rapport d'intervention</Text>
             </View>
             {a.intervention_report.patient_condition && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
-                <Ionicons name="heart" size={16} color="#4CAF50" />
+                <Icon name="heart" size={16} color="#4CAF50" />
                 <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat: {a.intervention_report.patient_condition === 'stable' ? 'Stable' : a.intervention_report.patient_condition}</Text>
               </View>
             )}
@@ -355,7 +356,7 @@ export default function AlertDetailScreen() {
             {a.intervention_report.actions_taken && <Text style={{ fontSize: 13, color: '#1A1D21', lineHeight: 20, marginBottom: 6 }}><Text style={{ fontWeight: '700' }}>Actions:</Text> {a.intervention_report.actions_taken}</Text>}
             {a.intervention_report.follow_up_needed && (
               <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
-                <Ionicons name="flag" size={14} color="#FF9800" />
+                <Icon name="flag" size={14} color="#FF9800" />
                 <Text style={{ fontSize: 12, color: '#E65100', flex: 1 }}>Suivi: {a.intervention_report.follow_up_notes}</Text>
               </View>
             )}
@@ -366,14 +367,14 @@ export default function AlertDetailScreen() {
         {intervention && isPending && (
           <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <Ionicons name="time" size={18} color="#FF9800" />
+              <Icon name="time" size={18} color="#FF9800" />
               <Text style={{ fontSize: 14, fontWeight: '800', color: '#FF9800' }}>En attente d'un intervenant</Text>
             </View>
             <Text style={{ fontSize: 12, color: '#5A6068', marginBottom: 8 }}>{intervention.recipients?.length || 0} intervenants notifies</Text>
             {(intervention.recipients || []).map((r: any) => (
               <View key={r.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
                 <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#9C27B015', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name="person" size={14} color="#9C27B0" />
+                  <Icon name="person" size={14} color="#9C27B0" />
                 </View>
                 <Text style={{ fontSize: 12, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{r.name}</Text>
                 {r.distance_km && <Text style={{ fontSize: 10, color: '#5A6068' }}>{r.distance_km} km</Text>}
@@ -418,7 +419,7 @@ export default function AlertDetailScreen() {
         {(isGuardian || isOperator) && isActive && (
           <TouchableOpacity onPress={() => setShowReport(true)}
             style={{ backgroundColor: '#10B981', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: 12 }}>
-            <Ionicons name="document-text" size={20} color="#1A1D21" />
+            <Icon name="document-text" size={20} color="#1A1D21" />
             <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>CLOTURER AVEC RAPPORT</Text>
           </TouchableOpacity>
         )}
@@ -430,7 +431,7 @@ export default function AlertDetailScreen() {
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <Text style={{ fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>Rapport de cloture</Text>
-              <TouchableOpacity onPress={() => setShowReport(false)}><Ionicons name="close" size={24} color="#888" /></TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowReport(false)}><Icon name="close" size={24} color="#888" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text style={{ fontSize: 12, color: '#5A6068', marginBottom: 4 }}>Etat du patient</Text>
@@ -450,7 +451,7 @@ export default function AlertDetailScreen() {
                 placeholder="Ex: Aide au relevage, appel medecin..." multiline value={reportForm.actions_taken} onChangeText={v => setReportForm({...reportForm, actions_taken: v})} />
               <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}
                 onPress={() => setReportForm({...reportForm, follow_up_needed: !reportForm.follow_up_needed})}>
-                <Ionicons name={reportForm.follow_up_needed ? 'checkbox' : 'square-outline'} size={22} color={reportForm.follow_up_needed ? '#FF9800' : '#888'} />
+                <Icon name={reportForm.follow_up_needed ? 'checkbox' : 'square-outline'} size={22} color={reportForm.follow_up_needed ? '#FF9800' : '#888'} />
                 <Text style={{ fontSize: 14, color: '#1A1D21' }}>Suivi necessaire</Text>
               </TouchableOpacity>
               {reportForm.follow_up_needed && (
@@ -460,7 +461,7 @@ export default function AlertDetailScreen() {
               <TouchableOpacity style={{ backgroundColor: '#10B981', borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
                 onPress={handleCompleteWithReport} disabled={submittingReport}>
                 {submittingReport ? <ActivityIndicator color="#1A1D21" /> : (
-                  <><Ionicons name="checkmark-circle" size={20} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VALIDER ET CLOTURER</Text></>
+                  <><Icon name="checkmark-circle" size={20} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VALIDER ET CLOTURER</Text></>
                 )}
               </TouchableOpacity>
             </ScrollView>

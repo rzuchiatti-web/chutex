@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl } from 'react-native';
@@ -13,7 +14,7 @@ const GlassCard = ({ children, style }: any) => (
 const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) => (
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-      <Ionicons name={icon as any} size={16} color={color || '#888'} />
+      <Icon name={icon as any} size={16} color={color || '#888'} />
       <Text style={{ fontSize: 12, color: '#5A6068', width: 110 }}>{label}</Text>
       <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
     </View>
@@ -33,7 +34,7 @@ const PersonCard = ({ name, subtitle, color, onPress }: { name: string; subtitle
       <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21' }}>{name}</Text>
       <Text style={{ fontSize: 11, color: '#5A6068' }}>{subtitle}</Text>
     </View>
-    {onPress && <Ionicons name="chevron-forward" size={16} color="#888" />}
+    {onPress && <Icon name="chevron-forward" size={16} color="#888" />}
   </TouchableOpacity>
 );
 
@@ -63,7 +64,7 @@ export default function AdminPrescriptionDetail() {
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche Prescription</Text>
         <Badge label={p.status === 'subscribed' ? 'Souscrit' : 'En attente'} color={p.status === 'subscribed' ? '#2E7D32' : '#FF9800'} bg={p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0'} />
       </View>
@@ -71,7 +72,7 @@ export default function AdminPrescriptionDetail() {
         <GlassCard>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name="document-text" size={18} color="#7B1FA2" />
+              <Icon name="document-text" size={18} color="#7B1FA2" />
             </View>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Details Prescription</Text>
           </View>
@@ -90,7 +91,7 @@ export default function AdminPrescriptionDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="mail" size={18} color="#1565C0" />
+                <Icon name="mail" size={18} color="#1565C0" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Email envoye</Text>
             </View>
@@ -103,7 +104,7 @@ export default function AdminPrescriptionDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF8E1', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="person" size={18} color="#F57F17" />
+                <Icon name="person" size={18} color="#F57F17" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Prescripteur</Text>
             </View>
@@ -116,7 +117,7 @@ export default function AdminPrescriptionDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="heart" size={18} color="#0288D1" />
+                <Icon name="heart" size={18} color="#0288D1" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Beneficiaire inscrit</Text>
             </View>

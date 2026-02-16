@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator, Alert, TextInput, Switch, Modal, Platform, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -64,28 +65,28 @@ export default function GeofencingScreen() {
   return (
     <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}>
       <View style={s.header}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="arrow-back" size={22} color={Colors.text} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Icon name="arrow-back" size={22} color={Colors.text} /></TouchableOpacity>
         <Text style={s.headerT}>Zones de sécurité</Text>
         <TouchableOpacity testID="add-zone-btn" style={s.addBtn} onPress={() => setShowModal(true)}>
-          <Ionicons name="add" size={22} color="#1A1D21" />
+          <Icon name="add" size={22} color="#1A1D21" />
         </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={s.scroll}>
         {/* Info */}
         <View style={s.info}>
-          <Ionicons name="location-outline" size={20} color={Colors.primary} />
+          <Icon name="location-outline" size={20} color={Colors.primary} />
           <Text style={s.infoText}>Définissez des zones de sécurité. Si votre position sort de ces zones, une alerte sera automatiquement envoyée à vos gardiens.</Text>
         </View>
 
         {/* Check position button */}
         <TouchableOpacity testID="check-pos-btn" style={s.checkBtn} onPress={checkPosition}>
-          <Ionicons name="navigate-circle-outline" size={18} color="#1A1D21" />
+          <Icon name="navigate-circle-outline" size={18} color="#1A1D21" />
           <Text style={s.checkBtnT}>Vérifier ma position</Text>
         </TouchableOpacity>
 
         {checkResult && (
           <View style={[s.checkResult, { borderLeftColor: checkResult.in_zone ? Colors.success : Colors.destructive }]}>
-            <Ionicons name={checkResult.in_zone ? 'checkmark-circle' : 'alert-circle'} size={18} color={checkResult.in_zone ? Colors.success : Colors.destructive} />
+            <Icon name={checkResult.in_zone ? 'checkmark-circle' : 'alert-circle'} size={18} color={checkResult.in_zone ? Colors.success : Colors.destructive} />
             <Text style={[s.checkResultT, { color: checkResult.in_zone ? Colors.success : Colors.destructive }]}>
               {checkResult.in_zone ? 'Vous êtes dans vos zones de sécurité' : `Hors zone ! ${checkResult.violations?.map((v: any) => `${v.zone_name}: ${v.distance_m}m`).join(', ')}`}
             </Text>
@@ -96,18 +97,18 @@ export default function GeofencingScreen() {
         <Text style={s.secTitle}>Mes zones ({zones.length})</Text>
         {zones.map(z => (
           <View key={z.id} style={[s.zoneCard, !z.active && { opacity: 0.4 }]}>
-            <View style={s.zoneIcon}><Ionicons name="location" size={20} color={Colors.primary} /></View>
+            <View style={s.zoneIcon}><Icon name="location" size={20} color={Colors.primary} /></View>
             <View style={{ flex: 1 }}>
               <Text style={s.zoneName}>{z.name}</Text>
               <Text style={s.zoneMeta}>Rayon: {z.radius_meters}m · {z.latitude.toFixed(4)}, {z.longitude.toFixed(4)}</Text>
             </View>
             <Switch value={z.active} onValueChange={() => toggleZone(z.id)} trackColor={{ true: Colors.primary }} />
             <TouchableOpacity onPress={() => deleteZone(z.id)} style={{ padding: 6 }}>
-              <Ionicons name="trash-outline" size={16} color={Colors.destructive} />
+              <Icon name="trash-outline" size={16} color={Colors.destructive} />
             </TouchableOpacity>
           </View>
         ))}
-        {zones.length === 0 && <View style={s.empty}><Ionicons name="location-outline" size={36} color={Colors.textMuted} /><Text style={s.emptyT}>Aucune zone configurée</Text></View>}
+        {zones.length === 0 && <View style={s.empty}><Icon name="location-outline" size={36} color={Colors.textMuted} /><Text style={s.emptyT}>Aucune zone configurée</Text></View>}
       </ScrollView>
 
       <Modal visible={showModal} transparent animationType="slide">

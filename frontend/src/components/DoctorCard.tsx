@@ -1,3 +1,4 @@
+import { Icon } from './WebIcon';
 import React from 'react';
 import { View, Text, TouchableOpacity, Platform, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,7 +35,7 @@ export function DoctorCard({ onPress }: DoctorCardProps) {
         justifyContent: 'center', alignItems: 'center',
         borderWidth: 1, borderColor: 'rgba(0,0,0,0.04)',
       }}>
-        <Ionicons name="medkit" size={24} color="#1A1D21" />
+        <Icon name="medkit" size={24} color="#1A1D21" />
       </View>
 
       {/* Info */}
@@ -59,7 +60,7 @@ export function DoctorCard({ onPress }: DoctorCardProps) {
         backgroundColor: '#1A1D21',
         justifyContent: 'center', alignItems: 'center',
       }}>
-        <Ionicons name="videocam" size={16} color="#FFF" />
+        <Icon name="videocam" size={16} color="#FFF" />
       </View>
     </TouchableOpacity>
   );

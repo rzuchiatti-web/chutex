@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl } from 'react-native';
@@ -13,7 +14,7 @@ const GlassCard = ({ children, style }: any) => (
 const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) => (
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-      <Ionicons name={icon as any} size={16} color={color || '#888'} />
+      <Icon name={icon as any} size={16} color={color || '#888'} />
       <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
       <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
     </View>
@@ -53,7 +54,7 @@ export default function CompanyPrescriberDetail() {
     <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }} data-testid="prescriber-detail-back">
-          <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+          <Icon name="chevron-back" size={24} color="#1A1D21" />
         </TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche Prescripteur</Text>
       </View>
@@ -104,7 +105,7 @@ export default function CompanyPrescriberDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="business" size={18} color="#FF9800" />
+                <Icon name="business" size={18} color="#FF9800" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Agence</Text>
             </View>
@@ -117,7 +118,7 @@ export default function CompanyPrescriberDetail() {
         <GlassCard>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name="checkmark-circle" size={18} color="#4CAF50" />
+              <Icon name="checkmark-circle" size={18} color="#4CAF50" />
             </View>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Validees ({subscribed.length})</Text>
             <View style={{ flex: 1 }} />
@@ -143,7 +144,7 @@ export default function CompanyPrescriberDetail() {
         <GlassCard>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name="time" size={18} color="#FF9800" />
+              <Icon name="time" size={18} color="#FF9800" />
             </View>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>En cours ({pending.length})</Text>
             <View style={{ flex: 1 }} />

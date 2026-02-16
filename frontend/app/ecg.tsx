@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -37,14 +38,14 @@ export default function ECGScreen() {
   return (
     <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}>
       <View style={s.header}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="arrow-back" size={22} color={Colors.text} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Icon name="arrow-back" size={22} color={Colors.text} /></TouchableOpacity>
         <Text style={s.headerT}>Électrocardiogramme</Text>
       </View>
       <ScrollView contentContainerStyle={s.scroll}>
         {/* ECG Launch Card */}
         <View style={s.launchCard}>
           <View style={s.ecgIcon}>
-            <Ionicons name="pulse" size={40} color={recording ? Colors.destructive : Colors.primary} />
+            <Icon name="pulse" size={40} color={recording ? Colors.destructive : Colors.primary} />
           </View>
           <Text style={s.launchTitle}>{recording ? 'Enregistrement en cours...' : 'Lancer un ECG'}</Text>
           <Text style={s.launchDesc}>Placez votre doigt sur le capteur du bracelet et restez immobile pendant 30 secondes.</Text>
@@ -57,7 +58,7 @@ export default function ECGScreen() {
 
           {!recording && !result && (
             <TouchableOpacity testID="start-ecg-btn" style={s.startBtn} onPress={startECG}>
-              <Ionicons name="pulse" size={18} color="#1A1D21" /><Text style={s.startBtnT}>Démarrer l'ECG</Text>
+              <Icon name="pulse" size={18} color="#1A1D21" /><Text style={s.startBtnT}>Démarrer l'ECG</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -66,7 +67,7 @@ export default function ECGScreen() {
         {result && (
           <View style={[s.resultCard, { borderLeftColor: statusColor(result.status) }]}>
             <View style={s.resultHeader}>
-              <Ionicons name={result.status === 'normal' ? 'checkmark-circle' : 'warning'} size={22} color={statusColor(result.status)} />
+              <Icon name={result.status === 'normal' ? 'checkmark-circle' : 'warning'} size={22} color={statusColor(result.status)} />
               <Text style={[s.resultStatus, { color: statusColor(result.status) }]}>
                 {result.status === 'normal' ? 'Normal' : 'Attention'}
               </Text>

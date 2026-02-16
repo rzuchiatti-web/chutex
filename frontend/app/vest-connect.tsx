@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -191,12 +192,12 @@ export default function VestConnectScreen() {
     return (
       <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
         <View style={s.topBar}>
-          <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+          <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Icon name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
           <Text style={s.topTitle}>Gilet Anti-Chute</Text>
           <View style={{ width: 36 }} />
         </View>
         <View style={s.center}>
-          <Ionicons name="shield-outline" size={80} color={Colors.textMuted} />
+          <Icon name="shield-outline" size={80} color={Colors.textMuted} />
           <Text style={s.emptyTitle}>Aucun gilet connecte</Text>
           <Text style={s.emptyDesc}>Connectez votre gilet anti-chute via Bluetooth pour recevoir les alertes en temps reel.</Text>
           <TouchableOpacity style={s.pairBtn} onPress={connectVest}
@@ -204,7 +205,7 @@ export default function VestConnectScreen() {
             {bleStatus === 'scanning' || bleStatus === 'connecting' ? (
               <><ActivityIndicator color="#1A1D21" size="small" /><Text style={s.pairBtnT}>Recherche...</Text></>
             ) : (
-              <><Ionicons name="bluetooth" size={20} color="#1A1D21" /><Text style={s.pairBtnT}>Appairer un gilet</Text></>
+              <><Icon name="bluetooth" size={20} color="#1A1D21" /><Text style={s.pairBtnT}>Appairer un gilet</Text></>
             )}
           </TouchableOpacity>
         </View>
@@ -221,7 +222,7 @@ export default function VestConnectScreen() {
   return (
     <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Icon name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Gilet Anti-Chute</Text>
         <View style={[s.dot, { backgroundColor: statusColor }]} />
       </View>
@@ -230,7 +231,7 @@ export default function VestConnectScreen() {
         {/* SOS Banner */}
         {sosTriggered && (
           <View style={s.sosCard}>
-            <Ionicons name="warning" size={24} color="#1A1D21" />
+            <Icon name="warning" size={24} color="#1A1D21" />
             <View style={{ flex: 1, marginLeft: 10 }}>
               <Text style={s.sosTitle}>CHUTE DETECTEE</Text>
               <Text style={s.sosDesc}>Les gardiens ont ete alertes.</Text>
@@ -242,7 +243,7 @@ export default function VestConnectScreen() {
         <View style={[s.card, { backgroundColor: cardBg, borderColor: cardBorder, borderWidth: 1.5 }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={[s.iconCircle, { backgroundColor: statusColor + '20' }]}>
-              <Ionicons name="shield-checkmark" size={32} color={statusColor} />
+              <Icon name="shield-checkmark" size={32} color={statusColor} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.cardTitle}>Gilet Anti-Chute</Text>
@@ -252,17 +253,17 @@ export default function VestConnectScreen() {
 
           <View style={s.statsRow}>
             <View style={s.statBox}>
-              <Ionicons name={battery > 50 ? "battery-full" : battery > 20 ? "battery-half" : "battery-dead"} size={24} color={battery > 20 ? Colors.success : Colors.destructive} />
+              <Icon name={battery > 50 ? "battery-full" : battery > 20 ? "battery-half" : "battery-dead"} size={24} color={battery > 20 ? Colors.success : Colors.destructive} />
               <Text style={s.statVal}>{battery}%</Text>
               <Text style={s.statLabel}>Batterie</Text>
             </View>
             <View style={s.statBox}>
-              <Ionicons name="radio" size={24} color={statusColor} />
+              <Icon name="radio" size={24} color={statusColor} />
               <Text style={[s.statVal, { color: statusColor }]}>{statusText}</Text>
               <Text style={s.statLabel}>Statut</Text>
             </View>
             <View style={s.statBox}>
-              <Ionicons name="hardware-chip" size={24} color={Colors.textMuted} />
+              <Icon name="hardware-chip" size={24} color={Colors.textMuted} />
               <Text style={s.statVal}>{vestData?.device?.ble_device_id?.substring(0, 8) || '-'}</Text>
               <Text style={s.statLabel}>ID</Text>
             </View>
@@ -275,7 +276,7 @@ export default function VestConnectScreen() {
 
         {/* Unpair */}
         <TouchableOpacity style={s.unpairBtn} onPress={unpairVest}>
-          <Ionicons name="trash-outline" size={16} color={Colors.destructive} />
+          <Icon name="trash-outline" size={16} color={Colors.destructive} />
           <Text style={s.unpairBtnT}>Deconnecter le gilet</Text>
         </TouchableOpacity>
       </ScrollView>

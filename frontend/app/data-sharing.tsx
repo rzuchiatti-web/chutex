@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Switch, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -61,14 +62,14 @@ export default function DataSharingScreen() {
     <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}>
       <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={Colors.text} />
+          <Icon name="arrow-back" size={22} color={Colors.text} />
         </TouchableOpacity>
         <Text style={s.headerT}>Partage de données</Text>
       </View>
 
       <ScrollView style={s.scroll} contentContainerStyle={{ paddingBottom: 100 }}>
         <View style={s.info}>
-          <Ionicons name="shield-checkmark-outline" size={20} color={Colors.primary} />
+          <Icon name="shield-checkmark-outline" size={20} color={Colors.primary} />
           <Text style={s.infoText}>Choisissez les données que vos gardiens peuvent consulter. Vous pouvez modifier ces réglages à tout moment.</Text>
         </View>
 
@@ -79,7 +80,7 @@ export default function DataSharingScreen() {
 
         {SHARING_ITEMS.map(item => (
           <View key={item.key} style={s.row}>
-            <Ionicons name={item.icon as any} size={20} color={prefs[item.key] !== false ? Colors.primary : Colors.textMuted} />
+            <Icon name={item.icon as any} size={20} color={prefs[item.key] !== false ? Colors.primary : Colors.textMuted} />
             <Text style={[s.rowLabel, prefs[item.key] === false && { color: Colors.textMuted }]}>{item.label}</Text>
             <Switch
               value={prefs[item.key] !== false}

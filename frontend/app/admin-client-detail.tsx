@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl } from 'react-native';
@@ -13,7 +14,7 @@ const GlassCard = ({ children, style }: any) => (
 const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) => (
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-      <Ionicons name={icon as any} size={16} color={color || '#888'} />
+      <Icon name={icon as any} size={16} color={color || '#888'} />
       <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
       <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
     </View>
@@ -56,7 +57,7 @@ export default function AdminClientDetail() {
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-          <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+          <Icon name="chevron-back" size={24} color="#1A1D21" />
         </TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche {roleLabel}</Text>
       </View>
@@ -93,7 +94,7 @@ export default function AdminClientDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="medkit" size={18} color="#E53935" />
+                <Icon name="medkit" size={18} color="#E53935" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Informations Medicales</Text>
             </View>
@@ -114,7 +115,7 @@ export default function AdminClientDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8EAF6', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="card-outline" size={18} color="#3F51B5" />
+                <Icon name="card-outline" size={18} color="#3F51B5" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Abonnement</Text>
             </View>
@@ -130,7 +131,7 @@ export default function AdminClientDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="briefcase-outline" size={18} color="#FF9800" />
+                <Icon name="briefcase-outline" size={18} color="#FF9800" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Informations Professionnelles</Text>
             </View>
@@ -141,7 +142,7 @@ export default function AdminClientDetail() {
             {u.is_prescriber && <>
               <View style={{ height: 1, backgroundColor: 'rgba(0,0,0,0.06)', marginVertical: 10 }} />
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <Ionicons name="medical" size={16} color="#7B1FA2" />
+                <Icon name="medical" size={16} color="#7B1FA2" />
                 <Text style={{ fontSize: 13, fontWeight: '800', color: '#7B1FA2' }}>PRESCRIPTEUR</Text>
               </View>
               <InfoRow icon="business-outline" label="Structure" value={u.prescriber_structure} color="#7B1FA2" />
@@ -149,7 +150,7 @@ export default function AdminClientDetail() {
             {u.is_intervention_provider && <>
               <View style={{ height: 1, backgroundColor: 'rgba(0,0,0,0.06)', marginVertical: 10 }} />
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <Ionicons name="shield-checkmark" size={16} color="#2E7D32" />
+                <Icon name="shield-checkmark" size={16} color="#2E7D32" />
                 <Text style={{ fontSize: 13, fontWeight: '800', color: '#2E7D32' }}>INTERVENANT CARE</Text>
               </View>
               <InfoRow icon="navigate-outline" label="Rayon" value={`${u.intervention_radius_km || 30} km`} color="#2E7D32" />
@@ -163,7 +164,7 @@ export default function AdminClientDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF8E1', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="people" size={18} color="#F57F17" />
+                <Icon name="people" size={18} color="#F57F17" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Gardiens ({data.guardians.length})</Text>
             </View>
@@ -181,7 +182,7 @@ export default function AdminClientDetail() {
                   {g.is_prescriber && <Badge label="Presc." color="#7B1FA2" bg="#F3E5F5" />}
                   {g.is_intervention_provider && <Badge label="Care" color="#2E7D32" bg="#E8F5E9" />}
                 </View>
-                <Ionicons name="chevron-forward" size={16} color="#888" />
+                <Icon name="chevron-forward" size={16} color="#888" />
               </TouchableOpacity>
             ))}
           </GlassCard>
@@ -192,7 +193,7 @@ export default function AdminClientDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="heart" size={18} color="#0288D1" />
+                <Icon name="heart" size={18} color="#0288D1" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Beneficiaires ({data.beneficiaries.length})</Text>
             </View>
@@ -207,7 +208,7 @@ export default function AdminClientDetail() {
                   <Text style={{ fontSize: 11, color: '#5A6068' }}>{b.email} {b.date_of_birth ? `- Ne(e) le ${b.date_of_birth}` : ''}</Text>
                 </View>
                 {b.has_subscription && <Badge label={b.subscription_type?.toUpperCase() || 'ABON.'} color="#7B1FA2" bg="#F3E5F5" />}
-                <Ionicons name="chevron-forward" size={16} color="#888" />
+                <Icon name="chevron-forward" size={16} color="#888" />
               </TouchableOpacity>
             ))}
           </GlassCard>
@@ -218,7 +219,7 @@ export default function AdminClientDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
-                <MaterialCommunityIcons name="bluetooth-connect" size={18} color="#4CAF50" />
+                <MCIcon name="bluetooth-connect" size={18} color="#4CAF50" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Appareils ({data.devices.length})</Text>
             </View>
@@ -227,7 +228,7 @@ export default function AdminClientDetail() {
               const icons: any = { bracelet: 'watch', vest: 'tshirt-crew', scale: 'scale-bathroom' };
               return (
                 <View key={d.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                  <MaterialCommunityIcons name={icons[d.device_type] || 'devices'} size={20} color="#1A1D21" />
+                  <MCIcon name={icons[d.device_type] || 'devices'} size={20} color="#1A1D21" />
                   <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{names[d.device_type] || d.device_type}</Text>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: d.connected ? '#4CAF50' : '#E0E0E0' }} />
                   <Text style={{ fontSize: 12, color: '#5A6068' }}>{d.battery || 0}%</Text>
@@ -242,7 +243,7 @@ export default function AdminClientDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="document-text" size={18} color="#7B1FA2" />
+                <Icon name="document-text" size={18} color="#7B1FA2" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Prescriptions ({data.prescriptions.length})</Text>
             </View>
@@ -263,7 +264,7 @@ export default function AdminClientDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="warning" size={18} color="#E53935" />
+                <Icon name="warning" size={18} color="#E53935" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Historique Alertes ({data.alerts.length})</Text>
             </View>
@@ -288,7 +289,7 @@ export default function AdminClientDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="medkit" size={18} color="#4CAF50" />
+                <Icon name="medkit" size={18} color="#4CAF50" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Interventions ({data.interventions.length})</Text>
             </View>
@@ -312,7 +313,7 @@ export default function AdminClientDetail() {
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="navigate" size={18} color="#1565C0" />
+                <Icon name="navigate" size={18} color="#1565C0" />
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Localisation</Text>
             </View>
@@ -324,7 +325,7 @@ export default function AdminClientDetail() {
         {/* No data placeholders */}
         {data.alerts?.length === 0 && showAsBen && (
           <GlassCard style={{ alignItems: 'center', padding: 24 }}>
-            <Ionicons name="checkmark-circle-outline" size={32} color="#4CAF50" />
+            <Icon name="checkmark-circle-outline" size={32} color="#4CAF50" />
             <Text style={{ fontSize: 14, fontWeight: '700', color: '#10B981', marginTop: 8 }}>Aucune alerte</Text>
             <Text style={{ fontSize: 11, color: '#5A6068', marginTop: 2 }}>Ce beneficiaire n'a pas d'historique d'alertes</Text>
           </GlassCard>

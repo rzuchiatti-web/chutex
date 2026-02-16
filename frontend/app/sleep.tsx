@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,12 +35,12 @@ export default function SleepScreen() {
     return (
       <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
         <View style={s.topBar}>
-          <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+          <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Icon name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
           <Text style={s.topTitle}>Sommeil</Text>
           <View style={{ width: 36 }} />
         </View>
         <View style={s.center}>
-          <Ionicons name="moon-outline" size={80} color={Colors.textMuted} />
+          <Icon name="moon-outline" size={80} color={Colors.textMuted} />
           <Text style={{ fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 20 }}>Aucune donnee de sommeil</Text>
           <Text style={{ fontSize: 14, color: Colors.textMuted, textAlign: 'center', marginTop: 8, lineHeight: 20, paddingHorizontal: 20 }}>Portez votre bracelet Elio pendant la nuit pour enregistrer votre sommeil. Les donnees apparaitront ici automatiquement.</Text>
         </View>
@@ -53,7 +54,7 @@ export default function SleepScreen() {
   return (
     <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Icon name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Sommeil</Text>
         <View style={{ width: 36 }} />
       </View>
@@ -71,7 +72,7 @@ export default function SleepScreen() {
               <Text style={s.scoreDuration}>{sleep?.sleep_duration || 0}h de sommeil</Text>
               <Text style={s.scoreCycles}>{sleep?.cycles || 0} cycles</Text>
             </View>
-            <Ionicons name="moon" size={28} color={Colors.textMuted} />
+            <Icon name="moon" size={28} color={Colors.textMuted} />
           </View>
         </View>
 
@@ -132,7 +133,7 @@ export default function SleepScreen() {
               const pct = Math.round(item.min / total * 100);
               return (
                 <View key={item.label} style={s.breakdownItem}>
-                  <Ionicons name={item.icon as any} size={20} color={item.color} />
+                  <Icon name={item.icon as any} size={20} color={item.color} />
                   <Text style={[s.breakdownVal, { color: item.color }]}>{Math.floor(item.min / 60)}h{String(item.min % 60).padStart(2, '0')}</Text>
                   <Text style={s.breakdownLabel}>{item.label}</Text>
                   <Text style={s.breakdownPct}>{pct}%</Text>

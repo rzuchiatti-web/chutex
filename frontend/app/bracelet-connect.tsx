@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform, PermissionsAndroid } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -285,7 +286,7 @@ export default function BraceletConnectScreen() {
   if (!isPaired && bleStatus !== 'connecting' && bleStatus !== 'scanning' && bleStatus !== 'connected') return (
     <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
-        <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Icon name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Bracelet Elio</Text>
         <View style={{ width: 36 }} />
       </View>
@@ -295,11 +296,11 @@ export default function BraceletConnectScreen() {
             <Text style={{ fontSize: 13, color: Colors.destructive, fontWeight: '600' }}>{errorMsg}</Text>
           </View>
         ) : null}
-        <Ionicons name="watch-outline" size={80} color={Colors.textMuted} />
+        <Icon name="watch-outline" size={80} color={Colors.textMuted} />
         <Text style={s.emptyTitle}>Aucun bracelet connecte</Text>
         <Text style={s.emptyDesc}>Connectez votre bracelet Elio via Bluetooth pour suivre vos constantes de sante.</Text>
         <TouchableOpacity style={s.pairBtn} onPress={connectBracelet}>
-          <Ionicons name="bluetooth" size={20} color="#1A1D21" /><Text style={s.pairBtnT}>Appairer le bracelet</Text>
+          <Icon name="bluetooth" size={20} color="#1A1D21" /><Text style={s.pairBtnT}>Appairer le bracelet</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -309,7 +310,7 @@ export default function BraceletConnectScreen() {
   if (bleStatus === 'scanning' || bleStatus === 'connecting') return (
     <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
-        <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Icon name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Bracelet Elio</Text>
         <View style={{ width: 36 }} />
       </View>
@@ -326,7 +327,7 @@ export default function BraceletConnectScreen() {
   return (
     <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
-        <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Icon name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Bracelet Elio</Text>
         <View style={[s.dot, { backgroundColor: stColor }]} />
       </View>
@@ -334,13 +335,13 @@ export default function BraceletConnectScreen() {
         {/* Status */}
         <View style={[s.card, { backgroundColor: cardBg, borderColor: stColor, borderWidth: 1.5 }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <Ionicons name="watch" size={32} color={stColor} />
+            <Icon name="watch" size={32} color={stColor} />
             <View style={{ flex: 1 }}>
               <Text style={s.cardTitle}>Bracelet Elio</Text>
               <Text style={[s.cardStatus, { color: stColor }]}>{isActive || bleStatus === 'connected' ? 'Actif' : 'Eteint'}</Text>
             </View>
             {vitals.battery > 0 && <View style={{ alignItems: 'center' }}>
-              <Ionicons name={vitals.battery > 50 ? "battery-full" : vitals.battery > 20 ? "battery-half" : "battery-dead"} size={24} color={vitals.battery > 20 ? Colors.success : Colors.destructive} />
+              <Icon name={vitals.battery > 50 ? "battery-full" : vitals.battery > 20 ? "battery-half" : "battery-dead"} size={24} color={vitals.battery > 20 ? Colors.success : Colors.destructive} />
               <Text style={{ fontSize: 14, fontWeight: '800' }}>{vitals.battery}%</Text>
             </View>}
           </View>
@@ -360,14 +361,14 @@ export default function BraceletConnectScreen() {
 
         {/* Sleep link */}
         <TouchableOpacity style={[s.card, { flexDirection: 'row', alignItems: 'center', gap: 10 }]} onPress={() => router.push('/sleep')}>
-          <Ionicons name="moon" size={22} color="#1565C0" />
+          <Icon name="moon" size={22} color="#1565C0" />
           <Text style={{ flex: 1, fontSize: 15, fontWeight: '700', color: Colors.textPrimary }}>Voir le sommeil</Text>
-          <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+          <Icon name="chevron-forward" size={16} color={Colors.textMuted} />
         </TouchableOpacity>
 
         {/* Unpair */}
         <TouchableOpacity style={s.unpairBtn} onPress={unpairBracelet}>
-          <Ionicons name="trash-outline" size={16} color={Colors.destructive} />
+          <Icon name="trash-outline" size={16} color={Colors.destructive} />
           <Text style={s.unpairBtnT}>Deconnecter le bracelet</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -378,7 +379,7 @@ export default function BraceletConnectScreen() {
 function VitalCard({ icon, label, value, unit, color }: { icon: string; label: string; value: any; unit: string; color: string }) {
   return (
     <View style={s.vitalCard}>
-      <Ionicons name={icon as any} size={18} color={color} />
+      <Icon name={icon as any} size={18} color={color} />
       <Text style={s.vitalLabel}>{label}</Text>
       <Text style={[s.vitalVal, { color }]}>{value}</Text>
       {unit ? <Text style={s.vitalUnit}>{unit}</Text> : null}

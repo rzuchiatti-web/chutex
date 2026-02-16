@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import { useTheme } from '../src/context/ThemeContext';
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Platform } from 'react-native';
@@ -56,7 +57,7 @@ export default function ActivateBeneficiaryScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }} testID="activate-beneficiary-screen">
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity testID="back-btn" onPress={() => { if (step > 0) setStep(step - 1); else router.back(); }} style={{ padding: 4, marginRight: 12 }}>
-          <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+          <Icon name="chevron-back" size={24} color="#1A1D21" />
         </TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>Espace beneficiaire</Text>
       </View>

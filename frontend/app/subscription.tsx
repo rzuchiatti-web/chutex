@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -88,7 +89,7 @@ export default function SubscriptionScreen() {
     <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}>
-          <Ionicons name="chevron-back" size={22} color={Colors.textPrimary} />
+          <Icon name="chevron-back" size={22} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={s.topTitle}>Mon Abonnement</Text>
         <View style={{ width: 36 }} />
@@ -101,7 +102,7 @@ export default function SubscriptionScreen() {
         <View style={[s.subCard, { backgroundColor: isCare ? '#7B1FA2' : hasSubscription ? Colors.primary : Colors.textMuted }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={s.subIcon}>
-              <Ionicons name={hasSubscription ? "shield-checkmark" : "shield-outline"} size={32} color="#1A1D21" />
+              <Icon name={hasSubscription ? "shield-checkmark" : "shield-outline"} size={32} color="#1A1D21" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.subType}>
@@ -114,7 +115,7 @@ export default function SubscriptionScreen() {
           </View>
           {isCare && (
             <View style={s.careFeature}>
-              <Ionicons name="call" size={16} color="#1A1D21" />
+              <Icon name="call" size={16} color="#1A1D21" />
               <Text style={s.careFeatureT}>Teleassistance IA active</Text>
             </View>
           )}
@@ -125,14 +126,14 @@ export default function SubscriptionScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={s.sectionTitle}>Mes gardiens</Text>
             <TouchableOpacity style={s.addGuardianBtn} onPress={() => { setShowAddGuardian(true); setAddResult(null); setGuardianPhone(''); }} data-testid="add-guardian-btn">
-              <Ionicons name="add" size={16} color="#1A1D21" />
+              <Icon name="add" size={16} color="#1A1D21" />
               <Text style={s.addGuardianBtnT}>Ajouter</Text>
             </TouchableOpacity>
           </View>
 
           {guardians.length === 0 ? (
             <View style={s.emptyState}>
-              <Ionicons name="people-outline" size={40} color={Colors.textMuted} />
+              <Icon name="people-outline" size={40} color={Colors.textMuted} />
               <Text style={s.emptyText}>Aucun gardien configure</Text>
               <Text style={s.emptyDesc}>Demandez a un proche de s'inscrire en tant que gardien et de vous ajouter.</Text>
             </View>
@@ -150,16 +151,16 @@ export default function SubscriptionScreen() {
                 <View style={{ flexDirection: 'row', gap: 4 }}>
                   {idx > 0 && (
                     <TouchableOpacity style={s.orderBtn} onPress={() => moveGuardian(g.id, 'up')} data-testid={`move-up-${g.id}`}>
-                      <Ionicons name="chevron-up" size={18} color={Colors.primary} />
+                      <Icon name="chevron-up" size={18} color={Colors.primary} />
                     </TouchableOpacity>
                   )}
                   {idx < guardians.length - 1 && (
                     <TouchableOpacity style={s.orderBtn} onPress={() => moveGuardian(g.id, 'down')} data-testid={`move-down-${g.id}`}>
-                      <Ionicons name="chevron-down" size={18} color={Colors.primary} />
+                      <Icon name="chevron-down" size={18} color={Colors.primary} />
                     </TouchableOpacity>
                   )}
                   <TouchableOpacity style={[s.orderBtn, { backgroundColor: Colors.destructive + '10' }]} onPress={() => removeGuardian(g.id)} data-testid={`remove-${g.id}`}>
-                    <Ionicons name="close" size={18} color={Colors.destructive} />
+                    <Icon name="close" size={18} color={Colors.destructive} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -168,7 +169,7 @@ export default function SubscriptionScreen() {
 
           {isCare && guardians.length > 0 && (
             <View style={s.protocolInfo}>
-              <Ionicons name="information-circle" size={16} color={Colors.primary} />
+              <Icon name="information-circle" size={16} color={Colors.primary} />
               <Text style={s.protocolText}>
                 En cas d'alerte, l'IA vous appelle d'abord. Si pas de reponse, elle appelle vos gardiens dans l'ordre ci-dessus.
               </Text>
@@ -184,7 +185,7 @@ export default function SubscriptionScreen() {
           ) : (
             alerts.slice(0, 5).map(a => (
               <View key={a.id} style={s.alertRow}>
-                <Ionicons name={a.alert_type === 'sos' ? 'alert-circle' : a.alert_type === 'anomaly' ? 'pulse' : 'warning'} size={18}
+                <Icon name={a.alert_type === 'sos' ? 'alert-circle' : a.alert_type === 'anomaly' ? 'pulse' : 'warning'} size={18}
                   color={a.status === 'active' ? Colors.destructive : a.status === 'resolved' ? Colors.success : Colors.textMuted} />
                 <View style={{ flex: 1, marginLeft: 8 }}>
                   <Text style={s.alertMsg}>{a.message?.substring(0, 60) || a.alert_type}</Text>
@@ -206,7 +207,7 @@ export default function SubscriptionScreen() {
             await apiFetch('/api/alerts/sos', { method: 'POST' }, token);
           } catch {}
         }} data-testid="subscription-sos-btn">
-          <Ionicons name="alert-circle" size={24} color="#1A1D21" />
+          <Icon name="alert-circle" size={24} color="#1A1D21" />
           <Text style={s.sosBtnT}>SOS Urgence</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -245,7 +246,7 @@ export default function SubscriptionScreen() {
             )}
             {addResult && (
               <View style={[s.resultBox, { backgroundColor: addResult.error ? Colors.destructive + '10' : addResult.linked ? Colors.success + '10' : '#FF9800' + '10' }]}>
-                <Ionicons name={addResult.error ? "alert-circle" : addResult.linked ? "checkmark-circle" : "send"} size={18} color={addResult.error ? Colors.destructive : addResult.linked ? Colors.success : '#FF9800'} />
+                <Icon name={addResult.error ? "alert-circle" : addResult.linked ? "checkmark-circle" : "send"} size={18} color={addResult.error ? Colors.destructive : addResult.linked ? Colors.success : '#FF9800'} />
                 <Text style={[s.resultText, { color: addResult.error ? Colors.destructive : addResult.linked ? Colors.success : '#FF9800' }]}>
                   {addResult.error || addResult.message || 'OK'}
                 </Text>

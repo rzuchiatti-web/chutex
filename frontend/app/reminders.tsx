@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, ActivityIndicator, Switch, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -93,7 +94,7 @@ export default function RemindersScreen() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-          <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
+          <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
           <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>Mes rappels</Text>
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
@@ -108,7 +109,7 @@ export default function RemindersScreen() {
                     <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 2 }}>{items.length} rappel{items.length !== 1 ? 's' : ''}</Text>
                     <Text style={{ fontSize: 12, fontWeight: '800', color: '#1A1D21', marginTop: 6 }}>Prochain dans {getTimeRemaining(items.filter(r => r.active))}</Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color="#888" />
+                  <Icon name="chevron-forward" size={20} color="#888" />
                 </GlassCard>
               </TouchableOpacity>
             );
@@ -121,7 +122,7 @@ export default function RemindersScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => setActiveCat(null)} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => setActiveCat(null)} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>{cat?.label}</Text>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
@@ -148,14 +149,14 @@ export default function RemindersScreen() {
               <View style={{ alignItems: 'center', gap: 8 }}>
                 <Switch value={r.active} onValueChange={() => toggleActive(r.id)} trackColor={{ true: '#4CAF50', false: '#DDD' }} />
                 <TouchableOpacity onPress={() => setConfirmDelete(r.id)} style={{ padding: 6 }}>
-                  <Ionicons name="trash-outline" size={20} color="#E53935" />
+                  <Icon name="trash-outline" size={20} color="#E53935" />
                 </TouchableOpacity>
               </View>
             </View>
           </GlassCard>
         ))}
 
-        {catR.length === 0 && <GlassCard style={{ alignItems: 'center', padding: 32 }}><Ionicons name="alarm-outline" size={32} color="#888" /><Text style={{ fontSize: 14, color: '#5A6068', marginTop: 8 }}>Aucun rappel</Text></GlassCard>}
+        {catR.length === 0 && <GlassCard style={{ alignItems: 'center', padding: 32 }}><Icon name="alarm-outline" size={32} color="#888" /><Text style={{ fontSize: 14, color: '#5A6068', marginTop: 8 }}>Aucun rappel</Text></GlassCard>}
 
         <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 16, alignItems: 'center', marginTop: 4 }} onPress={openCreate}>
           <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>AJOUTER UN RAPPEL</Text>
@@ -166,7 +167,7 @@ export default function RemindersScreen() {
       {confirmDelete && (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 32, zIndex: 100 }}>
           <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, padding: 24, alignItems: 'center' }}>
-            <Ionicons name="trash-outline" size={32} color="#E53935" />
+            <Icon name="trash-outline" size={32} color="#E53935" />
             <Text style={{ fontSize: 18, fontWeight: '800', color: '#1A1D21', marginTop: 12 }}>Supprimer ce rappel ?</Text>
             <Text style={{ fontSize: 13, color: '#5A6068', marginTop: 4 }}>Cette action est irreversible</Text>
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 20, width: '100%' }}>

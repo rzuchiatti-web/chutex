@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert as RNAlert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,7 +35,7 @@ export default function SubscriberDetailScreen() {
   return (
     <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Ionicons name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Icon name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
         <Text style={s.topTitle}>Fiche abonné</Text>
         <View style={{width:36}} />
       </View>
@@ -106,7 +107,7 @@ export default function SubscriberDetailScreen() {
           <TouchableOpacity key={a.id} style={[s.alertCard, a.severity==='critical' && {borderLeftColor: Colors.destructive}]}
             onPress={() => router.push({pathname: '/alert-detail', params: {alertId: a.id}})}>
             <View style={s.alertTop}>
-              <Ionicons name={a.alert_type==='sos' ? 'alert-circle' : 'warning'} size={16} color={a.severity==='critical' ? Colors.destructive : Colors.textMuted} />
+              <Icon name={a.alert_type==='sos' ? 'alert-circle' : 'warning'} size={16} color={a.severity==='critical' ? Colors.destructive : Colors.textMuted} />
               <Text style={s.alertType}>{a.alert_type}</Text>
               <View style={[s.badge, a.status==='active' && {backgroundColor: Colors.destructive+'12'}]}>
                 <Text style={[s.badgeT, a.status==='active' && {color: Colors.destructive}]}>{a.status}</Text></View>
@@ -127,13 +128,13 @@ export default function SubscriberDetailScreen() {
               <View key={i} style={s.tlRow}><View style={s.tlDot} /><Text style={s.tlText}>{t.note}</Text></View>
             ))}
             {e.intervention_id && <TouchableOpacity style={s.viewIvBtn} onPress={() => router.push({pathname:'/intervention-detail', params:{interventionId: e.intervention_id}})}>
-              <Ionicons name="map-outline" size={14} color={Colors.primary} /><Text style={s.viewIvBtnT}>Voir intervention</Text></TouchableOpacity>}
+              <Icon name="map-outline" size={14} color={Colors.primary} /><Text style={s.viewIvBtnT}>Voir intervention</Text></TouchableOpacity>}
           </View>
         ))}
 
         {tab === 'calls' && data.calls.map((c: any) => (
           <View key={c.id} style={s.callCard}>
-            <Ionicons name="call" size={16} color={c.answered ? Colors.success : Colors.textMuted} />
+            <Icon name="call" size={16} color={c.answered ? Colors.success : Colors.textMuted} />
             <View style={{flex:1}}>
               <Text style={s.callTarget}>{c.target_name} ({c.target_type})</Text>
               <Text style={s.callPhone}>{c.target_phone} · {c.status}</Text>
@@ -143,7 +144,7 @@ export default function SubscriberDetailScreen() {
         ))}
 
         {((tab==='alerts' && data.alerts.length===0) || (tab==='escalations' && data.escalations.length===0) || (tab==='calls' && data.calls.length===0)) &&
-          <View style={s.emptyC}><Ionicons name="checkmark-circle" size={28} color={Colors.textMuted} /><Text style={s.emptyT}>Aucun élément</Text></View>}
+          <View style={s.emptyC}><Icon name="checkmark-circle" size={28} color={Colors.textMuted} /><Text style={s.emptyT}>Aucun élément</Text></View>}
       </ScrollView>
     </SafeAreaView>
   );

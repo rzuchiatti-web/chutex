@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl, Dimensions, Alert, Modal } from 'react-native';
@@ -157,12 +158,12 @@ export default function ScaleDetailScreen() {
 
   const StatCard = ({ label, value, unit, icon, color, trend }: any) => (
     <GC style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
-      <Ionicons name={icon} size={20} color={color} />
+      <Icon name={icon} size={20} color={color} />
       <Text style={{ fontSize: 22, fontWeight: '900', color, marginTop: 4 }}>{value}<Text style={{ fontSize: 11 }}>{unit}</Text></Text>
       <Text style={{ fontSize: 8, color: '#5A6068', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{label}</Text>
       {trend !== null && trend !== undefined && Math.abs(trend) > 0.05 && (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginTop: 2 }}>
-          <Ionicons name={trend > 0 ? 'arrow-up' : 'arrow-down'} size={10} color={trend > 0 ? '#E53935' : '#4CAF50'} />
+          <Icon name={trend > 0 ? 'arrow-up' : 'arrow-down'} size={10} color={trend > 0 ? '#E53935' : '#4CAF50'} />
           <Text style={{ fontSize: 9, color: trend > 0 ? '#E53935' : '#4CAF50', fontWeight: '700' }}>{Math.abs(trend).toFixed(1)}</Text>
         </View>
       )}
@@ -175,7 +176,7 @@ export default function ScaleDetailScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Ionicons name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Balance Connectee</Text>
         {isConnected && (
           <View style={{ backgroundColor: '#10B981' + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}>
@@ -191,7 +192,7 @@ export default function ScaleDetailScreen() {
         {!isConnected ? (
           <GC style={{ alignItems: 'center', padding: 24, borderWidth: 2, borderColor: '#2196F3', borderStyle: 'dashed' }} data-testid="ble-connect-section">
             <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
-              <Ionicons name="bluetooth" size={30} color="#2196F3" />
+              <Icon name="bluetooth" size={30} color="#2196F3" />
             </View>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21', marginBottom: 4 }}>Connecter votre balance</Text>
             <Text style={{ fontSize: 12, color: '#5A6068', textAlign: 'center', marginBottom: 16, lineHeight: 18 }}>
@@ -199,7 +200,7 @@ export default function ScaleDetailScreen() {
             </Text>
             <TouchableOpacity testID="scan-scale-btn" onPress={isNative ? startScan : () => Alert.alert('Bluetooth', 'Utilisez l\'app mobile pour connecter la balance.')}
               style={{ backgroundColor: '#2196F3', borderRadius: 9999, paddingVertical: 14, paddingHorizontal: 32, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              {bleState === 'scanning' ? <ActivityIndicator color="#1A1D21" size="small" /> : <Ionicons name="bluetooth" size={18} color="#1A1D21" />}
+              {bleState === 'scanning' ? <ActivityIndicator color="#1A1D21" size="small" /> : <Icon name="bluetooth" size={18} color="#1A1D21" />}
               <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>{bleState === 'scanning' ? 'Recherche...' : 'Connecter ma balance'}</Text>
             </TouchableOpacity>
           </GC>
@@ -207,7 +208,7 @@ export default function ScaleDetailScreen() {
           <GC style={{ padding: 16, borderLeftWidth: 4, borderLeftColor: '#4CAF50' }} data-testid="ble-connected-section">
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#10B981' + '15', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="bluetooth" size={22} color="#4CAF50" />
+                <Icon name="bluetooth" size={22} color="#4CAF50" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21' }}>{connectedDevice || 'Balance Lefu'}</Text>
@@ -216,7 +217,7 @@ export default function ScaleDetailScreen() {
                 </Text>
               </View>
               <TouchableOpacity onPress={disconnect} style={{ padding: 6 }}>
-                <Ionicons name="close-circle" size={24} color="#888" />
+                <Icon name="close-circle" size={24} color="#888" />
               </TouchableOpacity>
             </View>
             {/* Live weight display during weighing */}
@@ -231,14 +232,14 @@ export default function ScaleDetailScreen() {
             {bleState === 'connected' && (
               <TouchableOpacity testID="start-weighing-btn" onPress={startWeighing}
                 style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', marginTop: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
-                <Ionicons name="scale-outline" size={18} color="#1A1D21" />
+                <Icon name="scale-outline" size={18} color="#1A1D21" />
                 <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>Lancer une pesee</Text>
               </TouchableOpacity>
             )}
             {bleState === 'done' && (
               <TouchableOpacity onPress={() => { setBleState('connected'); setLiveMeasurement(null); }}
                 style={{ backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', marginTop: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
-                <Ionicons name="refresh" size={18} color="#1A1D21" />
+                <Icon name="refresh" size={18} color="#1A1D21" />
                 <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>Nouvelle pesee</Text>
               </TouchableOpacity>
             )}
@@ -254,7 +255,7 @@ export default function ScaleDetailScreen() {
             </Text>
             {diff('weight') !== null && Math.abs(diff('weight')) > 0.05 && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 }}>
-                <Ionicons name={diff('weight') > 0 ? 'trending-up' : 'trending-down'} size={16} color={diff('weight') > 0 ? '#E53935' : '#4CAF50'} />
+                <Icon name={diff('weight') > 0 ? 'trending-up' : 'trending-down'} size={16} color={diff('weight') > 0 ? '#E53935' : '#4CAF50'} />
                 <Text style={{ fontSize: 13, fontWeight: '700', color: diff('weight') > 0 ? '#E53935' : '#4CAF50' }}>{diff('weight') > 0 ? '+' : ''}{diff('weight').toFixed(1)} kg</Text>
                 <Text style={{ fontSize: 11, color: '#5A6068' }}>vs precedent</Text>
               </View>
@@ -348,7 +349,7 @@ export default function ScaleDetailScreen() {
             ].map((m, i) => (
               <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                 <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: m.color + '15', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name={m.icon as any} size={16} color={m.color} />
+                  <Icon name={m.icon as any} size={16} color={m.color} />
                 </View>
                 <Text style={{ fontSize: 13, color: '#555', flex: 1 }}>{m.label}</Text>
                 <Text style={{ fontSize: 15, fontWeight: '800', color: m.value ? '#000' : '#CCC' }}>
@@ -367,14 +368,14 @@ export default function ScaleDetailScreen() {
                 <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21', flex: 1 }}>{r.weight} kg</Text>
                 <Text style={{ fontSize: 11, color: '#FF9800' }}>{r.body_fat_pct}%</Text>
                 <Text style={{ fontSize: 11, color: '#10B981', marginLeft: 8 }}>{r.muscle_mass}kg</Text>
-                {r.source === 'ble' && <Ionicons name="bluetooth" size={10} color="#2196F3" style={{ marginLeft: 4 }} />}
+                {r.source === 'ble' && <Icon name="bluetooth" size={10} color="#2196F3" style={{ marginLeft: 4 }} />}
               </View>
             ))}
           </GC>
 
           {!history.length && (
             <GC style={{ alignItems: 'center', padding: 32 }}>
-              <Ionicons name="scale-outline" size={40} color="#CCC" />
+              <Icon name="scale-outline" size={40} color="#CCC" />
               <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21', marginTop: 12 }}>Aucune pesee</Text>
               <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 4, textAlign: 'center' }}>Connectez votre balance et pesez-vous pour voir vos donnees ici.</Text>
             </GC>
@@ -389,10 +390,10 @@ export default function ScaleDetailScreen() {
             <View style={{ alignItems: 'center', paddingBottom: 8 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} /></View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 16 }}>
               <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
-                <Ionicons name="bluetooth" size={20} color="#2196F3" />
+                <Icon name="bluetooth" size={20} color="#2196F3" />
               </View>
               <Text style={{ fontSize: 18, fontWeight: '900', color: '#1A1D21', flex: 1 }}>Balances detectees</Text>
-              <TouchableOpacity onPress={() => { setShowBleModal(false); stopScaleScan(); setBleState('idle'); }}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
+              <TouchableOpacity onPress={() => { setShowBleModal(false); stopScaleScan(); setBleState('idle'); }}><Icon name="close" size={22} color="#888" /></TouchableOpacity>
             </View>
             {bleState === 'scanning' && (
               <View style={{ alignItems: 'center', paddingVertical: 24 }}>
@@ -410,18 +411,18 @@ export default function ScaleDetailScreen() {
               <TouchableOpacity key={d.id} testID={`ble-device-${d.id}`} onPress={() => connectDevice(d.id, d.name)}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                 <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
-                  <Ionicons name="scale-outline" size={22} color="#2196F3" />
+                  <Icon name="scale-outline" size={22} color="#2196F3" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21' }}>{d.name}</Text>
                   <Text style={{ fontSize: 11, color: '#5A6068' }}>Signal : {Math.min(100, Math.max(0, 100 + d.rssi))}%</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color="#2196F3" />
+                <Icon name="chevron-forward" size={18} color="#2196F3" />
               </TouchableOpacity>
             ))}
             {foundDevices.length === 0 && bleState !== 'scanning' && bleState !== 'connecting' && (
               <View style={{ alignItems: 'center', paddingVertical: 24 }}>
-                <Ionicons name="search-outline" size={36} color="#CCC" />
+                <Icon name="search-outline" size={36} color="#CCC" />
                 <Text style={{ fontSize: 13, color: '#5A6068', marginTop: 8, textAlign: 'center' }}>Aucune balance trouvee. Verifiez qu'elle est allumee.</Text>
                 <TouchableOpacity onPress={startScan} style={{ backgroundColor: '#2196F3', borderRadius: 9999, paddingVertical: 10, paddingHorizontal: 24, marginTop: 12 }}>
                   <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>Relancer la recherche</Text>

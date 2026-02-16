@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert, Share, Platform, ScrollView, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -60,7 +61,7 @@ const RelationshipPicker = ({ value, onChange, relationships, label }: any) => {
         <Text style={{ fontSize: 15, color: value ? '#1A1D21' : '#9BA3AD', fontWeight: value ? '600' : '400' }}>
           {selected ? selected.label : 'Choisir...'}
         </Text>
-        <Ionicons name="chevron-down" size={18} color="#9BA3AD" />
+        <Icon name="chevron-down" size={18} color="#9BA3AD" />
       </TouchableOpacity>
 
       <Modal visible={open} transparent animationType="slide">
@@ -79,7 +80,7 @@ const RelationshipPicker = ({ value, onChange, relationships, label }: any) => {
                   onPress={() => { onChange(r.id); setOpen(false); }}
                   style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
                   <Text style={{ flex: 1, fontSize: 16, fontWeight: value === r.id ? '700' : '400', color: '#1A1D21' }}>{r.label}</Text>
-                  {value === r.id && <Ionicons name="checkmark-circle" size={22} color="#10B981" />}
+                  {value === r.id && <Icon name="checkmark-circle" size={22} color="#10B981" />}
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -182,21 +183,21 @@ export default function LinkScreen() {
       <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
           <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-            <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+            <Icon name="chevron-back" size={24} color="#1A1D21" />
           </TouchableOpacity>
           <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>Mes gardiens</Text>
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
           {/* Code permanent */}
           <GlassCard style={{ alignItems: 'center', padding: 28 }}>
-            <Ionicons name="qr-code-outline" size={36} color="#1A1D21" />
+            <Icon name="qr-code-outline" size={36} color="#1A1D21" />
             <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', textTransform: 'uppercase', letterSpacing: 1, marginTop: 12 }}>Votre code permanent</Text>
             {loadingCode ? <ActivityIndicator color="#1A1D21" style={{ marginTop: 12 }} /> : (
               <Text style={{ fontSize: 38, fontWeight: '900', color: '#1A1D21', letterSpacing: 6, marginTop: 6 }}>{myCode}</Text>
             )}
             <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 8, textAlign: 'center', lineHeight: 18 }}>Communiquez ce code a vos proches pour qu'ils deviennent vos gardiens.</Text>
             <TouchableOpacity style={{ backgroundColor: '#1A1D21', borderRadius: 9999, paddingVertical: 14, paddingHorizontal: 32, marginTop: 16, flexDirection: 'row', gap: 8, alignItems: 'center' }} onPress={shareCode}>
-              <Ionicons name="share-outline" size={18} color="#FFF" />
+              <Icon name="share-outline" size={18} color="#FFF" />
               <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Partager</Text>
             </TouchableOpacity>
           </GlassCard>
@@ -234,7 +235,7 @@ export default function LinkScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => { if (mode !== 'choose') setMode('choose'); else router.back(); }} style={{ padding: 4, marginRight: 12 }}>
-          <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+          <Icon name="chevron-back" size={24} color="#1A1D21" />
         </TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>Ajouter un beneficiaire</Text>
       </View>
@@ -249,13 +250,13 @@ export default function LinkScreen() {
               <TouchableOpacity key={i} onPress={() => setMode(opt.key as any)} activeOpacity={0.7}>
                 <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
                   <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#F0F1F3', justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name={opt.icon as any} size={24} color="#1A1D21" />
+                    <Icon name={opt.icon as any} size={24} color="#1A1D21" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>{opt.title}</Text>
                     <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 2 }}>{opt.desc}</Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color="#9BA3AD" />
+                  <Icon name="chevron-forward" size={20} color="#9BA3AD" />
                 </GlassCard>
               </TouchableOpacity>
             ))}

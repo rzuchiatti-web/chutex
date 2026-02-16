@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -52,7 +53,7 @@ export default function InterventionMapScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }} testID="intervention-map-screen">
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity testID="map-back-btn" onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-          <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+          <Icon name="chevron-back" size={24} color="#1A1D21" />
         </TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>Suivi intervention</Text>
         <View style={{ backgroundColor: statusColor + '20', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 9999 }}>
@@ -71,7 +72,7 @@ export default function InterventionMapScreen() {
             />
           ) : (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.03)' }}>
-              <Ionicons name="map-outline" size={60} color="#888" />
+              <Icon name="map-outline" size={60} color="#888" />
               <Text style={{ fontSize: 14, color: '#5A6068', marginTop: 10 }}>Carte de suivi</Text>
               {benLoc.latitude && (
                 <TouchableOpacity
@@ -88,7 +89,7 @@ export default function InterventionMapScreen() {
         {/* ETA Card */}
         <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
           <View style={{ width: 50, height: 50, borderRadius: 25, backgroundColor: statusColor + '20', justifyContent: 'center', alignItems: 'center' }}>
-            <Ionicons name="car" size={24} color={statusColor} />
+            <Icon name="car" size={24} color={statusColor} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', textTransform: 'uppercase', letterSpacing: 1 }}>TEMPS ESTIME</Text>
@@ -116,7 +117,7 @@ export default function InterventionMapScreen() {
           </View>
           {ben.medical_conditions && (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10, padding: 10, backgroundColor: 'rgba(229,57,53,0.06)', borderRadius: 12 }}>
-              <Ionicons name="medkit-outline" size={16} color="#E53935" />
+              <Icon name="medkit-outline" size={16} color="#E53935" />
               <Text style={{ fontSize: 12, color: '#555', flex: 1 }}>{ben.medical_conditions}</Text>
             </View>
           )}
@@ -125,7 +126,7 @@ export default function InterventionMapScreen() {
               testID="call-beneficiary-btn"
               style={{ backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 12 }}
               onPress={() => Linking.openURL(`tel:${ben.phone}`)}>
-              <Ionicons name="call" size={16} color="#1A1D21" />
+              <Icon name="call" size={16} color="#1A1D21" />
               <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>APPELER</Text>
             </TouchableOpacity>
           )}
@@ -160,7 +161,7 @@ export default function InterventionMapScreen() {
             testID="navigate-btn"
             style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 8, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }}
             onPress={() => openMaps(benLoc.latitude, benLoc.longitude)}>
-            <Ionicons name="navigate" size={20} color="#1A1D21" />
+            <Icon name="navigate" size={20} color="#1A1D21" />
             <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 }}>LANCER LA NAVIGATION</Text>
           </TouchableOpacity>
         )}
@@ -170,7 +171,7 @@ export default function InterventionMapScreen() {
           testID="back-to-detail-btn"
           style={{ borderRadius: 9999, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, borderWidth: 2, borderColor: 'rgba(0,0,0,0.06)' }}
           onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: interventionId } })}>
-          <Ionicons name="document-text-outline" size={16} color="#1A1D21" />
+          <Icon name="document-text-outline" size={16} color="#1A1D21" />
           <Text style={{ color: '#1A1D21', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' }}>DETAIL DE L'INTERVENTION</Text>
         </TouchableOpacity>
       </ScrollView>

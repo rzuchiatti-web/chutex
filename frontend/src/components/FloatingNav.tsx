@@ -1,3 +1,4 @@
+import { Icon } from './WebIcon';
 import React from 'react';
 import { View, TouchableOpacity, Text, Platform } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -85,7 +86,7 @@ export function FloatingNav({ role }: { role?: string }) {
               {tab.lib === 'mci' ? (
                 <MaterialCommunityIcons name={tab.icon as any} size={18} color={active ? '#FFF' : '#999'} />
               ) : (
-                <Ionicons name={tab.icon as any} size={18} color={active ? '#FFF' : '#999'} />
+                <Icon name={tab.icon as any} size={18} color={active ? '#FFF' : '#999'} />
               )}
             </View>
             <Text style={{

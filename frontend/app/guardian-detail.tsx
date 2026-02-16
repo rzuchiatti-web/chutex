@@ -1,3 +1,4 @@
+import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -47,7 +48,7 @@ export default function GuardianDetailScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-          <Ionicons name="chevron-back" size={24} color="#1A1D21" />
+          <Icon name="chevron-back" size={24} color="#1A1D21" />
         </TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>Fiche Gardien</Text>
       </View>
@@ -67,7 +68,7 @@ export default function GuardianDetailScreen() {
         <GlassCard>
           {infoRows.map((r, i) => (
             <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: i < infoRows.length - 1 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
-              <Ionicons name={r.icon as any} size={20} color="#888" />
+              <Icon name={r.icon as any} size={20} color="#888" />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 10, color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.5 }}>{r.label}</Text>
                 <Text style={{ fontSize: 16, fontWeight: '600', color: '#1A1D21', marginTop: 2 }}>{r.val}</Text>
@@ -80,7 +81,7 @@ export default function GuardianDetailScreen() {
         {guardian.latitude && (
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <Ionicons name="navigate-outline" size={20} color="#888" />
+              <Icon name="navigate-outline" size={20} color="#888" />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 10, color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.5 }}>Coordonnees GPS</Text>
                 <Text style={{ fontSize: 15, fontWeight: '600', color: '#1A1D21', marginTop: 2 }}>{guardian.latitude?.toFixed(4)}, {guardian.longitude?.toFixed(4)}</Text>
@@ -101,7 +102,7 @@ export default function GuardianDetailScreen() {
               } catch (e: any) { Alert.alert('Erreur', e.message); }
             }},
           ])}>
-          <Ionicons name="trash-outline" size={18} color="#1A1D21" />
+          <Icon name="trash-outline" size={18} color="#1A1D21" />
           <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>SUPPRIMER CE GARDIEN</Text>
         </TouchableOpacity>
       </ScrollView>
