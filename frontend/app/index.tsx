@@ -12,12 +12,12 @@ const ClinicInput = ({ testID, label, val, onChange, placeholder, type, colors, 
   if (Platform.OS === 'web') {
     return (
       <div style={{ marginBottom: 14 }}>
-        {label && <div style={{ fontSize: 10, fontWeight: '700', color: colors.textMuted, marginBottom: 7, letterSpacing: 1, textTransform: 'uppercase' }}>{label}</div>}
+        {label && <div style={{ fontSize: 10, fontWeight: '700', color: '#9BA3AD', marginBottom: 7, letterSpacing: 1, textTransform: 'uppercase' }}>{label}</div>}
         <input data-testid={testID} type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
           style={{
             width: '100%', fontSize: 15, fontFamily: 'system-ui, Inter, sans-serif', fontWeight: '500',
             padding: '14px 16px', borderRadius: 14, border: `1px solid ${colors.inputBorder}`,
-            background: colors.inputBg, color: colors.textPrimary,
+            background: colors.inputBg, color: '#1A1D21',
             boxSizing: 'border-box' as any, outline: 'none', transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
           } as any}
           onFocus={(e: any) => { e.target.style.borderColor = colors.textSecondary; }}
@@ -29,11 +29,11 @@ const ClinicInput = ({ testID, label, val, onChange, placeholder, type, colors, 
   const { TextInput: RNTextInput } = require('react-native');
   return (
     <View style={{ marginBottom: 14 }}>
-      {label && <Text style={{ fontSize: 10, fontWeight: '700', color: colors.textMuted, marginBottom: 7, letterSpacing: 1, textTransform: 'uppercase' }}>{label}</Text>}
+      {label && <Text style={{ fontSize: 10, fontWeight: '700', color: '#9BA3AD', marginBottom: 7, letterSpacing: 1, textTransform: 'uppercase' }}>{label}</Text>}
       <RNTextInput testID={testID} value={val} onChangeText={onChange} placeholder={placeholder}
         placeholderTextColor={colors.textMuted} secureTextEntry={type === 'password'}
         autoCapitalize="none" keyboardType={type === 'email' ? 'email-address' : type === 'tel' ? 'phone-pad' : 'default'}
-        style={{ fontSize: 15, padding: 14, borderRadius: 14, backgroundColor: colors.inputBg, color: colors.textPrimary, borderWidth: 1, borderColor: colors.inputBorder }} />
+        style={{ fontSize: 15, padding: 14, borderRadius: 14, backgroundColor: colors.inputBg, color: '#1A1D21', borderWidth: 1, borderColor: colors.inputBorder }} />
     </View>
   );
 };
@@ -92,7 +92,7 @@ export default function AuthScreen() {
   }, []);
 
   if (loading || user || !onboardingChecked) {
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}><ActivityIndicator size="large" color={colors.textPrimary} /></View>;
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color="#1A1D21" /></View>;
   }
 
   const handleLogin = async () => {
@@ -121,7 +121,7 @@ export default function AuthScreen() {
   const PillBtn = ({ testID, label, onPress, loading: ld, outline }: any) => (
     <TouchableOpacity testID={testID} disabled={ld} onPress={onPress} activeOpacity={0.8}
       style={[{ paddingVertical: 16, borderRadius: Radius.full, alignItems: 'center' },
-        outline ? { backgroundColor: colors.badgeBg, flex: 1, borderWidth: 1, borderColor: colors.border }
+        outline ? { backgroundColor: 'rgba(0,0,0,0.04)', flex: 1, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }
                : { backgroundColor: colors.buttonBg }
       ]}>
       {ld ? <ActivityIndicator color={outline ? colors.textMuted : colors.buttonText} />
@@ -133,22 +133,22 @@ export default function AuthScreen() {
   const logoSource = isDark ? require('../assets/images/logo_white.png') : require('../assets/images/logo_black.png');
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} data-testid="auth-screen">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }} data-testid="auth-screen">
       <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40, flexGrow: 1, maxWidth: 420, width: '100%', alignSelf: 'center' }}
           keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 
           <View style={{ alignItems: 'center', marginTop: 48, marginBottom: 40 }}>
             <Image source={logoSource} style={{ width: 140, height: 46 }} resizeMode="contain" />
-            <Text style={{ fontSize: 10, fontWeight: '700', color: colors.textMuted, marginTop: 8, letterSpacing: 3, textTransform: 'uppercase' }}>Sante connectee</Text>
+            <Text style={{ fontSize: 10, fontWeight: '700', color: '#9BA3AD', marginTop: 8, letterSpacing: 3, textTransform: 'uppercase' }}>Sante connectee</Text>
           </View>
 
           <View style={{ ...cStyle, padding: 24, marginBottom: 20, overflow: 'hidden' as const }}>
-            <View style={{ flexDirection: 'row', marginBottom: 24, backgroundColor: colors.badgeBg, borderRadius: Radius.full, padding: 3, borderWidth: 1, borderColor: colors.borderLight }}>
-              <TouchableOpacity testID="auth-tab-login" style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.full }, isLogin && { backgroundColor: colors.surface }]} onPress={() => { setIsLogin(true); setStep(0); setError(''); }}>
+            <View style={{ flexDirection: 'row', marginBottom: 24, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: Radius.full, padding: 3, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)'Light }}>
+              <TouchableOpacity testID="auth-tab-login" style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.full }, isLogin && { backgroundColor: '#FFFFFF' }]} onPress={() => { setIsLogin(true); setStep(0); setError(''); }}>
                 <Text style={{ fontSize: 13, fontWeight: '700', color: isLogin ? colors.textPrimary : colors.textMuted }}>Connexion</Text>
               </TouchableOpacity>
-              <TouchableOpacity testID="auth-tab-register" style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.full }, !isLogin && { backgroundColor: colors.surface }]} onPress={() => { setIsLogin(false); setStep(0); setError(''); }}>
+              <TouchableOpacity testID="auth-tab-register" style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.full }, !isLogin && { backgroundColor: '#FFFFFF' }]} onPress={() => { setIsLogin(false); setStep(0); setError(''); }}>
                 <Text style={{ fontSize: 13, fontWeight: '700', color: !isLogin ? colors.textPrimary : colors.textMuted }}>Inscription</Text>
               </TouchableOpacity>
             </View>
@@ -156,7 +156,7 @@ export default function AuthScreen() {
             {error ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.dangerLight, borderRadius: 14, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(239,68,68,0.15)' }}>
                 <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.danger }} />
-                <Text style={{ fontSize: 12, color: colors.danger, flex: 1 }}>{error}</Text>
+                <Text style={{ fontSize: 12, color: '#EF4444', flex: 1 }}>{error}</Text>
               </View>
             ) : null}
 
@@ -172,7 +172,7 @@ export default function AuthScreen() {
                 {[0, 1, 2].map(i => <View key={i} style={{ width: i <= step ? 24 : 6, height: 4, borderRadius: 2, backgroundColor: i <= step ? colors.textPrimary : colors.borderLight }} />)}
               </View>
               {step === 0 && (<>
-                <Text style={{ fontSize: 20, fontWeight: '800', color: colors.textPrimary, marginBottom: 18, letterSpacing: -0.3 }}>Informations generales</Text>
+                <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A1D21', marginBottom: 18, letterSpacing: -0.3 }}>Informations generales</Text>
                 <ClinicInput testID="reg-name" label="Nom complet" val={name} onChange={setName} placeholder="Jean Dupont" colors={colors} isDark={isDark} />
                 <ClinicInput testID="reg-email" label="Email" val={email} onChange={setEmail} placeholder="email@exemple.com" type="email" colors={colors} isDark={isDark} />
                 <ClinicInput testID="reg-phone" label="Telephone" val={phone} onChange={setPhone} placeholder="06 12 34 56 78" type="tel" colors={colors} isDark={isDark} />
@@ -180,8 +180,8 @@ export default function AuthScreen() {
                 <PillBtn testID="next-step" label="Suivant" onPress={() => { if (!name || !email || !password) return setError('Remplissez tous les champs'); setError(''); setStep(1); }} />
               </>)}
               {step === 1 && (<>
-                <Text style={{ fontSize: 20, fontWeight: '800', color: colors.textPrimary, textAlign: 'center', marginBottom: 4 }}>Votre profil</Text>
-                <Text style={{ fontSize: 13, color: colors.textSecondary, textAlign: 'center', marginBottom: 20 }}>Selectionnez votre usage</Text>
+                <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A1D21', textAlign: 'center', marginBottom: 4 }}>Votre profil</Text>
+                <Text style={{ fontSize: 13, color: '#5A6068', textAlign: 'center', marginBottom: 20 }}>Selectionnez votre usage</Text>
                 {[{ r: 'beneficiary', icon: 'person-outline', t: 'Beneficiaire', d: 'Porteur de dispositifs de sante Chutex' },
                   { r: 'guardian', icon: 'people-outline', t: 'Gardien', d: 'Aidant ou professionnel accompagnant un proche' }].map(o => (
                   <TouchableOpacity key={o.r} activeOpacity={0.7} onPress={() => { setRole(o.r); setStep(2); }}
@@ -190,20 +190,20 @@ export default function AuthScreen() {
                       <Ionicons name={o.icon as any} size={20} color={role === o.r ? colors.textPrimary : colors.textMuted} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>{o.t}</Text>
-                      <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 2 }}>{o.d}</Text>
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21' }}>{o.t}</Text>
+                      <Text style={{ fontSize: 11, color: '#5A6068', marginTop: 2 }}>{o.d}</Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+                    <Ionicons name="chevron-forward" size={16} color="#9BA3AD" />
                   </TouchableOpacity>
                 ))}
                 <TouchableOpacity style={{ alignItems: 'center', paddingVertical: 12 }} onPress={() => setStep(0)}>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textMuted }}>Retour</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#9BA3AD' }}>Retour</Text>
                 </TouchableOpacity>
               </>)}
               {step === 2 && role === 'beneficiary' && (<>
-                <Text style={{ fontSize: 20, fontWeight: '800', color: colors.textPrimary, marginBottom: 18 }}>Profil beneficiaire</Text>
+                <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A1D21', marginBottom: 18 }}>Profil beneficiaire</Text>
                 <ClinicInput label="Date de naissance" val={dob} onChange={setDob} placeholder="JJ/MM/AAAA" colors={colors} isDark={isDark} />
-                <Text style={{ fontSize: 10, fontWeight: '700', color: colors.textMuted, marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' }}>Genre</Text>
+                <Text style={{ fontSize: 10, fontWeight: '700', color: '#9BA3AD', marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' }}>Genre</Text>
                 <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
                   {['Homme', 'Femme', 'Autre'].map(g => <TouchableOpacity key={g} style={{ paddingVertical: 9, paddingHorizontal: 16, borderRadius: Radius.full, backgroundColor: gender === g ? colors.surfaceHighlight : colors.badgeBg, borderWidth: 1, borderColor: gender === g ? colors.border : colors.borderLight }} onPress={() => setGender(g)}><Text style={{ fontSize: 12, fontWeight: '600', color: gender === g ? colors.textPrimary : colors.textMuted }}>{g}</Text></TouchableOpacity>)}
                 </View>
@@ -216,7 +216,7 @@ export default function AuthScreen() {
                 <ClinicInput label="Tel. urgence" val={ecPhone} onChange={setEcPhone} placeholder="06 98 76 54 32" type="tel" colors={colors} isDark={isDark} />
               </>)}
               {step === 2 && role === 'guardian' && (<>
-                <Text style={{ fontSize: 20, fontWeight: '800', color: colors.textPrimary, marginBottom: 18 }}>Profil gardien</Text>
+                <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A1D21', marginBottom: 18 }}>Profil gardien</Text>
                 <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
                   {[{ id: 'particular', l: 'Particulier' }, { id: 'professional', l: 'Professionnel' }].map(t => (
                     <TouchableOpacity key={t.id} style={{ flex: 1, paddingVertical: 12, borderRadius: 14, alignItems: 'center', backgroundColor: guardianType === t.id ? colors.surfaceHighlight : colors.badgeBg, borderWidth: 1, borderColor: guardianType === t.id ? colors.border : colors.borderLight }} onPress={() => setGuardianType(t.id)}>
@@ -240,7 +240,7 @@ export default function AuthScreen() {
             </>)}
           </View>
 
-          <Text style={{ fontSize: 10, color: colors.textMuted, textAlign: 'center', marginTop: 12, letterSpacing: 0.5 }}>Chutex Innovation — v2.0</Text>
+          <Text style={{ fontSize: 10, color: '#9BA3AD', textAlign: 'center', marginTop: 12, letterSpacing: 0.5 }}>Chutex Innovation — v2.0</Text>
         </ScrollView>
       </Animated.View>
     </SafeAreaView>

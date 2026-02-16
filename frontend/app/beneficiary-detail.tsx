@@ -9,14 +9,14 @@ import { apiFetch } from '../src/services/api';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: colors.surface, borderRadius: 22, borderWidth: 1, borderColor: colors.border, padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
 const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) => (
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
       <Ionicons name={icon as any} size={16} color={color || '#888'} />
-      <Text style={{ fontSize: 12, color: colors.textSecondary, width: 100 }}>{label}</Text>
-      <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textPrimary, flex: 1 }}>{value}</Text>
+      <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
     </View>
   ) : null
 );
@@ -61,19 +61,19 @@ export default function BeneficiaryDetailScreen() {
     Linking.openURL(url!).catch(() => Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`));
   };
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={colors.textPrimary} /></SafeAreaView>;
-  if (!data?.beneficiary) return <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: colors.textSecondary }}>Beneficiaire non trouve</Text></SafeAreaView>;
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1A1D21" /></SafeAreaView>;
+  if (!data?.beneficiary) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#5A6068' }}>Beneficiaire non trouve</Text></SafeAreaView>;
 
   const b = data.beneficiary;
   const activeAlerts = (data.alerts || []).filter((a: any) => a.status === 'active');
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
+          <Ionicons name="chevron-back" size={24} color="#1A1D21" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: colors.textPrimary }}>Fiche beneficiaire</Text>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche beneficiaire</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}>
@@ -84,7 +84,7 @@ export default function BeneficiaryDetailScreen() {
               <Text style={{ fontSize: 28, fontWeight: '900', color: '#FFF' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: colors.textPrimary }}>{b.name}</Text>
+              <Text style={{ fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>{b.name}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                 {activeAlerts.length > 0 && <Badge label={`${activeAlerts.length} alerte(s)`} color="#E53935" bg="#FFEBEE" />}
                 {b.has_subscription && <Badge label={`Abon. ${b.subscription_type?.toUpperCase()}`} color={b.subscription_type === 'care' ? '#7B1FA2' : '#1565C0'} bg={b.subscription_type === 'care' ? '#F3E5F5' : '#E3F2FD'} />}
@@ -102,7 +102,7 @@ export default function BeneficiaryDetailScreen() {
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons name="medkit" size={18} color="#E53935" />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>Informations medicales</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Informations medicales</Text>
           </View>
           <InfoRow icon="calendar-outline" label="Naissance" value={b.date_of_birth} />
           <InfoRow icon="person-outline" label="Genre" value={b.gender} />
@@ -122,17 +122,17 @@ export default function BeneficiaryDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
                 <MaterialCommunityIcons name="bluetooth-connect" size={18} color="#4CAF50" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>Appareils ({data.devices.length})</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Appareils ({data.devices.length})</Text>
             </View>
             {data.devices.map((d: any) => {
               const names: any = { bracelet: 'Bracelet Elio', vest: 'Gilet Anti-Chute', scale: 'Balance Connectee' };
               const icons: any = { bracelet: 'watch', vest: 'tshirt-crew', scale: 'scale-bathroom' };
               return (
                 <View key={d.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                  <MaterialCommunityIcons name={icons[d.device_type] || 'devices'} size={20} color={colors.textPrimary} />
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textPrimary, flex: 1 }}>{names[d.device_type] || d.device_type}</Text>
+                  <MaterialCommunityIcons name={icons[d.device_type] || 'devices'} size={20} color="#1A1D21" />
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{names[d.device_type] || d.device_type}</Text>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: d.connected ? '#4CAF50' : '#E0E0E0' }} />
-                  <Text style={{ fontSize: 12, color: colors.textSecondary }}>{d.battery || 0}%</Text>
+                  <Text style={{ fontSize: 12, color: '#5A6068' }}>{d.battery || 0}%</Text>
                 </View>
               );
             })}
@@ -146,13 +146,13 @@ export default function BeneficiaryDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="navigate" size={18} color="#1565C0" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary, flex: 1 }}>Localisation</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21', flex: 1 }}>Localisation</Text>
             </View>
             <InfoRow icon="location-outline" label="Coordonnees" value={`${b.latitude?.toFixed(4)}, ${b.longitude?.toFixed(4)}`} color="#1565C0" />
             <TouchableOpacity style={{ backgroundColor: '#1565C0', borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 10, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
               onPress={() => openDirections(b.latitude, b.longitude)}>
               <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Ouvrir dans Maps</Text>
-              <Ionicons name="navigate-outline" size={16} color={colors.textPrimary} />
+              <Ionicons name="navigate-outline" size={16} color="#1A1D21" />
             </TouchableOpacity>
           </GlassCard>
         )}
@@ -164,7 +164,7 @@ export default function BeneficiaryDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="warning" size={18} color="#E53935" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>Historique alertes ({data.alerts.length})</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Historique alertes ({data.alerts.length})</Text>
             </View>
             {data.alerts.slice(0, 10).map((a: any) => {
               const tc: any = { sos: '#E53935', fall: '#FF9800', anomaly: '#9C27B0', inactivity: '#607D8B' };
@@ -173,8 +173,8 @@ export default function BeneficiaryDetailScreen() {
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tc[a.alert_type] || '#888' }} />
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: colors.textPrimary }}>{a.message?.slice(0, 60)}</Text>
-                    <Text style={{ fontSize: 10, color: colors.textSecondary }}>{a.alert_type} - {new Date(a.created_at).toLocaleString('fr-FR')}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#1A1D21' }}>{a.message?.slice(0, 60)}</Text>
+                    <Text style={{ fontSize: 10, color: '#5A6068' }}>{a.alert_type} - {new Date(a.created_at).toLocaleString('fr-FR')}</Text>
                   </View>
                   <Badge label={a.status === 'active' ? 'Active' : 'Resolue'} color={a.status === 'active' ? '#E53935' : '#4CAF50'} bg={a.status === 'active' ? '#FFEBEE' : '#E8F5E9'} />
                   <Ionicons name="chevron-forward" size={14} color="#888" />
@@ -191,21 +191,21 @@ export default function BeneficiaryDetailScreen() {
         )}
 
         {/* AI Health Report */}
-        <TouchableOpacity style={{ backgroundColor: colors.background, borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+        <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
           onPress={generateReport} disabled={reportLoading}>
-          {reportLoading ? <ActivityIndicator color={colors.textPrimary} /> : <>
+          {reportLoading ? <ActivityIndicator color="#1A1D21" /> : <>
             <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Generer un rapport IA</Text>
-            <Ionicons name="sparkles" size={16} color={colors.textPrimary} />
+            <Ionicons name="sparkles" size={16} color="#1A1D21" />
           </>}
         </TouchableOpacity>
 
         {report ? (
           <GlassCard>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <Ionicons name="sparkles" size={16} color={colors.textPrimary} />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: colors.textPrimary }}>Rapport IA</Text>
+              <Ionicons name="sparkles" size={16} color="#1A1D21" />
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#1A1D21' }}>Rapport IA</Text>
             </View>
-            <Text style={{ fontSize: 13, color: colors.textPrimary, lineHeight: 20 }}>{report}</Text>
+            <Text style={{ fontSize: 13, color: '#1A1D21', lineHeight: 20 }}>{report}</Text>
           </GlassCard>
         ) : null}
       </ScrollView>

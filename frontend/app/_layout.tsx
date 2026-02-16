@@ -13,9 +13,9 @@ function RootNav() {
 
   if (loading) {
     return (
-      <View style={[st.loading, { backgroundColor: colors.background }]}>
+      <View style={[st.loading, { backgroundColor: '#F5F6F8' }]}>
         <StatusBar style={isDark ? 'light' : 'dark'} />
-        <ActivityIndicator size="large" color={colors.textPrimary} />
+        <ActivityIndicator size="large" color="#1A1D21" />
       </View>
     );
   }
@@ -24,7 +24,7 @@ function RootNav() {
     return (
       <>
         <StatusBar style={isDark ? 'light' : 'dark'} />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F5F6F8' } }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="onboarding" />
         </Stack>
@@ -35,7 +35,7 @@ function RootNav() {
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F5F6F8' } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="health-detail" options={{ presentation: 'card' }} />
         <Stack.Screen name="backoffice" options={{ presentation: 'card' }} />

@@ -294,10 +294,10 @@ export default function BackofficeScreen() {
             <>
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
                 <TouchableOpacity testID="create-sub-btn" style={[bs.createBtn, { flex: 1, marginBottom: 0 }]} onPress={() => { setSubForm({ beneficiary_phone: '', subscription_type: 'standard', notes: '' }); setShowSubModal(true); }}>
-                  <Ionicons name="add" size={18} color={colors.textPrimary} /><Text style={bs.createBtnT}>Nouvel abonnement</Text>
+                  <Ionicons name="add" size={18} color="#1A1D21" /><Text style={bs.createBtnT}>Nouvel abonnement</Text>
                 </TouchableOpacity>
                 <TouchableOpacity testID="sync-shopify-btn" style={[bs.createBtn, { flex: 1, marginBottom: 0, backgroundColor: shopifyConnected ? '#96BF48' : '#FF9800' }]} onPress={syncShopify} disabled={syncing}>
-                  {syncing ? <ActivityIndicator color={colors.textPrimary} size="small" /> : <><Ionicons name={shopifyConnected ? "sync" : "link"} size={18} color={colors.textPrimary} /><Text style={bs.createBtnT}>{shopifyConnected ? 'Sync Shopify' : 'Connecter Shopify'}</Text></>}
+                  {syncing ? <ActivityIndicator color="#1A1D21" size="small" /> : <><Ionicons name={shopifyConnected ? "sync" : "link"} size={18} color="#1A1D21" /><Text style={bs.createBtnT}>{shopifyConnected ? 'Sync Shopify' : 'Connecter Shopify'}</Text></>}
                 </TouchableOpacity>
               </View>
               <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12 }}>
@@ -355,7 +355,7 @@ export default function BackofficeScreen() {
           {tab === 'codes' && (
             <>
               <TouchableOpacity testID="create-code-btn" style={bs.createBtn} onPress={openCreateCode}>
-                <Ionicons name="add" size={18} color={colors.textPrimary} /><Text style={bs.createBtnT}>Creer un code d'activation</Text>
+                <Ionicons name="add" size={18} color="#1A1D21" /><Text style={bs.createBtnT}>Creer un code d'activation</Text>
               </TouchableOpacity>
               {codes.map(c => (
                 <View key={c.id || c.code} style={[bs.codeC, !c.active && { opacity: 0.5 }]} testID={`code-card-${c.id || c.code}`}>
@@ -413,7 +413,7 @@ export default function BackofficeScreen() {
           {tab === 'interventions' && (
             <>
               <TouchableOpacity testID="create-iv-code-btn" style={bs.createBtn} onPress={openCreateIvCode}>
-                <Ionicons name="add" size={18} color={colors.textPrimary} /><Text style={bs.createBtnT}>Creer un code intervenant</Text>
+                <Ionicons name="add" size={18} color="#1A1D21" /><Text style={bs.createBtnT}>Creer un code intervenant</Text>
               </TouchableOpacity>
               <Text style={{ fontSize: 11, color: Colors.textMuted, marginBottom: 10 }}>Les intervenants activent ce code dans leur profil gardien pour recevoir les interventions d'urgence dans un rayon defini.</Text>
               {interventionCodes.map(c => (
@@ -542,7 +542,7 @@ export default function BackofficeScreen() {
                     <View style={bs.modalBtns}>
                       <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowCodeModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
                       <TouchableOpacity testID="confirm-code-btn" style={bs.confirmBtn} onPress={saveCode} disabled={creating}>
-                        {creating ? <ActivityIndicator color={colors.textPrimary} /> : <Text style={bs.confirmBtnT}>{editingCode ? 'Enregistrer' : 'Creer'}</Text>}
+                        {creating ? <ActivityIndicator color="#1A1D21" /> : <Text style={bs.confirmBtnT}>{editingCode ? 'Enregistrer' : 'Creer'}</Text>}
                       </TouchableOpacity>
                     </View>
                   </ScrollView>
@@ -573,7 +573,7 @@ export default function BackofficeScreen() {
                     <View style={bs.modalBtns}>
                       <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowIvCodeModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
                       <TouchableOpacity testID="confirm-iv-code-btn" style={bs.confirmBtn} onPress={saveIvCode} disabled={creating}>
-                        {creating ? <ActivityIndicator color={colors.textPrimary} /> : <Text style={bs.confirmBtnT}>{editingIvCode ? 'Enregistrer' : 'Creer'}</Text>}
+                        {creating ? <ActivityIndicator color="#1A1D21" /> : <Text style={bs.confirmBtnT}>{editingIvCode ? 'Enregistrer' : 'Creer'}</Text>}
                       </TouchableOpacity>
                     </View>
                   </ScrollView>
@@ -609,7 +609,7 @@ export default function BackofficeScreen() {
                     <View style={bs.modalBtns}>
                       <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowSubModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
                       <TouchableOpacity testID="confirm-sub-btn" style={bs.confirmBtn} onPress={saveSub} disabled={creating}>
-                        {creating ? <ActivityIndicator color={colors.textPrimary} /> : <Text style={bs.confirmBtnT}>Creer</Text>}
+                        {creating ? <ActivityIndicator color="#1A1D21" /> : <Text style={bs.confirmBtnT}>Creer</Text>}
                       </TouchableOpacity>
                     </View>
                   </ScrollView>

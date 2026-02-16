@@ -8,14 +8,14 @@ import { apiFetch } from '../src/services/api';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: colors.surface, borderRadius: 22, borderWidth: 1, borderColor: colors.border, padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
 const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) => (
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
       <Ionicons name={icon as any} size={16} color={color || '#888'} />
-      <Text style={{ fontSize: 12, color: colors.textSecondary, width: 100 }}>{label}</Text>
-      <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textPrimary, flex: 1 }}>{value}</Text>
+      <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
     </View>
   ) : null
 );
@@ -41,8 +41,8 @@ export default function CompanyPrescriberDetail() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}><ActivityIndicator size="large" color={colors.textPrimary} /></View>;
-  if (!data?.prescriber) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}><Text style={{ color: colors.textSecondary }}>Prescripteur non trouve</Text></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color="#1A1D21" /></View>;
+  if (!data?.prescriber) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><Text style={{ color: '#5A6068' }}>Prescripteur non trouve</Text></View>;
 
   const pr = data.prescriber;
   const prescriptions = data.prescriptions || [];
@@ -50,16 +50,16 @@ export default function CompanyPrescriberDetail() {
   const subscribed = prescriptions.filter((p: any) => p.status === 'subscribed');
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }} data-testid="prescriber-detail-back">
-          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
+          <Ionicons name="chevron-back" size={24} color="#1A1D21" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: colors.textPrimary }}>Fiche Prescripteur</Text>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche Prescripteur</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={colors.textPrimary} />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#1A1D21" />}>
 
         {/* Identity Card */}
         <GlassCard style={{ padding: 24 }}>
@@ -68,7 +68,7 @@ export default function CompanyPrescriberDetail() {
               <Text style={{ fontSize: 28, fontWeight: '900', color: '#FFF' }}>{pr.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: colors.textPrimary }}>{pr.name}</Text>
+              <Text style={{ fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>{pr.name}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                 <Badge label="Prescripteur" color="#2E7D32" bg="#E8F5E9" />
                 {data.agency && <Badge label={data.agency.name} color="#E65100" bg="#FFF3E0" />}
@@ -87,7 +87,7 @@ export default function CompanyPrescriberDetail() {
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
           <GlassCard style={{ flex: 1, alignItems: 'center', padding: 16, marginBottom: 0 }}>
             <Text style={{ fontSize: 28, fontWeight: '900', color: '#2196F3' }}>{data.total_prescriptions}</Text>
-            <Text style={{ fontSize: 9, color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Prescriptions</Text>
+            <Text style={{ fontSize: 9, color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Prescriptions</Text>
           </GlassCard>
           <GlassCard style={{ flex: 1, alignItems: 'center', padding: 16, marginBottom: 0, borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
             <Text style={{ fontSize: 28, fontWeight: '900', color: '#10B981' }}>{data.comm_validated}</Text>
@@ -106,7 +106,7 @@ export default function CompanyPrescriberDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name="business" size={18} color="#FF9800" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>Agence</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Agence</Text>
             </View>
             <InfoRow icon="business-outline" label="Nom" value={data.agency.name} color="#FF9800" />
             <InfoRow icon="location-outline" label="Adresse" value={data.agency.address} />
@@ -119,20 +119,20 @@ export default function CompanyPrescriberDetail() {
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons name="checkmark-circle" size={18} color="#4CAF50" />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>Validees ({subscribed.length})</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Validees ({subscribed.length})</Text>
             <View style={{ flex: 1 }} />
             <Text style={{ fontSize: 14, fontWeight: '800', color: '#10B981' }}>{data.comm_validated} EUR</Text>
           </View>
           {subscribed.length === 0 ? (
-            <Text style={{ fontSize: 12, color: colors.textSecondary, textAlign: 'center', paddingVertical: 12 }}>Aucune prescription validee</Text>
+            <Text style={{ fontSize: 12, color: '#5A6068', textAlign: 'center', paddingVertical: 12 }}>Aucune prescription validee</Text>
           ) : subscribed.map((p: any) => (
             <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
               <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontSize: 12, fontWeight: '800', color: '#10B981' }}>{p.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: colors.textPrimary }}>{p.beneficiary_name}</Text>
-                <Text style={{ fontSize: 10, color: colors.textSecondary }}>{p.subscription_type} - {p.created_at ? new Date(p.created_at).toLocaleDateString('fr-FR') : ''}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A1D21' }}>{p.beneficiary_name}</Text>
+                <Text style={{ fontSize: 10, color: '#5A6068' }}>{p.subscription_type} - {p.created_at ? new Date(p.created_at).toLocaleDateString('fr-FR') : ''}</Text>
               </View>
               <Text style={{ fontSize: 13, fontWeight: '800', color: '#10B981' }}>+{p.commission} EUR</Text>
             </View>
@@ -145,20 +145,20 @@ export default function CompanyPrescriberDetail() {
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons name="time" size={18} color="#FF9800" />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: colors.textPrimary }}>En cours ({pending.length})</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>En cours ({pending.length})</Text>
             <View style={{ flex: 1 }} />
             <Text style={{ fontSize: 14, fontWeight: '800', color: '#FF9800' }}>{data.comm_pending} EUR</Text>
           </View>
           {pending.length === 0 ? (
-            <Text style={{ fontSize: 12, color: colors.textSecondary, textAlign: 'center', paddingVertical: 12 }}>Aucune prescription en cours</Text>
+            <Text style={{ fontSize: 12, color: '#5A6068', textAlign: 'center', paddingVertical: 12 }}>Aucune prescription en cours</Text>
           ) : pending.map((p: any) => (
             <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
               <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#FFF3E0', justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontSize: 12, fontWeight: '800', color: '#FF9800' }}>{p.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: colors.textPrimary }}>{p.beneficiary_name}</Text>
-                <Text style={{ fontSize: 10, color: colors.textSecondary }}>{p.subscription_type} - {p.created_at ? new Date(p.created_at).toLocaleDateString('fr-FR') : ''}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A1D21' }}>{p.beneficiary_name}</Text>
+                <Text style={{ fontSize: 10, color: '#5A6068' }}>{p.subscription_type} - {p.created_at ? new Date(p.created_at).toLocaleDateString('fr-FR') : ''}</Text>
               </View>
               <Text style={{ fontSize: 13, fontWeight: '800', color: '#FF9800' }}>+{p.commission} EUR</Text>
             </View>

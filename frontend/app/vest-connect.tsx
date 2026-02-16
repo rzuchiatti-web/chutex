@@ -202,9 +202,9 @@ export default function VestConnectScreen() {
           <TouchableOpacity style={s.pairBtn} onPress={connectVest}
             disabled={bleStatus === 'scanning' || bleStatus === 'connecting'}>
             {bleStatus === 'scanning' || bleStatus === 'connecting' ? (
-              <><ActivityIndicator color={colors.textPrimary} size="small" /><Text style={s.pairBtnT}>Recherche...</Text></>
+              <><ActivityIndicator color="#1A1D21" size="small" /><Text style={s.pairBtnT}>Recherche...</Text></>
             ) : (
-              <><Ionicons name="bluetooth" size={20} color={colors.textPrimary} /><Text style={s.pairBtnT}>Appairer un gilet</Text></>
+              <><Ionicons name="bluetooth" size={20} color="#1A1D21" /><Text style={s.pairBtnT}>Appairer un gilet</Text></>
             )}
           </TouchableOpacity>
         </View>
@@ -230,7 +230,7 @@ export default function VestConnectScreen() {
         {/* SOS Banner */}
         {sosTriggered && (
           <View style={s.sosCard}>
-            <Ionicons name="warning" size={24} color={colors.textPrimary} />
+            <Ionicons name="warning" size={24} color="#1A1D21" />
             <View style={{ flex: 1, marginLeft: 10 }}>
               <Text style={s.sosTitle}>CHUTE DETECTEE</Text>
               <Text style={s.sosDesc}>Les gardiens ont ete alertes.</Text>
@@ -302,7 +302,7 @@ const s = StyleSheet.create({
   cardTitle: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },
   cardStatus: { fontSize: 15, fontWeight: '700', marginTop: 2 },
   statsRow: { flexDirection: 'row', marginTop: 18, gap: 8 },
-  statBox: { flex: 1, alignItems: 'center', backgroundColor: colors.secondary, borderRadius: 12, paddingVertical: 14, gap: 4 },
+  statBox: { flex: 1, alignItems: 'center', backgroundColor: '#F2F4F7', borderRadius: 12, paddingVertical: 14, gap: 4 },
   statVal: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary },
   statLabel: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
   lastSync: { fontSize: 12, color: Colors.textMuted, textAlign: 'center', marginTop: 12 },
