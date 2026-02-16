@@ -153,7 +153,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
           { key: 'active', label: `En cours (${activeIncidents.length})` },
           { key: 'all', label: `Historique (${incidents.length})` },
         ].map(t => (
-          <TouchableOpacity key={t.key} style={[{ flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: 10 }, tab === t.key && { backgroundColor: colors.background }]}
+          <TouchableOpacity key={t.key} style={[{ flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: 10 }, tab === t.key && { backgroundColor: '#F5F6F8' }]}
             onPress={() => setTab(t.key as any)}>
             <Text style={{ fontSize: 12, fontWeight: '700', color: tab === t.key ? '#FFF' : '#888' }}>{t.label}</Text>
           </TouchableOpacity>
@@ -209,7 +209,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
             <TextInput style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, padding: 10, fontSize: 12 }}
               placeholder="Note operateur..." value={noteText} onChangeText={setNoteText} />
-            <TouchableOpacity style={{ backgroundColor: colors.background, borderRadius: 10, paddingHorizontal: 16, justifyContent: 'center' }}
+            <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 10, paddingHorizontal: 16, justifyContent: 'center' }}
               onPress={() => addNote(selectedIncident.id)}>
               <Ionicons name="send" size={14} color={colors.textPrimary} />
             </TouchableOpacity>
@@ -525,7 +525,7 @@ function AdminIntervenants({ token }: { token: string }) {
       {/* Tabs */}
       <View style={{ flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 12, padding: 3, marginBottom: 12, borderWidth: 1, borderColor: colors.border }}>
         {([['codes', `Codes (${codes.length})`], ['providers', `Actifs (${providers.length})`], ['interventions', `Missions (${interventions.length})`]] as const).map(([k, l]) => (
-          <TouchableOpacity key={k} style={[{ flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: 10 }, tab === k && { backgroundColor: colors.background }]}
+          <TouchableOpacity key={k} style={[{ flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: 10 }, tab === k && { backgroundColor: '#F5F6F8' }]}
             onPress={() => setTab(k)}>
             <Text style={{ fontSize: 10, fontWeight: '700', color: tab === k ? '#FFF' : '#888' }}>{l}</Text>
           </TouchableOpacity>
@@ -729,7 +729,7 @@ function CompanyPrescriptions({ token }: { token: string }) {
   const total = displayed.reduce((s: number, p: any) => s + (p.commission || 0), 0);
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: colors.textPrimary, letterSpacing: -0.5 }}>Prescriptions</Text>
         <Text style={{ fontSize: 12, color: colors.textSecondary }}>{allPrescs.length} prescriptions au total</Text>
@@ -775,7 +775,7 @@ function CompanyPrescriptions({ token }: { token: string }) {
       {/* Detail modal - Premium Design */}
       <Modal visible={!!selectedPresc} transparent animationType="fade" onRequestClose={() => setSelectedPresc(null)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%' }}>
+          <View style={{ backgroundColor: '#F5F6F8', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%' }}>
             {selectedPresc && <>
               <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12 }}>
                 <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ padding: 4, marginRight: 12 }}>
@@ -869,7 +869,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   const stLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: colors.textPrimary, letterSpacing: -0.5 }}>Interventions</Text>
         <Text style={{ fontSize: 12, color: colors.textSecondary }}>{interventions.length} interventions · {intervenants.length} intervenants</Text>
@@ -877,10 +877,10 @@ function CompanyInterventionsTab({ token }: { token: string }) {
 
       {/* Main tabs */}
       <View style={{ flexDirection: 'row', marginHorizontal: 16, backgroundColor: colors.surface, borderRadius: 14, padding: 4, marginBottom: 12, borderWidth: 1, borderColor: colors.border, ...glass }}>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'interventions' && { backgroundColor: colors.background }]} onPress={() => setTab('interventions')}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'interventions' && { backgroundColor: '#F5F6F8' }]} onPress={() => setTab('interventions')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'interventions' ? '#FFF' : '#888' }}>Missions ({interventions.length})</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'intervenants' && { backgroundColor: colors.background }]} onPress={() => setTab('intervenants')}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'intervenants' && { backgroundColor: '#F5F6F8' }]} onPress={() => setTab('intervenants')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'intervenants' ? '#FFF' : '#888' }}>Intervenants ({intervenants.length})</Text>
         </TouchableOpacity>
       </View>
@@ -1002,7 +1002,7 @@ function CompanyIntervenants({ token }: { token: string }) {
   const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: colors.textPrimary, letterSpacing: -0.5 }}>Intervenants</Text>
         <Text style={{ fontSize: 12, color: colors.textSecondary }}>{intervenants.length} intervenants Care</Text>
@@ -1076,7 +1076,7 @@ export default function TeleconsultScreen() {
 
   // key={r} forces complete remount when role changes (Expo Router tab caching fix)
   return (
-    <View key={r} style={[s.safe, { backgroundColor: colors.background }]} testID="teleconsult-screen">
+    <View key={r} style={[s.safe, { backgroundColor: '#F5F6F8' }]} testID="teleconsult-screen">
       <View style={s.header}>
         <Text style={[s.title, { color: colors.textPrimary }]}>{r === 'teleassistance' ? 'Teleassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Intervenants' : 'Teleconsultation'}</Text>
         {r === 'teleassistance' && <Text style={[s.subtitle, { color: colors.textMuted }]}>Plateau d'ecoute — Protocole d'escalade</Text>}
@@ -1091,7 +1091,7 @@ export default function TeleconsultScreen() {
 }
 
 const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
+  safe: { flex: 1, backgroundColor: '#F5F6F8' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
   title: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, letterSpacing: -0.5 },

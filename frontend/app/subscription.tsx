@@ -280,11 +280,11 @@ const s = StyleSheet.create({
   subIcon: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
   subType: { fontSize: 20, fontWeight: '900', color: '#FFF' },
   subDesc: { fontSize: 13, color: '#FFF', opacity: 0.8, marginTop: 2 },
-  careFeature: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.secondary, borderRadius: 10, padding: 10, marginTop: 14 },
+  careFeature: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#F2F4F7', borderRadius: 10, padding: 10, marginTop: 14 },
   careFeatureT: { fontSize: 13, fontWeight: '700', color: '#FFF' },
   // Guardians
   guardianCount: { fontSize: 12, color: Colors.textMuted },
-  guardianRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.borderLight },
+  guardianRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(0,0,0,0.03)' },
   orderBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
   orderBadgeT: { fontSize: 13, fontWeight: '800', color: '#FFF' },
   guardianName: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },

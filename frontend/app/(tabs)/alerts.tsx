@@ -88,7 +88,7 @@ function CompanyPrescribers({ token }: { token: string }) {
   );
 }
 
-const SEV = { critical: { label: 'CRITIQUE', color: '#E53935' }, high: { label: 'ELEVE', color: '#FF6F00' }, medium: { label: 'MOYEN', color: '#FF9800' }, low: { label: 'FAIBLE', color: colors.textSecondary } };
+const SEV = { critical: { label: 'CRITIQUE', color: '#E53935' }, high: { label: 'ELEVE', color: '#FF6F00' }, medium: { label: 'MOYEN', color: '#FF9800' }, low: { label: 'FAIBLE', color: '#9BA3AD' } };
 const TYPE_CFG: Record<string, { icon: string; label: string; color: string }> = {
   sos: { icon: 'alert-circle', label: 'SOS - Urgence', color: '#E53935' },
   fall: { icon: 'trending-down', label: 'Chute detectee', color: '#FF6F00' },
