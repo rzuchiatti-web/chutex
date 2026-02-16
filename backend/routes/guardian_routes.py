@@ -202,10 +202,17 @@ async def accept_invitation(inv_id: str, user=Depends(get_current_user)):
     inv = await db.guardian_invitations.find_one({"id": inv_id, "guardian_id": user['id']}, {"_id": 0})
     if not inv:
         raise HTTPException(status_code=404, detail="Invitation non trouvee")
-    # Link guardian <-> beneficiary
     await db.users.update_one({"id": inv['beneficiary_id']}, {"$addToSet": {"guardians": user['id'], "guardian_order": user['id']}})
     await db.users.update_one({"id": user['id']}, {"$addToSet": {"beneficiaries": inv['beneficiary_id']}})
     await db.guardian_invitations.update_one({"id": inv_id}, {"$set": {"status": "accepted"}})
+    # Store relationship
+    relationship = inv.get('relationship', '')
+    if relationship:
+        await db.guardian_relationships.update_one(
+            {"guardian_id": user['id'], "beneficiary_id": inv['beneficiary_id']},
+            {"$set": {"relationship": relationship, "updated_at": datetime.now(timezone.utc).isoformat()}},
+            upsert=True
+        )
     return {"status": "accepted", "message": f"Vous etes maintenant gardien de {inv['beneficiary_name']}."}
 
 
