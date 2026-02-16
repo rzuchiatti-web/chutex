@@ -519,6 +519,14 @@ async def accept_guardian_request(req_id: str, user=Depends(get_current_user)):
     await db.users.update_one({"id": user['id']}, {"$addToSet": {"guardians": req['guardian_id']}})
     await db.users.update_one({"id": req['guardian_id']}, {"$addToSet": {"beneficiaries": user['id']}})
     await db.guardian_requests.update_one({"id": req_id}, {"$set": {"status": "accepted"}})
+    # Store relationship in a dedicated collection for display
+    relationship = req.get('relationship', '')
+    if relationship:
+        await db.guardian_relationships.update_one(
+            {"guardian_id": req['guardian_id'], "beneficiary_id": user['id']},
+            {"$set": {"relationship": relationship, "updated_at": datetime.now(timezone.utc).isoformat()}},
+            upsert=True
+        )
     return {"status": "accepted", "message": f"{req['guardian_name']} est maintenant votre gardien."}
 
 
