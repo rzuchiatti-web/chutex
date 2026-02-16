@@ -54,6 +54,27 @@ const C = {
   placeholder: 'rgba(30,20,60,0.30)',
 };
 
+// IMPORTANT: Defined OUTSIDE component to prevent re-mount on each keystroke
+const GInput = ({ testID, label, val, onChange, placeholder, secure }: any) => (
+  <View style={{ marginBottom: 18 }}>
+    {label && <Text style={{ fontSize: 12, fontWeight: '600', color: C.textMid, marginBottom: 7, letterSpacing: 0.5 }}>{label}</Text>}
+    <TextInput testID={testID} value={val} onChangeText={onChange} placeholder={placeholder}
+      placeholderTextColor={C.placeholder} secureTextEntry={secure} autoCapitalize="none"
+      style={[{ fontSize: 16, paddingVertical: 16, paddingHorizontal: 22, borderRadius: 999, color: C.text, borderWidth: 1 }, glassInput] as any} />
+  </View>
+);
+
+const CTA = ({ testID, label, onPress, ld, ghost }: any) => (
+  <TouchableOpacity testID={testID} disabled={ld} onPress={onPress} activeOpacity={0.8}
+    style={[{ paddingVertical: 18, borderRadius: 999, alignItems: 'center' },
+      ghost ? { borderWidth: 1, borderColor: 'rgba(255,255,255,0.45)', backgroundColor: 'transparent' }
+           : { backgroundColor: 'rgba(255,255,255,0.40)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.55)',
+               ...(Platform.OS === 'web' ? { backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.30)' } : {}) }
+    ] as any}>
+    {ld ? <ActivityIndicator color={C.text} /> : <Text style={{ color: C.text, fontSize: 15, fontWeight: '800', letterSpacing: 1.5, textTransform: 'uppercase' }}>{label}</Text>}
+  </TouchableOpacity>
+);
+
 export default function AuthScreen() {
   const { user, loading, login, register } = useAuth();
   const router = useRouter();
