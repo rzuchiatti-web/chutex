@@ -58,17 +58,16 @@ const PillButton = ({ label, icon, onPress, testID, variant = 'dark' }: any) => 
   </TouchableOpacity>
 );
 
-/* ─── QUICK ACTION CIRCLE ─── */
+/* ─── QUICK ACTION ─── */
 const QuickAction = ({ icon, label, onPress, color = '#F3F4F6' }: any) => (
   <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ alignItems: 'center', flex: 1 }}>
     <View style={{
-      width: 56, height: 56, borderRadius: 20, backgroundColor: color, justifyContent: 'center', alignItems: 'center',
-      marginBottom: 8, borderWidth: 1, borderColor: 'rgba(0,0,0,0.04)',
-      ...(Platform.OS === 'web' ? { transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)' } : {}),
+      width: 48, height: 48, borderRadius: 12, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center',
+      marginBottom: 6, borderWidth: 1, borderColor: '#E5E7EB',
     }}>
-      <Icon name={icon} size={22} color="#111827" />
+      <Icon name={icon} size={20} color="#111827" />
     </View>
-    <Text style={{ fontSize: 11, fontWeight: '600', color: '#6B7280', textAlign: 'center' }}>{label}</Text>
+    <Text style={{ fontSize: 11, fontWeight: '500', color: '#6B7280', textAlign: 'center' }}>{label}</Text>
   </TouchableOpacity>
 );
 
