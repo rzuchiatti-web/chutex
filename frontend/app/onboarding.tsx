@@ -66,8 +66,19 @@ const SLIDES = [
 export default function OnboardingScreen() {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
+  const [dark, setDark] = useState(true);
   const slide = SLIDES[current];
   const isLast = current === SLIDES.length - 1;
+
+  // Colors based on mode
+  const bg = dark ? '#0A0A0A' : '#FAFAFA';
+  const fg = dark ? '#FFF' : '#111';
+  const fgSub = dark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
+  const fgMuted = dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
+  const fgDot = dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  const border = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)';
+  const hudBorder = dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)';
+  const gridClass = dark ? 'clinic-grid-dark' : 'clinic-grid-light';
 
   const finish = async () => { await AsyncStorage.setItem('chutex_onboarding_done', 'true'); router.replace('/'); };
   const next = () => { if (isLast) finish(); else setCurrent(c => c + 1); };
