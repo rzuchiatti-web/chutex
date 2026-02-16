@@ -62,7 +62,7 @@ const HudCorner = ({ pos }: { pos: 'tl' | 'tr' | 'bl' | 'br' }) => {
 // ─── Clinic Card ───
 const Card = ({ children, style, care }: any) => (
   <View style={[{
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : colors.surface,
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: care ? C.careVioletWeak : C.line,
@@ -110,7 +110,7 @@ const PulseDot = ({ color }: { color: string }) => {
 const ProductCard = ({ name, subtitle, features, imageUrl }: any) => (
   <Card style={{ padding: 16, marginBottom: 12, width: '100%' }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-      <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.lineFaint }}>
+      <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: C.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.lineFaint }}>
         <Image source={{ uri: imageUrl }} style={{ width: 36, height: 36 }} resizeMode="contain" />
       </View>
       <View style={{ flex: 1 }}>
@@ -180,7 +180,7 @@ function Slide2() {
         </View>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           {[{ label: 'FC', value: '72', unit: 'bpm' }, { label: 'SpO2', value: '98', unit: '%' }, { label: 'Temp', value: '36.5', unit: 'C' }].map(m => (
-            <View key={m.label} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: C.lineFaint }}>
+            <View key={m.label} style={{ flex: 1, backgroundColor: C.isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: C.lineFaint }}>
               <Text style={{ color: C.textDim, fontSize: 9, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>{m.label}</Text>
               <Text style={{ color: C.text, fontSize: 22, fontWeight: '800', letterSpacing: -0.5 }}>{m.value}<Text style={{ fontSize: 11, color: C.textMuted }}> {m.unit}</Text></Text>
             </View>
@@ -197,7 +197,7 @@ function Slide2() {
             <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>Analyse non-invasive via votre bracelet</Text>
           </View>
         </View>
-        <View style={{ height: 60, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 12, borderWidth: 1, borderColor: C.lineFaint, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ height: 60, backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : colors.surface, borderRadius: 12, borderWidth: 1, borderColor: C.lineFaint, justifyContent: 'center', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
             <Text style={{ color: C.text, fontSize: 32, fontWeight: '800' }}>5.4</Text>
             <Text style={{ color: C.textMuted, fontSize: 13 }}>mmol/L</Text>
@@ -331,7 +331,7 @@ function Slide5() {
           { icon: 'notifications', label: 'Notifications intelligentes', desc: 'Alertes sante personnalisees' },
         ].map((item, i) => (
           <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: i < 2 ? 18 : 0 }}>
-            <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.lineFaint }}>
+            <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: C.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.lineFaint }}>
               <Ionicons name={item.icon as any} size={20} color={C.text} />
             </View>
             <View style={{ flex: 1 }}>
@@ -415,17 +415,17 @@ export default function OnboardingScreen() {
             <>
               <TouchableOpacity
                 data-testid="onboarding-skip-care"
-                style={{ flex: 1, paddingVertical: 16, borderRadius: Radius.full, borderWidth: 1, borderColor: C.line, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)' }}
+                style={{ flex: 1, paddingVertical: 16, borderRadius: Radius.full, borderWidth: 1, borderColor: C.line, alignItems: 'center', backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : colors.surface }}
                 onPress={complete}
               >
                 <Text style={{ color: C.textMuted, fontSize: 14, fontWeight: '600' }}>Activer Care plus tard</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 data-testid="onboarding-start-btn"
-                style={{ flex: 1.5, paddingVertical: 16, borderRadius: Radius.full, backgroundColor: '#FFFFFF', alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 20px rgba(255,255,255,0.15)' } : {}) }}
+                style={{ flex: 1.5, paddingVertical: 16, borderRadius: Radius.full, backgroundColor: C.buttonBg, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 20px rgba(255,255,255,0.15)' } : {}) }}
                 onPress={complete}
               >
-                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '700' }}>Commencer</Text>
+                <Text style={{ color: C.buttonText, fontSize: 15, fontWeight: '700' }}>Commencer</Text>
               </TouchableOpacity>
             </>
           ) : (
@@ -435,14 +435,14 @@ export default function OnboardingScreen() {
                 style={{ flex: 0.5, paddingVertical: 16, alignItems: 'center' }}
                 onPress={complete}
               >
-                <Text style={{ color: C.textDim, fontSize: 13, fontWeight: '600' }}>Passer</Text>
+                <Text style={{ color: C.textMuted, fontSize: 13, fontWeight: '600' }}>Passer</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 data-testid="onboarding-next-btn"
-                style={{ flex: 1, paddingVertical: 16, borderRadius: Radius.full, backgroundColor: '#FFFFFF', alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 20px rgba(255,255,255,0.15)' } : {}) }}
+                style={{ flex: 1, paddingVertical: 16, borderRadius: Radius.full, backgroundColor: C.buttonBg, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 20px rgba(255,255,255,0.15)' } : {}) }}
                 onPress={next}
               >
-                <Text style={{ color: '#000000', fontSize: 15, fontWeight: '700' }}>Suivant</Text>
+                <Text style={{ color: C.buttonText, fontSize: 15, fontWeight: '700' }}>Suivant</Text>
               </TouchableOpacity>
             </>
           )}
