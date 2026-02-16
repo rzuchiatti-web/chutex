@@ -1,132 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform, ActivityIndicator, Animated, Image, ImageBackground, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../src/context/AuthContext';
-
-const BG_URL = 'https://customer-assets.emergentagent.com/job_237132d4-a477-4487-91a8-3e2e50160498/artifacts/fxnu9p7b_banner_mobile%281%29.jpg';
-
-// Minimal CSS - no position:fixed, no body background manipulation (Safari keyboard fix)
-const injectCSS = () => {
-  if (Platform.OS !== 'web' || typeof document === 'undefined') return;
-  if (document.getElementById('login-css')) return;
-  const s = document.createElement('style');
-  s.id = 'login-css';
-  s.textContent = `
-    input { font-size: 16px !important; -webkit-appearance: none; }
-  `;
-  document.head.appendChild(s);
-};
-
-// Glass styles for web (backdrop-filter via RN style)
-const glassPanel = Platform.OS === 'web' ? {
-  backgroundColor: 'rgba(255,255,255,0.25)',
-  backdropFilter: 'blur(20px) saturate(140%)',
-  WebkitBackdropFilter: 'blur(20px) saturate(140%)',
-  borderColor: 'rgba(255,255,255,0.50)',
-  borderWidth: 1,
-  boxShadow: '0 8px 32px rgba(100,80,140,0.10), inset 0 1px 0 rgba(255,255,255,0.50)',
-} : {
-  backgroundColor: 'rgba(255,255,255,0.22)',
-  borderColor: 'rgba(255,255,255,0.35)',
-  borderWidth: 1,
-};
-
-const glassInput = Platform.OS === 'web' ? {
-  backgroundColor: 'rgba(255,255,255,0.35)',
-  backdropFilter: 'blur(8px)',
-  WebkitBackdropFilter: 'blur(8px)',
-  borderColor: 'rgba(255,255,255,0.50)',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20)',
-} : {
-  backgroundColor: 'rgba(255,255,255,0.30)',
-  borderColor: 'rgba(255,255,255,0.40)',
-};
-
-const C = {
-  text: 'rgba(30,20,60,0.90)',
-  textMid: 'rgba(30,20,60,0.55)',
-  textSoft: 'rgba(30,20,60,0.40)',
-  placeholder: 'rgba(30,20,60,0.30)',
-};
-
-// IMPORTANT: Defined OUTSIDE component to prevent re-mount on each keystroke
-// Uses HTML input on web (better keyboard handling on Safari) and RN TextInput on native
-const GInput = ({ testID, label, inputRef, defaultValue, placeholder, secure }: any) => (
-  <View style={{ marginBottom: 18 }}>
-    {label && <Text style={{ fontSize: 12, fontWeight: '600', color: C.textMid, marginBottom: 7, letterSpacing: 0.5 }}>{label}</Text>}
-    {Platform.OS === 'web' ? (
-      <input
-        data-testid={testID}
-        type={secure ? 'password' : 'text'}
-        defaultValue={defaultValue}
-        placeholder={placeholder}
-        autoCapitalize="none"
-        onChange={(e: any) => { if (inputRef) inputRef.current = e.target.value; }}
-        style={{
-          fontSize: 16, padding: '16px 22px', borderRadius: 999, width: '100%',
-          color: C.text, borderWidth: 1, border: `1px solid ${glassInput.borderColor}`,
-          background: glassInput.backgroundColor,
-          backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-          boxSizing: 'border-box', outline: 'none', fontFamily: 'Inter, system-ui',
-        } as any}
-      />
-    ) : (
-      <TextInput testID={testID} defaultValue={defaultValue}
-        onChangeText={(t: string) => { if (inputRef) inputRef.current = t; }}
-        placeholder={placeholder} placeholderTextColor={C.placeholder}
-        secureTextEntry={secure} autoCapitalize="none"
-        style={[{ fontSize: 16, paddingVertical: 16, paddingHorizontal: 22, borderRadius: 999, color: C.text, borderWidth: 1 }, glassInput] as any} />
-    )}
-  </View>
-);
-
-const CTA = ({ testID, label, onPress, ld, ghost }: any) => (
-  <TouchableOpacity testID={testID} disabled={ld} onPress={onPress} activeOpacity={0.8}
-    style={[{ paddingVertical: 18, borderRadius: 999, alignItems: 'center' },
-      ghost ? { borderWidth: 1, borderColor: 'rgba(255,255,255,0.45)', backgroundColor: 'transparent' }
-           : { backgroundColor: 'rgba(255,255,255,0.40)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.55)',
-               ...(Platform.OS === 'web' ? { backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.30)' } : {}) }
-    ] as any}>
-    {ld ? <ActivityIndicator color={C.text} /> : <Text style={{ color: C.text, fontSize: 15, fontWeight: '800', letterSpacing: 1.5, textTransform: 'uppercase' }}>{label}</Text>}
-  </TouchableOpacity>
-);
 
 export default function AuthScreen() {
   const { user, loading, login, register } = useAuth();
   const router = useRouter();
-  const [isLogin, setIsLogin] = useState(true);
-  const [step, setStep] = useState(0);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
   const hasRedirected = useRef(false);
   const [ready, setReady] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(16)).current;
-
-  // Use refs for input values to avoid re-renders on each keystroke
-  const emailRef = useRef('');
-  const passwordRef = useRef('');
-  const nameRef = useRef('');
-  const phoneRef = useRef('');
-  const [role, setRole] = useState('');
-  const dobRef = useRef('');
-  const addressRef = useRef('');
-  const allergiesRef = useRef('');
-  const ecNameRef = useRef('');
-  const [guardianType, setGuardianType] = useState('particular');
-  const relationshipRef = useRef('');
-  const structureRef = useRef('');
-  const professionRef = useRef('');
-  const siretRef = useRef('');
-
-  // Inject CSS once, never cleanup during component lifecycle
-  useEffect(() => { injectCSS(); }, []);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const formRef = useRef<any>(null);
 
   useEffect(() => {
     AsyncStorage.getItem('chutex_onboarding_done').then(val => {
-      if (!val) { router.replace('/onboarding'); } else { setReady(true); }
+      if (!val) router.replace('/onboarding'); else setReady(true);
     }).catch(() => setReady(true));
   }, []);
 
@@ -135,143 +24,176 @@ export default function AuthScreen() {
     if (!loading && !user) hasRedirected.current = false;
   }, [user, loading]);
 
-  useEffect(() => {
-    if (ready) {
-      Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-        Animated.timing(slideAnim, { toValue: 0, duration: 450, delay: 150, useNativeDriver: true }),
-      ]).start();
-    }
-  }, [ready]);
+  const handleSubmit = async (e: any) => {
+    if (e) e.preventDefault();
+    setError('');
+    const form = formRef.current;
+    if (!form) return;
+    const email = form.email.value.trim();
+    const password = form.password.value;
+    if (!email || !password) return setError('Email et mot de passe requis');
+    setSubmitting(true);
+    try {
+      let id = email;
+      if (!id.includes('@') && !id.startsWith('+') && id.startsWith('0') && id.length >= 10) id = '+33' + id.substring(1).replace(/\s/g, '');
+      await login(id.toLowerCase(), password);
+      hasRedirected.current = true;
+      router.replace('/(tabs)');
+    } catch (err: any) { setError(err.message || 'Erreur de connexion'); } finally { setSubmitting(false); }
+  };
 
   if (loading || user || !ready) {
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color={C.text} /></View>;
+    if (Platform.OS === 'web') {
+      return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: '#F5F6F8' }}>
+        <div style={{ width: 32, height: 32, border: '3px solid rgba(0,0,0,0.1)', borderTopColor: '#1A1D21', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      </div>;
+    }
+    const { View, ActivityIndicator } = require('react-native');
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" /></View>;
   }
 
-  const handleLogin = async () => {
-    setError('');
-    const em = emailRef.current.trim();
-    const pw = passwordRef.current;
-    if (!em || !pw) return setError('Identifiant et mot de passe requis');
-    setSubmitting(true);
-    try {
-      let id = em;
-      if (!id.includes('@') && !id.startsWith('+') && id.startsWith('0') && id.length >= 10) id = '+33' + id.substring(1).replace(/\s/g, '');
-      await login(id.toLowerCase(), pw);
-      hasRedirected.current = true; router.replace('/(tabs)');
-    } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
-  };
+  // ─── WEB: Pure HTML form (zero React Native Web, zero keyboard issues) ───
+  if (Platform.OS === 'web') {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: `url('https://customer-assets.emergentagent.com/job_237132d4-a477-4487-91a8-3e2e50160498/artifacts/fxnu9p7b_banner_mobile%281%29.jpg') center/cover no-repeat`,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        padding: 20, fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      } as any}>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+          <div style={{ display: 'inline-flex', width: 32, height: 32, borderRadius: 16, overflow: 'hidden', marginBottom: 16, border: '0.5px solid rgba(100,80,140,0.20)' } as any}>
+            <div style={{ flex: 1, background: '#002395' }} />
+            <div style={{ flex: 1, background: '#FFF' }} />
+            <div style={{ flex: 1, background: '#ED2939' }} />
+          </div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: 'rgba(30,20,60,0.85)', letterSpacing: 8, marginBottom: 6 }}>CHUTEX</div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(30,20,60,0.45)', letterSpacing: 2.5, textTransform: 'uppercase' } as any}>L'innovation au service de la sante</div>
+        </div>
 
-  const handleRegister = async () => {
-    setError('');
-    const nm = nameRef.current.trim();
-    const em = emailRef.current.trim();
-    const pw = passwordRef.current;
-    if (!nm || !em || !pw) return setError('Remplissez tous les champs');
-    if (!role) return setError('Choisissez un espace');
-    setSubmitting(true);
-    try {
-      await register({ email: em.toLowerCase(), password: pw, name: nm, phone: phoneRef.current, role, date_of_birth: dobRef.current, address: addressRef.current, allergies: allergiesRef.current, emergency_contact_name: ecNameRef.current, guardian_type: guardianType, structure_name: structureRef.current, siret: siretRef.current, profession: professionRef.current, relationship: relationshipRef.current } as any);
-      hasRedirected.current = true; router.replace('/(tabs)');
-    } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
-  };
+        {/* Glass card form */}
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          style={{
+            width: '100%', maxWidth: 400, padding: 28, borderRadius: 30,
+            background: 'rgba(255,255,255,0.25)',
+            backdropFilter: 'blur(20px) saturate(140%)', WebkitBackdropFilter: 'blur(20px) saturate(140%)',
+            border: '1px solid rgba(255,255,255,0.50)',
+            boxShadow: '0 8px 32px rgba(100,80,140,0.10), inset 0 1px 0 rgba(255,255,255,0.50)',
+          } as any}
+        >
+          <div style={{ fontSize: 24, fontWeight: 900, color: 'rgba(30,20,60,0.90)', textAlign: 'center', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 24 } as any}>Connexion</div>
+
+          {error && (
+            <div style={{ background: 'rgba(239,68,68,0.10)', border: '1px solid rgba(239,68,68,0.20)', borderRadius: 12, padding: 12, marginBottom: 16, fontSize: 13, color: '#DC2626' }}>{error}</div>
+          )}
+
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(30,20,60,0.55)', marginBottom: 6, letterSpacing: 0.5 }}>Email</label>
+          <input
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="votre@email.com"
+            style={{
+              display: 'block', width: '100%', fontSize: 16, padding: '16px 20px', marginBottom: 16,
+              borderRadius: 999, border: '1px solid rgba(255,255,255,0.50)',
+              background: 'rgba(255,255,255,0.35)', color: 'rgba(30,20,60,0.90)',
+              outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
+              WebkitAppearance: 'none',
+            } as any}
+          />
+
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(30,20,60,0.55)', marginBottom: 6, letterSpacing: 0.5 }}>Mot de passe</label>
+          <input
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="..."
+            style={{
+              display: 'block', width: '100%', fontSize: 16, padding: '16px 20px', marginBottom: 24,
+              borderRadius: 999, border: '1px solid rgba(255,255,255,0.50)',
+              background: 'rgba(255,255,255,0.35)', color: 'rgba(30,20,60,0.90)',
+              outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
+              WebkitAppearance: 'none',
+            } as any}
+          />
+
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{
+              display: 'block', width: '100%', padding: '18px', borderRadius: 999,
+              border: '1px solid rgba(255,255,255,0.55)', cursor: 'pointer',
+              background: 'rgba(255,255,255,0.40)', color: 'rgba(30,20,60,0.90)',
+              fontSize: 15, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase',
+              fontFamily: 'inherit', WebkitAppearance: 'none',
+              backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+              opacity: submitting ? 0.6 : 1,
+            } as any}
+          >
+            {submitting ? '...' : 'Connexion'}
+          </button>
+
+          <div style={{ textAlign: 'center', marginTop: 16, fontSize: 14, color: 'rgba(30,20,60,0.50)', fontStyle: 'italic' } as any}>Mot de passe oublie ?</div>
+          <div style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'rgba(30,20,60,0.45)' } as any}>
+            Pas encore de compte ? <a href="#" onClick={(e) => { e.preventDefault(); router.push('/activate-beneficiary'); }} style={{ fontWeight: 700, color: 'rgba(30,20,60,0.85)', textDecoration: 'underline' }}>S'inscrire ici.</a>
+          </div>
+        </form>
+
+        <div style={{ marginTop: 20, fontSize: 10, color: 'rgba(30,20,60,0.35)', letterSpacing: 0.5 }}>Chutex Innovation — v2.0</div>
+      </div>
+    );
+  }
+
+  // ─── NATIVE: React Native components ───
+  const { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, KeyboardAvoidingView, StyleSheet } = require('react-native');
+  const { SafeAreaView } = require('react-native-safe-area-context');
+  const emailRef = useRef('');
+  const passwordRef = useRef('');
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'transparent' }} data-testid="auth-screen">
-      {Platform.OS !== 'web' && <Image source={{ uri: BG_URL }} style={StyleSheet.absoluteFill} resizeMode="cover" />}
-
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-          <ScrollView
-            contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 80, paddingBottom: 40, maxWidth: 440, width: '100%', alignSelf: 'center' }}
-            keyboardShouldPersistTaps="always"
-            keyboardDismissMode="none"
-            showsVerticalScrollIndicator={false}
-          >
-
-          {/* Logo */}
-          <Animated.View style={{ alignItems: 'center', marginBottom: 28, transform: [{ translateY: slideAnim }] }}>
-            <View style={{ width: 32, height: 32, borderRadius: 16, overflow: 'hidden', marginBottom: 18, flexDirection: 'row', borderWidth: 0.5, borderColor: 'rgba(100,80,140,0.20)' }}>
-              <View style={{ flex: 1, backgroundColor: '#002395' }} /><View style={{ flex: 1, backgroundColor: '#FFF' }} /><View style={{ flex: 1, backgroundColor: '#ED2939' }} />
-            </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 80, paddingBottom: 40 }} keyboardShouldPersistTaps="always" keyboardDismissMode="none">
+          <View style={{ alignItems: 'center', marginBottom: 32 }}>
             <Image source={require('../assets/images/logo_white.png')} style={{ width: 160, height: 50 }} resizeMode="contain" />
-            <Text style={{ fontSize: 10, fontWeight: '600', color: C.textMid, marginTop: 10, letterSpacing: 2.5, textTransform: 'uppercase' }}>L'innovation au service de la sante</Text>
-          </Animated.View>
+            <Text style={{ fontSize: 10, fontWeight: '600', color: '#9BA3AD', marginTop: 10, letterSpacing: 2.5, textTransform: 'uppercase' }}>L'innovation au service de la sante</Text>
+          </View>
 
-          {/* Glass panel */}
-          <View style={[{ borderRadius: 30, padding: 28 }, glassPanel] as any}>
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: 30, padding: 28, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
+            <Text style={{ fontSize: 24, fontWeight: '900', color: '#1A1D21', textAlign: 'center', letterSpacing: 1.5, marginBottom: 24, textTransform: 'uppercase' }}>Connexion</Text>
 
-            {error ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(239,68,68,0.12)', borderRadius: 14, padding: 12, marginBottom: 16, borderWidth: 0.5, borderColor: 'rgba(239,68,68,0.20)' }}>
-                <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#EF4444' }} />
-                <Text style={{ fontSize: 13, color: '#DC2626', flex: 1 }}>{error}</Text>
-              </View>
-            ) : null}
+            {error ? <View style={{ backgroundColor: 'rgba(239,68,68,0.10)', borderRadius: 12, padding: 12, marginBottom: 16 }}><Text style={{ fontSize: 13, color: '#DC2626' }}>{error}</Text></View> : null}
 
-            {isLogin ? (<>
-              <Text style={{ fontSize: 26, fontWeight: '900', color: C.text, textAlign: 'center', letterSpacing: 1.5, marginBottom: 28, textTransform: 'uppercase' }}>Connexion</Text>
-              <GInput testID="reg-email" label="Email" inputRef={emailRef} defaultValue="" placeholder="votre@email.com" />
-              <GInput testID="auth-input-password" label="Mot de passe" inputRef={passwordRef} defaultValue="" placeholder="..." secure />
-              <View style={{ height: 8 }} />
-              <CTA testID="auth-submit-btn" label="Connexion" onPress={handleLogin} ld={submitting} />
-              <TouchableOpacity style={{ alignItems: 'center', marginTop: 18 }}>
-                <Text style={{ color: C.textMid, fontSize: 14, fontWeight: '500', fontStyle: 'italic' }}>Mot de passe oublie ?</Text>
-              </TouchableOpacity>
-              <View style={{ alignItems: 'center', marginTop: 28 }}>
-                <Text style={{ color: C.textSoft, fontSize: 14 }}>Pas encore de compte ? <Text style={{ fontWeight: '700', color: C.text, textDecorationLine: 'underline' }} onPress={() => { setIsLogin(false); setStep(0); setError(''); }}>S'inscrire ici.</Text></Text>
-              </View>
-            </>) : (<>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: C.text, textAlign: 'center', letterSpacing: 1, marginBottom: 20, textTransform: 'uppercase' }}>Inscription</Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 22 }}>
-                {[0,1,2].map(i => <View key={i} style={{ width: i <= step ? 20 : 5, height: 3, borderRadius: 1.5, backgroundColor: i <= step ? C.text : 'rgba(30,20,60,0.12)' }} />)}
-              </View>
-              {step === 0 && (<>
-                <GInput testID="reg-name" label="Nom complet" inputRef={nameRef} defaultValue="" placeholder="Jean Dupont" />
-                <GInput testID="reg-email" label="Email" inputRef={emailRef} defaultValue="" placeholder="email@exemple.com" />
-                <GInput testID="reg-phone" label="Telephone" inputRef={phoneRef} defaultValue="" placeholder="06 12 34 56 78" />
-                <GInput testID="reg-password" label="Mot de passe" inputRef={passwordRef} defaultValue="" placeholder="Min. 6 caracteres" secure />
-                <CTA testID="next-step" label="Suivant" onPress={() => { if (!nameRef.current || !emailRef.current || !passwordRef.current) return setError('Remplissez tous les champs'); setError(''); setStep(1); }} />
-                <View style={{ alignItems: 'center', marginTop: 20 }}>
-                  <Text style={{ color: C.textSoft, fontSize: 14 }}>Deja un compte ? <Text style={{ fontWeight: '700', color: C.text, textDecorationLine: 'underline' }} onPress={() => { setIsLogin(true); setStep(0); setError(''); }}>Se connecter.</Text></Text>
-                </View>
-              </>)}
-              {step === 1 && (<>
-                <Text style={{ fontSize: 13, color: C.textMid, textAlign: 'center', marginBottom: 20 }}>Selectionnez votre usage</Text>
-                {[{ r: 'beneficiary', icon: 'person-outline', t: 'Beneficiaire', d: 'Porteur de dispositifs de sante' },
-                  { r: 'guardian', icon: 'people-outline', t: 'Gardien', d: 'Aidant ou professionnel' }].map(o => (
-                  <TouchableOpacity key={o.r} activeOpacity={0.75} onPress={() => { setRole(o.r); setStep(2); }}
-                    style={[{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderRadius: 22, marginBottom: 12, borderWidth: 1 },
-                      role === o.r ? { backgroundColor: 'rgba(255,255,255,0.35)', borderColor: 'rgba(255,255,255,0.55)' }
-                                   : { backgroundColor: 'rgba(255,255,255,0.18)', borderColor: 'rgba(255,255,255,0.30)' }]}>
-                    <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.25)', justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name={o.icon as any} size={20} color={C.text} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 16, fontWeight: '700', color: C.text }}>{o.t}</Text>
-                      <Text style={{ fontSize: 12, color: C.textMid, marginTop: 3 }}>{o.d}</Text>
-                    </View>
-                    <Ionicons name="chevron-forward" size={16} color={C.textSoft} />
-                  </TouchableOpacity>
-                ))}
-                <TouchableOpacity style={{ alignItems: 'center', paddingVertical: 14 }} onPress={() => setStep(0)}>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: C.textSoft }}>Retour</Text>
-                </TouchableOpacity>
-              </>)}
-              {step === 2 && (<>
-                <GInput label="Date de naissance" inputRef={dobRef} defaultValue="" placeholder="JJ/MM/AAAA" />
-                <GInput label="Adresse" inputRef={addressRef} defaultValue="" placeholder="14 rue de la Republique" />
-                <GInput label="Allergies" inputRef={allergiesRef} defaultValue="" placeholder="Penicilline..." />
-                <GInput label="Contact urgence" inputRef={ecNameRef} defaultValue="" placeholder="Marie Dupont" />
-                <View style={{ flexDirection: 'row', gap: 14, marginTop: 10 }}>
-                  <View style={{ flex: 0.38 }}><CTA label="Retour" onPress={() => setStep(1)} ghost /></View>
-                  <View style={{ flex: 0.62 }}><CTA testID="auth-submit-btn" label="S'inscrire" onPress={handleRegister} ld={submitting} /></View>
-                </View>
-              </>)}
-            </>)}
+            <Text style={{ fontSize: 12, fontWeight: '600', color: '#5A6068', marginBottom: 6, letterSpacing: 0.5 }}>Email</Text>
+            <TextInput defaultValue="" onChangeText={(t: string) => emailRef.current = t} placeholder="votre@email.com" placeholderTextColor="#9BA3AD" autoCapitalize="none" keyboardType="email-address"
+              style={{ fontSize: 16, padding: 16, paddingHorizontal: 20, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.03)', color: '#1A1D21', marginBottom: 16, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }} />
+
+            <Text style={{ fontSize: 12, fontWeight: '600', color: '#5A6068', marginBottom: 6, letterSpacing: 0.5 }}>Mot de passe</Text>
+            <TextInput defaultValue="" onChangeText={(t: string) => passwordRef.current = t} placeholder="..." placeholderTextColor="#9BA3AD" secureTextEntry autoCapitalize="none"
+              style={{ fontSize: 16, padding: 16, paddingHorizontal: 20, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.03)', color: '#1A1D21', marginBottom: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }} />
+
+            <TouchableOpacity disabled={submitting} onPress={async () => {
+              setError('');
+              const em = emailRef.current.trim();
+              const pw = passwordRef.current;
+              if (!em || !pw) return setError('Email et mot de passe requis');
+              setSubmitting(true);
+              try {
+                let id = em;
+                if (!id.includes('@') && !id.startsWith('+') && id.startsWith('0') && id.length >= 10) id = '+33' + id.substring(1).replace(/\s/g, '');
+                await login(id.toLowerCase(), pw);
+                hasRedirected.current = true; router.replace('/(tabs)');
+              } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
+            }} style={{ backgroundColor: '#1A1D21', borderRadius: 999, paddingVertical: 18, alignItems: 'center' }}>
+              {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', letterSpacing: 1.5, textTransform: 'uppercase' }}>Connexion</Text>}
+            </TouchableOpacity>
           </View>
         </ScrollView>
-      </Animated.View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
