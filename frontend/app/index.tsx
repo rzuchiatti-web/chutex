@@ -247,6 +247,7 @@ export default function AuthScreen() {
           </Animated.View>
         </ScrollView>
       </Animated.View>
+      </KeyboardAvoidingView>
     </View>
   );
 }
