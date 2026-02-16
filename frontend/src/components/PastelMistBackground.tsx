@@ -1,13 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
 export function PastelMistBackground() {
-  const initialized = useRef(false);
-
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof document === 'undefined') return;
 
-    // Load Inter font
     if (!document.getElementById('inter-font')) {
       const link = document.createElement('link');
       link.id = 'inter-font';
@@ -25,25 +22,34 @@ export function PastelMistBackground() {
 
     style.textContent = `
       :root {
-        --warm-50: #FFF8F0;
-        --warm-100: #FFECD6;
-        --warm-200: #F5CBA7;
-        --warm-300: #E8A87C;
-        --warm-400: #D4845A;
-        --warm-500: #C67A4F;
-        --warm-600: #B56A3F;
-        --warm-700: #9A5533;
-        --bg: #FAF8F5;
-        --text: #1C1917;
-        --text-secondary: #78716C;
-        --card: #FFFFFF;
-        --radius-lg: 24px;
-        --radius-xl: 32px;
+        --bg: #F5F6F8;
+        --surface: #FFFFFF;
+        --glass: rgba(255,255,255,0.72);
+        --text: #1E1F24;
+        --text-sec: #6B7084;
+        --text-muted: #9CA3B0;
+        --accent: #D4845A;
+        --accent-light: #E8A87C;
+        --accent-peach: #F5CBA7;
+        --border: rgba(20,20,30,0.06);
+        --shadow: 0 10px 30px rgba(20,20,30,0.08);
+        --shadow-hover: 0 16px 40px rgba(20,20,30,0.12);
+        --shadow-soft: 0 4px 16px rgba(20,20,30,0.05);
+        --glass-blur: blur(12px) saturate(120%);
+        --glass-heavy: blur(20px) saturate(140%);
+        --r-frame: 34px;
+        --r-card: 24px;
+        --r-card-sm: 20px;
+        --r-pill: 999px;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        --dur: 380ms;
+        --stagger: 55ms;
       }
 
-      * { 
+      * {
         font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
         -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
       }
 
       body {
@@ -54,17 +60,14 @@ export function PastelMistBackground() {
         overflow-x: hidden;
       }
 
-      /* Smooth scrolling */
       * { scroll-behavior: smooth; }
-
-      /* Custom scrollbar */
-      ::-webkit-scrollbar { width: 4px; }
+      ::-webkit-scrollbar { width: 3px; }
       ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: rgba(198,122,79,0.2); border-radius: 99px; }
+      ::-webkit-scrollbar-thumb { background: rgba(20,20,30,0.1); border-radius: 99px; }
 
-      /* ─── ANIMATIONS ─── */
-      @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
+      /* ─── PAGE ENTER ─── */
+      @keyframes pageEnter {
+        from { opacity: 0; transform: translateY(12px); }
         to { opacity: 1; transform: translateY(0); }
       }
 
@@ -73,19 +76,40 @@ export function PastelMistBackground() {
         to { opacity: 1; }
       }
 
-      @keyframes slideInRight {
-        from { opacity: 0; transform: translateX(30px); }
-        to { opacity: 1; transform: translateX(0); }
-      }
-
-      @keyframes slideInLeft {
-        from { opacity: 0; transform: translateX(-30px); }
-        to { opacity: 1; transform: translateX(0); }
-      }
-
       @keyframes scaleIn {
-        from { opacity: 0; transform: scale(0.92); }
+        from { opacity: 0; transform: scale(0.96); }
         to { opacity: 1; transform: scale(1); }
+      }
+
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes haloGlow {
+        0%, 100% { opacity: 0.4; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.08); }
+      }
+
+      @keyframes gradientDrift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      @keyframes typewriter {
+        from { width: 0; }
+        to { width: 100%; }
+      }
+
+      @keyframes sosPulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+        50% { transform: scale(1.015); box-shadow: 0 0 24px 8px rgba(239,68,68,0.12); }
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
       }
 
       @keyframes shimmer {
@@ -93,130 +117,119 @@ export function PastelMistBackground() {
         100% { background-position: 200% 0; }
       }
 
-      @keyframes pulseGlow {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(198,122,79,0.3); }
-        50% { box-shadow: 0 0 20px 8px rgba(198,122,79,0.15); }
-      }
-
-      @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-      }
-
-      @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-6px); }
-      }
-
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
 
-      @keyframes sosPulse {
-        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
-        50% { transform: scale(1.02); box-shadow: 0 0 24px 8px rgba(239,68,68,0.15); }
+      /* ─── STAGGER ANIMATION CLASSES ─── */
+      .anim-enter {
+        animation: pageEnter var(--dur) var(--ease) both;
+      }
+      .stagger-1 { animation-delay: calc(var(--stagger) * 1); }
+      .stagger-2 { animation-delay: calc(var(--stagger) * 2); }
+      .stagger-3 { animation-delay: calc(var(--stagger) * 3); }
+      .stagger-4 { animation-delay: calc(var(--stagger) * 4); }
+      .stagger-5 { animation-delay: calc(var(--stagger) * 5); }
+      .stagger-6 { animation-delay: calc(var(--stagger) * 6); }
+      .stagger-7 { animation-delay: calc(var(--stagger) * 7); }
+      .stagger-8 { animation-delay: calc(var(--stagger) * 8); }
+
+      /* ─── GLASS CARD ─── */
+      .glass-card {
+        background: var(--surface);
+        border-radius: var(--r-card);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        transition: transform 320ms var(--ease), box-shadow 320ms var(--ease);
+      }
+      .glass-card:hover {
+        transform: scale(1.012) translateY(-1px);
+        box-shadow: var(--shadow-hover);
+      }
+      .glass-card:active {
+        transform: scale(0.98);
+        box-shadow: var(--shadow-soft);
       }
 
-      /* ─── ANIMATION UTILITY CLASSES ─── */
-      .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-      .animate-fade-in { animation: fadeIn 0.4s ease forwards; }
-      .animate-scale-in { animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-      .animate-slide-right { animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-      /* Staggered delays */
-      .delay-1 { animation-delay: 0.05s; opacity: 0; }
-      .delay-2 { animation-delay: 0.1s; opacity: 0; }
-      .delay-3 { animation-delay: 0.15s; opacity: 0; }
-      .delay-4 { animation-delay: 0.2s; opacity: 0; }
-      .delay-5 { animation-delay: 0.25s; opacity: 0; }
-      .delay-6 { animation-delay: 0.3s; opacity: 0; }
-
-      /* ─── PREMIUM CARD STYLES ─── */
-      .premium-card {
-        background: #FFFFFF;
-        border-radius: var(--radius-lg);
-        border: 1px solid rgba(28,25,23,0.06);
-        box-shadow: 0 2px 20px rgba(28,25,23,0.05), 0 0 0 1px rgba(28,25,23,0.02);
-        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-      }
-
-      .premium-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 32px rgba(28,25,23,0.08), 0 0 0 1px rgba(28,25,23,0.04);
-      }
-
-      .premium-card:active {
-        transform: translateY(0px) scale(0.99);
+      /* ─── GLASS SURFACE ─── */
+      .glass-surface {
+        background: var(--glass);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid rgba(255,255,255,0.65);
+        border-radius: var(--r-card);
       }
 
       /* ─── HERO GRADIENT ─── */
       .hero-gradient {
-        background: linear-gradient(135deg, var(--warm-400) 0%, var(--warm-300) 40%, var(--warm-200) 100%);
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 45%, var(--accent-peach) 100%);
         background-size: 200% 200%;
-        animation: gradientShift 8s ease infinite;
+        animation: gradientDrift 12s ease infinite;
+        border-radius: var(--r-card);
       }
 
-      .hero-gradient-subtle {
-        background: linear-gradient(135deg, var(--warm-100) 0%, var(--warm-50) 50%, #FAF8F5 100%);
+      /* ─── PAGE HEADER HALO ─── */
+      .page-halo {
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 100px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse, rgba(212,132,90,0.15) 0%, transparent 70%);
+        animation: haloGlow 5s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 0;
       }
 
-      /* ─── BUTTON STYLES ─── */
-      .btn-primary {
-        background: #1C1917;
-        color: #FFFFFF;
-        border-radius: 999px;
+      /* ─── PILL BUTTONS ─── */
+      .btn-pill {
+        border-radius: var(--r-pill);
         border: none;
         cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        font-weight: 700;
+        transition: all 280ms var(--ease);
+        font-weight: 600;
+        font-family: inherit;
+      }
+      .btn-pill:hover {
+        transform: translateY(-1px) scale(1.015);
+        box-shadow: 0 8px 24px rgba(20,20,30,0.12);
+      }
+      .btn-pill:active {
+        transform: scale(0.98);
       }
 
-      .btn-primary:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(28,25,23,0.2);
+      .btn-dark {
+        background: linear-gradient(135deg, #1E1F24, #2D2E34);
+        color: #FFFFFF;
       }
-
-      .btn-primary:active {
-        transform: translateY(0px) scale(0.98);
-      }
-
       .btn-warm {
-        background: linear-gradient(135deg, var(--warm-500), var(--warm-400));
+        background: linear-gradient(135deg, var(--accent), var(--accent-light));
         color: #FFFFFF;
-        border-radius: 999px;
-        border: none;
+      }
+      .btn-glass {
+        background: var(--glass);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+
+      /* ─── ICON BUTTON (circular soft-raised) ─── */
+      .icon-btn {
+        border-radius: 50%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-soft);
+        transition: all 250ms var(--ease);
         cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        font-weight: 700;
       }
-
-      .btn-warm:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(198,122,79,0.3);
+      .icon-btn:hover {
+        transform: scale(1.08);
+        box-shadow: var(--shadow);
       }
-
-      /* ─── GLASS EFFECT ─── */
-      .glass {
-        background: rgba(255,255,255,0.65);
-        backdrop-filter: blur(20px) saturate(140%);
-        -webkit-backdrop-filter: blur(20px) saturate(140%);
-        border: 1px solid rgba(255,255,255,0.5);
-      }
-
-      /* ─── SOS BUTTON ─── */
-      .sos-btn {
-        animation: sosPulse 2s ease infinite;
-      }
-
-      /* ─── QUICK ACTION CIRCLE ─── */
-      .quick-action {
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .quick-action:hover {
-        transform: translateY(-3px) scale(1.05);
-      }
-      .quick-action:active {
+      .icon-btn:active {
         transform: scale(0.95);
       }
 
@@ -227,31 +240,62 @@ export function PastelMistBackground() {
         left: 16px !important;
         right: 16px !important;
         border-radius: 28px !important;
-        background: rgba(255,255,255,0.92) !important;
-        backdrop-filter: blur(24px) saturate(150%) !important;
-        -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
-        box-shadow: 0 4px 32px rgba(28,25,23,0.10), inset 0 0 0 1px rgba(28,25,23,0.05) !important;
+        background: rgba(255,255,255,0.82) !important;
+        backdrop-filter: blur(20px) saturate(140%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+        box-shadow: 0 10px 40px rgba(20,20,30,0.10), inset 0 0 0 1px rgba(255,255,255,0.6) !important;
         border: none !important;
         z-index: 99999 !important;
         height: 64px !important;
         padding-bottom: 6px !important;
         border-top: none !important;
+        animation: pageEnter 500ms var(--ease) both;
+        animation-delay: 300ms;
       }
       [role="tablist"] ~ div, [role="tabpanel"] { padding-bottom: 96px !important; }
 
-      /* Tab icons & labels */
       [role="tab"] {
-        transition: all 0.2s ease !important;
+        transition: all 200ms var(--ease) !important;
       }
       [role="tab"][aria-selected="true"] {
-        transform: scale(1.05);
+        transform: scale(1.06);
       }
 
-      /* ─── INPUT STYLES ─── */
+      /* ─── INPUT FOCUS ─── */
       input:focus, textarea:focus {
         outline: none;
-        border-color: var(--warm-400) !important;
-        box-shadow: 0 0 0 3px rgba(198,122,79,0.12) !important;
+        border-color: rgba(212,132,90,0.4) !important;
+        box-shadow: 0 0 0 4px rgba(212,132,90,0.08) !important;
+      }
+
+      /* ─── REDUCED MOTION ─── */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      /* ─── INSET SURFACE ─── */
+      .inset-surface {
+        background: var(--bg);
+        border-radius: var(--r-card-sm);
+        box-shadow: inset 0 2px 6px rgba(20,20,30,0.04);
+      }
+
+      /* ─── SOS ─── */
+      .sos-pulse {
+        animation: sosPulse 2.2s ease infinite;
+      }
+
+      /* ─── BADGE ─── */
+      .badge-pill {
+        border-radius: var(--r-pill);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        padding: 4px 12px;
       }
     `;
   }, []);
