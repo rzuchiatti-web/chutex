@@ -1,453 +1,282 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Platform, Animated, Dimensions, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, Platform, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../src/context/ThemeContext';
-import { Radius, Space, Type } from '../src/constants/colors';
 
-const { width: SCREEN_W } = Dimensions.get('window');
-const CARD_W = Math.min(SCREEN_W - 48, 380);
+const { width: SW } = Dimensions.get('window');
 
-// Theme-aware color helper
-function useOnboardingColors() {
-  const { colors, isDark } = useTheme();
-  return {
-    bg: C.bg,
-    text: colors.textPrimary,
-    textMuted: colors.textSecondary,
-    textDim: colors.textMuted,
-    line: colors.border,
-    lineFaint: colors.borderLight,
-    surface: C.surface,
-    careViolet: '#7C5CFF',
-    careVioletWeak: 'rgba(124,92,255,0.18)',
-    success: colors.success,
-    danger: colors.danger,
-    warning: colors.warning,
-    buttonBg: colors.buttonBg,
-    buttonText: colors.buttonText,
-    isDark,
-    logoSource: isDark ? require('../assets/images/logo_black.png') : require('../assets/images/logo_white.png'),
-  };
-}
-
-// Module-level ref set by the main component before rendering slides
-let C: ReturnType<typeof useOnboardingColors> = {} as any;
-
-const VIDEO_URL = 'https://cdn.shopify.com/videos/c/o/v/9ece2e3b8dd449f2bfbe21695ff47dd8.webm';
-const PRODUCTS = {
-  elder: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/bague_vita_donnees_de_sante_chutex_2.svg?v=1766141409',
-  elio: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme.svg?v=1770109412',
-  vita: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Balance_connecte_Vita_chutex.svg?v=1769005281',
-};
-
-const webShadow = Platform.OS === 'web' ? { boxShadow: '0 14px 40px rgba(0,0,0,0.45)' } : {};
-const webGlass = Platform.OS === 'web' ? { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } : {};
-
-// ─── HUD Corner ───
-const HudCorner = ({ pos }: { pos: 'tl' | 'tr' | 'bl' | 'br' }) => {
-  const s = 12;
-  const c = 'rgba(255,255,255,0.15)';
-  const positions: Record<string, any> = {
-    tl: { top: 6, left: 6, borderTopWidth: 1, borderLeftWidth: 1 },
-    tr: { top: 6, right: 6, borderTopWidth: 1, borderRightWidth: 1 },
-    bl: { bottom: 6, left: 6, borderBottomWidth: 1, borderLeftWidth: 1 },
-    br: { bottom: 6, right: 6, borderBottomWidth: 1, borderRightWidth: 1 },
-  };
-  return <View style={[{ position: 'absolute', width: s, height: s, borderColor: c }, positions[pos]]} />;
-};
-
-// ─── Clinic Card ───
-const Card = ({ children, style, care }: any) => (
-  <View style={[{
-    backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : C.surface,
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderColor: care ? C.careVioletWeak : C.line,
-    overflow: 'hidden',
-    position: 'relative' as const,
-    ...webShadow,
-  }, style]}>
-    <HudCorner pos="tl" /><HudCorner pos="tr" /><HudCorner pos="bl" /><HudCorner pos="br" />
-    {children}
-  </View>
-);
-
-// ─── Chip/Tag ───
-const Chip = ({ label, active, care }: { label: string; active?: boolean; care?: boolean }) => (
-  <View style={{
-    backgroundColor: care ? C.careVioletWeak : active ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)',
-    borderRadius: Radius.full,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: care ? 'rgba(124,92,255,0.3)' : 'rgba(255,255,255,0.08)',
-  }}>
-    <Text style={{ fontSize: 9, fontWeight: '700', letterSpacing: 1.2, color: care ? C.careViolet : C.text, textTransform: 'uppercase' }}>{label}</Text>
-  </View>
-);
-
-// ─── Pulse Dot ───
-const PulseDot = ({ color }: { color: string }) => {
-  const pulse = useRef(new Animated.Value(1)).current;
+/* ─── JS Typewriter ─── */
+function Typewriter({ text, speed = 40, delay = 500, onDone }: { text: string; speed?: number; delay?: number; onDone?: () => void }) {
+  const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
   useEffect(() => {
-    Animated.loop(Animated.sequence([
-      Animated.timing(pulse, { toValue: 1.6, duration: 1000, useNativeDriver: true }),
-      Animated.timing(pulse, { toValue: 1, duration: 1000, useNativeDriver: true }),
-    ])).start();
-  }, []);
+    setDisplayed(''); setDone(false);
+    let i = 0;
+    const t = setTimeout(() => {
+      const iv = setInterval(() => {
+        if (i < text.length) { setDisplayed(text.slice(0, i + 1)); i++; }
+        else { clearInterval(iv); setDone(true); onDone?.(); }
+      }, speed);
+      return () => clearInterval(iv);
+    }, delay);
+    return () => clearTimeout(t);
+  }, [text]);
+  if (Platform.OS !== 'web') return <Text style={{ fontSize: 28, fontWeight: '800', color: '#FFF' }}>{text}</Text>;
   return (
-    <View style={{ width: 8, height: 8, alignItems: 'center', justifyContent: 'center' }}>
-      <Animated.View style={{ position: 'absolute', width: 8, height: 8, borderRadius: 4, backgroundColor: color, opacity: 0.3, transform: [{ scale: pulse }] }} />
-      <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: color }} />
-    </View>
-  );
-};
-
-// ─── Product Card for Slide 1 ───
-const ProductCard = ({ name, subtitle, features, imageUrl }: any) => (
-  <Card style={{ padding: 16, marginBottom: 12, width: '100%' }}>
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-      <View style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: C.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.lineFaint }}>
-        <Image source={{ uri: imageUrl }} style={{ width: 36, height: 36 }} resizeMode="contain" />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text style={{ color: C.text, fontSize: 17, fontWeight: '800', letterSpacing: -0.3 }}>{name}</Text>
-        <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>{subtitle}</Text>
-      </View>
-    </View>
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-      {features.map((f: string) => <Chip key={f} label={f} />)}
-    </View>
-  </Card>
-);
-
-// ═══════════════════════════════════════════
-// SLIDES
-// ═══════════════════════════════════════════
-
-function Slide1() {
-  return (
-    <View style={{ flex: 1, paddingHorizontal: 24 }}>
-      <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
-        Ecosysteme CHUTEX
-      </Text>
-      <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
-        Trois dispositifs medicaux connectes, un seul ecosysteme de sante.
-      </Text>
-      <ProductCard
-        name="Elder"
-        subtitle="Bague connectee"
-        imageUrl={PRODUCTS.elder}
-        features={['SpO2', 'FC', 'Temperature', 'Sommeil']}
-      />
-      <ProductCard
-        name="Elio"
-        subtitle="Bracelet sante"
-        imageUrl={PRODUCTS.elio}
-        features={['ECG', 'Activite', 'Glycemie est.', 'Care']}
-      />
-      <ProductCard
-        name="Vita"
-        subtitle="Balance connectee"
-        imageUrl={PRODUCTS.vita}
-        features={['IMC', 'Masse grasse', 'Masse musc.', '30+ metriques']}
-      />
-    </View>
+    <span style={{ fontSize: 'clamp(24px, 7vw, 34px)', fontWeight: 800, color: '#FFF', lineHeight: 1.2 } as any}>
+      {displayed}<span style={{ borderRight: '2.5px solid #FFF', marginLeft: 2, animation: done ? 'blink-caret 0.8s step-end infinite' : 'none', opacity: done ? 1 : 0 } as any}>&nbsp;</span>
+    </span>
   );
 }
 
-function Slide2() {
-  return (
-    <View style={{ flex: 1, paddingHorizontal: 24 }}>
-      <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
-        Donnees & Prevention
-      </Text>
-      <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
-        Lecture claire de vos donnees. Tendances, signaux faibles, prevention active.
-      </Text>
-      <Card style={{ padding: 20, marginBottom: 16 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(16,185,129,0.12)', alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name="heart" size={20} color={C.success} />
-          </View>
-          <View>
-            <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>Vision sante complete</Text>
-            <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>Tous vos indicateurs au meme endroit</Text>
-          </View>
-        </View>
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          {[{ label: 'FC', value: '72', unit: 'bpm' }, { label: 'SpO2', value: '98', unit: '%' }, { label: 'Temp', value: '36.5', unit: 'C' }].map(m => (
-            <View key={m.label} style={{ flex: 1, backgroundColor: C.isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: C.lineFaint }}>
-              <Text style={{ color: C.textDim, fontSize: 9, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>{m.label}</Text>
-              <Text style={{ color: C.text, fontSize: 22, fontWeight: '800', letterSpacing: -0.5 }}>{m.value}<Text style={{ fontSize: 11, color: C.textMuted }}> {m.unit}</Text></Text>
-            </View>
-          ))}
-        </View>
-      </Card>
-      <Card style={{ padding: 20 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(245,158,11,0.12)', alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name="analytics" size={20} color={C.warning} />
-          </View>
-          <View>
-            <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>Estimation glycemique</Text>
-            <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>Analyse non-invasive via votre bracelet</Text>
-          </View>
-        </View>
-        <View style={{ height: 60, backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : C.surface, borderRadius: 12, borderWidth: 1, borderColor: C.lineFaint, justifyContent: 'center', alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-            <Text style={{ color: C.text, fontSize: 32, fontWeight: '800' }}>5.4</Text>
-            <Text style={{ color: C.textMuted, fontSize: 13 }}>mmol/L</Text>
-          </View>
-        </View>
-        <View style={{ flexDirection: 'row', gap: 6, marginTop: 10 }}>
-          <Chip label="Non-invasif" /><Chip label="Estimation" /><Chip label="Continu" />
-        </View>
-      </Card>
-    </View>
-  );
-}
-
-function Slide3() {
-  return (
-    <View style={{ flex: 1, paddingHorizontal: 24 }}>
-      <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
-        Teleassistance Care
-      </Text>
-      <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
-        Intervention d'urgence en temps reel. Suivi GPS, equipes de proximite.
-      </Text>
-      {/* Care-context card with violet */}
-      <Card care style={{ padding: 20, marginBottom: 16 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.careVioletWeak, alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name="shield-checkmark" size={20} color={C.careViolet} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>Care active</Text>
-            <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>Protection 24/7 avec equipe dediee</Text>
-          </View>
-          <PulseDot color={C.careViolet} />
-        </View>
-        <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
-          <Chip label="SOS" care /><Chip label="Chute" care /><Chip label="GPS" care /><Chip label="24/7" care />
-        </View>
-      </Card>
-      {/* Intervention example */}
-      <Card style={{ padding: 20 }}>
-        <Text style={{ ...Type.caption, color: C.textDim, marginBottom: 12 }}>Exemple d'intervention</Text>
-        {[
-          { time: '14:32', label: 'Alerte SOS declenchee', color: C.danger },
-          { time: '14:33', label: 'Intervenant dispatche', color: C.careViolet },
-          { time: '14:38', label: 'Arrivee sur place', color: C.success },
-        ].map((e, i) => (
-          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: i < 2 ? 10 : 0 }}>
-            <Text style={{ color: C.textDim, fontSize: 11, fontWeight: '600', width: 36 }}>{e.time}</Text>
-            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: e.color }} />
-            <Text style={{ color: C.textMuted, fontSize: 13 }}>{e.label}</Text>
-          </View>
-        ))}
-      </Card>
-    </View>
-  );
-}
-
-function Slide4() {
-  return (
-    <View style={{ flex: 1, paddingHorizontal: 24 }}>
-      <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
-        Teleconsultation 24/7
-      </Text>
-      <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
-        Acces medecin, orientation, suivi continu. Partout, a tout moment.
-      </Text>
-      {/* Video card with HUD overlay */}
-      <Card style={{ marginBottom: 16, overflow: 'hidden' }}>
-        <View style={{ height: 200, backgroundColor: 'rgba(255,255,255,0.02)', position: 'relative' }}>
-          {Platform.OS === 'web' ? (
-            <video
-              src={VIDEO_URL}
-              autoPlay
-              muted
-              loop
-              playsInline
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' } as any}
-            />
-          ) : (
-            <View style={{ flex: 1, backgroundColor: '#0A0A0A', justifyContent: 'center', alignItems: 'center' }}>
-              <Ionicons name="videocam" size={40} color={C.textDim} />
-            </View>
-          )}
-          {/* HUD overlay chips */}
-          <View style={{ position: 'absolute', top: 10, left: 10, flexDirection: 'row', gap: 6 }}>
-            <Chip label="Biometric" /><Chip label="Clinic" /><Chip label="B/W" />
-          </View>
-          {/* Bottom HUD banner */}
-          <View style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0,
-            backgroundColor: 'rgba(0,0,0,0.65)', paddingVertical: 8, paddingHorizontal: 12,
-            flexDirection: 'row', alignItems: 'center', gap: 6,
-            ...webGlass,
-          }}>
-            <PulseDot color={C.success} />
-            <Text style={{ color: C.textMuted, fontSize: 9, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase' }}>
-              Scan en cours  ·  Analyse multi-dimensionnelle
-            </Text>
-          </View>
-        </View>
-      </Card>
-      <Card style={{ padding: 20 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-          <Ionicons name="videocam" size={22} color={C.text} />
-          <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>Medecin disponible</Text>
-        </View>
-        <Text style={{ color: C.textMuted, fontSize: 13, lineHeight: 20 }}>
-          Consultez un professionnel de sante a distance. Orientation, diagnostic, prescription electronique.
-        </Text>
-        <View style={{ flexDirection: 'row', gap: 6, marginTop: 12 }}>
-          <Chip label="24/7" active /><Chip label="Pro" /><Chip label="Securise" />
-        </View>
-      </Card>
-    </View>
-  );
-}
-
-function Slide5() {
-  return (
-    <View style={{ flex: 1, paddingHorizontal: 24 }}>
-      <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginBottom: 6 }}>
-        Securite & Confidentialite
-      </Text>
-      <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20, marginBottom: 24 }}>
-        Vos donnees de sante sont protegees. Consentement eclaire, notifications utiles.
-      </Text>
-      <Card style={{ padding: 20, marginBottom: 16 }}>
-        {[
-          { icon: 'lock-closed', label: 'Donnees chiffrees de bout en bout', desc: 'Hebergement HDS certifie' },
-          { icon: 'finger-print', label: 'Authentification securisee', desc: 'Connexion protegee par mot de passe' },
-          { icon: 'notifications', label: 'Notifications intelligentes', desc: 'Alertes sante personnalisees' },
-        ].map((item, i) => (
-          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: i < 2 ? 18 : 0 }}>
-            <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: C.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.lineFaint }}>
-              <Ionicons name={item.icon as any} size={20} color={C.text} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: C.text, fontSize: 14, fontWeight: '700' }}>{item.label}</Text>
-              <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>{item.desc}</Text>
-            </View>
-          </View>
-        ))}
-      </Card>
-    </View>
-  );
-}
-
-// ═══════════════════════════════════════════
-// MAIN ONBOARDING SCREEN
-// ═══════════════════════════════════════════
-const SLIDES = [Slide1, Slide2, Slide3, Slide4, Slide5];
-const TOTAL = SLIDES.length;
+/* ─── Slide data ─── */
+const SLIDES = [
+  {
+    img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/diagnsotick_sante_connecte_chutex.svg?v=1769015947',
+    pill: 'VISION 360°', pillDot: true,
+    title: 'Vision de sante complete.',
+    subtitle: 'Une lecture globale, structuree et actionnable : tendances, signaux faibles, priorites et recommandations.',
+  },
+  {
+    img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/analyse_sante_connecte_glycemique_chutex_1.svg?v=1769087565',
+    pill: 'GLYCEMIE', pillDot: true,
+    title: 'Estimation glycemique.',
+    subtitle: "Suivez l'evolution et obtenez une estimation au quotidien — sans geste invasif, orientee prevention.",
+    imgSize: '140%',
+  },
+  {
+    img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/teleconsultation_medical_chutex_1.svg?v=1769087585',
+    pill: '24/7', pillDot: true,
+    title: 'Teleconsultation 24/7.',
+    subtitle: 'Acces continu a des medecins diplomes : orientation, conseil, suivi — quand vous en avez besoin.',
+    imgSize: '135%',
+  },
+  {
+    img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme.svg?v=1770109412',
+    pill: 'BRACELET ELIO', pillDot: true,
+    title: 'Vivre en meilleure sante.',
+    subtitle: 'Mesures essentielles, detection intelligente, assistance integree — au poignet.',
+  },
+  {
+    img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Balance_connecte_Vita_chutex.svg?v=1769005281',
+    pill: 'ECOSYSTEME', pillDot: true,
+    title: "L'innovation au service de la sante.",
+    subtitle: 'Trois dispositifs medicaux connectes, un seul ecosysteme de sante. Diagnostic, prevention et suivi.',
+  },
+  {
+    video: 'https://cdn.shopify.com/videos/c/o/v/9ece2e3b8dd449f2bfbe21695ff47dd8.webm',
+    pill: 'CLINIC MODE', pillDot: true,
+    title: 'Une experience clinique ultra premium.',
+    subtitle: 'Diagnostic, prevention, analyse et suivi continu — une interface futuriste pensee comme un cockpit medical.',
+    chips: ['Diagnostic', 'Prevention', 'Analyse', 'Suivi', 'Longevite'],
+    hud: true,
+  },
+];
 
 export default function OnboardingScreen() {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current;
-
-  // Set module-level colors for sub-components
-  C = useOnboardingColors();
+  const [entering, setEntering] = useState(true);
+  const slide = SLIDES[current];
+  const isLast = current === SLIDES.length - 1;
 
   useEffect(() => {
-    fadeAnim.setValue(0);
-    slideAnim.setValue(20);
-    Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
-    ]).start();
+    setEntering(true);
+    const t = setTimeout(() => setEntering(false), 50);
+    return () => clearTimeout(t);
   }, [current]);
 
-  const complete = async () => {
+  const finish = async () => {
     await AsyncStorage.setItem('chutex_onboarding_done', 'true');
     router.replace('/');
   };
 
   const next = () => {
-    if (current < TOTAL - 1) setCurrent(current + 1);
-    else complete();
+    if (isLast) { finish(); return; }
+    setCurrent(c => c + 1);
   };
 
-  const SlideComponent = SLIDES[current];
+  if (Platform.OS !== 'web') {
+    const { SafeAreaView } = require('react-native-safe-area-context');
+    const { Image, ScrollView } = require('react-native');
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }}>
+          <Text style={{ fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.5)', textAlign: 'center', letterSpacing: 2, marginBottom: 20 }}>CARE WATCH</Text>
+          {slide.img && <Image source={{ uri: slide.img }} style={{ width: '100%', height: 280, resizeMode: 'contain', marginBottom: 20, borderRadius: 18, backgroundColor: '#111' }} />}
+          <Text style={{ fontSize: 28, fontWeight: '800', color: '#FFF', textAlign: 'center', marginBottom: 12 }}>{slide.title}</Text>
+          <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', textAlign: 'center', lineHeight: 22, marginBottom: 32 }}>{slide.subtitle}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 24 }}>
+            {SLIDES.map((_, i) => <View key={i} style={{ width: i === current ? 24 : 6, height: 6, borderRadius: 3, backgroundColor: i === current ? '#FFF' : 'rgba(255,255,255,0.2)' }} />)}
+          </View>
+          <TouchableOpacity onPress={next} style={{ backgroundColor: '#FFF', borderRadius: 9999, paddingVertical: 16, alignItems: 'center' }}>
+            <Text style={{ color: '#111', fontSize: 15, fontWeight: '600' }}>{isLast ? 'Commencer' : 'Suivant'}</Text>
+          </TouchableOpacity>
+          {!isLast && <TouchableOpacity onPress={finish} style={{ marginTop: 16, alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>Passer</Text></TouchableOpacity>}
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
+  /* ─── WEB ─── */
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} data-testid="onboarding-screen">
-      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
-        <View style={{ alignItems: 'center', paddingTop: 32, paddingBottom: 24 }}>
-          <Image source={C.logoSource} style={{ width: 120, height: 40 }} resizeMode="contain" />
-        </View>
-        <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-          <SlideComponent />
-        </Animated.View>
-      </ScrollView>
+    <div className="clinic-grid-dark" style={{
+      minHeight: '100vh', minHeight: '100dvh', display: 'flex', flexDirection: 'column',
+      fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', position: 'relative',
+    } as any}>
 
-      <View style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0,
-        paddingHorizontal: 24, paddingBottom: Platform.OS === 'web' ? 24 : 40, paddingTop: 16,
-        backgroundColor: C.isDark ? 'rgba(0,0,0,0.9)' : 'rgba(245,246,248,0.95)',
-        ...webGlass,
-      }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 16 }}>
-          {SLIDES.map((_, i) => (
-            <TouchableOpacity key={i} onPress={() => setCurrent(i)}>
-              <View style={{
-                width: i === current ? 24 : 6, height: 6, borderRadius: 3,
-                backgroundColor: i === current ? C.text : C.line,
-              } as any} />
-            </TouchableOpacity>
-          ))}
-        </View>
+      {/* Vignette */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.06), transparent 60%)', zIndex: 0 } as any} />
 
-        {/* Buttons */}
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          {current === TOTAL - 1 ? (
-            <>
-              <TouchableOpacity
-                data-testid="onboarding-skip-care"
-                style={{ flex: 1, paddingVertical: 16, borderRadius: Radius.full, borderWidth: 1, borderColor: C.line, alignItems: 'center', backgroundColor: C.isDark ? 'rgba(255,255,255,0.03)' : C.surface }}
-                onPress={complete}
-              >
-                <Text style={{ color: C.textMuted, fontSize: 14, fontWeight: '600' }}>Activer Care plus tard</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                data-testid="onboarding-start-btn"
-                style={{ flex: 1.5, paddingVertical: 16, borderRadius: Radius.full, backgroundColor: C.buttonBg, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 20px rgba(255,255,255,0.15)' } : {}) }}
-                onPress={complete}
-              >
-                <Text style={{ color: C.buttonText, fontSize: 15, fontWeight: '700' }}>Commencer</Text>
-              </TouchableOpacity>
-            </>
+      {/* Top bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', position: 'relative', zIndex: 10 } as any}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3 } as any}>
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF', letterSpacing: 5 }}>CHUTE</span>
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF', letterSpacing: 5, fontStyle: 'italic' }}>X</span>
+        </div>
+        {!isLast && (
+          <button onClick={finish} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', padding: '8px 12px' } as any}>
+            Passer
+          </button>
+        )}
+      </div>
+
+      {/* Main content */}
+      <div key={current} style={{
+        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        padding: '0 20px 20px', position: 'relative', zIndex: 5, gap: 20,
+        animation: entering ? 'none' : 'enterUp 0.6s cubic-bezier(.4,0,.15,1) both',
+      } as any}>
+
+        {/* Media zone */}
+        <div style={{
+          width: '100%', maxWidth: 340, aspectRatio: '4/5', borderRadius: 22, overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.08)', background: '#000', position: 'relative',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+        } as any}>
+          {/* HUD corners */}
+          <div style={{ position: 'absolute', inset: 10, pointerEvents: 'none', zIndex: 5 } as any}>
+            {['top:0;left:0;border-top:1px solid rgba(255,255,255,0.2);border-left:1px solid rgba(255,255,255,0.2);border-radius:8px 0 0 0',
+              'top:0;right:0;border-top:1px solid rgba(255,255,255,0.2);border-right:1px solid rgba(255,255,255,0.2);border-radius:0 8px 0 0',
+              'bottom:0;left:0;border-bottom:1px solid rgba(255,255,255,0.2);border-left:1px solid rgba(255,255,255,0.2);border-radius:0 0 0 8px',
+              'bottom:0;right:0;border-bottom:1px solid rgba(255,255,255,0.2);border-right:1px solid rgba(255,255,255,0.2);border-radius:0 0 8px 0',
+            ].map((s, i) => <div key={i} style={{ position: 'absolute', width: 18, height: 18, ...Object.fromEntries(s.split(';').map(p => { const [k,v] = p.split(':'); return [k.trim().replace(/-([a-z])/g, (_:any,c:string)=>c.toUpperCase()), v?.trim()]; })) } as any} />)}
+          </div>
+
+          {/* Scan line */}
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 4, pointerEvents: 'none', mixBlendMode: 'screen',
+            background: 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.05) 55%, transparent 100%)',
+            animation: 'scan-line 4s ease-in-out infinite',
+          } as any} />
+
+          {/* Glow */}
+          <div style={{
+            position: 'absolute', inset: -1, borderRadius: 24, pointerEvents: 'none', zIndex: 1,
+            background: 'radial-gradient(circle at 30% 20%, rgba(255,255,255,0.12), transparent 55%), radial-gradient(circle at 75% 75%, rgba(255,255,255,0.08), transparent 55%)',
+            filter: 'blur(16px)', opacity: 0.5,
+          } as any} />
+
+          {/* Content: image or video */}
+          {slide.video ? (
+            <video autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'contrast(1.08)' } as any}>
+              <source src={slide.video} type="video/webm" />
+            </video>
           ) : (
-            <>
-              <TouchableOpacity
-                data-testid="onboarding-skip"
-                style={{ flex: 0.5, paddingVertical: 16, alignItems: 'center' }}
-                onPress={complete}
-              >
-                <Text style={{ color: C.textMuted, fontSize: 13, fontWeight: '600' }}>Passer</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                data-testid="onboarding-next-btn"
-                style={{ flex: 1, paddingVertical: 16, borderRadius: Radius.full, backgroundColor: C.buttonBg, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 20px rgba(255,255,255,0.15)' } : {}) }}
-                onPress={next}
-              >
-                <Text style={{ color: C.buttonText, fontSize: 15, fontWeight: '700' }}>Suivant</Text>
-              </TouchableOpacity>
-            </>
+            <div style={{
+              width: '100%', height: '100%',
+              backgroundImage: `url(${slide.img})`,
+              backgroundSize: slide.imgSize || '100%',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+            } as any} />
           )}
-        </View>
-      </View>
-    </SafeAreaView>
+
+          {/* HUD overlay for video slide */}
+          {slide.hud && (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 12, pointerEvents: 'none', zIndex: 6 } as any}>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
+                {['BIOMETRIC', 'CLINIC', 'B/W'].map(t => (
+                  <span key={t} style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.4)', color: 'rgba(255,255,255,0.65)', borderRadius: 999, padding: '5px 8px', fontSize: 10, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 600 } as any}>{t}</span>
+                ))}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: '8px 12px', fontSize: 10, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', flexWrap: 'wrap', fontWeight: 600 } as any}>
+                <span style={{ width: 7, height: 7, borderRadius: 99, background: '#FFF', boxShadow: '0 0 8px rgba(255,255,255,0.3)', animation: 'pulse-dot 1.8s ease-in-out infinite', flexShrink: 0 } as any} />
+                <span>SCAN EN COURS</span>
+                <span style={{ opacity: 0.4 }}>·</span>
+                <span>ANALYSE MULTI-DIMENSIONNELLE</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Pill badge */}
+        <div className="glass-pill" style={{ color: 'rgba(255,255,255,0.65)', animationDelay: '0.2s' } as any}>
+          {slide.pillDot && <span style={{ width: 7, height: 7, borderRadius: 99, background: '#FFF', display: 'inline-block', flexShrink: 0, animation: 'pulse-dot 2s ease-in-out infinite' } as any} />}
+          {slide.pill}
+        </div>
+
+        {/* Typewriter title */}
+        <div style={{ textAlign: 'center', maxWidth: 380, padding: '0 8px' } as any}>
+          <Typewriter text={slide.title} speed={35} delay={400} />
+        </div>
+
+        {/* Subtitle */}
+        <p className="anim-up d3" style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', textAlign: 'center', maxWidth: 340, lineHeight: 1.7, margin: 0 } as any}>
+          {slide.subtitle}
+        </p>
+
+        {/* Chips for video slide */}
+        {slide.chips && (
+          <div className="anim-up d4" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' } as any}>
+            {slide.chips.map(c => (
+              <span key={c} style={{ padding: '8px 14px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 500 } as any}>{c}</span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Bottom: dots + button */}
+      <div style={{ padding: '0 20px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, position: 'relative', zIndex: 10 } as any}>
+        {/* Dots */}
+        <div style={{ display: 'flex', gap: 6 } as any}>
+          {SLIDES.map((_, i) => (
+            <div key={i} style={{
+              width: i === current ? 24 : 6, height: 6, borderRadius: 3,
+              backgroundColor: i === current ? '#FFF' : 'rgba(255,255,255,0.15)',
+              transition: 'all 0.35s cubic-bezier(.4,0,.15,1)',
+            }} />
+          ))}
+        </div>
+
+        {/* Glass blur button (Apple iOS style) */}
+        <button onClick={next} className="btn-scan" data-testid="onboarding-next-btn" style={{
+          width: '100%', maxWidth: 380, padding: '18px 32px', fontSize: 16, fontWeight: 600,
+          fontFamily: 'inherit', cursor: 'pointer',
+          background: 'rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(20px) saturate(150%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+          color: '#FFF',
+          border: '1px solid rgba(255,255,255,0.15)',
+          borderRadius: 999,
+          boxShadow: '0 0 30px rgba(255,255,255,0.06), inset 0 0 0 1px rgba(255,255,255,0.08)',
+          transition: 'all 0.3s cubic-bezier(.4,0,.15,1)',
+          position: 'relative', overflow: 'hidden',
+        } as any}>
+          {isLast ? 'Commencer' : 'Suivant'}
+        </button>
+      </div>
+
+      {/* Extra CSS for this page */}
+      <style>{`
+        @keyframes scan-line {
+          0% { transform: translateY(-60%); opacity: 0; }
+          20% { opacity: 0.3; }
+          50% { opacity: 0.5; }
+          80% { opacity: 0.3; }
+          100% { transform: translateY(60%); opacity: 0; }
+        }
+      `}</style>
+    </div>
   );
 }
