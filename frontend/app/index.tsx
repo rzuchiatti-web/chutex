@@ -281,14 +281,12 @@ export default function AuthScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }} data-testid="auth-screen">
-      {/* BG Image — pointerEvents none so it doesn't block clicks */}
-      {Platform.OS === 'web' ? (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', backgroundImage: `url(${BG})`, backgroundSize: 'cover', backgroundPosition: 'center' } as any} />
-      ) : (
+      {/* BG set via CSS injection to avoid div blocking clicks */}
+      {Platform.OS !== 'web' && (
         <Image source={{ uri: BG }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }} resizeMode="cover" />
       )}
 
-      <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }], zIndex: 2 } as any}>
+      <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 20, paddingVertical: 40, maxWidth: 440, width: '100%', alignSelf: 'center' }}
           keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 
