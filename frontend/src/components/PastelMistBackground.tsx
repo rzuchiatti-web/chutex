@@ -98,11 +98,12 @@ export function PastelMistBackground() {
       .glass-pill {
         display: inline-flex; align-items: center; gap: 8px;
         padding: 8px 18px; border-radius: 999px;
-        background: rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.06);
         backdrop-filter: blur(12px) saturate(120%);
         -webkit-backdrop-filter: blur(12px) saturate(120%);
-        border: 1px solid rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.1);
         font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+        animation: glow-breathe 3s ease-in-out infinite;
       }
       .glass-pill-light {
         background: rgba(255,255,255,0.7);
