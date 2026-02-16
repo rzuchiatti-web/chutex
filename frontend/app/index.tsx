@@ -280,11 +280,11 @@ export default function AuthScreen() {
 
   return (
     <View style={{ flex: 1 }} data-testid="auth-screen">
-      {/* BG — visible, only slightly dimmed */}
+      {/* BG Image — clearly visible, the glass panels handle contrast */}
       {Platform.OS === 'web' ? (
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${BG})`, backgroundSize: 'cover', backgroundPosition: 'center 35%', filter: 'brightness(0.85) saturate(1.05)' } as any} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${BG})`, backgroundSize: 'cover', backgroundPosition: 'center 35%' } as any} />
       ) : (
-        <Image source={{ uri: BG }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', opacity: 0.7 }} resizeMode="cover" />
+        <Image source={{ uri: BG }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }} resizeMode="cover" />
       )}
 
       <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
