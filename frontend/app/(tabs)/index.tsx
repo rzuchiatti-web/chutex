@@ -211,7 +211,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <LanguageFlagButton />
             <TouchableOpacity testID="notification-bell" onPress={() => setShowNotifs(!showNotifs)} style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center' }}>
-              <Icon name="notifications-outline" size={18} color="#FFF" />
+              <Icon name="notifications-outline" size={18} color="#111827" />
               {(guardianRequests.length > 0 || activeAlerts.length > 0) && <View style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)' }} />}
             </TouchableOpacity>
           </View>
@@ -583,7 +583,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <LanguageFlagButton />
             <TouchableOpacity testID="guardian-notification-bell" onPress={() => setShowNotifsG(!showNotifsG)} style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center' }}>
-              <Icon name="notifications-outline" size={18} color="#FFF" />
+              <Icon name="notifications-outline" size={18} color="#111827" />
               {(invitations.length > 0 || pendingInterventions.length > 0 || activeAlertsG.length > 0) && <View style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)' }} />}
             </TouchableOpacity>
           </View>
