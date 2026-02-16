@@ -4,7 +4,8 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { Palette, Radius, Space, Type } from '../src/constants/colors';
+import { useTheme } from '../src/context/ThemeContext';
+import { Radius, Space, Type } from '../src/constants/colors';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = Math.min(SCREEN_W - 48, 380);
