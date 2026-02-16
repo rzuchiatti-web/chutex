@@ -3,7 +3,6 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshCon
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ContextualTip, OnboardingChecklist, HelpBubble, MiniTuto, PageExplainer } from '../../src/components/HelpSystem';
 import { DoctorCard } from '../../src/components/DoctorCard';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Icon, MCIcon } from '../../src/components/WebIcon';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
@@ -25,23 +24,73 @@ const REMINDER_IMAGES = {
   alarm: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/hzoi0qcr_alarmes.png',
 };
 
-const glassStyle = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 2px 16px rgba(0,0,0,0.06)' } : {};
+const webShadow = Platform.OS === 'web' ? { boxShadow: '0 2px 20px rgba(28,25,23,0.05), 0 0 0 1px rgba(28,25,23,0.02)' } : { shadowColor: '#1C1917', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 2 };
+const webGlass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } : {};
 
-const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 16, marginBottom: 12, ...glassStyle }, style]}>{children}</View>
+/* ─── PREMIUM CARD ─── */
+const Card = ({ children, style, testID }: any) => (
+  <View testID={testID} style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(28,25,23,0.06)', padding: 18, marginBottom: 14, ...webShadow }, style]}>{children}</View>
 );
 
-const HealthBadge = ({ status }: { status: string }) => (
-  <View style={{ backgroundColor: 'rgba(16,185,129,0.10)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start', marginTop: 6 }}>
-    <Text style={{ fontSize: 10, fontWeight: '800', color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>{status}</Text>
+/* ─── HERO GRADIENT CARD (web only renders as warm bg) ─── */
+const HeroCard = ({ children, style }: any) => (
+  <View style={[{
+    borderRadius: 28, padding: 24, marginBottom: 16, overflow: 'hidden',
+    backgroundColor: '#D4845A',
+    ...(Platform.OS === 'web' ? {
+      background: 'linear-gradient(135deg, #D4845A 0%, #E8A87C 40%, #F5CBA7 100%)',
+      backgroundSize: '200% 200%',
+      boxShadow: '0 8px 32px rgba(198,122,79,0.2)',
+    } : {}),
+  }, style]}>{children}</View>
+);
+
+/* ─── WARM STATUS BADGE ─── */
+const StatusBadge = ({ label, color }: { label: string; color?: string }) => (
+  <View style={{ backgroundColor: color ? `${color}15` : 'rgba(16,185,129,0.10)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 99, alignSelf: 'flex-start', marginTop: 6 }}>
+    <Text style={{ fontSize: 10, fontWeight: '700', color: color || '#10B981', letterSpacing: 0.5, textTransform: 'uppercase' }}>{label}</Text>
   </View>
 );
 
-const BlackButton = ({ label, icon, onPress, testID }: any) => (
-  <TouchableOpacity testID={testID} style={{ backgroundColor: '#1A1D21', borderRadius: 9999, paddingVertical: 16, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.12)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 6 }) }} onPress={onPress}>
-    <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '700' }}>{label}</Text>
-    {icon && <Icon name={icon} size={18} color="#FFF" />}
+/* ─── PILL BUTTON (primary dark) ─── */
+const PillButton = ({ label, icon, onPress, testID, variant = 'dark' }: any) => {
+  const bg = variant === 'warm' ? '#C67A4F' : '#1C1917';
+  return (
+    <TouchableOpacity testID={testID} activeOpacity={0.85} style={{
+      backgroundColor: bg, borderRadius: 9999, paddingVertical: 16, paddingHorizontal: 24,
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 14,
+      ...(Platform.OS === 'web' ? { boxShadow: `0 4px 16px ${variant === 'warm' ? 'rgba(198,122,79,0.25)' : 'rgba(28,25,23,0.15)'}`, transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)' } : { shadowColor: bg, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 12, elevation: 6 }),
+    }} onPress={onPress}>
+      {icon && <Icon name={icon} size={18} color="#FFF" />}
+      <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '700' }}>{label}</Text>
+    </TouchableOpacity>
+  );
+};
+
+/* ─── QUICK ACTION CIRCLE ─── */
+const QuickAction = ({ icon, label, onPress, color = '#F3EDE6' }: any) => (
+  <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ alignItems: 'center', flex: 1 }}>
+    <View style={{
+      width: 56, height: 56, borderRadius: 20, backgroundColor: color, justifyContent: 'center', alignItems: 'center',
+      marginBottom: 8, borderWidth: 1, borderColor: 'rgba(28,25,23,0.04)',
+      ...(Platform.OS === 'web' ? { transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)' } : {}),
+    }}>
+      <Icon name={icon} size={22} color="#1C1917" />
+    </View>
+    <Text style={{ fontSize: 11, fontWeight: '600', color: '#78716C', textAlign: 'center' }}>{label}</Text>
   </TouchableOpacity>
+);
+
+/* ─── SECTION HEADER ─── */
+const SectionHeader = ({ title, action, onAction }: any) => (
+  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, marginTop: 8 }}>
+    <Text style={{ fontSize: 17, fontWeight: '800', color: '#1C1917', letterSpacing: -0.3 }}>{title}</Text>
+    {action && (
+      <TouchableOpacity onPress={onAction}>
+        <Text style={{ fontSize: 13, fontWeight: '600', color: '#C67A4F' }}>{action}</Text>
+      </TouchableOpacity>
+    )}
+  </View>
 );
 
 /* ───── LANGUAGE FLAG PICKER ───── */
@@ -51,23 +100,18 @@ function LanguageFlagButton() {
   const current = flags.find(f => f.code === lang) || flags[0];
   return (
     <View style={{ position: 'relative', zIndex: 9999 }}>
-      <TouchableOpacity
-        testID="lang-flag-btn"
-        style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: current.color, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)' }}
-        onPress={() => setOpen(!open)}
-      >
+      <TouchableOpacity testID="lang-flag-btn" style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: current.color, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)' }} onPress={() => setOpen(!open)}>
         <Text style={{ fontSize: 10, fontWeight: '900', color: '#FFF' }}>{current.code}</Text>
       </TouchableOpacity>
       {open && (
-        <View style={{ position: 'absolute', top: 38, right: 0, backgroundColor: '#FFFFFF', borderRadius: 14, padding: 6, minWidth: 120, zIndex: 99999, ...( Platform.OS === 'web' ? { boxShadow: '0 8px 24px rgba(0,0,0,0.5)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 10 }) }}>
+        <View style={{ position: 'absolute', top: 40, right: 0, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 8, minWidth: 130, zIndex: 99999, ...webShadow, ...(Platform.OS === 'web' ? { boxShadow: '0 8px 32px rgba(28,25,23,0.12)' } : {}) }}>
           {flags.map(f => (
-            <TouchableOpacity key={f.code} testID={`lang-option-${f.code}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, backgroundColor: lang === f.code ? 'rgba(255,255,255,0.08)' : 'transparent', zIndex: 99999 }}
-              onPress={() => { setLang(f.code); setOpen(false); }}>
-              <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: f.color, justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity key={f.code} testID={`lang-option-${f.code}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 10, backgroundColor: lang === f.code ? 'rgba(198,122,79,0.08)' : 'transparent' }} onPress={() => { setLang(f.code); setOpen(false); }}>
+              <View style={{ width: 24, height: 24, borderRadius: 8, backgroundColor: f.color, justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontSize: 8, fontWeight: '800', color: '#FFF' }}>{f.code}</Text>
               </View>
-              <Text style={{ fontSize: 13, fontWeight: lang === f.code ? '700' : '500', color: '#1A1D21' }}>{f.code}</Text>
-              {lang === f.code && <Icon name="checkmark" size={14} color="#1A1D21" />}
+              <Text style={{ fontSize: 13, fontWeight: lang === f.code ? '700' : '500', color: '#1C1917' }}>{f.code}</Text>
+              {lang === f.code && <Icon name="checkmark" size={14} color="#C67A4F" />}
             </TouchableOpacity>
           ))}
         </View>
@@ -76,10 +120,11 @@ function LanguageFlagButton() {
   );
 }
 
-/* ───── BENEFICIARY ───── */
+/* ═══════════════════════════════════════════════════════ */
+/*                    BENEFICIARY HOME                     */
+/* ═══════════════════════════════════════════════════════ */
 function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
-  const { colors } = useTheme();
   const { t } = useI18n();
   const [vitals, setVitals] = useState<any>(null);
   const [rec, setRec] = useState('');
@@ -99,8 +144,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   useEffect(() => {
     Animated.loop(Animated.sequence([
-      Animated.timing(sosPulse, { toValue: 1.05, duration: 800, useNativeDriver: true }),
-      Animated.timing(sosPulse, { toValue: 1, duration: 800, useNativeDriver: true }),
+      Animated.timing(sosPulse, { toValue: 1.04, duration: 1000, useNativeDriver: true }),
+      Animated.timing(sosPulse, { toValue: 1, duration: 1000, useNativeDriver: true }),
     ])).start();
   }, []);
 
@@ -124,7 +169,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       setBraceletData(brac);
       setGuardians(Array.isArray(guards) ? guards : []);
       setGuardianRequests(Array.isArray(greqs) ? greqs : []);
-      // Fetch active alerts separately
       try {
         const aa = await apiFetch('/api/alerts/active-with-interventions', {}, token);
         setActiveAlerts(Array.isArray(aa) ? aa : []);
@@ -134,16 +178,14 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   useEffect(() => { fetchData(); const iv = setInterval(fetchData, 30000); return () => clearInterval(iv); }, [fetchData]);
   useEffect(() => { requestNotificationPermission(); }, []);
-  useEffect(() => {
-    if (reminders.length > 0) { const cleanup = startReminderChecker(reminders); return cleanup; }
-  }, [reminders]);
+  useEffect(() => { if (reminders.length > 0) { const cleanup = startReminderChecker(reminders); return cleanup; } }, [reminders]);
 
   const handleSOS = async () => {
     setSosLoading(true);
     try {
       await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'sos', severity: 'critical', message: 'SOS - Aide requise immediatement!', device_type: 'bracelet' }) }, token);
       notifyAlert('sos', 'SOS envoye ! Vos gardiens et la teleassistance ont ete alertes.');
-      Alert.alert('Alerte SOS envoyee', 'Nous avons bien recu votre alerte.\n\nVoici ce qui se passe maintenant :\n1. Vos gardiens sont immediatement alertes\n2. La teleassistance IA vous appelle pour verifier votre etat\n3. Si besoin, un intervenant sera envoye chez vous');
+      Alert.alert('Alerte SOS envoyee', 'Nous avons bien recu votre alerte.\n\n1. Vos gardiens sont alertes\n2. La teleassistance IA vous appelle\n3. Un intervenant sera envoye si besoin');
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSosLoading(false); }
   };
 
@@ -154,203 +196,191 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       if (user.has_guardian_space) {
         await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'guardian' }) }, token);
         await refreshUser();
-      } else {
-        router.push('/activate-guardian' as any);
-      }
+      } else { router.push('/activate-guardian' as any); }
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSwitching(false); }
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color="#1A1D21" /></View>;
-
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAF8F5' }}><ActivityIndicator size="large" color="#C67A4F" /></View>;
   const activeReminders = reminders.filter((r: any) => r.active);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F6F8' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#1A1D21" />} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#FAF8F5' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#C67A4F" />} showsVerticalScrollIndicator={false}>
 
-      {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
-        <TouchableOpacity testID="beneficiary-header-switch" style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={switchToGuardian}>
-          <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#1A1D21', justifyContent: 'center', alignItems: 'center', marginRight: 12, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
-            {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 48, height: 48 }} /> : <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>}
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 18, fontWeight: '800', color: '#1A1D21' }}>{user.name}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <View style={{ backgroundColor: '#10B981', width: 6, height: 6, borderRadius: 3 }} />
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', letterSpacing: 0.5 }}>{t('beneficiary').toUpperCase()}</Text>
-              {user.has_guardian_space && <Text style={{ fontSize: 10, color: '#9BA3AD' }}> | {t('guardian')}</Text>}
+      {/* ─── HERO GRADIENT ─── */}
+      <HeroCard>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+          <TouchableOpacity testID="beneficiary-header-switch" style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={switchToGuardian}>
+            <View style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.25)', justifyContent: 'center', alignItems: 'center', marginRight: 12, overflow: 'hidden', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(10px)' } : {}) }}>
+              {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 48, height: 48 }} /> : <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>}
             </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontWeight: '600' }}>{t('beneficiary')}</Text>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>{user.name}</Text>
+            </View>
+          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <LanguageFlagButton />
+            <TouchableOpacity testID="notification-bell" onPress={() => setShowNotifs(!showNotifs)} style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' }}>
+              <Icon name="notifications-outline" size={18} color="#FFF" />
+              {(guardianRequests.length > 0 || activeAlerts.length > 0) && <View style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)' }} />}
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-        <LanguageFlagButton />
-        <TouchableOpacity testID="notification-bell" onPress={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F0F1F3', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginLeft: 8 }}>
-          <Icon name="notifications-outline" size={18} color="#5A6068" />
-          {(guardianRequests.length > 0 || activeAlerts.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: 'rgba(0,0,0,0.06)' }} />}
-        </TouchableOpacity>
-      </View>
+        </View>
 
-      {/* Notifications Dropdown */}
+        {/* Inline vitals summary */}
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {[
+            { val: vitals?.heart_rate || '--', label: 'BPM', icon: 'heart-pulse' },
+            { val: vitals?.spo2 ? `${vitals.spo2}%` : '--', label: 'SpO2', icon: 'water-outline' },
+            { val: vitals?.steps || '0', label: t('steps'), icon: 'pulse-outline' },
+          ].map((v, i) => (
+            <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 16, padding: 12, alignItems: 'center', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(8px)' } : {}) }}>
+              <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFF' }}>{v.val}</Text>
+              <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', fontWeight: '600', marginTop: 2 }}>{v.label}</Text>
+            </View>
+          ))}
+        </View>
+      </HeroCard>
+
+      {/* ─── NOTIFICATIONS DROPDOWN ─── */}
       {showNotifs && (
-        <GlassCard style={{ marginBottom: 12, borderLeftWidth: 4, borderLeftColor: '#2196F3' }}>
+        <Card style={{ borderLeftWidth: 3, borderLeftColor: '#C67A4F' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#1A1D21' }}>Notifications</Text>
-            <TouchableOpacity onPress={() => setShowNotifs(false)}><Icon name="close" size={18} color="#888" /></TouchableOpacity>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: '#1C1917' }}>Notifications</Text>
+            <TouchableOpacity onPress={() => setShowNotifs(false)}><Icon name="close" size={18} color="#A8A29E" /></TouchableOpacity>
           </View>
           {activeAlerts.length === 0 && guardianRequests.length === 0 && (
-            <Text style={{ fontSize: 12, color: '#5A6068', textAlign: 'center', paddingVertical: 8 }}>Aucune notification</Text>
+            <Text style={{ fontSize: 12, color: '#78716C', textAlign: 'center', paddingVertical: 8 }}>Aucune notification</Text>
           )}
           {activeAlerts.map((a: any) => (
-            <TouchableOpacity key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}
+            <TouchableOpacity key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(28,25,23,0.04)' }}
               onPress={() => { setShowNotifs(false); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }}>
-              <Icon name="alert-circle" size={16} color="#E53935" />
+              <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(239,68,68,0.08)', justifyContent: 'center', alignItems: 'center' }}>
+                <Icon name="alert-circle" size={16} color="#EF4444" />
+              </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: '#1A1D21' }}>{a.message}</Text>
-                <Text style={{ fontSize: 10, color: '#5A6068' }}>{a.incident_state || a.teleassistance_status}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#1C1917' }}>{a.message}</Text>
+                <Text style={{ fontSize: 11, color: '#78716C' }}>{a.incident_state || a.teleassistance_status}</Text>
               </View>
             </TouchableOpacity>
           ))}
           {guardianRequests.map((req: any) => (
-            <View key={req.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8 }}>
-              <Icon name="person-add" size={16} color="#FF9800" />
-              <Text style={{ fontSize: 12, color: '#1A1D21', flex: 1 }}>{req.guardian_name} veut devenir gardien</Text>
+            <View key={req.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 }}>
+              <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(245,158,11,0.08)', justifyContent: 'center', alignItems: 'center' }}>
+                <Icon name="person-add" size={16} color="#F59E0B" />
+              </View>
+              <Text style={{ fontSize: 13, color: '#1C1917', flex: 1 }}>{req.guardian_name} veut devenir gardien</Text>
             </View>
           ))}
-        </GlassCard>
+        </Card>
       )}
 
-      {/* Active Alerts Banner */}
+      {/* ─── ACTIVE ALERTS ─── */}
       {activeAlerts.map((a: any) => (
         <TouchableOpacity key={a.id} testID={`active-alert-${a.id}`} onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
-          <GlassCard style={{ backgroundColor: 'rgba(229,57,53,0.08)', borderLeftWidth: 4, borderLeftColor: '#E53935', padding: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E53935', justifyContent: 'center', alignItems: 'center' }}>
-                <Icon name="alert-circle" size={20} color="#1A1D21" />
+          <Card style={{ backgroundColor: 'rgba(239,68,68,0.04)', borderLeftWidth: 3, borderLeftColor: '#EF4444', padding: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: '#EF4444', justifyContent: 'center', alignItems: 'center' }}>
+                <Icon name="alert-circle" size={22} color="#FFF" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 14, fontWeight: '900', color: '#E53935', textTransform: 'uppercase' }}>ALERTE EN COURS</Text>
-                <Text style={{ fontSize: 12, color: '#1A1D21', marginTop: 2 }}>{a.message}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#EF4444', textTransform: 'uppercase', letterSpacing: 0.5 }}>ALERTE EN COURS</Text>
+                <Text style={{ fontSize: 13, color: '#1C1917', marginTop: 2 }}>{a.message}</Text>
               </View>
-              <Text style={{ fontSize: 10, color: '#5A6068' }}>{new Date(a.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</Text>
             </View>
-            <View style={{ backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 12, padding: 10 }}>
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 12 }}>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#78716C', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                 {a.incident_state === 'CARE_DISPATCHED' ? 'INTERVENANT EN ROUTE' : a.incident_state === 'CALLING_PATIENT' ? 'APPEL EN COURS' : a.incident_state === 'RESOLVED' ? 'RESOLUE' : a.teleassistance_status || 'EN COURS'}
               </Text>
               {a.intervener_info && (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 }}>
-                  <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
-                    <Icon name="person" size={14} color="#1A1D21" />
-                  </View>
-                  <View>
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A1D21' }}>{a.intervener_info.name}</Text>
-                    <Text style={{ fontSize: 10, color: '#5A6068' }}>{a.intervener_info.structure}</Text>
-                  </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                  <View style={{ width: 28, height: 28, borderRadius: 10, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}><Icon name="person" size={14} color="#FFF" /></View>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#1C1917' }}>{a.intervener_info.name}</Text>
                 </View>
               )}
-              {a.intervention && !a.intervener_info && (
-                <Text style={{ fontSize: 12, color: '#555', marginTop: 4 }}>Intervention en attente d'acceptation</Text>
-              )}
             </View>
-          </GlassCard>
+          </Card>
         </TouchableOpacity>
       ))}
 
-      {/* Devices Status */}
-      <GlassCard style={{ padding: 14 }}>
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }} onPress={() => router.push('/bracelet-connect')}>
-          <View style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-            <Icon name="watch-outline" size={22} color="#000" />
+      {/* ─── QUICK ACTIONS ─── */}
+      <SectionHeader title="Actions rapides" />
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+        <QuickAction icon="pulse-outline" label="ECG" onPress={() => router.push('/ecg')} color="rgba(198,122,79,0.10)" />
+        <QuickAction icon="locate-outline" label="Zones" onPress={() => router.push('/geofencing')} color="rgba(16,185,129,0.10)" />
+        <QuickAction icon="qr-code-outline" label="QR Code" onPress={() => router.push('/link-code')} color="rgba(124,92,255,0.10)" />
+        <QuickAction icon="time" label="Rappels" onPress={() => router.push('/reminders')} color="rgba(245,158,11,0.10)" />
+      </View>
+
+      {/* ─── DEVICES STATUS ─── */}
+      <Card style={{ padding: 16 }}>
+        <TouchableOpacity data-testid="device-bracelet" style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }} onPress={() => router.push('/bracelet-connect')}>
+          <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(198,122,79,0.08)', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+            <Icon name="watch-outline" size={22} color="#C67A4F" />
             {braceletData?.connected && <View style={{ position: 'absolute', top: 2, right: 2, width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />}
           </View>
-          {braceletData?.battery > 0 && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12 }}>
-              <Icon name="battery-dead" size={16} color="#E53935" />
-              <Text style={{ fontSize: 13, fontWeight: '800', color: '#E53935', marginLeft: 2 }}>{braceletData.battery}%</Text>
-            </View>
-          )}
-          <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A1D21', flex: 1 }}>Bracelet Elio</Text>
-          <Icon name="chevron-forward" size={16} color="#888" />
-        </TouchableOpacity>
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => router.push('/vest-connect')}>
-          <View style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-            <Icon name="shield-outline" size={22} color="#000" />
-            {vestData?.connected && <View style={{ position: 'absolute', top: 2, right: 2, width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />}
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#1C1917' }}>Bracelet Elio</Text>
+            {braceletData?.battery > 0 && <Text style={{ fontSize: 11, color: '#EF4444', fontWeight: '600' }}>{braceletData.battery}% batterie</Text>}
           </View>
-          <Text style={{ fontSize: 12, color: '#5A6068', fontWeight: '600', flex: 1 }}>Gilet Anti-Chute</Text>
-          <Icon name="chevron-forward" size={16} color="#888" />
+          <Icon name="chevron-forward" size={16} color="#A8A29E" />
         </TouchableOpacity>
-      </GlassCard>
+        <View style={{ height: 1, backgroundColor: 'rgba(28,25,23,0.04)', marginBottom: 12 }} />
+        <TouchableOpacity data-testid="device-vest" style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => router.push('/vest-connect')}>
+          <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.08)', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+            <Icon name="shield-outline" size={22} color="#10B981" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#1C1917' }}>Gilet Anti-Chute</Text>
+            <Text style={{ fontSize: 11, color: '#78716C' }}>{vestData?.connected ? 'Connecte' : 'Non connecte'}</Text>
+          </View>
+          <Icon name="chevron-forward" size={16} color="#A8A29E" />
+        </TouchableOpacity>
+      </Card>
 
-      {/* Guardians Card */}
-      <GlassCard style={{ padding: 14 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: guardians.length > 0 ? 10 : 0 }}>
-          <View style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-            <Icon name="people" size={22} color="#000" />
-          </View>
-          <Text style={{ fontSize: 14, fontWeight: '800', color: '#1A1D21', flex: 1 }}>{guardians.length} {t('guardians')}</Text>
-          <TouchableOpacity onPress={() => router.push('/link-code')} style={{ padding: 4 }}>
-            <Icon name="add-circle-outline" size={22} color="#000" />
-          </TouchableOpacity>
-        </View>
+      {/* ─── GUARDIANS ─── */}
+      <SectionHeader title={`${guardians.length} ${t('guardians')}`} action="Ajouter" onAction={() => router.push('/link-code')} />
+      <Card style={{ padding: 16 }}>
         {guardians.map((g: any, i: number) => (
-          <TouchableOpacity key={g.id || i} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: i > 0 ? 0.5 : 0, borderTopColor: 'rgba(0,0,0,0.06)' }} onPress={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })}>
-            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: ['#FFB74D', '#4FC3F7', '#AED581', '#FF8A65', '#CE93D8'][i % 5], justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>{g.name?.charAt(0)}</Text>
+          <TouchableOpacity key={g.id || i} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderTopWidth: i > 0 ? 0.5 : 0, borderTopColor: 'rgba(28,25,23,0.06)' }} onPress={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })}>
+            <View style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: ['rgba(198,122,79,0.12)', 'rgba(79,195,247,0.12)', 'rgba(174,213,129,0.12)', 'rgba(255,138,101,0.12)', 'rgba(206,147,216,0.12)'][i % 5], justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: ['#C67A4F', '#4FC3F7', '#66BB6A', '#FF8A65', '#CE93D8'][i % 5] }}>{g.name?.charAt(0)}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A1D21' }}>{g.name}</Text>
-              <Text style={{ fontSize: 11, color: '#5A6068' }}>{g.relationship || g.profession || g.guardian_type || t('guardian')}{g.structure_name ? ` - ${g.structure_name}` : ''}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#1C1917' }}>{g.name}</Text>
+              <Text style={{ fontSize: 11, color: '#78716C' }}>{g.relationship || g.profession || t('guardian')}</Text>
             </View>
-            <Icon name="chevron-forward" size={16} color="#888" />
+            <Icon name="chevron-forward" size={16} color="#A8A29E" />
           </TouchableOpacity>
         ))}
-        {guardians.length === 0 && <Text style={{ fontSize: 12, color: '#5A6068', textAlign: 'center', paddingVertical: 8 }}>Aucun gardien</Text>}
-      </GlassCard>
+        {guardians.length === 0 && <Text style={{ fontSize: 13, color: '#78716C', textAlign: 'center', paddingVertical: 12 }}>Aucun gardien pour le moment</Text>}
+      </Card>
 
-      {/* Guardian Requests */}
-      {guardianRequests.length > 0 && guardianRequests.map((req: any) => (
-        <GlassCard key={req.id} style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
-          <Text style={{ fontSize: 11, fontWeight: '800', color: '#FF9800', textTransform: 'uppercase', letterSpacing: 1 }}>{t('guardian_request')}</Text>
-          <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21', marginTop: 4 }}>{req.guardian_name}</Text>
-          <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 2 }}>Souhaite devenir votre gardien</Text>
-          <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+      {/* ─── GUARDIAN REQUESTS ─── */}
+      {guardianRequests.map((req: any) => (
+        <Card key={req.id} style={{ borderLeftWidth: 3, borderLeftColor: '#F59E0B' }}>
+          <Text style={{ fontSize: 11, fontWeight: '700', color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 1 }}>{t('guardian_request')}</Text>
+          <Text style={{ fontSize: 17, fontWeight: '800', color: '#1C1917', marginTop: 4 }}>{req.guardian_name}</Text>
+          <Text style={{ fontSize: 12, color: '#78716C', marginTop: 2 }}>Souhaite devenir votre gardien</Text>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
             <TouchableOpacity testID={`accept-guardian-${req.id}`} style={{ flex: 1, backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
               onPress={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/accept`, { method: 'POST' }, token); Alert.alert('Accepte', `${req.guardian_name} est maintenant votre gardien.`); fetchData(); } catch (e: any) { Alert.alert('Erreur', e.message); } }}>
-              <Text style={{ color: '#1A1D21', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>{t('accept')}</Text>
+              <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>{t('accept')}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)' }}
+            <TouchableOpacity style={{ flex: 1, backgroundColor: '#F3EDE6', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
               onPress={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }}>
-              <Text style={{ color: '#5A6068', fontSize: 13, fontWeight: '700', textTransform: 'uppercase' }}>{t('reject')}</Text>
+              <Text style={{ color: '#78716C', fontSize: 13, fontWeight: '700' }}>{t('reject')}</Text>
             </TouchableOpacity>
           </View>
-        </GlassCard>
+        </Card>
       ))}
 
-      {/* Contextual Tips */}
-      <ContextualTip id="sos-tip" icon="shield-checkmark-outline" text="En cas d'urgence, appuyez sur le bouton SOS ci-dessous. Vos gardiens seront immediatement alertes et, si vous avez un abonnement Care, la teleassistance vous appellera pour verifier votre etat." color="#E53935" />
-
-      {/* Doctor Teleconsultation Card */}
-      <DoctorCard onPress={() => router.push('/(tabs)/teleconsult')} />
-
-      {/* Mini Tuto */}
-      <MiniTuto id="beneficiary-intro" triggerLabel="Comment utiliser l'application ?" steps={[
-        { title: 'Bienvenue sur Chutex', text: 'Votre espace personnel pour surveiller votre sante au quotidien. Decouvrez les fonctionnalites principales en quelques etapes.', icon: 'home-outline' },
-        { title: 'Bouton SOS', text: 'En cas de chute ou de malaise, appuyez sur le gros bouton rouge SOS. Vos gardiens seront immediatement alertes et un intervenant peut etre envoye chez vous.', icon: 'alert-circle-outline' },
-        { title: 'Suivi de sante', text: 'Consultez vos constantes vitales (rythme cardiaque, SpO2, temperature) mises a jour en temps reel par vos appareils connectes.', icon: 'heart-outline' },
-        { title: 'Vos gardiens', text: 'Vos proches designes comme gardiens recoivent les alertes et peuvent suivre votre etat. Ajoutez-en via le bouton "+" dans la section gardiens.', icon: 'people-outline' },
-      ]} />
-
-      {/* Onboarding Checklist */}
-      <OnboardingChecklist title="Configurez votre espace" items={[
-        { label: 'Completer votre profil medical', done: !!(user.medical_conditions || user.allergies || user.blood_type), action: () => router.push('/profile') },
-        { label: 'Ajouter au moins un gardien', done: (guardians || []).length > 0 },
-        { label: 'Connecter un appareil (bracelet, gilet)', done: false, action: () => router.push('/(tabs)/devices') },
-        { label: 'Verifier vos seuils d\'alerte sante', done: false, action: () => router.push('/(tabs)/health') },
-      ]} />
-
-      {/* SOS Button */}
+      {/* ─── SOS BUTTON ─── */}
       <Animated.View style={{ transform: [{ scale: sosPulse }], marginBottom: 16 }}>
-        <TouchableOpacity testID="sos-button" style={{ backgroundColor: '#E53935', borderRadius: 22, paddingVertical: 20, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(229,57,53,0.3)' }} onPress={handleSOS} disabled={sosLoading} activeOpacity={0.8}>
+        <TouchableOpacity testID="sos-button" activeOpacity={0.85} style={{
+          backgroundColor: '#EF4444', borderRadius: 24, paddingVertical: 22, alignItems: 'center',
+          ...(Platform.OS === 'web' ? { boxShadow: '0 4px 24px rgba(239,68,68,0.3)' } : { shadowColor: '#EF4444', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 8 }),
+        }} onPress={handleSOS} disabled={sosLoading}>
           {sosLoading ? <ActivityIndicator color="#FFF" size="large" /> : (
             <>
               <Icon name="alert-circle" size={32} color="#FFF" />
@@ -361,141 +391,140 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </TouchableOpacity>
       </Animated.View>
 
-      {/* Health Categories Grid */}
+      {/* ─── HEALTH CATEGORIES ─── */}
+      <SectionHeader title={t('heart_health')} />
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
         {[
-          { key: 'heart', title: t('heart_health'), img: HEALTH_IMAGES.heart, route: '/health-detail', params: { metricId: 'heart_rate' } },
-          { key: 'blood', title: t('blood_health'), img: HEALTH_IMAGES.blood, route: '/health-detail', params: { metricId: 'spo2' } },
-          { key: 'sleep', title: t('sleep_health'), img: HEALTH_IMAGES.sleep, route: '/sleep' },
-          { key: 'physical', title: t('physical_health'), img: HEALTH_IMAGES.physical, route: '/health-detail', params: { metricId: 'temperature' } },
+          { key: 'heart', title: t('heart_health'), img: HEALTH_IMAGES.heart, route: '/health-detail', params: { metricId: 'heart_rate' }, bg: 'rgba(239,68,68,0.06)' },
+          { key: 'blood', title: t('blood_health'), img: HEALTH_IMAGES.blood, route: '/health-detail', params: { metricId: 'spo2' }, bg: 'rgba(198,122,79,0.06)' },
+          { key: 'sleep', title: t('sleep_health'), img: HEALTH_IMAGES.sleep, route: '/sleep', bg: 'rgba(124,92,255,0.06)' },
+          { key: 'physical', title: t('physical_health'), img: HEALTH_IMAGES.physical, route: '/health-detail', params: { metricId: 'temperature' }, bg: 'rgba(16,185,129,0.06)' },
         ].map(cat => (
-          <TouchableOpacity key={cat.key} testID={`health-cat-${cat.key}`} style={{ width: '48%', backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', overflow: 'hidden', ...glassStyle }} onPress={() => router.push(cat.params ? { pathname: cat.route as any, params: cat.params } : cat.route as any)}>
-            <View style={{ height: 110, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,235,238,0.3)' }}>
-              <Image source={{ uri: cat.img }} style={{ width: 90, height: 90, resizeMode: 'contain' }} />
+          <TouchableOpacity key={cat.key} testID={`health-cat-${cat.key}`} style={{ width: '48%', backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(28,25,23,0.06)', overflow: 'hidden', ...webShadow }} onPress={() => router.push(cat.params ? { pathname: cat.route as any, params: cat.params } : cat.route as any)}>
+            <View style={{ height: 100, justifyContent: 'center', alignItems: 'center', backgroundColor: cat.bg }}>
+              <Image source={{ uri: cat.img }} style={{ width: 80, height: 80, resizeMode: 'contain' }} />
             </View>
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#1A1D21', textAlign: 'center', paddingVertical: 12, paddingHorizontal: 8 }}>{cat.title}</Text>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#1C1917', textAlign: 'center', paddingVertical: 12, paddingHorizontal: 8 }}>{cat.title}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Quick Vitals */}
+      {/* ─── QUICK VITALS ─── */}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
         {[
-          { id: 'spo2', label: t('spo2'), val: vitals?.spo2 || '--', unit: '%', icon: 'water-outline' },
-          { id: 'heart_rate', label: t('pulse'), val: vitals?.heart_rate || '--', unit: t('bpm'), icon: 'heart-outline' },
-          { id: 'sleep', label: t('sleep'), val: '--', unit: '', icon: 'moon-outline' },
-          { id: 'temperature', label: t('temperature'), val: vitals?.temperature || '--', unit: '', icon: 'thermometer-outline' },
+          { id: 'spo2', label: t('spo2'), val: vitals?.spo2 || '--', unit: '%', icon: 'water-outline', color: '#C67A4F' },
+          { id: 'heart_rate', label: t('pulse'), val: vitals?.heart_rate || '--', unit: t('bpm'), icon: 'heart-outline', color: '#EF4444' },
+          { id: 'sleep', label: t('sleep'), val: '--', unit: '', icon: 'moon-outline', color: '#7C5CFF' },
+          { id: 'temperature', label: t('temperature'), val: vitals?.temperature || '--', unit: '', icon: 'thermometer-outline', color: '#10B981' },
         ].map(v => (
-          <TouchableOpacity key={v.id} testID={`vital-${v.id}`} style={{ width: '48%', backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 14, ...glassStyle }}
-            onPress={() => router.push({ pathname: '/health-detail', params: { metricId: v.id } })}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <View>
-                <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21' }}>{v.label}</Text>
-                <Text style={{ fontSize: 14, color: '#5A6068', marginTop: 2 }}>{v.val}{v.unit ? ` ${v.unit}` : ''}</Text>
+          <TouchableOpacity key={v.id} testID={`vital-${v.id}`} style={{ width: '48%', ...webShadow }} onPress={() => router.push({ pathname: '/health-detail', params: { metricId: v.id } })}>
+            <Card style={{ marginBottom: 0, padding: 16 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <View>
+                  <Text style={{ fontSize: 11, fontWeight: '600', color: '#78716C', textTransform: 'uppercase', letterSpacing: 0.5 }}>{v.label}</Text>
+                  <Text style={{ fontSize: 22, fontWeight: '800', color: '#1C1917', marginTop: 4 }}>{v.val}<Text style={{ fontSize: 13, color: '#A8A29E' }}> {v.unit}</Text></Text>
+                </View>
+                <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: `${v.color}15`, justifyContent: 'center', alignItems: 'center' }}>
+                  <Icon name={v.icon as any} size={16} color={v.color} />
+                </View>
               </View>
-              <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#F5F6F8', justifyContent: 'center', alignItems: 'center' }}>
-                <Icon name={v.icon as any} size={14} color="#1A1D21" />
-              </View>
-            </View>
-            <HealthBadge status={t('good_health')} />
+              <StatusBadge label={t('good_health')} />
+            </Card>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Activity */}
-      <GlassCard>
-        <View style={{ alignItems: 'center', marginBottom: 8 }}>
-          <Image source={{ uri: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/mdk4g3eq_Muscle.png' }} style={{ width: 60, height: 60, resizeMode: 'contain' }} />
+      {/* ─── ACTIVITY CARD ─── */}
+      <Card>
+        <View style={{ alignItems: 'center', marginBottom: 10 }}>
+          <Image source={{ uri: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/mdk4g3eq_Muscle.png' }} style={{ width: 50, height: 50, resizeMode: 'contain' }} />
         </View>
-        <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>{t('physical_activity')}</Text>
+        <Text style={{ fontSize: 16, fontWeight: '800', color: '#1C1917', textAlign: 'center', marginBottom: 14 }}>{t('physical_activity')}</Text>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 16 }}>
           {[
             { val: vitals?.steps || '0', label: t('steps') },
             { val: '0', label: t('kcal') },
             { val: '0', label: t('km') },
           ].map((s, i) => (
-            <View key={i} style={{ alignItems: 'center', flex: 1, borderRightWidth: i < 2 ? 1 : 0, borderColor: 'rgba(0,0,0,0.06)' }}>
-              <Text style={{ fontSize: 28, fontWeight: '900', color: '#1A1D21' }}>{s.val}</Text>
-              <Text style={{ fontSize: 12, color: '#5A6068' }}>{s.label}</Text>
+            <View key={i} style={{ alignItems: 'center', flex: 1, borderRightWidth: i < 2 ? 1 : 0, borderColor: 'rgba(28,25,23,0.06)' }}>
+              <Text style={{ fontSize: 26, fontWeight: '800', color: '#1C1917' }}>{s.val}</Text>
+              <Text style={{ fontSize: 12, color: '#78716C' }}>{s.label}</Text>
             </View>
           ))}
         </View>
-        <View style={{ backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 14, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', flexDirection: 'row', alignItems: 'center' }}>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 12, fontWeight: '800', color: '#1A1D21', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('daily_goal')} | <Text style={{ color: '#E53935' }}>500 KCAL</Text></Text>
-            <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
-              <View style={{ height: 24, backgroundColor: '#10B981', borderRadius: 12, width: '40%', justifyContent: 'center', paddingLeft: 8 }}>
-                <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>0 KCAL</Text>
+        {/* Progress bars */}
+        {[
+          { label: '500 KCAL', current: '0 KCAL', pct: '0%', color: '#C67A4F' },
+          { label: `2000 ${t('steps').toUpperCase()}`, current: `${vitals?.steps || 0} ${t('steps').toUpperCase()}`, pct: `${Math.min(100, ((vitals?.steps || 0) / 2000) * 100)}%`, color: '#10B981' },
+        ].map((bar, i) => (
+          <View key={i} style={{ backgroundColor: '#FAF8F5', borderRadius: 16, padding: 14, marginBottom: i === 0 ? 8 : 0 }}>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#78716C', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>{t('daily_goal')} | <Text style={{ color: bar.color }}>{bar.label}</Text></Text>
+            <View style={{ height: 22, backgroundColor: '#F3EDE6', borderRadius: 11, overflow: 'hidden' }}>
+              <View style={{ height: 22, backgroundColor: bar.color, borderRadius: 11, width: bar.pct, justifyContent: 'center', paddingLeft: 10, minWidth: 40 }}>
+                <Text style={{ fontSize: 9, fontWeight: '700', color: '#FFF' }}>{bar.current}</Text>
               </View>
             </View>
           </View>
-        </View>
-        <View style={{ backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', flexDirection: 'row', alignItems: 'center' }}>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 12, fontWeight: '800', color: '#1A1D21', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('daily_goal')} | <Text style={{ color: '#E53935' }}>2000 {t('steps').toUpperCase()}</Text></Text>
-            <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
-              <View style={{ height: 24, backgroundColor: '#10B981', borderRadius: 12, width: `${Math.min(100, ((vitals?.steps || 0) / 2000) * 100)}%`, justifyContent: 'center', paddingLeft: 8 }}>
-                <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>{vitals?.steps || 0} {t('steps').toUpperCase()}</Text>
-              </View>
+        ))}
+      </Card>
+
+      {/* ─── TELECONSULTATION ─── */}
+      <DoctorCard onPress={() => router.push('/(tabs)/teleconsult')} />
+
+      {/* ─── REMINDERS ─── */}
+      <SectionHeader title="Rappels" action={t('manage_reminders')} onAction={() => router.push('/reminders')} />
+      {[
+        { key: 'hydration', title: t('hydration'), img: REMINDER_IMAGES.hydration, count: activeReminders.filter((r: any) => r.reminder_type === 'hydration').length },
+        { key: 'medication', title: t('treatments'), img: REMINDER_IMAGES.medication, count: activeReminders.filter((r: any) => r.reminder_type === 'medication').length },
+        { key: 'alarm', title: t('alarms'), img: REMINDER_IMAGES.alarm, count: activeReminders.filter((r: any) => r.reminder_type !== 'hydration' && r.reminder_type !== 'medication').length },
+      ].map(cat => (
+        <TouchableOpacity key={cat.key} onPress={() => router.push('/reminders')} activeOpacity={0.8}>
+          <Card style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#1C1917' }}>{cat.title}</Text>
+              <Text style={{ fontSize: 12, color: '#78716C', marginTop: 2 }}>{cat.count} rappel{cat.count !== 1 ? 's' : ''} par jour</Text>
             </View>
-          </View>
-        </View>
-      </GlassCard>
+            <Image source={{ uri: cat.img }} style={{ width: 48, height: 48, resizeMode: 'contain' }} />
+          </Card>
+        </TouchableOpacity>
+      ))}
 
-      {/* Reminders */}
-      <View style={{ marginBottom: 16 }}>
-        {[
-          { key: 'hydration', title: t('hydration'), img: REMINDER_IMAGES.hydration, count: activeReminders.filter((r: any) => r.reminder_type === 'hydration').length },
-          { key: 'medication', title: t('treatments'), img: REMINDER_IMAGES.medication, count: activeReminders.filter((r: any) => r.reminder_type === 'medication').length },
-          { key: 'alarm', title: t('alarms'), img: REMINDER_IMAGES.alarm, count: activeReminders.filter((r: any) => r.reminder_type !== 'hydration' && r.reminder_type !== 'medication').length },
-        ].map(cat => (
-          <TouchableOpacity key={cat.key} onPress={() => router.push('/reminders')} activeOpacity={0.7}>
-            <GlassCard style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>{cat.title}</Text>
-                <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 2 }}>{cat.count} rappel{cat.count !== 1 ? 's' : ''} par jour</Text>
-                <Text style={{ fontSize: 12, fontWeight: '800', color: '#1A1D21', marginTop: 8 }}>{t('time_remaining')} | --:--</Text>
-              </View>
-              <Image source={{ uri: cat.img }} style={{ width: 56, height: 56, resizeMode: 'contain' }} />
-            </GlassCard>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <BlackButton label={t('manage_reminders')} icon="time-outline" onPress={() => router.push('/reminders')} testID="go-reminders" />
-
-      {/* Quick Actions */}
-      <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
-        {[
-          { icon: 'pulse-outline', label: 'ECG', route: '/ecg' },
-          { icon: 'locate-outline', label: 'Zones', route: '/geofencing' },
-          { icon: 'qr-code-outline', label: 'QR', route: '/link-code' },
-        ].map((a, i) => (
-          <TouchableOpacity key={i} style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glassStyle }} onPress={() => router.push(a.route as any)}>
-            <Icon name={a.icon as any} size={22} color="#000" />
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#1A1D21', marginTop: 4 }}>{a.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* AI Recommendation */}
+      {/* ─── AI RECOMMENDATION ─── */}
       {rec ? (
-        <GlassCard>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <Icon name="sparkles" size={16} color="#000" />
-            <Text style={{ fontSize: 13, fontWeight: '800', color: '#1A1D21' }}>Recommandation IA</Text>
+        <Card>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(198,122,79,0.10)', justifyContent: 'center', alignItems: 'center' }}>
+              <Icon name="sparkles" size={16} color="#C67A4F" />
+            </View>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#1C1917' }}>Recommandation IA</Text>
           </View>
-          <Text style={{ fontSize: 12, color: '#555', lineHeight: 18 }} numberOfLines={4}>{rec}</Text>
-        </GlassCard>
+          <Text style={{ fontSize: 13, color: '#78716C', lineHeight: 20 }} numberOfLines={4}>{rec}</Text>
+        </Card>
       ) : null}
+
+      {/* ─── HELP SYSTEM ─── */}
+      <ContextualTip id="sos-tip" icon="shield-checkmark-outline" text="En cas d'urgence, appuyez sur le bouton SOS. Vos gardiens seront alertes et la teleassistance vous appellera." color="#EF4444" />
+      <MiniTuto id="beneficiary-intro" triggerLabel="Comment utiliser l'application ?" steps={[
+        { title: 'Bienvenue sur Care Watch', text: 'Votre espace personnel pour surveiller votre sante au quotidien.', icon: 'home-outline' },
+        { title: 'Bouton SOS', text: 'Appuyez sur le bouton rouge SOS en cas de chute ou malaise.', icon: 'alert-circle-outline' },
+        { title: 'Suivi sante', text: 'Consultez vos constantes vitales mises a jour en temps reel.', icon: 'heart-outline' },
+        { title: 'Gardiens', text: 'Vos proches recoivent les alertes et suivent votre etat.', icon: 'people-outline' },
+      ]} />
+      <OnboardingChecklist title="Configurez votre espace" items={[
+        { label: 'Completer votre profil medical', done: !!(user.medical_conditions || user.allergies || user.blood_type), action: () => router.push('/profile') },
+        { label: 'Ajouter au moins un gardien', done: (guardians || []).length > 0 },
+        { label: 'Connecter un appareil', done: false, action: () => router.push('/(tabs)/devices') },
+        { label: 'Verifier vos seuils d\'alerte', done: false, action: () => router.push('/(tabs)/health') },
+      ]} />
     </ScrollView>
   );
 }
 
-/* ───── GUARDIAN DASHBOARD (REDESIGNED) ───── */
+/* ═══════════════════════════════════════════════════════ */
+/*                    GUARDIAN HOME                         */
+/* ═══════════════════════════════════════════════════════ */
 function GuardianHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
-  const { colors } = useTheme();
   const { t } = useI18n();
   const { refreshUser } = useAuth();
   const [bens, setBens] = useState<any[]>([]);
@@ -539,252 +568,198 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
       if (user.has_beneficiary_space || user.role === 'beneficiary') {
         await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'beneficiary' }) }, token);
         await refreshUser();
-      } else {
-        router.push('/activate-beneficiary' as any);
-      }
+      } else { router.push('/activate-beneficiary' as any); }
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSwitching(false); }
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color="#000" /></View>;
-
-  const roleName = t('guardian').toUpperCase() + (user.is_prescriber ? ' | Prescripteur' : '') + (user.is_intervention_provider ? ' | Intervenant' : '');
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAF8F5' }}><ActivityIndicator size="large" color="#C67A4F" /></View>;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F6F8' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
-      {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
-        <TouchableOpacity testID="guardian-header-switch" style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={switchToBeneficiary}>
-          <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#FFD54F', justifyContent: 'center', alignItems: 'center', marginRight: 12, overflow: 'hidden' }}>
-            {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 48, height: 48 }} /> : <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A1D21' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>}
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 18, fontWeight: '800', color: '#1A1D21' }}>{user.name}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <View style={{ backgroundColor: '#FFD54F', width: 6, height: 6, borderRadius: 3 }} />
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', letterSpacing: 0.5 }}>{roleName}</Text>
-              {(user.has_beneficiary_space || user.role === 'beneficiary') && <Text style={{ fontSize: 10, color: '#9BA3AD' }}> | {t('beneficiary')}</Text>}
-            </View>
-          </View>
-        </TouchableOpacity>
-        <LanguageFlagButton />
-        <TouchableOpacity testID="guardian-notification-bell" onPress={() => setShowNotifsG(!showNotifsG)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F0F1F3', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginLeft: 8, ...glassStyle }}>
-          <Icon name="notifications-outline" size={18} color="#000" />
-          {(invitations.length > 0 || pendingInterventions.length > 0 || activeAlertsG.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: 'rgba(0,0,0,0.06)' }} />}
-        </TouchableOpacity>
-      </View>
+    <ScrollView style={{ flex: 1, backgroundColor: '#FAF8F5' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#C67A4F" />} showsVerticalScrollIndicator={false}>
 
-      {/* Notifications */}
+      {/* ─── HERO GRADIENT ─── */}
+      <HeroCard style={{ backgroundColor: '#B56A3F', ...(Platform.OS === 'web' ? { background: 'linear-gradient(135deg, #9A5533 0%, #C67A4F 40%, #E8A87C 100%)', backgroundSize: '200% 200%', boxShadow: '0 8px 32px rgba(154,85,51,0.25)' } : {}) }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+          <TouchableOpacity testID="guardian-header-switch" style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={switchToBeneficiary}>
+            <View style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.25)', justifyContent: 'center', alignItems: 'center', marginRight: 12, overflow: 'hidden' }}>
+              {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 48, height: 48 }} /> : <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>}
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontWeight: '600' }}>{t('guardian')}{user.is_prescriber ? ' | Prescripteur' : ''}</Text>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>{user.name}</Text>
+            </View>
+          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <LanguageFlagButton />
+            <TouchableOpacity testID="guardian-notification-bell" onPress={() => setShowNotifsG(!showNotifsG)} style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' }}>
+              <Icon name="notifications-outline" size={18} color="#FFF" />
+              {(invitations.length > 0 || pendingInterventions.length > 0 || activeAlertsG.length > 0) && <View style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)' }} />}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Stats inline */}
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {[
+            { val: bens.length, label: 'Beneficiaires' },
+            { val: activeAlerts.length, label: 'Alertes' },
+            { val: pendingInterventions.length, label: 'Interventions' },
+          ].map((s, i) => (
+            <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 16, padding: 12, alignItems: 'center' }}>
+              <Text style={{ fontSize: 24, fontWeight: '800', color: '#FFF' }}>{s.val}</Text>
+              <Text style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</Text>
+            </View>
+          ))}
+        </View>
+      </HeroCard>
+
+      {/* ─── NOTIFICATIONS ─── */}
       {showNotifsG && (
-        <GlassCard style={{ marginBottom: 12, borderLeftWidth: 4, borderLeftColor: '#2196F3' }}>
+        <Card style={{ borderLeftWidth: 3, borderLeftColor: '#C67A4F' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#1A1D21' }}>Notifications</Text>
-            <TouchableOpacity onPress={() => setShowNotifsG(false)}><Icon name="close" size={18} color="#888" /></TouchableOpacity>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: '#1C1917' }}>Notifications</Text>
+            <TouchableOpacity onPress={() => setShowNotifsG(false)}><Icon name="close" size={18} color="#A8A29E" /></TouchableOpacity>
           </View>
           {activeAlertsG.length === 0 && invitations.length === 0 && pendingInterventions.length === 0 && (
-            <Text style={{ fontSize: 12, color: '#5A6068', textAlign: 'center', paddingVertical: 8 }}>Aucune notification</Text>
+            <Text style={{ fontSize: 12, color: '#78716C', textAlign: 'center', paddingVertical: 8 }}>Aucune notification</Text>
           )}
           {activeAlertsG.map((a: any) => (
             <TouchableOpacity key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}
               onPress={() => { setShowNotifsG(false); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }}>
-              <Icon name="alert-circle" size={14} color="#E53935" />
-              <Text style={{ fontSize: 11, color: '#1A1D21', flex: 1 }}>{a.beneficiary_name}: {a.message}</Text>
+              <Icon name="alert-circle" size={14} color="#EF4444" />
+              <Text style={{ fontSize: 12, color: '#1C1917', flex: 1 }}>{a.beneficiary_name}: {a.message}</Text>
             </TouchableOpacity>
           ))}
           {pendingInterventions.map((p: any) => (
             <TouchableOpacity key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}
               onPress={() => { setShowNotifsG(false); router.push({ pathname: '/intervention-detail', params: { interventionId: p.id } }); }}>
-              <Icon name="navigate" size={14} color="#FF9800" />
-              <Text style={{ fontSize: 11, color: '#1A1D21', flex: 1 }}>Intervention: {p.beneficiary_name}</Text>
+              <Icon name="navigate" size={14} color="#F59E0B" />
+              <Text style={{ fontSize: 12, color: '#1C1917', flex: 1 }}>Intervention: {p.beneficiary_name}</Text>
             </TouchableOpacity>
           ))}
-        </GlassCard>
+        </Card>
       )}
 
-      {/* Contextual Tips */}
-      <ContextualTip id="guardian-welcome" icon="people-outline" text="Bienvenue dans votre espace gardien ! Ici, vous suivez la sante de vos proches en temps reel. Si une alerte se declenche, vous serez immediatement prevenu et pourrez intervenir." color="#009688" />
-
-      {/* Mini Tuto for Guardians */}
-      <MiniTuto id="guardian-intro" triggerLabel="Guide du gardien" steps={[
-        { title: 'Votre role de gardien', text: 'Vous veillez sur vos proches a distance. Vous recevrez une notification instantanee en cas d\'alerte et pourrez agir rapidement.', icon: 'shield-outline' },
-        { title: 'Alertes et interventions', text: 'Quand une alerte se declenche, vous pouvez intervenir directement ou suivre l\'intervenant envoye sur place en temps reel.', icon: 'alert-circle-outline' },
-        { title: 'Ajouter un beneficiaire', text: 'Pour surveiller un proche, demandez-lui son code de liaison (QR code ou code texte) et scannez-le depuis le bouton "Ajouter".', icon: 'person-add-outline' },
-      ]} />
-
-      {/* Active Alerts for Guardian */}
+      {/* ─── ACTIVE ALERTS ─── */}
       {activeAlertsG.map((a: any) => {
         const myIntervention = a.intervention?.assigned_to === user.id;
         const hasIntervenant = a.intervener_info || a.intervention?.assigned_to;
         const isDispatch = a.incident_state === 'CARE_DISPATCHED' || a.teleassistance_status === 'CARE_DISPATCHED';
         const interventionId = a.intervention?.id;
         return (
-        <View key={a.id}>
-          <TouchableOpacity onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
-            <GlassCard style={{ backgroundColor: 'rgba(229,57,53,0.06)', borderLeftWidth: 4, borderLeftColor: '#E53935', padding: 16, marginBottom: 0 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E53935', justifyContent: 'center', alignItems: 'center' }}>
-                  <Icon name="alert-circle" size={20} color="#1A1D21" />
+          <View key={a.id}>
+            <TouchableOpacity onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
+              <Card style={{ backgroundColor: 'rgba(239,68,68,0.04)', borderLeftWidth: 3, borderLeftColor: '#EF4444', padding: 16, marginBottom: 4 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: '#EF4444', justifyContent: 'center', alignItems: 'center' }}>
+                    <Icon name="alert-circle" size={22} color="#FFF" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '800', color: '#EF4444' }}>ALERTE - {a.beneficiary_name}</Text>
+                    <Text style={{ fontSize: 12, color: '#78716C', marginTop: 2 }}>{a.message}</Text>
+                  </View>
                 </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '900', color: '#E53935' }}>ALERTE - {a.beneficiary_name}</Text>
-                  <Text style={{ fontSize: 12, color: '#555', marginTop: 2 }}>{a.message}</Text>
-                </View>
-              </View>
-            </GlassCard>
-          </TouchableOpacity>
-          {/* Action button BELOW the alert card - routes appropriately */}
-          {myIntervention ? (
-            <TouchableOpacity style={{ backgroundColor: '#10B981', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-              onPress={() => interventionId ? router.push({ pathname: '/company-intervention-detail', params: { interventionId } }) : router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
-              <Icon name="shield-checkmark" size={18} color="#1A1D21" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>VOUS ETES EN INTERVENTION</Text>
+              </Card>
             </TouchableOpacity>
-          ) : hasIntervenant && a.intervener_info && interventionId ? (
-            <TouchableOpacity style={{ backgroundColor: '#009688', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-              onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId } })}>
-              <Icon name="navigate" size={18} color="#1A1D21" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>SUIVRE {a.intervener_info.name?.split(' ')[0]?.toUpperCase()}</Text>
-            </TouchableOpacity>
-          ) : isDispatch ? (
-            <TouchableOpacity style={{ backgroundColor: '#FF9800', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-              onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
-              <Icon name="time" size={18} color="#1A1D21" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>EN ATTENTE D'UN INTERVENANT</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={{ backgroundColor: '#E53935', borderRadius: 14, padding: 14, marginBottom: 12, marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-              onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
-              <Icon name="shield-checkmark" size={18} color="#1A1D21" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>VOIR L'ALERTE</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+            {myIntervention ? (
+              <PillButton label="VOUS ETES EN INTERVENTION" icon="shield-checkmark" variant="warm" onPress={() => interventionId ? router.push({ pathname: '/company-intervention-detail', params: { interventionId } }) : router.push({ pathname: '/alert-detail', params: { alertId: a.id } })} />
+            ) : hasIntervenant && a.intervener_info && interventionId ? (
+              <PillButton label={`SUIVRE ${a.intervener_info.name?.split(' ')[0]?.toUpperCase()}`} icon="navigate" variant="warm" onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId } })} />
+            ) : isDispatch ? (
+              <PillButton label="EN ATTENTE D'UN INTERVENANT" icon="time" variant="warm" onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })} />
+            ) : (
+              <PillButton label="VOIR L'ALERTE" icon="shield-checkmark" onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })} />
+            )}
+          </View>
         );
       })}
 
-      {/* Greeting */}
-      <GlassCard style={{ padding: 24, alignItems: 'center' }}>
-        <Text style={{ fontSize: 20, fontWeight: '700', color: '#1A1D21', textAlign: 'center', lineHeight: 28 }}>
-          {t('hello')} {user.name?.split(' ')[0]},
-        </Text>
-        <Text style={{ fontSize: 14, color: '#5A6068', textAlign: 'center', marginTop: 4 }}>
-          {bens.length > 0 ? `Vos ${bens.length} beneficiaire${bens.length > 1 ? 's' : ''} ${bens.length > 1 ? 'sont' : 'est'} en bonne sante` : 'Aucun beneficiaire pour le moment'}
-        </Text>
-      </GlassCard>
-
-      {/* Stats overview */}
-      <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
-        {[
-          { val: bens.length, label: 'Beneficiaires', color: '#4FC3F7' },
-          { val: activeAlerts.length, label: 'Alertes', color: activeAlerts.length > 0 ? '#E53935' : '#4CAF50' },
-          { val: pendingInterventions.length, label: 'Interventions', color: '#FF9800' },
-        ].map((s, i) => (
-          <GlassCard key={i} style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
-            <Text style={{ fontSize: 28, fontWeight: '900', color: s.color }}>{s.val}</Text>
-            <Text style={{ fontSize: 9, color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{s.label}</Text>
-          </GlassCard>
-        ))}
-      </View>
-
-      {/* Pending Interventions */}
-      {pendingInterventions.length > 0 && pendingInterventions.map((piv: any) => (
+      {/* ─── PENDING INTERVENTIONS ─── */}
+      {pendingInterventions.map((piv: any) => (
         <TouchableOpacity key={piv.id} testID={`intervention-${piv.id}`} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: piv.id } })}>
-          <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#E53935', backgroundColor: 'rgba(255,205,210,0.4)' }}>
-            <Text style={{ fontSize: 11, fontWeight: '800', color: '#E53935', textTransform: 'uppercase', letterSpacing: 1 }}>{t('intervention_required')}</Text>
-            <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21', marginTop: 4 }}>{piv.alert_message || piv.notes || 'Alerte'}</Text>
-            <Text style={{ fontSize: 13, color: '#555', marginTop: 4 }}>{piv.beneficiary_name} {piv.distance_km ? `- ${piv.distance_km}km` : ''}</Text>
+          <Card style={{ borderLeftWidth: 3, borderLeftColor: '#EF4444', backgroundColor: 'rgba(239,68,68,0.03)' }}>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#EF4444', textTransform: 'uppercase', letterSpacing: 1 }}>{t('intervention_required')}</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1C1917', marginTop: 4 }}>{piv.alert_message || piv.notes || 'Alerte'}</Text>
+            <Text style={{ fontSize: 13, color: '#78716C', marginTop: 4 }}>{piv.beneficiary_name} {piv.distance_km ? `- ${piv.distance_km}km` : ''}</Text>
             {piv.status === 'pending_acceptance' && (
-              <View style={{ backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }}>
-                <Text style={{ color: '#1A1D21', fontSize: 14, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 2 }}>{t('i_intervene')}</Text>
+              <View style={{ backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 14 }}>
+                <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800', letterSpacing: 1 }}>{t('i_intervene')}</Text>
               </View>
             )}
-            {piv.status === 'in_progress' && piv.assigned_to === user.id && (
-              <View style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }}>
-                <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' }}>VOIR L'INTERVENTION</Text>
-              </View>
-            )}
-          </GlassCard>
+          </Card>
         </TouchableOpacity>
       ))}
 
-      {/* Pending Invitations */}
-      {invitations.length > 0 && invitations.map((inv: any) => (
-        <GlassCard key={inv.id} style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
-          <Text style={{ fontSize: 11, fontWeight: '800', color: '#FF9800', textTransform: 'uppercase', letterSpacing: 1 }}>INVITATION</Text>
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21', marginTop: 4 }}>{inv.beneficiary_name} vous invite</Text>
-          <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 2 }}>Souhaite que vous deveniez son gardien</Text>
-          <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+      {/* ─── INVITATIONS ─── */}
+      {invitations.map((inv: any) => (
+        <Card key={inv.id} style={{ borderLeftWidth: 3, borderLeftColor: '#F59E0B' }}>
+          <Text style={{ fontSize: 11, fontWeight: '700', color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 1 }}>INVITATION</Text>
+          <Text style={{ fontSize: 16, fontWeight: '800', color: '#1C1917', marginTop: 4 }}>{inv.beneficiary_name} vous invite</Text>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
             <TouchableOpacity testID={`accept-inv-${inv.id}`} style={{ flex: 1, backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
               onPress={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/accept`, { method: 'POST' }, token); Alert.alert('Accepte', 'Vous etes maintenant gardien.'); fetchData(); } catch (e: any) { Alert.alert('Erreur', e.message); } }}>
-              <Text style={{ color: '#1A1D21', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>{t('accept')}</Text>
+              <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>{t('accept')}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)' }}
+            <TouchableOpacity style={{ flex: 1, backgroundColor: '#F3EDE6', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
               onPress={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }}>
-              <Text style={{ color: '#5A6068', fontSize: 13, fontWeight: '700', textTransform: 'uppercase' }}>{t('reject')}</Text>
+              <Text style={{ color: '#78716C', fontSize: 13, fontWeight: '700' }}>{t('reject')}</Text>
             </TouchableOpacity>
           </View>
-        </GlassCard>
+        </Card>
       ))}
 
-      {/* Beneficiary Cards */}
-      <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21', marginBottom: 10, marginTop: 4, textTransform: 'uppercase', letterSpacing: 1 }}>
-        Mes beneficiaires
-      </Text>
+      {/* ─── BENEFICIARY CARDS ─── */}
+      <SectionHeader title="Mes beneficiaires" />
       {bens.map((b: any) => (
         <TouchableOpacity key={b.id} testID={`beneficiary-card-${b.id}`} onPress={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })}>
-          <GlassCard style={{ padding: 20 }}>
+          <Card style={{ padding: 18 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-              <View style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(0,0,0,0.06)' }}>
-                <Text style={{ fontSize: 24, fontWeight: '800', color: '#1A1D21' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
+              <View style={{ width: 56, height: 56, borderRadius: 18, backgroundColor: 'rgba(198,122,79,0.08)', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(198,122,79,0.15)' }}>
+                <Text style={{ fontSize: 22, fontWeight: '800', color: '#C67A4F' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 17, fontWeight: '900', color: '#1A1D21', textTransform: 'uppercase' }}>{b.name}</Text>
-                <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 2 }}>{b.latest_vitals ? `${b.latest_vitals.heart_rate || '--'} bpm | SpO2 ${b.latest_vitals.spo2 || '--'}%` : 'Pas de donnees'}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#1C1917' }}>{b.name}</Text>
+                <Text style={{ fontSize: 12, color: '#78716C', marginTop: 2 }}>{b.latest_vitals ? `${b.latest_vitals.heart_rate || '--'} bpm | SpO2 ${b.latest_vitals.spo2 || '--'}%` : 'Pas de donnees'}</Text>
                 {b.active_alerts > 0 && (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                    <Icon name="warning" size={12} color="#E53935" />
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#E53935' }}>{b.active_alerts} alerte{b.active_alerts > 1 ? 's' : ''} active{b.active_alerts > 1 ? 's' : ''}</Text>
+                    <Icon name="warning" size={12} color="#EF4444" />
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#EF4444' }}>{b.active_alerts} alerte{b.active_alerts > 1 ? 's' : ''}</Text>
                   </View>
                 )}
               </View>
-              <Icon name="chevron-forward" size={20} color="#888" />
+              <Icon name="chevron-forward" size={18} color="#A8A29E" />
             </View>
-            <HealthBadge status={b.active_alerts > 0 ? t('attention') : t('good_health')} />
-          </GlassCard>
+            <StatusBadge label={b.active_alerts > 0 ? t('attention') : t('good_health')} color={b.active_alerts > 0 ? '#EF4444' : undefined} />
+          </Card>
         </TouchableOpacity>
       ))}
-
       {bens.length === 0 && (
-        <GlassCard style={{ alignItems: 'center', padding: 32 }}>
-          <Icon name="people-outline" size={40} color="#888" />
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21', marginTop: 12 }}>Aucun beneficiaire lie</Text>
-          <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 4, textAlign: 'center' }}>Ajoutez un beneficiaire pour commencer a veiller sur lui</Text>
-        </GlassCard>
+        <Card style={{ alignItems: 'center', padding: 32 }}>
+          <Icon name="people-outline" size={40} color="#A8A29E" />
+          <Text style={{ fontSize: 15, fontWeight: '700', color: '#1C1917', marginTop: 12 }}>Aucun beneficiaire</Text>
+          <Text style={{ fontSize: 12, color: '#78716C', marginTop: 4, textAlign: 'center' }}>Ajoutez un beneficiaire pour veiller sur lui</Text>
+        </Card>
       )}
 
-      <BlackButton label={t('add_beneficiary')} icon="heart-outline" onPress={() => router.push('/link-code')} testID="add-beneficiary-btn" />
+      <PillButton label={t('add_beneficiary')} icon="heart-outline" onPress={() => router.push('/link-code')} testID="add-beneficiary-btn" variant="warm" />
 
-      {/* Prescriber Section */}
-      {user.is_prescriber && (
-        <GlassCard style={{ padding: 18 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-            <Icon name="document-text" size={20} color="#000" />
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#1A1D21', textTransform: 'uppercase', letterSpacing: 0.5 }}>Prescriptions</Text>
-          </View>
-          <Text style={{ fontSize: 12, color: '#5A6068' }}>{user.prescriber_structure || 'Structure'}</Text>
-          <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 12 }} onPress={() => router.push({ pathname: '/(tabs)/devices' })}>
-            <Text style={{ color: '#1A1D21', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>VOIR MES PRESCRIPTIONS</Text>
-          </TouchableOpacity>
-        </GlassCard>
-      )}
+      {/* Help system */}
+      <ContextualTip id="guardian-welcome" icon="people-outline" text="Bienvenue dans votre espace gardien ! Suivez la sante de vos proches en temps reel." color="#C67A4F" />
+      <MiniTuto id="guardian-intro" triggerLabel="Guide du gardien" steps={[
+        { title: 'Votre role', text: 'Vous veillez sur vos proches a distance avec des notifications instantanees.', icon: 'shield-outline' },
+        { title: 'Alertes', text: 'Quand une alerte se declenche, vous pouvez intervenir ou suivre l\'intervenant.', icon: 'alert-circle-outline' },
+        { title: 'Ajouter', text: 'Demandez le code de liaison de votre proche pour le surveiller.', icon: 'person-add-outline' },
+      ]} />
     </ScrollView>
   );
 }
 
-/* ───── TELEASSISTANCE ───── */
+/* ═══════════════════════════════════════════════════════ */
+/*                   TELEASSISTANCE HOME                   */
+/* ═══════════════════════════════════════════════════════ */
 function TeleassistanceHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
-  const { colors } = useTheme();
   const [alerts, setAlerts] = useState<any[]>([]);
   const [subs, setSubs] = useState<any[]>([]);
   const [activeEscalations, setActiveEscalations] = useState<any[]>([]);
@@ -802,64 +777,70 @@ function TeleassistanceHome({ token, user }: { token: string; user: any }) {
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
-  useEffect(() => { const iv = setInterval(fetchData, 5000); return () => clearInterval(iv); }, [fetchData]);
+  useEffect(() => { fetchData(); const iv = setInterval(fetchData, 5000); return () => clearInterval(iv); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAF8F5' }}><ActivityIndicator size="large" color="#C67A4F" /></View>;
   const active = alerts.filter((a: any) => a.status === 'active');
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F6F8' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 20 }}>
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>Plateau d'ecoute</Text>
-          <Text style={{ fontSize: 12, color: '#5A6068' }}>{user.name}</Text>
+    <ScrollView style={{ flex: 1, backgroundColor: '#FAF8F5' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#C67A4F" />} showsVerticalScrollIndicator={false}>
+
+      <HeroCard style={{ backgroundColor: '#7C5CFF', ...(Platform.OS === 'web' ? { background: 'linear-gradient(135deg, #6B4FD8 0%, #7C5CFF 40%, #A78BFA 100%)', boxShadow: '0 8px 32px rgba(124,92,255,0.25)' } : {}) }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontWeight: '600' }}>Plateau d'ecoute</Text>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFF' }}>{user.name}</Text>
+          </View>
+          <LanguageFlagButton />
         </View>
-        <LanguageFlagButton />
-      </View>
-      <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
-        {[
-          { val: active.length, label: 'Alertes', danger: active.length > 0 },
-          { val: activeEscalations.length, label: 'Escalades' },
-          { val: subs.length, label: 'Abonnes' },
-        ].map((s, i) => (
-          <GlassCard key={i} style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
-            <Text style={{ fontSize: 28, fontWeight: '900', color: s.danger ? '#E53935' : '#000' }}>{s.val}</Text>
-            <Text style={{ fontSize: 10, color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>{s.label}</Text>
-          </GlassCard>
-        ))}
-      </View>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {[
+            { val: active.length, label: 'Alertes' },
+            { val: activeEscalations.length, label: 'Escalades' },
+            { val: subs.length, label: 'Abonnes' },
+          ].map((s, i) => (
+            <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 16, padding: 12, alignItems: 'center' }}>
+              <Text style={{ fontSize: 24, fontWeight: '800', color: '#FFF' }}>{s.val}</Text>
+              <Text style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</Text>
+            </View>
+          ))}
+        </View>
+      </HeroCard>
+
       {active.length > 0 && <>
-        <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21', marginBottom: 10 }}>Alertes en attente</Text>
-        {active.slice(0, 3).map((a: any) => (
+        <SectionHeader title="Alertes en attente" />
+        {active.slice(0, 5).map((a: any) => (
           <TouchableOpacity key={a.id} onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })}>
-            <GlassCard style={{ borderLeftWidth: 3, borderLeftColor: a.severity === 'critical' ? '#E53935' : '#000' }}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A1D21' }}>{a.message}</Text>
-              <Text style={{ fontSize: 11, color: '#5A6068', marginTop: 4 }}>{a.beneficiary_name} - {new Date(a.created_at).toLocaleTimeString('fr-FR')}</Text>
-            </GlassCard>
+            <Card style={{ borderLeftWidth: 3, borderLeftColor: a.severity === 'critical' ? '#EF4444' : '#C67A4F' }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#1C1917' }}>{a.message}</Text>
+              <Text style={{ fontSize: 12, color: '#78716C', marginTop: 4 }}>{a.beneficiary_name} - {new Date(a.created_at).toLocaleTimeString('fr-FR')}</Text>
+            </Card>
           </TouchableOpacity>
         ))}
       </>}
-      <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21', marginBottom: 10, marginTop: 8 }}>Abonnes</Text>
+
+      <SectionHeader title="Abonnes" action="Voir tout" />
       {subs.slice(0, 10).map((su: any) => (
         <TouchableOpacity key={su.id} onPress={() => router.push({ pathname: '/subscriber-detail', params: { subscriberId: su.id } })}>
-          <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, marginBottom: 6 }}>
-            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E0E0E0', justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ fontSize: 16, fontWeight: '700', color: '#1A1D21' }}>{su.name?.charAt(0)?.toUpperCase()}</Text>
+          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
+            <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(124,92,255,0.08)', justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 17, fontWeight: '700', color: '#7C5CFF' }}>{su.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A1D21' }}>{su.name}</Text>
-              <Text style={{ fontSize: 11, color: '#5A6068' }}>{su.latest_vitals ? `${su.latest_vitals.heart_rate} bpm` : 'Pas de donnees'}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#1C1917' }}>{su.name}</Text>
+              <Text style={{ fontSize: 11, color: '#78716C' }}>{su.latest_vitals ? `${su.latest_vitals.heart_rate} bpm` : 'Pas de donnees'}</Text>
             </View>
-            <Icon name="chevron-forward" size={16} color="#888" />
-          </GlassCard>
+            <Icon name="chevron-forward" size={16} color="#A8A29E" />
+          </Card>
         </TouchableOpacity>
       ))}
     </ScrollView>
   );
 }
 
-/* ───── REWARDS ADMIN CARD ───── */
+/* ═══════════════════════════════════════════════════════ */
+/*                    REWARDS ADMIN                        */
+/* ═══════════════════════════════════════════════════════ */
 function RewardsAdminCard({ token }: { token: string }) {
   const [reward, setReward] = useState<any>(null);
   const [editing, setEditing] = useState(false);
@@ -876,504 +857,281 @@ function RewardsAdminCard({ token }: { token: string }) {
   const save = async () => {
     setSaving(true);
     try {
-      await apiFetch('/api/admin/rewards', { method: 'POST', body: JSON.stringify({
-        prize_1: parseInt(form.prize_1) || 100, prize_2: parseInt(form.prize_2) || 70, prize_3: parseInt(form.prize_3) || 30,
-      }) }, token);
+      await apiFetch('/api/admin/rewards', { method: 'POST', body: JSON.stringify({ prize_1: parseInt(form.prize_1) || 100, prize_2: parseInt(form.prize_2) || 70, prize_3: parseInt(form.prize_3) || 30 }) }, token);
       setEditing(false);
       setReward({ ...reward, prize_1: parseInt(form.prize_1), prize_2: parseInt(form.prize_2), prize_3: parseInt(form.prize_3) });
     } catch {} finally { setSaving(false); }
   };
 
-  const now = new Date();
-  const monthLabel = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  const monthLabel = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 
   return (
-    <View style={{ marginTop: 4, marginBottom: 12 }}>
-      <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21', marginBottom: 10 }}>Challenge Prescripteurs</Text>
-      <GlassCard style={{ borderWidth: 1.5, borderColor: '#FFD54F', backgroundColor: 'rgba(255,248,225,0.6)' }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-          <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFD700', justifyContent: 'center', alignItems: 'center' }}>
-            <Icon name="trophy" size={22} color="#1A1D21" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21' }}>Recompenses {monthLabel}</Text>
-            <Text style={{ fontSize: 11, color: '#5A6068' }}>Top 3 prescripteurs du mois</Text>
-          </View>
-          <TouchableOpacity onPress={() => setEditing(!editing)} style={{ padding: 6 }}>
-            <Icon name={editing ? 'close' : 'create-outline'} size={20} color="#FFB300" />
+    <Card style={{ borderWidth: 1.5, borderColor: 'rgba(198,122,79,0.2)', backgroundColor: 'rgba(198,122,79,0.03)' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+        <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: '#C67A4F', justifyContent: 'center', alignItems: 'center' }}>
+          <Icon name="trophy" size={22} color="#FFF" />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: '#1C1917' }}>Recompenses {monthLabel}</Text>
+          <Text style={{ fontSize: 11, color: '#78716C' }}>Top 3 prescripteurs</Text>
+        </View>
+        <TouchableOpacity onPress={() => setEditing(!editing)} style={{ padding: 6 }}>
+          <Icon name={editing ? 'close' : 'create-outline'} size={20} color="#C67A4F" />
+        </TouchableOpacity>
+      </View>
+      {!editing ? (
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+          {[
+            { pos: '1er', prize: reward?.prize_1 || 100, color: '#FFD700' },
+            { pos: '2e', prize: reward?.prize_2 || 70, color: '#C0C0C0' },
+            { pos: '3e', prize: reward?.prize_3 || 30, color: '#CD7F32' },
+          ].map(t => (
+            <View key={t.pos} style={{ alignItems: 'center' }}>
+              <View style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: t.color, justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
+                <Icon name="trophy" size={18} color="#FFF" />
+              </View>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: '#1C1917' }}>{t.prize}EUR</Text>
+              <Text style={{ fontSize: 10, color: '#78716C' }}>{t.pos}</Text>
+            </View>
+          ))}
+        </View>
+      ) : (
+        <View style={{ gap: 10 }}>
+          {['prize_1', 'prize_2', 'prize_3'].map((k, i) => (
+            <View key={k} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: '#78716C', width: 30 }}>{i + 1}e</Text>
+              <TextInput value={(form as any)[k]} onChangeText={(v: string) => setForm({ ...form, [k]: v })} keyboardType="numeric" style={{ flex: 1, backgroundColor: '#FAF8F5', borderRadius: 14, padding: 12, fontSize: 16, fontWeight: '700', borderWidth: 1, borderColor: 'rgba(28,25,23,0.08)' }} />
+              <Text style={{ fontSize: 12, color: '#78716C' }}>EUR</Text>
+            </View>
+          ))}
+          <TouchableOpacity onPress={save} style={{ backgroundColor: '#C67A4F', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 4 }}>
+            {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>Enregistrer</Text>}
           </TouchableOpacity>
         </View>
-
-        {!editing ? (
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-            {[
-              { pos: '1er', prize: reward?.prize_1 || 100, color: '#FFD700', icon: 'trophy' as any },
-              { pos: '2e', prize: reward?.prize_2 || 70, color: '#C0C0C0', icon: 'medal' as any },
-              { pos: '3e', prize: reward?.prize_3 || 30, color: '#CD7F32', icon: 'ribbon' as any },
-            ].map(t => (
-              <View key={t.pos} style={{ alignItems: 'center' }}>
-                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: t.color, justifyContent: 'center', alignItems: 'center', marginBottom: 4 }}>
-                  <Icon name={t.icon} size={20} color="#1A1D21" />
-                </View>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>{t.prize}EUR</Text>
-                <Text style={{ fontSize: 10, color: '#5A6068' }}>{t.pos}</Text>
-              </View>
-            ))}
-          </View>
-        ) : (
-          <View style={{ gap: 8 }}>
-            {[
-              { label: '1er prix (EUR)', key: 'prize_1', color: '#FFD700' },
-              { label: '2e prix (EUR)', key: 'prize_2', color: '#C0C0C0' },
-              { label: '3e prix (EUR)', key: 'prize_3', color: '#CD7F32' },
-            ].map(f => (
-              <View key={f.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: f.color, justifyContent: 'center', alignItems: 'center' }}>
-                  <Icon name="trophy" size={14} color="#1A1D21" />
-                </View>
-                <Text style={{ fontSize: 12, color: '#5A6068', width: 80 }}>{f.label}</Text>
-                <TextInput style={{ flex: 1, borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 10, padding: 10, fontSize: 16, fontWeight: '800', textAlign: 'center' }}
-                  value={(form as any)[f.key]} onChangeText={v => setForm({ ...form, [f.key]: v })} keyboardType="numeric" />
-              </View>
-            ))}
-            <TouchableOpacity onPress={save} disabled={saving}
-              style={{ backgroundColor: '#FFB300', borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 4, flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
-              {saving ? <ActivityIndicator color="#1A1D21" size="small" /> : (
-                <><Icon name="checkmark" size={18} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>ENREGISTRER</Text></>
-              )}
-            </TouchableOpacity>
-          </View>
-        )}
-      </GlassCard>
-    </View>
+      )}
+    </Card>
   );
 }
 
-/* ───── ADMIN DASHBOARD ───── */
+/* ═══════════════════════════════════════════════════════ */
+/*                      ADMIN HOME                         */
+/* ═══════════════════════════════════════════════════════ */
 function AdminHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
-  const { colors } = useTheme();
-  const [stats, setStats] = useState<any>(null);
-  const [kpi, setKpi] = useState<any>(null);
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [stats, setStats] = useState<any>({});
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [ranking, setRanking] = useState<any[]>([]);
 
   const fetchData = useCallback(async () => {
     try {
-      const [s, k] = await Promise.all([
-        apiFetch('/api/backoffice/stats', {}, token).catch(() => null),
-        apiFetch('/api/backoffice/kpi', {}, token).catch(() => null),
+      const [st, al, us, co, rk] = await Promise.all([
+        apiFetch('/api/admin/stats', {}, token).catch(() => ({})),
+        apiFetch('/api/alerts', {}, token).catch(() => []),
+        apiFetch('/api/admin/users', {}, token).catch(() => []),
+        apiFetch('/api/admin/companies', {}, token).catch(() => []),
+        apiFetch('/api/company/ranking', {}, token).catch(() => []),
       ]);
-      setStats(s); setKpi(k);
-      apiFetch('/api/backoffice/analytics', {}, token).then(a => setAnalytics(a)).catch(() => {});
+      setStats(st); setAlerts(al); setUsers(us); setCompanies(co); setRanking(rk);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color="#000" /></View>;
 
-  const barMax = (obj: Record<string, number>) => Math.max(...Object.values(obj || {}).map(Number), 1);
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAF8F5' }}><ActivityIndicator size="large" color="#C67A4F" /></View>;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F6F8' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 16 }}>
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 22, fontWeight: '900', color: '#1A1D21', letterSpacing: -0.5 }}>Dashboard Admin</Text>
-          <Text style={{ fontSize: 12, color: '#5A6068' }}>CHUTEX - {user.name}</Text>
-        </View>
-        <LanguageFlagButton />
-      </View>
+    <ScrollView style={{ flex: 1, backgroundColor: '#FAF8F5' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#C67A4F" />} showsVerticalScrollIndicator={false}>
 
-      {stats && <>
-        {/* Main KPIs */}
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+      <HeroCard style={{ backgroundColor: '#1C1917', ...(Platform.OS === 'web' ? { background: 'linear-gradient(135deg, #0C0A09 0%, #1C1917 40%, #44403C 100%)', boxShadow: '0 8px 32px rgba(28,25,23,0.3)' } : {}) }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: '600' }}>Administration</Text>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFF' }}>{user.name}</Text>
+          </View>
+          <LanguageFlagButton />
+        </View>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
           {[
-            { val: stats.total_users, label: 'Utilisateurs', icon: 'people', color: '#2196F3' },
-            { val: stats.active_alerts, label: 'Alertes actives', icon: 'warning', color: stats.active_alerts > 0 ? '#E53935' : '#4CAF50' },
-            { val: stats.interventions, label: 'Interventions', icon: 'medkit', color: '#FF9800' },
+            { val: stats.total_users || 0, label: 'Utilisateurs' },
+            { val: stats.total_alerts || 0, label: 'Alertes' },
+            { val: stats.active_alerts || 0, label: 'Actives' },
           ].map((s, i) => (
-            <GlassCard key={i} style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: s.color + '15', justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
-                <Icon name={s.icon as any} size={18} color={s.color} />
-              </View>
-              <Text style={{ fontSize: 26, fontWeight: '900', color: s.color }}>{s.val}</Text>
-              <Text style={{ fontSize: 8, color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{s.label}</Text>
-            </GlassCard>
-          ))}
-        </View>
-
-        {/* Secondary stats */}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-          {[
-            { l: 'Beneficiaires', v: stats.beneficiaries, c: '#4FC3F7' },
-            { l: 'Gardiens', v: stats.guardians, c: '#FFD54F' },
-            { l: 'Prescripteurs', v: stats.prescribers, c: '#CE93D8' },
-            { l: 'Codes actifs', v: stats.activation_codes, c: '#81C784' },
-            { l: 'Abon. Standard', v: stats.subscriptions_standard || 0, c: '#90CAF9' },
-            { l: 'Abon. Care', v: stats.subscriptions_care || 0, c: '#EF9A9A' },
-          ].map(x => (
-            <View key={x.l} style={{ width: '31%', backgroundColor: '#F0F1F3', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glassStyle }}>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: x.c }}>{x.v}</Text>
-              <Text style={{ fontSize: 8, color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 4, textAlign: 'center' }}>{x.l}</Text>
+            <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 12, alignItems: 'center' }}>
+              <Text style={{ fontSize: 24, fontWeight: '800', color: '#FFF' }}>{s.val}</Text>
+              <Text style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</Text>
             </View>
           ))}
         </View>
-      </>}
+      </HeroCard>
 
-      {kpi && <>
-        {/* Resolution time */}
-        <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(33,150,243,0.1)', justifyContent: 'center', alignItems: 'center' }}>
-            <Icon name="timer-outline" size={22} color="#2196F3" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 10, color: '#5A6068', textTransform: 'uppercase', letterSpacing: 0.5 }}>Temps moyen resolution</Text>
-            <Text style={{ fontSize: 24, fontWeight: '900', color: '#1A1D21' }}>{kpi.avg_resolution_minutes}<Text style={{ fontSize: 14, color: '#5A6068' }}> min</Text></Text>
-          </View>
-        </GlassCard>
+      <PillButton label="Back-Office" icon="settings-outline" onPress={() => router.push('/backoffice')} testID="admin-backoffice-btn" />
 
-        {/* Users by role chart */}
-        <GlassCard>
-          <Text style={{ fontSize: 13, fontWeight: '800', color: '#1A1D21', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Repartition utilisateurs</Text>
-          {Object.entries(kpi.users_by_role || {}).map(([role, count]: [string, any]) => {
-            const max = barMax(kpi.users_by_role);
-            const pct = (count / max) * 100;
-            const labels: any = { beneficiary: 'Beneficiaires', guardian: 'Gardiens', admin: 'Admins', teleassistance: 'Teleassistance' };
-            const colors: any = { beneficiary: '#4FC3F7', guardian: '#FFD54F', admin: '#000', teleassistance: '#CE93D8' };
-            return (
-              <View key={role} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <Text style={{ width: 90, fontSize: 11, color: '#555', textAlign: 'right' }}>{labels[role] || role}</Text>
-                <View style={{ flex: 1, height: 18, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 9, overflow: 'hidden' }}>
-                  <View style={{ height: 18, backgroundColor: colors[role] || '#888', borderRadius: 9, width: `${pct}%`, justifyContent: 'center', paddingLeft: 6 }}>
-                    {pct > 20 && <Text style={{ fontSize: 9, fontWeight: '800', color: role === 'admin' ? '#FFF' : '#000' }}>{count}</Text>}
-                  </View>
-                </View>
-                {pct <= 20 && <Text style={{ fontSize: 11, fontWeight: '700', color: '#1A1D21', width: 20 }}>{count}</Text>}
-              </View>
-            );
-          })}
-        </GlassCard>
+      <RewardsAdminCard token={token} />
 
-        {/* Alert types chart */}
-        <GlassCard>
-          <Text style={{ fontSize: 13, fontWeight: '800', color: '#1A1D21', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Types d'alertes</Text>
-          {Object.entries(kpi.alert_types || {}).map(([type, count]: [string, any]) => {
-            const max = barMax(kpi.alert_types);
-            const pct = max > 0 ? (count / max) * 100 : 0;
-            const tc: any = { sos: '#E53935', fall: '#FF9800', anomaly: '#9C27B0', inactivity: '#607D8B' };
-            return (
-              <View key={type} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <Text style={{ width: 70, fontSize: 11, color: '#555', textAlign: 'right', textTransform: 'uppercase' }}>{type}</Text>
-                <View style={{ flex: 1, height: 18, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 9, overflow: 'hidden' }}>
-                  <View style={{ height: 18, backgroundColor: tc[type] || '#888', borderRadius: 9, width: `${Math.max(pct, 3)}%` }} />
-                </View>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#1A1D21', width: 24 }}>{count}</Text>
-              </View>
-            );
-          })}
-        </GlassCard>
-
-        {/* 7-day alerts chart */}
-        <GlassCard>
-          <Text style={{ fontSize: 13, fontWeight: '800', color: '#1A1D21', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Alertes 7 derniers jours</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 80, gap: 4 }}>
-            {(kpi.alerts_by_day || []).slice(-7).map((d: any, i: number) => {
-              const maxD = Math.max(...(kpi.alerts_by_day || []).slice(-7).map((x: any) => x.count), 1);
-              const h = Math.max((d.count / maxD) * 60, 4);
-              return (
-                <View key={i} style={{ flex: 1, alignItems: 'center' }}>
-                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#1A1D21', marginBottom: 4 }}>{d.count}</Text>
-                  <View style={{ width: '80%', height: h, backgroundColor: d.count > 0 ? '#2196F3' : 'rgba(0,0,0,0.06)', borderRadius: 6 }} />
-                  <Text style={{ fontSize: 9, color: '#5A6068', marginTop: 4 }}>{d.date.slice(8)}/{d.date.slice(5, 7)}</Text>
-                </View>
-              );
-            })}
-          </View>
-        </GlassCard>
-      </>}
-
-      {/* Analytics Section */}
-      {analytics && (
+      {/* Ranking */}
+      {ranking.length > 0 && (
         <>
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21', marginBottom: 10 }}>Performance Interventions</Text>
-          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
-            {[
-              { val: analytics.avg_acceptance_time_min, unit: 'min', label: 'Temps reponse', icon: 'timer-outline', color: '#2196F3' },
-              { val: analytics.resolution_rate, unit: '%', label: 'Taux resolution', icon: 'checkmark-done-outline', color: '#4CAF50' },
-              { val: analytics.completed_interventions, unit: '', label: 'Interventions', icon: 'medkit-outline', color: '#9C27B0' },
-            ].map((m, i) => (
-              <GlassCard key={i} style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
-                <Icon name={m.icon as any} size={18} color={m.color} />
-                <Text style={{ fontSize: 20, fontWeight: '900', color: m.color, marginTop: 4 }}>{m.val}{m.unit ? <Text style={{ fontSize: 11 }}>{m.unit}</Text> : null}</Text>
-                <Text style={{ fontSize: 8, color: '#5A6068', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{m.label}</Text>
-              </GlassCard>
-            ))}
-          </View>
-
-          {analytics.top_intervenants?.length > 0 && (
-            <GlassCard>
-              <Text style={{ fontSize: 13, fontWeight: '800', color: '#1A1D21', letterSpacing: 0.5, marginBottom: 12 }}>Top intervenants</Text>
-              {analytics.top_intervenants.slice(0, 5).map((iv: any, idx: number) => (
-                <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: idx < 4 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                  <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: idx === 0 ? '#9C27B0' : idx === 1 ? '#7B1FA2' : 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 12, fontWeight: '900', color: idx < 2 ? '#FFF' : '#888' }}>{idx + 1}</Text>
-                  </View>
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A1D21', flex: 1 }}>{iv.name}</Text>
-                  <Text style={{ fontSize: 12, color: '#4CAF50', fontWeight: '800' }}>{iv.count} missions</Text>
-                </View>
-              ))}
-            </GlassCard>
-          )}
+          <SectionHeader title="Classement prescripteurs" />
+          {ranking.slice(0, 5).map((p: any, i: number) => (
+            <Card key={p.id || i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
+              <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#F3EDE6', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 14, fontWeight: '800', color: i < 3 ? '#FFF' : '#78716C' }}>#{i + 1}</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#1C1917' }}>{p.name}</Text>
+                <Text style={{ fontSize: 11, color: '#78716C' }}>{p.prescriptions_count || 0} prescriptions</Text>
+              </View>
+            </Card>
+          ))}
         </>
       )}
 
-      {/* Rewards Management Card */}
-      <RewardsAdminCard token={token} />
+      {/* Companies */}
+      <SectionHeader title="Entreprises" />
+      {companies.slice(0, 5).map((c: any) => (
+        <TouchableOpacity key={c.id} onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: c.id } })}>
+          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
+            <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(198,122,79,0.08)', justifyContent: 'center', alignItems: 'center' }}>
+              <Icon name="business-outline" size={20} color="#C67A4F" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#1C1917' }}>{c.name || c.company_name}</Text>
+              <Text style={{ fontSize: 11, color: '#78716C' }}>{c.email}</Text>
+            </View>
+            <Icon name="chevron-forward" size={16} color="#A8A29E" />
+          </Card>
+        </TouchableOpacity>
+      ))}
     </ScrollView>
   );
 }
 
-/* ───── COMPANY DASHBOARD ───── */
+/* ═══════════════════════════════════════════════════════ */
+/*                    COMPANY HOME                         */
+/* ═══════════════════════════════════════════════════════ */
 function CompanyHome({ token, user }: { token: string; user: any }) {
-  const [data, setData] = useState<any>(null);
+  const router = useRouter();
+  const [stats, setStats] = useState<any>({});
+  const [intervenants, setIntervenants] = useState<any[]>([]);
+  const [prescribers, setPrescribers] = useState<any[]>([]);
+  const [interventions, setInterventions] = useState<any[]>([]);
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [ranking, setRanking] = useState<any[]>([]);
+  const [reward, setReward] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [dateFilter, setDateFilter] = useState<'all'|'week'|'month'|'custom'>('all');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
-  const [analytics, setAnalytics] = useState<any>(null);
-  const router = useRouter();
-
-  const getDateRange = (filter: string) => {
-    const now = new Date();
-    if (filter === 'week') {
-      const from = new Date(now);
-      from.setDate(now.getDate() - 7);
-      return { from: from.toISOString().split('T')[0], to: now.toISOString().split('T')[0] };
-    }
-    if (filter === 'month') {
-      const from = new Date(now);
-      from.setMonth(now.getMonth() - 1);
-      return { from: from.toISOString().split('T')[0], to: now.toISOString().split('T')[0] };
-    }
-    return { from: '', to: '' };
-  };
 
   const fetchData = useCallback(async () => {
     try {
-      let url = '/api/company/dashboard';
-      const range = dateFilter === 'custom' ? { from: dateFrom, to: dateTo } : getDateRange(dateFilter);
-      const params = [];
-      if (range.from) params.push(`date_from=${range.from}`);
-      if (range.to) params.push(`date_to=${range.to}`);
-      if (params.length > 0) url += '?' + params.join('&');
-      setData(await apiFetch(url, {}, token));
-      apiFetch('/api/company/analytics', {}, token).then(a => setAnalytics(a)).catch(() => {});
+      const [st, iv, pr, intr, pres, al, rk, rw] = await Promise.all([
+        apiFetch('/api/company/stats', {}, token).catch(() => ({})),
+        apiFetch('/api/company/intervenants', {}, token).catch(() => []),
+        apiFetch('/api/company/prescribers', {}, token).catch(() => []),
+        apiFetch('/api/company/interventions', {}, token).catch(() => []),
+        apiFetch('/api/company/prescriptions', {}, token).catch(() => []),
+        apiFetch('/api/alerts', {}, token).catch(() => []),
+        apiFetch('/api/company/ranking', {}, token).catch(() => []),
+        apiFetch('/api/company/rewards/current', {}, token).catch(() => null),
+      ]);
+      setStats(st); setIntervenants(iv); setPrescribers(pr); setInterventions(intr); setPrescriptions(pres); setAlerts(al); setRanking(rk); setReward(rw);
     } catch {} finally { setLoading(false); setRefreshing(false); }
-  }, [token, dateFilter, dateFrom, dateTo]);
+  }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color="#000" /></View>;
-  if (!data) return null;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAF8F5' }}><ActivityIndicator size="large" color="#C67A4F" /></View>;
+  const activeAlerts = alerts.filter((a: any) => a.status === 'active');
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F6F8' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />} showsVerticalScrollIndicator={false}>
-      <View style={{ marginTop: 12, marginBottom: 16 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: '#1A1D21', letterSpacing: -0.5 }}>{data.company.structure_name}</Text>
-        <Text style={{ fontSize: 12, color: '#5A6068' }}>Espace entreprise prescriptrice</Text>
-      </View>
+    <ScrollView style={{ flex: 1, backgroundColor: '#FAF8F5' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#C67A4F" />} showsVerticalScrollIndicator={false}>
 
-      {/* Date filter bar */}
-      <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12 }}>
-        {([
-          { key: 'all', label: 'Tout' },
-          { key: 'week', label: '7 jours' },
-          { key: 'month', label: '30 jours' },
-        ] as const).map(f => (
-          <TouchableOpacity key={f.key}
-            style={[{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, backgroundColor: dateFilter === f.key ? '#000' : 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: dateFilter === f.key ? '#000' : 'rgba(255,255,255,0.10)' }]}
-            onPress={() => { setDateFilter(f.key); }} data-testid={`date-filter-${f.key}`}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: dateFilter === f.key ? '#FFF' : '#888' }}>{f.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* KPI cards - clickable */}
-      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
-        {[
-          { val: data.total_prescribers, label: 'Prescripteurs', icon: 'people', color: '#4CAF50', tab: 2 },
-          { val: data.total_prescriptions, label: 'Prescriptions', icon: 'document-text', color: '#2196F3', tab: 4 },
-          { val: (data.agencies || []).length, label: 'Agences', icon: 'business', color: '#FF9800', tab: 1 },
-        ].map((s, i) => (
-          <TouchableOpacity key={i} activeOpacity={0.7} style={{ flex: 1 }}
-            onPress={() => router.push({ pathname: '/(tabs)/' + ['index','health','alerts','teleconsult','devices'][s.tab] as any })}>
-            <GlassCard style={{ alignItems: 'center', padding: 14, marginBottom: 0 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: s.color + '15', justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
-                <Icon name={s.icon as any} size={18} color={s.color} />
-              </View>
-              <Text style={{ fontSize: 26, fontWeight: '900', color: s.color }}>{s.val}</Text>
-              <Text style={{ fontSize: 8, color: '#5A6068', letterSpacing: 0.5, marginTop: 2, textAlign: 'center' }}>{s.label}</Text>
-            </GlassCard>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
-        <GlassCard style={{ flex: 1, padding: 16, marginBottom: 0, borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
-          <Text style={{ fontSize: 10, color: '#4CAF50', fontWeight: '700', marginBottom: 4 }}>Commissions validees</Text>
-          <Text style={{ fontSize: 28, fontWeight: '900', color: '#4CAF50' }}>{data.total_comm_validated} EUR</Text>
-        </GlassCard>
-        <GlassCard style={{ flex: 1, padding: 16, marginBottom: 0, borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
-          <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '700', marginBottom: 4 }}>En attente</Text>
-          <Text style={{ fontSize: 28, fontWeight: '900', color: '#FF9800' }}>{data.total_comm_pending} EUR</Text>
-        </GlassCard>
-      </View>
-
-      {/* Agencies - clickable cards */}
-      <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21', marginBottom: 10 }}>Agences</Text>
-      {(data.agencies || []).map((ag: any) => {
-        const total = ag.comm_validated + ag.comm_pending;
-        return (
-          <GlassCard key={ag.agency.id} style={{ padding: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FF980015', justifyContent: 'center', alignItems: 'center' }}>
-                <Icon name="business" size={20} color="#FF9800" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21' }}>{ag.agency.name}</Text>
-                <Text style={{ fontSize: 11, color: '#5A6068' }}>{ag.prescriber_count} prescripteurs · {ag.prescription_count} prescriptions</Text>
-              </View>
-            </View>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              <View style={{ flex: 1, backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#4CAF50' }}>{ag.comm_validated}</Text>
-                <Text style={{ fontSize: 9, color: '#4CAF50' }}>EUR validees</Text>
-              </View>
-              <View style={{ flex: 1, backgroundColor: 'rgba(255,152,0,0.06)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#FF9800' }}>{ag.comm_pending}</Text>
-                <Text style={{ fontSize: 9, color: '#FF9800' }}>EUR en attente</Text>
-              </View>
-              <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 10, padding: 10, alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>{total}</Text>
-                <Text style={{ fontSize: 9, color: '#5A6068' }}>EUR total</Text>
-              </View>
-            </View>
-          </GlassCard>
-        );
-      })}
-
-      {/* Top prescribers */}
-      <GlassCard>
-        <Text style={{ fontSize: 13, fontWeight: '800', color: '#1A1D21', letterSpacing: 0.5, marginBottom: 12 }}>Top prescripteurs</Text>
-        {(data.prescriber_ranking || []).slice(0, 5).map((pr: any, idx: number) => (
-          <TouchableOpacity key={pr.id} activeOpacity={0.7}
-            onPress={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: idx < 4 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-            <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: idx === 0 ? '#FFD700' : idx === 1 ? '#C0C0C0' : idx === 2 ? '#CD7F32' : 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ fontSize: 12, fontWeight: '900', color: idx < 3 ? '#FFF' : '#888' }}>{idx + 1}</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A1D21' }}>{pr.name}</Text>
-              <Text style={{ fontSize: 10, color: '#5A6068' }}>{pr.agency_name} · {pr.prescription_count} prescriptions</Text>
-            </View>
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#4CAF50' }}>{pr.comm_validated} EUR</Text>
-              {pr.comm_pending > 0 && <Text style={{ fontSize: 10, color: '#FF9800' }}>+{pr.comm_pending} att.</Text>}
-            </View>
-            <Icon name="chevron-forward" size={14} color="#CCC" />
-          </TouchableOpacity>
-        ))}
-      </GlassCard>
-
-      {/* Analytics Section */}
-      {analytics && (
-        <>
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#1A1D21', marginBottom: 10, marginTop: 4 }}>Performance Interventions</Text>
-          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
-            <GlassCard style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
-              <Icon name="timer-outline" size={20} color="#2196F3" />
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#2196F3', marginTop: 4 }}>{analytics.avg_response_time_min}<Text style={{ fontSize: 12 }}> min</Text></Text>
-              <Text style={{ fontSize: 8, color: '#5A6068', letterSpacing: 0.5, marginTop: 2 }}>Temps reponse</Text>
-            </GlassCard>
-            <GlassCard style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
-              <Icon name="hourglass-outline" size={20} color="#FF9800" />
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#FF9800', marginTop: 4 }}>{analytics.avg_duration_min}<Text style={{ fontSize: 12 }}> min</Text></Text>
-              <Text style={{ fontSize: 8, color: '#5A6068', letterSpacing: 0.5, marginTop: 2 }}>Duree moyenne</Text>
-            </GlassCard>
-            <GlassCard style={{ flex: 1, alignItems: 'center', padding: 14, marginBottom: 0 }}>
-              <Icon name="checkmark-done-outline" size={20} color="#4CAF50" />
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#4CAF50', marginTop: 4 }}>{analytics.acceptance_rate}<Text style={{ fontSize: 12 }}>%</Text></Text>
-              <Text style={{ fontSize: 8, color: '#5A6068', letterSpacing: 0.5, marginTop: 2 }}>Taux acceptation</Text>
-            </GlassCard>
+      <HeroCard>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontWeight: '600' }}>{user.company_name || 'Entreprise'}</Text>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFF' }}>{user.name}</Text>
           </View>
+          <LanguageFlagButton />
+        </View>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {[
+            { val: stats.total_intervenants || intervenants.length, label: 'Intervenants' },
+            { val: stats.total_prescribers || prescribers.length, label: 'Prescripteurs' },
+            { val: activeAlerts.length, label: 'Alertes' },
+          ].map((s, i) => (
+            <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 16, padding: 12, alignItems: 'center' }}>
+              <Text style={{ fontSize: 24, fontWeight: '800', color: '#FFF' }}>{s.val}</Text>
+              <Text style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</Text>
+            </View>
+          ))}
+        </View>
+      </HeroCard>
 
-          {/* Agency performance chart */}
-          {analytics.agency_performance?.length > 0 && (
-            <GlassCard>
-              <Text style={{ fontSize: 13, fontWeight: '800', color: '#1A1D21', letterSpacing: 0.5, marginBottom: 12 }}>Performance par agence</Text>
-              {analytics.agency_performance.map((ag: any, idx: number) => {
-                const maxVal = Math.max(...analytics.agency_performance.map((a: any) => a.total || 1), 1);
-                const pct = Math.max((ag.total / maxVal) * 100, 5);
-                return (
-                  <View key={idx} style={{ marginBottom: 10 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <Text style={{ fontSize: 12, fontWeight: '700', color: '#1A1D21' }}>{ag.agency_name}</Text>
-                      <Text style={{ fontSize: 11, color: '#5A6068' }}>{ag.intervenants} interv. · {ag.total} missions</Text>
-                    </View>
-                    <View style={{ height: 20, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, overflow: 'hidden', flexDirection: 'row' }}>
-                      {ag.completed > 0 && <View style={{ height: 20, backgroundColor: '#10B981', width: `${(ag.completed / maxVal) * 100}%`, justifyContent: 'center', paddingLeft: 6 }}>
-                        <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>{ag.completed}</Text>
-                      </View>}
-                      {ag.active > 0 && <View style={{ height: 20, backgroundColor: '#FF9800', width: `${(ag.active / maxVal) * 100}%` }} />}
-                    </View>
-                  </View>
-                );
-              })}
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 6 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#10B981' }} /><Text style={{ fontSize: 9, color: '#5A6068' }}>Terminees</Text></View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#FF9800' }} /><Text style={{ fontSize: 9, color: '#5A6068' }}>En cours</Text></View>
-              </View>
-            </GlassCard>
-          )}
+      {/* Quick Actions */}
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+        <QuickAction icon="people-outline" label="Intervenants" onPress={() => router.push('/(tabs)/teleconsult')} color="rgba(198,122,79,0.10)" />
+        <QuickAction icon="document-text-outline" label="Prescriptions" onPress={() => router.push('/(tabs)/devices')} color="rgba(16,185,129,0.10)" />
+        <QuickAction icon="notifications-outline" label="Alertes" onPress={() => router.push('/(tabs)/alerts')} color="rgba(239,68,68,0.08)" />
+      </View>
 
-          {/* Top intervenants */}
-          {analytics.intervenant_performance?.length > 0 && (
-            <GlassCard>
-              <Text style={{ fontSize: 13, fontWeight: '800', color: '#1A1D21', letterSpacing: 0.5, marginBottom: 12 }}>Top intervenants</Text>
-              {analytics.intervenant_performance.slice(0, 5).map((iv: any, idx: number) => (
-                <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: idx < 4 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                  <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: idx === 0 ? '#9C27B0' : idx === 1 ? '#7B1FA2' : 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 12, fontWeight: '900', color: idx < 2 ? '#FFF' : '#888' }}>{idx + 1}</Text>
-                  </View>
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#1A1D21', flex: 1 }}>{iv.name}</Text>
-                  <Text style={{ fontSize: 12, color: '#4CAF50', fontWeight: '800' }}>{iv.completed} missions</Text>
-                  {iv.active > 0 && <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '700' }}>+{iv.active} actives</Text>}
+      {/* Ranking */}
+      {ranking.length > 0 && (
+        <>
+          <SectionHeader title="Classement prescripteurs" />
+          {ranking.slice(0, 5).map((p: any, i: number) => (
+            <TouchableOpacity key={p.id || i} onPress={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })}>
+              <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
+                <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#F3EDE6', justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: i < 3 ? '#FFF' : '#78716C' }}>#{i + 1}</Text>
                 </View>
-              ))}
-            </GlassCard>
-          )}
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#1C1917' }}>{p.name}</Text>
+                  <Text style={{ fontSize: 11, color: '#78716C' }}>{p.prescriptions_count || 0} prescriptions</Text>
+                </View>
+                <Icon name="chevron-forward" size={16} color="#A8A29E" />
+              </Card>
+            </TouchableOpacity>
+          ))}
+        </>
+      )}
+
+      {/* Recent Interventions */}
+      {interventions.length > 0 && (
+        <>
+          <SectionHeader title="Interventions recentes" action="Voir tout" onAction={() => router.push('/(tabs)/teleconsult')} />
+          {interventions.slice(0, 3).map((iv: any) => (
+            <TouchableOpacity key={iv.id} onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: iv.id } })}>
+              <Card style={{ borderLeftWidth: 3, borderLeftColor: iv.status === 'completed' ? '#10B981' : iv.status === 'in_progress' ? '#C67A4F' : '#F59E0B' }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#1C1917' }}>{iv.beneficiary_name || 'Intervention'}</Text>
+                <Text style={{ fontSize: 12, color: '#78716C', marginTop: 2 }}>{iv.status === 'completed' ? 'Terminee' : iv.status === 'in_progress' ? 'En cours' : 'En attente'}</Text>
+              </Card>
+            </TouchableOpacity>
+          ))}
         </>
       )}
     </ScrollView>
   );
 }
 
-/* ───── MAIN ───── */
+/* ═══════════════════════════════════════════════════════ */
+/*                   MAIN DASHBOARD ROUTER                 */
+/* ═══════════════════════════════════════════════════════ */
 export default function Dashboard() {
   const { user, token } = useAuth();
   if (!user || !token) return null;
+  const r = user.active_role || user.role;
 
-  const effectiveRole = user.active_role || user.role;
-
-  // key={effectiveRole} forces complete remount when role changes (Expo Router tab caching fix)
-  return (
-    <View key={effectiveRole} style={{ flex: 1, backgroundColor: '#F5F6F8' }} testID="dashboard-screen">
-      {effectiveRole === 'guardian' ? <GuardianHome token={token} user={user} />
-      : effectiveRole === 'teleassistance' ? <TeleassistanceHome token={token} user={user} />
-      : effectiveRole === 'admin' ? <AdminHome token={token} user={user} />
-      : effectiveRole === 'prescriber_company' ? <CompanyHome token={token} user={user} />
-      : <BeneficiaryHome token={token} user={user} />}
-    </View>
-  );
+  switch (r) {
+    case 'beneficiary': return <BeneficiaryHome token={token} user={user} />;
+    case 'guardian': return <GuardianHome token={token} user={user} />;
+    case 'teleassistance': return <TeleassistanceHome token={token} user={user} />;
+    case 'admin': return <AdminHome token={token} user={user} />;
+    case 'prescriber_company': return <CompanyHome token={token} user={user} />;
+    default: return <BeneficiaryHome token={token} user={user} />;
+  }
 }
