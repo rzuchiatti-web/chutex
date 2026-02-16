@@ -62,14 +62,14 @@ export default function AuthScreen() {
 
         {/* Glass pill badge */}
         <div className="glass-pill anim-up" style={{ marginBottom: 40, color: 'rgba(255,255,255,0.7)' } as any}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FFF', display: 'inline-block', flexShrink: 0 } as any}></span>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#FFF', display: 'inline-block', flexShrink: 0, animation: 'pulse-dot 2s ease-in-out infinite' } as any}></span>
           CARE WATCH — ESPACE SECURISE
         </div>
 
         {/* Typewriter title */}
-        <div className="anim-up d1" style={{ textAlign: 'center', marginBottom: 12, maxWidth: 420 } as any}>
-          <h1 style={{ fontSize: 32, fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2, margin: 0 }}>
-            <span className="typewriter">Connexion a votre espace.</span>
+        <div className="anim-up d1" style={{ textAlign: 'center', marginBottom: 12, width: '100%', maxWidth: 420, padding: '0 8px' } as any}>
+          <h1 style={{ fontSize: 'clamp(24px, 7vw, 34px)', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2, margin: 0, wordBreak: 'break-word' } as any}>
+            <span className="typewriter" style={{ whiteSpace: 'normal', display: 'inline' } as any}>Connexion a votre espace.</span>
           </h1>
         </div>
 
