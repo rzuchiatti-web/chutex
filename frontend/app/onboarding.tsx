@@ -87,8 +87,8 @@ export default function OnboardingScreen() {
         </div>
 
         {/* Center content — pushed higher */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', position: 'relative', zIndex: 5, padding: '0 28px', paddingTop: '18vh' } as any}>
-          <img src={LOGO} alt="Chutex" className="anim-up" style={{ height: 44, width: 'auto', marginBottom: 32 } as any} />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', position: 'relative', zIndex: 5, padding: '0 24px', paddingTop: '12vh' } as any}>
+          <img src={LOGO} alt="Chutex" className="anim-up" style={{ height: 52, width: 'auto', marginBottom: 36 } as any} />
           <div className="anim-up d2" style={{ textAlign: 'center', maxWidth: 340 } as any}>
             <Typewriter text={slide.title} speed={28} delay={600} color="#FFF" />
           </div>
