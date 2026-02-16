@@ -28,7 +28,7 @@ const DEFAULT_THRESHOLDS: Record<string, any> = {
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
 
 function SimpleChart({ data, color, width }: { data: number[]; color: string; width: number }) {
@@ -102,13 +102,13 @@ export default function HealthDetailScreen() {
   const maxVal = history.length > 0 ? Math.max(...history) : 0;
   const avgVal = history.length > 0 ? Math.round((history.reduce((a, b) => a + b, 0) / history.length) * 10) / 10 : 0;
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1A1D21" /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1C1917" /></SafeAreaView>;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21', textAlign: 'center', marginRight: 36 }}>{cfg.title}</Text>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1C1917" /></TouchableOpacity>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1C1917', textAlign: 'center', marginRight: 36 }}>{cfg.title}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
@@ -120,7 +120,7 @@ export default function HealthDetailScreen() {
         {/* Value + Chart card - overlapping image */}
         <GlassCard style={{ paddingTop: 70, zIndex: 2 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <Text style={{ fontSize: 38, fontWeight: '900', color: '#1A1D21' }}>{currentVal || '--'}<Text style={{ fontSize: 14, color: '#5A6068' }}> {cfg.unit}</Text></Text>
+            <Text style={{ fontSize: 38, fontWeight: '900', color: '#1C1917' }}>{currentVal || '--'}<Text style={{ fontSize: 14, color: '#78716C' }}> {cfg.unit}</Text></Text>
             <View style={{ backgroundColor: isNormal ? '#C8E6C9' : '#FFCDD2', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 8 }}>
               <Text style={{ fontSize: 11, fontWeight: '800', color: isNormal ? '#2E7D32' : '#C62828' }}>{isNormal ? 'BONNE SANTE' : 'ATTENTION'}</Text>
             </View>
@@ -130,20 +130,20 @@ export default function HealthDetailScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <View style={{ flexDirection: 'row', gap: 6 }}>
               {[{ k: '7', l: '7J' }, { k: '14', l: '14J' }, { k: '30', l: '30J' }].map(p => (
-                <TouchableOpacity key={p.k} style={[{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 9999, borderWidth: 1.5, borderColor: period === p.k ? '#000' : 'rgba(0,0,0,0.08)' }, period === p.k && { backgroundColor: '#F5F6F8' }]} onPress={() => setPeriod(p.k)}>
+                <TouchableOpacity key={p.k} style={[{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 9999, borderWidth: 1.5, borderColor: period === p.k ? '#000' : 'rgba(0,0,0,0.08)' }, period === p.k && { backgroundColor: '#FAF8F5' }]} onPress={() => setPeriod(p.k)}>
                   <Text style={{ fontSize: 11, fontWeight: '700', color: period === p.k ? '#FFF' : '#888' }}>{p.l}</Text>
                 </TouchableOpacity>
               ))}
             </View>
             {Platform.OS === 'web' && (
               <div><input type="date" value={selectedDate} onChange={(e: any) => setSelectedDate(e.target.value)} max={new Date().toISOString().split('T')[0]}
-                style={{ fontSize: 12, padding: '6px 10px', borderRadius: 10, border: '1px solid rgba(0,0,0,0.08)', background: 'transparent', fontFamily: 'system-ui', cursor: 'pointer', color: '#5A6068' }} /></div>
+                style={{ fontSize: 12, padding: '6px 10px', borderRadius: 10, border: '1px solid rgba(0,0,0,0.08)', background: 'transparent', fontFamily: 'system-ui', cursor: 'pointer', color: '#78716C' }} /></div>
             )}
           </View>
 
           {history.length > 1 && <SimpleChart data={history} color={cfg.color} width={screenW} />}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-            {history.map((_, i) => { const d = new Date(); d.setDate(d.getDate() - (history.length - 1 - i)); return <Text key={i} style={{ fontSize: 8, color: '#9BA3AD' }}>{d.getDate()}/{d.getMonth() + 1}</Text>; })}
+            {history.map((_, i) => { const d = new Date(); d.setDate(d.getDate() - (history.length - 1 - i)); return <Text key={i} style={{ fontSize: 8, color: '#A8A29E' }}>{d.getDate()}/{d.getMonth() + 1}</Text>; })}
           </View>
         </GlassCard>
 
@@ -151,8 +151,8 @@ export default function HealthDetailScreen() {
         <GlassCard style={{ flexDirection: 'row', padding: 14 }}>
           {[{ label: 'Plus bas', val: minVal }, { label: 'Moyenne', val: avgVal }, { label: 'Plus haut', val: maxVal }].map((s, i) => (
             <View key={i} style={{ flex: 1, alignItems: 'center', borderRightWidth: i < 2 ? 1 : 0, borderRightColor: 'rgba(0,0,0,0.06)' }}>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>{s.val}</Text>
-              <Text style={{ fontSize: 10, color: '#5A6068' }}>{s.label}</Text>
+              <Text style={{ fontSize: 22, fontWeight: '900', color: '#1C1917' }}>{s.val}</Text>
+              <Text style={{ fontSize: 10, color: '#78716C' }}>{s.label}</Text>
             </View>
           ))}
         </GlassCard>
@@ -160,8 +160,8 @@ export default function HealthDetailScreen() {
         {/* AI Recommendation */}
         <GlassCard>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <Icon name="sparkles" size={18} color="#1A1D21" />
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#1A1D21' }}>Analyse IA</Text>
+            <Icon name="sparkles" size={18} color="#1C1917" />
+            <Text style={{ fontSize: 14, fontWeight: '800', color: '#1C1917' }}>Analyse IA</Text>
           </View>
           <Text style={{ fontSize: 13, color: '#555', lineHeight: 20 }}>{aiRec}</Text>
         </GlassCard>
@@ -171,7 +171,7 @@ export default function HealthDetailScreen() {
           <View style={{ alignItems: 'center', marginBottom: 6 }}>
             <Image source={{ uri: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/kjf5ae40_exclamation.png' }} style={{ width: 28, height: 28, resizeMode: 'contain' }} />
           </View>
-          <Text style={{ fontSize: 14, fontWeight: '900', color: '#1A1D21', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Seuils d'alertes</Text>
+          <Text style={{ fontSize: 14, fontWeight: '900', color: '#1C1917', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Seuils d'alertes</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16, marginBottom: 10 }}>
             <View style={{ alignItems: 'center' }}>
               <View style={{ paddingHorizontal: 14, paddingVertical: 6, borderRadius: 8, borderWidth: 1.5, borderColor: '#1E88E5' }}>
@@ -186,8 +186,8 @@ export default function HealthDetailScreen() {
               <Text style={{ fontSize: 10, color: '#E53935', marginTop: 3 }}>Seuil haut</Text>
             </View>
           </View>
-          <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }} onPress={() => router.push({ pathname: '/edit-thresholds', params: { metricId: metricId || 'heart_rate' } })}>
-            <Text style={{ color: '#1A1D21', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>MODIFIER LES SEUILS</Text>
+          <TouchableOpacity style={{ backgroundColor: '#FAF8F5', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }} onPress={() => router.push({ pathname: '/edit-thresholds', params: { metricId: metricId || 'heart_rate' } })}>
+            <Text style={{ color: '#1C1917', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>MODIFIER LES SEUILS</Text>
           </TouchableOpacity>
         </GlassCard>
       </ScrollView>

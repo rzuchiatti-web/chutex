@@ -58,7 +58,7 @@ export default function EditThresholdsScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
   };
 
-  if (!loaded) return <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1A1D21" /></SafeAreaView>;
+  if (!loaded) return <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1C1917" /></SafeAreaView>;
 
   const basVal = parseFloat(seuilBas) || config.min;
   const hautVal = parseFloat(seuilHaut) || config.max;
@@ -66,16 +66,16 @@ export default function EditThresholdsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>Modifier les seuils</Text>
+        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1C1917" /></TouchableOpacity>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1C1917' }}>Modifier les seuils</Text>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, alignItems: 'center' }}>
         {/* Big illustration */}
         {img && <Image source={{ uri: img }} style={{ width: 140, height: 140, resizeMode: 'contain', marginBottom: 16 }} />}
-        <Text style={{ fontSize: 20, fontWeight: '900', color: '#1A1D21', textAlign: 'center', textTransform: 'uppercase', marginBottom: 24 }}>{config.title}</Text>
+        <Text style={{ fontSize: 20, fontWeight: '900', color: '#1C1917', textAlign: 'center', textTransform: 'uppercase', marginBottom: 24 }}>{config.title}</Text>
 
         {/* Seuil inputs */}
-        <View style={[{ width: '100%', backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 24, marginBottom: 16, ...glass }]}>
+        <View style={[{ width: '100%', backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 24, marginBottom: 16, ...glass }]}>
           <View style={{ flexDirection: 'row', gap: 20, marginBottom: 20 }}>
             <View style={{ flex: 1, alignItems: 'center' }}>
               <Text style={{ fontSize: 12, fontWeight: '800', color: '#1E88E5', textTransform: 'uppercase', marginBottom: 8 }}>SEUIL BAS</Text>
@@ -103,14 +103,14 @@ export default function EditThresholdsScreen() {
             </View>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068' }}>{config.min}{config.unit}</Text>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068' }}>{config.max}{config.unit}</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#78716C' }}>{config.min}{config.unit}</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#78716C' }}>{config.max}{config.unit}</Text>
           </View>
         </View>
 
         {/* Confirm */}
-        <TouchableOpacity style={{ width: '100%', backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 18, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={save} disabled={saving}>
-          {saving ? <ActivityIndicator color="#1A1D21" /> : <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 }}>CONFIRMER LES NOUVEAUX SEUILS</Text>}
+        <TouchableOpacity style={{ width: '100%', backgroundColor: '#FAF8F5', borderRadius: 9999, paddingVertical: 18, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={save} disabled={saving}>
+          {saving ? <ActivityIndicator color="#1C1917" /> : <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 }}>CONFIRMER LES NOUVEAUX SEUILS</Text>}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

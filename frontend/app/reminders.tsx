@@ -24,7 +24,7 @@ const DAYS = [
 ];
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
 
 function getTimeRemaining(reminders: any[]): string {
@@ -85,17 +85,17 @@ export default function RemindersScreen() {
     try { await apiFetch(`/api/reminders/${rid}`, { method: 'DELETE' }, token); setConfirmDelete(null); fetch_(); } catch (e: any) { if (Platform.OS === 'web') window.alert(e.message); }
   };
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1A1D21" /></SafeAreaView>;
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1C1917" /></SafeAreaView>;
 
   const cat = activeCat ? CATEGORIES.find(c => c.key === activeCat) : null;
   const catR = cat ? reminders.filter(r => cat.types.includes(r.reminder_type)) : [];
 
   if (!activeCat) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-          <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
-          <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>Mes rappels</Text>
+          <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1C1917" /></TouchableOpacity>
+          <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1C1917' }}>Mes rappels</Text>
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
           {CATEGORIES.map(c => {
@@ -105,9 +105,9 @@ export default function RemindersScreen() {
                 <GlassCard style={{ flexDirection: 'row', alignItems: 'center', padding: 20 }}>
                   <Image source={{ uri: REMINDER_IMAGES[c.key] }} style={{ width: 56, height: 56, resizeMode: 'contain', marginRight: 16 }} />
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 18, fontWeight: '800', color: '#1A1D21' }}>{c.label}</Text>
-                    <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 2 }}>{items.length} rappel{items.length !== 1 ? 's' : ''}</Text>
-                    <Text style={{ fontSize: 12, fontWeight: '800', color: '#1A1D21', marginTop: 6 }}>Prochain dans {getTimeRemaining(items.filter(r => r.active))}</Text>
+                    <Text style={{ fontSize: 18, fontWeight: '800', color: '#1C1917' }}>{c.label}</Text>
+                    <Text style={{ fontSize: 12, color: '#78716C', marginTop: 2 }}>{items.length} rappel{items.length !== 1 ? 's' : ''}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '800', color: '#1C1917', marginTop: 6 }}>Prochain dans {getTimeRemaining(items.filter(r => r.active))}</Text>
                   </View>
                   <Icon name="chevron-forward" size={20} color="#888" />
                 </GlassCard>
@@ -120,10 +120,10 @@ export default function RemindersScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => setActiveCat(null)} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1A1D21" /></TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>{cat?.label}</Text>
+        <TouchableOpacity onPress={() => setActiveCat(null)} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#1C1917" /></TouchableOpacity>
+        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1C1917' }}>{cat?.label}</Text>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
         <View style={{ alignItems: 'center', marginBottom: 16 }}>
@@ -134,9 +134,9 @@ export default function RemindersScreen() {
           <GlassCard key={r.id} style={{ opacity: r.active ? 1 : 0.5 }}>
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
               <TouchableOpacity style={{ flex: 1 }} onPress={() => openEdit(r)}>
-                <Text style={{ fontSize: 30, fontWeight: '900', color: '#1A1D21' }}>{r.time}</Text>
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', marginTop: 4 }}>{r.title}</Text>
-                {r.dosage ? <Text style={{ fontSize: 12, color: '#5A6068' }}>{r.dosage}</Text> : null}
+                <Text style={{ fontSize: 30, fontWeight: '900', color: '#1C1917' }}>{r.time}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: '#1C1917', marginTop: 4 }}>{r.title}</Text>
+                {r.dosage ? <Text style={{ fontSize: 12, color: '#78716C' }}>{r.dosage}</Text> : null}
                 {/* Day chips */}
                 <View style={{ flexDirection: 'row', gap: 4, marginTop: 8 }}>
                   {DAYS.map(d => (
@@ -156,9 +156,9 @@ export default function RemindersScreen() {
           </GlassCard>
         ))}
 
-        {catR.length === 0 && <GlassCard style={{ alignItems: 'center', padding: 32 }}><Icon name="alarm-outline" size={32} color="#888" /><Text style={{ fontSize: 14, color: '#5A6068', marginTop: 8 }}>Aucun rappel</Text></GlassCard>}
+        {catR.length === 0 && <GlassCard style={{ alignItems: 'center', padding: 32 }}><Icon name="alarm-outline" size={32} color="#888" /><Text style={{ fontSize: 14, color: '#78716C', marginTop: 8 }}>Aucun rappel</Text></GlassCard>}
 
-        <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 16, alignItems: 'center', marginTop: 4 }} onPress={openCreate}>
+        <TouchableOpacity style={{ backgroundColor: '#FAF8F5', borderRadius: 9999, paddingVertical: 16, alignItems: 'center', marginTop: 4 }} onPress={openCreate}>
           <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>AJOUTER UN RAPPEL</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -168,11 +168,11 @@ export default function RemindersScreen() {
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 32, zIndex: 100 }}>
           <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, padding: 24, alignItems: 'center' }}>
             <Icon name="trash-outline" size={32} color="#E53935" />
-            <Text style={{ fontSize: 18, fontWeight: '800', color: '#1A1D21', marginTop: 12 }}>Supprimer ce rappel ?</Text>
-            <Text style={{ fontSize: 13, color: '#5A6068', marginTop: 4 }}>Cette action est irreversible</Text>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#1C1917', marginTop: 12 }}>Supprimer ce rappel ?</Text>
+            <Text style={{ fontSize: 13, color: '#78716C', marginTop: 4 }}>Cette action est irreversible</Text>
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 20, width: '100%' }}>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#F5F5F5', alignItems: 'center' }} onPress={() => setConfirmDelete(null)}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#5A6068' }}>Annuler</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#78716C' }}>Annuler</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#E53935', alignItems: 'center' }} onPress={() => doDelete(confirmDelete)}>
                 <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>SUPPRIMER</Text>
@@ -186,15 +186,15 @@ export default function RemindersScreen() {
       <Modal visible={showModal} transparent animationType="slide">
         <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
-            <Text style={{ fontSize: 20, fontWeight: '900', color: '#1A1D21', marginBottom: 16 }}>{editR ? 'Modifier' : 'Nouveau rappel'}</Text>
+            <Text style={{ fontSize: 20, fontWeight: '900', color: '#1C1917', marginBottom: 16 }}>{editR ? 'Modifier' : 'Nouveau rappel'}</Text>
             {Platform.OS === 'web' && (<>
-              <div style={{ marginBottom: 12 }}><div style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>Titre</div><input type="text" placeholder="Ex: Boire 1 verre" value={fTitle} onChange={(e: any) => setFTitle(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(245,245,245,0.8)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
-              <div style={{ marginBottom: 12 }}><div style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>Heure</div><input type="time" value={fTime} onChange={(e: any) => setFTime(e.target.value)} style={{ width: '100%', fontSize: 18, fontWeight: '800', padding: '12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(245,245,245,0.8)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
-              {activeCat === 'medication' && <div style={{ marginBottom: 12 }}><div style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>Dosage</div><input type="text" placeholder="1 comprime" value={fDosage} onChange={(e: any) => setFDosage(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(245,245,245,0.8)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>}
+              <div style={{ marginBottom: 12 }}><div style={{ fontSize: 11, fontWeight: '700', color: '#78716C', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>Titre</div><input type="text" placeholder="Ex: Boire 1 verre" value={fTitle} onChange={(e: any) => setFTitle(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(245,245,245,0.8)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
+              <div style={{ marginBottom: 12 }}><div style={{ fontSize: 11, fontWeight: '700', color: '#78716C', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>Heure</div><input type="time" value={fTime} onChange={(e: any) => setFTime(e.target.value)} style={{ width: '100%', fontSize: 18, fontWeight: '800', padding: '12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(245,245,245,0.8)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
+              {activeCat === 'medication' && <div style={{ marginBottom: 12 }}><div style={{ fontSize: 11, fontWeight: '700', color: '#78716C', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>Dosage</div><input type="text" placeholder="1 comprime" value={fDosage} onChange={(e: any) => setFDosage(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(245,245,245,0.8)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>}
             </>)}
             <View style={{ flexDirection: 'row', gap: 6, marginBottom: 16, justifyContent: 'center' }}>
               {DAYS.map(d => (
-                <TouchableOpacity key={d.key} style={[{ width: 38, height: 38, borderRadius: 19, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: fDays.includes(d.key) ? '#000' : '#DDD' }, fDays.includes(d.key) && { backgroundColor: '#F5F6F8' }]}
+                <TouchableOpacity key={d.key} style={[{ width: 38, height: 38, borderRadius: 19, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: fDays.includes(d.key) ? '#000' : '#DDD' }, fDays.includes(d.key) && { backgroundColor: '#FAF8F5' }]}
                   onPress={() => setFDays(prev => prev.includes(d.key) ? prev.filter(x => x !== d.key) : [...prev, d.key])}>
                   <Text style={{ fontSize: 11, fontWeight: '700', color: fDays.includes(d.key) ? '#FFF' : '#888' }}>{d.s}</Text>
                 </TouchableOpacity>
@@ -202,10 +202,10 @@ export default function RemindersScreen() {
             </View>
             <View style={{ flexDirection: 'row', gap: 12 }}>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#F5F5F5', alignItems: 'center' }} onPress={() => setShowModal(false)}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#5A6068' }}>Annuler</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#78716C' }}>Annuler</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#F5F6F8', alignItems: 'center' }} onPress={save} disabled={saving}>
-                {saving ? <ActivityIndicator color="#1A1D21" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>{editR ? 'MODIFIER' : 'CREER'}</Text>}
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#FAF8F5', alignItems: 'center' }} onPress={save} disabled={saving}>
+                {saving ? <ActivityIndicator color="#1C1917" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>{editR ? 'MODIFIER' : 'CREER'}</Text>}
               </TouchableOpacity>
             </View>
           </View>

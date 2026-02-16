@@ -10,14 +10,14 @@ import { apiFetch } from '../src/services/api';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
 const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) => (
   value ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
       <Icon name={icon as any} size={16} color={color || '#888'} />
-      <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
-      <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
+      <Text style={{ fontSize: 12, color: '#78716C', width: 100 }}>{label}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: '#1C1917', flex: 1 }}>{value}</Text>
     </View>
   ) : null
 );
@@ -99,8 +99,8 @@ export default function AlertDetailScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setEscalating(false); }
   };
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1A1D21" /></SafeAreaView>;
-  if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8', justifyContent: 'center', alignItems: 'center' }}><Text>Erreur de chargement</Text></SafeAreaView>;
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#1C1917" /></SafeAreaView>;
+  if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5', justifyContent: 'center', alignItems: 'center' }}><Text>Erreur de chargement</Text></SafeAreaView>;
 
   const a = data.alert;
   const ben = data.beneficiary;
@@ -161,12 +161,12 @@ export default function AlertDetailScreen() {
   const alertTypeLabel = a.alert_type === 'sos' ? 'SOS - Urgence' : a.alert_type === 'fall' ? 'Chute detectee' : a.alert_type === 'heart_rate' ? 'Anomalie cardiaque' : a.alert_type === 'spo2' ? 'SpO2 anormale' : a.alert_type === 'inactivity' ? 'Inactivite' : 'Alerte';
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }} testID="alert-detail-screen">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5' }} testID="alert-detail-screen">
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
         <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={{ padding: 4 }}>
-          <Icon name="chevron-back" size={24} color="#1A1D21" />
+          <Icon name="chevron-back" size={24} color="#1C1917" />
         </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche Alerte</Text>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1C1917' }}>Fiche Alerte</Text>
         <View style={{ backgroundColor: (isActive ? '#E53935' : '#4CAF50') + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}>
           <Text style={{ fontSize: 10, fontWeight: '800', color: isActive ? '#E53935' : '#4CAF50', textTransform: 'uppercase' }}>{isActive ? 'Active' : 'Resolue'}</Text>
         </View>
@@ -182,8 +182,8 @@ export default function AlertDetailScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 11, fontWeight: '800', color: statusColor, textTransform: 'uppercase', letterSpacing: 0.5 }}>{statusMessage}</Text>
-              <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21', marginTop: 4 }}>{alertTypeLabel}</Text>
-              <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 2 }}>{a.message}</Text>
+              <Text style={{ fontSize: 16, fontWeight: '900', color: '#1C1917', marginTop: 4 }}>{alertTypeLabel}</Text>
+              <Text style={{ fontSize: 12, color: '#78716C', marginTop: 2 }}>{a.message}</Text>
             </View>
           </View>
         </GlassCard>
@@ -202,7 +202,7 @@ export default function AlertDetailScreen() {
           <GlassCard style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
             {iAmIntervenant ? (
               <View style={{ backgroundColor: '#10B981', borderRadius: 16, padding: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
-                <Icon name="shield-checkmark" size={22} color="#1A1D21" />
+                <Icon name="shield-checkmark" size={22} color="#1C1917" />
                 <View>
                   <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VOUS GEREZ CETTE INTERVENTION</Text>
                   <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, marginTop: 2 }}>Les gardiens peuvent suivre votre position</Text>
@@ -219,9 +219,9 @@ export default function AlertDetailScreen() {
                   }
                 }}
                 disabled={accepting}>
-                {accepting ? <ActivityIndicator color="#1A1D21" /> : (
+                {accepting ? <ActivityIndicator color="#1C1917" /> : (
                   <>
-                    <Icon name="shield-checkmark" size={22} color="#1A1D21" />
+                    <Icon name="shield-checkmark" size={22} color="#1C1917" />
                     <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900', letterSpacing: 1 }}>J'INTERVIENS</Text>
                   </>
                 )}
@@ -230,8 +230,8 @@ export default function AlertDetailScreen() {
               <TouchableOpacity testID="follow-btn"
                 style={{ backgroundColor: '#009688', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}
                 onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: intervention.id } })}>
-                <Icon name="navigate" size={20} color="#1A1D21" />
-                <Text style={{ color: '#1A1D21', fontSize: 14, fontWeight: '800' }}>SUIVRE {intervention.assigned_name?.split(' ')[0]?.toUpperCase()} SUR LA CARTE</Text>
+                <Icon name="navigate" size={20} color="#1C1917" />
+                <Text style={{ color: '#1C1917', fontSize: 14, fontWeight: '800' }}>SUIVRE {intervention.assigned_name?.split(' ')[0]?.toUpperCase()} SUR LA CARTE</Text>
               </TouchableOpacity>
             ) : hasIntervenant ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 4 }}>
@@ -245,11 +245,11 @@ export default function AlertDetailScreen() {
         {/* Operator Actions */}
         {isOperator && isActive && (
           <GlassCard style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>ACTIONS OPERATEUR</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>ACTIONS OPERATEUR</Text>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#E53935', borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6 }} onPress={startEscalation} disabled={escalating}>
-                {escalating ? <ActivityIndicator color="#1A1D21" size="small" /> : (
-                  <><Icon name="git-branch" size={16} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>LANCER CARE WATCH</Text></>
+                {escalating ? <ActivityIndicator color="#1C1917" size="small" /> : (
+                  <><Icon name="git-branch" size={16} color="#1C1917" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>LANCER CARE WATCH</Text></>
                 )}
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6, borderWidth: 2, borderColor: '#4CAF50' }} onPress={resolveAlert}>
@@ -267,7 +267,7 @@ export default function AlertDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="person" size={18} color="#0288D1" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Beneficiaire</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1C1917' }}>Beneficiaire</Text>
             </View>
             <InfoRow icon="person-outline" label="Nom" value={ben.name} color="#0288D1" />
             <InfoRow icon="call-outline" label="Telephone" value={ben.phone} />
@@ -287,7 +287,7 @@ export default function AlertDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="shield-checkmark" size={18} color="#9C27B0" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Intervenant</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1C1917' }}>Intervenant</Text>
               <View style={{ backgroundColor: '#009688' + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
                 <Text style={{ fontSize: 9, fontWeight: '800', color: '#009688', textTransform: 'uppercase' }}>{intervention.status === 'en_route' ? 'En route' : intervention.status === 'completed' ? 'Termine' : 'Actif'}</Text>
               </View>
@@ -305,7 +305,7 @@ export default function AlertDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="document-text" size={18} color="#4CAF50" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Rapport d'intervention</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1C1917' }}>Rapport d'intervention</Text>
             </View>
             {intervention.report.patient_condition && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
@@ -315,14 +315,14 @@ export default function AlertDetailScreen() {
             )}
             {intervention.report.description && (
               <View style={{ marginBottom: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', marginBottom: 4 }}>Description</Text>
-                <Text style={{ fontSize: 13, color: '#1A1D21', lineHeight: 20 }}>{intervention.report.description}</Text>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#78716C', marginBottom: 4 }}>Description</Text>
+                <Text style={{ fontSize: 13, color: '#1C1917', lineHeight: 20 }}>{intervention.report.description}</Text>
               </View>
             )}
             {intervention.report.actions_taken && (
               <View style={{ marginBottom: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', marginBottom: 4 }}>Actions effectuees</Text>
-                <Text style={{ fontSize: 13, color: '#1A1D21', lineHeight: 20 }}>{intervention.report.actions_taken}</Text>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#78716C', marginBottom: 4 }}>Actions effectuees</Text>
+                <Text style={{ fontSize: 13, color: '#1C1917', lineHeight: 20 }}>{intervention.report.actions_taken}</Text>
               </View>
             )}
             {intervention.report.follow_up_needed && (
@@ -332,7 +332,7 @@ export default function AlertDetailScreen() {
               </View>
             )}
             {intervention.report.completed_by && (
-              <Text style={{ fontSize: 10, color: '#5A6068', marginTop: 8 }}>Rapport par {intervention.report.completed_by} - {intervention.report.completed_at ? new Date(intervention.report.completed_at).toLocaleString('fr-FR') : ''}</Text>
+              <Text style={{ fontSize: 10, color: '#78716C', marginTop: 8 }}>Rapport par {intervention.report.completed_by} - {intervention.report.completed_at ? new Date(intervention.report.completed_at).toLocaleString('fr-FR') : ''}</Text>
             )}
           </GlassCard>
         )}
@@ -344,7 +344,7 @@ export default function AlertDetailScreen() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="document-text" size={18} color="#4CAF50" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Rapport d'intervention</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#1C1917' }}>Rapport d'intervention</Text>
             </View>
             {a.intervention_report.patient_condition && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
@@ -352,8 +352,8 @@ export default function AlertDetailScreen() {
                 <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat: {a.intervention_report.patient_condition === 'stable' ? 'Stable' : a.intervention_report.patient_condition}</Text>
               </View>
             )}
-            {a.intervention_report.description && <Text style={{ fontSize: 13, color: '#1A1D21', lineHeight: 20, marginBottom: 6 }}>{a.intervention_report.description}</Text>}
-            {a.intervention_report.actions_taken && <Text style={{ fontSize: 13, color: '#1A1D21', lineHeight: 20, marginBottom: 6 }}><Text style={{ fontWeight: '700' }}>Actions:</Text> {a.intervention_report.actions_taken}</Text>}
+            {a.intervention_report.description && <Text style={{ fontSize: 13, color: '#1C1917', lineHeight: 20, marginBottom: 6 }}>{a.intervention_report.description}</Text>}
+            {a.intervention_report.actions_taken && <Text style={{ fontSize: 13, color: '#1C1917', lineHeight: 20, marginBottom: 6 }}><Text style={{ fontWeight: '700' }}>Actions:</Text> {a.intervention_report.actions_taken}</Text>}
             {a.intervention_report.follow_up_needed && (
               <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
                 <Icon name="flag" size={14} color="#FF9800" />
@@ -370,14 +370,14 @@ export default function AlertDetailScreen() {
               <Icon name="time" size={18} color="#FF9800" />
               <Text style={{ fontSize: 14, fontWeight: '800', color: '#FF9800' }}>En attente d'un intervenant</Text>
             </View>
-            <Text style={{ fontSize: 12, color: '#5A6068', marginBottom: 8 }}>{intervention.recipients?.length || 0} intervenants notifies</Text>
+            <Text style={{ fontSize: 12, color: '#78716C', marginBottom: 8 }}>{intervention.recipients?.length || 0} intervenants notifies</Text>
             {(intervention.recipients || []).map((r: any) => (
               <View key={r.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
                 <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#9C27B015', justifyContent: 'center', alignItems: 'center' }}>
                   <Icon name="person" size={14} color="#9C27B0" />
                 </View>
-                <Text style={{ fontSize: 12, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{r.name}</Text>
-                {r.distance_km && <Text style={{ fontSize: 10, color: '#5A6068' }}>{r.distance_km} km</Text>}
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#1C1917', flex: 1 }}>{r.name}</Text>
+                {r.distance_km && <Text style={{ fontSize: 10, color: '#78716C' }}>{r.distance_km} km</Text>}
               </View>
             ))}
           </GlassCard>
@@ -386,7 +386,7 @@ export default function AlertDetailScreen() {
         {/* Timeline */}
         {data.timeline?.length > 0 && (
           <GlassCard>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>CHRONOLOGIE</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>CHRONOLOGIE</Text>
             {data.timeline.map((t: any, i: number) => {
               const evColor = t.event === 'resolved' ? '#4CAF50' : t.event === 'alert_created' ? '#E53935' : t.event?.includes('call') ? '#2196F3' : t.event === 'intervention' ? '#9C27B0' : '#000';
               return (
@@ -396,8 +396,8 @@ export default function AlertDetailScreen() {
                     {i < data.timeline.length - 1 && <View style={{ width: 2, flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', minHeight: 16 }} />}
                   </View>
                   <View style={{ flex: 1, paddingBottom: 10 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#1A1D21' }}>{t.detail}</Text>
-                    <Text style={{ fontSize: 10, color: '#9BA3AD', marginTop: 1 }}>{new Date(t.time).toLocaleString('fr-FR')}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#1C1917' }}>{t.detail}</Text>
+                    <Text style={{ fontSize: 10, color: '#A8A29E', marginTop: 1 }}>{new Date(t.time).toLocaleString('fr-FR')}</Text>
                   </View>
                 </View>
               );
@@ -407,7 +407,7 @@ export default function AlertDetailScreen() {
 
         {/* Alert Details */}
         <GlassCard>
-          <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>DETAILS</Text>
+          <Text style={{ fontSize: 11, fontWeight: '700', color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>DETAILS</Text>
           <InfoRow icon="alert-circle-outline" label="Type" value={alertTypeLabel} color="#E53935" />
           <InfoRow icon="speedometer-outline" label="Severite" value={a.severity === 'critical' ? 'Critique' : a.severity === 'high' ? 'Eleve' : 'Moyen'} color="#E53935" />
           <InfoRow icon="watch-outline" label="Appareil" value={a.device_type || 'bracelet'} />
@@ -419,7 +419,7 @@ export default function AlertDetailScreen() {
         {(isGuardian || isOperator) && isActive && (
           <TouchableOpacity onPress={() => setShowReport(true)}
             style={{ backgroundColor: '#10B981', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: 12 }}>
-            <Icon name="document-text" size={20} color="#1A1D21" />
+            <Icon name="document-text" size={20} color="#1C1917" />
             <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>CLOTURER AVEC RAPPORT</Text>
           </TouchableOpacity>
         )}
@@ -430,11 +430,11 @@ export default function AlertDetailScreen() {
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <Text style={{ fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>Rapport de cloture</Text>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#1C1917' }}>Rapport de cloture</Text>
               <TouchableOpacity onPress={() => setShowReport(false)}><Icon name="close" size={24} color="#888" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={{ fontSize: 12, color: '#5A6068', marginBottom: 4 }}>Etat du patient</Text>
+              <Text style={{ fontSize: 12, color: '#78716C', marginBottom: 4 }}>Etat du patient</Text>
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
                 {[{k: 'stable', l: 'Stable', c: '#4CAF50'}, {k: 'improved', l: 'Ameliore', c: '#2196F3'}, {k: 'needs_care', l: 'Soins necessaires', c: '#FF9800'}].map(o => (
                   <TouchableOpacity key={o.k} style={[{ flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center', borderWidth: 2, borderColor: reportForm.patient_condition === o.k ? o.c : '#E0E0E0' }, reportForm.patient_condition === o.k && { backgroundColor: o.c + '15' }]}
@@ -443,16 +443,16 @@ export default function AlertDetailScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
-              <Text style={{ fontSize: 12, color: '#5A6068', marginBottom: 4 }}>Description de la situation</Text>
+              <Text style={{ fontSize: 12, color: '#78716C', marginBottom: 4 }}>Description de la situation</Text>
               <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 80, textAlignVertical: 'top', marginBottom: 12 }}
                 placeholder="Decrivez ce que vous avez constate..." multiline value={reportForm.description} onChangeText={v => setReportForm({...reportForm, description: v})} />
-              <Text style={{ fontSize: 12, color: '#5A6068', marginBottom: 4 }}>Actions effectuees</Text>
+              <Text style={{ fontSize: 12, color: '#78716C', marginBottom: 4 }}>Actions effectuees</Text>
               <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 60, textAlignVertical: 'top', marginBottom: 12 }}
                 placeholder="Ex: Aide au relevage, appel medecin..." multiline value={reportForm.actions_taken} onChangeText={v => setReportForm({...reportForm, actions_taken: v})} />
               <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}
                 onPress={() => setReportForm({...reportForm, follow_up_needed: !reportForm.follow_up_needed})}>
                 <Icon name={reportForm.follow_up_needed ? 'checkbox' : 'square-outline'} size={22} color={reportForm.follow_up_needed ? '#FF9800' : '#888'} />
-                <Text style={{ fontSize: 14, color: '#1A1D21' }}>Suivi necessaire</Text>
+                <Text style={{ fontSize: 14, color: '#1C1917' }}>Suivi necessaire</Text>
               </TouchableOpacity>
               {reportForm.follow_up_needed && (
                 <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, marginBottom: 12 }}
@@ -460,8 +460,8 @@ export default function AlertDetailScreen() {
               )}
               <TouchableOpacity style={{ backgroundColor: '#10B981', borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
                 onPress={handleCompleteWithReport} disabled={submittingReport}>
-                {submittingReport ? <ActivityIndicator color="#1A1D21" /> : (
-                  <><Icon name="checkmark-circle" size={20} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VALIDER ET CLOTURER</Text></>
+                {submittingReport ? <ActivityIndicator color="#1C1917" /> : (
+                  <><Icon name="checkmark-circle" size={20} color="#1C1917" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VALIDER ET CLOTURER</Text></>
                 )}
               </TouchableOpacity>
             </ScrollView>
