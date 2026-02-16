@@ -174,8 +174,8 @@ export default function AuthScreen() {
             <Text style={{ fontSize: 10, fontWeight: '600', color: C.textMid, marginTop: 10, letterSpacing: 2.5, textTransform: 'uppercase' }}>L'innovation au service de la sante</Text>
           </Animated.View>
 
-          {/* Glass panel */}
-          <Animated.View style={[{ borderRadius: 30, padding: 28, overflow: 'hidden' }, glassPanel, { transform: [{ translateY: slideAnim }] }] as any}>
+          {/* Glass panel - no transform to avoid keyboard layout issues */}
+          <View style={[{ borderRadius: 30, padding: 28, overflow: 'hidden' }, glassPanel] as any}>
 
             {error ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(239,68,68,0.12)', borderRadius: 14, padding: 12, marginBottom: 16, borderWidth: 0.5, borderColor: 'rgba(239,68,68,0.20)' }}>
