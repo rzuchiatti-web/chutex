@@ -24,55 +24,39 @@ const REMINDER_IMAGES = {
   alarm: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/hzoi0qcr_alarmes.png',
 };
 
-const webShadow = Platform.OS === 'web' ? { boxShadow: '0 10px 30px rgba(0,0,0,0.08)' } : { shadowColor: '#14141E', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.08, shadowRadius: 30, elevation: 3 };
-const webGlass = Platform.OS === 'web' ? { backdropFilter: 'blur(12px) saturate(120%)', WebkitBackdropFilter: 'blur(12px) saturate(120%)' } : {};
+const webShadow = Platform.OS === 'web' ? { boxShadow: '0 1px 3px rgba(0,0,0,0.08)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 3, elevation: 1 };
+const webGlass = Platform.OS === 'web' ? {} : {};
 
-/* ─── PREMIUM CARD ─── */
+/* ─── CARD ─── */
 const Card = ({ children, style, testID }: any) => (
-  <View testID={testID} style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 20, marginBottom: 16, ...webShadow }, style]}>{children}</View>
+  <View testID={testID} style={[{ backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#E5E7EB', padding: 16, marginBottom: 12, ...webShadow }, style]}>{children}</View>
 );
 
-/* ─── HERO GRADIENT CARD (web only renders as warm bg) ─── */
+/* ─── HEADER CARD ─── */
 const HeroCard = ({ children, style }: any) => (
   <View style={[{
-    borderRadius: 24, padding: 28, marginBottom: 20, overflow: 'hidden',
-    backgroundColor: '#111827',
-    ...(Platform.OS === 'web' ? {
-      background: 'linear-gradient(135deg, #111827 0%, #6B7280 45%, #E5E7EB 100%)',
-      backgroundSize: '200% 200%',
-      animation: 'gradientDrift 12s ease infinite',
-      boxShadow: '0 10px 30px rgba(0,0,0,0.18)',
-    } : {}),
+    borderRadius: 16, padding: 20, marginBottom: 16, overflow: 'hidden',
+    backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB',
   }, style]}>{children}</View>
 );
 
-/* ─── WARM STATUS BADGE ─── */
+/* ─── STATUS BADGE ─── */
 const StatusBadge = ({ label, color }: { label: string; color?: string }) => (
-  <View style={{ backgroundColor: color ? `${color}15` : 'rgba(16,185,129,0.10)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 99, alignSelf: 'flex-start', marginTop: 6 }}>
-    <Text style={{ fontSize: 10, fontWeight: '700', color: color || '#10B981', letterSpacing: 0.5, textTransform: 'uppercase' }}>{label}</Text>
+  <View style={{ backgroundColor: color ? `${color}15` : '#ECFDF5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 99, alignSelf: 'flex-start', marginTop: 4 }}>
+    <Text style={{ fontSize: 10, fontWeight: '600', color: color || '#10B981', letterSpacing: 0.3, textTransform: 'uppercase' }}>{label}</Text>
   </View>
 );
 
-/* ─── PILL BUTTON (primary dark gradient) ─── */
-const PillButton = ({ label, icon, onPress, testID, variant = 'dark' }: any) => {
-  const isDark = variant === 'dark';
-  const isWarm = variant === 'warm';
-  return (
-    <TouchableOpacity testID={testID} activeOpacity={0.85} style={{
-      backgroundColor: isDark ? '#111827' : isWarm ? '#111827' : '#F3F4F6',
-      borderRadius: 9999, paddingVertical: 16, paddingHorizontal: 28,
-      flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 16,
-      ...(Platform.OS === 'web' ? {
-        background: isDark ? 'linear-gradient(135deg, #111827, #2D2E34)' : isWarm ? 'linear-gradient(135deg, #111827, #6B7280)' : '#F3F4F6',
-        boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.15)' : isWarm ? '0 10px 30px rgba(0,0,0,0.2)' : '0 4px 16px rgba(0,0,0,0.05)',
-        transition: 'all 280ms cubic-bezier(0.22, 1, 0.36, 1)',
-      } : { shadowColor: isDark ? '#14141E' : '#111827', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 6 }),
-    }} onPress={onPress}>
-      {icon && <Icon name={icon} size={18} color={isDark || isWarm ? '#FFF' : '#111827'} />}
-      <Text style={{ color: isDark || isWarm ? '#FFFFFF' : '#111827', fontSize: 15, fontWeight: '600' }}>{label}</Text>
-    </TouchableOpacity>
-  );
-};
+/* ─── BUTTON ─── */
+const PillButton = ({ label, icon, onPress, testID, variant = 'dark' }: any) => (
+  <TouchableOpacity testID={testID} activeOpacity={0.85} style={{
+    backgroundColor: '#111827', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 24,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12,
+  }} onPress={onPress}>
+    {icon && <Icon name={icon} size={16} color="#FFF" />}
+    <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '600' }}>{label}</Text>
+  </TouchableOpacity>
+);
 
 /* ─── QUICK ACTION CIRCLE ─── */
 const QuickAction = ({ icon, label, onPress, color = '#F3F4F6' }: any) => (
