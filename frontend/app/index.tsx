@@ -165,7 +165,7 @@ export default function AuthScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
           <ScrollView
-            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 22, paddingVertical: 40, maxWidth: 440, width: '100%', alignSelf: 'center' }}
+            contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 80, paddingBottom: 40, maxWidth: 440, width: '100%', alignSelf: 'center' }}
             keyboardShouldPersistTaps="always"
             keyboardDismissMode="none"
             showsVerticalScrollIndicator={false}
