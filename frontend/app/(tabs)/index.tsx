@@ -35,12 +35,13 @@ const Card = ({ children, style, testID }: any) => (
 /* ─── HERO GRADIENT CARD (web only renders as warm bg) ─── */
 const HeroCard = ({ children, style }: any) => (
   <View style={[{
-    borderRadius: 28, padding: 24, marginBottom: 16, overflow: 'hidden',
+    borderRadius: 24, padding: 28, marginBottom: 20, overflow: 'hidden',
     backgroundColor: '#D4845A',
     ...(Platform.OS === 'web' ? {
-      background: 'linear-gradient(135deg, #D4845A 0%, #E8A87C 40%, #F5CBA7 100%)',
+      background: 'linear-gradient(135deg, #D4845A 0%, #E8A87C 45%, #F5CBA7 100%)',
       backgroundSize: '200% 200%',
-      boxShadow: '0 8px 32px rgba(212,132,90,0.2)',
+      animation: 'gradientDrift 12s ease infinite',
+      boxShadow: '0 10px 30px rgba(212,132,90,0.18)',
     } : {}),
   }, style]}>{children}</View>
 );
