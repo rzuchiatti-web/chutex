@@ -23,12 +23,13 @@ export default function TabLayout() {
       tabBarActiveTintColor: '#111827',
       tabBarInactiveTintColor: '#9CA3AF',
       tabBarStyle: {
-        backgroundColor: 'rgba(255,255,255,0.96)',
-        borderTopWidth: 0, height: Platform.OS === 'web' ? 64 : 70,
-        paddingBottom: Platform.OS === 'web' ? 8 : Math.max(12, 6), paddingTop: 8,
+        backgroundColor: '#FFFFFF',
+        borderTopWidth: 1, borderTopColor: '#E5E7EB',
+        height: Platform.OS === 'web' ? 60 : 70,
+        paddingBottom: Platform.OS === 'web' ? 6 : Math.max(12, 6), paddingTop: 6,
         elevation: 0, shadowColor: 'transparent',
       },
-      tabBarLabelStyle: { fontSize: 10, fontWeight: '600', letterSpacing: 0.3 },
+      tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
     }}>
       <Tabs.Screen name="index" options={{ title: (isAdmin || isCompany) ? 'Dashboard' : 'Accueil', tabBarIcon: ({ color, size }) => <Icon name={(isAdmin || isCompany) ? 'stats-chart-outline' : 'home-outline'} size={size} color={color} /> }} />
       <Tabs.Screen name="health" options={{ title: isAdmin ? 'Clients' : isCompany ? 'Agences' : 'Sante', tabBarIcon: ({ color, size }) => isAdmin ? <Icon name="people-outline" size={size} color={color} /> : isCompany ? <Icon name="business-outline" size={size} color={color} /> : <MCIcon name="heart-pulse" size={size} color={color} />, href: (!isBen && !isAdmin && !isCompany) ? null : undefined }} />
