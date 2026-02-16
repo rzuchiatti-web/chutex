@@ -345,7 +345,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
       {/* SOS Button */}
       <Animated.View style={{ transform: [{ scale: sosPulse }], marginBottom: 16 }}>
-        <TouchableOpacity testID="sos-button" style={{ backgroundColor: '#E53935', borderRadius: 20, paddingVertical: 20, alignItems: 'center' }} onPress={handleSOS} disabled={sosLoading} activeOpacity={0.8}>
+        <TouchableOpacity testID="sos-button" style={{ backgroundColor: '#E53935', borderRadius: 22, paddingVertical: 20, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(229,57,53,0.4)' }} onPress={handleSOS} disabled={sosLoading} activeOpacity={0.8}>
           {sosLoading ? <ActivityIndicator color="#FFF" size="large" /> : (
             <>
               <Ionicons name="alert-circle" size={32} color="#FFF" />
