@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Platform, Dimensions, Image, ScrollView }
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const LOGO_URL = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/59sf9nvw_Logo_chutex_Noir.png';
+const LOGO_URL = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
 
 function Typewriter({ text, speed = 40, delay = 400 }: { text: string; speed?: number; delay?: number }) {
   const [displayed, setDisplayed] = useState('');
