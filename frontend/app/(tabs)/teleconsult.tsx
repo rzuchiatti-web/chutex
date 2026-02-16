@@ -127,21 +127,21 @@ function TeleassistanceDashboard({ token }: { token: string }) {
 
   return (
     <ScrollView contentContainerStyle={[s.sc, { paddingBottom: 80 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />}>
-      <Text style={{ fontSize: 24, fontWeight: '900', color: '#000', marginBottom: 4 }}>Plateau d'ecoute IA</Text>
-      <Text style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>CARE WATCH - Teleassistance automatisee</Text>
+      <Text style={{ fontSize: 24, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginBottom: 4 }}>Plateau d'ecoute IA</Text>
+      <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 16 }}>CARE WATCH - Teleassistance automatisee</Text>
 
       {/* Stats Cards */}
       {stats && (
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
           {[
             { val: activeIncidents.length, label: 'En cours', color: activeIncidents.length > 0 ? '#E53935' : '#4CAF50' },
-            { val: stats.resolved_incidents || 0, label: 'Resolus', color: '#4CAF50' },
+            { val: stats.resolved_incidents || 0, label: 'Resolus', color: '#10B981' },
             { val: stats.care_dispatched || 0, label: 'Dispatches', color: '#9C27B0' },
             { val: `${stats.patient_response_rate || 0}%`, label: 'Reponse', color: '#2196F3' },
           ].map((s, i) => (
             <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)' }}>
               <Text style={{ fontSize: 22, fontWeight: '900', color: s.color }}>{s.val}</Text>
-              <Text style={{ fontSize: 8, color: '#888', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.label}</Text>
+              <Text style={{ fontSize: 8, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.label}</Text>
             </View>
           ))}
         </View>
@@ -164,14 +164,14 @@ function TeleassistanceDashboard({ token }: { token: string }) {
       {selectedIncident && (
         <View style={{ backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 20, padding: 16, marginBottom: 12, borderWidth: 2, borderColor: stateColor(selectedIncident.state) + '40' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-            <Text style={{ fontSize: 16, fontWeight: '900', color: '#000' }}>Incident #{selectedIncident.id?.slice(0, 8)}</Text>
+            <Text style={{ fontSize: 16, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Incident #{selectedIncident.id?.slice(0, 8)}</Text>
             <TouchableOpacity onPress={() => setSelectedIncident(null)}><Ionicons name="close-circle" size={24} color="#888" /></TouchableOpacity>
           </View>
 
           {/* Beneficiary */}
           <View style={{ backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 12, padding: 12, marginBottom: 10 }}>
-            <Text style={{ fontSize: 9, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Beneficiaire</Text>
-            <Text style={{ fontSize: 15, fontWeight: '800', color: '#000' }}>{selectedIncident.beneficiary_name}</Text>
+            <Text style={{ fontSize: 9, fontWeight: '700', color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Beneficiaire</Text>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{selectedIncident.beneficiary_name}</Text>
             <Text style={{ fontSize: 11, color: '#555', marginTop: 2 }}>{selectedIncident.beneficiary_phone}</Text>
             {selectedIncident.beneficiary_address && <Text style={{ fontSize: 11, color: '#555' }}>{selectedIncident.beneficiary_address}</Text>}
             {selectedIncident.beneficiary_medical && <Text style={{ fontSize: 10, color: '#E53935', marginTop: 4 }}>Pathologies: {selectedIncident.beneficiary_medical}</Text>}
@@ -180,12 +180,12 @@ function TeleassistanceDashboard({ token }: { token: string }) {
           {/* Transcriptions */}
           {selectedIncident.transcriptions?.length > 0 && (
             <View style={{ marginBottom: 10 }}>
-              <Text style={{ fontSize: 9, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Transcriptions</Text>
+              <Text style={{ fontSize: 9, fontWeight: '700', color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Transcriptions</Text>
               {selectedIncident.transcriptions.map((t: any, i: number) => (
                 <View key={i} style={{ backgroundColor: t.type === 'patient' ? 'rgba(33,150,243,0.06)' : 'rgba(255,152,0,0.06)', borderRadius: 10, padding: 10, marginBottom: 4 }}>
                   <Text style={{ fontSize: 10, fontWeight: '700', color: t.type === 'patient' ? '#1565C0' : '#E65100' }}>{t.type === 'patient' ? 'Patient' : `Gardien ${t.guardian_name || ''}`}</Text>
-                  <Text style={{ fontSize: 12, color: '#333', fontStyle: 'italic', marginTop: 2 }}>"{t.text}"</Text>
-                  {t.classification && <Text style={{ fontSize: 9, color: '#888', marginTop: 2 }}>Intent: {t.classification.intent} ({(t.classification.confidence * 100).toFixed(0)}%)</Text>}
+                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', fontStyle: 'italic', marginTop: 2 }}>"{t.text}"</Text>
+                  {t.classification && <Text style={{ fontSize: 9, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>Intent: {t.classification.intent} ({(t.classification.confidence * 100).toFixed(0)}%)</Text>}
                 </View>
               ))}
             </View>
@@ -193,13 +193,13 @@ function TeleassistanceDashboard({ token }: { token: string }) {
 
           {/* Timeline */}
           <View style={{ marginBottom: 10 }}>
-            <Text style={{ fontSize: 9, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Timeline</Text>
+            <Text style={{ fontSize: 9, fontWeight: '700', color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Timeline</Text>
             {selectedIncident.timeline?.slice(-8).map((t: any, i: number) => (
               <View key={i} style={{ flexDirection: 'row', gap: 8, marginBottom: 4 }}>
                 <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: stateColor(t.state), marginTop: 5 }} />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 11, color: '#333' }}>{t.detail?.slice(0, 100)}</Text>
-                  <Text style={{ fontSize: 9, color: '#AAA' }}>{new Date(t.timestamp).toLocaleTimeString('fr-FR')}</Text>
+                  <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.85)' }}>{t.detail?.slice(0, 100)}</Text>
+                  <Text style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)' }}>{new Date(t.timestamp).toLocaleTimeString('fr-FR')}</Text>
                 </View>
               </View>
             ))}
@@ -218,13 +218,13 @@ function TeleassistanceDashboard({ token }: { token: string }) {
           {/* Actions */}
           {!['RESOLVED', 'FAILED'].includes(selectedIncident.state) && (
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              <TouchableOpacity style={{ flex: 1, backgroundColor: '#4CAF50', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
+              <TouchableOpacity style={{ flex: 1, backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
                 onPress={() => { resolveIncident(selectedIncident.id); setSelectedIncident(null); }}>
                 <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>CLOTURER</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, borderWidth: 2, borderColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
                 onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: selectedIncident.alert_id } })}>
-                <Text style={{ color: '#000', fontSize: 12, fontWeight: '800' }}>FICHE ALERTE</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.92)', fontSize: 12, fontWeight: '800' }}>FICHE ALERTE</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -241,8 +241,8 @@ function TeleassistanceDashboard({ token }: { token: string }) {
                   <Ionicons name={inc.state.includes('CALLING') ? 'call' : inc.state === 'RESOLVED' ? 'checkmark' : inc.state === 'CARE_DISPATCHED' ? 'navigate' : 'alert-circle'} size={16} color={stateColor(inc.state)} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>{inc.beneficiary_name}</Text>
-                  <Text style={{ fontSize: 10, color: '#888' }}>{inc.alert_type?.toUpperCase()} - {new Date(inc.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{inc.beneficiary_name}</Text>
+                  <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)' }}>{inc.alert_type?.toUpperCase()} - {new Date(inc.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</Text>
                 </View>
                 <View style={{ backgroundColor: stateColor(inc.state) + '15', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
                   <Text style={{ fontSize: 8, fontWeight: '800', color: stateColor(inc.state), textTransform: 'uppercase' }}>{stateLabel(inc.state)}</Text>
@@ -250,7 +250,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
               </View>
               <Text style={{ fontSize: 11, color: '#555', marginTop: 6 }}>{inc.alert_message?.slice(0, 80)}</Text>
               {inc.care_provider && <Text style={{ fontSize: 10, color: '#9C27B0', fontWeight: '600', marginTop: 4 }}>Care: {inc.care_provider}</Text>}
-              {inc.assigned_guardian && <Text style={{ fontSize: 10, color: '#4CAF50', fontWeight: '600', marginTop: 4 }}>Gardien: {inc.assigned_guardian.name}</Text>}
+              {inc.assigned_guardian && <Text style={{ fontSize: 10, color: '#10B981', fontWeight: '600', marginTop: 4 }}>Gardien: {inc.assigned_guardian.name}</Text>}
               {inc.guardians_contacted?.length > 0 && (
                 <View style={{ flexDirection: 'row', gap: 4, marginTop: 6 }}>
                   {inc.guardians_contacted.map((g: any, i: number) => (
@@ -267,7 +267,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
       )) : (
         <View style={{ alignItems: 'center', paddingVertical: 40, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 18 }}>
           <Ionicons name="checkmark-circle-outline" size={40} color="#CCC" />
-          <Text style={{ fontSize: 14, fontWeight: '600', color: '#888', marginTop: 10 }}>{tab === 'active' ? 'Aucun incident en cours' : 'Aucun historique'}</Text>
+          <Text style={{ fontSize: 14, fontWeight: '600', color: 'rgba(255,255,255,0.50)', marginTop: 10 }}>{tab === 'active' ? 'Aucun incident en cours' : 'Aucun historique'}</Text>
         </View>
       )}
     </ScrollView>);
@@ -345,7 +345,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
                 </View>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Text style={{ fontSize: 17, fontWeight: '800', color: '#000' }}>Intervenant Care</Text>
+                    <Text style={{ fontSize: 17, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Intervenant Care</Text>
                     <View style={{ backgroundColor: '#9C27B0', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
                       <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
                     </View>
@@ -362,7 +362,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
             <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, ivTab === 'active' && { backgroundColor: '#2196F3' }]} onPress={() => setIvTab('active')}>
               <Text style={{ fontSize: 13, fontWeight: '700', color: ivTab === 'active' ? '#FFF' : '#888' }}>En cours ({activeIvs.length})</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, ivTab === 'done' && { backgroundColor: '#4CAF50' }]} onPress={() => setIvTab('done')}>
+            <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, ivTab === 'done' && { backgroundColor: '#10B981' }]} onPress={() => setIvTab('done')}>
               <Text style={{ fontSize: 13, fontWeight: '700', color: ivTab === 'done' ? '#FFF' : '#888' }}>Terminees ({doneIvs.length})</Text>
             </TouchableOpacity>
           </View>
@@ -372,10 +372,10 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       {/* Care Detail Modal - violet theme */}
       <Modal visible={showCareModal} transparent animationType="fade" onRequestClose={() => setShowCareModal(false)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <Text style={{ fontSize: 20, fontWeight: '900', color: '#7B1FA2' }}>Espace Intervenant Care</Text>
-              <TouchableOpacity onPress={() => setShowCareModal(false)}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowCareModal(false)}><Ionicons name="close" size={24} color="#FFF" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -383,12 +383,12 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
                   <Ionicons name="shield-checkmark" size={24} color="#9C27B0" />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{user.name}</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{user.name}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
                     <View style={{ backgroundColor: '#9C27B0', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
                       <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
                     </View>
-                    <Text style={{ fontSize: 12, color: '#888' }}>{user.intervention_structure || user.structure_name}</Text>
+                    <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{user.intervention_structure || user.structure_name}</Text>
                   </View>
                 </View>
               </View>
@@ -402,8 +402,8 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
               ].map(({ icon, label, value }) => value !== '-' ? (
                 <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                   <Ionicons name={icon as any} size={16} color="#888" />
-                  <Text style={{ fontSize: 12, color: '#888', width: 85 }}>{label}</Text>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', width: 85 }}>{label}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{value}</Text>
                 </View>
               ) : null)}
               <TouchableOpacity testID="deactivate-care-modal-btn" style={{ borderWidth: 1.5, borderColor: '#E53935', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 20, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
@@ -425,19 +425,19 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
                 <Ionicons name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={22} color={statusColor(iv.status)} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{iv.beneficiary_name}</Text>
-                <Text style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{iv.beneficiary_name}</Text>
+                <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
               </View>
               {iv.distance_km && (
                 <View style={{ backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, alignItems: 'center' }}>
                   <Text style={{ fontSize: 16, fontWeight: '900', color: statusColor(iv.status) }}>{iv.distance_km}</Text>
-                  <Text style={{ fontSize: 8, fontWeight: '700', color: '#888', letterSpacing: 0.5 }}>KM</Text>
+                  <Text style={{ fontSize: 8, fontWeight: '700', color: 'rgba(255,255,255,0.50)', letterSpacing: 0.5 }}>KM</Text>
                 </View>
               )}
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 10, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
               <Ionicons name="time-outline" size={14} color="#888" />
-              <Text style={{ fontSize: 12, color: '#888', flex: 1 }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
+              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', flex: 1 }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
               <View style={{ backgroundColor: statusColor(iv.status) + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
                 <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor(iv.status), letterSpacing: 0.3 }}>{statusLabel(iv.status).toUpperCase()}</Text>
               </View>
@@ -448,8 +448,8 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       )) : (
         <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 40, alignItems: 'center', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } : {}) }}>
           <Ionicons name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#888', marginTop: 12 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
-          <Text style={{ fontSize: 12, color: '#AAA', marginTop: 4, textAlign: 'center', paddingHorizontal: 20 }}>{ivTab === 'active' ? 'Vous serez notifie des que vous recevrez une mission d\'intervention' : 'Vos missions completees s\'afficheront ici avec le rapport'}</Text>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.50)', marginTop: 12 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
+          <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.38)', marginTop: 4, textAlign: 'center', paddingHorizontal: 20 }}>{ivTab === 'active' ? 'Vous serez notifie des que vous recevrez une mission d\'intervention' : 'Vos missions completees s\'afficheront ici avec le rapport'}</Text>
         </View>
       ))}
     </ScrollView>);
@@ -570,7 +570,7 @@ function AdminIntervenants({ token }: { token: string }) {
           <TouchableOpacity key={p.user_id || p.id} onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: p.user_id || p.id } })} activeOpacity={0.7}>
             <View style={s.ivCard}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
                   <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{p.name?.charAt(0)?.toUpperCase()}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
@@ -580,7 +580,7 @@ function AdminIntervenants({ token }: { token: string }) {
                   {p.phone && <Text style={{ fontSize: 10, color: Colors.textMuted }}>{p.phone}</Text>}
                 </View>
                 <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: '#4CAF5015' }}>
-                  <Text style={{ fontSize: 9, fontWeight: '700', color: '#4CAF50' }}>ACTIF</Text>
+                  <Text style={{ fontSize: 9, fontWeight: '700', color: '#10B981' }}>ACTIF</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={16} color="#888" />
               </View>
@@ -591,8 +591,8 @@ function AdminIntervenants({ token }: { token: string }) {
           <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(76,175,80,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
             <Ionicons name="medkit-outline" size={28} color="#A5D6A7" />
           </View>
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>Aucun intervenant inscrit</Text>
-          <Text style={{ fontSize: 12, color: '#888', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>Creez un code d'intervention dans l'onglet "Codes" pour permettre aux intervenants de s'inscrire.</Text>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>Aucun intervenant inscrit</Text>
+          <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>Creez un code d'intervention dans l'onglet "Codes" pour permettre aux intervenants de s'inscrire.</Text>
         </View>}
       </>}
 
@@ -603,11 +603,11 @@ function AdminIntervenants({ token }: { token: string }) {
             {[
               { val: interventions.filter((i: any) => ['pending_acceptance', 'dispatched'].includes(i.status)).length, label: 'En attente', color: '#FF9800' },
               { val: interventions.filter((i: any) => ['in_progress', 'en_route'].includes(i.status)).length, label: 'En cours', color: '#2196F3' },
-              { val: interventions.filter((i: any) => i.status === 'completed').length, label: 'Terminees', color: '#4CAF50' },
+              { val: interventions.filter((i: any) => i.status === 'completed').length, label: 'Terminees', color: '#10B981' },
             ].map((s, i) => (
               <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)' }}>
                 <Text style={{ fontSize: 22, fontWeight: '900', color: s.color }}>{s.val}</Text>
-                <Text style={{ fontSize: 8, color: '#888', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.label}</Text>
+                <Text style={{ fontSize: 8, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.label}</Text>
               </View>
             ))}
           </View>
@@ -627,8 +627,8 @@ function AdminIntervenants({ token }: { token: string }) {
                       <Ionicons name={(statusIcon[iv.status] || 'medical') as any} size={20} color={sc[iv.status] || '#888'} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 15, fontWeight: '800', color: '#000' }}>{iv.beneficiary_name}</Text>
-                      <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }} numberOfLines={1}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
+                      <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{iv.beneficiary_name}</Text>
+                      <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', marginTop: 2 }} numberOfLines={1}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
                       <View style={{ backgroundColor: (sc[iv.status] || '#888') + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
@@ -638,20 +638,20 @@ function AdminIntervenants({ token }: { token: string }) {
                   </View>
                   {iv.assigned_name && (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10, backgroundColor: 'rgba(76,175,80,0.04)', borderRadius: 10, padding: 8 }}>
-                      <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center' }}>
+                      <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
                         <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFF' }}>{iv.assigned_name?.charAt(0)?.toUpperCase()}</Text>
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 12, fontWeight: '700', color: '#2E7D32' }}>{iv.assigned_name}</Text>
-                        <Text style={{ fontSize: 10, color: '#888' }}>{iv.structure_name || 'Intervenant'}</Text>
+                        <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)' }}>{iv.structure_name || 'Intervenant'}</Text>
                       </View>
-                      {isActive && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#4CAF50' }} />}
+                      {isActive && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />}
                     </View>
                   )}
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)', backgroundColor: 'rgba(0,0,0,0.015)' }}>
                   <Ionicons name="time-outline" size={12} color="#AAA" />
-                  <Text style={{ fontSize: 11, color: '#888', flex: 1 }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</Text>
+                  <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', flex: 1 }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</Text>
                   <Text style={{ fontSize: 11, fontWeight: '600', color: '#2196F3' }}>Voir le detail</Text>
                   <Ionicons name="chevron-forward" size={14} color="#2196F3" />
                 </View>
@@ -664,8 +664,8 @@ function AdminIntervenants({ token }: { token: string }) {
             <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(33,150,243,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
               <Ionicons name="medkit-outline" size={28} color="#90CAF9" />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>Aucune intervention</Text>
-            <Text style={{ fontSize: 12, color: '#888', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Aucune intervention</Text>
+            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>
               Les interventions apparaitront ici quand une alerte sera dispatchee a un SAAD partenaire.
             </Text>
           </View>
@@ -719,7 +719,7 @@ function CompanyPrescriptions({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#FFF" /></View>;
   if (!data) return null;
 
   const allPrescs = data.prescriptions || [];
@@ -729,25 +729,25 @@ function CompanyPrescriptions({ token }: { token: string }) {
   const total = displayed.reduce((s: number, p: any) => s + (p.commission || 0), 0);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Prescriptions</Text>
-        <Text style={{ fontSize: 12, color: '#888' }}>{allPrescs.length} prescriptions au total</Text>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', letterSpacing: -0.5 }}>Prescriptions</Text>
+        <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{allPrescs.length} prescriptions au total</Text>
       </View>
       <View style={{ flexDirection: 'row', marginHorizontal: 20, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, marginBottom: 0, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)' }}>
         <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'pending' && { backgroundColor: '#FF9800' }]} onPress={() => setTab('pending')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'pending' ? '#FFF' : '#888' }}>En cours ({pending.length})</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'subscribed' && { backgroundColor: '#4CAF50' }]} onPress={() => setTab('subscribed')}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'subscribed' && { backgroundColor: '#10B981' }]} onPress={() => setTab('subscribed')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'subscribed' ? '#FFF' : '#888' }}>Validees ({subscribed.length})</Text>
         </TouchableOpacity>
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 10 }}>
-        <Text style={{ fontSize: 12, color: '#888' }}>Total commissions</Text>
+        <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>Total commissions</Text>
         <Text style={{ fontSize: 16, fontWeight: '900', color: tab === 'pending' ? '#FF9800' : '#4CAF50' }}>{total} EUR</Text>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#FFF" />}>
         {displayed.map((p: any) => (
           <TouchableOpacity key={p.id} activeOpacity={0.7} onPress={() => setSelectedPresc(p)}>
             <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 14, marginBottom: 8, borderLeftWidth: 4, borderLeftColor: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>
@@ -756,8 +756,8 @@ function CompanyPrescriptions({ token }: { token: string }) {
                   <Ionicons name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={16} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{p.beneficiary_name}</Text>
-                  <Text style={{ fontSize: 10, color: '#888' }}>Par: {p.guardian_name}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{p.beneficiary_name}</Text>
+                  <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.50)' }}>Par: {p.guardian_name}</Text>
                 </View>
                 <Text style={{ fontSize: 14, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission}EUR</Text>
                 <Ionicons name="chevron-forward" size={14} color="#888" />
@@ -768,20 +768,20 @@ function CompanyPrescriptions({ token }: { token: string }) {
         {displayed.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
             <Ionicons name={tab === 'pending' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
-            <Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Aucune prescription {tab === 'pending' ? 'en cours' : 'validee'}</Text>
+            <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.50)', marginTop: 8 }}>Aucune prescription {tab === 'pending' ? 'en cours' : 'validee'}</Text>
           </View>
         )}
       </ScrollView>
       {/* Detail modal - Premium Design */}
       <Modal visible={!!selectedPresc} transparent animationType="fade" onRequestClose={() => setSelectedPresc(null)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: '#F5F0EB', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%' }}>
+          <View style={{ backgroundColor: '#000', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%' }}>
             {selectedPresc && <>
               <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12 }}>
                 <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ padding: 4, marginRight: 12 }}>
-                  <Ionicons name="chevron-back" size={24} color="#000" />
+                  <Ionicons name="chevron-back" size={24} color="#FFF" />
                 </TouchableOpacity>
-                <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#000' }}>Fiche Prescription</Text>
+                <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>Fiche Prescription</Text>
                 <TouchableOpacity onPress={() => setSelectedPresc(null)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
               </View>
               <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
@@ -792,7 +792,7 @@ function CompanyPrescriptions({ token }: { token: string }) {
                       <Text style={{ fontSize: 24, fontWeight: '900', color: '#FFF' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>{selectedPresc.beneficiary_name}</Text>
+                      <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{selectedPresc.beneficiary_name}</Text>
                       <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                         <View style={{ backgroundColor: selectedPresc.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
                           <Text style={{ fontSize: 10, fontWeight: '800', color: selectedPresc.status === 'subscribed' ? '#2E7D32' : '#E65100', textTransform: 'uppercase', letterSpacing: 0.5 }}>{selectedPresc.status === 'subscribed' ? 'Souscrit' : 'En attente'}</Text>
@@ -812,15 +812,15 @@ function CompanyPrescriptions({ token }: { token: string }) {
                   ].map(({ icon, label, value }) => value ? (
                     <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                       <Ionicons name={icon as any} size={16} color="#888" />
-                      <Text style={{ fontSize: 12, color: '#888', width: 100 }}>{label}</Text>
-                      <Text style={{ fontSize: 13, fontWeight: '600', color: '#000', flex: 1 }}>{value}</Text>
+                      <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', width: 100 }}>{label}</Text>
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{value}</Text>
                     </View>
                   ) : null)}
                 </View>
                 {/* Commission highlight */}
                 <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', alignItems: 'center' }}>
                   <Text style={{ fontSize: 32, fontWeight: '900', color: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{selectedPresc.commission} EUR</Text>
-                  <Text style={{ fontSize: 11, color: '#888', fontWeight: '600', marginTop: 4 }}>Commission {selectedPresc.status === 'subscribed' ? 'validee' : 'en attente'}</Text>
+                  <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', fontWeight: '600', marginTop: 4 }}>Commission {selectedPresc.status === 'subscribed' ? 'validee' : 'en attente'}</Text>
                 </View>
               </ScrollView>
             </>}
@@ -854,7 +854,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); const t = setInterval(fetchData, 10000); return () => clearInterval(t); }, [fetchData]);
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#FFF" /></View>;
 
   const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
   const pendingIvs = interventions.filter((iv: any) => iv.status === 'pending_acceptance');
@@ -869,10 +869,10 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   const stLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Interventions</Text>
-        <Text style={{ fontSize: 12, color: '#888' }}>{interventions.length} interventions · {intervenants.length} intervenants</Text>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', letterSpacing: -0.5 }}>Interventions</Text>
+        <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{interventions.length} interventions · {intervenants.length} intervenants</Text>
       </View>
 
       {/* Main tabs */}
@@ -886,7 +886,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#FFF" />}>
 
         {/* INTERVENTIONS SUB */}
         {tab === 'interventions' && <>
@@ -897,7 +897,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
             <TouchableOpacity style={[{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 11 }, ivTab === 'active' && { backgroundColor: '#2196F3' }]} onPress={() => setIvTab('active')}>
               <Text style={{ fontSize: 11, fontWeight: '700', color: ivTab === 'active' ? '#FFF' : '#888' }}>En cours ({activeIvs.length})</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 11 }, ivTab === 'completed' && { backgroundColor: '#4CAF50' }]} onPress={() => setIvTab('completed')}>
+            <TouchableOpacity style={[{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 11 }, ivTab === 'completed' && { backgroundColor: '#10B981' }]} onPress={() => setIvTab('completed')}>
               <Text style={{ fontSize: 11, fontWeight: '700', color: ivTab === 'completed' ? '#FFF' : '#888' }}>Terminees ({completedIvs.length})</Text>
             </TouchableOpacity>
           </View>
@@ -910,13 +910,13 @@ function CompanyInterventionsTab({ token }: { token: string }) {
                     <Ionicons name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={22} color={stColor(iv.status)} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 15, fontWeight: '800', color: '#000' }}>{iv.beneficiary_name}</Text>
-                    <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{iv.alert_message || 'Intervention'}</Text>
+                    <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{iv.beneficiary_name}</Text>
+                    <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{iv.alert_message || 'Intervention'}</Text>
                   </View>
                   {iv.distance_km && (
                     <View style={{ backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, alignItems: 'center' }}>
                       <Text style={{ fontSize: 14, fontWeight: '900', color: stColor(iv.status) }}>{iv.distance_km}</Text>
-                      <Text style={{ fontSize: 8, fontWeight: '700', color: '#888' }}>KM</Text>
+                      <Text style={{ fontSize: 8, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>KM</Text>
                     </View>
                   )}
                   <Ionicons name="chevron-forward" size={16} color="#888" />
@@ -934,7 +934,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
           {displayedIvs.length === 0 && (
             <View style={{ alignItems: 'center', paddingVertical: 40, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, ...glass }}>
               <Ionicons name={ivTab === 'pending' ? 'time-outline' : ivTab === 'active' ? 'navigate-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
-              <Text style={{ fontSize: 15, fontWeight: '700', color: '#888', marginTop: 12 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.50)', marginTop: 12 }}>
                 {ivTab === 'pending' ? 'Aucune intervention en attente' : ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}
               </Text>
             </View>
@@ -946,7 +946,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
           <View style={{ marginBottom: 8 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
               <Ionicons name="search-outline" size={16} color="#888" />
-              <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: '#000' }}
+              <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: 'rgba(255,255,255,0.92)' }}
                 placeholder="Rechercher..." placeholderTextColor="#AAA" value={search} onChangeText={setSearch} />
             </View>
           </View>
@@ -958,11 +958,11 @@ function CompanyInterventionsTab({ token }: { token: string }) {
                   <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.name?.charAt(0)?.toUpperCase()}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{iv.name}</Text>
-                  <Text style={{ fontSize: 11, color: '#888' }}>{iv.profession || 'Intervenant Care'} · {iv.agency_name}</Text>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{iv.name}</Text>
+                  <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{iv.profession || 'Intervenant Care'} · {iv.agency_name}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={{ fontSize: 11, color: '#888' }}>{iv.total_interventions} missions</Text>
+                  <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{iv.total_interventions} missions</Text>
                   {iv.active_interventions > 0 && (
                     <View style={{ backgroundColor: '#FF980015', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginTop: 2 }}>
                       <Text style={{ fontSize: 10, fontWeight: '700', color: '#FF9800' }}>{iv.active_interventions} actives</Text>
@@ -993,7 +993,7 @@ function CompanyIntervenants({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#000" /></View>;
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#FFF" /></View>;
 
   const filtered = search.trim()
     ? intervenants.filter((iv: any) => iv.name?.toLowerCase().includes(search.toLowerCase()) || iv.email?.toLowerCase().includes(search.toLowerCase()))
@@ -1002,21 +1002,21 @@ function CompanyIntervenants({ token }: { token: string }) {
   const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }}>
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', letterSpacing: -0.5 }}>Intervenants</Text>
-        <Text style={{ fontSize: 12, color: '#888' }}>{intervenants.length} intervenants Care</Text>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', letterSpacing: -0.5 }}>Intervenants</Text>
+        <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{intervenants.length} intervenants Care</Text>
       </View>
       <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
           <Ionicons name="search-outline" size={16} color="#888" />
-          <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: '#000' }}
+          <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: 'rgba(255,255,255,0.92)' }}
             placeholder="Rechercher un intervenant..." placeholderTextColor="#AAA" value={search} onChangeText={setSearch} />
           {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Ionicons name="close-circle" size={16} color="#AAA" /></TouchableOpacity>}
         </View>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#000" />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#FFF" />}>
         {filtered.map((iv: any) => (
           <TouchableOpacity key={iv.id} activeOpacity={0.7} data-testid={`intervenant-card-${iv.id}`}
             onPress={() => router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: iv.id } })}>
@@ -1025,16 +1025,16 @@ function CompanyIntervenants({ token }: { token: string }) {
                 <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: '#000' }}>{iv.name}</Text>
-                <Text style={{ fontSize: 11, color: '#888' }}>{iv.profession || 'Intervenant Care'}</Text>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{iv.name}</Text>
+                <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{iv.profession || 'Intervenant Care'}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
                   <Ionicons name="business-outline" size={11} color="#FF9800" />
                   <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '600' }}>{iv.agency_name}</Text>
-                  <Text style={{ fontSize: 10, color: '#AAA' }}>· {iv.intervention_radius_km}km</Text>
+                  <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.38)' }}>· {iv.intervention_radius_km}km</Text>
                 </View>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ fontSize: 11, color: '#888' }}>{iv.total_interventions} missions</Text>
+                <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)' }}>{iv.total_interventions} missions</Text>
                 <View style={{ flexDirection: 'row', gap: 4, marginTop: 2 }}>
                   {iv.active_interventions > 0 && (
                     <View style={{ backgroundColor: '#FF980015', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
@@ -1042,7 +1042,7 @@ function CompanyIntervenants({ token }: { token: string }) {
                     </View>
                   )}
                   <View style={{ backgroundColor: '#4CAF5015', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                    <Text style={{ fontSize: 10, fontWeight: '700', color: '#4CAF50' }}>{iv.completed_interventions} term.</Text>
+                    <Text style={{ fontSize: 10, fontWeight: '700', color: '#10B981' }}>{iv.completed_interventions} term.</Text>
                   </View>
                 </View>
               </View>
@@ -1053,7 +1053,7 @@ function CompanyIntervenants({ token }: { token: string }) {
         {filtered.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
             <Ionicons name="medkit-outline" size={36} color="#CCC" />
-            <Text style={{ fontSize: 14, color: '#888', marginTop: 8 }}>{search ? 'Aucun resultat' : 'Aucun intervenant'}</Text>
+            <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.50)', marginTop: 8 }}>{search ? 'Aucun resultat' : 'Aucun intervenant'}</Text>
           </View>
         )}
       </ScrollView>
@@ -1076,7 +1076,7 @@ export default function TeleconsultScreen() {
 
   // key={r} forces complete remount when role changes (Expo Router tab caching fix)
   return (
-    <View key={r} style={[s.safe, { backgroundColor: '#F5F0EB' }]} testID="teleconsult-screen">
+    <View key={r} style={[s.safe, { backgroundColor: '#000' }]} testID="teleconsult-screen">
       <View style={s.header}>
         <Text style={[s.title, { color: colors.textPrimary }]}>{r === 'teleassistance' ? 'Teleassistance IA' : r === 'guardian' ? 'Interventions' : r === 'admin' ? 'Intervenants' : 'Teleconsultation'}</Text>
         {r === 'teleassistance' && <Text style={[s.subtitle, { color: colors.textMuted }]}>Plateau d'ecoute — Protocole d'escalade</Text>}
@@ -1091,7 +1091,7 @@ export default function TeleconsultScreen() {
 }
 
 const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F5F0EB' },
+  safe: { flex: 1, backgroundColor: '#000' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
   title: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, letterSpacing: -0.5 },

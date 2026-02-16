@@ -28,7 +28,7 @@ const WebInput = ({ val, onChange, placeholder, type, rows }: any) => {
       <RNTextInput value={val} onChangeText={onChange} placeholder={placeholder} placeholderTextColor="#AAA"
         secureTextEntry={type === 'password'} autoCapitalize="none" multiline={!!rows} numberOfLines={rows || 1}
         keyboardType={type === 'email' ? 'email-address' : type === 'tel' ? 'phone-pad' : 'default'}
-        style={{ fontSize: 15, padding: 12, borderRadius: 12, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)', backgroundColor: 'rgba(255,255,255,0.5)', color: '#000' }} />
+        style={{ fontSize: 15, padding: 12, borderRadius: 12, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.08)', backgroundColor: 'rgba(255,255,255,0.5)', color: 'rgba(255,255,255,0.92)' }} />
     </View>
   );
 };
@@ -149,9 +149,9 @@ export default function ProfileScreen() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F0EB' }} testID="profile-screen">
+    <View style={{ flex: 1, backgroundColor: '#000' }} testID="profile-screen">
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
-        <Text style={{ fontSize: 28, fontWeight: '900', color: '#000', marginTop: 16, marginBottom: 20 }}>{t('profile')}</Text>
+        <Text style={{ fontSize: 28, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginTop: 16, marginBottom: 20 }}>{t('profile')}</Text>
 
         {/* Avatar */}
         <GlassCard style={{ alignItems: 'center', padding: 28 }}>
@@ -167,7 +167,7 @@ export default function ProfileScreen() {
               {uploading ? <ActivityIndicator size="small" color="#FFF" /> : <Ionicons name="camera" size={14} color="#FFF" />}
             </View>
           </TouchableOpacity>
-          <Text style={{ fontSize: 22, fontWeight: '900', color: '#000', marginTop: 12 }}>{user.name}</Text>
+          <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginTop: 12 }}>{user.name}</Text>
           <View style={{ marginTop: 6, paddingHorizontal: 14, paddingVertical: 4, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)' }}>
             <Text style={{ fontSize: 12, fontWeight: '700', color: '#555' }}>{roleName}</Text>
           </View>
@@ -176,12 +176,12 @@ export default function ProfileScreen() {
         {/* Edit Profile */}
         {editMode && (
           <GlassCard>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', marginBottom: 14 }}>{t('modify_profile')}</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginBottom: 14 }}>{t('modify_profile')}</Text>
             <WebInput val={editName} onChange={setEditName} placeholder="Nom complet" />
             <WebInput val={editPhone} onChange={setEditPhone} placeholder="Telephone" type="tel" />
             <WebInput val={editAddress} onChange={setEditAddress} placeholder="Adresse" />
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setEditMode(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>{t('cancel')}</Text></TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setEditMode(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>{t('cancel')}</Text></TouchableOpacity>
               <TouchableOpacity testID="save-profile-btn" style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={saveProfile} disabled={saving}>{saving ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENREGISTRER</Text>}</TouchableOpacity>
             </View>
           </GlassCard>
@@ -189,11 +189,11 @@ export default function ProfileScreen() {
 
         {showPwChange && (
           <GlassCard>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', marginBottom: 14 }}>{t('security')}</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginBottom: 14 }}>{t('security')}</Text>
             <WebInput val={oldPw} onChange={setOldPw} placeholder="Mot de passe actuel" type="password" />
             <WebInput val={newPw} onChange={setNewPw} placeholder="Nouveau mot de passe" type="password" />
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowPwChange(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>{t('cancel')}</Text></TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowPwChange(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>{t('cancel')}</Text></TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={changePassword}><Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>{t('confirm')}</Text></TouchableOpacity>
             </View>
           </GlassCard>
@@ -201,15 +201,15 @@ export default function ProfileScreen() {
 
         {showContact && (
           <GlassCard>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#000', marginBottom: 4 }}>{t('support')}</Text>
-            <Text style={{ fontSize: 12, color: '#888', marginBottom: 14 }}>contact@chutex-innovation.com</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginBottom: 4 }}>{t('support')}</Text>
+            <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginBottom: 14 }}>contact@chutex-innovation.com</Text>
             <WebInput val={contactObj} onChange={setContactObj} placeholder="Objet de votre demande" />
             <WebInput val={contactName} onChange={setContactName} placeholder="Nom et prenom" />
             <WebInput val={contactEmail} onChange={setContactEmail} placeholder="Email" type="email" />
             <WebInput val={contactPhone} onChange={setContactPhone} placeholder="Telephone" type="tel" />
             <WebInput val={contactMsg} onChange={setContactMsg} placeholder="Decrivez votre probleme..." rows={4} />
             <View style={{ flexDirection: 'row', gap: 10 }}>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowContact(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: '#888' }}>{t('cancel')}</Text></TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowContact(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>{t('cancel')}</Text></TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={sendContactForm} disabled={sendingContact}>{sendingContact ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENVOYER</Text>}</TouchableOpacity>
             </View>
           </GlassCard>
@@ -243,27 +243,27 @@ export default function ProfileScreen() {
           <Ionicons name="log-out-outline" size={16} color="#FFF" />
           <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF', textTransform: 'uppercase' }}>{t('logout')}</Text>
         </TouchableOpacity>
-        <Text style={{ textAlign: 'center', fontSize: 11, color: '#888', marginTop: 16 }}>Chutex Innovation SAS - v3.0</Text>
+        <Text style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.50)', marginTop: 16 }}>Chutex Innovation SAS - v3.0</Text>
 
         <HelpCenter visible={showHelp} onClose={() => setShowHelp(false)} />
 
         {/* Notification Preferences Modal */}
         <Modal visible={showNotifPrefs} transparent animationType="slide">
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-            <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '85%' }}>
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '85%' }}>
               <View style={{ alignItems: 'center', paddingTop: 12 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} /></View>
               <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, gap: 10 }}>
                 <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
                   <Ionicons name="notifications" size={20} color="#2196F3" />
                 </View>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#000', flex: 1 }}>Notifications</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: 'rgba(255,255,255,0.92)', flex: 1 }}>Notifications</Text>
                 {savingNotif && <ActivityIndicator size="small" color="#2196F3" />}
                 <TouchableOpacity onPress={() => setShowNotifPrefs(false)}><Ionicons name="close" size={22} color="#888" /></TouchableOpacity>
               </View>
               <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
                 {notifPrefs ? (
                   <>
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Urgences</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Urgences</Text>
                     {[
                       { key: 'sos_alerts', icon: 'alert-circle', label: 'Alertes SOS', desc: 'Notification immediate quand un proche declenche SOS', color: '#E53935' },
                       { key: 'fall_detection', icon: 'trending-down', label: 'Detection de chute', desc: 'Alerte quand une chute est detectee', color: '#FF6F00' },
@@ -274,14 +274,14 @@ export default function ProfileScreen() {
                           <Ionicons name={item.icon as any} size={18} color={item.color} />
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{item.label}</Text>
-                          <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{item.desc}</Text>
+                          <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{item.label}</Text>
+                          <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{item.desc}</Text>
                         </View>
                         <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
                       </View>
                     ))}
 
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Appareils</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Appareils</Text>
                     {[
                       { key: 'low_battery', icon: 'battery-dead', label: 'Batterie faible', desc: 'Alerte quand un appareil est en dessous de 20%', color: '#FF9800' },
                     ].map(item => (
@@ -290,17 +290,17 @@ export default function ProfileScreen() {
                           <Ionicons name={item.icon as any} size={18} color={item.color} />
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{item.label}</Text>
-                          <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{item.desc}</Text>
+                          <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{item.label}</Text>
+                          <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{item.desc}</Text>
                         </View>
                         <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
                       </View>
                     ))}
 
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Rappels quotidiens</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Rappels quotidiens</Text>
                     {[
                       { key: 'reminders_hydration', icon: 'water', label: 'Hydratation', desc: 'Rappels pour boire de l\'eau', color: '#2196F3' },
-                      { key: 'reminders_medication', icon: 'medkit', label: 'Traitements', desc: 'Rappels de prise de medicaments', color: '#4CAF50' },
+                      { key: 'reminders_medication', icon: 'medkit', label: 'Traitements', desc: 'Rappels de prise de medicaments', color: '#10B981' },
                       { key: 'reminders_alarm', icon: 'alarm', label: 'Alarmes', desc: 'Rappels personnalises programmes', color: '#9C27B0' },
                     ].map(item => (
                       <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
@@ -308,14 +308,14 @@ export default function ProfileScreen() {
                           <Ionicons name={item.icon as any} size={18} color={item.color} />
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{item.label}</Text>
-                          <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{item.desc}</Text>
+                          <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{item.label}</Text>
+                          <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{item.desc}</Text>
                         </View>
                         <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
                       </View>
                     ))}
 
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#000', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Autres</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Autres</Text>
                     {[
                       { key: 'interventions', icon: 'navigate', label: 'Interventions', desc: 'Missions d\'intervention a proximite', color: '#009688' },
                       { key: 'guardian_requests', icon: 'person-add', label: 'Demandes de gardien', desc: 'Quand quelqu\'un souhaite etre votre gardien', color: '#FF9800' },
@@ -325,8 +325,8 @@ export default function ProfileScreen() {
                           <Ionicons name={item.icon as any} size={18} color={item.color} />
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{item.label}</Text>
-                          <Text style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{item.desc}</Text>
+                          <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{item.label}</Text>
+                          <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>{item.desc}</Text>
                         </View>
                         <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
                       </View>
@@ -349,18 +349,18 @@ export default function ProfileScreen() {
         {/* Language Picker Modal */}
         {showLangPicker && (
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 24, zIndex: 100 }}>
-            <View style={{ backgroundColor: '#FFF', borderRadius: 24, padding: 24 }}>
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 24, padding: 24 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <Text style={{ fontSize: 20, fontWeight: '900', color: '#000' }}>{t('language')}</Text>
-                <TouchableOpacity onPress={() => setShowLangPicker(false)}><Ionicons name="close" size={24} color="#000" /></TouchableOpacity>
+                <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{t('language')}</Text>
+                <TouchableOpacity onPress={() => setShowLangPicker(false)}><Ionicons name="close" size={24} color="#FFF" /></TouchableOpacity>
               </View>
               {LANGUAGES.map(l => (
                 <TouchableOpacity key={l.code} testID={`lang-pick-${l.code}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }} onPress={() => { setLang(l.code); setShowLangPicker(false); }}>
                   <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: l.color, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: lang === l.code ? '#000' : 'rgba(0,0,0,0.1)' }}>
                     <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFF' }}>{l.code}</Text>
                   </View>
-                  <Text style={{ flex: 1, fontSize: 16, fontWeight: '600', color: '#000' }}>{l.label}</Text>
-                  {lang === l.code && <Ionicons name="checkmark-circle" size={22} color="#000" />}
+                  <Text style={{ flex: 1, fontSize: 16, fontWeight: '600', color: 'rgba(255,255,255,0.92)' }}>{l.label}</Text>
+                  {lang === l.code && <Ionicons name="checkmark-circle" size={22} color="#FFF" />}
                 </TouchableOpacity>
               ))}
             </View>
