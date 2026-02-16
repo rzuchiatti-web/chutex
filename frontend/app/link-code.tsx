@@ -1,38 +1,114 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert, Share, Platform, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert, Share, Platform, ScrollView, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
-import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 2px 16px rgba(0,0,0,0.06)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 20, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
 
+// ─── RELATIONSHIP LISTS ───
+const GUARDIAN_RELATIONSHIPS = [
+  { id: 'conjoint', label: 'Conjoint(e)' },
+  { id: 'fils_fille', label: 'Fils / Fille' },
+  { id: 'pere_mere', label: 'Pere / Mere' },
+  { id: 'frere_soeur', label: 'Frere / Soeur' },
+  { id: 'petit_enfant', label: 'Petit-fils / Petite-fille' },
+  { id: 'neveu_niece', label: 'Neveu / Niece' },
+  { id: 'ami', label: 'Ami(e) proche' },
+  { id: 'voisin', label: 'Voisin(e)' },
+  { id: 'aide_soignant', label: 'Aide-soignant(e)' },
+  { id: 'infirmier', label: 'Infirmier(ere)' },
+  { id: 'auxiliaire_vie', label: 'Auxiliaire de vie' },
+  { id: 'kine_osteo', label: 'Kine / Osteopathe' },
+  { id: 'coach', label: 'Coach sportif' },
+  { id: 'preparateur_physique', label: 'Preparateur physique' },
+  { id: 'pro_sante', label: 'Autre professionnel de sante' },
+  { id: 'autre', label: 'Autre' },
+];
+
+const BENEFICIARY_RELATIONSHIPS = [
+  { id: 'conjoint', label: 'Conjoint(e)' },
+  { id: 'mamie', label: 'Mamie' },
+  { id: 'papy', label: 'Papy' },
+  { id: 'pere_mere', label: 'Pere / Mere' },
+  { id: 'fils_fille', label: 'Fils / Fille' },
+  { id: 'frere_soeur', label: 'Frere / Soeur' },
+  { id: 'oncle_tante', label: 'Oncle / Tante' },
+  { id: 'ami', label: 'Ami(e)' },
+  { id: 'voisin', label: 'Voisin(e)' },
+  { id: 'patient', label: 'Patient(e)' },
+  { id: 'autre', label: 'Autre' },
+];
+
+// ─── RELATIONSHIP PICKER COMPONENT ───
+const RelationshipPicker = ({ value, onChange, relationships, label }: any) => {
+  const [open, setOpen] = useState(false);
+  const selected = relationships.find((r: any) => r.id === value);
+
+  return (
+    <View style={{ marginBottom: 16 }}>
+      <Text style={{ fontSize: 12, fontWeight: '700', color: '#5A6068', marginBottom: 8, letterSpacing: 0.5, textTransform: 'uppercase' }}>{label}</Text>
+      <TouchableOpacity
+        data-testid="relationship-picker"
+        onPress={() => setOpen(true)}
+        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F5F6F8', borderRadius: 14, padding: 14, borderWidth: 1, borderColor: value ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.06)' }}>
+        <Text style={{ fontSize: 15, color: value ? '#1A1D21' : '#9BA3AD', fontWeight: value ? '600' : '400' }}>
+          {selected ? selected.label : 'Choisir...'}
+        </Text>
+        <Ionicons name="chevron-down" size={18} color="#9BA3AD" />
+      </TouchableOpacity>
+
+      <Modal visible={open} transparent animationType="slide">
+        <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} activeOpacity={1} onPress={() => setOpen(false)}>
+          <View style={{ flex: 1 }} />
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '60%', paddingBottom: 40 }}>
+            <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+              <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#E5E7EB' }} />
+            </View>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#1A1D21', paddingHorizontal: 20, marginBottom: 12 }}>{label}</Text>
+            <ScrollView style={{ paddingHorizontal: 20 }}>
+              {relationships.map((r: any) => (
+                <TouchableOpacity
+                  key={r.id}
+                  data-testid={`rel-option-${r.id}`}
+                  onPress={() => { onChange(r.id); setOpen(false); }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
+                  <Text style={{ flex: 1, fontSize: 16, fontWeight: value === r.id ? '700' : '400', color: '#1A1D21' }}>{r.label}</Text>
+                  {value === r.id && <Ionicons name="checkmark-circle" size={22} color="#10B981" />}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
+  );
+};
+
 export default function LinkScreen() {
-  const { colors } = useTheme();
   const { user, token } = useAuth();
   const router = useRouter();
-  const isBeneficiary = user?.role === 'beneficiary';
+  const isBeneficiary = user?.role === 'beneficiary' || user?.active_role === 'beneficiary';
 
-  // Beneficiary state
   const [myCode, setMyCode] = useState('');
   const [loadingCode, setLoadingCode] = useState(true);
   const [invitePhone, setInvitePhone] = useState('');
+  const [inviteRelationship, setInviteRelationship] = useState('');
   const [inviting, setInviting] = useState(false);
   const [inviteResult, setInviteResult] = useState<any>(null);
 
-  // Guardian state
   const [mode, setMode] = useState<'choose' | 'enter_code' | 'enter_phone'>('choose');
   const [code, setCode] = useState('');
   const [phone, setPhone] = useState('');
+  const [guardianRelationship, setGuardianRelationship] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
 
-  // Auto-load code for beneficiary
   useEffect(() => {
     if (isBeneficiary && token) {
       (async () => {
@@ -50,18 +126,20 @@ export default function LinkScreen() {
 
   const inviteByPhone = async () => {
     if (!invitePhone.trim()) return Alert.alert('Erreur', 'Entrez un numero');
+    if (!inviteRelationship) return Alert.alert('Erreur', 'Selectionnez qui est cette personne pour vous');
     setInviting(true); setInviteResult(null);
     try {
-      const r = await apiFetch('/api/guardians/invite', { method: 'POST', body: JSON.stringify({ phone: invitePhone.trim() }) }, token);
+      const r = await apiFetch('/api/guardians/invite', { method: 'POST', body: JSON.stringify({ phone: invitePhone.trim(), relationship: inviteRelationship }) }, token);
       setInviteResult(r);
     } catch (e: any) { setInviteResult({ error: e.message }); } finally { setInviting(false); }
   };
 
   const linkWithCode = async () => {
     if (!code.trim()) return Alert.alert('Erreur', 'Entrez un code');
+    if (!guardianRelationship) return Alert.alert('Erreur', 'Selectionnez qui vous etes pour ce beneficiaire');
     setLoading(true); setResult(null);
     try {
-      const r = await apiFetch('/api/guardian/link-with-code', { method: 'POST', body: JSON.stringify({ link_code: code.trim().toUpperCase() }) }, token);
+      const r = await apiFetch('/api/guardian/link-with-code', { method: 'POST', body: JSON.stringify({ link_code: code.trim().toUpperCase(), relationship: guardianRelationship }) }, token);
       setResult(r);
       if (r.status === 'pending') Alert.alert('Demande envoyee', r.message);
     } catch (e: any) { setResult({ error: e.message }); } finally { setLoading(false); }
@@ -69,15 +147,36 @@ export default function LinkScreen() {
 
   const linkWithPhone = async () => {
     if (!phone.trim()) return Alert.alert('Erreur', 'Entrez un numero');
+    if (!guardianRelationship) return Alert.alert('Erreur', 'Selectionnez qui vous etes pour ce beneficiaire');
     setLoading(true); setResult(null);
     try {
-      const r = await apiFetch('/api/guardian/link-with-phone', { method: 'POST', body: JSON.stringify({ phone: phone.trim() }) }, token);
+      const r = await apiFetch('/api/guardian/link-with-phone', { method: 'POST', body: JSON.stringify({ phone: phone.trim(), relationship: guardianRelationship }) }, token);
       setResult(r);
       if (r.status === 'pending') Alert.alert('Demande envoyee', r.message);
     } catch (e: any) { setResult({ error: e.message }); } finally { setLoading(false); }
   };
 
-  // ===== BENEFICIARY =====
+  const ResultBanner = ({ r }: any) => r ? (
+    <View style={{ backgroundColor: r.error ? '#FEF2F2' : '#ECFDF5', borderRadius: 12, padding: 12, marginBottom: 12, borderWidth: 1, borderColor: r.error ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)' }}>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: r.error ? '#DC2626' : '#059669' }}>{r.error || r.message}</Text>
+    </View>
+  ) : null;
+
+  const InputField = ({ testID, placeholder, value, onChangeText, type, maxLength, style: s }: any) => {
+    if (Platform.OS === 'web') {
+      return (
+        <div style={{ marginBottom: 14 }}>
+          <input data-testid={testID} type={type || 'text'} placeholder={placeholder} value={value}
+            onChange={(e: any) => onChangeText(e.target.value)} maxLength={maxLength}
+            style={{ width: '100%', fontSize: s?.fontSize || 16, fontWeight: s?.fontWeight || '500', padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(0,0,0,0.08)', background: '#F5F6F8', fontFamily: 'Inter, system-ui', boxSizing: 'border-box' as any, textAlign: s?.textAlign || 'left', letterSpacing: s?.letterSpacing || 0, outline: 'none' } as any}
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // ===== BENEFICIARY VIEW =====
   if (isBeneficiary) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
@@ -88,40 +187,41 @@ export default function LinkScreen() {
           <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#1A1D21' }}>Mes gardiens</Text>
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
-          {/* My permanent code */}
+          {/* Code permanent */}
           <GlassCard style={{ alignItems: 'center', padding: 28 }}>
             <Ionicons name="qr-code-outline" size={36} color="#1A1D21" />
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', textTransform: 'uppercase', letterSpacing: 1, marginTop: 12 }}>VOTRE CODE PERMANENT</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', textTransform: 'uppercase', letterSpacing: 1, marginTop: 12 }}>Votre code permanent</Text>
             {loadingCode ? <ActivityIndicator color="#1A1D21" style={{ marginTop: 12 }} /> : (
               <Text style={{ fontSize: 38, fontWeight: '900', color: '#1A1D21', letterSpacing: 6, marginTop: 6 }}>{myCode}</Text>
             )}
-            <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 8, textAlign: 'center', lineHeight: 18 }}>Communiquez ce code a vos proches pour qu'ils deviennent vos gardiens. Ils devront le saisir dans leur application.</Text>
-            <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 14, paddingHorizontal: 32, marginTop: 16, flexDirection: 'row', gap: 8, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={shareCode}>
-              <Ionicons name="share-outline" size={18} color="#1A1D21" />
-              <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>PARTAGER</Text>
+            <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 8, textAlign: 'center', lineHeight: 18 }}>Communiquez ce code a vos proches pour qu'ils deviennent vos gardiens.</Text>
+            <TouchableOpacity style={{ backgroundColor: '#1A1D21', borderRadius: 9999, paddingVertical: 14, paddingHorizontal: 32, marginTop: 16, flexDirection: 'row', gap: 8, alignItems: 'center' }} onPress={shareCode}>
+              <Ionicons name="share-outline" size={18} color="#FFF" />
+              <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Partager</Text>
             </TouchableOpacity>
           </GlassCard>
 
-          {/* Invite by phone */}
+          {/* Inviter par telephone */}
           <GlassCard>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21', marginBottom: 4 }}>Inviter par telephone</Text>
-            <Text style={{ fontSize: 12, color: '#5A6068', marginBottom: 14, lineHeight: 17 }}>Envoyez une invitation a un proche par son numero. Il recevra une notification.</Text>
-            {Platform.OS === 'web' ? (
-              <div style={{ marginBottom: 12 }}>
-                <input data-testid="invite-phone-input" type="tel" placeholder="06 12 34 56 78" value={invitePhone}
-                  onChange={(e: any) => setInvitePhone(e.target.value)}
-                  style={{ width: '100%', fontSize: 16, padding: '14px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(255,255,255,0.04)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} />
-              </div>
-            ) : (
-              <View style={{ marginBottom: 12 }}>
-                <View style={{ backgroundColor: '#F0F1F3', borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.06)', paddingHorizontal: 14 }}>
-                  <Text>Phone input placeholder</Text>
-                </View>
-              </View>
-            )}
-            {inviteResult && <View style={{ backgroundColor: inviteResult.error ? '#FFEBEE' : '#E8F5E9', borderRadius: 12, padding: 12, marginBottom: 12 }}><Text style={{ fontSize: 13, fontWeight: '600', color: inviteResult.error ? '#C62828' : '#2E7D32' }}>{inviteResult.error || inviteResult.message}</Text></View>}
-            <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={inviteByPhone} disabled={inviting}>
-              {inviting ? <ActivityIndicator color="#1A1D21" /> : <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' }}>ENVOYER L'INVITATION</Text>}
+            <Text style={{ fontSize: 12, color: '#5A6068', marginBottom: 14, lineHeight: 17 }}>Envoyez une invitation et precisez qui est cette personne pour vous.</Text>
+
+            <RelationshipPicker
+              value={inviteRelationship}
+              onChange={setInviteRelationship}
+              relationships={BENEFICIARY_RELATIONSHIPS}
+              label="Qui est cette personne pour vous ?"
+            />
+
+            <InputField testID="invite-phone-input" type="tel" placeholder="06 12 34 56 78" value={invitePhone} onChangeText={setInvitePhone} />
+
+            <ResultBanner r={inviteResult} />
+
+            <TouchableOpacity
+              data-testid="send-invite-btn"
+              style={{ backgroundColor: '#1A1D21', borderRadius: 9999, paddingVertical: 14, alignItems: 'center' }}
+              onPress={inviteByPhone} disabled={inviting}>
+              {inviting ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Envoyer l'invitation</Text>}
             </TouchableOpacity>
           </GlassCard>
         </ScrollView>
@@ -129,7 +229,7 @@ export default function LinkScreen() {
     );
   }
 
-  // ===== GUARDIAN =====
+  // ===== GUARDIAN VIEW =====
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
@@ -144,47 +244,71 @@ export default function LinkScreen() {
             <Text style={{ fontSize: 14, color: '#5A6068', marginBottom: 20, lineHeight: 20 }}>Choisissez une methode. Le beneficiaire devra valider votre demande.</Text>
             {[
               { key: 'enter_code', icon: 'keypad-outline', title: 'Saisir un code', desc: 'Entrez le code du beneficiaire' },
-              { key: 'enter_code', icon: 'qr-code-outline', title: 'Scanner un QR code', desc: 'Scannez le code QR' },
               { key: 'enter_phone', icon: 'call-outline', title: 'Numero de telephone', desc: 'Envoyez une demande par telephone' },
             ].map((opt, i) => (
               <TouchableOpacity key={i} onPress={() => setMode(opt.key as any)} activeOpacity={0.7}>
                 <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-                  <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#F0F1F3', justifyContent: 'center', alignItems: 'center' }}>
                     <Ionicons name={opt.icon as any} size={24} color="#1A1D21" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>{opt.title}</Text>
                     <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 2 }}>{opt.desc}</Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color="#888" />
+                  <Ionicons name="chevron-forward" size={20} color="#9BA3AD" />
                 </GlassCard>
               </TouchableOpacity>
             ))}
           </>
         )}
+
         {mode === 'enter_code' && (
           <GlassCard style={{ padding: 24 }}>
             <Text style={{ fontSize: 18, fontWeight: '900', color: '#1A1D21', marginBottom: 8 }}>Saisir le code</Text>
             <Text style={{ fontSize: 13, color: '#5A6068', marginBottom: 16 }}>Entrez le code a 6 caracteres du beneficiaire</Text>
-            {Platform.OS === 'web' ? (
-              <div style={{ marginBottom: 16 }}><input data-testid="link-code-input" type="text" placeholder="EX: A1B2C3" value={code} onChange={(e: any) => setCode(e.target.value.toUpperCase())} maxLength={6} style={{ width: '100%', fontSize: 24, fontWeight: '800', padding: '16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(255,255,255,0.04)', fontFamily: 'system-ui', textAlign: 'center', letterSpacing: 8, boxSizing: 'border-box' as any }} /></div>
-            ) : null}
-            {result && <View style={{ backgroundColor: result.error ? '#FFEBEE' : '#E8F5E9', borderRadius: 12, padding: 12, marginBottom: 12 }}><Text style={{ fontSize: 13, fontWeight: '600', color: result.error ? '#C62828' : '#2E7D32' }}>{result.error || result.message}</Text></View>}
-            <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 16, alignItems: 'center' }} onPress={linkWithCode} disabled={loading}>
-              {loading ? <ActivityIndicator color="#1A1D21" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>ENVOYER LA DEMANDE</Text>}
+
+            <InputField testID="link-code-input" placeholder="EX: A1B2C3" value={code} onChangeText={(v: string) => setCode(v.toUpperCase())} maxLength={6}
+              style={{ fontSize: 24, fontWeight: '800', textAlign: 'center', letterSpacing: 8 }} />
+
+            <RelationshipPicker
+              value={guardianRelationship}
+              onChange={setGuardianRelationship}
+              relationships={GUARDIAN_RELATIONSHIPS}
+              label="Qui etes-vous pour ce beneficiaire ?"
+            />
+
+            <ResultBanner r={result} />
+
+            <TouchableOpacity
+              data-testid="send-code-link"
+              style={{ backgroundColor: '#1A1D21', borderRadius: 9999, paddingVertical: 16, alignItems: 'center' }}
+              onPress={linkWithCode} disabled={loading}>
+              {loading ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Envoyer la demande</Text>}
             </TouchableOpacity>
           </GlassCard>
         )}
+
         {mode === 'enter_phone' && (
           <GlassCard style={{ padding: 24 }}>
             <Text style={{ fontSize: 18, fontWeight: '900', color: '#1A1D21', marginBottom: 8 }}>Numero de telephone</Text>
-            <Text style={{ fontSize: 13, color: '#5A6068', marginBottom: 16 }}>Le beneficiaire recevra une demande sur son compte</Text>
-            {Platform.OS === 'web' ? (
-              <div style={{ marginBottom: 16 }}><input data-testid="link-phone-input" type="tel" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)} style={{ width: '100%', fontSize: 18, padding: '16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(255,255,255,0.04)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
-            ) : null}
-            {result && <View style={{ backgroundColor: result.error ? '#FFEBEE' : '#E8F5E9', borderRadius: 12, padding: 12, marginBottom: 12 }}><Text style={{ fontSize: 13, fontWeight: '600', color: result.error ? '#C62828' : '#2E7D32' }}>{result.error || result.message}</Text></View>}
-            <TouchableOpacity style={{ backgroundColor: '#F5F6F8', borderRadius: 9999, paddingVertical: 16, alignItems: 'center' }} onPress={linkWithPhone} disabled={loading}>
-              {loading ? <ActivityIndicator color="#1A1D21" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>ENVOYER LA DEMANDE</Text>}
+            <Text style={{ fontSize: 13, color: '#5A6068', marginBottom: 16 }}>Entrez le numero du beneficiaire</Text>
+
+            <InputField testID="link-phone-input" type="tel" placeholder="06 12 34 56 78" value={phone} onChangeText={setPhone} />
+
+            <RelationshipPicker
+              value={guardianRelationship}
+              onChange={setGuardianRelationship}
+              relationships={GUARDIAN_RELATIONSHIPS}
+              label="Qui etes-vous pour ce beneficiaire ?"
+            />
+
+            <ResultBanner r={result} />
+
+            <TouchableOpacity
+              data-testid="send-phone-link"
+              style={{ backgroundColor: '#1A1D21', borderRadius: 9999, paddingVertical: 16, alignItems: 'center' }}
+              onPress={linkWithPhone} disabled={loading}>
+              {loading ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Envoyer la demande</Text>}
             </TouchableOpacity>
           </GlassCard>
         )}
