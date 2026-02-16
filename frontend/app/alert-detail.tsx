@@ -1,3 +1,4 @@
+import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform, RefreshControl, TextInput, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,6 +35,7 @@ function MapEmbed({ benLat, benLng, ivLat, ivLng, benName, ivName }: any) {
 }
 
 export default function AlertDetailScreen() {
+  const { colors, isDark } = useTheme();
   const { token, user } = useAuth();
   const router = useRouter();
   const { alertId } = useLocalSearchParams<{ alertId: string }>();

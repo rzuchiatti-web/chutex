@@ -1,3 +1,4 @@
+import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, Dimensions, TextInput, Alert, Linking, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,6 +24,7 @@ function FullMap({ benLat, benLng, ivLat, ivLng, benName, ivName }: any) {
 const makeCall = (phone: string) => { if (phone) Linking.openURL(`tel:${phone}`); };
 
 export default function CompanyInterventionDetail() {
+  const { colors, isDark } = useTheme();
   const { interventionId } = useLocalSearchParams<{ interventionId: string }>();
   const { token, user } = useAuth();
   const router = useRouter();

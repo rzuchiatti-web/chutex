@@ -1,3 +1,4 @@
+import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -37,6 +38,7 @@ const PersonCard = ({ name, subtitle, color, onPress }: { name: string; subtitle
 );
 
 export default function AdminPrescriptionDetail() {
+  const { colors, isDark } = useTheme();
   const { prescriptionId } = useLocalSearchParams<{ prescriptionId: string }>();
   const { token } = useAuth();
   const router = useRouter();

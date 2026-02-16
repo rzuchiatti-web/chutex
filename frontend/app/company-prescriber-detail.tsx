@@ -1,3 +1,4 @@
+import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +26,7 @@ const Badge = ({ label, color, bg }: { label: string; color: string; bg: string 
 );
 
 export default function CompanyPrescriberDetail() {
+  const { colors, isDark } = useTheme();
   const { prescriberId } = useLocalSearchParams<{ prescriberId: string }>();
   const { token } = useAuth();
   const router = useRouter();

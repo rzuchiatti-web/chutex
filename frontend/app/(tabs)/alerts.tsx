@@ -1,3 +1,4 @@
+import { useTheme } from '../../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, ScrollView, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -102,6 +103,7 @@ const STATE_LABEL: Record<string, string> = {
 };
 
 export default function AlertsScreen() {
+  const { colors, isDark } = useTheme();
   const { token, user } = useAuth();
   const router = useRouter();
   const effectiveRole = user?.active_role || user?.role || '';

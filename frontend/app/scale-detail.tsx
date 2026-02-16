@@ -1,3 +1,4 @@
+import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl, Dimensions, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,6 +32,7 @@ function MiniChart({ data, color, width: chartW, height: chartH }: { data: numbe
 const bodyTypeLabel = (t: number) => ['', 'Maigre', 'Mince', 'Normal', 'Muscle+', 'Athletique', 'Costaud', 'Enrobe', 'Obese', 'Obese+'][Math.min(Math.max(Math.round(t), 1), 9)];
 
 export default function ScaleDetailScreen() {
+  const { colors, isDark } = useTheme();
   const { token, user } = useAuth();
   const router = useRouter();
   const [history, setHistory] = useState<any[]>([]);

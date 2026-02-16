@@ -1,3 +1,4 @@
+import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Linking, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,6 +27,7 @@ const Badge = ({ label, color, bg }: { label: string; color: string; bg: string 
 );
 
 export default function BeneficiaryDetailScreen() {
+  const { colors, isDark } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
   const { beneficiaryId } = useLocalSearchParams<{ beneficiaryId: string }>();

@@ -1,3 +1,4 @@
+import { useTheme } from '../src/context/ThemeContext';
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,6 +20,7 @@ const WebInput = ({ label, val, onChange, placeholder, type }: any) => Platform.
 ) : null;
 
 export default function ActivateGuardianScreen() {
+  const { colors, isDark } = useTheme();
   const { token, user, refreshUser } = useAuth();
   const router = useRouter();
   const [guardianType, setGuardianType] = useState(user?.guardian_type || 'particular');

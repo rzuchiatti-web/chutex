@@ -1,3 +1,4 @@
+import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,6 +29,7 @@ const statusColor = (st: string) => ({ pending_acceptance: '#FF9800', in_progres
 const statusLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
 
 export default function CompanyIntervenantDetail() {
+  const { colors, isDark } = useTheme();
   const { intervenantId } = useLocalSearchParams<{ intervenantId: string }>();
   const { token } = useAuth();
   const router = useRouter();
