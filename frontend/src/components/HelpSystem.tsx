@@ -73,7 +73,7 @@ export function ActionFeedback({ message, type, visible, onDismiss }: { message:
     <View style={{ position: 'absolute', top: 60, left: 16, right: 16, backgroundColor: cfg.bg, borderRadius: 14, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 10, zIndex: 99999, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 20px rgba(0,0,0,0.2)' } : {}) }}>
       <Ionicons name={cfg.icon as any} size={20} color="#FFF" />
       <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF', flex: 1 }}>{message}</Text>
-      <TouchableOpacity onPress={onDismiss}><Ionicons name="close" size={18} color="rgba(255,255,255,0.7)" /></TouchableOpacity>
+      <TouchableOpacity onPress={onDismiss}><Ionicons name="close" size={18} color="rgba(255,255,255,0.10)" /></TouchableOpacity>
     </View>
   );
 }
@@ -85,7 +85,7 @@ export function OnboardingChecklist({ items, title }: { items: { label: string; 
   if (completed === total) return null;
   const pct = (completed / total) * 100;
   return (
-    <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }}>
+    <View style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', padding: 18, marginBottom: 12, ...glass }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
         <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
           <Ionicons name="rocket-outline" size={18} color="#2196F3" />
@@ -294,7 +294,7 @@ export function PageExplainer({ pageId, title, sections }: { pageId: string; tit
 /* ===== EMPTY STATE - Pedagogical empty state with action ===== */
 export function EmptyState({ icon, title, subtitle, actionLabel, onAction, testId }: { icon: string; title: string; subtitle: string; actionLabel?: string; onAction?: () => void; testId?: string }) {
   return (
-    <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 32, alignItems: 'center', ...glass }} data-testid={testId}>
+    <View style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', padding: 32, alignItems: 'center', ...glass }} data-testid={testId}>
       <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(33,150,243,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
         <Ionicons name={icon as any} size={30} color="#90CAF9" />
       </View>

@@ -9,7 +9,7 @@ import type { ScaleMeasurement } from '../src/services/ble';
 
 const { width: SW } = Dimensions.get('window');
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
-const GC = ({ children, style }: any) => <View style={[{ backgroundColor: 'rgba(255,255,255,0.55)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>;
+const GC = ({ children, style }: any) => <View style={[{ backgroundColor: 'rgba(255,255,255,0.55)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>;
 
 function MiniChart({ data, color, width: chartW, height: chartH }: { data: number[]; color: string; width: number; height: number }) {
   if (!data.length || Platform.OS !== 'web') return null;
@@ -263,7 +263,7 @@ export default function ScaleDetailScreen() {
         {/* Period selector */}
         <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12 }}>
           {(['7', '30', '90'] as const).map(p => (
-            <TouchableOpacity key={p} style={[{ flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: period === p ? '#000' : 'rgba(255,255,255,0.7)' }, period === p && { backgroundColor: '#000' }]}
+            <TouchableOpacity key={p} style={[{ flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: period === p ? '#000' : 'rgba(255,255,255,0.10)' }, period === p && { backgroundColor: '#000' }]}
               onPress={() => setPeriod(p)}>
               <Text style={{ fontSize: 12, fontWeight: '700', color: period === p ? '#FFF' : '#888' }}>{p}j</Text>
             </TouchableOpacity>

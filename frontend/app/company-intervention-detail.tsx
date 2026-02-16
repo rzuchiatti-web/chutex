@@ -66,7 +66,7 @@ export default function CompanyInterventionDetail() {
   // ====== COMPLETED: show classic fiche like resolved alert ======
   if (isCompleted) {
     const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
-    const GC = ({ children, style: s2 }: any) => <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, s2]}>{children}</View>;
+    const GC = ({ children, style: s2 }: any) => <View style={[{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', padding: 18, marginBottom: 12, ...glass }, s2]}>{children}</View>;
     const IR = ({ icon, label, value, color: c }: any) => value ? (
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
         <Ionicons name={icon} size={16} color={c || '#888'} /><Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', width: 100 }}>{label}</Text><Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{value}</Text>

@@ -182,7 +182,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </TouchableOpacity>
         <LanguageFlagButton />
         <TouchableOpacity testID="notification-bell" onPress={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', marginLeft: 8 }}>
-          <Ionicons name="notifications-outline" size={18} color="rgba(255,255,255,0.7)" />
+          <Ionicons name="notifications-outline" size={18} color="rgba(255,255,255,0.10)" />
           {(guardianRequests.length > 0 || activeAlerts.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: '#000' }} />}
         </TouchableOpacity>
       </View>
@@ -350,7 +350,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <>
               <Ionicons name="alert-circle" size={32} color="#FFF" />
               <Text style={{ color: '#FFF', fontSize: 24, fontWeight: '900', letterSpacing: 4, marginTop: 4 }}>{t('sos')}</Text>
-              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginTop: 2 }}>{t('sos_sub')}</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.10)', fontSize: 11, marginTop: 2 }}>{t('sos_sub')}</Text>
             </>
           )}
         </TouchableOpacity>
@@ -364,7 +364,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           { key: 'sleep', title: t('sleep_health'), img: HEALTH_IMAGES.sleep, route: '/sleep' },
           { key: 'physical', title: t('physical_health'), img: HEALTH_IMAGES.physical, route: '/health-detail', params: { metricId: 'temperature' } },
         ].map(cat => (
-          <TouchableOpacity key={cat.key} testID={`health-cat-${cat.key}`} style={{ width: '48%', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', overflow: 'hidden', ...glassStyle }} onPress={() => router.push(cat.params ? { pathname: cat.route as any, params: cat.params } : cat.route as any)}>
+          <TouchableOpacity key={cat.key} testID={`health-cat-${cat.key}`} style={{ width: '48%', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', overflow: 'hidden', ...glassStyle }} onPress={() => router.push(cat.params ? { pathname: cat.route as any, params: cat.params } : cat.route as any)}>
             <View style={{ height: 110, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,235,238,0.3)' }}>
               <Image source={{ uri: cat.img }} style={{ width: 90, height: 90, resizeMode: 'contain' }} />
             </View>
@@ -381,7 +381,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           { id: 'sleep', label: t('sleep'), val: '--', unit: '', icon: 'moon-outline' },
           { id: 'temperature', label: t('temperature'), val: vitals?.temperature || '--', unit: '', icon: 'thermometer-outline' },
         ].map(v => (
-          <TouchableOpacity key={v.id} testID={`vital-${v.id}`} style={{ width: '48%', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 14, ...glassStyle }}
+          <TouchableOpacity key={v.id} testID={`vital-${v.id}`} style={{ width: '48%', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', padding: 14, ...glassStyle }}
             onPress={() => router.push({ pathname: '/health-detail', params: { metricId: v.id } })}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View>
@@ -415,7 +415,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </View>
           ))}
         </View>
-        <View style={{ backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 14, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 14, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 12, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('daily_goal')} | <Text style={{ color: '#E53935' }}>500 KCAL</Text></Text>
             <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
@@ -425,7 +425,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </View>
           </View>
         </View>
-        <View style={{ backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.4)', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 12, fontWeight: '800', color: 'rgba(255,255,255,0.92)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('daily_goal')} | <Text style={{ color: '#E53935' }}>2000 {t('steps').toUpperCase()}</Text></Text>
             <View style={{ height: 24, backgroundColor: '#E0E0E0', borderRadius: 12, marginTop: 6, overflow: 'hidden' }}>
@@ -466,7 +466,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           { icon: 'locate-outline', label: 'Zones', route: '/geofencing' },
           { icon: 'qr-code-outline', label: 'QR', route: '/link-code' },
         ].map((a, i) => (
-          <TouchableOpacity key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glassStyle }} onPress={() => router.push(a.route as any)}>
+          <TouchableOpacity key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', ...glassStyle }} onPress={() => router.push(a.route as any)}>
             <Ionicons name={a.icon as any} size={22} color="#000" />
             <Text style={{ fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.92)', marginTop: 4 }}>{a.label}</Text>
           </TouchableOpacity>
@@ -563,7 +563,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           </View>
         </TouchableOpacity>
         <LanguageFlagButton />
-        <TouchableOpacity testID="guardian-notification-bell" onPress={() => setShowNotifsG(!showNotifsG)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.5)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginLeft: 8, ...glassStyle }}>
+        <TouchableOpacity testID="guardian-notification-bell" onPress={() => setShowNotifsG(!showNotifsG)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginLeft: 8, ...glassStyle }}>
           <Ionicons name="notifications-outline" size={18} color="#000" />
           {(invitations.length > 0 || pendingInterventions.length > 0 || activeAlertsG.length > 0) && <View style={{ position: 'absolute', top: 0, right: 0, width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53935', borderWidth: 2, borderColor: '#000' }} />}
         </TouchableOpacity>
@@ -729,7 +729,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         <TouchableOpacity key={b.id} testID={`beneficiary-card-${b.id}`} onPress={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })}>
           <GlassCard style={{ padding: 20 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-              <View style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.7)' }}>
+              <View style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.10)' }}>
                 <Text style={{ fontSize: 24, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{b.name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
@@ -1008,7 +1008,7 @@ function AdminHome({ token, user }: { token: string; user: any }) {
             { l: 'Abon. Standard', v: stats.subscriptions_standard || 0, c: '#90CAF9' },
             { l: 'Abon. Care', v: stats.subscriptions_care || 0, c: '#EF9A9A' },
           ].map(x => (
-            <View key={x.l} style={{ width: '31%', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glassStyle }}>
+            <View key={x.l} style={{ width: '31%', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', ...glassStyle }}>
               <Text style={{ fontSize: 22, fontWeight: '900', color: x.c }}>{x.v}</Text>
               <Text style={{ fontSize: 8, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 4, textAlign: 'center' }}>{x.l}</Text>
             </View>
@@ -1188,7 +1188,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
           { key: 'month', label: '30 jours' },
         ] as const).map(f => (
           <TouchableOpacity key={f.key}
-            style={[{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, backgroundColor: dateFilter === f.key ? '#000' : 'rgba(255,255,255,0.5)', borderWidth: 1, borderColor: dateFilter === f.key ? '#000' : 'rgba(255,255,255,0.7)' }]}
+            style={[{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, backgroundColor: dateFilter === f.key ? '#000' : 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: dateFilter === f.key ? '#000' : 'rgba(255,255,255,0.10)' }]}
             onPress={() => { setDateFilter(f.key); }} data-testid={`date-filter-${f.key}`}>
             <Text style={{ fontSize: 12, fontWeight: '700', color: dateFilter === f.key ? '#FFF' : '#888' }}>{f.label}</Text>
           </TouchableOpacity>

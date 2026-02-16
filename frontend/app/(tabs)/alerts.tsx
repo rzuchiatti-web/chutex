@@ -8,7 +8,7 @@ import { ContextualTip, HelpBubble, PageExplainer, MiniTuto } from '../../src/co
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+  <View style={[{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
 
 /* ===== COMPANY: PRESCRIBERS LIST ===== */
@@ -41,7 +41,7 @@ function CompanyPrescribers({ token }: { token: string }) {
       </View>
       {/* Search */}
       <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', ...glass }}>
           <Ionicons name="search-outline" size={16} color="#888" />
           <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: 'rgba(255,255,255,0.92)' }}
             placeholder="Rechercher un prescripteur..." placeholderTextColor="#AAA" value={search} onChangeText={setSearch} />
@@ -156,7 +156,7 @@ export default function AlertsScreen() {
 
     return (
       <TouchableOpacity testID={`alert-card-${item.id}`}
-        style={[{ backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', marginBottom: 12, overflow: 'hidden', ...glass },
+        style={[{ backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', marginBottom: 12, overflow: 'hidden', ...glass },
           isActive && { borderLeftWidth: 4, borderLeftColor: cfg.color }]}
         onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: item.id } })}>
 
@@ -248,7 +248,7 @@ export default function AlertsScreen() {
           { icon: 'checkmark-circle-outline', heading: 'Resolution', text: 'Une alerte est resolue quand la situation est maitrisee. Un rapport d\'intervention est alors genere si un intervenant est intervenu.' },
         ]} />
       </View>
-      <View style={{ flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 14, padding: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }}>
+      <View style={{ flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', ...glass }}>
         <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'active' && { backgroundColor: '#000' }]} onPress={() => setTab('active')}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'active' ? '#FFF' : '#888' }}>Actives ({activeAlerts.length})</Text>
         </TouchableOpacity>
@@ -263,7 +263,7 @@ export default function AlertsScreen() {
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAlerts(); }} tintColor="#FFF" />}
           ListEmptyComponent={
-            <View style={[{ alignItems: 'center', paddingVertical: 48, backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', ...glass }]}>
+            <View style={[{ alignItems: 'center', paddingVertical: 48, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', ...glass }]}>
               <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(76,175,80,0.1)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
                 <Ionicons name={tab === 'active' ? 'checkmark-circle' : 'archive-outline'} size={28} color="#4CAF50" />
               </View>

@@ -302,7 +302,7 @@ const s = StyleSheet.create({
   cardTitle: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },
   cardStatus: { fontSize: 15, fontWeight: '700', marginTop: 2 },
   statsRow: { flexDirection: 'row', marginTop: 18, gap: 8 },
-  statBox: { flex: 1, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 12, paddingVertical: 14, gap: 4 },
+  statBox: { flex: 1, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.10)', borderRadius: 12, paddingVertical: 14, gap: 4 },
   statVal: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary },
   statLabel: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
   lastSync: { fontSize: 12, color: Colors.textMuted, textAlign: 'center', marginTop: 12 },

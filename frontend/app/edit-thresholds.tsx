@@ -74,7 +74,7 @@ export default function EditThresholdsScreen() {
         <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)', textAlign: 'center', textTransform: 'uppercase', marginBottom: 24 }}>{config.title}</Text>
 
         {/* Seuil inputs */}
-        <View style={[{ width: '100%', backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 24, marginBottom: 16, ...glass }]}>
+        <View style={[{ width: '100%', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', padding: 24, marginBottom: 16, ...glass }]}>
           <View style={{ flexDirection: 'row', gap: 20, marginBottom: 20 }}>
             <View style={{ flex: 1, alignItems: 'center' }}>
               <Text style={{ fontSize: 12, fontWeight: '800', color: '#1E88E5', textTransform: 'uppercase', marginBottom: 8 }}>SEUIL BAS</Text>

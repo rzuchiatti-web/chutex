@@ -26,7 +26,7 @@ const ClinicInput = ({ testID, label, val, onChange, placeholder, type }: any) =
   if (Platform.OS === 'web') {
     return (
       <div style={{ marginBottom: 14 }}>
-        {label && <div style={{ fontSize: 10, fontWeight: '700', color: 'rgba(255,255,255,0.45)', marginBottom: 7, letterSpacing: 1, textTransform: 'uppercase' }}>{label}</div>}
+        {label && <div style={{ fontSize: 10, fontWeight: '700', color: 'rgba(255,255,255,0.03)', marginBottom: 7, letterSpacing: 1, textTransform: 'uppercase' }}>{label}</div>}
         <input data-testid={testID} type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
           style={{
             width: '100%', fontSize: 15, fontFamily: 'system-ui, Inter, sans-serif', fontWeight: '500',
