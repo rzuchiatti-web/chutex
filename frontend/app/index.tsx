@@ -122,10 +122,12 @@ export default function AuthScreen() {
           onSubmit={handleSubmit}
           data-testid="login-form"
           style={{
-            width: '100%', maxWidth: 420, padding: '32px 28px', borderRadius: 28,
+            width: '100%', maxWidth: 420, padding: '32px 28px', borderRadius: 24,
             background: '#FFFFFF',
             border: '1px solid rgba(20,20,30,0.06)',
-            boxShadow: '0 2px 20px rgba(20,20,30,0.05), 0 0 0 1px rgba(20,20,30,0.02)',
+            boxShadow: '0 10px 30px rgba(20,20,30,0.08)',
+            animation: 'pageEnter 500ms cubic-bezier(0.22, 1, 0.36, 1) both',
+            animationDelay: '120ms',
           } as any}
         >
           <div style={{ fontSize: 20, fontWeight: 800, color: '#1E1F24', marginBottom: 24, letterSpacing: -0.3 }}>Connexion</div>
@@ -178,12 +180,12 @@ export default function AuthScreen() {
             style={{
               display: 'block', width: '100%', padding: '18px', borderRadius: 9999,
               border: 'none', cursor: 'pointer',
-              background: '#1E1F24', color: '#FFFFFF',
+              background: 'linear-gradient(135deg, #1E1F24, #2D2E34)', color: '#FFFFFF',
               fontSize: 15, fontWeight: 700, letterSpacing: 0.5,
               fontFamily: 'inherit', WebkitAppearance: 'none',
               opacity: submitting ? 0.6 : 1,
               transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: '0 4px 16px rgba(20,20,30,0.15)',
+              boxShadow: '0 10px 30px rgba(20,20,30,0.15)',
             } as any}
           >
             {submitting ? (
