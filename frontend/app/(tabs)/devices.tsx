@@ -175,15 +175,15 @@ function RewardsCard({ token }: { token: string }) {
       <TouchableOpacity onPress={() => setShowDetail(true)} activeOpacity={0.8}>
         <View style={{ backgroundColor: '#FFF8E1', borderRadius: 20, padding: 16, marginBottom: 12, borderWidth: 1.5, borderColor: '#FFD54F', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#FFD700', justifyContent: 'center', alignItems: 'center' }}>
-            <Icon name="trophy" size={24} color="#1A1D21" />
+            <Icon name="trophy" size={24} color="#1C1917" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 14, fontWeight: '900', color: '#1A1D21' }}>Challenge du mois</Text>
-            <Text style={{ fontSize: 12, color: '#5A6068' }}>1er: {data.prizes?.['1']}EUR - 2e: {data.prizes?.['2']}EUR - 3e: {data.prizes?.['3']}EUR</Text>
+            <Text style={{ fontSize: 14, fontWeight: '900', color: '#1C1917' }}>Challenge du mois</Text>
+            <Text style={{ fontSize: 12, color: '#78716C' }}>1er: {data.prizes?.['1']}EUR - 2e: {data.prizes?.['2']}EUR - 3e: {data.prizes?.['3']}EUR</Text>
           </View>
           <View style={{ alignItems: 'center' }}>
             <Text style={{ fontSize: 24, fontWeight: '900', color: posColor }}>{data.my_position}<Text style={{ fontSize: 11 }}>e</Text></Text>
-            <Text style={{ fontSize: 9, color: '#5A6068' }}>position</Text>
+            <Text style={{ fontSize: 9, color: '#78716C' }}>position</Text>
           </View>
           <Icon name="chevron-forward" size={16} color="#FFB300" />
         </View>
@@ -198,7 +198,7 @@ function RewardsCard({ token }: { token: string }) {
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '90%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <Text style={{ fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>Challenge Prescripteurs</Text>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#1C1917' }}>Challenge Prescripteurs</Text>
               <TouchableOpacity onPress={() => setShowDetail(false)}><Icon name="close" size={24} color="#888" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -207,19 +207,19 @@ function RewardsCard({ token }: { token: string }) {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
                   {[{pos: '1er', prize: data.prizes?.['1'], color: '#FFD700', icon: 'trophy'}, {pos: '2e', prize: data.prizes?.['2'], color: '#C0C0C0', icon: 'medal'}, {pos: '3e', prize: data.prizes?.['3'], color: '#CD7F32', icon: 'ribbon'}].map(t => (
                     <View key={t.pos} style={{ alignItems: 'center' }}>
-                      <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: t.color, justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
-                        <Icon name={t.icon as any} size={22} color="#1A1D21" />
+                      <View style={{ width: 44, height: 44, borderRadius: 24, backgroundColor: t.color, justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
+                        <Icon name={t.icon as any} size={22} color="#1C1917" />
                       </View>
-                      <Text style={{ fontSize: 16, fontWeight: '900', color: '#1A1D21' }}>{t.prize}EUR</Text>
-                      <Text style={{ fontSize: 11, color: '#5A6068' }}>{t.pos}</Text>
+                      <Text style={{ fontSize: 16, fontWeight: '900', color: '#1C1917' }}>{t.prize}EUR</Text>
+                      <Text style={{ fontSize: 11, color: '#78716C' }}>{t.pos}</Text>
                     </View>
                   ))}
                 </View>
               </View>
               <View style={{ backgroundColor: posColor + '15', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: posColor }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#5A6068', textAlign: 'center', marginBottom: 4 }}>VOTRE POSITION</Text>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#78716C', textAlign: 'center', marginBottom: 4 }}>VOTRE POSITION</Text>
                 <Text style={{ fontSize: 36, fontWeight: '900', color: posColor, textAlign: 'center' }}>{data.my_position}<Text style={{ fontSize: 16 }}>e</Text></Text>
-                <Text style={{ fontSize: 14, color: '#1A1D21', textAlign: 'center', fontWeight: '600' }}>{data.my_prescriptions} prescription{data.my_prescriptions !== 1 ? 's' : ''} ce mois</Text>
+                <Text style={{ fontSize: 14, color: '#1C1917', textAlign: 'center', fontWeight: '600' }}>{data.my_prescriptions} prescription{data.my_prescriptions !== 1 ? 's' : ''} ce mois</Text>
                 {myPrize > 0 && <Text style={{ fontSize: 13, color: '#10B981', textAlign: 'center', fontWeight: '800', marginTop: 4 }}>Vous gagnez {myPrize}EUR !</Text>}
                 {data.prescriptions_to_next > 0 && (
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 8 }}>
@@ -228,28 +228,28 @@ function RewardsCard({ token }: { token: string }) {
                   </View>
                 )}
               </View>
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#1A1D21', marginBottom: 10 }}>Classement anonyme</Text>
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#1C1917', marginBottom: 10 }}>Classement anonyme</Text>
               {(data.ranking || []).map((r: any) => (
                 <View key={r.position} style={[{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }, r.is_me && { backgroundColor: '#FFF8E1', borderRadius: 10, paddingHorizontal: 8 }]}>
                   <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: r.position === 1 ? '#FFD700' : r.position === 2 ? '#C0C0C0' : r.position === 3 ? '#CD7F32' : 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
                     <Text style={{ fontSize: 12, fontWeight: '900', color: r.position <= 3 ? '#FFF' : '#888' }}>{r.position}</Text>
                   </View>
-                  <Text style={{ fontSize: 14, fontWeight: r.is_me ? '900' : '600', color: '#1A1D21', flex: 1 }}>{r.is_me ? 'Vous' : `Prescripteur #${r.position}`}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: r.is_me ? '900' : '600', color: '#1C1917', flex: 1 }}>{r.is_me ? 'Vous' : `Prescripteur #${r.position}`}</Text>
                   <Text style={{ fontSize: 14, fontWeight: '800', color: r.position <= 3 ? '#4CAF50' : '#888' }}>{r.prescriptions} presc.</Text>
                 </View>
               ))}
               <View style={{ backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 14, padding: 14, marginTop: 16 }}>
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#1A1D21', marginBottom: 6 }}>Regles du programme</Text>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#1C1917', marginBottom: 6 }}>Regles du programme</Text>
                 <Text style={{ fontSize: 12, color: '#555', lineHeight: 18 }}>Les 3 meilleurs prescripteurs du mois recoivent une prime versee debut du mois suivant. Le classement est base sur le nombre de prescriptions validees. Seules les prescriptions du mois en cours comptent.</Text>
               </View>
               {data.history?.length > 0 && (
                 <View style={{ marginTop: 16 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '800', color: '#1A1D21', marginBottom: 10 }}>Historique</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: '#1C1917', marginBottom: 10 }}>Historique</Text>
                   {data.history.map((h: any, i: number) => (
                     <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8 }}>
-                      <Text style={{ fontSize: 12, color: '#5A6068', width: 60 }}>{h.month}</Text>
+                      <Text style={{ fontSize: 12, color: '#78716C', width: 60 }}>{h.month}</Text>
                       <Icon name="trophy" size={14} color="#FFD700" />
-                      <Text style={{ fontSize: 12, fontWeight: '700', color: '#1A1D21' }}>{h.winner_name || 'Prescripteur #1'}</Text>
+                      <Text style={{ fontSize: 12, fontWeight: '700', color: '#1C1917' }}>{h.winner_name || 'Prescripteur #1'}</Text>
                     </View>
                   ))}
                 </View>
@@ -314,20 +314,20 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   return (
     <ScrollView style={d.sv} contentContainerStyle={[d.sc, { paddingBottom: 80 }]} showsVerticalScrollIndicator={false}>
       {!user?.is_prescriber ? (
-        <View style={{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 28, alignItems: 'center', ...glass }}>
+        <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 28, alignItems: 'center', ...glass }}>
           <Icon name="medical-outline" size={40} color={Colors.primary} />
-          <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A1D21', marginTop: 12 }}>Espace Prescripteur</Text>
-          <Text style={{ fontSize: 13, color: '#5A6068', textAlign: 'center', lineHeight: 19, marginTop: 8, marginBottom: 20 }}>
+          <Text style={{ fontSize: 20, fontWeight: '800', color: '#1C1917', marginTop: 12 }}>Espace Prescripteur</Text>
+          <Text style={{ fontSize: 13, color: '#78716C', textAlign: 'center', lineHeight: 19, marginTop: 8, marginBottom: 20 }}>
             Activez votre espace prescripteur avec le code fourni par votre structure partenaire Chutex.
           </Text>
-          <TextInput testID="prescriber-code-input" style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 12, padding: 14, fontSize: 16, fontWeight: '700', color: '#1A1D21', borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.06)', textAlign: 'center', letterSpacing: 3, marginBottom: 10 }}
+          <TextInput testID="prescriber-code-input" style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 12, padding: 14, fontSize: 16, fontWeight: '700', color: '#1C1917', borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.06)', textAlign: 'center', letterSpacing: 3, marginBottom: 10 }}
             placeholder="CODE PRESCRIPTEUR" placeholderTextColor="#BBB" value={actCode} onChangeText={setActCode} autoCapitalize="characters" />
           <TouchableOpacity testID="activate-prescriber-btn" style={{ width: '100%', backgroundColor: Colors.primary, borderRadius: 12, paddingVertical: 14, alignItems: 'center' }} onPress={activatePrescriber} disabled={activating}>
-            {activating ? <ActivityIndicator color="#1A1D21" size="small" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Activer mon espace</Text>}
+            {activating ? <ActivityIndicator color="#1C1917" size="small" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Activer mon espace</Text>}
           </TouchableOpacity>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, width: '100%', marginVertical: 16 }}>
             <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(0,0,0,0.08)' }} />
-            <Text style={{ fontSize: 12, color: '#9BA3AD' }}>ou</Text>
+            <Text style={{ fontSize: 12, color: '#A8A29E' }}>ou</Text>
             <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(0,0,0,0.08)' }} />
           </View>
           <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => Linking.openURL('https://chutex-innovation.com')}>
@@ -346,7 +346,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 </View>
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Text style={{ fontSize: 17, fontWeight: '800', color: '#1A1D21' }}>Prescripteur</Text>
+                    <Text style={{ fontSize: 17, fontWeight: '800', color: '#1C1917' }}>Prescripteur</Text>
                     <View style={{ backgroundColor: '#10B981', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
                       <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
                     </View>
@@ -365,7 +365,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                   <Text style={{ fontSize: 20, fontWeight: '900', color: '#2E7D32' }}>Espace Prescripteur</Text>
-                  <TouchableOpacity onPress={() => setShowPrescModal(false)}><Icon name="close" size={24} color="#1A1D21" /></TouchableOpacity>
+                  <TouchableOpacity onPress={() => setShowPrescModal(false)}><Icon name="close" size={24} color="#1C1917" /></TouchableOpacity>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -373,8 +373,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                       <Icon name="medical" size={24} color="#4CAF50" />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>{user.name}</Text>
-                      <Text style={{ fontSize: 12, color: '#5A6068', marginTop: 2 }}>{user.prescriber_structure}</Text>
+                      <Text style={{ fontSize: 16, fontWeight: '800', color: '#1C1917' }}>{user.name}</Text>
+                      <Text style={{ fontSize: 12, color: '#78716C', marginTop: 2 }}>{user.prescriber_structure}</Text>
                     </View>
                   </View>
                   {[
@@ -385,8 +385,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                   ].map(({ icon, label, value }) => value !== '-' ? (
                     <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                       <Icon name={icon as any} size={16} color="#4CAF50" />
-                      <Text style={{ fontSize: 12, color: '#5A6068', width: 90 }}>{label}</Text>
-                      <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
+                      <Text style={{ fontSize: 12, color: '#78716C', width: 90 }}>{label}</Text>
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: '#1C1917', flex: 1 }}>{value}</Text>
                     </View>
                   ) : null)}
                   <TouchableOpacity style={{ borderWidth: 1.5, borderColor: '#E53935', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 24, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
@@ -413,16 +413,16 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
           {/* Commission total for current tab */}
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, paddingHorizontal: 4, marginBottom: 4 }}>
-            <Text style={{ fontSize: 12, color: '#5A6068' }}>Total commissions {prescTab === 'pending' ? 'en attente' : 'validees'}</Text>
+            <Text style={{ fontSize: 12, color: '#78716C' }}>Total commissions {prescTab === 'pending' ? 'en attente' : 'validees'}</Text>
             <Text style={{ fontSize: 18, fontWeight: '900', color: prescTab === 'pending' ? '#FF9800' : '#4CAF50' }}>
               {displayedPresc.reduce((s: number, p: any) => s + (p.commission || 0), 0).toFixed(0)} EUR
             </Text>
           </View>
 
           {/* New prescription button */}
-          <TouchableOpacity testID="new-prescription-btn" style={{ backgroundColor: '#F5F6F8', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }} onPress={() => setShowForm(true)}>
+          <TouchableOpacity testID="new-prescription-btn" style={{ backgroundColor: '#FAF8F5', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }} onPress={() => setShowForm(true)}>
             <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Nouvelle prescription</Text>
-            <Icon name="add-circle-outline" size={18} color="#1A1D21" />
+            <Icon name="add-circle-outline" size={18} color="#1C1917" />
           </TouchableOpacity>
 
           {/* Prescription list filtered by tab - clickable with detail modal */}
@@ -436,8 +436,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                       <Icon name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={18} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21' }}>{p.beneficiary_name}</Text>
-                      <Text style={{ fontSize: 11, color: '#5A6068' }}>{p.beneficiary_email}</Text>
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1C1917' }}>{p.beneficiary_name}</Text>
+                      <Text style={{ fontSize: 11, color: '#78716C' }}>{p.beneficiary_email}</Text>
                     </View>
                     <Text style={{ fontSize: 16, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission}EUR</Text>
                     <Icon name="chevron-forward" size={16} color="#888" />
@@ -445,7 +445,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 8, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
                     <Icon name="pricetag-outline" size={14} color="#888" />
                     <Text style={{ fontSize: 12, color: '#555', flex: 1 }}>{p.subscription_type === 'standard' ? 'Standard' : 'Teleassistance'}</Text>
-                    {p.beneficiary_phone && <><Icon name="call-outline" size={12} color="#888" /><Text style={{ fontSize: 11, color: '#5A6068' }}>{p.beneficiary_phone}</Text></>}
+                    {p.beneficiary_phone && <><Icon name="call-outline" size={12} color="#888" /><Text style={{ fontSize: 11, color: '#78716C' }}>{p.beneficiary_phone}</Text></>}
                   </View>
                 </View>
               </TouchableOpacity>
@@ -453,7 +453,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           ) : (
             <View style={{ backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 18, padding: 32, alignItems: 'center' }}>
               <Icon name={prescTab === 'pending' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#5A6068', marginTop: 10 }}>{prescTab === 'pending' ? 'Aucune prescription en cours' : 'Aucune prescription validee'}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#78716C', marginTop: 10 }}>{prescTab === 'pending' ? 'Aucune prescription en cours' : 'Aucune prescription validee'}</Text>
             </View>
           )}
 
@@ -479,7 +479,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <View style={d.modalBtns}>
                 <TouchableOpacity style={d.cancelBtn} onPress={() => setShowForm(false)}><Text style={d.cancelBtnT}>Annuler</Text></TouchableOpacity>
                 <TouchableOpacity testID="presc-submit-btn" style={d.submitBtn} onPress={submitPrescription} disabled={submitting}>
-                  {submitting ? <ActivityIndicator color="#1A1D21" /> : <Text style={d.submitBtnT}>Creer</Text>}</TouchableOpacity>
+                  {submitting ? <ActivityIndicator color="#1C1917" /> : <Text style={d.submitBtnT}>Creer</Text>}</TouchableOpacity>
               </View>
             </View></View>
           </Modal>
@@ -487,26 +487,26 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           {/* Prescription Detail Modal - Premium Design */}
           <Modal visible={!!selectedPresc} transparent animationType="fade" onRequestClose={() => setSelectedPresc(null)}>
             <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-              <View style={{ backgroundColor: '#F5F6F8', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%' }}>
+              <View style={{ backgroundColor: '#FAF8F5', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%' }}>
                 {selectedPresc && <>
                   {/* Header */}
                   <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12 }}>
                     <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ padding: 4, marginRight: 12 }}>
-                      <Icon name="chevron-back" size={24} color="#1A1D21" />
+                      <Icon name="chevron-back" size={24} color="#1C1917" />
                     </TouchableOpacity>
-                    <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche Prescription</Text>
+                    <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1C1917' }}>Fiche Prescription</Text>
                     <TouchableOpacity onPress={() => setSelectedPresc(null)}><Icon name="close" size={22} color="#888" /></TouchableOpacity>
                   </View>
 
                   <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
                     {/* Identity Card */}
-                    <View style={{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 24, marginBottom: 12, ...glass }}>
+                    <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 24, marginBottom: 12, ...glass }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
                         <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
                           <Text style={{ fontSize: 24, fontWeight: '900', color: '#FFF' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Text style={{ fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>{selectedPresc.beneficiary_name}</Text>
+                          <Text style={{ fontSize: 20, fontWeight: '900', color: '#1C1917' }}>{selectedPresc.beneficiary_name}</Text>
                           <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                             <View style={{ backgroundColor: selectedPresc.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
                               <Text style={{ fontSize: 10, fontWeight: '800', color: selectedPresc.status === 'subscribed' ? '#2E7D32' : '#E65100', textTransform: 'uppercase', letterSpacing: 0.5 }}>{selectedPresc.status === 'subscribed' ? 'Souscrit' : 'En attente'}</Text>
@@ -524,31 +524,31 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                       ].map(({ icon, label, value }) => value ? (
                         <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                           <Icon name={icon as any} size={16} color="#888" />
-                          <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
-                          <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
+                          <Text style={{ fontSize: 12, color: '#78716C', width: 100 }}>{label}</Text>
+                          <Text style={{ fontSize: 13, fontWeight: '600', color: '#1C1917', flex: 1 }}>{value}</Text>
                         </View>
                       ) : null)}
                     </View>
 
                     {/* Commission Card */}
                     <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
-                      <View style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 16, alignItems: 'center', borderLeftWidth: 4, borderLeftColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', ...glass }}>
+                      <View style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 16, alignItems: 'center', borderLeftWidth: 4, borderLeftColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', ...glass }}>
                         <Text style={{ fontSize: 28, fontWeight: '900', color: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{selectedPresc.commission}</Text>
                         <Text style={{ fontSize: 10, color: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', fontWeight: '700', letterSpacing: 0.5, marginTop: 2 }}>EUR COMMISSION</Text>
                       </View>
-                      <View style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 16, alignItems: 'center', ...glass }}>
-                        <Text style={{ fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>{selectedPresc.subscription_type === 'standard' ? '15' : '25'}</Text>
-                        <Text style={{ fontSize: 10, color: '#5A6068', fontWeight: '700', letterSpacing: 0.5, marginTop: 2 }}>EUR/MOIS</Text>
+                      <View style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 16, alignItems: 'center', ...glass }}>
+                        <Text style={{ fontSize: 18, fontWeight: '900', color: '#1C1917' }}>{selectedPresc.subscription_type === 'standard' ? '15' : '25'}</Text>
+                        <Text style={{ fontSize: 10, color: '#78716C', fontWeight: '700', letterSpacing: 0.5, marginTop: 2 }}>EUR/MOIS</Text>
                       </View>
                     </View>
 
                     {/* Prescriber Info */}
-                    <View style={{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }}>
+                    <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                         <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
                           <Icon name="medical" size={18} color="#7B1FA2" />
                         </View>
-                        <Text style={{ fontSize: 16, fontWeight: '800', color: '#1A1D21' }}>Prescripteur</Text>
+                        <Text style={{ fontSize: 16, fontWeight: '800', color: '#1C1917' }}>Prescripteur</Text>
                       </View>
                       {[
                         { icon: 'person-outline', label: 'Nom', value: user.name, color: '#7B1FA2' },
@@ -556,8 +556,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                       ].map(({ icon, label, value, color }) => value ? (
                         <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                           <Icon name={icon as any} size={16} color={color || '#888'} />
-                          <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
-                          <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
+                          <Text style={{ fontSize: 12, color: '#78716C', width: 100 }}>{label}</Text>
+                          <Text style={{ fontSize: 13, fontWeight: '600', color: '#1C1917', flex: 1 }}>{value}</Text>
                         </View>
                       ) : null)}
                     </View>
@@ -665,7 +665,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
       {/* Tabs */}
       <View style={{ flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 12, padding: 3, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
         {([['codes', `Codes (${codes.length})`], ['prescribers', `Prescripteurs (${prescribers.length})`], ['prescriptions', `Souscriptions (${prescriptions.length})`]] as const).map(([k, l]) => (
-          <TouchableOpacity key={k} style={[{ flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: 10 }, tab === k && { backgroundColor: '#F5F6F8' }]}
+          <TouchableOpacity key={k} style={[{ flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: 10 }, tab === k && { backgroundColor: '#FAF8F5' }]}
             onPress={() => setTab(k)}>
             <Text style={{ fontSize: 10, fontWeight: '700', color: tab === k ? '#FFF' : '#888' }}>{l}</Text>
           </TouchableOpacity>
@@ -678,7 +678,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
           <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{codes.length} structure(s) prescriptrice(s)</Text>
           <TouchableOpacity testID="add-prescripteur-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}
             onPress={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', max_uses: '50' }); setShowModal(true); }}>
-            <Icon name="add" size={16} color="#1A1D21" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
+            <Icon name="add" size={16} color="#1C1917" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
           </TouchableOpacity>
         </View>
 
@@ -780,7 +780,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
           <View style={d.modalBtns}>
             <TouchableOpacity style={d.cancelBtn} onPress={() => setShowModal(false)}><Text style={d.cancelBtnT}>Annuler</Text></TouchableOpacity>
             <TouchableOpacity style={d.submitBtn} onPress={saveCode} disabled={saving}>
-              {saving ? <ActivityIndicator color="#1A1D21" /> : <Text style={d.submitBtnT}>{editCode ? 'Modifier' : 'Créer'}</Text>}
+              {saving ? <ActivityIndicator color="#1C1917" /> : <Text style={d.submitBtnT}>{editCode ? 'Modifier' : 'Créer'}</Text>}
             </TouchableOpacity>
           </View>
         </View></View>
@@ -803,7 +803,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={d.center}><ActivityIndicator size="large" color="#1A1D21" /></View>;
+  if (loading) return <View style={d.center}><ActivityIndicator size="large" color="#1C1917" /></View>;
 
   const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
@@ -814,10 +814,10 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   const prescTotal = displayedPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
+    <View style={{ flex: 1, backgroundColor: '#FAF8F5' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: '#1A1D21', letterSpacing: -0.5 }}>Prescriptions</Text>
-        <Text style={{ fontSize: 12, color: '#5A6068' }}>{allPrescs.length} prescriptions au total</Text>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: '#1C1917', letterSpacing: -0.5 }}>Prescriptions</Text>
+        <Text style={{ fontSize: 12, color: '#78716C' }}>{allPrescs.length} prescriptions au total</Text>
       </View>
 
       <View style={{ flexDirection: 'row', marginHorizontal: 16, backgroundColor: '#FFFFFF', borderRadius: 14, padding: 4, marginBottom: 0, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glass }}>
@@ -829,12 +829,12 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
         </TouchableOpacity>
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 10 }}>
-        <Text style={{ fontSize: 12, color: '#5A6068' }}>Total commissions</Text>
+        <Text style={{ fontSize: 12, color: '#78716C' }}>Total commissions</Text>
         <Text style={{ fontSize: 16, fontWeight: '900', color: prescTab === 'pending' ? '#FF9800' : '#4CAF50' }}>{prescTotal} EUR</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#1A1D21" />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#1C1917" />}>
         {displayedPrescs.map((p: any) => (
           <TouchableOpacity key={p.id} activeOpacity={0.7} onPress={() => setSelectedPresc(p)}>
             <View style={{ backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 14, marginBottom: 8, borderLeftWidth: 4, borderLeftColor: p.status === 'subscribed' ? '#4CAF50' : '#FF9800', ...glass }}>
@@ -843,8 +843,8 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
                   <Icon name={p.status === 'subscribed' ? 'checkmark-circle' : 'time'} size={16} color={p.status === 'subscribed' ? '#4CAF50' : '#FF9800'} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A1D21' }}>{p.beneficiary_name}</Text>
-                  <Text style={{ fontSize: 10, color: '#5A6068' }}>Par: {p.guardian_name}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#1C1917' }}>{p.beneficiary_name}</Text>
+                  <Text style={{ fontSize: 10, color: '#78716C' }}>Par: {p.guardian_name}</Text>
                 </View>
                 <Text style={{ fontSize: 14, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission}EUR</Text>
                 <Icon name="chevron-forward" size={14} color="#888" />
@@ -855,7 +855,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
         {displayedPrescs.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
             <Icon name={prescTab === 'pending' ? 'time-outline' : 'checkmark-circle-outline'} size={36} color="#CCC" />
-            <Text style={{ fontSize: 14, color: '#5A6068', marginTop: 8 }}>Aucune prescription {prescTab === 'pending' ? 'en cours' : 'validee'}</Text>
+            <Text style={{ fontSize: 14, color: '#78716C', marginTop: 8 }}>Aucune prescription {prescTab === 'pending' ? 'en cours' : 'validee'}</Text>
           </View>
         )}
       </ScrollView>
@@ -863,23 +863,23 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
       {/* Prescription Detail Modal */}
       <Modal visible={!!selectedPresc} transparent animationType="fade" onRequestClose={() => setSelectedPresc(null)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: '#F5F6F8', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%' }}>
+          <View style={{ backgroundColor: '#FAF8F5', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%' }}>
             {selectedPresc && <>
               <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12 }}>
                 <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ padding: 4, marginRight: 12 }}>
-                  <Icon name="chevron-back" size={24} color="#1A1D21" />
+                  <Icon name="chevron-back" size={24} color="#1C1917" />
                 </TouchableOpacity>
-                <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1A1D21' }}>Fiche Prescription</Text>
+                <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#1C1917' }}>Fiche Prescription</Text>
                 <TouchableOpacity onPress={() => setSelectedPresc(null)}><Icon name="close" size={22} color="#888" /></TouchableOpacity>
               </View>
               <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-                <View style={{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 24, marginBottom: 12, ...glass }}>
+                <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 24, marginBottom: 12, ...glass }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
                     <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
                       <Text style={{ fontSize: 24, fontWeight: '900', color: '#FFF' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 20, fontWeight: '900', color: '#1A1D21' }}>{selectedPresc.beneficiary_name}</Text>
+                      <Text style={{ fontSize: 20, fontWeight: '900', color: '#1C1917' }}>{selectedPresc.beneficiary_name}</Text>
                       <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }}>
                         <View style={{ backgroundColor: selectedPresc.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
                           <Text style={{ fontSize: 10, fontWeight: '800', color: selectedPresc.status === 'subscribed' ? '#2E7D32' : '#E65100' }}>{selectedPresc.status === 'subscribed' ? 'SOUSCRIT' : 'EN ATTENTE'}</Text>
@@ -896,14 +896,14 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
                   ].map(({ icon, label, value }) => value ? (
                     <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                       <Icon name={icon as any} size={16} color="#888" />
-                      <Text style={{ fontSize: 12, color: '#5A6068', width: 100 }}>{label}</Text>
-                      <Text style={{ fontSize: 13, fontWeight: '600', color: '#1A1D21', flex: 1 }}>{value}</Text>
+                      <Text style={{ fontSize: 12, color: '#78716C', width: 100 }}>{label}</Text>
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: '#1C1917', flex: 1 }}>{value}</Text>
                     </View>
                   ) : null)}
                 </View>
-                <View style={{ backgroundColor: '#FFFFFF', borderRadius: 22, padding: 18, borderLeftWidth: 4, borderLeftColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', alignItems: 'center', ...glass }}>
+                <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, padding: 18, borderLeftWidth: 4, borderLeftColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', alignItems: 'center', ...glass }}>
                   <Text style={{ fontSize: 32, fontWeight: '900', color: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{selectedPresc.commission} EUR</Text>
-                  <Text style={{ fontSize: 11, color: '#5A6068', fontWeight: '600', marginTop: 4 }}>Commission {selectedPresc.status === 'subscribed' ? 'validee' : 'en attente'}</Text>
+                  <Text style={{ fontSize: 11, color: '#78716C', fontWeight: '600', marginTop: 4 }}>Commission {selectedPresc.status === 'subscribed' ? 'validee' : 'en attente'}</Text>
                 </View>
               </ScrollView>
             </>}
@@ -921,9 +921,9 @@ export default function DevicesScreen() {
   if (!user || !token) return null;
   const r = user.active_role || user.role;
   return (
-    <View key={r} style={[d.safeArea, { backgroundColor: '#F5F6F8' }]} testID="devices-screen">
+    <View key={r} style={[d.safeArea, { backgroundColor: '#FAF8F5' }]} testID="devices-screen">
       <View style={d.header}>
-        <Text style={[d.title, { color: '#1A1D21' }]}>{r === 'admin' ? 'Prescripteurs' : r === 'prescriber_company' ? 'Prescriptions' : r === 'guardian' ? 'Prescriptions' : r === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
+        <Text style={[d.title, { color: '#1C1917' }]}>{r === 'admin' ? 'Prescripteurs' : r === 'prescriber_company' ? 'Prescriptions' : r === 'guardian' ? 'Prescriptions' : r === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
       </View>
       {r === 'admin' ? <AdminPrescripteurs token={token} />
         : r === 'prescriber_company' ? <CompanyPrescriptionsTab token={token} />
@@ -935,7 +935,7 @@ export default function DevicesScreen() {
 }
 
 const d = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F5F6F8' },
+  safeArea: { flex: 1, backgroundColor: '#FAF8F5' },
   header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
   title: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, letterSpacing: -0.5 },
   sv: { flex: 1 }, sc: { paddingHorizontal: 20, paddingBottom: 24 },
