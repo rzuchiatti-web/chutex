@@ -144,7 +144,7 @@ export default function AuthScreen() {
           </View>
 
           <View style={{ ...cStyle, padding: 24, marginBottom: 20, overflow: 'hidden' as const }}>
-            <View style={{ flexDirection: 'row', marginBottom: 24, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: Radius.full, padding: 3, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)'Light }}>
+            <View style={{ flexDirection: 'row', marginBottom: 24, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: Radius.full, padding: 3, borderWidth: 1, borderColor: 'rgba(0,0,0,0.03)' }}>
               <TouchableOpacity testID="auth-tab-login" style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.full }, isLogin && { backgroundColor: '#FFFFFF' }]} onPress={() => { setIsLogin(true); setStep(0); setError(''); }}>
                 <Text style={{ fontSize: 13, fontWeight: '700', color: isLogin ? colors.textPrimary : colors.textMuted }}>Connexion</Text>
               </TouchableOpacity>
