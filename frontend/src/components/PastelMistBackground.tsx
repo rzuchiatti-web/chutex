@@ -62,6 +62,24 @@ export function PastelMistBackground() {
         width: 0;
       }
 
+      /* ── Pulse dot animation ── */
+      @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+        50% { opacity: 0.7; transform: scale(1.3); box-shadow: 0 0 8px 3px rgba(255,255,255,0.15); }
+      }
+
+      /* ── Scan line sweep on buttons ── */
+      @keyframes scan-sweep {
+        0% { left: -100%; }
+        100% { left: 100%; }
+      }
+
+      /* ── Glow breathe for glass pills ── */
+      @keyframes glow-breathe {
+        0%, 100% { box-shadow: 0 0 12px rgba(255,255,255,0.04), inset 0 0 0 1px rgba(255,255,255,0.1); }
+        50% { box-shadow: 0 0 20px rgba(255,255,255,0.08), inset 0 0 0 1px rgba(255,255,255,0.18); }
+      }
+
       /* ── Slide-up entrance ── */
       @keyframes enterUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
       @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
