@@ -2,20 +2,19 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
-import { ThemeProvider, useTheme } from '../src/context/ThemeContext';
+import { ThemeProvider } from '../src/context/ThemeContext';
 import { I18nProvider } from '../src/context/I18nContext';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { PastelMistBackground } from '../src/components/PastelMistBackground';
 
 function RootNav() {
   const { user, loading } = useAuth();
-  const { colors, isDark } = useTheme();
 
   if (loading) {
     return (
-      <View style={[st.loading, { backgroundColor: '#F5F6F8' }]}>
-        <StatusBar style={isDark ? 'light' : 'dark'} />
-        <ActivityIndicator size="large" color="#1A1D21" />
+      <View style={st.loading}>
+        <StatusBar style="dark" />
+        <ActivityIndicator size="large" color="#C67A4F" />
       </View>
     );
   }
@@ -23,7 +22,7 @@ function RootNav() {
   if (!user) {
     return (
       <>
-        <StatusBar style={isDark ? 'light' : 'dark'} />
+        <StatusBar style="dark" />
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' }, animation: 'none' }}>
           <Stack.Screen name="index" options={{ animation: 'none' }} />
           <Stack.Screen name="onboarding" options={{ animation: 'none' }} />
@@ -34,8 +33,8 @@ function RootNav() {
 
   return (
     <>
-      <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F5F6F8' }, animation: 'none' }}>
+      <StatusBar style="dark" />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#FAF8F5' }, animation: 'none' }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="health-detail" options={{ presentation: 'card' }} />
         <Stack.Screen name="backoffice" options={{ presentation: 'card' }} />
@@ -75,5 +74,5 @@ export default function RootLayout() {
 }
 
 const st = StyleSheet.create({
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAF8F5' },
 });
