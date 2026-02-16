@@ -1,39 +1,43 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Platform, ActivityIndicator, Animated, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Platform, ActivityIndicator, Animated, Image, ImageBackground, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../src/context/AuthContext';
 import { useTheme } from '../src/context/ThemeContext';
-import { Radius, cardStyle } from '../src/constants/colors';
+import { Radius } from '../src/constants/colors';
 
-const ClinicInput = ({ testID, label, val, onChange, placeholder, type, colors, isDark }: any) => {
+const { height: SCREEN_H } = Dimensions.get('window');
+const BG_IMAGE = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/banner_login_mobile.jpg?v=1771242072';
+
+const GlassInput = ({ testID, label, val, onChange, placeholder, type }: any) => {
   if (Platform.OS === 'web') {
     return (
-      <div style={{ marginBottom: 14 }}>
-        {label && <div style={{ fontSize: 10, fontWeight: '700', color: '#9BA3AD', marginBottom: 7, letterSpacing: 1, textTransform: 'uppercase' }}>{label}</div>}
+      <div style={{ marginBottom: 16 }}>
+        {label && <div style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF', marginBottom: 8, letterSpacing: 0.3 }}>{label}</div>}
         <input data-testid={testID} type={type || 'text'} value={val} onChange={(e: any) => onChange(e.target.value)} placeholder={placeholder}
           style={{
-            width: '100%', fontSize: 15, fontFamily: 'system-ui, Inter, sans-serif', fontWeight: '500',
-            padding: '14px 16px', borderRadius: 14, border: `1px solid ${'rgba(0,0,0,0.08)'}`,
-            background: colors.inputBg, color: '#1A1D21',
-            boxSizing: 'border-box' as any, outline: 'none', transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+            width: '100%', fontSize: 16, fontFamily: 'system-ui, -apple-system, sans-serif', fontWeight: '500',
+            padding: '16px 20px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.25)',
+            background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            color: '#FFFFFF', boxSizing: 'border-box' as any, outline: 'none',
+            transition: 'border-color 0.2s ease, background 0.2s ease',
           } as any}
-          onFocus={(e: any) => { e.target.style.borderColor = colors.textSecondary; }}
-          onBlur={(e: any) => { e.target.style.borderColor = 'rgba(0,0,0,0.08)'; }}
+          onFocus={(e: any) => { e.target.style.borderColor = 'rgba(255,255,255,0.5)'; e.target.style.background = 'rgba(255,255,255,0.22)'; }}
+          onBlur={(e: any) => { e.target.style.borderColor = 'rgba(255,255,255,0.25)'; e.target.style.background = 'rgba(255,255,255,0.15)'; }}
         />
       </div>
     );
   }
   const { TextInput: RNTextInput } = require('react-native');
   return (
-    <View style={{ marginBottom: 14 }}>
-      {label && <Text style={{ fontSize: 10, fontWeight: '700', color: '#9BA3AD', marginBottom: 7, letterSpacing: 1, textTransform: 'uppercase' }}>{label}</Text>}
+    <View style={{ marginBottom: 16 }}>
+      {label && <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFF', marginBottom: 8, letterSpacing: 0.3 }}>{label}</Text>}
       <RNTextInput testID={testID} value={val} onChangeText={onChange} placeholder={placeholder}
-        placeholderTextColor={colors.textMuted} secureTextEntry={type === 'password'}
+        placeholderTextColor="rgba(255,255,255,0.50)" secureTextEntry={type === 'password'}
         autoCapitalize="none" keyboardType={type === 'email' ? 'email-address' : type === 'tel' ? 'phone-pad' : 'default'}
-        style={{ fontSize: 15, padding: 14, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.02)', color: '#1A1D21', borderWidth: 1, borderColor: 'rgba(0,0,0,0.08)' }} />
+        style={{ fontSize: 16, paddingVertical: 16, paddingHorizontal: 20, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.15)', color: '#FFF', borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)' }} />
     </View>
   );
 };
@@ -71,7 +75,6 @@ export default function AuthScreen() {
   const hasRedirected = useRef(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
     AsyncStorage.getItem('chutex_onboarding_done').then(val => {
@@ -85,14 +88,11 @@ export default function AuthScreen() {
   }, [user, loading]);
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 450, useNativeDriver: true }),
-    ]).start();
+    Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }).start();
   }, []);
 
   if (loading || user || !onboardingChecked) {
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F6F8' }}><ActivityIndicator size="large" color="#1A1D21" /></View>;
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
   }
 
   const handleLogin = async () => {
@@ -118,131 +118,195 @@ export default function AuthScreen() {
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
   };
 
-  const PillBtn = ({ testID, label, onPress, loading: ld, outline }: any) => (
-    <TouchableOpacity testID={testID} disabled={ld} onPress={onPress} activeOpacity={0.8}
-      style={[{ paddingVertical: 16, borderRadius: Radius.full, alignItems: 'center' },
-        outline ? { backgroundColor: 'rgba(0,0,0,0.04)', flex: 1, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }
-               : { backgroundColor: '#1A1D21' }
-      ]}>
-      {ld ? <ActivityIndicator color={outline ? colors.textMuted : colors.buttonText} />
-        : <Text style={{ color: outline ? colors.textSecondary : colors.buttonText, fontSize: 15, fontWeight: '700' }}>{label}</Text>}
-    </TouchableOpacity>
+  // ─── LOGIN VIEW ───
+  const LoginView = () => (
+    <>
+      <Text style={{ fontSize: 28, fontWeight: '900', color: '#FFF', textAlign: 'center', letterSpacing: 2, marginBottom: 32, textTransform: 'uppercase' }}>
+        Connexion
+      </Text>
+
+      {error ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(239,68,68,0.20)', borderRadius: 14, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(239,68,68,0.3)' }}>
+          <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#EF4444' }} />
+          <Text style={{ fontSize: 13, color: '#FFF', flex: 1 }}>{error}</Text>
+        </View>
+      ) : null}
+
+      <GlassInput testID="reg-email" label="Email" val={email} onChange={setEmail} placeholder="..." />
+      <GlassInput testID="auth-input-password" label="Mot de passe" val={password} onChange={setPassword} placeholder="..." type={showPw ? 'text' : 'password'} />
+
+      <TouchableOpacity testID="auth-submit-btn" disabled={submitting} onPress={handleLogin} activeOpacity={0.85}
+        style={{ backgroundColor: '#FFF', borderRadius: 999, paddingVertical: 18, alignItems: 'center', marginTop: 8, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 20px rgba(0,0,0,0.15)' } : {}) }}>
+        {submitting ? <ActivityIndicator color="#1A1D21" /> : <Text style={{ color: '#1A1D21', fontSize: 16, fontWeight: '900', letterSpacing: 2, textTransform: 'uppercase' }}>Connexion</Text>}
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ alignItems: 'center', marginTop: 16 }}>
+        <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, fontWeight: '600', fontStyle: 'italic' }}>Mot de passe oublie ?</Text>
+      </TouchableOpacity>
+
+      <View style={{ alignItems: 'center', marginTop: 32 }}>
+        <Text style={{ color: 'rgba(255,255,255,0.70)', fontSize: 14, fontStyle: 'italic' }}>
+          Pas encore de compte ?{' '}
+          <Text style={{ fontWeight: '800', color: '#FFF', textDecorationLine: 'underline' }} onPress={() => { setIsLogin(false); setStep(0); setError(''); }}>
+            S'inscrire ici.
+          </Text>
+        </Text>
+      </View>
+    </>
   );
 
-  const cStyle = cardStyle(isDark);
-  const logoSource = isDark ? require('../assets/images/logo_black.png') : require('../assets/images/logo_white.png');
+  // ─── REGISTER VIEW ───
+  const RegisterView = () => (
+    <>
+      <Text style={{ fontSize: 24, fontWeight: '900', color: '#FFF', textAlign: 'center', letterSpacing: 1, marginBottom: 24, textTransform: 'uppercase' }}>
+        Inscription
+      </Text>
+
+      {/* Progress */}
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 24 }}>
+        {[0, 1, 2].map(i => <View key={i} style={{ width: i <= step ? 24 : 6, height: 4, borderRadius: 2, backgroundColor: i <= step ? '#FFF' : 'rgba(255,255,255,0.25)' }} />)}
+      </View>
+
+      {error ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(239,68,68,0.20)', borderRadius: 14, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(239,68,68,0.3)' }}>
+          <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#EF4444' }} />
+          <Text style={{ fontSize: 13, color: '#FFF', flex: 1 }}>{error}</Text>
+        </View>
+      ) : null}
+
+      {step === 0 && (<>
+        <GlassInput testID="reg-name" label="Nom complet" val={name} onChange={setName} placeholder="Jean Dupont" />
+        <GlassInput testID="reg-email" label="Email" val={email} onChange={setEmail} placeholder="email@exemple.com" type="email" />
+        <GlassInput testID="reg-phone" label="Telephone" val={phone} onChange={setPhone} placeholder="06 12 34 56 78" type="tel" />
+        <GlassInput testID="reg-password" label="Mot de passe" val={password} onChange={setPassword} placeholder="Min. 6 caracteres" type="password" />
+        <TouchableOpacity testID="next-step" style={{ backgroundColor: '#FFF', borderRadius: 999, paddingVertical: 18, alignItems: 'center', marginTop: 8 }}
+          onPress={() => { if (!name || !email || !password) return setError('Remplissez tous les champs'); setError(''); setStep(1); }}>
+          <Text style={{ color: '#1A1D21', fontSize: 15, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>Suivant</Text>
+        </TouchableOpacity>
+      </>)}
+
+      {step === 1 && (<>
+        <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', textAlign: 'center', marginBottom: 20 }}>Selectionnez votre usage</Text>
+        {[{ r: 'beneficiary', icon: 'person-outline', t: 'Beneficiaire', d: 'Porteur de dispositifs de sante' },
+          { r: 'guardian', icon: 'people-outline', t: 'Gardien', d: 'Aidant ou professionnel' }].map(o => (
+          <TouchableOpacity key={o.r} activeOpacity={0.7} onPress={() => { setRole(o.r); setStep(2); }}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 22, marginBottom: 10,
+              backgroundColor: role === o.r ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.10)', borderWidth: 1,
+              borderColor: role === o.r ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)' }}>
+            <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' }}>
+              <Ionicons name={o.icon as any} size={20} color="#FFF" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFF' }}>{o.t}</Text>
+              <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{o.d}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.5)" />
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity style={{ alignItems: 'center', paddingVertical: 12 }} onPress={() => setStep(0)}>
+          <Text style={{ fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.6)' }}>Retour</Text>
+        </TouchableOpacity>
+      </>)}
+
+      {step === 2 && role === 'beneficiary' && (<>
+        <GlassInput label="Date de naissance" val={dob} onChange={setDob} placeholder="JJ/MM/AAAA" />
+        <Text style={{ fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.7)', marginBottom: 8 }}>Genre</Text>
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
+          {['Homme', 'Femme', 'Autre'].map(g => <TouchableOpacity key={g} style={{ paddingVertical: 10, paddingHorizontal: 16, borderRadius: 999, backgroundColor: gender === g ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: gender === g ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)' }} onPress={() => setGender(g)}><Text style={{ fontSize: 12, fontWeight: '600', color: '#FFF' }}>{g}</Text></TouchableOpacity>)}
+        </View>
+        <GlassInput label="Adresse" val={address} onChange={setAddress} placeholder="14 rue de la Republique" />
+        <GlassInput label="Allergies" val={allergies} onChange={setAllergies} placeholder="Penicilline, arachides..." />
+        <GlassInput label="Medecin" val={doctorName} onChange={setDoctorName} placeholder="Dr. Dupont" />
+        <GlassInput label="Contact urgence" val={ecName} onChange={setEcName} placeholder="Marie Dupont" />
+      </>)}
+
+      {step === 2 && role === 'guardian' && (<>
+        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
+          {[{ id: 'particular', l: 'Particulier' }, { id: 'professional', l: 'Professionnel' }].map(t => (
+            <TouchableOpacity key={t.id} style={{ flex: 1, paddingVertical: 14, borderRadius: 999, alignItems: 'center', backgroundColor: guardianType === t.id ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: guardianType === t.id ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)' }} onPress={() => setGuardianType(t.id)}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>{t.l}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        {guardianType === 'particular' && <GlassInput label="Lien" val={relationship} onChange={setRelationship} placeholder="Fils, fille, voisin..." />}
+        {guardianType === 'professional' && (<>
+          <GlassInput label="Structure" val={structureName} onChange={setStructureName} placeholder="SAAD Exemple" />
+          <GlassInput label="SIRET" val={siret} onChange={setSiret} placeholder="123 456 789 00001" />
+          <GlassInput label="Profession" val={profession} onChange={setProfession} placeholder="Aide-soignant..." />
+        </>)}
+      </>)}
+
+      {step === 2 && (
+        <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+          <TouchableOpacity style={{ flex: 0.5, paddingVertical: 16, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', alignItems: 'center' }} onPress={() => setStep(1)}>
+            <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '600' }}>Retour</Text>
+          </TouchableOpacity>
+          <TouchableOpacity testID="auth-submit-btn" disabled={submitting} style={{ flex: 1, backgroundColor: '#FFF', borderRadius: 999, paddingVertical: 16, alignItems: 'center' }} onPress={handleRegister}>
+            {submitting ? <ActivityIndicator color="#1A1D21" /> : <Text style={{ color: '#1A1D21', fontSize: 15, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>S'inscrire</Text>}
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {step === 0 && (
+        <View style={{ alignItems: 'center', marginTop: 24 }}>
+          <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, fontStyle: 'italic' }}>
+            Deja un compte ?{' '}
+            <Text style={{ fontWeight: '800', color: '#FFF', textDecorationLine: 'underline' }} onPress={() => { setIsLogin(true); setStep(0); setError(''); }}>
+              Se connecter.
+            </Text>
+          </Text>
+        </View>
+      )}
+    </>
+  );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6F8' }} data-testid="auth-screen">
-      <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40, flexGrow: 1, maxWidth: 420, width: '100%', alignSelf: 'center' }}
+    <View style={{ flex: 1, backgroundColor: '#000' }} data-testid="auth-screen">
+      {/* Background Image */}
+      {Platform.OS === 'web' ? (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundImage: `url(${BG_IMAGE})`,
+          backgroundSize: 'cover', backgroundPosition: 'center',
+          filter: 'brightness(0.6)',
+        } as any} />
+      ) : (
+        <Image source={{ uri: BG_IMAGE }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }} resizeMode="cover" />
+      )}
+
+      {/* Overlay gradient */}
+      {Platform.OS === 'web' && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.6) 100%)',
+        } as any} />
+      )}
+
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 28, maxWidth: 440, width: '100%', alignSelf: 'center' }}
           keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 
-          <View style={{ alignItems: 'center', marginTop: 48, marginBottom: 40 }}>
-            <Image source={logoSource} style={{ width: 140, height: 46 }} resizeMode="contain" />
-            <Text style={{ fontSize: 10, fontWeight: '700', color: '#9BA3AD', marginTop: 8, letterSpacing: 3, textTransform: 'uppercase' }}>Sante connectee</Text>
-          </View>
-
-          <View style={{ ...cStyle, padding: 24, marginBottom: 20, overflow: 'hidden' as const }}>
-            <View style={{ flexDirection: 'row', marginBottom: 24, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: Radius.full, padding: 3, borderWidth: 1, borderColor: 'rgba(0,0,0,0.03)' }}>
-              <TouchableOpacity testID="auth-tab-login" style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.full }, isLogin && { backgroundColor: '#FFFFFF' }]} onPress={() => { setIsLogin(true); setStep(0); setError(''); }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: isLogin ? colors.textPrimary : colors.textMuted }}>Connexion</Text>
-              </TouchableOpacity>
-              <TouchableOpacity testID="auth-tab-register" style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.full }, !isLogin && { backgroundColor: '#FFFFFF' }]} onPress={() => { setIsLogin(false); setStep(0); setError(''); }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: !isLogin ? colors.textPrimary : colors.textMuted }}>Inscription</Text>
-              </TouchableOpacity>
+          {/* Logo area */}
+          <View style={{ alignItems: 'center', marginTop: 60, marginBottom: 40 }}>
+            {/* Flag */}
+            <View style={{ width: 32, height: 32, borderRadius: 16, overflow: 'hidden', marginBottom: 20, flexDirection: 'row' }}>
+              <View style={{ flex: 1, backgroundColor: '#002395' }} />
+              <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />
+              <View style={{ flex: 1, backgroundColor: '#ED2939' }} />
             </View>
 
-            {error ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.dangerLight, borderRadius: 14, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(239,68,68,0.15)' }}>
-                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.danger }} />
-                <Text style={{ fontSize: 12, color: '#EF4444', flex: 1 }}>{error}</Text>
-              </View>
-            ) : null}
-
-            {isLogin && (<>
-              <ClinicInput testID="reg-email" label="Email ou telephone" val={email} onChange={setEmail} placeholder="email@exemple.com" colors={colors} isDark={isDark} />
-              <ClinicInput testID="auth-input-password" label="Mot de passe" val={password} onChange={setPassword} placeholder="Mot de passe" type={showPw ? 'text' : 'password'} colors={colors} isDark={isDark} />
-              <View style={{ height: 6 }} />
-              <PillBtn testID="auth-submit-btn" label="Se connecter" onPress={handleLogin} loading={submitting} />
-            </>)}
-
-            {!isLogin && (<>
-              <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 24 }}>
-                {[0, 1, 2].map(i => <View key={i} style={{ width: i <= step ? 24 : 6, height: 4, borderRadius: 2, backgroundColor: i <= step ? colors.textPrimary : colors.borderLight }} />)}
-              </View>
-              {step === 0 && (<>
-                <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A1D21', marginBottom: 18, letterSpacing: -0.3 }}>Informations generales</Text>
-                <ClinicInput testID="reg-name" label="Nom complet" val={name} onChange={setName} placeholder="Jean Dupont" colors={colors} isDark={isDark} />
-                <ClinicInput testID="reg-email" label="Email" val={email} onChange={setEmail} placeholder="email@exemple.com" type="email" colors={colors} isDark={isDark} />
-                <ClinicInput testID="reg-phone" label="Telephone" val={phone} onChange={setPhone} placeholder="06 12 34 56 78" type="tel" colors={colors} isDark={isDark} />
-                <ClinicInput testID="reg-password" label="Mot de passe" val={password} onChange={setPassword} placeholder="Min. 6 caracteres" type={showPw ? 'text' : 'password'} colors={colors} isDark={isDark} />
-                <PillBtn testID="next-step" label="Suivant" onPress={() => { if (!name || !email || !password) return setError('Remplissez tous les champs'); setError(''); setStep(1); }} />
-              </>)}
-              {step === 1 && (<>
-                <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A1D21', textAlign: 'center', marginBottom: 4 }}>Votre profil</Text>
-                <Text style={{ fontSize: 13, color: '#5A6068', textAlign: 'center', marginBottom: 20 }}>Selectionnez votre usage</Text>
-                {[{ r: 'beneficiary', icon: 'person-outline', t: 'Beneficiaire', d: 'Porteur de dispositifs de sante Chutex' },
-                  { r: 'guardian', icon: 'people-outline', t: 'Gardien', d: 'Aidant ou professionnel accompagnant un proche' }].map(o => (
-                  <TouchableOpacity key={o.r} activeOpacity={0.7} onPress={() => { setRole(o.r); setStep(2); }}
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: Radius.lg, marginBottom: 10, backgroundColor: role === o.r ? colors.surfaceHighlight : colors.badgeBg, borderWidth: 1, borderColor: role === o.r ? colors.border : colors.borderLight }}>
-                    <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: role === o.r ? colors.surfaceHighlight : colors.badgeBg, justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name={o.icon as any} size={20} color={role === o.r ? colors.textPrimary : colors.textMuted} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1A1D21' }}>{o.t}</Text>
-                      <Text style={{ fontSize: 11, color: '#5A6068', marginTop: 2 }}>{o.d}</Text>
-                    </View>
-                    <Ionicons name="chevron-forward" size={16} color="#9BA3AD" />
-                  </TouchableOpacity>
-                ))}
-                <TouchableOpacity style={{ alignItems: 'center', paddingVertical: 12 }} onPress={() => setStep(0)}>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#9BA3AD' }}>Retour</Text>
-                </TouchableOpacity>
-              </>)}
-              {step === 2 && role === 'beneficiary' && (<>
-                <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A1D21', marginBottom: 18 }}>Profil beneficiaire</Text>
-                <ClinicInput label="Date de naissance" val={dob} onChange={setDob} placeholder="JJ/MM/AAAA" colors={colors} isDark={isDark} />
-                <Text style={{ fontSize: 10, fontWeight: '700', color: '#9BA3AD', marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' }}>Genre</Text>
-                <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
-                  {['Homme', 'Femme', 'Autre'].map(g => <TouchableOpacity key={g} style={{ paddingVertical: 9, paddingHorizontal: 16, borderRadius: Radius.full, backgroundColor: gender === g ? colors.surfaceHighlight : colors.badgeBg, borderWidth: 1, borderColor: gender === g ? colors.border : colors.borderLight }} onPress={() => setGender(g)}><Text style={{ fontSize: 12, fontWeight: '600', color: gender === g ? colors.textPrimary : colors.textMuted }}>{g}</Text></TouchableOpacity>)}
-                </View>
-                <ClinicInput label="Adresse" val={address} onChange={setAddress} placeholder="14 rue de la Republique" colors={colors} isDark={isDark} />
-                <View style={{ flexDirection: 'row', gap: 10 }}><View style={{ flex: 1 }}><ClinicInput label="Taille (cm)" val={heightCm} onChange={setHeightCm} placeholder="170" colors={colors} isDark={isDark} /></View><View style={{ flex: 1 }}><ClinicInput label="Poids (kg)" val={weightKg} onChange={setWeightKg} placeholder="70" colors={colors} isDark={isDark} /></View></View>
-                <ClinicInput label="Allergies" val={allergies} onChange={setAllergies} placeholder="Penicilline, arachides..." colors={colors} isDark={isDark} />
-                <ClinicInput label="Pathologies" val={medConditions} onChange={setMedConditions} placeholder="Diabete, hypertension..." colors={colors} isDark={isDark} />
-                <ClinicInput label="Medecin" val={doctorName} onChange={setDoctorName} placeholder="Dr. Dupont" colors={colors} isDark={isDark} />
-                <ClinicInput label="Contact urgence" val={ecName} onChange={setEcName} placeholder="Marie Dupont" colors={colors} isDark={isDark} />
-                <ClinicInput label="Tel. urgence" val={ecPhone} onChange={setEcPhone} placeholder="06 98 76 54 32" type="tel" colors={colors} isDark={isDark} />
-              </>)}
-              {step === 2 && role === 'guardian' && (<>
-                <Text style={{ fontSize: 20, fontWeight: '800', color: '#1A1D21', marginBottom: 18 }}>Profil gardien</Text>
-                <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
-                  {[{ id: 'particular', l: 'Particulier' }, { id: 'professional', l: 'Professionnel' }].map(t => (
-                    <TouchableOpacity key={t.id} style={{ flex: 1, paddingVertical: 12, borderRadius: 14, alignItems: 'center', backgroundColor: guardianType === t.id ? colors.surfaceHighlight : colors.badgeBg, borderWidth: 1, borderColor: guardianType === t.id ? colors.border : colors.borderLight }} onPress={() => setGuardianType(t.id)}>
-                      <Text style={{ fontSize: 13, fontWeight: '600', color: guardianType === t.id ? colors.textPrimary : colors.textMuted }}>{t.l}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-                {guardianType === 'particular' && <ClinicInput label="Lien" val={relationship} onChange={setRelationship} placeholder="Fils, fille, voisin..." colors={colors} isDark={isDark} />}
-                {guardianType === 'professional' && (<>
-                  <ClinicInput label="Structure" val={structureName} onChange={setStructureName} placeholder="SAAD Exemple" colors={colors} isDark={isDark} />
-                  <ClinicInput label="SIRET" val={siret} onChange={setSiret} placeholder="123 456 789 00001" colors={colors} isDark={isDark} />
-                  <ClinicInput label="Profession" val={profession} onChange={setProfession} placeholder="Aide-soignant..." colors={colors} isDark={isDark} />
-                </>)}
-              </>)}
-              {step === 2 && (
-                <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
-                  <PillBtn label="Retour" onPress={() => setStep(1)} outline />
-                  <View style={{ flex: 2 }}><PillBtn testID="auth-submit-btn" label="S'inscrire" onPress={handleRegister} loading={submitting} /></View>
-                </View>
-              )}
-            </>)}
+            <Image source={require('../assets/images/logo_black.png')} style={{ width: 160, height: 50 }} resizeMode="contain" />
+            <Text style={{ fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.75)', marginTop: 8, letterSpacing: 2.5, textTransform: 'uppercase' }}>
+              L'innovation au service de la sante
+            </Text>
           </View>
 
-          <Text style={{ fontSize: 10, color: '#9BA3AD', textAlign: 'center', marginTop: 12, letterSpacing: 0.5 }}>Chutex Innovation — v2.0</Text>
+          {/* Form */}
+          {isLogin ? <LoginView /> : <RegisterView />}
+
+          <View style={{ height: 40 }} />
         </ScrollView>
       </Animated.View>
-    </SafeAreaView>
+    </View>
   );
 }
