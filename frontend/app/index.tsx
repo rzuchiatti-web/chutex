@@ -309,11 +309,11 @@ export default function AuthScreen() {
           {Platform.OS === 'web' ? (
             <div style={{
               padding: 28, borderRadius: 30,
-              background: 'rgba(255,255,255,0.10)',
-              backdropFilter: 'blur(16px) saturate(130%)',
-              WebkitBackdropFilter: 'blur(16px) saturate(130%)',
-              border: '1px solid rgba(255,255,255,0.30)',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.25)',
+              background: 'rgba(255,255,255,0.15)',
+              backdropFilter: 'blur(20px) saturate(140%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(140%)',
+              border: '1px solid rgba(255,255,255,0.35)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.30)',
             } as any}>
               {formContent}
             </div>
