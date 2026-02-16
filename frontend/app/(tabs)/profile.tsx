@@ -9,9 +9,9 @@ import { apiFetch, API_URL } from '../../src/services/api';
 import { useI18n } from '../../src/context/I18nContext';
 import { HelpCenter } from '../../src/components/HelpSystem';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 2px 20px rgba(28,25,23,0.05)' } : {};
 const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
+  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(28,25,23,0.06)', padding: 18, marginBottom: 14, ...glass }, style]}>{children}</View>
 );
 const WebInput = ({ val, onChange, placeholder, type, rows }: any) => {
   if (Platform.OS === 'web') {
@@ -140,12 +140,12 @@ export default function ProfileScreen() {
     : effectiveRole === 'beneficiary' ? user.has_guardian_space : (user.has_beneficiary_space || user.role === 'beneficiary');
 
   const MenuItem = ({ icon, label, onPress, danger, testID }: any) => (
-    <TouchableOpacity testID={testID} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }} onPress={onPress}>
-      <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: danger ? 'rgba(229,57,53,0.08)' : 'rgba(0,0,0,0.04)', justifyContent: 'center', alignItems: 'center' }}>
-        <Icon name={icon} size={18} color={danger ? '#E53935' : '#000'} />
+    <TouchableOpacity testID={testID} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(28,25,23,0.04)' }} onPress={onPress}>
+      <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: danger ? 'rgba(239,68,68,0.08)' : 'rgba(198,122,79,0.08)', justifyContent: 'center', alignItems: 'center' }}>
+        <Icon name={icon} size={18} color={danger ? '#EF4444' : '#C67A4F'} />
       </View>
-      <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: danger ? '#E53935' : '#000' }}>{label}</Text>
-      <Icon name="chevron-forward" size={16} color="#888" />
+      <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: danger ? '#EF4444' : '#1C1917' }}>{label}</Text>
+      <Icon name="chevron-forward" size={16} color="#A8A29E" />
     </TouchableOpacity>
   );
 
