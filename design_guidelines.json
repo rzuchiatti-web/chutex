@@ -1,173 +1,140 @@
 {
-  "identity": {
-    "name": "CHUTEX",
-    "vibe": "Futuristic Clinical",
-    "core_principles": [
-      "Clarity First: Vital signs must be legible at a glance.",
-      "Reassurance: Design should feel safe and professional.",
-      "Premium Tech: Use glassmorphism and subtle gradients to elevate beyond basic medical apps.",
-      "Accessibility: High contrast and large touch targets for elderly users."
-    ]
+  "project_identity": {
+    "name": "Chutex Health Redesign",
+    "persona": "E1 - The Anti-AI Designer",
+    "mission": "Transform a boring beige medical app into a Premium, High-Trust, Clinical-Tech experience.",
+    "core_philosophy": "Warm Precision. Trust is built through clarity and aesthetic excellence, not just beige backgrounds."
   },
-  "typography": {
-    "font_family_headings": "System",
-    "font_family_body": "System",
-    "scale": {
-      "h1": { "size": 32, "lineHeight": 40, "weight": "700", "letterSpacing": -0.5 },
-      "h2": { "size": 24, "lineHeight": 32, "weight": "600", "letterSpacing": -0.25 },
-      "h3": { "size": 20, "lineHeight": 28, "weight": "600" },
-      "body_lg": { "size": 18, "lineHeight": 28, "weight": "400" },
-      "body_md": { "size": 16, "lineHeight": 24, "weight": "400" },
-      "body_sm": { "size": 14, "lineHeight": 20, "weight": "400" },
-      "caption": { "size": 12, "lineHeight": 16, "weight": "500", "textTransform": "uppercase" }
+  "design_direction": {
+    "theme_strategy": "Dual Persona",
+    "modes": {
+      "dark": {
+        "name": "Deep Ocean Monitoring",
+        "vibes": "Premium, Secure, Night-Mode Friendly, High-Tech",
+        "description": "Uses deep slate/navy backgrounds with electric blue glowing data points. Best for low-light monitoring and professional feel."
+      },
+      "light": {
+        "name": "Swiss Clinical",
+        "vibes": "Sterile, Crisp, Airy, High-Contrast",
+        "description": "Abandoning 'Beige'. Uses Stark White (#FFFFFF) and Cool Grey (#F1F5F9) with deep indigo text. No muddy mid-tones."
+      }
+    },
+    "typography": {
+      "headings": {
+        "fontFamily": "System", 
+        "weight": "800",
+        "style": "Modern Geometric",
+        "letterSpacing": -0.5,
+        "note": "Use larger than usual sizes. 32px -> 40px for Hero stats."
+      },
+      "body": {
+        "fontFamily": "System",
+        "weight": "400",
+        "style": "Clean Sans",
+        "lineHeight": 1.5
+      }
+    },
+    "shapes": {
+      "radius": {
+        "default": 24,
+        "button": 100, 
+        "card": 24,
+        "inner": 16
+      },
+      "borders": "1px solid rgba(255,255,255,0.1) (Dark) or rgba(0,0,0,0.05) (Light)"
     }
   },
-  "colors": {
-    "light": {
-      "background": "#F8FAFC",
-      "surface": "#FFFFFF",
-      "surface_highlight": "#F1F5F9",
-      "text_primary": "#0F172A",
-      "text_secondary": "#475569",
-      "text_muted": "#94A3B8",
-      "primary": "#0891B2",
-      "primary_foreground": "#FFFFFF",
-      "secondary": "#E2E8F0",
-      "accent": "#06B6D4",
-      "border": "#E2E8F0",
-      "success": "#10B981",
-      "warning": "#F59E0B",
-      "danger": "#EF4444",
-      "info": "#3B82F6"
-    },
+  "color_palette": {
     "dark": {
-      "background": "#0B1120",
+      "background": "#0F172A",
       "surface": "#1E293B",
-      "surface_highlight": "#334155",
-      "text_primary": "#F8FAFC",
-      "text_secondary": "#CBD5E1",
-      "text_muted": "#64748B",
-      "primary": "#06B6D4",
-      "primary_foreground": "#000000",
-      "secondary": "#1E293B",
-      "accent": "#22D3EE",
-      "border": "#334155",
-      "success": "#34D399",
-      "warning": "#FBBF24",
-      "danger": "#F87171",
-      "info": "#60A5FA"
+      "surfaceHighlight": "#334155",
+      "primary": "#3B82F6",
+      "primaryGlow": "rgba(59, 130, 246, 0.5)",
+      "accent": "#10B981", 
+      "textPrimary": "#F8FAFC",
+      "textSecondary": "#94A3B8",
+      "danger": "#EF4444",
+      "warning": "#F59E0B"
+    },
+    "light": {
+      "background": "#FFFFFF",
+      "surface": "#F8FAFC",
+      "surfaceHighlight": "#FFFFFF",
+      "primary": "#2563EB",
+      "primaryGlow": "rgba(37, 99, 235, 0.2)",
+      "accent": "#059669",
+      "textPrimary": "#0F172A",
+      "textSecondary": "#64748B",
+      "danger": "#DC2626",
+      "warning": "#D97706"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": {
+      "enabled": true,
+      "usage": "Overlays, Navigation Bars, Floating Alerts",
+      "style": "blur(20px) + low opacity background + thin white border"
     },
     "gradients": {
-      "primary_linear": ["#0891B2", "#06B6D4"],
-      "sos_pulse": ["#EF4444", "#DC2626"]
-    }
-  },
-  "layout_system": {
-    "spacing": {
-      "xs": 4,
-      "sm": 8,
-      "md": 16,
-      "lg": 24,
-      "xl": 32,
-      "xxl": 48
-    },
-    "radius": {
-      "sm": 8,
-      "md": 12,
-      "lg": 16,
-      "xl": 24,
-      "full": 9999
+      "enabled": true,
+      "usage": "Primary Buttons, Active States, Charts",
+      "colors": ["#3B82F6", "#2563EB"]
     },
     "shadows": {
-      "small": {
-        "shadowColor": "#000",
-        "shadowOffset": { "width": 0, "height": 1 },
-        "shadowOpacity": 0.05,
-        "shadowRadius": 2,
-        "elevation": 2
-      },
-      "medium": {
-        "shadowColor": "#000",
-        "shadowOffset": { "width": 0, "height": 4 },
-        "shadowOpacity": 0.1,
-        "shadowRadius": 6,
-        "elevation": 4
-      },
-      "glow": {
-        "shadowColor": "#06B6D4",
-        "shadowOffset": { "width": 0, "height": 0 },
-        "shadowOpacity": 0.3,
-        "shadowRadius": 10,
-        "elevation": 6
-      }
+      "style": "Soft, diffused, colored shadows. No hard black shadows.",
+      "elevation": "shadowColor: primary, shadowOpacity: 0.2, shadowRadius: 20"
     }
   },
-  "components": {
+  "layout_strategy": {
+    "dashboard": "Bento Grid - Asymmetrical. Hero Vitals (Large) + Quick Actions (Small squares).",
+    "navigation": "Floating Dock (Bottom) or Minimal Tab Bar with glowing active state.",
+    "spacing": "Generous. Double the current padding. Minimum 24px padding on containers."
+  },
+  "component_rules": {
     "buttons": {
-      "primary": {
-        "borderRadius": 9999,
-        "paddingVertical": 16,
-        "paddingHorizontal": 32,
-        "backgroundColor": "primary",
-        "alignItems": "center",
-        "justifyContent": "center"
-      },
-      "outline": {
-        "borderRadius": 9999,
-        "paddingVertical": 16,
-        "paddingHorizontal": 32,
-        "borderWidth": 1,
-        "borderColor": "border",
-        "backgroundColor": "transparent"
-      }
+      "primary": "Full width or Pill shape. Gradient Background. White Text. Bold.",
+      "secondary": "Glass effect or Outline. Primary Text."
     },
     "cards": {
-      "base": {
-        "backgroundColor": "surface",
-        "borderRadius": 16,
-        "padding": 24,
-        "shadow": "medium"
-      },
-      "glass": {
-        "backgroundColor": "rgba(255, 255, 255, 0.1)",
-        "borderRadius": 16,
-        "borderWidth": 1,
-        "borderColor": "rgba(255, 255, 255, 0.2)"
-      }
-    }
-  },
-  "motion": {
-    "transitions": {
-      "fast": 200,
-      "normal": 300,
-      "slow": 500
+      "style": "Glass or Solid Surface. 24px Radius. 1px Border (very subtle).",
+      "content": "Left aligned mostly. Big Data numbers on right or top-left."
     },
-    "types": ["LayoutAnimation", "Reanimated.SharedTransition"]
-  },
-  "media": {
-    "images": {
-      "beneficiary_hero": "https://images.unsplash.com/photo-1745031608165-a8623bee161e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHw0fHxlbGRlcmx5JTIwaGFwcHklMjBhY3RpdmUlMjBoZWFsdGh5fGVufDB8fHx8MTc3MDkyNzQ2NXww&ixlib=rb-4.1.0&q=85",
-      "teleassistance_hero": "https://images.unsplash.com/photo-1758691463203-cce9d415b2b5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHw0fHxkb2N0b3IlMjB0YWJsZXQlMjBtZWRpY2FsfGVufDB8fHx8MTc3MDkyNzQ3M3ww&ixlib=rb-4.1.0&q=85",
-      "guardian_hero": "https://images.unsplash.com/photo-1767858898311-b827bd68e2b5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwyfHxmYW1pbHklMjBjYXJpbmclMjBob21lfGVufDB8fHx8MTc3MDkyNzQ3N3ww&ixlib=rb-4.1.0&q=85",
-      "device_hero": "https://images.unsplash.com/photo-1767903622388-4949aad2bd93?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHwyfHxzbWFydCUyMHdhdGNoJTIwaGVhbHRoJTIwdHJhY2tlciUyMHdyaXN0fGVufDB8fHx8MTc3MDkyNzQ4MHww&ixlib=rb-4.1.0&q=85"
+    "icons": {
+      "library": "Ionicons",
+      "style": "Size 24px usually. Active = Filled + Color. Inactive = Outline + Grey."
     }
   },
-  "instructions_to_main_agent": [
-    "TECH STACK: This is a React Native Expo project. Use <View>, <Text>, <Pressable>, NOT <div>, <span>, <button>.",
-    "STYLING: Use StyleSheet.create(). Do not use className='...'.",
-    "ICONS: Use @expo/vector-icons (Ionicons, MaterialCommunityIcons).",
-    "THEME: Implement a ThemeContext to toggle between 'light' and 'dark' using the colors defined in this file.",
-    "NAVIGATION: Use Expo Router (app/ directory).",
-    "CHARTS: Use react-native-chart-kit for health data.",
-    "DATA: Mock all data for now, but structure it realistically (e.g., heart rate array for graph).",
-    "ACCESSIBILITY: Ensure all text is readable. Use `accessibilityLabel` on buttons.",
-    "TESTING: Add `testID` prop to all interactive elements."
+  "assets": {
+    "images": [
+      {
+        "category": "background",
+        "url": "https://images.unsplash.com/photo-1711212119093-eff191c10f85?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Abstract Blue Tech Fluid - Use for Login/Splash background with overlay."
+      },
+      {
+        "category": "hero_user",
+        "url": "https://images.unsplash.com/photo-1766185360720-154a11729478?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Active Senior Man - Use for 'Welcome' or Profile header."
+      },
+      {
+        "category": "texture",
+        "url": "https://images.unsplash.com/photo-1768527309370-424e1e3187a7?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Swirling Data Pattern - Use for 'Computing/Processing' states or subtle dashboard header bg."
+      }
+    ]
+  },
+  "implementation_steps": [
+    "1. INSTALL DEPENDENCIES: `expo-linear-gradient` (Crucial for premium look).",
+    "2. UPDATE COLORS: Refactor `/app/frontend/src/constants/colors.ts` with the new Dark/Light palettes defined above.",
+    "3. CREATE UI KITS: Build atomic `Card.js`, `Button.js`, `ScreenContainer.js` in `/components/ui/` implementing the Glass/Neomedical look.",
+    "4. REFACTOR SCREENS: Go screen by screen (Login -> Dashboard -> Details) applying the new Layout Strategy.",
+    "5. ADD MOTION: Use `react-native-reanimated` for entering screens and pulsing SOS buttons."
   ],
-  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
-    "Do not use gradients for text to ensure readability.",
-    "Use generous padding (minimum 16px) inside cards.",
-    "Avoid centering text in long paragraphs; left align is better for readability.",
-    "Use 'Pressable' with a visual feedback (opacity change) for all buttons.",
-    "Ensure the SOS button is the most prominent element on the Beneficiary Dashboard."
+  "universal_guidelines": [
+    "NO FUNCTIONAL CHANGES. Keep all logic, just wrap in new UI.",
+    "ACCESSIBILITY IS PARAMOUNT. High contrast text always.",
+    "USE 'StyleSheet.create' but mimic the Tailwind spacing scale (4, 8, 12, 16, 24, 32, 48).",
+    "AVOID 'BEIGE' AT ALL COSTS. Even if the user asks for 'warm', give them 'Warm White' or 'Sunset Gradient', not 'Beige'."
   ]
 }
