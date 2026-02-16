@@ -33,6 +33,9 @@ function useOnboardingColors() {
   };
 }
 
+// Module-level ref set by the main component before rendering slides
+let C: ReturnType<typeof useOnboardingColors> = {} as any;
+
 const VIDEO_URL = 'https://cdn.shopify.com/videos/c/o/v/9ece2e3b8dd449f2bfbe21695ff47dd8.webm';
 const PRODUCTS = {
   elder: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/bague_vita_donnees_de_sante_chutex_2.svg?v=1766141409',
