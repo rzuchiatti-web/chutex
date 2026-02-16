@@ -124,7 +124,8 @@ export default function AuthScreen() {
   const professionRef = useRef('');
   const siretRef = useRef('');
 
-  useEffect(() => { injectCSS(); return cleanupCSS; }, []);
+  // Inject CSS once, never cleanup during component lifecycle
+  useEffect(() => { injectCSS(); }, []);
 
   useEffect(() => {
     AsyncStorage.getItem('chutex_onboarding_done').then(val => {
