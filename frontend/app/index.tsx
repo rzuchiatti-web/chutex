@@ -187,8 +187,8 @@ export default function AuthScreen() {
 
             {isLogin ? (<>
               <Text style={{ fontSize: 26, fontWeight: '900', color: C.text, textAlign: 'center', letterSpacing: 1.5, marginBottom: 28, textTransform: 'uppercase' }}>Connexion</Text>
-              <GInput testID="reg-email" label="Email" val={email} onChange={setEmail} placeholder="votre@email.com" />
-              <GInput testID="auth-input-password" label="Mot de passe" val={password} onChange={setPassword} placeholder="..." secure />
+              <GInput testID="reg-email" label="Email" inputRef={emailRef} defaultValue="" placeholder="votre@email.com" />
+              <GInput testID="auth-input-password" label="Mot de passe" inputRef={passwordRef} defaultValue="" placeholder="..." secure />
               <View style={{ height: 8 }} />
               <CTA testID="auth-submit-btn" label="Connexion" onPress={handleLogin} ld={submitting} />
               <TouchableOpacity style={{ alignItems: 'center', marginTop: 18 }}>
@@ -203,10 +203,10 @@ export default function AuthScreen() {
                 {[0,1,2].map(i => <View key={i} style={{ width: i <= step ? 20 : 5, height: 3, borderRadius: 1.5, backgroundColor: i <= step ? C.text : 'rgba(30,20,60,0.12)' }} />)}
               </View>
               {step === 0 && (<>
-                <GInput testID="reg-name" label="Nom complet" val={name} onChange={setName} placeholder="Jean Dupont" />
-                <GInput testID="reg-email" label="Email" val={email} onChange={setEmail} placeholder="email@exemple.com" />
-                <GInput testID="reg-phone" label="Telephone" val={phone} onChange={setPhone} placeholder="06 12 34 56 78" />
-                <GInput testID="reg-password" label="Mot de passe" val={password} onChange={setPassword} placeholder="Min. 6 caracteres" secure />
+                <GInput testID="reg-name" label="Nom complet" inputRef={nameRef} defaultValue="" placeholder="Jean Dupont" />
+                <GInput testID="reg-email" label="Email" inputRef={emailRef} defaultValue="" placeholder="email@exemple.com" />
+                <GInput testID="reg-phone" label="Telephone" inputRef={phoneRef} defaultValue="" placeholder="06 12 34 56 78" />
+                <GInput testID="reg-password" label="Mot de passe" inputRef={passwordRef} defaultValue="" placeholder="Min. 6 caracteres" secure />
                 <CTA testID="next-step" label="Suivant" onPress={() => { if (!name || !email || !password) return setError('Remplissez tous les champs'); setError(''); setStep(1); }} />
                 <View style={{ alignItems: 'center', marginTop: 20 }}>
                   <Text style={{ color: C.textSoft, fontSize: 14 }}>Deja un compte ? <Text style={{ fontWeight: '700', color: C.text, textDecorationLine: 'underline' }} onPress={() => { setIsLogin(true); setStep(0); setError(''); }}>Se connecter.</Text></Text>
@@ -235,10 +235,10 @@ export default function AuthScreen() {
                 </TouchableOpacity>
               </>)}
               {step === 2 && (<>
-                <GInput label="Date de naissance" val={dob} onChange={setDob} placeholder="JJ/MM/AAAA" />
-                <GInput label="Adresse" val={address} onChange={setAddress} placeholder="14 rue de la Republique" />
-                <GInput label="Allergies" val={allergies} onChange={setAllergies} placeholder="Penicilline..." />
-                <GInput label="Contact urgence" val={ecName} onChange={setEcName} placeholder="Marie Dupont" />
+                <GInput label="Date de naissance" inputRef={dobRef} defaultValue="" placeholder="JJ/MM/AAAA" />
+                <GInput label="Adresse" inputRef={addressRef} defaultValue="" placeholder="14 rue de la Republique" />
+                <GInput label="Allergies" inputRef={allergiesRef} defaultValue="" placeholder="Penicilline..." />
+                <GInput label="Contact urgence" inputRef={ecNameRef} defaultValue="" placeholder="Marie Dupont" />
                 <View style={{ flexDirection: 'row', gap: 14, marginTop: 10 }}>
                   <View style={{ flex: 0.38 }}><CTA label="Retour" onPress={() => setStep(1)} ghost /></View>
                   <View style={{ flex: 0.62 }}><CTA testID="auth-submit-btn" label="S'inscrire" onPress={handleRegister} ld={submitting} /></View>
