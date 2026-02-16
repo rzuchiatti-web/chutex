@@ -55,13 +55,33 @@ const C = {
 };
 
 // IMPORTANT: Defined OUTSIDE component to prevent re-mount on each keystroke
-// Uses defaultValue + ref pattern (uncontrolled) to avoid re-renders
+// Uses HTML input on web (better keyboard handling on Safari) and RN TextInput on native
 const GInput = ({ testID, label, inputRef, defaultValue, placeholder, secure }: any) => (
   <View style={{ marginBottom: 18 }}>
     {label && <Text style={{ fontSize: 12, fontWeight: '600', color: C.textMid, marginBottom: 7, letterSpacing: 0.5 }}>{label}</Text>}
-    <TextInput testID={testID} defaultValue={defaultValue} onChangeText={(t: string) => { if (inputRef) inputRef.current = t; }}
-      placeholder={placeholder} placeholderTextColor={C.placeholder} secureTextEntry={secure} autoCapitalize="none"
-      style={[{ fontSize: 16, paddingVertical: 16, paddingHorizontal: 22, borderRadius: 999, color: C.text, borderWidth: 1 }, glassInput] as any} />
+    {Platform.OS === 'web' ? (
+      <input
+        data-testid={testID}
+        type={secure ? 'password' : 'text'}
+        defaultValue={defaultValue}
+        placeholder={placeholder}
+        autoCapitalize="none"
+        onChange={(e: any) => { if (inputRef) inputRef.current = e.target.value; }}
+        style={{
+          fontSize: 16, padding: '16px 22px', borderRadius: 999, width: '100%',
+          color: C.text, borderWidth: 1, border: `1px solid ${glassInput.borderColor}`,
+          background: glassInput.backgroundColor,
+          backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+          boxSizing: 'border-box', outline: 'none', fontFamily: 'Inter, system-ui',
+        } as any}
+      />
+    ) : (
+      <TextInput testID={testID} defaultValue={defaultValue}
+        onChangeText={(t: string) => { if (inputRef) inputRef.current = t; }}
+        placeholder={placeholder} placeholderTextColor={C.placeholder}
+        secureTextEntry={secure} autoCapitalize="none"
+        style={[{ fontSize: 16, paddingVertical: 16, paddingHorizontal: 22, borderRadius: 999, color: C.text, borderWidth: 1 }, glassInput] as any} />
+    )}
   </View>
 );
 
