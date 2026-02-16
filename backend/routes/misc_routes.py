@@ -443,26 +443,26 @@ async def generate_link_code(user=Depends(get_current_user)):
 
 
 @router.post("/guardian/link-with-code")
-async def link_with_code(data: LinkWithCodeRequest, user=Depends(get_current_user)):
-    lc = await db.link_codes.find_one({"code": data.link_code.upper()}, {"_id": 0})
+async def link_with_code(data: dict, user=Depends(get_current_user)):
+    link_code = data.get('link_code', '').upper()
+    relationship = data.get('relationship', '')
+    lc = await db.link_codes.find_one({"code": link_code}, {"_id": 0})
     if not lc:
         raise HTTPException(status_code=404, detail="Code invalide")
     ben = await db.users.find_one({"id": lc['user_id']}, {"_id": 0})
     if not ben:
         raise HTTPException(status_code=404, detail="Beneficiaire non trouve")
-    # Check if already linked
     if user['id'] in ben.get('guardians', []):
         return {"status": "already_linked", "message": f"Vous etes deja gardien de {ben['name']}"}
-    # Check if request already pending
     existing = await db.guardian_requests.find_one({"guardian_id": user['id'], "beneficiary_id": ben['id'], "status": "pending"})
     if existing:
         return {"status": "pending", "message": "Demande deja en attente"}
-    # Create pending request (beneficiary must accept)
     req_id = str(uuid.uuid4())
     await db.guardian_requests.insert_one({
         "id": req_id, "guardian_id": user['id'], "guardian_name": user['name'],
         "guardian_phone": user.get('phone', ''), "guardian_email": user.get('email', ''),
         "beneficiary_id": ben['id'], "beneficiary_name": ben['name'],
+        "relationship": relationship,
         "method": "code", "status": "pending",
         "created_at": datetime.now(timezone.utc).isoformat(),
     })
@@ -473,15 +473,14 @@ async def link_with_code(data: LinkWithCodeRequest, user=Depends(get_current_use
 async def link_with_phone(data: dict, user=Depends(get_current_user)):
     """Guardian requests to link with a beneficiary by phone number"""
     phone = data.get('phone', '').strip()
+    relationship = data.get('relationship', '')
     if not phone:
         raise HTTPException(status_code=400, detail="Numero de telephone requis")
-    # Normalize French phone
     cleaned = phone.replace(' ', '').replace('.', '').replace('-', '')
     if cleaned.startswith('0') and len(cleaned) >= 10:
         cleaned = '+33' + cleaned[1:]
     ben = await db.users.find_one({"phone": cleaned, "role": "beneficiary"}, {"_id": 0})
     if not ben:
-        # Try without +33
         ben = await db.users.find_one({"phone": {"$regex": cleaned[-9:]}, "role": "beneficiary"}, {"_id": 0})
     if not ben:
         raise HTTPException(status_code=404, detail="Aucun beneficiaire trouve avec ce numero")
@@ -495,6 +494,7 @@ async def link_with_phone(data: dict, user=Depends(get_current_user)):
         "id": req_id, "guardian_id": user['id'], "guardian_name": user['name'],
         "guardian_phone": user.get('phone', ''), "guardian_email": user.get('email', ''),
         "beneficiary_id": ben['id'], "beneficiary_name": ben['name'],
+        "relationship": relationship,
         "method": "phone", "status": "pending",
         "created_at": datetime.now(timezone.utc).isoformat(),
     })
