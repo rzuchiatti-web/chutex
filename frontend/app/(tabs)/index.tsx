@@ -24,12 +24,12 @@ const REMINDER_IMAGES = {
   alarm: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/hzoi0qcr_alarmes.png',
 };
 
-const webShadow = Platform.OS === 'web' ? { boxShadow: '0 2px 20px rgba(20,20,30,0.05), 0 0 0 1px rgba(20,20,30,0.02)' } : { shadowColor: '#1E1F24', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 2 };
-const webGlass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } : {};
+const webShadow = Platform.OS === 'web' ? { boxShadow: '0 10px 30px rgba(20,20,30,0.08)' } : { shadowColor: '#14141E', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.08, shadowRadius: 30, elevation: 3 };
+const webGlass = Platform.OS === 'web' ? { backdropFilter: 'blur(12px) saturate(120%)', WebkitBackdropFilter: 'blur(12px) saturate(120%)' } : {};
 
 /* ─── PREMIUM CARD ─── */
 const Card = ({ children, style, testID }: any) => (
-  <View testID={testID} style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(20,20,30,0.06)', padding: 18, marginBottom: 14, ...webShadow }, style]}>{children}</View>
+  <View testID={testID} style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(20,20,30,0.06)', padding: 20, marginBottom: 16, ...webShadow }, style]}>{children}</View>
 );
 
 /* ─── HERO GRADIENT CARD (web only renders as warm bg) ─── */
