@@ -59,13 +59,13 @@ function LanguageFlagButton() {
       {open && (
         <View style={{ position: 'absolute', top: 38, right: 0, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 14, padding: 6, minWidth: 120, zIndex: 99999, ...( Platform.OS === 'web' ? { boxShadow: '0 8px 24px rgba(0,0,0,0.5)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 10 }) }}>
           {flags.map(f => (
-            <TouchableOpacity key={f.code} testID={`lang-option-${f.code}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, backgroundColor: lang === f.code ? 'rgba(0,0,0,0.04)' : 'transparent', zIndex: 99999 }}
+            <TouchableOpacity key={f.code} testID={`lang-option-${f.code}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, backgroundColor: lang === f.code ? 'rgba(255,255,255,0.08)' : 'transparent', zIndex: 99999 }}
               onPress={() => { setLang(f.code); setOpen(false); }}>
               <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: f.color, justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontSize: 8, fontWeight: '800', color: '#FFF' }}>{f.code}</Text>
               </View>
               <Text style={{ fontSize: 13, fontWeight: lang === f.code ? '700' : '500', color: 'rgba(255,255,255,0.92)' }}>{f.code}</Text>
-              {lang === f.code && <Ionicons name="checkmark" size={14} color="#000" />}
+              {lang === f.code && <Ionicons name="checkmark" size={14} color="#FFF" />}
             </TouchableOpacity>
           ))}
         </View>
