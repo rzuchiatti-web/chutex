@@ -19,7 +19,7 @@ const METRIC_CONFIG: Record<string, any> = {
   temperature: { title: 'Temperature', unit: '°C', min: 34, max: 42, color: '#F57C00' },
 };
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
 export default function EditThresholdsScreen() {
   const { colors } = useTheme();
@@ -109,7 +109,7 @@ export default function EditThresholdsScreen() {
 
         {/* Confirm */}
         <TouchableOpacity style={{ width: '100%', backgroundColor: '#000', borderRadius: 9999, paddingVertical: 18, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={save} disabled={saving}>
-          {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 }}>CONFIRMER LES NOUVEAUX SEUILS</Text>}
+          {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#000', fontSize: 16, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 }}>CONFIRMER LES NOUVEAUX SEUILS</Text>}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

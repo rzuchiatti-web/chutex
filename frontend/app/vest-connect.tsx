@@ -295,7 +295,7 @@ const s = StyleSheet.create({
   emptyTitle: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary, marginTop: 20 },
   emptyDesc: { fontSize: 14, color: Colors.textMuted, textAlign: 'center', lineHeight: 20, marginTop: 8, marginBottom: 28 },
   pairBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: Colors.primary, paddingVertical: 16, paddingHorizontal: 40, borderRadius: 14 },
-  pairBtnT: { color: '#FFF', fontSize: 17, fontWeight: '700' },
+  pairBtnT: { color: '#000', fontSize: 17, fontWeight: '700' },
   // Paired card
   card: { borderRadius: 16, padding: 18 },
   iconCircle: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center' },
@@ -308,8 +308,8 @@ const s = StyleSheet.create({
   lastSync: { fontSize: 12, color: Colors.textMuted, textAlign: 'center', marginTop: 12 },
   // Buttons
   sosCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.destructive, borderRadius: 14, padding: 16 },
-  sosTitle: { color: '#FFF', fontSize: 16, fontWeight: '900' },
-  sosDesc: { color: '#FFF', fontSize: 12, opacity: 0.9 },
+  sosTitle: { color: '#000', fontSize: 16, fontWeight: '900' },
+  sosDesc: { color: '#000', fontSize: 12, opacity: 0.9 },
   reconnectBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: Colors.subtle, paddingVertical: 14, borderRadius: 12, borderWidth: 1, borderColor: Colors.border },
   reconnectBtnT: { fontSize: 14, fontWeight: '600', color: Colors.primary },
   unpairBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 14 },

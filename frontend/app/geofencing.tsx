@@ -147,7 +147,7 @@ const s = StyleSheet.create({
   info: { flexDirection: 'row', gap: 10, padding: 14, backgroundColor: Colors.subtle, borderRadius: 10, marginBottom: 12, alignItems: 'flex-start' },
   infoText: { flex: 1, fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
   checkBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: Colors.primary, padding: 14, borderRadius: 10, marginBottom: 12 },
-  checkBtnT: { fontSize: 14, fontWeight: '700', color: '#FFF' },
+  checkBtnT: { fontSize: 14, fontWeight: '700', color: '#000' },
   checkResult: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 8, backgroundColor: Colors.paper, borderLeftWidth: 3, marginBottom: 12 },
   checkResultT: { flex: 1, fontSize: 13, fontWeight: '600' },
   secTitle: { fontSize: 14, fontWeight: '700', color: Colors.text, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
@@ -166,5 +166,5 @@ const s = StyleSheet.create({
   cancelBtn: { flex: 1, padding: 14, borderRadius: 10, borderWidth: 1, borderColor: Colors.border, alignItems: 'center' },
   cancelBtnT: { fontSize: 15, color: Colors.textMuted, fontWeight: '600' },
   saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: Colors.primary, alignItems: 'center' },
-  saveBtnT: { fontSize: 15, color: '#FFF', fontWeight: '600' },
+  saveBtnT: { fontSize: 15, color: '#000', fontWeight: '600' },
 });

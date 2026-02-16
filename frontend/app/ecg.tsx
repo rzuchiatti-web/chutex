@@ -139,7 +139,7 @@ const s = StyleSheet.create({
   progressBar: { width: '100%', height: 6, backgroundColor: Colors.border, borderRadius: 3, overflow: 'hidden', marginBottom: 12 },
   progressFill: { height: '100%', backgroundColor: Colors.primary, borderRadius: 3 },
   startBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: Colors.primary, paddingHorizontal: 28, paddingVertical: 14, borderRadius: 12 },
-  startBtnT: { fontSize: 16, fontWeight: '700', color: '#FFF' },
+  startBtnT: { fontSize: 16, fontWeight: '700', color: '#000' },
   resultCard: { backgroundColor: Colors.paper, borderRadius: 14, padding: 20, marginBottom: 16, borderLeftWidth: 4 },
   resultHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   resultStatus: { fontSize: 18, fontWeight: '800' },

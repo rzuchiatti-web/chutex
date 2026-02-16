@@ -16,7 +16,7 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { apiFetch } from '../../src/services/api';
 import { PageExplainer } from '../../src/components/HelpSystem';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
@@ -62,7 +62,7 @@ function AdminClients({ token }: { token: string }) {
           <TouchableOpacity key={u.id} onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: u.id, viewAs: tab } })} activeOpacity={0.7}>
             <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
               <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: tab === 'beneficiary' ? '#4FC3F7' : '#FFD54F', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{u.name?.charAt(0)?.toUpperCase()}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{u.name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{u.name}</Text>
@@ -140,7 +140,7 @@ function CompanyAgences({ token }: { token: string }) {
 
         <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginBottom: 16, flexDirection: 'row', justifyContent: 'center', gap: 8 }}
           onPress={() => setShowCreate(true)}>
-          <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '700' }}>Nouvelle agence</Text>
+          <Text style={{ color: '#000', fontSize: 14, fontWeight: '700' }}>Nouvelle agence</Text>
           <Ionicons name="add-circle-outline" size={18} color="#FFF" />
         </TouchableOpacity>
 
@@ -210,7 +210,7 @@ function CompanyAgences({ token }: { token: string }) {
                 <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.92)', flex: 1 }}>{pr.name}</Text>
                 <TouchableOpacity style={{ backgroundColor: '#2196F3', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}
                   onPress={() => setAssignModal(pr)}>
-                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#FFF' }}>Assigner</Text>
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#000' }}>Assigner</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -234,7 +234,7 @@ function CompanyAgences({ token }: { token: string }) {
                 <Text style={{ color: 'rgba(255,255,255,0.50)', fontWeight: '600' }}>Annuler</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#000', padding: 14, alignItems: 'center', borderRadius: 12 }} onPress={createAgency} disabled={creating}>
-                {creating ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>Creer</Text>}
+                {creating ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#000', fontWeight: '700' }}>Creer</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -260,7 +260,7 @@ function CompanyAgences({ token }: { token: string }) {
                 await apiFetch(`/api/company/agencies/${editAgency.id}`, { method: 'PUT', body: JSON.stringify({ name: editName.trim(), address: editAddr.trim() }) }, token);
                 setEditAgency(null); fetchData();
               }}>
-                <Text style={{ color: '#FFF', fontWeight: '700' }}>Enregistrer</Text>
+                <Text style={{ color: '#000', fontWeight: '700' }}>Enregistrer</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -426,7 +426,7 @@ export default function HealthScreen() {
             <Text style={{ fontSize: 17, fontWeight: '700', color: colors.textPrimary, marginTop: 16 }}>Aucune donnee</Text>
             <Text style={{ fontSize: 13, color: colors.textMuted, marginTop: 6, textAlign: 'center' }}>Connectez votre bracelet pour suivre vos constantes</Text>
             <TouchableOpacity style={{ marginTop: 20, backgroundColor: colors.primary, paddingVertical: 12, paddingHorizontal: 24, borderRadius: 9999 }} onPress={() => router.push('/bracelet-connect')}>
-              <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 14 }}>Connecter le bracelet</Text>
+              <Text style={{ color: '#000', fontWeight: '700', fontSize: 14 }}>Connecter le bracelet</Text>
             </TouchableOpacity>
           </View>
         )}

@@ -8,7 +8,7 @@ import { apiFetch, API_URL } from '../../src/services/api';
 import { useI18n } from '../../src/context/I18nContext';
 import { HelpCenter } from '../../src/components/HelpSystem';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
@@ -160,7 +160,7 @@ export default function ProfileScreen() {
               {user.avatar_url ? (
                 <Image source={{ uri: user.avatar_url }} style={{ width: 80, height: 80 }} />
               ) : (
-                <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
+                <Text style={{ fontSize: 32, fontWeight: '800', color: '#000' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
               )}
             </View>
             <View style={{ position: 'absolute', bottom: 0, right: -4, width: 28, height: 28, borderRadius: 14, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#F5F0EB' }}>
@@ -182,7 +182,7 @@ export default function ProfileScreen() {
             <WebInput val={editAddress} onChange={setEditAddress} placeholder="Adresse" />
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setEditMode(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>{t('cancel')}</Text></TouchableOpacity>
-              <TouchableOpacity testID="save-profile-btn" style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={saveProfile} disabled={saving}>{saving ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENREGISTRER</Text>}</TouchableOpacity>
+              <TouchableOpacity testID="save-profile-btn" style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={saveProfile} disabled={saving}>{saving ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>ENREGISTRER</Text>}</TouchableOpacity>
             </View>
           </GlassCard>
         )}
@@ -194,7 +194,7 @@ export default function ProfileScreen() {
             <WebInput val={newPw} onChange={setNewPw} placeholder="Nouveau mot de passe" type="password" />
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowPwChange(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>{t('cancel')}</Text></TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={changePassword}><Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>{t('confirm')}</Text></TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={changePassword}><Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>{t('confirm')}</Text></TouchableOpacity>
             </View>
           </GlassCard>
         )}
@@ -210,7 +210,7 @@ export default function ProfileScreen() {
             <WebInput val={contactMsg} onChange={setContactMsg} placeholder="Decrivez votre probleme..." rows={4} />
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowContact(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>{t('cancel')}</Text></TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={sendContactForm} disabled={sendingContact}>{sendingContact ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENVOYER</Text>}</TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={sendContactForm} disabled={sendingContact}>{sendingContact ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#000' }}>ENVOYER</Text>}</TouchableOpacity>
             </View>
           </GlassCard>
         )}
@@ -241,7 +241,7 @@ export default function ProfileScreen() {
 
         <TouchableOpacity testID="logout-btn" style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }} onPress={logout}>
           <Ionicons name="log-out-outline" size={16} color="#FFF" />
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF', textTransform: 'uppercase' }}>{t('logout')}</Text>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: '#000', textTransform: 'uppercase' }}>{t('logout')}</Text>
         </TouchableOpacity>
         <Text style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.50)', marginTop: 16 }}>Chutex Innovation SAS - v3.0</Text>
 
@@ -335,7 +335,7 @@ export default function ProfileScreen() {
                     <TouchableOpacity testID="test-push-btn" onPress={testPush}
                       style={{ backgroundColor: '#2196F3', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 20, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
                       <Ionicons name="paper-plane" size={16} color="#FFF" />
-                      <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>Envoyer une notification test</Text>
+                      <Text style={{ color: '#000', fontSize: 14, fontWeight: '800' }}>Envoyer une notification test</Text>
                     </TouchableOpacity>
                   </>
                 ) : (
@@ -357,7 +357,7 @@ export default function ProfileScreen() {
               {LANGUAGES.map(l => (
                 <TouchableOpacity key={l.code} testID={`lang-pick-${l.code}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }} onPress={() => { setLang(l.code); setShowLangPicker(false); }}>
                   <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: l.color, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: lang === l.code ? '#000' : 'rgba(0,0,0,0.1)' }}>
-                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFF' }}>{l.code}</Text>
+                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#000' }}>{l.code}</Text>
                   </View>
                   <Text style={{ flex: 1, fontSize: 16, fontWeight: '600', color: 'rgba(255,255,255,0.92)' }}>{l.label}</Text>
                   {lang === l.code && <Ionicons name="checkmark-circle" size={22} color="#FFF" />}

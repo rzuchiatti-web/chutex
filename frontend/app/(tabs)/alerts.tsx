@@ -6,7 +6,7 @@ import { apiFetch } from '../../src/services/api';
 import { useRouter } from 'expo-router';
 import { ContextualTip, HelpBubble, PageExplainer, MiniTuto } from '../../src/components/HelpSystem';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
@@ -55,7 +55,7 @@ function CompanyPrescribers({ token }: { token: string }) {
             onPress={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })}>
             <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
               <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{pr.name?.charAt(0)?.toUpperCase()}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{pr.name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{pr.name}</Text>
@@ -216,11 +216,11 @@ export default function AlertsScreen() {
           <View style={{ flexDirection: 'row', gap: 8, padding: 12, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
             <TouchableOpacity testID={`resolve-${item.id}`} style={{ flex: 1, backgroundColor: '#000', borderRadius: 9999, paddingVertical: 10, alignItems: 'center' }}
               onPress={(e) => { e.stopPropagation(); resolveAlert(item.id); }}>
-              <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>RESOUDRE</Text>
+              <Text style={{ color: '#000', fontSize: 12, fontWeight: '700' }}>RESOUDRE</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flex: 1, backgroundColor: cfg.color, borderRadius: 9999, paddingVertical: 10, alignItems: 'center' }}
               onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: item.id } })}>
-              <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>VOIR DETAILS</Text>
+              <Text style={{ color: '#000', fontSize: 12, fontWeight: '700' }}>VOIR DETAILS</Text>
             </TouchableOpacity>
           </View>
         )}

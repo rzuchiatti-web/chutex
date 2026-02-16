@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
@@ -114,11 +114,11 @@ export default function ActivateBeneficiaryScreen() {
           </TouchableOpacity>}
           {step === 0 ? (
             <TouchableOpacity testID="next-step-btn" style={{ flex: 1, backgroundColor: '#000', paddingVertical: 14, borderRadius: 9999, alignItems: 'center' }} onPress={() => setStep(1)}>
-              <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>SUIVANT</Text>
+              <Text style={{ color: '#000', fontSize: 15, fontWeight: '800' }}>SUIVANT</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity testID="activate-btn" style={{ flex: 1, backgroundColor: '#000', paddingVertical: 14, borderRadius: 9999, alignItems: 'center' }} onPress={submit} disabled={saving}>
-              {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>ACTIVER</Text>}
+              {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#000', fontSize: 15, fontWeight: '800' }}>ACTIVER</Text>}
             </TouchableOpacity>
           )}
         </View>

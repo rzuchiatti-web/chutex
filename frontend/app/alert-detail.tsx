@@ -6,7 +6,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
@@ -201,7 +201,7 @@ export default function AlertDetailScreen() {
               <View style={{ backgroundColor: '#10B981', borderRadius: 16, padding: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
                 <Ionicons name="shield-checkmark" size={22} color="#FFF" />
                 <View>
-                  <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VOUS GEREZ CETTE INTERVENTION</Text>
+                  <Text style={{ color: '#000', fontSize: 15, fontWeight: '900' }}>VOUS GEREZ CETTE INTERVENTION</Text>
                   <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, marginTop: 2 }}>Les gardiens peuvent suivre votre position</Text>
                 </View>
               </View>
@@ -219,7 +219,7 @@ export default function AlertDetailScreen() {
                 {accepting ? <ActivityIndicator color="#FFF" /> : (
                   <>
                     <Ionicons name="shield-checkmark" size={22} color="#FFF" />
-                    <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900', letterSpacing: 1 }}>J'INTERVIENS</Text>
+                    <Text style={{ color: '#000', fontSize: 16, fontWeight: '900', letterSpacing: 1 }}>J'INTERVIENS</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -228,7 +228,7 @@ export default function AlertDetailScreen() {
                 style={{ backgroundColor: '#009688', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}
                 onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: intervention.id } })}>
                 <Ionicons name="navigate" size={20} color="#FFF" />
-                <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>SUIVRE {intervention.assigned_name?.split(' ')[0]?.toUpperCase()} SUR LA CARTE</Text>
+                <Text style={{ color: '#000', fontSize: 14, fontWeight: '800' }}>SUIVRE {intervention.assigned_name?.split(' ')[0]?.toUpperCase()} SUR LA CARTE</Text>
               </TouchableOpacity>
             ) : hasIntervenant ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 4 }}>
@@ -246,7 +246,7 @@ export default function AlertDetailScreen() {
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#E53935', borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6 }} onPress={startEscalation} disabled={escalating}>
                 {escalating ? <ActivityIndicator color="#FFF" size="small" /> : (
-                  <><Ionicons name="git-branch" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>LANCER CARE WATCH</Text></>
+                  <><Ionicons name="git-branch" size={16} color="#FFF" /><Text style={{ color: '#000', fontSize: 12, fontWeight: '800' }}>LANCER CARE WATCH</Text></>
                 )}
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6, borderWidth: 2, borderColor: '#4CAF50' }} onPress={resolveAlert}>
@@ -417,7 +417,7 @@ export default function AlertDetailScreen() {
           <TouchableOpacity onPress={() => setShowReport(true)}
             style={{ backgroundColor: '#10B981', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: 12 }}>
             <Ionicons name="document-text" size={20} color="#FFF" />
-            <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>CLOTURER AVEC RAPPORT</Text>
+            <Text style={{ color: '#000', fontSize: 15, fontWeight: '900' }}>CLOTURER AVEC RAPPORT</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
@@ -458,7 +458,7 @@ export default function AlertDetailScreen() {
               <TouchableOpacity style={{ backgroundColor: '#10B981', borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
                 onPress={handleCompleteWithReport} disabled={submittingReport}>
                 {submittingReport ? <ActivityIndicator color="#FFF" /> : (
-                  <><Ionicons name="checkmark-circle" size={20} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VALIDER ET CLOTURER</Text></>
+                  <><Ionicons name="checkmark-circle" size={20} color="#FFF" /><Text style={{ color: '#000', fontSize: 15, fontWeight: '900' }}>VALIDER ET CLOTURER</Text></>
                 )}
               </TouchableOpacity>
             </ScrollView>

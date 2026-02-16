@@ -397,7 +397,7 @@ const s = StyleSheet.create({
   emptyTitle: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary, marginTop: 20 },
   emptyDesc: { fontSize: 14, color: Colors.textMuted, textAlign: 'center', lineHeight: 20, marginTop: 8, marginBottom: 28 },
   pairBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: Colors.primary, paddingVertical: 16, paddingHorizontal: 40, borderRadius: 14 },
-  pairBtnT: { color: '#FFF', fontSize: 17, fontWeight: '700' },
+  pairBtnT: { color: '#000', fontSize: 17, fontWeight: '700' },
   card: { backgroundColor: Colors.subtle, borderRadius: 14, padding: 16 },
   cardTitle: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },
   cardStatus: { fontSize: 15, fontWeight: '700', marginTop: 2 },
@@ -410,5 +410,5 @@ const s = StyleSheet.create({
   unpairBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 14 },
   unpairBtnT: { fontSize: 14, fontWeight: '600', color: Colors.destructive },
   measureBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8 },
-  measureBtnT: { fontSize: 12, fontWeight: '700', color: '#FFF' },
+  measureBtnT: { fontSize: 12, fontWeight: '700', color: '#000' },
 });

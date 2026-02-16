@@ -62,7 +62,7 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
             <Text style={[s.optT, answers[q.id] === o && s.optTA]}>{o}</Text></TouchableOpacity>))}
         {q.type === 'scale' && <View style={s.scaleC}><Text style={s.scaleV}>{painLevel}</Text><View style={s.scaleR}>
           {[0,1,2,3,4,5,6,7,8,9,10].map(n => <TouchableOpacity key={n} testID={`sc-${n}`} style={[s.scaleB, painLevel === n && { backgroundColor: Colors.primary }]}
-            onPress={() => { setPainLevel(n); setAnswers({ ...answers, [q.id]: n.toString() }); }}><Text style={[s.scaleBT, painLevel === n && { color: '#FFF' }]}>{n}</Text></TouchableOpacity>)}</View></View>}
+            onPress={() => { setPainLevel(n); setAnswers({ ...answers, [q.id]: n.toString() }); }}><Text style={[s.scaleBT, painLevel === n && { color: '#000' }]}>{n}</Text></TouchableOpacity>)}</View></View>}
         {q.type === 'text' && <TextInput testID="qcm-text" style={s.textInp} placeholder="Décrivez..." placeholderTextColor={Colors.textMuted} value={freeText} onChangeText={v => { setFreeText(v); setAnswers({ ...answers, [q.id]: v }); }} multiline />}
       </View>}
       <View style={s.navR}>{step > 0 && <TouchableOpacity style={s.prevB} onPress={() => setStep(step - 1)}><Ionicons name="chevron-back" size={16} color={Colors.textSecondary} /><Text style={s.prevBT}>Précédent</Text></TouchableOpacity>}
@@ -220,7 +220,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <TouchableOpacity style={{ flex: 1, backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
                 onPress={() => { resolveIncident(selectedIncident.id); setSelectedIncident(null); }}>
-                <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>CLOTURER</Text>
+                <Text style={{ color: '#000', fontSize: 12, fontWeight: '800' }}>CLOTURER</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, borderWidth: 2, borderColor: '#000', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
                 onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: selectedIncident.alert_id } })}>
@@ -330,7 +330,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
             <TextInput testID="care-code-input" style={[s.careInput, { width: '100%' }]} placeholder="CODE INTERVENANT" placeholderTextColor={Colors.textMuted}
               value={ivCode} onChangeText={setIvCode} autoCapitalize="characters" />
             <TouchableOpacity testID="care-activate-btn" style={{ backgroundColor: Colors.primary, borderRadius: 12, paddingVertical: 14, alignItems: 'center' }} onPress={activateCare} disabled={activating}>
-              {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Activer mon espace</Text>}
+              {activating ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ color: '#000', fontSize: 15, fontWeight: '700' }}>Activer mon espace</Text>}
             </TouchableOpacity>
           </View>
         </View>
@@ -347,7 +347,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <Text style={{ fontSize: 17, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>Intervenant Care</Text>
                     <View style={{ backgroundColor: '#9C27B0', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
-                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
+                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#000' }}>Actif</Text>
                     </View>
                   </View>
                   <Text style={{ fontSize: 12, color: '#555', marginTop: 3 }} numberOfLines={1}>{user.intervention_structure || user.structure_name || 'Structure'}</Text>
@@ -386,7 +386,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
                   <Text style={{ fontSize: 16, fontWeight: '800', color: 'rgba(255,255,255,0.92)' }}>{user.name}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
                     <View style={{ backgroundColor: '#9C27B0', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
-                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
+                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#000' }}>Actif</Text>
                     </View>
                     <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)' }}>{user.intervention_structure || user.structure_name}</Text>
                   </View>
@@ -419,7 +419,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       {/* Interventions List filtered by tab */}
       {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => (
         <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: statusColor(iv.status), ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {}) }}>
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: statusColor(iv.status), ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {}) }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
               <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: statusColor(iv.status) + '15', justifyContent: 'center', alignItems: 'center' }}>
                 <Ionicons name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={22} color={statusColor(iv.status)} />
@@ -538,7 +538,7 @@ function AdminIntervenants({ token }: { token: string }) {
           <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.textPrimary }}>{codes.length} structure(s)</Text>
           <TouchableOpacity testID="add-intervenant-btn" style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}
             onPress={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', radius_km: '30' }); setShowModal(true); }}>
-            <Ionicons name="add" size={16} color="#FFF" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
+            <Ionicons name="add" size={16} color="#FFF" /><Text style={{ color: '#000', fontSize: 12, fontWeight: '700' }}>Nouveau code</Text>
           </TouchableOpacity>
         </View>
 
@@ -571,7 +571,7 @@ function AdminIntervenants({ token }: { token: string }) {
             <View style={s.ivCard}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{p.name?.charAt(0)?.toUpperCase()}</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#000' }}>{p.name?.charAt(0)?.toUpperCase()}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={s.ivName}>{p.name}</Text>
@@ -639,7 +639,7 @@ function AdminIntervenants({ token }: { token: string }) {
                   {iv.assigned_name && (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10, backgroundColor: 'rgba(76,175,80,0.04)', borderRadius: 10, padding: 8 }}>
                       <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFF' }}>{iv.assigned_name?.charAt(0)?.toUpperCase()}</Text>
+                        <Text style={{ fontSize: 11, fontWeight: '800', color: '#000' }}>{iv.assigned_name?.charAt(0)?.toUpperCase()}</Text>
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 12, fontWeight: '700', color: '#2E7D32' }}>{iv.assigned_name}</Text>
@@ -695,7 +695,7 @@ function AdminIntervenants({ token }: { token: string }) {
             <View style={s.modalBtns}>
               <TouchableOpacity style={s.cancelBtn} onPress={() => setShowModal(false)}><Text style={{ color: Colors.textMuted, fontWeight: '600' }}>Annuler</Text></TouchableOpacity>
               <TouchableOpacity style={s.confirmBtn} onPress={saveCode} disabled={saving}>
-                {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>{editCode ? 'Modifier' : 'Créer'}</Text>}
+                {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#000', fontWeight: '700' }}>{editCode ? 'Modifier' : 'Créer'}</Text>}
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -789,7 +789,7 @@ function CompanyPrescriptions({ token }: { token: string }) {
                 <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 24, marginBottom: 12, ...(Platform.OS === 'web' ? { backdropFilter: 'blur(40px)' } : {}) }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
                     <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: selectedPresc.status === 'subscribed' ? '#4CAF50' : '#FF9800', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
-                      <Text style={{ fontSize: 24, fontWeight: '900', color: '#FFF' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
+                      <Text style={{ fontSize: 24, fontWeight: '900', color: '#000' }}>{selectedPresc.beneficiary_name?.charAt(0)?.toUpperCase()}</Text>
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{selectedPresc.beneficiary_name}</Text>
@@ -856,7 +856,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#FFF" /></View>;
 
-  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
   const pendingIvs = interventions.filter((iv: any) => iv.status === 'pending_acceptance');
   const activeIvs = interventions.filter((iv: any) => ['in_progress', 'en_route', 'dispatched'].includes(iv.status));
   const completedIvs = interventions.filter((iv: any) => iv.status === 'completed');
@@ -955,7 +955,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
               onPress={() => router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: iv.id } })}>
               <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 12, ...glass }}>
                 <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#9C27B0', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.name?.charAt(0)?.toUpperCase()}</Text>
+                  <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{iv.name?.charAt(0)?.toUpperCase()}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{iv.name}</Text>
@@ -999,7 +999,7 @@ function CompanyIntervenants({ token }: { token: string }) {
     ? intervenants.filter((iv: any) => iv.name?.toLowerCase().includes(search.toLowerCase()) || iv.email?.toLowerCase().includes(search.toLowerCase()))
     : intervenants;
 
-  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000' }}>
@@ -1022,7 +1022,7 @@ function CompanyIntervenants({ token }: { token: string }) {
             onPress={() => router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: iv.id } })}>
             <View style={{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 12, ...glass }}>
               <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#9C27B0', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.name?.charAt(0)?.toUpperCase()}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: '#000' }}>{iv.name?.charAt(0)?.toUpperCase()}</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.92)' }}>{iv.name}</Text>
@@ -1122,9 +1122,9 @@ const s = StyleSheet.create({
   prevB: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, backgroundColor: Colors.subtle },
   prevBT: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
   nextB: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 10, backgroundColor: Colors.primary },
-  nextBT: { fontSize: 13, fontWeight: '600', color: '#FFF' },
+  nextBT: { fontSize: 13, fontWeight: '600', color: '#000' },
   submitB: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 10, backgroundColor: Colors.primary },
-  submitBT: { fontSize: 13, fontWeight: '600', color: '#FFF' },
+  submitBT: { fontSize: 13, fontWeight: '600', color: '#000' },
   successCard: { backgroundColor: Colors.subtle, borderRadius: 16, padding: 24, alignItems: 'center', marginTop: 16 },
   successT: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 10 },
   successSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4 },
@@ -1145,14 +1145,14 @@ const s = StyleSheet.create({
   tlText: { flex: 1, fontSize: 12, color: Colors.textSecondary, lineHeight: 17 },
   actionTitle: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, marginBottom: 8, marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
   actionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, borderRadius: 12, marginBottom: 8 },
-  actionBtnT: { color: '#FFF', fontSize: 14, fontWeight: '600' },
+  actionBtnT: { color: '#000', fontSize: 14, fontWeight: '600' },
   cancelBtn: { alignItems: 'center', paddingVertical: 12, marginTop: 4 },
   cancelBtnT: { fontSize: 13, color: Colors.textMuted },
   tabRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
   tabBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 10, backgroundColor: Colors.subtle },
   tabBtnA: { backgroundColor: Colors.primary },
   tabBtnT: { fontSize: 13, fontWeight: '600', color: Colors.textMuted },
-  tabBtnTA: { color: '#FFF' },
+  tabBtnTA: { color: '#000' },
   taAlertCard: { backgroundColor: Colors.subtle, borderRadius: 14, padding: 14, marginBottom: 10, borderLeftWidth: 3, borderLeftColor: Colors.border },
   taAlertTop: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
   taAlertInfo: { flex: 1 },
@@ -1161,7 +1161,7 @@ const s = StyleSheet.create({
   taBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, backgroundColor: Colors.subtle, borderWidth: 1, borderColor: Colors.border },
   taBadgeT: { fontSize: 9, fontWeight: '700', color: Colors.textMuted, textTransform: 'uppercase' },
   startEscBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 10, backgroundColor: Colors.primary },
-  startEscBtnT: { color: '#FFF', fontSize: 13, fontWeight: '600' },
+  startEscBtnT: { color: '#000', fontSize: 13, fontWeight: '600' },
   escLogCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.subtle, borderRadius: 10, padding: 12, marginBottom: 6, gap: 10 },
   escLogDot: { width: 10, height: 10, borderRadius: 5 },
   escLogInfo: { flex: 1 },
@@ -1187,7 +1187,7 @@ const s = StyleSheet.create({
   careRow: { flexDirection: 'row', gap: 8, width: '100%' },
   careInput: { flex: 1, backgroundColor: Colors.paper, borderRadius: 10, padding: 14, fontSize: 15, fontWeight: '600', color: Colors.text, borderWidth: 1, borderColor: Colors.border, textAlign: 'center', letterSpacing: 2 },
   careBtn: { paddingHorizontal: 20, borderRadius: 10, backgroundColor: Colors.primary, justifyContent: 'center' },
-  careBtnT: { fontSize: 14, fontWeight: '700', color: '#FFF' },
+  careBtnT: { fontSize: 14, fontWeight: '700', color: '#000' },
   careActive: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.success + '12', borderRadius: 10, padding: 14, marginBottom: 14 },
   careActiveT: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   careActiveSub: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },

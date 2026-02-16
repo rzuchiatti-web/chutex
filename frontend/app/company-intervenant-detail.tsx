@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
@@ -66,7 +66,7 @@ export default function CompanyIntervenantDetail() {
         <GlassCard style={{ padding: 24 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
             <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#9C27B0', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)' }}>
-              <Text style={{ fontSize: 28, fontWeight: '900', color: '#FFF' }}>{iv.name?.charAt(0)?.toUpperCase()}</Text>
+              <Text style={{ fontSize: 28, fontWeight: '900', color: '#000' }}>{iv.name?.charAt(0)?.toUpperCase()}</Text>
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)' }}>{iv.name}</Text>

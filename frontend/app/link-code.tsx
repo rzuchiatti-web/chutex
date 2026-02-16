@@ -7,7 +7,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
@@ -98,7 +98,7 @@ export default function LinkScreen() {
             <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 8, textAlign: 'center', lineHeight: 18 }}>Communiquez ce code a vos proches pour qu'ils deviennent vos gardiens. Ils devront le saisir dans leur application.</Text>
             <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 14, paddingHorizontal: 32, marginTop: 16, flexDirection: 'row', gap: 8, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={shareCode}>
               <Ionicons name="share-outline" size={18} color="#FFF" />
-              <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>PARTAGER</Text>
+              <Text style={{ color: '#000', fontSize: 14, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>PARTAGER</Text>
             </TouchableOpacity>
           </GlassCard>
 
@@ -121,7 +121,7 @@ export default function LinkScreen() {
             )}
             {inviteResult && <View style={{ backgroundColor: inviteResult.error ? '#FFEBEE' : '#E8F5E9', borderRadius: 12, padding: 12, marginBottom: 12 }}><Text style={{ fontSize: 13, fontWeight: '600', color: inviteResult.error ? '#C62828' : '#2E7D32' }}>{inviteResult.error || inviteResult.message}</Text></View>}
             <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(0,0,0,0.15)' } : {}) }} onPress={inviteByPhone} disabled={inviting}>
-              {inviting ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' }}>ENVOYER L'INVITATION</Text>}
+              {inviting ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#000', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' }}>ENVOYER L'INVITATION</Text>}
             </TouchableOpacity>
           </GlassCard>
         </ScrollView>
@@ -171,7 +171,7 @@ export default function LinkScreen() {
             ) : null}
             {result && <View style={{ backgroundColor: result.error ? '#FFEBEE' : '#E8F5E9', borderRadius: 12, padding: 12, marginBottom: 12 }}><Text style={{ fontSize: 13, fontWeight: '600', color: result.error ? '#C62828' : '#2E7D32' }}>{result.error || result.message}</Text></View>}
             <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, alignItems: 'center' }} onPress={linkWithCode} disabled={loading}>
-              {loading ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>ENVOYER LA DEMANDE</Text>}
+              {loading ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>ENVOYER LA DEMANDE</Text>}
             </TouchableOpacity>
           </GlassCard>
         )}
@@ -184,7 +184,7 @@ export default function LinkScreen() {
             ) : null}
             {result && <View style={{ backgroundColor: result.error ? '#FFEBEE' : '#E8F5E9', borderRadius: 12, padding: 12, marginBottom: 12 }}><Text style={{ fontSize: 13, fontWeight: '600', color: result.error ? '#C62828' : '#2E7D32' }}>{result.error || result.message}</Text></View>}
             <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, alignItems: 'center' }} onPress={linkWithPhone} disabled={loading}>
-              {loading ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>ENVOYER LA DEMANDE</Text>}
+              {loading ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>ENVOYER LA DEMANDE</Text>}
             </TouchableOpacity>
           </GlassCard>
         )}

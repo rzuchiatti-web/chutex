@@ -110,5 +110,5 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingVertical: 14, backgroundColor: Colors.paper, marginHorizontal: 12, marginBottom: 1, borderBottomWidth: 0.5, borderBottomColor: Colors.border },
   rowLabel: { flex: 1, fontSize: 15, color: Colors.text },
   saveBtn: { backgroundColor: Colors.primary, marginHorizontal: 12, marginTop: 20, padding: 16, borderRadius: 10, alignItems: 'center' },
-  saveBtnT: { fontSize: 16, fontWeight: '700', color: '#FFF' },
+  saveBtnT: { fontSize: 16, fontWeight: '700', color: '#000' },
 });

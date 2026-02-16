@@ -21,7 +21,7 @@ const DAYS = [
   { key: 'lun', s: 'LU' }, { key: 'mar', s: 'MA' }, { key: 'mer', s: 'ME' },
   { key: 'jeu', s: 'JE' }, { key: 'ven', s: 'VE' }, { key: 'sam', s: 'SA' }, { key: 'dim', s: 'DI' },
 ];
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
@@ -158,7 +158,7 @@ export default function RemindersScreen() {
         {catR.length === 0 && <GlassCard style={{ alignItems: 'center', padding: 32 }}><Ionicons name="alarm-outline" size={32} color="#888" /><Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.50)', marginTop: 8 }}>Aucun rappel</Text></GlassCard>}
 
         <TouchableOpacity style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 16, alignItems: 'center', marginTop: 4 }} onPress={openCreate}>
-          <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>AJOUTER UN RAPPEL</Text>
+          <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', textTransform: 'uppercase' }}>AJOUTER UN RAPPEL</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -174,7 +174,7 @@ export default function RemindersScreen() {
                 <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>Annuler</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#E53935', alignItems: 'center' }} onPress={() => doDelete(confirmDelete)}>
-                <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>SUPPRIMER</Text>
+                <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>SUPPRIMER</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -204,7 +204,7 @@ export default function RemindersScreen() {
                 <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.50)' }}>Annuler</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#000', alignItems: 'center' }} onPress={save} disabled={saving}>
-                {saving ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>{editR ? 'MODIFIER' : 'CREER'}</Text>}
+                {saving ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '800', color: '#000' }}>{editR ? 'MODIFIER' : 'CREER'}</Text>}
               </TouchableOpacity>
             </View>
           </View>

@@ -7,7 +7,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: 'rgba(255,255,255,0.45)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 20, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
@@ -56,7 +56,7 @@ export default function GuardianDetailScreen() {
         {/* Avatar + Name */}
         <GlassCard style={{ alignItems: 'center', padding: 28 }}>
           <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#FFB74D', justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF' }}>{guardian.name?.charAt(0)}</Text>
+            <Text style={{ fontSize: 32, fontWeight: '800', color: '#000' }}>{guardian.name?.charAt(0)}</Text>
           </View>
           <Text style={{ fontSize: 22, fontWeight: '900', color: 'rgba(255,255,255,0.92)', marginTop: 12 }}>{guardian.name}</Text>
           {guardian.profession && <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', marginTop: 4 }}>{guardian.profession}</Text>}
@@ -102,7 +102,7 @@ export default function GuardianDetailScreen() {
             }},
           ])}>
           <Ionicons name="trash-outline" size={18} color="#FFF" />
-          <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>SUPPRIMER CE GARDIEN</Text>
+          <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>SUPPRIMER CE GARDIEN</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -8,7 +8,7 @@ import { scanForScales, connectToScale, disconnectScale, stopScaleScan } from '.
 import type { ScaleMeasurement } from '../src/services/ble';
 
 const { width: SW } = Dimensions.get('window');
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.6)' } : {};
+const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GC = ({ children, style }: any) => <View style={[{ backgroundColor: 'rgba(255,255,255,0.55)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(255,255,255,0.7)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>;
 
 function MiniChart({ data, color, width: chartW, height: chartH }: { data: number[]; color: string; width: number; height: number }) {
@@ -198,7 +198,7 @@ export default function ScaleDetailScreen() {
             <TouchableOpacity testID="scan-scale-btn" onPress={isNative ? startScan : () => Alert.alert('Bluetooth', 'Utilisez l\'app mobile pour connecter la balance.')}
               style={{ backgroundColor: '#2196F3', borderRadius: 9999, paddingVertical: 14, paddingHorizontal: 32, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               {bleState === 'scanning' ? <ActivityIndicator color="#FFF" size="small" /> : <Ionicons name="bluetooth" size={18} color="#FFF" />}
-              <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>{bleState === 'scanning' ? 'Recherche...' : 'Connecter ma balance'}</Text>
+              <Text style={{ color: '#000', fontSize: 15, fontWeight: '800' }}>{bleState === 'scanning' ? 'Recherche...' : 'Connecter ma balance'}</Text>
             </TouchableOpacity>
           </GC>
         ) : (
@@ -230,14 +230,14 @@ export default function ScaleDetailScreen() {
               <TouchableOpacity testID="start-weighing-btn" onPress={startWeighing}
                 style={{ backgroundColor: '#000', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', marginTop: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
                 <Ionicons name="scale-outline" size={18} color="#FFF" />
-                <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>Lancer une pesee</Text>
+                <Text style={{ color: '#000', fontSize: 15, fontWeight: '800' }}>Lancer une pesee</Text>
               </TouchableOpacity>
             )}
             {bleState === 'done' && (
               <TouchableOpacity onPress={() => { setBleState('connected'); setLiveMeasurement(null); }}
                 style={{ backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', marginTop: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
                 <Ionicons name="refresh" size={18} color="#FFF" />
-                <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>Nouvelle pesee</Text>
+                <Text style={{ color: '#000', fontSize: 15, fontWeight: '800' }}>Nouvelle pesee</Text>
               </TouchableOpacity>
             )}
           </GC>
@@ -422,7 +422,7 @@ export default function ScaleDetailScreen() {
                 <Ionicons name="search-outline" size={36} color="#CCC" />
                 <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', marginTop: 8, textAlign: 'center' }}>Aucune balance trouvee. Verifiez qu'elle est allumee.</Text>
                 <TouchableOpacity onPress={startScan} style={{ backgroundColor: '#2196F3', borderRadius: 9999, paddingVertical: 10, paddingHorizontal: 24, marginTop: 12 }}>
-                  <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>Relancer la recherche</Text>
+                  <Text style={{ color: '#000', fontSize: 13, fontWeight: '700' }}>Relancer la recherche</Text>
                 </TouchableOpacity>
               </View>
             )}
