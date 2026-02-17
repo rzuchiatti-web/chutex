@@ -673,22 +673,68 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         </View>
       </Modal>
 
-      {/* Selected prescription detail — GLASS DARK */}
-      {selectedPresc && (
+      {/* Selected prescription — FULL SCREEN PAGE */}
+      {selectedPresc && Platform.OS === 'web' && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+          <img src={selectedPresc.status === 'subscribed' ? BG_GREEN_P : BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+
+          {/* Top bar: back + status */}
+          <div style={{ position: 'absolute', top: 16, left: 16, right: 16, display: 'flex', alignItems: 'center', gap: 12, zIndex: 10 } as any}>
+            <div onClick={() => setSelectedPresc(null)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)' } as any}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: selectedPresc.status === 'subscribed' ? '#10B981' : '#F59E0B' } as any} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{selectedPresc.status === 'subscribed' ? 'Valide' : 'En attente'}</span>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div style={{ position: 'relative', zIndex: 5, textAlign: 'center', padding: '0 28px', width: '100%', maxWidth: 400 } as any}>
+            <div style={{ fontSize: 28, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescription</div>
+            <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', marginBottom: 32 }}>{selectedPresc.subscription_type === 'teleassistance' ? 'Abonnement Teleassistance' : `Abonnement ${selectedPresc.subscription_type || 'Standard'}`}</div>
+
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#FFF', marginBottom: 20 }}>{selectedPresc.beneficiary_name}</div>
+
+            {/* Email pill */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', marginBottom: 12 } as any}>
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <span style={{ fontSize: 15, fontWeight: 600, color: '#FFF' }}>{selectedPresc.beneficiary_email || 'N/A'}</span>
+            </div>
+
+            {/* Phone pill */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', marginBottom: 32 } as any}>
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </div>
+              <span style={{ fontSize: 15, fontWeight: 600, color: '#FFF' }}>{selectedPresc.beneficiary_phone || 'N/A'}</span>
+            </div>
+
+            {/* Commission */}
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Commission</div>
+            <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', letterSpacing: -2, marginTop: 4 }}>+{selectedPresc.commission || 25}EUR</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 12 }}>
+              {selectedPresc.status === 'subscribed' ? 'Paiement au 1er du mois suivant.' : 'Paiement apres validation au 1er du mois suivant.'}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Native detail */}
+      {selectedPresc && Platform.OS !== 'web' && (
         <Modal visible={!!selectedPresc} transparent animationType="fade" onRequestClose={() => setSelectedPresc(null)}>
-          <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.5)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
-            <View style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '80%', backgroundColor: '#111', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)', borderTop: '1px solid rgba(255,255,255,0.1)' } : {}) } as any}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{selectedPresc.beneficiary_name}</Text>
-                <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' }}><Icon name="close" size={20} color="#FFF" /></TouchableOpacity>
-              </View>
-              <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>{selectedPresc.beneficiary_email}</Text>
-              <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>{selectedPresc.subscription_type || 'Standard'} · {selectedPresc.status === 'subscribed' ? 'Valide' : 'En attente'}</Text>
-              <View style={{ backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 20, padding: 20, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
-                <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 }}>Commission</Text>
-                <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF', marginTop: 4 }}>{selectedPresc.commission || 25} EUR</Text>
-              </View>
-            </View>
+          <View style={{ flex: 1, backgroundColor: selectedPresc.status === 'subscribed' ? '#0a2a1a' : '#2a1a0a', justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+            <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ position: 'absolute', top: 50, left: 20 }}><Icon name="chevron-back" size={24} color="#FFF" /></TouchableOpacity>
+            <Text style={{ fontSize: 28, fontWeight: '800', color: '#FFF', marginBottom: 6 }}>Prescription</Text>
+            <Text style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}>{selectedPresc.subscription_type || 'Standard'}</Text>
+            <Text style={{ fontSize: 20, fontWeight: '700', color: '#FFF', marginBottom: 16 }}>{selectedPresc.beneficiary_name}</Text>
+            <Text style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', marginBottom: 8 }}>{selectedPresc.beneficiary_email}</Text>
+            <Text style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}>{selectedPresc.beneficiary_phone}</Text>
+            <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Commission</Text>
+            <Text style={{ fontSize: 42, fontWeight: '900', color: '#FFF' }}>+{selectedPresc.commission || 25}EUR</Text>
           </View>
         </Modal>
       )}
