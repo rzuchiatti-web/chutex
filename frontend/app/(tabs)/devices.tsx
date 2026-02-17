@@ -679,7 +679,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
       {/* Selected prescription — FULL SCREEN PAGE */}
       {selectedPresc && Platform.OS === 'web' && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}
+        <div className="detail-animate-in" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}
           onTouchMove={(e: any) => e.preventDefault()}>
           <img src={selectedPresc.status === 'subscribed' ? BG_GREEN_P : BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />

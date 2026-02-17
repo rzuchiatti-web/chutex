@@ -557,7 +557,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
       {/* Selected intervention — FULL SCREEN with ALL details */}
       {selectedIv && Platform.OS === 'web' && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}
+        <div className="detail-animate-in" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}
           ref={(el: any) => { if (el && typeof document !== 'undefined') document.body.classList.add('navbar-dark'); }}
           onTouchMove={(e: any) => { if (!(e.target as HTMLElement)?.closest?.('[data-scroll]')) e.preventDefault(); }}>
           <img src={['completed', 'resolved'].includes(selectedIv.status) ? BG_GREEN : BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
