@@ -202,7 +202,6 @@ function DeviceManagement({ token }: { token: string }) {
                     </div>
                   )}
                 </div>
-                </div>
               </div>
             );
           })}
