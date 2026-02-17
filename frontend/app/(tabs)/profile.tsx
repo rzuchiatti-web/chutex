@@ -302,3 +302,47 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
   }
 
   /* ─── NATIVE FALLBACK ─── */
+  return (
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} testID="profile-screen">
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
+        <Text style={{ fontSize: 28, fontWeight: '900', color: '#111827', marginTop: 16, marginBottom: 20 }}>{t('profile')}</Text>
+        <GlassCard style={{ alignItems: 'center', padding: 28 }}>
+          <TouchableOpacity onPress={handleAvatarUpload} style={{ position: 'relative' }}>
+            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#D4845A', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+              {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 80, height: 80 }} /> : <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>}
+            </View>
+          </TouchableOpacity>
+          <Text style={{ fontSize: 22, fontWeight: '900', color: '#111827', marginTop: 12 }}>{user.name}</Text>
+          <View style={{ marginTop: 6, paddingHorizontal: 14, paddingVertical: 4, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)' }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#555' }}>{roleName}</Text>
+          </View>
+        </GlassCard>
+        <GlassCard>
+          <MenuItem icon="person-outline" label={t('modify_profile')} onPress={() => setEditMode(true)} />
+          <MenuItem icon="lock-closed-outline" label={t('security')} onPress={() => setShowPwChange(true)} />
+          <MenuItem icon="notifications-outline" label="Notifications" onPress={() => { setShowNotifPrefs(true); fetchNotifPrefs(); }} />
+        </GlassCard>
+        <TouchableOpacity style={{ backgroundColor: '#EF4444', borderRadius: 9999, paddingVertical: 16, alignItems: 'center', marginTop: 8 }} onPress={logout}>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>{t('logout')}</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      <Modal visible={showNotifPrefs} transparent animationType="slide">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
+            <TouchableOpacity onPress={() => setShowNotifPrefs(false)}><Text style={{ textAlign: 'right', color: '#888', fontSize: 16 }}>Fermer</Text></TouchableOpacity>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: '#111', marginBottom: 16 }}>Notifications</Text>
+            {notifPrefs ? (
+              <ScrollView>{['sos_alerts','fall_detection','health_thresholds','low_battery'].map(key => (
+                <View key={key} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: '#EEE' }}>
+                  <Text style={{ flex: 1, fontSize: 14, color: '#111' }}>{key.replace(/_/g, ' ')}</Text>
+                  <Switch value={notifPrefs[key] ?? true} onValueChange={(v) => toggleNotifPref(key, v)} />
+                </View>
+              ))}</ScrollView>
+            ) : <ActivityIndicator size="large" color="#111" style={{ paddingVertical: 40 }} />}
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+}
