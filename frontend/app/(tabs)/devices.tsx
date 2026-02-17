@@ -282,13 +282,13 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   useEffect(() => { if (user?.is_prescriber) fetchPrescriptions(); else setLoading(false); }, [fetchPrescriptions, user]);
 
   const activatePrescriber = async () => {
-    if (!actCode.trim()) return Alert.alert('Erreur', 'Entrez un code prescripteur');
-    setActivating(true);
+    if (!actCode.trim()) { setPrescError('Entrez un code prescripteur'); return; }
+    setActivating(true); setPrescError('');
     try {
       await apiFetch('/api/guardian/activate-prescriber', { method: 'POST', body: JSON.stringify({ code: actCode.trim().toUpperCase() }) }, token);
       Alert.alert('Active', 'Votre espace prescripteur est maintenant actif !');
       setActCode(''); await refreshUser();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivating(false); }
+    } catch (e: any) { setPrescError(e.message || 'Code invalide'); } finally { setActivating(false); }
   };
 
   const submitPrescription = async () => {
