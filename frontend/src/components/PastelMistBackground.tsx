@@ -258,27 +258,42 @@ export function PastelMistBackground() {
       .glass-pill-light { background: rgba(255,255,255,.62); border: 1px solid rgba(0,0,0,.10); color: rgba(0,0,0,.62); }
 
       /* ── TAB BAR — floating glass, elevated ── */
-      [role="tablist"] {
+      [role="tablist"],
+      div[role="tablist"],
+      nav[role="tablist"] {
         position: fixed !important; bottom: 12px !important; left: 14px !important; right: 14px !important;
         z-index: 99999 !important; height: 58px !important; padding: 0 !important;
         border-radius: 22px !important;
-        background: rgba(40,40,50,0.65) !important;
+        background: rgba(40,40,50,0.7) !important;
         backdrop-filter: blur(20px) saturate(150%) !important; -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.35) !important;
         border-top: none !important;
         display: flex !important; align-items: center !important; justify-content: space-around !important;
+        width: auto !important;
+        margin: 0 !important;
       }
-      /* Hide tab labels, only show icons */
-      [role="tablist"] [role="tab"] span[style*="font-size"],
-      [role="tablist"] [role="tab"] > div > div:last-child {
-        display: none !important;
+      /* Hide ALL tab labels */
+      [role="tablist"] span,
+      [role="tablist"] [role="tab"] span:not(:first-child) {
+        font-size: 0 !important; line-height: 0 !important; height: 0 !important; overflow: hidden !important;
       }
       [role="tablist"] [role="tab"] {
         flex: 1 !important; display: flex !important; align-items: center !important; justify-content: center !important;
         padding: 0 !important; min-height: 58px !important;
+        background: transparent !important;
+        border: none !important;
+      }
+      /* Icon color override */
+      [role="tablist"] [role="tab"] svg {
+        color: rgba(255,255,255,0.5) !important;
+      }
+      [role="tablist"] [role="tab"][aria-selected="true"] svg {
+        color: #FFF !important;
       }
       [role="tablist"] ~ div, [role="tabpanel"] { padding-bottom: 84px !important; }
+      /* Remove any white padding at top */
+      [role="tabpanel"] > div:first-child { padding-top: 0 !important; }
 
       /* ── GUARDIANS STACK ── */
       .chx-guard-stack { display: flex; align-items: center; }
