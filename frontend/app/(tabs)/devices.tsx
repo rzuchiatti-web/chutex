@@ -522,6 +522,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         </TouchableOpacity>
       </View>
 
+      </View>{/* End white rounded container */}
+
       {/* Prescriber Detail Modal */}
       <Modal visible={showPrescModal} transparent animationType="fade" onRequestClose={() => setShowPrescModal(false)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
