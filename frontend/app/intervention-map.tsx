@@ -155,7 +155,7 @@ export default function InterventionMapScreen() {
       {/* BOTTOM SHEET */}
       <div data-testid="bottom-sheet" style={{
         position: 'absolute', left: 0, right: 0, bottom: 0,
-        height: `${sheetHeight}%`, minHeight: 60,
+        height: sheetPx, minHeight: 70,
         borderTopLeftRadius: 28, borderTopRightRadius: 28,
         display: 'flex', flexDirection: 'column', zIndex: 20,
       } as any}>
