@@ -206,12 +206,8 @@ export default function InterventionMapScreen() {
         {/* Sheet content — scrollable */}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 30px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* Status + ETA */}
+          {/* ETA */}
           <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.35)', marginBottom: 8 } as any}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Intervention en cours</span>
-            </div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Heure d'arrivee</div>
             <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>{etaTime ? `${etaTime.getHours()}h${String(etaTime.getMinutes()).padStart(2, '0')}` : '--:--'}</div>
             {distKm && <div style={{ display: 'inline-flex', padding: '4px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginTop: 4 } as any}><span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{distKm} km restant</span></div>}
