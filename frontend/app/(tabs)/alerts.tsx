@@ -266,17 +266,33 @@ export default function AlertsScreen() {
             </div>
           )}
 
-          {/* Intervention info + button to see intervenant */}
+          {/* Intervention info — fiche intervenant (not clickable) */}
           {(selectedAlert.intervener_info || selectedAlert.care_provider) && (
-            <div onClick={() => { if (selectedAlert.intervention?.id) router.push({ pathname: '/intervention-map', params: { interventionId: selectedAlert.intervention.id } }); }} style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Intervenant</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{selectedAlert.intervener_info?.name || selectedAlert.care_provider || 'Intervenant'}</div>
-                {selectedAlert.incident_state && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{STATE_LABEL[selectedAlert.incident_state] || selectedAlert.incident_state}</div>}
+            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Fiche intervenant</div>
+                {selectedAlert.intervener_info?.structure && (
+                  <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span>
+                  </div>
+                )}
               </div>
-              <div style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 999, background: selectedAlert.intervener_info?.structure ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{(selectedAlert.intervener_info?.name || selectedAlert.care_provider || '?').charAt(0)}</span>
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{selectedAlert.intervener_info?.name || selectedAlert.care_provider || 'Intervenant'}</div>
+                  {selectedAlert.intervener_info?.structure && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{selectedAlert.intervener_info.structure}</div>}
+                  {selectedAlert.incident_state && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{STATE_LABEL[selectedAlert.incident_state] || selectedAlert.incident_state}</div>}
+                </div>
               </div>
+              {selectedAlert.intervener_info?.phone && (
+                <div onClick={() => window.location.href = `tel:${selectedAlert.intervener_info.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', marginTop: 10, cursor: 'pointer' } as any}>
+                  <i className="ri-phone-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{selectedAlert.intervener_info.phone}</span>
+                </div>
+              )}
             </div>
           )}
 
