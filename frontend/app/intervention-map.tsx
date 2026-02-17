@@ -122,51 +122,60 @@ export default function InterventionMapScreen() {
         </div>
       </div>
 
-      {/* BOTTOM SHEET — draggable */}
-      <div style={{
-        position: 'relative', height: `${sheetHeight}%`, minHeight: 180, maxHeight: '90%',
-        borderTopLeftRadius: 28, borderTopRightRadius: 28, overflow: 'hidden',
-        transition: 'height 0.3s cubic-bezier(.22,.61,.36,1)',
+      {/* BOTTOM SHEET — draggable, absolute positioned */}
+      <div data-testid="bottom-sheet" style={{
+        position: 'absolute', left: 0, right: 0, bottom: 0, height: `${sheetHeight}%`,
+        minHeight: 140, maxHeight: '92%',
+        borderTopLeftRadius: 28, borderTopRightRadius: 28,
+        display: 'flex', flexDirection: 'column',
+        zIndex: 20,
       } as any}>
-        <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
+        <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, borderTopLeftRadius: 28, borderTopRightRadius: 28 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1, borderTopLeftRadius: 28, borderTopRightRadius: 28 } as any} />
 
-        {/* Drag handle — real touch/mouse drag */}
-        <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', padding: '10px 0 4px', cursor: 'grab', touchAction: 'none' } as any}
+        {/* Drag handle */}
+        <div data-testid="drag-handle" style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', padding: '12px 0 6px', cursor: 'ns-resize', touchAction: 'none', flexShrink: 0 } as any}
           onMouseDown={(e: any) => {
-            const parent = e.currentTarget.parentElement;
-            if (!parent) return;
+            e.preventDefault();
             const startY = e.clientY;
-            const startH = parent.offsetHeight;
+            const startPct = sheetHeight;
             const pageH = window.innerHeight;
+            document.body.style.cursor = 'ns-resize';
+            document.body.style.userSelect = 'none';
             const onMove = (ev: any) => {
               const dy = startY - ev.clientY;
-              const newH = Math.max(120, Math.min(pageH * 0.92, startH + dy));
-              const pct = Math.round((newH / pageH) * 100);
-              setSheetHeight(pct);
+              const deltaPct = (dy / pageH) * 100;
+              const newPct = Math.max(15, Math.min(92, startPct + deltaPct));
+              setSheetHeight(Math.round(newPct));
             };
-            const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+            const onUp = () => {
+              document.body.style.cursor = '';
+              document.body.style.userSelect = '';
+              document.removeEventListener('mousemove', onMove);
+              document.removeEventListener('mouseup', onUp);
+            };
             document.addEventListener('mousemove', onMove);
             document.addEventListener('mouseup', onUp);
           }}
           onTouchStart={(e: any) => {
-            const parent = e.currentTarget.parentElement;
-            if (!parent) return;
             const startY = e.touches[0].clientY;
-            const startH = parent.offsetHeight;
+            const startPct = sheetHeight;
             const pageH = window.innerHeight;
             const onMove = (ev: any) => {
               ev.preventDefault();
               const dy = startY - ev.touches[0].clientY;
-              const newH = Math.max(120, Math.min(pageH * 0.92, startH + dy));
-              const pct = Math.round((newH / pageH) * 100);
-              setSheetHeight(pct);
+              const deltaPct = (dy / pageH) * 100;
+              const newPct = Math.max(15, Math.min(92, startPct + deltaPct));
+              setSheetHeight(Math.round(newPct));
             };
-            const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
+            const onUp = () => {
+              document.removeEventListener('touchmove', onMove);
+              document.removeEventListener('touchend', onUp);
+            };
             document.addEventListener('touchmove', onMove, { passive: false });
             document.addEventListener('touchend', onUp);
           }}>
-          <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.3)' } as any} />
+          <div style={{ width: 44, height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.35)' } as any} />
         </div>
 
         {/* Content */}
