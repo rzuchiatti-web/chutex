@@ -292,13 +292,13 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   useEffect(() => { fetchIvs(); const t = setInterval(fetchIvs, 15000); return () => clearInterval(t); }, []);
 
   const activateCare = async () => {
-    if (!ivCode.trim()) return Alert.alert('Erreur', 'Entrez un code intervenant');
-    setActivating(true);
+    if (!ivCode.trim()) { setCareError('Entrez un code intervenant'); return; }
+    setActivating(true); setCareError('');
     try {
       await apiFetch('/api/guardian/activate-intervention-provider', { method: 'POST', body: JSON.stringify({ code: ivCode.trim().toUpperCase() }) }, token);
       Alert.alert('Active', 'Vous etes maintenant intervenant Care.');
       setIvCode(''); await refreshUser();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivating(false); }
+    } catch (e: any) { setCareError(e.message || 'Code invalide'); } finally { setActivating(false); }
   };
 
   const deactivateCare = async () => {
