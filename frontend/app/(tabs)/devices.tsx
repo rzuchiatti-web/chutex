@@ -420,7 +420,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
     <ScrollView contentContainerStyle={[d.sc, { paddingBottom: 80, paddingHorizontal: 0 }]} showsVerticalScrollIndicator={false}>
       {/* Header orange avec toggle DANS le header */}
       {Platform.OS === 'web' ? (
-        <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', overflow: 'hidden' } as any}>
+        <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', overflow: 'hidden', borderBottomLeftRadius: 28, borderBottomRightRadius: 28 } as any}>
           <img src={BG_HEADER_P} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
           <div style={{ position: 'relative', zIndex: 2 } as any}>
