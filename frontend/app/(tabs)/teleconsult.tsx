@@ -372,14 +372,54 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
               </div>
             </>
           ) : (
-            /* Code input after slide */
+            /* Code input — 6 circles PIN style */
             <div className="anim-up" style={{ width: '100%', textAlign: 'center' } as any}>
-              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#FFF', margin: '0 0 8px' }}>Code d'activation</h2>
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', margin: '0 0 24px', lineHeight: 1.5 } as any}>Entrez le code fourni par votre structure pour activer votre espace intervenant.</p>
-              <input value={ivCode} onChange={(e: any) => setIvCode(e.target.value)} placeholder="CODE INTERVENANT" autoFocus
-                style={{ width: '100%', fontSize: 18, fontWeight: 700, padding: '16px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.08)', color: '#FFF', textAlign: 'center', letterSpacing: 4, outline: 'none', fontFamily: 'inherit', marginBottom: 16, backdropFilter: 'blur(8px)' } as any} />
-              <button onClick={() => activateCare()} disabled={activating} className="btn-scan" style={{ width: '100%', padding: 16, fontSize: 15, fontWeight: 600, fontFamily: 'inherit', opacity: activating ? 0.6 : 1 } as any}>
-                {activating ? 'Activation...' : 'Activer mon espace'}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 20, backdropFilter: 'blur(8px)' } as any}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' } as any} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Inactif</span>
+              </div>
+              <h2 style={{ fontSize: 26, fontWeight: 800, color: '#FFF', margin: '0 0 8px', fontStyle: 'italic' }}>Activation</h2>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: '0 0 28px', fontStyle: 'italic' } as any}>Renseigner votre code.</p>
+
+              {/* 6 digit circles */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 32 } as any}>
+                {[0,1,2,3,4,5].map(i => (
+                  <input key={i} id={`pin-${i}`} type="text" inputMode="numeric" maxLength={1}
+                    value={ivCode[i] || ''}
+                    onChange={(e: any) => {
+                      const v = e.target.value.replace(/[^0-9]/g, '');
+                      const arr = ivCode.split('');
+                      arr[i] = v;
+                      const newCode = arr.join('').slice(0, 6);
+                      setIvCode(newCode);
+                      if (v && i < 5) { const next = document.getElementById(`pin-${i+1}`); if (next) (next as HTMLInputElement).focus(); }
+                    }}
+                    onKeyDown={(e: any) => {
+                      if (e.key === 'Backspace' && !ivCode[i] && i > 0) { const prev = document.getElementById(`pin-${i-1}`); if (prev) (prev as HTMLInputElement).focus(); }
+                    }}
+                    style={{
+                      width: 48, height: 48, borderRadius: '50%', textAlign: 'center',
+                      fontSize: 20, fontWeight: 700, color: '#FFF',
+                      background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)',
+                      backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+                      outline: 'none', caretColor: '#FFF', fontFamily: 'inherit',
+                      transition: 'border-color 0.2s, box-shadow 0.2s',
+                    } as any}
+                    onFocus={(e: any) => { e.target.style.borderColor = 'rgba(255,255,255,0.5)'; e.target.style.boxShadow = '0 0 12px rgba(255,255,255,0.15)'; }}
+                    onBlur={(e: any) => { e.target.style.borderColor = 'rgba(255,255,255,0.18)'; e.target.style.boxShadow = 'none'; }}
+                  />
+                ))}
+              </div>
+
+              <button onClick={() => activateCare()} disabled={activating || ivCode.length < 6}
+                style={{
+                  width: '100%', padding: '16px 32px', borderRadius: 999, border: 'none', cursor: 'pointer',
+                  background: '#FFF', color: '#111', fontSize: 16, fontWeight: 700, fontFamily: 'inherit',
+                  opacity: (activating || ivCode.length < 6) ? 0.5 : 1,
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+                  transition: 'all 0.25s ease',
+                } as any}>
+                {activating ? 'Activation...' : 'Confirmer le code'}
               </button>
               <button onClick={() => setSlideActivated(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', marginTop: 16, padding: 8 } as any}>Retour</button>
             </div>
