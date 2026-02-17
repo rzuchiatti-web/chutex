@@ -326,6 +326,118 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
   if (loading) return <View style={d.center}><ActivityIndicator size="large" color="#D4845A" /></View>;
 
+  /* ─── EXPLAINER: Programme recompenses (early return) ─── */
+  if (showRewardsExplainer && Platform.OS === 'web') {
+    const BG_REWARD_EX = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/4tk4fqvn_background_r%C3%A9compense.jpg';
+    return (
+      <div data-testid="programme-recompenses-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_REWARD_EX} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
+
+        {/* Top bar */}
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, padding: '16px 16px 0', zIndex: 10 } as any}>
+          <div data-testid="back-from-rewards-explainer" onClick={() => setShowRewardsExplainer(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
+          </div>
+          <span style={{ fontSize: 17, fontWeight: 700, color: '#FFF' }}>Programme de recompenses</span>
+        </div>
+
+        {/* Content */}
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+
+          {/* Intro */}
+          <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+            <div style={{ width: 64, height: 64, borderRadius: 999, background: 'rgba(255,215,0,0.15)', border: '1px solid rgba(255,215,0,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+              <i className="ri-trophy-line" style={{ fontSize: 32, color: '#FFD700' }} />
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Challenges Prescripteurs</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, maxWidth: 400, margin: '0 auto' }}>
+              Chaque mois, les prescripteurs les plus actifs sont recompenses. Prescrivez des abonnements CARE WATCH et gagnez des primes.
+            </div>
+          </div>
+
+          {/* How it works */}
+          <div style={{ marginBottom: 28 } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Comment ca fonctionne</div>
+            {[
+              { icon: 'ri-file-text-line', title: 'Prescrivez un abonnement', desc: 'Creez une prescription pour un beneficiaire. Une fois que celui-ci souscrit, la prescription est validee et comptabilisee.', color: '#D4845A' },
+              { icon: 'ri-bar-chart-box-line', title: 'Montez dans le classement', desc: 'Chaque prescription validee vous fait monter dans le classement mensuel. Plus vous prescrivez, plus vous montez.', color: '#3B82F6' },
+              { icon: 'ri-trophy-line', title: 'Gagnez des primes', desc: 'A la fin du mois, les 3 meilleurs prescripteurs recoivent une prime automatiquement versee. Les montants varient chaque mois.', color: '#FFD700' },
+              { icon: 'ri-refresh-line', title: 'Recommencez', desc: 'Le classement est reinitialise chaque 1er du mois. Chaque mois est une nouvelle chance de gagner.', color: '#10B981' },
+            ].map((s, i) => (
+              <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 16, alignItems: 'flex-start' } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: `${s.color}25`, border: `1px solid ${s.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className={s.icon} style={{ fontSize: 22, color: s.color }} />
+                </div>
+                <div style={{ flex: 1, paddingTop: 2 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{s.title}</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>{s.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Prizes */}
+          <div style={{ marginBottom: 28 } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Grille des primes</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 } as any}>
+              {[
+                { pos: '1er', amount: '100 EUR', color: '#FFD700', icon: 'ri-medal-line' },
+                { pos: '2eme', amount: '70 EUR', color: '#C0C0C0', icon: 'ri-medal-line' },
+                { pos: '3eme', amount: '30 EUR', color: '#CD7F32', icon: 'ri-award-line' },
+              ].map((p, i) => (
+                <div key={i} style={{ padding: '18px 12px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
+                  <div style={{ width: 44, height: 44, borderRadius: 999, background: `${p.color}30`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 } as any}>
+                    <i className={p.icon} style={{ fontSize: 22, color: p.color }} />
+                  </div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{p.pos}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: p.color }}>{p.amount}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Rules */}
+          <div style={{ marginBottom: 28 } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Regles du programme</div>
+            {[
+              'Seules les prescriptions validees (abonnement actif) sont comptabilisees.',
+              'Le classement est reinitialise le 1er de chaque mois a 00h00.',
+              'Les primes sont versees dans les 5 jours ouvrables suivant la fin du mois.',
+              'En cas d\'egalite, le prescripteur ayant atteint le nombre en premier est favorise.',
+              'Le programme est reserve aux prescripteurs actifs avec un code structure valide.',
+              'Les montants des primes peuvent varier chaque mois selon les conditions du programme.',
+            ].map((rule, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 } as any}>
+                <div style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
+                  <i className="ri-check-line" style={{ fontSize: 12, color: '#10B981' }} />
+                </div>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>{rule}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* FAQ */}
+          <div style={{ marginBottom: 20 } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Questions frequentes</div>
+            {[
+              { q: 'Comment activer mon espace prescripteur ?', a: 'Vous devez entrer le code a 6 chiffres fourni par votre structure. Ce code est unique et vous est attribue lors de votre inscription.' },
+              { q: 'Quand serai-je paye ?', a: 'Les primes sont versees debut du mois suivant. Les commissions sur les prescriptions sont payees le 1er de chaque mois.' },
+              { q: 'Le classement est-il anonyme ?', a: 'Oui, vous pouvez activer le mode anonyme depuis la page de classement. Les autres prescripteurs ne verront que votre initiale.' },
+              { q: 'Puis-je gagner chaque mois ?', a: 'Absolument. Le classement est reinitialise chaque mois, donc chaque mois est une nouvelle opportunite.' },
+            ].map((faq, i) => (
+              <div key={i} style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 6 }}>{faq.q}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{faq.a}</div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
   /* ─── INACTIF: plein écran orange ─── */
   if (!user?.is_prescriber && Platform.OS === 'web') {
     return (
