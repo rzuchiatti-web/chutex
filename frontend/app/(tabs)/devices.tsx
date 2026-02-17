@@ -370,6 +370,14 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               </div>
               <h2 style={{ fontSize: 26, fontWeight: 800, color: '#FFF', margin: '0 0 8px' }}>Activation</h2>
               <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: '0 0 28px' } as any}>Renseigner votre code.</p>
+
+              {/* Glass red error */}
+              {prescError && (
+                <div className="anim-up" style={{ width: '100%', padding: '12px 18px', borderRadius: 999, background: 'rgba(239,68,68,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(239,68,68,0.25)', marginBottom: 20, textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#FCA5A5' } as any} onClick={() => setPrescError('')}>
+                  {prescError}
+                </div>
+              )}
+
               <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 32 } as any}>
                 {[0,1,2,3,4,5].map(i => (
                   <input key={i} id={`ppin-${i}`} type="text" inputMode="numeric" maxLength={1}
