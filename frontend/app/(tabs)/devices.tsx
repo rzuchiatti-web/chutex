@@ -459,7 +459,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
       )}
 
       {/* White container for cards */}
-      <View style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20 }}>
+      <View style={{ padding: 16, paddingTop: 12 }}>
 
       {/* Récompenses card — dark satin background */}
       {Platform.OS === 'web' ? (
@@ -573,10 +573,10 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
       {/* Prescriber Detail Modal — GLASS DARK */}
       <Modal visible={showPrescModal} transparent animationType="fade" onRequestClose={() => setShowPrescModal(false)}>
-        <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.5)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
           <View style={{
             borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%',
-            backgroundColor: 'rgba(30,30,40,0.85)',
+            backgroundColor: '#111',
             ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)', borderTop: '1px solid rgba(255,255,255,0.1)' } : {}),
           } as any}>
             {/* Header */}
@@ -637,8 +637,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
       {/* New Prescription Form Modal — GLASS DARK */}
       <Modal visible={showForm} transparent animationType="slide" onRequestClose={() => setShowForm(false)}>
-        <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
-          <View style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '90%', backgroundColor: 'rgba(30,30,40,0.85)', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)', borderTop: '1px solid rgba(255,255,255,0.1)' } : {}) } as any}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.5)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
+          <View style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '90%', backgroundColor: '#111', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)', borderTop: '1px solid rgba(255,255,255,0.1)' } : {}) } as any}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>Nouvelle prescription</Text>
               <TouchableOpacity onPress={() => setShowForm(false)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' }}><Icon name="close" size={20} color="#FFF" /></TouchableOpacity>
@@ -676,8 +676,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
       {/* Selected prescription detail — GLASS DARK */}
       {selectedPresc && (
         <Modal visible={!!selectedPresc} transparent animationType="fade" onRequestClose={() => setSelectedPresc(null)}>
-          <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
-            <View style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '80%', backgroundColor: 'rgba(30,30,40,0.85)', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)', borderTop: '1px solid rgba(255,255,255,0.1)' } : {}) } as any}>
+          <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.5)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
+            <View style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '80%', backgroundColor: '#111', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)', borderTop: '1px solid rgba(255,255,255,0.1)' } : {}) } as any}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{selectedPresc.beneficiary_name}</Text>
                 <TouchableOpacity onPress={() => setSelectedPresc(null)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' }}><Icon name="close" size={20} color="#FFF" /></TouchableOpacity>

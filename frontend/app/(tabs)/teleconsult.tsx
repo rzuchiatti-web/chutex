@@ -493,7 +493,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       )}
 
       {/* White rounded container for cards */}
-      <View style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20, minHeight: 300 }}>
+      <View style={{ padding: 16, paddingTop: 12 }}>
 
       {/* Interventions List with background images — INSIDE white container */}
       {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => {
@@ -556,10 +556,10 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
       {/* Care Detail Modal — GLASS DARK */}
       <Modal visible={showCareModal} transparent animationType="fade" onRequestClose={() => setShowCareModal(false)}>
-        <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.5)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
           <View style={{
             borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%',
-            backgroundColor: 'rgba(30,30,40,0.85)',
+            backgroundColor: '#111',
             ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)', borderTop: '1px solid rgba(255,255,255,0.1)' } : {}),
           } as any}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
