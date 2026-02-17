@@ -490,36 +490,56 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         </View>
       </Modal>
 
-      {/* Interventions List filtered by tab */}
-      {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => (
-        <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
-          <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: statusColor(iv.status), ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {}) }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 24, backgroundColor: statusColor(iv.status) + '15', justifyContent: 'center', alignItems: 'center' }}>
-                <Icon name={iv.status === 'completed' ? 'checkmark-circle' : iv.status === 'pending_acceptance' ? 'time' : 'navigate'} size={22} color={statusColor(iv.status)} />
+      {/* Interventions List with background images */}
+      {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => {
+        const isActive = ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status);
+        const bgImg = isActive ? BG_GREEN : BG_RED;
+        return Platform.OS === 'web' ? (
+          <div key={iv.id} data-testid={`iv-${iv.id}`} onClick={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}
+            style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 110, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.25s ease, box-shadow 0.25s ease', boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 32px rgba(0,0,0,.22)'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,.15)'; }}>
+            <img src={bgImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
+            <div style={{ position: 'relative', zIndex: 2 } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 } as any}>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{iv.beneficiary_name}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>Le {new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
+                {iv.distance_km && (
+                  <div style={{ background: 'rgba(255,255,255,.2)', borderRadius: 12, padding: '6px 12px', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,.2)' } as any}>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{iv.distance_km} Km</span>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{iv.alert_message || 'Intervention'}</div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.18)', borderRadius: 999, padding: '8px 16px', border: '1px solid rgba(255,255,255,.2)', backdropFilter: 'blur(6px)' } as any}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
+            <View style={{ borderRadius: 20, overflow: 'hidden', padding: 18, marginBottom: 12, backgroundColor: isActive ? '#0a3a2a' : '#5a1020' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                <View><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.beneficiary_name}</Text><Text style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{new Date(iv.created_at).toLocaleString('fr-FR')}</Text></View>
+                {iv.distance_km && <View style={{ backgroundColor: 'rgba(255,255,255,.2)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}><Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>{iv.distance_km} Km</Text></View>}
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>{iv.beneficiary_name}</Text>
-                <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{iv.alert_message || iv.notes || 'Intervention'}</Text>
-              </View>
-              {iv.distance_km && (
-                <View style={{ backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, alignItems: 'center' }}>
-                  <Text style={{ fontSize: 16, fontWeight: '900', color: statusColor(iv.status) }}>{iv.distance_km}</Text>
-                  <Text style={{ fontSize: 8, fontWeight: '700', color: '#6B7280', letterSpacing: 0.5 }}>KM</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#FFF' }}>{iv.alert_message || 'Intervention'}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,.18)', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 16 }}>
+                  <Icon name="heart-outline" size={16} color="#FFF" />
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Consulter</Text>
                 </View>
-              )}
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 10, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
-              <Icon name="time-outline" size={14} color="#888" />
-              <Text style={{ fontSize: 12, color: '#6B7280', flex: 1 }}>{new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
-              <View style={{ backgroundColor: statusColor(iv.status) + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
-                <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor(iv.status), letterSpacing: 0.3 }}>{statusLabel(iv.status).toUpperCase()}</Text>
               </View>
-              <Icon name="chevron-forward" size={16} color="#888" />
             </View>
-          </View>
-        </TouchableOpacity>
-      )) : (
+          </TouchableOpacity>
+        );
+      }) : (
         <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 40, alignItems: 'center', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } : {}) }}>
           <Icon name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
           <Text style={{ fontSize: 15, fontWeight: '700', color: '#6B7280', marginTop: 12 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
