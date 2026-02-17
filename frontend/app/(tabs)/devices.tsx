@@ -417,7 +417,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
   /* ─── ACTIF: page prescriptions avec header orange ─── */
   return (
-    <ScrollView contentContainerStyle={[d.sc, { paddingBottom: 80, paddingHorizontal: 0 }]} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#0b0f16' }} contentContainerStyle={[d.sc, { paddingBottom: 80, paddingHorizontal: 0 }]} showsVerticalScrollIndicator={false}>
       {/* Header orange avec toggle DANS le header */}
       {Platform.OS === 'web' ? (
         <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', overflow: 'hidden', borderBottomLeftRadius: 28, borderBottomRightRadius: 28 } as any}>
