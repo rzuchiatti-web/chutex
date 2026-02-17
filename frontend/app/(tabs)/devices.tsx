@@ -441,33 +441,72 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           <Text style={{ fontSize: 14, fontWeight: '700', color: prescTab === 'validated' ? '#111' : '#888' }}>Cloturees</Text>
         </TouchableOpacity>
       </View>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(0,0,0,0.08)' }} />
-          </View>
-          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => Linking.openURL('https://chutex-innovation.com')}>
-            <Text style={{ fontSize: 13, color: Colors.primary, fontWeight: '600' }}>Devenir prescripteur sur chutex-innovation.com</Text>
-            <Icon name="open-outline" size={14} color={Colors.primary} />
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <>
-          {/* Prescripteur card - clean, green */}
-          <TouchableOpacity onPress={() => setShowPrescModal(true)} activeOpacity={0.7}>
-            <View style={{ backgroundColor: 'rgba(76,175,80,0.06)', borderRadius: 20, padding: 20, marginBottom: 12, borderWidth: 1.5, borderColor: 'rgba(76,175,80,0.15)' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(76,175,80,0.12)', justifyContent: 'center', alignItems: 'center' }}>
-                  <Icon name="medical" size={24} color="#4CAF50" />
+
+      {/* Prescription cards with orange background */}
+      <View style={{ paddingHorizontal: 16 }}>
+        {displayedPresc.length > 0 ? displayedPresc.map((p: any) => {
+          const isValidated = p.status === 'subscribed';
+          return Platform.OS === 'web' ? (
+            <div key={p.id} onClick={() => { setSelectedPresc(p); setShowPrescModal(true); }}
+              style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px', marginBottom: 12, cursor: 'pointer', minHeight: 90, boxShadow: '0 8px 24px rgba(0,0,0,.12)', transition: 'transform 0.25s ease' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+              <img src={isValidated ? BG_GREEN_P : BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} />
+              <div style={{ position: 'relative', zIndex: 2 } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
+                  <div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{p.beneficiary_name}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{p.subscription_type === 'teleassistance' ? 'Abonnement teleassistance' : `Abonnement ${p.subscription_type || 'Standard'}`}</div>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,.2)', borderRadius: 12, padding: '6px 12px', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,.2)' } as any}>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>+{p.commission || 25}EUR</span>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{isValidated ? 'Valide' : 'En attente'}</div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.18)', borderRadius: 999, padding: '8px 16px', border: '1px solid rgba(255,255,255,.2)' } as any}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <TouchableOpacity key={p.id} onPress={() => { setSelectedPresc(p); setShowPrescModal(true); }}>
+              <View style={{ borderRadius: 20, overflow: 'hidden', padding: 16, marginBottom: 12, backgroundColor: isValidated ? '#0a3a2a' : '#5a2a0a' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <View><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{p.beneficiary_name}</Text><Text style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{p.subscription_type || 'Standard'}</Text></View>
+                  <View style={{ backgroundColor: 'rgba(255,255,255,.2)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}><Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>+{p.commission || 25}EUR</Text></View>
                 </View>
-                <View style={{ flex: 1 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Text style={{ fontSize: 17, fontWeight: '800', color: '#111827' }}>Prescripteur</Text>
-                    <View style={{ backgroundColor: '#10B981', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
-                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
-                    </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#FFF' }}>{isValidated ? 'Valide' : 'En attente'}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,.18)', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 16 }}>
+                    <Icon name="heart-outline" size={16} color="#FFF" />
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Consulter</Text>
                   </View>
-                  <Text style={{ fontSize: 12, color: '#555', marginTop: 3 }}>{user.prescriber_structure}</Text>
                 </View>
-                <Icon name="chevron-forward" size={18} color="#4CAF50" />
               </View>
+            </TouchableOpacity>
+          );
+        }) : (
+          <View style={{ alignItems: 'center', padding: 40 }}>
+            <Icon name="document-text-outline" size={32} color="#9CA3AF" />
+            <Text style={{ fontSize: 14, color: '#6B7280', marginTop: 12 }}>Aucune prescription</Text>
+          </View>
+        )}
+      </View>
+
+      {/* New prescription button */}
+      <View style={{ paddingHorizontal: 16, marginTop: 8 }}>
+        <TouchableOpacity onPress={() => setShowForm(true)} style={{
+          backgroundColor: '#111', borderRadius: 999, paddingVertical: 16, flexDirection: 'row',
+          alignItems: 'center', justifyContent: 'center', gap: 10,
+        }}>
+          <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '700' }}>Nouvelle prescription</Text>
+          <Icon name="heart-outline" size={18} color="#FFF" />
+        </TouchableOpacity>
+      </View>
             </View>
           </TouchableOpacity>
 
