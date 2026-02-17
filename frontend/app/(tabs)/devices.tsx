@@ -508,7 +508,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         {displayedPresc.length > 0 ? displayedPresc.map((p: any) => {
           const isValidated = p.status === 'subscribed';
           return Platform.OS === 'web' ? (
-            <div key={p.id} onClick={() => { setSelectedPresc(p); setShowPrescModal(true); }}
+            <div key={p.id} onClick={() => { setSelectedPresc(p); }}
               style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px', marginBottom: 12, cursor: 'pointer', minHeight: 90, boxShadow: '0 8px 24px rgba(0,0,0,.12)', transition: 'transform 0.25s ease' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
