@@ -495,6 +495,8 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       {/* White rounded container for cards */}
       <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20, minHeight: 300 }}>
 
+      </View>{/* End white container */}
+
       {/* Care Detail Modal - violet theme */}
       <Modal visible={showCareModal} transparent animationType="fade" onRequestClose={() => setShowCareModal(false)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
