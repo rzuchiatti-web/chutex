@@ -130,9 +130,9 @@ function DeviceManagement({ token }: { token: string }) {
                       <i className="ri-delete-bin-line" style={{ fontSize: 15, color: '#EF4444' }} />
                     </div>
                   )}
-                  {/* Status pill — top-center */}
+                  {/* Status pill — top-right */}
                   {isAssociated && (
-                    <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: realConnected ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)', border: `1px solid ${realConnected ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}`, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}>
+                    <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: realConnected ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)', border: `1px solid ${realConnected ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}`, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}>
                       <span style={{ width: 6, height: 6, borderRadius: '50%', background: realConnected ? '#10B981' : 'rgba(255,255,255,0.3)' } as any} />
                       <span style={{ fontSize: 10, fontWeight: 600, color: realConnected ? '#10B981' : 'rgba(255,255,255,0.5)' }}>Connecte</span>
                     </div>
