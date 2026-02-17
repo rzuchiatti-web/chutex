@@ -82,7 +82,7 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
         <div style={{ position: 'relative', padding: '20px 20px 16px', zIndex: 10, textAlign: 'center' } as any}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 12 } as any}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>MEDECIN DISPONIBLE 24/7</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>Medecin disponible 24/7</span>
           </div>
           <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Teleconsultation</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>Questionnaire pre-consultation</div>
