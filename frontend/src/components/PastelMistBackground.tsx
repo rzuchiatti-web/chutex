@@ -257,39 +257,45 @@ export function PastelMistBackground() {
       .glass-pill-dark { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.72); }
       .glass-pill-light { background: rgba(255,255,255,.62); border: 1px solid rgba(0,0,0,.10); color: rgba(0,0,0,.62); }
 
-      /* ── TAB BAR — floating glass, elevated ── */
+      /* ── TAB BAR — floating glass pill, very round ── */
       [role="tablist"],
       div[role="tablist"],
       nav[role="tablist"] {
-        position: fixed !important; bottom: 12px !important; left: 14px !important; right: 14px !important;
-        z-index: 99999 !important; height: 58px !important; padding: 0 !important;
-        border-radius: 22px !important;
-        background: rgba(40,40,50,0.7) !important;
-        backdrop-filter: blur(20px) saturate(150%) !important; -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
-        border: 1px solid rgba(255,255,255,0.12) !important;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.35) !important;
+        position: fixed !important; bottom: 14px !important; left: 50% !important; right: auto !important;
+        transform: translateX(-50%) !important;
+        width: auto !important; min-width: 280px !important; max-width: 340px !important;
+        z-index: 99999 !important; height: 54px !important; padding: 6px 8px !important;
+        border-radius: 999px !important;
+        background: rgba(120,110,140,0.35) !important;
+        backdrop-filter: blur(24px) saturate(160%) !important; -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+        border: 1px solid rgba(255,255,255,0.18) !important;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08) !important;
         border-top: none !important;
-        display: flex !important; align-items: center !important; justify-content: space-around !important;
-        width: auto !important;
+        display: flex !important; align-items: center !important; justify-content: center !important; gap: 2px !important;
         margin: 0 !important;
       }
       /* Hide ALL tab labels */
-      [role="tablist"] span,
-      [role="tablist"] [role="tab"] span:not(:first-child) {
-        font-size: 0 !important; line-height: 0 !important; height: 0 !important; overflow: hidden !important;
+      [role="tablist"] span {
+        font-size: 0 !important; line-height: 0 !important; height: 0 !important; overflow: hidden !important; display: none !important;
       }
       [role="tablist"] [role="tab"] {
-        flex: 1 !important; display: flex !important; align-items: center !important; justify-content: center !important;
-        padding: 0 !important; min-height: 58px !important;
+        flex: 0 0 auto !important; width: 44px !important; height: 44px !important;
+        display: flex !important; align-items: center !important; justify-content: center !important;
+        padding: 0 !important; border-radius: 999px !important;
         background: transparent !important;
         border: none !important;
+        transition: background 0.25s ease !important;
       }
-      /* Icon color override */
+      /* Active tab = white filled circle */
+      [role="tablist"] [role="tab"][aria-selected="true"] {
+        background: rgba(255,255,255,0.95) !important;
+      }
+      /* Icon colors */
       [role="tablist"] [role="tab"] svg {
-        color: rgba(255,255,255,0.5) !important;
+        color: rgba(255,255,255,0.85) !important; width: 22px !important; height: 22px !important;
       }
       [role="tablist"] [role="tab"][aria-selected="true"] svg {
-        color: #FFF !important;
+        color: #111 !important;
       }
       [role="tablist"] ~ div, [role="tabpanel"] { padding-bottom: 84px !important; }
       /* Remove any white padding at top */
@@ -297,8 +303,8 @@ export function PastelMistBackground() {
       /* Kill ALL page headers/titles from Expo Router */
       header[role="banner"], [data-testid*="header"], div[style*="headerTitle"] { display: none !important; }
       /* Full screen - no white borders */
-      #root, #root > div, #root > div > div, [data-testid="login-screen"] { min-height: 100dvh !important; }
-      html, body, #root { margin: 0 !important; padding: 0 !important; background: #0b0f16 !important; }
+      #root, #root > div, #root > div > div { min-height: 100dvh !important; background: transparent !important; }
+      html, body, #root { margin: 0 !important; padding: 0 !important; background: #0b0f16 !important; overflow-x: hidden !important; }
 
       /* ── GUARDIANS STACK ── */
       .chx-guard-stack { display: flex; align-items: center; }
