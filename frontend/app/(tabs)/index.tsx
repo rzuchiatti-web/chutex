@@ -243,43 +243,55 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const activeReminders = reminders.filter((r: any) => r.active);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#FFFFFF' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#111827" />} showsVerticalScrollIndicator={false}>
+    <ScrollView className={Platform.OS === 'web' ? CHX.bgClass : undefined} style={{ flex: 1, backgroundColor: CHX.bg }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96, position: 'relative', zIndex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={CHX.fg} />} showsVerticalScrollIndicator={false}>
 
-      {/* ─── HERO GRADIENT ─── */}
+      {/* ─── CHUTEX HEADER ACCOUNT ─── */}
       <HeroCard>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <TouchableOpacity testID="beneficiary-header-switch" style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={switchToGuardian}>
-            <View style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center', marginRight: 12, overflow: 'hidden', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(10px)' } : {}) }}>
-              {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 48, height: 48 }} /> : <Text style={{ fontSize: 20, fontWeight: '700', color: '#111827' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>}
+            <View style={{ width: 46, height: 46, borderRadius: 23, overflow: 'hidden', marginRight: 10, borderWidth: 2, borderColor: 'rgba(255,255,255,0.7)', ...(Platform.OS === 'web' ? { boxShadow: '0 8px 16px rgba(0,0,0,.24)' } : {}) }}>
+              {user.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 46, height: 46 }} /> : <View style={{ width: 46, height: 46, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text></View>}
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 13, color: '#6B7280', fontWeight: '500' }}>{t('beneficiary')}</Text>
-              <Text style={{ fontSize: 20, fontWeight: '700', color: '#111827' }}>{user.name}</Text>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFF' }}>{user.name}</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.9)' }}>Role : {t('beneficiary')}</Text>
             </View>
           </TouchableOpacity>
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <LanguageFlagButton />
-            <TouchableOpacity testID="notification-bell" onPress={() => setShowNotifs(!showNotifs)} style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center' }}>
-              <Icon name="notifications-outline" size={18} color="#111827" />
-              {(guardianRequests.length > 0 || activeAlerts.length > 0) && <View style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)' }} />}
-            </TouchableOpacity>
+            <IconBtn icon="notifications-outline" onPress={() => setShowNotifs(!showNotifs)} testID="notification-bell" badge={guardianRequests.length > 0 || activeAlerts.length > 0} />
+            <IconBtn icon="settings-outline" onPress={() => router.push('/(tabs)/profile')} />
           </View>
         </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <View style={{ flexDirection: 'row', gap: 6, backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 999, padding: 3, borderWidth: 1, borderColor: 'rgba(255,255,255,0.46)' }}>
+            <View style={{ backgroundColor: '#FFF', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 12 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: '#111827' }}>{t('beneficiary')}</Text>
+            </View>
+            {user.has_guardian_space && (
+              <TouchableOpacity onPress={switchToGuardian} style={{ paddingVertical: 8, paddingHorizontal: 12 }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFF' }}>{t('guardian')}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <LanguageFlagButton />
+        </View>
+      </HeroCard>
 
-        {/* Inline vitals summary */}
+      {/* ─── VITALS CARD ─── */}
+      <Card>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           {[
-            { val: vitals?.heart_rate || '--', label: 'BPM', icon: 'heart-pulse' },
-            { val: vitals?.spo2 ? `${vitals.spo2}%` : '--', label: 'SpO2', icon: 'water-outline' },
-            { val: vitals?.steps || '0', label: t('steps'), icon: 'pulse-outline' },
+            { val: vitals?.heart_rate || '--', label: 'BPM' },
+            { val: vitals?.spo2 ? `${vitals.spo2}%` : '--', label: 'SpO2' },
+            { val: vitals?.steps || '0', label: t('steps') },
           ].map((v, i) => (
-            <View key={i} style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16, padding: 12, alignItems: 'center', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(8px)' } : {}) }}>
-              <Text style={{ fontSize: 20, fontWeight: '700', color: '#111827' }}>{v.val}</Text>
-              <Text style={{ fontSize: 10, color: '#6B7280', fontWeight: '500', marginTop: 2 }}>{v.label}</Text>
+            <View key={i} style={{ flex: 1, alignItems: 'center', paddingVertical: 8, borderRightWidth: i < 2 ? 1 : 0, borderColor: CHX.border }}>
+              <Text style={{ fontSize: 22, fontWeight: '700', color: CHX.fg }}>{v.val}</Text>
+              <Text style={{ fontSize: 10, color: CHX.fgMuted, fontWeight: '600', marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 }}>{v.label}</Text>
             </View>
           ))}
         </View>
-      </HeroCard>
+      </Card>
 
       {/* ─── NOTIFICATIONS DROPDOWN ─── */}
       {showNotifs && (
