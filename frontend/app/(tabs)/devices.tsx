@@ -840,22 +840,42 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               </>
             )}
 
-            {/* All challenges */}
+            {/* All challenges — clickable to expand with top 3 */}
             <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginTop: 16, marginBottom: 10 }}>Tous les challenges</div>
-            {(rewardsData.all_history || []).map((ch: any, i: number) => (
-              <div key={i} style={{ padding: '12px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8 } as any}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{ch.month_label || ch.month}</div>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: ch.status === 'active' ? '#10B981' : 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1 }}>{ch.status === 'active' ? 'En cours' : 'Termine'}</div>
+            {(rewardsData.all_history || []).map((ch: any) => (
+              <div key={ch.month} style={{ marginBottom: 8 } as any}>
+                <div onClick={() => setExpandedChallenge(expandedChallenge === ch.month ? null : ch.month)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderRadius: expandedChallenge === ch.month ? '16px 16px 0 0' : 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', borderBottom: expandedChallenge === ch.month ? 'none' : undefined } as any}>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{ch.month_label || ch.month}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{ch.ranking?.length || 0} participant(s) · {ch.status === 'active' ? 'En cours' : 'Termine'}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: ch.status === 'active' ? '#10B981' : 'rgba(255,255,255,0.4)' }}>{ch.status === 'active' ? 'ACTIF' : `${ch.total_distributed || 0}EUR`}</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expandedChallenge === ch.month ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' } as any}><path d="M6 9l6 6 6-6"/></svg>
+                  </div>
                 </div>
-                {ch.ranking && ch.ranking.length > 0 && (
-                  <div style={{ marginTop: 8 } as any}>
-                    {ch.ranking.slice(0, 3).map((r: any, j: number) => (
-                      <div key={j} style={{ display: 'flex', justifyContent: 'space-between', paddingVertical: 3 } as any}>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>#{r.position} {r.name}</div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: r.reward > 0 ? '#10B981' : 'rgba(255,255,255,0.4)' }}>{r.reward > 0 ? `+${r.reward}EUR` : '-'}</div>
+                {/* Expanded: top 3 winners */}
+                {expandedChallenge === ch.month && ch.ranking && ch.ranking.length > 0 && (
+                  <div style={{ padding: '0 16px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderTop: 'none', borderRadius: '0 0 16px 16px' } as any}>
+                    {ch.ranking.slice(0, 5).map((r: any, j: number) => (
+                      <div key={j} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, paddingBottom: 6, borderBottom: j < Math.min(ch.ranking.length, 5) - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                          <div style={{ width: 28, height: 28, borderRadius: 999, background: j === 0 ? '#FFD700' : j === 1 ? '#C0C0C0' : j === 2 ? '#CD7F32' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                            <span style={{ fontSize: 11, fontWeight: 800, color: j < 3 ? '#111' : '#FFF' }}>#{r.position}</span>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{anonymize && r.name !== user.name ? r.name.charAt(0) + '***' : r.name}</div>
+                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{r.prescriptions_count || 0} prescriptions</div>
+                          </div>
+                        </div>
+                        <span style={{ fontSize: 15, fontWeight: 800, color: r.reward > 0 ? '#10B981' : 'rgba(255,255,255,0.3)' }}>{r.reward > 0 ? `+${r.reward}EUR` : '-'}</span>
                       </div>
                     ))}
+                  </div>
+                )}
+                {expandedChallenge === ch.month && (!ch.ranking || ch.ranking.length === 0) && (
+                  <div style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderTop: 'none', borderRadius: '0 0 16px 16px', textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Challenge en cours — classement a la fin du mois</div>
                   </div>
                 )}
               </div>
