@@ -137,39 +137,64 @@ function DeviceManagement({ token }: { token: string }) {
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{getDeviceName(device.device_type)}</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 16 }}>{getDeviceDesc(device.device_type)}</div>
 
-                  {/* Buttons */}
-                  <div style={{ display: 'flex', gap: 10 } as any}>
-                    {/* Associate / Connect button */}
-                    <div data-testid={`connect-${device.device_type}-btn`} onClick={() => {
-                      if (isVest) router.push('/vest-connect');
-                      else if (isBracelet) syncDevice('bracelet');
-                      else if (device.device_type === 'scale') router.push('/scale-detail');
-                      else syncDevice(device.device_type);
-                    }} style={{
-                      flex: 1, padding: '13px 16px', borderRadius: 999, cursor: needsSub ? 'not-allowed' : 'pointer',
-                      background: realConnected ? 'rgba(16,185,129,0.15)' : '#FFF',
-                      color: realConnected ? '#10B981' : '#111',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                      fontSize: 14, fontWeight: 700, transition: 'all 0.25s',
-                      opacity: needsSub ? 0.4 : 1,
-                    } as any}>
-                      <i className={realConnected ? 'ri-bluetooth-connect-line' : 'ri-bluetooth-line'} style={{ fontSize: 16 }} />
-                      {realConnected ? 'Connecte' : device.device_type === 'scale' ? 'Mes mesures' : 'Associer'}
-                    </div>
-
-                    {/* Discover button */}
-                    <div onClick={() => { if (typeof window !== 'undefined') window.open(getDeviceLink(device.device_type), '_blank'); }} style={{
-                      flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer',
-                      background: 'transparent', border: '1px solid rgba(255,255,255,0.15)',
-                      color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                      fontSize: 14, fontWeight: 600, transition: 'all 0.25s',
-                    } as any}
-                      onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
-                      onMouseLeave={(e: any) => { e.currentTarget.style.background = 'transparent'; }}
-                    >
-                      <i className="ri-external-link-line" style={{ fontSize: 14 }} />
-                      Decouvrir
-                    </div>
+                  {/* Buttons: different if associated or not */}
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' } as any}>
+                    {isAssociated ? (
+                      <>
+                        {/* Battery progress bar */}
+                        <div style={{ flex: 1 } as any}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 } as any}>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>Batterie</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: realBattery > 20 ? '#10B981' : '#EF4444' }}>{realBattery}%</span>
+                          </div>
+                          <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' } as any}>
+                            <div style={{ height: 6, borderRadius: 3, width: `${Math.max(3, realBattery)}%`, background: realBattery > 50 ? '#10B981' : realBattery > 20 ? '#F59E0B' : '#EF4444', transition: 'width 0.5s' } as any} />
+                          </div>
+                        </div>
+                        {/* Remove button */}
+                        <div data-testid={`remove-${device.device_type}-btn`} onClick={(e: any) => {
+                          e.stopPropagation();
+                          if (window.confirm(`Dissocier ${getDeviceName(device.device_type)} ?`)) {
+                            apiFetch(`/api/devices/${device.id}/remove`, { method: 'DELETE' }, token).then(() => fetchDevices()).catch(() => fetchDevices());
+                          }
+                        }} style={{
+                          width: 36, height: 36, borderRadius: 999, flexShrink: 0,
+                          background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                        } as any}>
+                          <i className="ri-delete-bin-line" style={{ fontSize: 16, color: '#EF4444' }} />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div data-testid={`connect-${device.device_type}-btn`} onClick={() => {
+                          if (isVest) router.push('/vest-connect');
+                          else if (isBracelet) syncDevice('bracelet');
+                          else if (device.device_type === 'scale') router.push('/scale-detail');
+                          else syncDevice(device.device_type);
+                        }} style={{
+                          flex: 1, padding: '13px 16px', borderRadius: 999, cursor: needsSub ? 'not-allowed' : 'pointer',
+                          background: '#FFF', color: '#111',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          fontSize: 14, fontWeight: 700, opacity: needsSub ? 0.4 : 1,
+                        } as any}>
+                          <i className="ri-bluetooth-line" style={{ fontSize: 16 }} />
+                          Associer
+                        </div>
+                        <div onClick={() => { if (typeof window !== 'undefined') window.open(getDeviceLink(device.device_type), '_blank'); }} style={{
+                          flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer',
+                          background: 'transparent', border: '1px solid rgba(255,255,255,0.15)',
+                          color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          fontSize: 14, fontWeight: 600, transition: 'all 0.25s',
+                        } as any}
+                          onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+                          onMouseLeave={(e: any) => { e.currentTarget.style.background = 'transparent'; }}
+                        >
+                          <i className="ri-external-link-line" style={{ fontSize: 14 }} />
+                          Decouvrir
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
