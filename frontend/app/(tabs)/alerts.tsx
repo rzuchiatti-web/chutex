@@ -144,19 +144,79 @@ export default function AlertsScreen() {
             </div>
           )}
 
-          {/* Report form (shown after slide to cloturer) */}
-          {showReport && (
-            <div style={{ marginTop: 20, padding: '18px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' } as any}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Rapport de cloture</div>
-              <textarea value={reportText} onChange={(e: any) => setReportText(e.target.value)} placeholder="Decrivez la situation et les actions realisees..."
-                style={{ width: '100%', minHeight: 100, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', resize: 'none', outline: 'none', marginBottom: 12 } as any} />
-              <div onClick={() => {
-                apiFetch(`/api/alerts/${selectedAlert.id}/resolve`, { method: 'PUT', body: JSON.stringify({ report: reportText }) }, token).then(() => { fetchAlerts(); setSelectedAlert(null); setShowReport(false); setReportText(''); }).catch(() => {});
-              }} style={{ width: '100%', padding: '16px', borderRadius: 999, background: '#10B981', color: '#FFF', fontSize: 15, fontWeight: 700, textAlign: 'center', cursor: 'pointer' } as any}>
-                Confirmer la cloture
-              </div>
+          {/* Report form — FULL SCREEN PAGE (early return handled above) */}
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── REPORT PAGE: full screen on red background ─── */
+  if (showReport && selectedAlert && Platform.OS === 'web') {
+    const reportQuestions = [
+      { id: 'situation', label: 'La situation est-elle maitrisee ?', options: ['Oui, situation resolue', 'Partiellement, surveillance necessaire', 'Non, necessite un suivi'] },
+      { id: 'actions', label: 'Actions realisees', options: ['Levee de doute telephonique', 'Intervention physique au domicile', 'Contact avec les secours (SAMU/Pompiers)', 'Contact avec le medecin traitant', 'Aucune action necessaire'] },
+      { id: 'condition', label: 'Etat du beneficiaire', options: ['Stable - pas de blessure', 'Blessure legere - soins apportes', 'Necessitant un suivi medical', 'Hospitalisation necessaire'] },
+    ];
+    const [reportAnswers, setReportAnswers] = useState<Record<string, string>>({});
+    const allAnswered = reportQuestions.every(q => reportAnswers[q.id]);
+
+    return (
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
+          <div onClick={() => setShowReport(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Rapport de cloture</div>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+          <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Alerte : {selectedAlert.beneficiary_name}</div>
+          </div>
+
+          {/* Questions with radio options */}
+          {reportQuestions.map((q, qi) => (
+            <div key={q.id} style={{ marginBottom: 16 } as any}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>{qi + 1}. {q.label} <span style={{ color: '#EF4444' }}>*</span></div>
+              {q.options.map((opt, oi) => (
+                <div key={oi} onClick={() => setReportAnswers({ ...reportAnswers, [q.id]: opt })} style={{
+                  padding: '12px 16px', borderRadius: 14, marginBottom: 6, cursor: 'pointer',
+                  background: reportAnswers[q.id] === opt ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
+                  border: `1px solid ${reportAnswers[q.id] === opt ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                  display: 'flex', alignItems: 'center', gap: 10, transition: 'all 0.2s',
+                } as any}>
+                  <div style={{ width: 20, height: 20, borderRadius: 999, border: `2px solid ${reportAnswers[q.id] === opt ? '#FFF' : 'rgba(255,255,255,0.25)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    {reportAnswers[q.id] === opt && <div style={{ width: 10, height: 10, borderRadius: 999, background: '#FFF' }} />}
+                  </div>
+                  <span style={{ fontSize: 14, color: '#FFF', fontWeight: 500 }}>{opt}</span>
+                </div>
+              ))}
             </div>
-          )}
+          ))}
+
+          {/* Note personnalisée */}
+          <div style={{ marginBottom: 16 } as any}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>Note personnalisee</div>
+            <textarea value={reportText} onChange={(e: any) => setReportText(e.target.value)} placeholder="Ajoutez des details supplementaires..."
+              style={{ width: '100%', minHeight: 100, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', resize: 'none', outline: 'none' } as any} />
+          </div>
+
+          {/* Confirm button — disabled if not all answered */}
+          <div onClick={() => {
+            if (!allAnswered) return;
+            const report = { ...reportAnswers, notes: reportText, closed_by: user?.name, closed_at: new Date().toISOString() };
+            apiFetch(`/api/alerts/${selectedAlert.id}/resolve`, { method: 'PUT', body: JSON.stringify({ report: JSON.stringify(report) }) }, token)
+              .then(() => { fetchAlerts(); setSelectedAlert(null); setShowReport(false); setReportText(''); })
+              .catch(() => {});
+          }} style={{
+            width: '100%', padding: '16px', borderRadius: 999, textAlign: 'center', cursor: allAnswered ? 'pointer' : 'not-allowed',
+            background: allAnswered ? '#10B981' : 'rgba(255,255,255,0.08)',
+            color: allAnswered ? '#FFF' : 'rgba(255,255,255,0.3)',
+            fontSize: 16, fontWeight: 700, transition: 'all 0.25s',
+          } as any}>
+            {allAnswered ? 'Confirmer la cloture' : 'Repondez a toutes les questions'}
+          </div>
         </div>
       </div>
     );
