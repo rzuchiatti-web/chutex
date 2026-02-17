@@ -194,19 +194,15 @@ export default function AlertsScreen() {
                 <div style={{ position: 'relative', zIndex: 2 } as any}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
                     <div>
-                      <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF' }}>{alert.message || alert.alert_type || 'Alerte'}</div>
-                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{alert.beneficiary_name} · {new Date(alert.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
-                    </div>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,.15)', borderRadius: 999, padding: '5px 12px', border: '1px solid rgba(255,255,255,.2)' } as any}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: isActive ? '#EF4444' : '#10B981' } as any} />
-                      <span style={{ fontSize: 11, fontWeight: 600, color: '#FFF' }}>{isActive ? 'Active' : 'Resolue'}</span>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{alert.beneficiary_name || 'Beneficiaire'}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>Le {new Date(alert.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.6)' }}>{alert.severity === 'critical' ? 'Critique' : alert.severity}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{alert.alert_type === 'fall' ? 'Chute detectee' : alert.alert_type === 'sos' ? 'SOS' : alert.alert_type === 'health_anomaly' ? 'Anomalie de sante' : alert.message || 'Alerte'}</div>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.15)', borderRadius: 999, padding: '8px 16px', border: '1px solid rgba(255,255,255,.2)' } as any}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Voir</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span>
                     </div>
                   </div>
                 </div>
