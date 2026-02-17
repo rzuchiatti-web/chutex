@@ -96,6 +96,56 @@ async def resolve_alert_with_report(alert_id: str, data: dict, user=Depends(get_
     return {"status": "resolved", "report": report}
 
 
+
+@router.post("/interventions/accept-as-guardian")
+async def accept_intervention_as_guardian(data: dict, user=Depends(get_current_user)):
+    """Guardian accepts to intervene on an alert - creates/assigns intervention"""
+    alert_id = data.get('alert_id')
+    if not alert_id:
+        raise HTTPException(status_code=400, detail="alert_id required")
+    alert = await db.alerts.find_one({"id": alert_id}, {"_id": 0})
+    if not alert:
+        raise HTTPException(status_code=404, detail="Alert not found")
+    
+    now = datetime.now(timezone.utc).isoformat()
+    # Check if intervention already exists for this alert
+    existing = await db.interventions.find_one({"alert_id": alert_id, "status": {"$in": ["in_progress", "en_route", "pending_acceptance"]}}, {"_id": 0})
+    if existing and existing.get('assigned_to'):
+        raise HTTPException(status_code=409, detail="Un intervenant est deja assigne")
+    
+    iv_id = existing['id'] if existing else str(uuid.uuid4())
+    if existing:
+        # Update existing intervention
+        await db.interventions.update_one({"id": iv_id}, {"$set": {
+            "assigned_to": user['id'], "assigned_name": user['name'],
+            "status": "in_progress", "accepted_at": now,
+            "intervener_type": "guardian",
+        }})
+    else:
+        # Create new intervention
+        await db.interventions.insert_one({
+            "id": iv_id, "alert_id": alert_id,
+            "beneficiary_id": alert.get('beneficiary_id'),
+            "beneficiary_name": alert.get('beneficiary_name'),
+            "assigned_to": user['id'], "assigned_name": user['name'],
+            "status": "in_progress", "created_at": now, "accepted_at": now,
+            "intervener_type": "guardian",
+            "notes": f"Intervention gardien - {user['name']}",
+        })
+    
+    # Update incident
+    await db.incidents.update_one({"alert_id": alert_id}, {"$set": {
+        "care_provider": user['name'],
+        "state": "CARE_DISPATCHED",
+        "assigned_guardian": {"id": user['id'], "name": user['name']},
+    }})
+    
+    # Update alert teleassistance status
+    await db.alerts.update_one({"id": alert_id}, {"$set": {"teleassistance_status": "CARE_DISPATCHED"}})
+    
+    return {"status": "accepted", "intervention_id": iv_id}
+
+
 @router.get("/alerts/{aid}/report")
 async def get_alert_report(aid: str, user=Depends(get_current_user)):
     alert = await db.alerts.find_one({"id": aid}, {"_id": 0})
