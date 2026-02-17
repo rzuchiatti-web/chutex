@@ -329,7 +329,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         <div style={{ position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 28px', width: '100%', maxWidth: 400 } as any}>
           {!slideActivatedP ? (
             <>
-              <img src={LOGO_URL_P} alt="Chutex" className="anim-up" style={{ height: 60, marginBottom: 24, filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.15))' } as any} />
+              <img src={LOGO_URL_P} alt="Chutex" className="anim-up" style={{ height: 60, marginTop: -30, marginBottom: 24, filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.15))' } as any} />
               <div className="anim-up d1" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 20, backdropFilter: 'blur(8px)' } as any}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' } as any} />
                 <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Inactif</span>
