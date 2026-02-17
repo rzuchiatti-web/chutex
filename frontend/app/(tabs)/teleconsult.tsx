@@ -317,58 +317,131 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const [ivTab, setIvTab] = useState<'active'|'done'>('active');
   const displayedIvs = ivTab === 'active' ? activeIvs : doneIvs;
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
+  const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/qgy38yhz_banner_mobile_intervention_care.jpg';
+  const BG_GREEN = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/e7xxtzh1_background_intervention_care_en_cour.jpg';
+  const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/3nimaiv0_background_intervention_care_valide_prescription_valide.jpg';
+  const BG_HEADER = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/n96e8u48_Banner_Care.jpg';
+  const LOGO_URL = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
 
+  const [slideActivated, setSlideActivated] = useState(false);
+
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#9C27B0" /></View>;
+
+  /* ─── INACTIF: écran plein avec fond violet + slide ─── */
+  if (!user?.is_intervention_provider && Platform.OS === 'web') {
+    return (
+      <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, system-ui, sans-serif', position: 'relative', overflow: 'hidden' } as any}>
+        <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+
+        <div style={{ position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 28px', width: '100%', maxWidth: 400 } as any}>
+          {!slideActivated ? (
+            <>
+              <img src={LOGO_URL} alt="Chutex" className="anim-up" style={{ height: 60, marginBottom: 32, filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.15))' } as any} />
+              <div className="anim-up d1" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 20, backdropFilter: 'blur(8px)' } as any}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' } as any} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Inactif</span>
+              </div>
+              <h2 className="anim-up d2" style={{ fontSize: 28, fontWeight: 800, color: '#FFF', margin: '0 0 12px', textAlign: 'center' } as any}>Intervention Care</h2>
+              <p className="anim-up d3" style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', textAlign: 'center', lineHeight: 1.6, margin: '0 0 40px' } as any}>
+                Activer votre espace d'intervenant pour etre missionne par la teleassistance Chutex Care.
+              </p>
+
+              {/* Slide button */}
+              <div className="anim-up d4" style={{ width: '100%' } as any}>
+                <div style={{ width: '100%', height: 58, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)' } as any}
+                  onMouseDown={(e: any) => {
+                    const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement;
+                    if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52;
+                    const onMove = (ev: any) => { const dx = Math.max(0, Math.min(ev.clientX - e.clientX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { thumb.style.transform = `translateX(${maxX}px)`; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); setSlideActivated(true); } };
+                    const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { thumb.style.transition = ''; }, 300); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+                    document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp);
+                  }}
+                  onTouchStart={(e: any) => {
+                    const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement;
+                    if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52; const startX = e.touches[0].clientX;
+                    const onMove = (ev: any) => { const dx = Math.max(0, Math.min(ev.touches[0].clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); setSlideActivated(true); } };
+                    const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { thumb.style.transition = ''; }, 300); bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); };
+                    bar.addEventListener('touchmove', onMove, { passive: true }); bar.addEventListener('touchend', onUp);
+                  }}>
+                  <div data-thumb style={{ position: 'absolute', top: 4, left: 4, width: 50, height: 50, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.2)', willChange: 'transform', touchAction: 'none' } as any}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 600, pointerEvents: 'none', paddingLeft: 36 } as any}>Glisser pour commencer</div>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Code input after slide */
+            <div className="anim-up" style={{ width: '100%', textAlign: 'center' } as any}>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#FFF', margin: '0 0 8px' }}>Code d'activation</h2>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', margin: '0 0 24px', lineHeight: 1.5 } as any}>Entrez le code fourni par votre structure pour activer votre espace intervenant.</p>
+              <input value={ivCode} onChange={(e: any) => setIvCode(e.target.value)} placeholder="CODE INTERVENANT" autoFocus
+                style={{ width: '100%', fontSize: 18, fontWeight: 700, padding: '16px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.08)', color: '#FFF', textAlign: 'center', letterSpacing: 4, outline: 'none', fontFamily: 'inherit', marginBottom: 16, backdropFilter: 'blur(8px)' } as any} />
+              <button onClick={() => activateCare()} disabled={activating} className="btn-scan" style={{ width: '100%', padding: 16, fontSize: 15, fontWeight: 600, fontFamily: 'inherit', opacity: activating ? 0.6 : 1 } as any}>
+                {activating ? 'Activation...' : 'Activer mon espace'}
+              </button>
+              <button onClick={() => setSlideActivated(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', marginTop: 16, padding: 8 } as any}>Retour</button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── INACTIF NATIVE ─── */
+  if (!user?.is_intervention_provider) {
+    return (
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24, backgroundColor: '#1a0a2e' }}>
+        <Icon name="shield-checkmark-outline" size={36} color="#9C27B0" />
+        <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFF', marginTop: 12 }}>Intervention Care</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginTop: 8, marginBottom: 24 }}>Activez votre espace pour etre missionne.</Text>
+        <TextInput testID="care-code-input" style={{ fontSize: 18, padding: 16, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)', color: '#FFF', textAlign: 'center', letterSpacing: 4, marginBottom: 16 }}
+          placeholder="CODE INTERVENANT" placeholderTextColor="rgba(255,255,255,0.3)" value={ivCode} onChangeText={setIvCode} autoCapitalize="characters" />
+        <TouchableOpacity testID="care-activate-btn" style={{ backgroundColor: '#FFF', borderRadius: 999, paddingVertical: 16, alignItems: 'center' }} onPress={activateCare} disabled={activating}>
+          {activating ? <ActivityIndicator color="#111" /> : <Text style={{ color: '#111', fontSize: 15, fontWeight: '600' }}>Activer</Text>}
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  }
+
+  /* ─── ACTIF: page interventions avec header violet ─── */
   return (
     <ScrollView contentContainerStyle={[s.sc, { paddingBottom: 80 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchIvs(); }} />}>
-      {/* Intervention Care Card */}
-      {!user?.is_intervention_provider ? (
-        <View style={s.careCard}>
-          <Icon name="shield-checkmark-outline" size={36} color={Colors.primary} />
-          <Text style={s.careTitle}>Devenir Intervenant Care</Text>
-          <Text style={s.careDesc}>Activez votre espace pour etre missionne par la teleassistance IA.</Text>
-          <View style={{ width: '100%', gap: 8 }}>
-            <TextInput testID="care-code-input" style={[s.careInput, { width: '100%' }]} placeholder="CODE INTERVENANT" placeholderTextColor={Colors.textMuted}
-              value={ivCode} onChangeText={setIvCode} autoCapitalize="characters" />
-            <TouchableOpacity testID="care-activate-btn" style={{ backgroundColor: Colors.primary, borderRadius: 12, paddingVertical: 14, alignItems: 'center' }} onPress={activateCare} disabled={activating}>
-              {activating ? <ActivityIndicator color="#111827" size="small" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Activer mon espace</Text>}
+      {/* Header violet */}
+      {Platform.OS === 'web' ? (
+        <div style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '28px 20px 20px', marginBottom: 14, textAlign: 'center' } as any}>
+          <img src={BG_HEADER} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} />
+          <div style={{ position: 'relative', zIndex: 2 } as any}>
+            <TouchableOpacity onPress={() => setShowCareModal(true)} style={{ alignSelf: 'center' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', cursor: 'pointer', marginBottom: 10 } as any}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.intervention_structure || user.structure_name || 'Structure'}</span>
+              </div>
             </TouchableOpacity>
-          </View>
-        </View>
+            <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF', textAlign: 'center' }}>Intervention Care</Text>
+          </div>
+        </div>
       ) : (
-        <>
-          {/* Intervenant Care card - clean, violet */}
-          <TouchableOpacity onPress={() => setShowCareModal(true)} activeOpacity={0.7}>
-            <View style={{ backgroundColor: 'rgba(156,39,176,0.06)', borderRadius: 20, padding: 20, marginBottom: 12, borderWidth: 1.5, borderColor: 'rgba(156,39,176,0.15)' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(156,39,176,0.12)', justifyContent: 'center', alignItems: 'center' }}>
-                  <Icon name="shield-checkmark" size={24} color="#9C27B0" />
-                </View>
-                <View style={{ flex: 1, minWidth: 0 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Text style={{ fontSize: 17, fontWeight: '800', color: '#111827' }}>Intervenant Care</Text>
-                    <View style={{ backgroundColor: '#9C27B0', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
-                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#FFF' }}>Actif</Text>
-                    </View>
-                  </View>
-                  <Text style={{ fontSize: 12, color: '#555', marginTop: 3 }} numberOfLines={1}>{user.intervention_structure || user.structure_name || 'Structure'}</Text>
-                </View>
-                <Icon name="chevron-forward" size={18} color="#9C27B0" />
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {/* Tabs En cours / Terminees */}
-          <View style={{ flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 14, padding: 4, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
-            <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, ivTab === 'active' && { backgroundColor: '#2196F3' }]} onPress={() => setIvTab('active')}>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: ivTab === 'active' ? '#FFF' : '#888' }}>En cours ({activeIvs.length})</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, ivTab === 'done' && { backgroundColor: '#10B981' }]} onPress={() => setIvTab('done')}>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: ivTab === 'done' ? '#FFF' : '#888' }}>Terminees ({doneIvs.length})</Text>
-            </TouchableOpacity>
+        <TouchableOpacity onPress={() => setShowCareModal(true)} style={{ backgroundColor: '#2d1050', borderRadius: 22, padding: 20, marginBottom: 14, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 999, paddingVertical: 7, paddingHorizontal: 16, marginBottom: 10 }}>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />
+            <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Actif - {user.intervention_structure || user.structure_name || 'Structure'}</Text>
           </View>
-        </>
+          <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF' }}>Intervention Care</Text>
+        </TouchableOpacity>
       )}
+
+      {/* Tabs En cours / Cloturées */}
+      <View style={{ flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 999, padding: 4, marginBottom: 14, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 999 }, ivTab === 'active' && { backgroundColor: '#111' }]} onPress={() => setIvTab('active')}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: ivTab === 'active' ? '#FFF' : '#888' }}>En cours</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 999 }, ivTab === 'done' && { backgroundColor: '#111' }]} onPress={() => setIvTab('done')}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: ivTab === 'done' ? '#FFF' : '#888' }}>Cloturees</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Care Detail Modal - violet theme */}
       <Modal visible={showCareModal} transparent animationType="fade" onRequestClose={() => setShowCareModal(false)}>
