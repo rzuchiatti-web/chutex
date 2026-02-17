@@ -78,6 +78,14 @@ async def get_devices(user=Depends(get_current_user)):
     return await db.devices.find({"user_id": {"$in": uid}}, {"_id": 0}).to_list(100)
 
 
+@router.delete("/devices/{device_id}/remove")
+async def remove_device(device_id: str, user=Depends(get_current_user)):
+    """Remove/dissociate a device"""
+    result = await db.devices.update_one({"id": device_id}, {"$set": {"connected": False, "battery": 0, "removed": True}})
+    return {"status": "removed"}
+
+
+
 @router.get("/devices/latest")
 async def get_latest_readings(user=Depends(get_current_user)):
     readings = {}
