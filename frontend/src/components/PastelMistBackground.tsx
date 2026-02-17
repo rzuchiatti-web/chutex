@@ -264,7 +264,7 @@ export function PastelMistBackground() {
         position: fixed !important; bottom: 10px !important; left: 20px !important; right: 20px !important;
         width: auto !important;
         z-index: 99999 !important; height: 56px !important; padding: 4px 6px !important;
-        border-radius: 30px !important;
+        border-radius: 999px !important;
         background: rgba(160,150,180,0.3) !important;
         backdrop-filter: blur(28px) saturate(160%) !important; -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
         border: 1px solid rgba(255,255,255,0.15) !important;
@@ -278,17 +278,17 @@ export function PastelMistBackground() {
         font-size: 0 !important; line-height: 0 !important; height: 0 !important; overflow: hidden !important; display: none !important;
       }
       [role="tablist"] [role="tab"] {
-        flex: 1 !important; max-width: 56px !important; height: 42px !important;
+        flex: 1 !important; max-width: 48px !important; height: 48px !important;
         display: flex !important; align-items: center !important; justify-content: center !important;
-        padding: 0 !important; border-radius: 20px !important;
+        padding: 0 !important; border-radius: 999px !important;
         background: transparent !important;
         border: none !important;
         transition: background 0.25s ease !important;
       }
-      /* Active tab = white oval pill behind icon */
+      /* Active tab = white circle, icon black */
       [role="tablist"] [role="tab"][aria-selected="true"] {
-        background: rgba(255,255,255,0.92) !important;
-        border-radius: 20px !important;
+        background: #FFF !important;
+        border-radius: 999px !important;
       }
       /* Icon colors */
       [role="tablist"] [role="tab"] svg {
