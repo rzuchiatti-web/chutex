@@ -133,241 +133,172 @@ export default function ProfileScreen() {
     input.click();
   };
 
+const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2l2wimir_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2020_02_41.png';
+
   const effectiveRole = user.active_role || user.role;
-  const roleName = effectiveRole === 'beneficiary' ? t('beneficiary') : effectiveRole === 'guardian' ? t('guardian') : effectiveRole === 'teleassistance' ? 'Teleassistance' : 'Administrateur';
-  const otherRole = effectiveRole === 'beneficiary' ? 'gardien' : 'beneficiaire';
+  const isBen = effectiveRole === 'beneficiary';
+  const isGuardian = effectiveRole === 'guardian';
+  const roleName = isBen ? t('beneficiary') : isGuardian ? t('guardian') : effectiveRole === 'teleassistance' ? 'Teleassistance' : effectiveRole === 'admin' ? 'Administrateur' : 'Company';
+  const otherRole = isBen ? 'gardien' : 'beneficiaire';
   const hasOther = (effectiveRole === 'prescriber_company' || effectiveRole === 'admin' || effectiveRole === 'teleassistance') ? false
-    : effectiveRole === 'beneficiary' ? user.has_guardian_space : (user.has_beneficiary_space || user.role === 'beneficiary');
+    : isBen ? user.has_guardian_space : (user.has_beneficiary_space || user.role === 'beneficiary');
 
-  const MenuItem = ({ icon, label, onPress, danger, testID }: any) => (
-    <TouchableOpacity testID={testID} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }} onPress={onPress}>
-      <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: danger ? 'rgba(239,68,68,0.08)' : 'rgba(0,0,0,0.08)', justifyContent: 'center', alignItems: 'center' }}>
-        <Icon name={icon} size={18} color={danger ? '#EF4444' : '#111827'} />
-      </View>
-      <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: danger ? '#EF4444' : '#111827' }}>{label}</Text>
-      <Icon name="chevron-forward" size={16} color="#9CA3AF" />
-    </TouchableOpacity>
-  );
+  const MenuItem = ({ icon, label, onPress, danger, testID }: any) => {
+    if (Platform.OS === 'web') {
+      return (
+        <div data-testid={testID} onClick={onPress} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}
+          onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+          onMouseLeave={(e: any) => { e.currentTarget.style.background = 'transparent'; }}>
+          <div style={{ width: 38, height: 38, borderRadius: 12, background: danger ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.06)', border: `1px solid ${danger ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+            <i className={danger ? 'ri-logout-box-r-line' : icon} style={{ fontSize: 16, color: danger ? '#EF4444' : 'rgba(0,0,0,0.7)' }} />
+          </div>
+          <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: danger ? '#EF4444' : '#111' }}>{label}</span>
+          <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(0,0,0,0.25)' }} />
+        </div>
+      );
+    }
+    return (
+      <TouchableOpacity testID={testID} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }} onPress={onPress}>
+        <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: danger ? 'rgba(239,68,68,0.08)' : 'rgba(0,0,0,0.08)', justifyContent: 'center', alignItems: 'center' }}>
+          <Icon name={icon} size={18} color={danger ? '#EF4444' : '#111827'} />
+        </View>
+        <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: danger ? '#EF4444' : '#111827' }}>{label}</Text>
+        <Icon name="chevron-forward" size={16} color="#9CA3AF" />
+      </TouchableOpacity>
+    );
+  };
 
-  return (
-    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} testID="profile-screen">
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
-        <Text style={{ fontSize: 28, fontWeight: '900', color: '#111827', marginTop: 16, marginBottom: 20 }}>{t('profile')}</Text>
+  /* ─── WEB: Full-page profile with satin background ─── */
+  if (Platform.OS === 'web') {
+    return (
+      <div data-testid="profile-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_PROFILE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.08)', zIndex: 1 } as any} />
 
-        {/* Avatar */}
-        <GlassCard style={{ alignItems: 'center', padding: 28 }}>
-          <TouchableOpacity testID="avatar-upload-btn" onPress={handleAvatarUpload} style={{ position: 'relative' }}>
-            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-              {user.avatar_url ? (
-                <Image source={{ uri: user.avatar_url }} style={{ width: 80, height: 80 }} />
-              ) : (
-                <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</Text>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+
+          {/* Avatar + Name + Role pills */}
+          <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+            <div onClick={handleAvatarUpload} data-testid="avatar-upload-btn" style={{ position: 'relative', display: 'inline-block', cursor: 'pointer', marginBottom: 12 } as any}>
+              <div style={{ width: 80, height: 80, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '3px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 24px rgba(0,0,0,0.15)' } as any}>
+                {user.avatar_url ? <img src={user.avatar_url} style={{ width: 80, height: 80, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 32, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+              </div>
+              <div style={{ position: 'absolute', bottom: -2, right: -4, width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' } as any}>
+                {uploading ? <i className="ri-loader-4-line" style={{ fontSize: 14, color: '#111' }} /> : <i className="ri-camera-line" style={{ fontSize: 14, color: '#111' }} />}
+              </div>
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: '#111' }}>{user.name}</div>
+
+            {/* Role pills */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' } as any}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.08)' } as any}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#555' }}>{roleName}</span>
+              </div>
+              {/* Beneficiary: subscription pill */}
+              {isBen && user.has_subscription && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Abonnement {user.subscription_type || 'Standard'}</span>
+                </div>
               )}
-            </View>
-            <View style={{ position: 'absolute', bottom: 0, right: -4, width: 28, height: 28, borderRadius: 14, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(0,0,0,0.06)' }}>
-              {uploading ? <ActivityIndicator size="small" color="#111827" /> : <Icon name="camera" size={14} color="#111827" />}
-            </View>
-          </TouchableOpacity>
-          <Text style={{ fontSize: 22, fontWeight: '900', color: '#111827', marginTop: 12 }}>{user.name}</Text>
-          <View style={{ marginTop: 6, paddingHorizontal: 14, paddingVertical: 4, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)' }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: '#555' }}>{roleName}</Text>
-          </View>
-        </GlassCard>
+              {/* Guardian: Care pill */}
+              {isGuardian && user.guardian_type === 'professional' && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)' } as any}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Care</span>
+                </div>
+              )}
+              {/* Guardian: Prescriber pill */}
+              {isGuardian && user.is_prescriber && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(212,132,90,0.15)', border: '1px solid rgba(212,132,90,0.3)' } as any}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#D4845A' }}>Prescripteur</span>
+                </div>
+              )}
+            </div>
+          </div>
 
-        {/* Edit Profile */}
-        {editMode && (
-          <GlassCard>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827', marginBottom: 14 }}>{t('modify_profile')}</Text>
-            <WebInput val={editName} onChange={setEditName} placeholder="Nom complet" />
-            <WebInput val={editPhone} onChange={setEditPhone} placeholder="Telephone" type="tel" />
-            <WebInput val={editAddress} onChange={setEditAddress} placeholder="Adresse" />
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setEditMode(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: '#6B7280' }}>{t('cancel')}</Text></TouchableOpacity>
-              <TouchableOpacity testID="save-profile-btn" style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#FFFFFF', alignItems: 'center' }} onPress={saveProfile} disabled={saving}>{saving ? <ActivityIndicator color="#111827" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENREGISTRER</Text>}</TouchableOpacity>
-            </View>
-          </GlassCard>
-        )}
+          {/* Menu items — glass card */}
+          <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14, boxShadow: '0 4px 20px rgba(0,0,0,0.06)' } as any}>
+            <MenuItem testID="edit-profile-btn" icon="ri-user-settings-line" label={t('modify_profile')} onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
+            <MenuItem icon="ri-lock-line" label={t('security')} onPress={() => setShowPwChange(true)} />
+            {effectiveRole !== 'prescriber_company' && effectiveRole !== 'admin' && effectiveRole !== 'teleassistance' && (
+              <MenuItem testID="switch-role-btn" icon="ri-swap-line" label={otherRole === 'gardien' ? t('my_guardian_space') : t('my_beneficiary_space')} onPress={async () => {
+                if (hasOther) {
+                  try { await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: otherRole === 'gardien' ? 'guardian' : 'beneficiary' }) }, token); await refreshUser(); } catch (e: any) { Alert.alert('Erreur', e.message); }
+                } else { router.push(otherRole === 'gardien' ? '/activate-guardian' : '/activate-beneficiary' as any); }
+              }} />
+            )}
+            <MenuItem icon="ri-translate-2" label={`${t('language')} (${lang})`} onPress={() => setShowLangPicker(true)} />
+            <MenuItem testID="notif-prefs-btn" icon="ri-notification-3-line" label="Notifications" onPress={() => { setShowNotifPrefs(true); fetchNotifPrefs(); }} />
+          </div>
 
-        {showPwChange && (
-          <GlassCard>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827', marginBottom: 14 }}>{t('security')}</Text>
-            <WebInput val={oldPw} onChange={setOldPw} placeholder="Mot de passe actuel" type="password" />
-            <WebInput val={newPw} onChange={setNewPw} placeholder="Nouveau mot de passe" type="password" />
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowPwChange(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: '#6B7280' }}>{t('cancel')}</Text></TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#FFFFFF', alignItems: 'center' }} onPress={changePassword}><Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>{t('confirm')}</Text></TouchableOpacity>
-            </View>
-          </GlassCard>
-        )}
+          {/* Second card */}
+          <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14, boxShadow: '0 4px 20px rgba(0,0,0,0.06)' } as any}>
+            <MenuItem icon="ri-file-text-line" label={t('terms')} onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
+            <MenuItem icon="ri-question-line" label="Centre d'aide" onPress={() => setShowHelp(true)} />
+            <MenuItem icon="ri-mail-line" label={t('support')} onPress={() => setShowContact(true)} />
+            <MenuItem icon="ri-information-line" label={`${t('about')} - Chutex v3.0`} onPress={() => Alert.alert('CHUTEX', 'Version 3.0\nChutex Innovation SAS')} />
+          </div>
 
-        {showContact && (
-          <GlassCard>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827', marginBottom: 4 }}>{t('support')}</Text>
-            <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 14 }}>contact@chutex-innovation.com</Text>
-            <WebInput val={contactObj} onChange={setContactObj} placeholder="Objet de votre demande" />
-            <WebInput val={contactName} onChange={setContactName} placeholder="Nom et prenom" />
-            <WebInput val={contactEmail} onChange={setContactEmail} placeholder="Email" type="email" />
-            <WebInput val={contactPhone} onChange={setContactPhone} placeholder="Telephone" type="tel" />
-            <WebInput val={contactMsg} onChange={setContactMsg} placeholder="Decrivez votre probleme..." rows={4} />
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: 'rgba(0,0,0,0.06)', alignItems: 'center' }} onPress={() => setShowContact(false)}><Text style={{ fontSize: 14, fontWeight: '700', color: '#6B7280' }}>{t('cancel')}</Text></TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, paddingVertical: 12, borderRadius: 9999, backgroundColor: '#FFFFFF', alignItems: 'center' }} onPress={sendContactForm} disabled={sendingContact}>{sendingContact ? <ActivityIndicator color="#111827" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF' }}>ENVOYER</Text>}</TouchableOpacity>
-            </View>
-          </GlassCard>
-        )}
+          {/* Logout */}
+          <div data-testid="logout-btn" onClick={logout} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 4 } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}>
+            <i className="ri-logout-box-r-line" style={{ fontSize: 16, color: '#EF4444' }} />
+            <span style={{ fontSize: 15, fontWeight: 800, color: '#EF4444' }}>{t('logout')}</span>
+          </div>
+          <div style={{ textAlign: 'center', fontSize: 11, color: 'rgba(0,0,0,0.3)', marginTop: 16 }}>Chutex Innovation SAS - v3.0</div>
 
-        {/* Menu */}
-        <GlassCard>
-          <MenuItem testID="edit-profile-btn" icon="person-outline" label={t('modify_profile')} onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
-          <MenuItem icon="lock-closed-outline" label={t('security')} onPress={() => setShowPwChange(true)} />
-          {effectiveRole !== 'prescriber_company' && effectiveRole !== 'admin' && effectiveRole !== 'teleassistance' && (
-            <MenuItem testID="switch-role-btn" icon="swap-horizontal-outline" label={otherRole === 'gardien' ? t('my_guardian_space') : t('my_beneficiary_space')} onPress={async () => {
-              if (hasOther) {
-                try {
-                  await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: otherRole === 'gardien' ? 'guardian' : 'beneficiary' }) }, token);
-                  await refreshUser();
-                } catch (e: any) { Alert.alert('Erreur', e.message); }
-              } else {
-                router.push(otherRole === 'gardien' ? '/activate-guardian' : '/activate-beneficiary' as any);
-              }
-            }} />
+          {/* Edit/PW/Contact forms — rendered as overlays */}
+          {editMode && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 20 } as any} onClick={() => setEditMode(false)}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ background: '#FFF', borderRadius: 24, padding: 24, width: '100%', maxWidth: 380 } as any}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#111', marginBottom: 14 }}>{t('modify_profile')}</div>
+                <WebInput val={editName} onChange={setEditName} placeholder="Nom complet" />
+                <WebInput val={editPhone} onChange={setEditPhone} placeholder="Telephone" type="tel" />
+                <WebInput val={editAddress} onChange={setEditAddress} placeholder="Adresse" />
+                <div style={{ display: 'flex', gap: 10, marginTop: 8 } as any}>
+                  <div onClick={() => setEditMode(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: 'rgba(0,0,0,0.06)', color: '#555', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
+                  <div onClick={saveProfile} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: '#111', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : 'Enregistrer'}</div>
+                </div>
+              </div>
+            </div>
           )}
-          <MenuItem icon="language-outline" label={`${t('language')} (${lang})`} onPress={() => setShowLangPicker(true)} />
-          <MenuItem testID="notif-prefs-btn" icon="notifications-outline" label="Notifications" onPress={() => { setShowNotifPrefs(true); fetchNotifPrefs(); }} />
-          <MenuItem icon="document-text-outline" label={t('terms')} onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
-          <MenuItem icon="help-buoy-outline" label="Centre d'aide" onPress={() => setShowHelp(true)} />
-          <MenuItem icon="help-circle-outline" label={t('support')} onPress={() => setShowContact(true)} />
-          <MenuItem icon="information-circle-outline" label={`${t('about')} - Chutex v3.0`} onPress={() => Alert.alert('CHUTEX', 'Version 3.0\nChutex Innovation SAS')} />
-        </GlassCard>
 
-        <TouchableOpacity testID="logout-btn" style={{ backgroundColor: '#FFFFFF', borderRadius: 9999, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }} onPress={logout}>
-          <Icon name="log-out-outline" size={16} color="#111827" />
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#111827', textTransform: 'uppercase' }}>{t('logout')}</Text>
-        </TouchableOpacity>
-        <Text style={{ textAlign: 'center', fontSize: 11, color: '#6B7280', marginTop: 16 }}>Chutex Innovation SAS - v3.0</Text>
+          {showPwChange && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 20 } as any} onClick={() => setShowPwChange(false)}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ background: '#FFF', borderRadius: 24, padding: 24, width: '100%', maxWidth: 380 } as any}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#111', marginBottom: 14 }}>{t('security')}</div>
+                <WebInput val={oldPw} onChange={setOldPw} placeholder="Mot de passe actuel" type="password" />
+                <WebInput val={newPw} onChange={setNewPw} placeholder="Nouveau mot de passe" type="password" />
+                <div style={{ display: 'flex', gap: 10, marginTop: 8 } as any}>
+                  <div onClick={() => setShowPwChange(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: 'rgba(0,0,0,0.06)', color: '#555', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
+                  <div onClick={changePassword} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: '#111', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>Confirmer</div>
+                </div>
+              </div>
+            </div>
+          )}
 
-        <HelpCenter visible={showHelp} onClose={() => setShowHelp(false)} />
+          {showContact && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 20 } as any} onClick={() => setShowContact(false)}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ background: '#FFF', borderRadius: 24, padding: 24, width: '100%', maxWidth: 380, maxHeight: '80vh', overflowY: 'auto' } as any}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#111', marginBottom: 4 }}>{t('support')}</div>
+                <div style={{ fontSize: 12, color: '#888', marginBottom: 14 }}>contact@chutex-innovation.com</div>
+                <WebInput val={contactObj} onChange={setContactObj} placeholder="Objet" />
+                <WebInput val={contactName} onChange={setContactName} placeholder="Nom" />
+                <WebInput val={contactEmail} onChange={setContactEmail} placeholder="Email" type="email" />
+                <WebInput val={contactMsg} onChange={setContactMsg} placeholder="Message..." rows={4} />
+                <div style={{ display: 'flex', gap: 10, marginTop: 8 } as any}>
+                  <div onClick={() => setShowContact(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: 'rgba(0,0,0,0.06)', color: '#555', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
+                  <div onClick={sendContactForm} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: '#111', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{sendingContact ? '...' : 'Envoyer'}</div>
+                </div>
+              </div>
+            </div>
+          )}
 
-        {/* Notification Preferences Modal */}
-        <Modal visible={showNotifPrefs} transparent animationType="slide">
-          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-            <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '85%' }}>
-              <View style={{ alignItems: 'center', paddingTop: 12 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} /></View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, gap: 10 }}>
-                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
-                  <Icon name="notifications" size={20} color="#2196F3" />
-                </View>
-                <Text style={{ fontSize: 18, fontWeight: '900', color: '#111827', flex: 1 }}>Notifications</Text>
-                {savingNotif && <ActivityIndicator size="small" color="#2196F3" />}
-                <TouchableOpacity onPress={() => setShowNotifPrefs(false)}><Icon name="close" size={22} color="#888" /></TouchableOpacity>
-              </View>
-              <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
-                {notifPrefs ? (
-                  <>
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#111827', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Urgences</Text>
-                    {[
-                      { key: 'sos_alerts', icon: 'alert-circle', label: 'Alertes SOS', desc: 'Notification immediate quand un proche declenche SOS', color: '#E53935' },
-                      { key: 'fall_detection', icon: 'trending-down', label: 'Detection de chute', desc: 'Alerte quand une chute est detectee', color: '#FF6F00' },
-                      { key: 'health_thresholds', icon: 'heart', label: 'Seuils de sante', desc: 'Alerte quand les constantes depassent les limites', color: '#E91E63' },
-                    ].map(item => (
-                      <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
-                          <Icon name={item.icon as any} size={18} color={item.color} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{item.label}</Text>
-                          <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{item.desc}</Text>
-                        </View>
-                        <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
-                      </View>
-                    ))}
+          <HelpCenter visible={showHelp} onClose={() => setShowHelp(false)} />
+        </div>
+      </div>
+    );
+  }
 
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#111827', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Appareils</Text>
-                    {[
-                      { key: 'low_battery', icon: 'battery-dead', label: 'Batterie faible', desc: 'Alerte quand un appareil est en dessous de 20%', color: '#FF9800' },
-                    ].map(item => (
-                      <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
-                          <Icon name={item.icon as any} size={18} color={item.color} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{item.label}</Text>
-                          <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{item.desc}</Text>
-                        </View>
-                        <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
-                      </View>
-                    ))}
-
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#111827', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Rappels quotidiens</Text>
-                    {[
-                      { key: 'reminders_hydration', icon: 'water', label: 'Hydratation', desc: 'Rappels pour boire de l\'eau', color: '#2196F3' },
-                      { key: 'reminders_medication', icon: 'medkit', label: 'Traitements', desc: 'Rappels de prise de medicaments', color: '#10B981' },
-                      { key: 'reminders_alarm', icon: 'alarm', label: 'Alarmes', desc: 'Rappels personnalises programmes', color: '#9C27B0' },
-                    ].map(item => (
-                      <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
-                          <Icon name={item.icon as any} size={18} color={item.color} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{item.label}</Text>
-                          <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{item.desc}</Text>
-                        </View>
-                        <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
-                      </View>
-                    ))}
-
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: '#111827', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 20, marginBottom: 12 }}>Autres</Text>
-                    {[
-                      { key: 'interventions', icon: 'navigate', label: 'Interventions', desc: 'Missions d\'intervention a proximite', color: '#009688' },
-                      { key: 'guardian_requests', icon: 'person-add', label: 'Demandes de gardien', desc: 'Quand quelqu\'un souhaite etre votre gardien', color: '#FF9800' },
-                    ].map(item => (
-                      <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: item.color + '12', justifyContent: 'center', alignItems: 'center' }}>
-                          <Icon name={item.icon as any} size={18} color={item.color} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{item.label}</Text>
-                          <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{item.desc}</Text>
-                        </View>
-                        <Switch value={notifPrefs[item.key] ?? true} onValueChange={(v) => toggleNotifPref(item.key, v)} trackColor={{ true: item.color, false: '#E0E0E0' }} />
-                      </View>
-                    ))}
-
-                    <TouchableOpacity testID="test-push-btn" onPress={testPush}
-                      style={{ backgroundColor: '#2196F3', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 20, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
-                      <Icon name="paper-plane" size={16} color="#111827" />
-                      <Text style={{ color: '#FFF', fontSize: 14, fontWeight: '800' }}>Envoyer une notification test</Text>
-                    </TouchableOpacity>
-                  </>
-                ) : (
-                  <ActivityIndicator size="large" color="#2196F3" style={{ paddingVertical: 40 }} />
-                )}
-              </ScrollView>
-            </View>
-          </View>
-        </Modal>
-
-        {/* Language Picker Modal */}
-        {showLangPicker && (
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 24, zIndex: 100 }}>
-            <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, padding: 24 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <Text style={{ fontSize: 20, fontWeight: '900', color: '#111827' }}>{t('language')}</Text>
-                <TouchableOpacity onPress={() => setShowLangPicker(false)}><Icon name="close" size={24} color="#111827" /></TouchableOpacity>
-              </View>
-              {LANGUAGES.map(l => (
-                <TouchableOpacity key={l.code} testID={`lang-pick-${l.code}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.06)' }} onPress={() => { setLang(l.code); setShowLangPicker(false); }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: l.color, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: lang === l.code ? '#000' : 'rgba(0,0,0,0.1)' }}>
-                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFF' }}>{l.code}</Text>
-                  </View>
-                  <Text style={{ flex: 1, fontSize: 16, fontWeight: '600', color: '#111827' }}>{l.label}</Text>
-                  {lang === l.code && <Icon name="checkmark-circle" size={22} color="#111827" />}
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        )}
-      </ScrollView>
-    </View>
-  );
-}
+  /* ─── NATIVE FALLBACK ─── */
