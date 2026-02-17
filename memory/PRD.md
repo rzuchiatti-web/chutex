@@ -1,47 +1,52 @@
 # CARE WATCH — PRD
 
-## App
-Plateforme de teleassistance sante IA — 6 roles utilisateur.
+## Direction Artistique : Bibliotheque Chutex UI
+Source: bibliotheque validee avec ChatGPT, appliquee sur toute l'app.
 
-## Direction Artistique : CLINIQUE CHUTEX
-- Palette : Noir / Blanc / Gris uniquement
-- Fond : quadrillage clinique anime (grid drift)
-- Titres : animation typewriter JS avec curseur |
-- Badges : pilules glass-blur avec point pulse
-- Boutons : noirs/blancs, ronds, liserai flou (scan-sweep), style iOS glass blur
-- Cartes : image immersive + HUD corners + scan line + pill + titre + texte
-- Animations : slide-up stagger, premium, lentes, fluides
-- Effets : glass blur (backdrop-filter), scan line, pulse dot, glow breathe
-- Logo : image PNG Chutex officielle
+### Palette
+- **Dark**: fond #0b0f16, texte #f4f7ff, blobs animes bleu/rose/vert
+- **Light**: fond blanc gradient, texte #0f172a, blobs animes bleu/peche/rose
 
-## Fonctionnalites implementees
-- Auth multi-role (6 roles)
-- Dashboards par role
-- Alertes SOS + dispatch IA
-- Suivi vitaux
-- Liaison gardien/beneficiaire avec relation
-- Push notifications
-- Recommandations IA
-- Rappels
-- Teleconsultation
-- Gestion appareils
-- Classement prescripteurs + recompenses
-- Back-office admin
-- Multi-langue
-- Onboarding 6 slides cliniques
+### Composants valides
+- **Header app**: avatar + nom + role + segment Beneficiaire/Gardien + drapeaux + icones rondes grises
+- **Boutons Dark**: blanc glass primary (scan+halo), rouge danger, pastel IA
+- **Boutons Light**: noir primary (scan), rouge danger, pastel IA
+- **Bouton IA**: degrade rose/bleu pastel, utilise partout ou il y a de l'IA
+- **Cards**: glass blur, bordures subtiles, fond degrade
+- **Icon buttons**: ronds gris clair #eef2f6, bordure #d8e2ef, icone noire
+- **Gardiens**: avatars empiles (-8px) + bouton + rond
+- **Segments**: pill glass avec etat actif blanc
+- **Drapeaux**: ronds glass avec selection active
 
-## Pages redesignees avec DA clinique
-- [x] Page de connexion (fond noir, grille, typewriter, scan button)
-- [x] Onboarding 6 slides (images Chutex, video DNA, HUD, glass buttons)
-- [ ] Dashboard beneficiaire
-- [ ] Dashboard gardien
+### Animations
+- Scan-sweep sur boutons (2.2s, accelere a .9s au hover)
+- Halo pulse sur boutons
+- Ripple au clic
+- Glare mouse-follow
+- Background blobs drift (20-22s)
+- Pulse dot sur badges
+- Slide-up stagger entree
+
+### Pages redesignees
+- [x] Page d'accueil hero (image plein ecran, logo, typewriter, slide button)
+- [x] Onboarding 7 slides cliniques
+- [x] Page de connexion (grille animee, typewriter, scan button)
+- [x] CSS global avec toute la bibliotheque Chutex
+- [ ] Dashboard beneficiaire (a faire)
+- [ ] Dashboard gardien (a faire)
 - [ ] Autres dashboards
 - [ ] Pages detail
+- [ ] Profil
+
+## Fonctionnalites (inchangees)
+- Auth multi-role (6 roles)
+- Alertes SOS + dispatch IA
+- Suivi vitaux
+- Liaison gardien/beneficiaire
+- Push notifications, Rappels, Teleconsultation
+- Gestion appareils, Prescriptions, Back-office
 
 ## Issues connues
 1. Lefu Scale BLE (P1)
 2. Backend permanent natif (P2)
 3. Build iOS fragile (P3)
-
-## Prochaine etape
-Continuer le redesign DA clinique sur le dashboard et les autres pages.
