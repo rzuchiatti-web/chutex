@@ -296,10 +296,17 @@ export function PastelMistBackground() {
       [role="tablist"] ~ div, [role="tabpanel"] { padding-bottom: 80px !important; }
 
       /* Block ALL scroll when detail page is open */
-      body.detail-open { overflow: hidden !important; }
-      body.detail-open > div, body.detail-open [role="tabpanel"], body.detail-open [data-testid] { overflow: hidden !important; }
-      body.detail-open [style*="position: fixed"][style*="z-index: 9999"] { pointer-events: auto !important; overflow: auto !important; }
-      body.detail-open [style*="position: fixed"][style*="z-index: 9999"] * { pointer-events: auto !important; }
+      body.detail-open { overflow: hidden !important; position: fixed !important; width: 100% !important; height: 100% !important; }
+      body.detail-open [role="tabpanel"] { overflow: hidden !important; }
+
+      /* Detail page open animation */
+      @keyframes detailOpen {
+        0% { opacity: 0; transform: scale(0.92) translateY(20px); border-radius: 24px; }
+        100% { opacity: 1; transform: scale(1) translateY(0); border-radius: 0; }
+      }
+      .detail-animate-in {
+        animation: detailOpen 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
       /* Remove any white padding at top */
       [role="tabpanel"] > div:first-child { padding-top: 0 !important; }
       /* Kill ALL page headers/titles from Expo Router */
