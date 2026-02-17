@@ -507,8 +507,6 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           <Icon name="heart-outline" size={18} color="#FFF" />
         </TouchableOpacity>
       </View>
-            </View>
-          </TouchableOpacity>
 
           {/* Rewards Card - golden */}
           <RewardsCard token={token} />
