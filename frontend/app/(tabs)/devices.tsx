@@ -419,6 +419,49 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
     );
   }
 
+  /* ─── REWARDS PAGE (replaces entire view) ─── */
+  if (showRewardsPage && rewardsData && Platform.OS === 'web') {
+    const BG_REWARD = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/4tk4fqvn_background_r%C3%A9compense.jpg';
+    return (
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_REWARD} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
+          <div onClick={() => setShowRewardsPage(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Challenge actif</span>
+          </div>
+          <div onClick={() => setAnonymize(!anonymize)} style={{ marginLeft: 'auto', padding: '7px 14px', borderRadius: 999, background: anonymize ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)', border: `1px solid ${anonymize ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+            <span style={{ fontSize: 10, fontWeight: 600, color: anonymize ? '#10B981' : 'rgba(255,255,255,0.6)' }}>{anonymize ? 'Anonyme' : 'Visible'}</span>
+          </div>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+          <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Recompenses</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Programme de challenge prescripteur</div>
+            <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', letterSpacing: -2, marginTop: 8 }}>{rewardsData.total_earned}EUR</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Total gagne</div>
+          </div>
+          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, textAlign: 'center' } as any}>
+            <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF' }}>{rewardsData.current_position}<span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>e</span></div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{rewardsData.current_prescriptions} prescription(s) ce mois</div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-around', padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16 } as any}>
+            {[{ pos: '1er', amount: rewardsData.prizes?.prize_1 || 100 }, { pos: '2e', amount: rewardsData.prizes?.prize_2 || 70 }, { pos: '3e', amount: rewardsData.prizes?.prize_3 || 30 }].map(r => (
+              <div key={r.pos} style={{ textAlign: 'center' } as any}><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{r.pos}</div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 2 }}>+{r.amount}EUR</div></div>
+            ))}
+          </div>
+          {rewardsData.my_history?.length > 0 && <><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Mon historique</div>{rewardsData.my_history.map((h: any, i: number) => <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8 } as any}><div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{h.month_label}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>#{h.position} · {h.prescriptions_count} prescriptions</div></div><div style={{ fontSize: 18, fontWeight: 900, color: h.reward > 0 ? '#10B981' : '#FFF' }}>+{h.reward}EUR</div></div>)}</>}
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginTop: 16, marginBottom: 10 }}>Tous les challenges</div>
+          {(rewardsData.all_history || []).map((ch: any) => <div key={ch.month} style={{ marginBottom: 8 } as any}><div onClick={() => setExpandedChallenge(expandedChallenge === ch.month ? null : ch.month)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderRadius: expandedChallenge === ch.month ? '16px 16px 0 0' : 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' } as any}><div><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{ch.month_label || ch.month}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{ch.ranking?.length || 0} participant(s)</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" style={{ transform: expandedChallenge === ch.month ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' } as any}><path d="M6 9l6 6 6-6"/></svg></div>{expandedChallenge === ch.month && ch.ranking?.length > 0 && <div style={{ padding: '0 16px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderTop: 'none', borderRadius: '0 0 16px 16px' } as any}>{ch.ranking.slice(0, 5).map((r: any, j: number) => <div key={j} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, paddingBottom: 6, borderBottom: j < Math.min(ch.ranking.length, 5) - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}><div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}><div style={{ width: 28, height: 28, borderRadius: 999, background: j === 0 ? '#FFD700' : j === 1 ? '#C0C0C0' : j === 2 ? '#CD7F32' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 11, fontWeight: 800, color: j < 3 ? '#111' : '#FFF' }}>#{r.position}</span></div><div><div style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{anonymize && r.name !== user.name ? r.name.charAt(0) + '***' : r.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{r.prescriptions_count || 0} prescriptions</div></div></div><span style={{ fontSize: 15, fontWeight: 800, color: r.reward > 0 ? '#10B981' : 'rgba(255,255,255,0.3)' }}>{r.reward > 0 ? `+${r.reward}EUR` : '-'}</span></div>)}</div>}{expandedChallenge === ch.month && (!ch.ranking || ch.ranking.length === 0) && <div style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderTop: 'none', borderRadius: '0 0 16px 16px', textAlign: 'center' } as any}><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Challenge en cours</div></div>}</div>)}
+        </div>
+      </div>
+    );
+  }
+
   /* ─── DETAIL PAGE: prescription (replaces entire view) ─── */
   if (selectedPresc && Platform.OS === 'web') {
     const isValidated = selectedPresc.status === 'subscribed';
