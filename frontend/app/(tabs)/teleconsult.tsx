@@ -1378,10 +1378,12 @@ export default function TeleconsultScreen() {
     return <CompanyInterventionsTab token={token} />;
   }
 
-  // key={r} forces complete remount when role changes (Expo Router tab caching fix)
-  // Guardian: full screen, no wrapper header
+  // Guardian + Beneficiary: full screen, no wrapper header
   if (r === 'guardian') {
     return <GuardianInterventions token={token} user={user} />;
+  }
+  if (r === 'beneficiary') {
+    return <BeneficiaryTeleconsult token={token} />;
   }
 
   return (
@@ -1389,7 +1391,6 @@ export default function TeleconsultScreen() {
       <View style={s.header}>
         <Text style={[s.title, { color: '#111827' }]}>{r === 'teleassistance' ? 'Teleassistance IA' : r === 'admin' ? 'Intervenants' : 'Teleconsultation'}</Text>
         {r === 'teleassistance' && <Text style={[s.subtitle, { color: '#9CA3AF' }]}>Plateau d'ecoute — Protocole d'escalade</Text>}
-        {r === 'beneficiary' && <Text style={[s.subtitle, { color: '#9CA3AF' }]}>Questionnaire pre-consultation</Text>}
       </View>
       {r === 'teleassistance' ? <TeleassistanceDashboard token={token} />
         : r === 'admin' ? <AdminIntervenants token={token} />
