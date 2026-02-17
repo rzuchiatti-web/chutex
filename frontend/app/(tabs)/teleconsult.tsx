@@ -325,6 +325,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
   const [slideActivated, setSlideActivated] = useState(false);
   const [careError, setCareError] = useState('');
+  const [selectedIv, setSelectedIv] = useState<any>(null);
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#9C27B0" /></View>;
 
