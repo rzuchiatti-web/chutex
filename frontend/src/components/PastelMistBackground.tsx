@@ -265,7 +265,7 @@ export function PastelMistBackground() {
         width: auto !important;
         z-index: 99999 !important; height: 56px !important; padding: 4px 6px !important;
         border-radius: 999px !important;
-        background: rgba(160,150,180,0.3) !important;
+        background: rgba(100,95,120,0.22) !important;
         backdrop-filter: blur(28px) saturate(160%) !important; -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
         border: 1px solid rgba(255,255,255,0.15) !important;
         box-shadow: 0 4px 24px rgba(0,0,0,0.2) !important;
