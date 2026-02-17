@@ -257,47 +257,47 @@ export function PastelMistBackground() {
       .glass-pill-dark { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.72); }
       .glass-pill-light { background: rgba(255,255,255,.62); border: 1px solid rgba(0,0,0,.10); color: rgba(0,0,0,.62); }
 
-      /* ── TAB BAR — floating glass pill, very round ── */
+      /* ── TAB BAR — floating glass, rounded, transparent ── */
       [role="tablist"],
       div[role="tablist"],
       nav[role="tablist"] {
-        position: fixed !important; bottom: 14px !important; left: 50% !important; right: auto !important;
-        transform: translateX(-50%) !important;
-        width: auto !important; min-width: 280px !important; max-width: 340px !important;
-        z-index: 99999 !important; height: 54px !important; padding: 6px 8px !important;
-        border-radius: 999px !important;
-        background: rgba(120,110,140,0.35) !important;
-        backdrop-filter: blur(24px) saturate(160%) !important; -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
-        border: 1px solid rgba(255,255,255,0.18) !important;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+        position: fixed !important; bottom: 10px !important; left: 20px !important; right: 20px !important;
+        width: auto !important;
+        z-index: 99999 !important; height: 56px !important; padding: 4px 6px !important;
+        border-radius: 30px !important;
+        background: rgba(160,150,180,0.3) !important;
+        backdrop-filter: blur(28px) saturate(160%) !important; -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.2) !important;
         border-top: none !important;
-        display: flex !important; align-items: center !important; justify-content: center !important; gap: 2px !important;
-        margin: 0 !important;
+        display: flex !important; align-items: center !important; justify-content: space-around !important;
+        margin: 0 !important; transform: none !important;
       }
       /* Hide ALL tab labels */
       [role="tablist"] span {
         font-size: 0 !important; line-height: 0 !important; height: 0 !important; overflow: hidden !important; display: none !important;
       }
       [role="tablist"] [role="tab"] {
-        flex: 0 0 auto !important; width: 44px !important; height: 44px !important;
+        flex: 1 !important; max-width: 56px !important; height: 42px !important;
         display: flex !important; align-items: center !important; justify-content: center !important;
-        padding: 0 !important; border-radius: 999px !important;
+        padding: 0 !important; border-radius: 20px !important;
         background: transparent !important;
         border: none !important;
         transition: background 0.25s ease !important;
       }
-      /* Active tab = white filled circle */
+      /* Active tab = white oval pill behind icon */
       [role="tablist"] [role="tab"][aria-selected="true"] {
-        background: rgba(255,255,255,0.95) !important;
+        background: rgba(255,255,255,0.92) !important;
+        border-radius: 20px !important;
       }
       /* Icon colors */
       [role="tablist"] [role="tab"] svg {
-        color: rgba(255,255,255,0.85) !important; width: 22px !important; height: 22px !important;
+        color: rgba(255,255,255,0.8) !important; width: 22px !important; height: 22px !important;
       }
       [role="tablist"] [role="tab"][aria-selected="true"] svg {
         color: #111 !important;
       }
-      [role="tablist"] ~ div, [role="tabpanel"] { padding-bottom: 84px !important; }
+      [role="tablist"] ~ div, [role="tabpanel"] { padding-bottom: 80px !important; }
       /* Remove any white padding at top */
       [role="tabpanel"] > div:first-child { padding-top: 0 !important; }
       /* Kill ALL page headers/titles from Expo Router */
