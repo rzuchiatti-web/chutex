@@ -311,23 +311,136 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
   const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
+  const BG_ORANGE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
+  const BG_GREEN_P = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/3nimaiv0_background_intervention_care_valide_prescription_valide.jpg';
+  const LOGO_URL_P = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
+  const BG_HEADER_P = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
+
+  const [slideActivatedP, setSlideActivatedP] = useState(false);
+
+  if (loading) return <View style={d.center}><ActivityIndicator size="large" color="#D4845A" /></View>;
+
+  /* ─── INACTIF: plein écran orange ─── */
+  if (!user?.is_prescriber && Platform.OS === 'web') {
+    return (
+      <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', zIndex: 10 } as any}>
+        <img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
+        <div style={{ position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 28px', width: '100%', maxWidth: 400 } as any}>
+          {!slideActivatedP ? (
+            <>
+              <img src={LOGO_URL_P} alt="Chutex" className="anim-up" style={{ height: 60, marginBottom: 24, filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.15))' } as any} />
+              <div className="anim-up d1" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 20, backdropFilter: 'blur(8px)' } as any}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' } as any} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Inactif</span>
+              </div>
+              <h2 className="anim-up d2" style={{ fontSize: 28, fontWeight: 800, color: '#FFF', margin: '0 0 12px', textAlign: 'center' } as any}>Prescription</h2>
+              <p className="anim-up d3" style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', textAlign: 'center', lineHeight: 1.6, margin: '0 0 40px' } as any}>
+                Activer votre espace de prescription et suivez en temps reel vos commissions.
+              </p>
+              <div className="anim-up d4" style={{ width: '100%' } as any}>
+                <div style={{ width: '100%', height: 58, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(4px)' } as any}
+                  onMouseDown={(e: any) => {
+                    const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement;
+                    if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52;
+                    const onMove = (ev: any) => { const dx = Math.max(0, Math.min(ev.clientX - e.clientX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { thumb.style.transform = `translateX(${maxX}px)`; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); setSlideActivatedP(true); } };
+                    const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { thumb.style.transition = ''; }, 300); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+                    document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp);
+                  }}
+                  onTouchStart={(e: any) => {
+                    const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement;
+                    if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52; const startX = e.touches[0].clientX;
+                    const onMove = (ev: any) => { const dx = Math.max(0, Math.min(ev.touches[0].clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); setSlideActivatedP(true); } };
+                    const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { thumb.style.transition = ''; }, 300); bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); };
+                    bar.addEventListener('touchmove', onMove, { passive: true }); bar.addEventListener('touchend', onUp);
+                  }}>
+                  <div data-thumb style={{ position: 'absolute', top: 4, left: 4, width: 50, height: 50, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.2)', willChange: 'transform', touchAction: 'none' } as any}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 600, pointerEvents: 'none', paddingLeft: 36 } as any}>Glisser pour commencer</div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="anim-up" style={{ width: '100%', textAlign: 'center' } as any}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 20, backdropFilter: 'blur(8px)' } as any}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' } as any} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Inactif</span>
+              </div>
+              <h2 style={{ fontSize: 26, fontWeight: 800, color: '#FFF', margin: '0 0 8px' }}>Activation</h2>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: '0 0 28px' } as any}>Renseigner votre code.</p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 32 } as any}>
+                {[0,1,2,3,4,5].map(i => (
+                  <input key={i} id={`ppin-${i}`} type="text" inputMode="numeric" maxLength={1}
+                    value={actCode[i] || ''}
+                    onChange={(e: any) => { const v = e.target.value.replace(/[^0-9]/g, ''); const arr = actCode.split(''); arr[i] = v; const nc = arr.join('').slice(0,6); setActCode(nc); if (v && i < 5) { const n = document.getElementById(`ppin-${i+1}`); if (n) (n as HTMLInputElement).focus(); } }}
+                    onKeyDown={(e: any) => { if (e.key === 'Backspace' && !actCode[i] && i > 0) { const p = document.getElementById(`ppin-${i-1}`); if (p) (p as HTMLInputElement).focus(); } }}
+                    style={{ width: 48, height: 48, borderRadius: '50%', textAlign: 'center', fontSize: 20, fontWeight: 700, color: '#FFF', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)', outline: 'none', fontFamily: 'inherit', transition: 'border-color 0.2s, box-shadow 0.2s' } as any}
+                    onFocus={(e: any) => { e.target.style.borderColor = 'rgba(255,255,255,0.5)'; e.target.style.boxShadow = '0 0 12px rgba(255,255,255,0.15)'; }}
+                    onBlur={(e: any) => { e.target.style.borderColor = 'rgba(255,255,255,0.18)'; e.target.style.boxShadow = 'none'; }}
+                  />
+                ))}
+              </div>
+              <button onClick={() => activatePrescriber()} disabled={activating || actCode.length < 6}
+                style={{ width: '100%', padding: '16px 32px', borderRadius: 999, border: 'none', cursor: 'pointer', background: '#FFF', color: '#111', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', opacity: (activating || actCode.length < 6) ? 0.5 : 1, boxShadow: '0 4px 16px rgba(0,0,0,0.2)', transition: 'all 0.25s ease' } as any}>
+                {activating ? 'Activation...' : 'Confirmer le code'}
+              </button>
+              <button onClick={() => setSlideActivatedP(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', marginTop: 16, padding: 8 } as any}>Retour</button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (!user?.is_prescriber) {
+    return (
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24, backgroundColor: '#1a0a0a' }}>
+        <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFF', marginBottom: 12 }}>Prescription</Text>
+        <TextInput testID="prescriber-code-input" style={{ fontSize: 18, padding: 16, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)', color: '#FFF', textAlign: 'center', letterSpacing: 4, marginBottom: 16 }}
+          placeholder="CODE PRESCRIPTEUR" placeholderTextColor="rgba(255,255,255,0.3)" value={actCode} onChangeText={setActCode} autoCapitalize="characters" />
+        <TouchableOpacity testID="activate-prescriber-btn" style={{ backgroundColor: '#FFF', borderRadius: 999, paddingVertical: 16, alignItems: 'center' }} onPress={activatePrescriber} disabled={activating}>
+          {activating ? <ActivityIndicator color="#111" /> : <Text style={{ color: '#111', fontSize: 15, fontWeight: '600' }}>Activer</Text>}
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  }
+
+  /* ─── ACTIF: page prescriptions avec header orange ─── */
   return (
-    <ScrollView style={d.sv} contentContainerStyle={[d.sc, { paddingBottom: 80 }]} showsVerticalScrollIndicator={false}>
-      {!user?.is_prescriber ? (
-        <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 28, alignItems: 'center', ...glass }}>
-          <Icon name="medical-outline" size={40} color={Colors.primary} />
-          <Text style={{ fontSize: 20, fontWeight: '800', color: '#111827', marginTop: 12 }}>Espace Prescripteur</Text>
-          <Text style={{ fontSize: 13, color: '#6B7280', textAlign: 'center', lineHeight: 19, marginTop: 8, marginBottom: 20 }}>
-            Activez votre espace prescripteur avec le code fourni par votre structure partenaire Chutex.
-          </Text>
-          <TextInput testID="prescriber-code-input" style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 12, padding: 14, fontSize: 16, fontWeight: '700', color: '#111827', borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.06)', textAlign: 'center', letterSpacing: 3, marginBottom: 10 }}
-            placeholder="CODE PRESCRIPTEUR" placeholderTextColor="#BBB" value={actCode} onChangeText={setActCode} autoCapitalize="characters" />
-          <TouchableOpacity testID="activate-prescriber-btn" style={{ width: '100%', backgroundColor: Colors.primary, borderRadius: 12, paddingVertical: 14, alignItems: 'center' }} onPress={activatePrescriber} disabled={activating}>
-            {activating ? <ActivityIndicator color="#111827" size="small" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Activer mon espace</Text>}
-          </TouchableOpacity>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, width: '100%', marginVertical: 16 }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(0,0,0,0.08)' }} />
-            <Text style={{ fontSize: 12, color: '#9CA3AF' }}>ou</Text>
+    <ScrollView contentContainerStyle={[d.sc, { paddingBottom: 80, paddingHorizontal: 0 }]} showsVerticalScrollIndicator={false}>
+      {/* Header orange collé en haut */}
+      {Platform.OS === 'web' ? (
+        <div style={{ position: 'relative', padding: '28px 20px 20px', textAlign: 'center', overflow: 'hidden' } as any}>
+          <img src={BG_HEADER_P} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
+          <div style={{ position: 'relative', zIndex: 2 } as any}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', marginBottom: 10 } as any}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.prescription_structure || user.structure_name || 'Structure'}</span>
+            </div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF' }}>Prescription</div>
+          </div>
+        </div>
+      ) : (
+        <View style={{ backgroundColor: '#8B4513', padding: 20, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 999, paddingVertical: 7, paddingHorizontal: 16, marginBottom: 10 }}>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />
+            <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Actif - {user.prescription_structure || 'Structure'}</Text>
+          </View>
+          <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF' }}>Prescription</Text>
+        </View>
+      )}
+
+      {/* Tabs En cours / Cloturées — glass pill */}
+      <View style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 14, marginBottom: 14, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 999, padding: 4, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 999 }, prescTab === 'pending' && { backgroundColor: '#FFF', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(0,0,0,0.08)' } as any : {}) }]} onPress={() => setPrescTab('pending')}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: prescTab === 'pending' ? '#111' : '#888' }}>En cours</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[{ flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 999 }, prescTab === 'validated' && { backgroundColor: '#FFF', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(0,0,0,0.08)' } as any : {}) }]} onPress={() => setPrescTab('validated')}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: prescTab === 'validated' ? '#111' : '#888' }}>Cloturees</Text>
+        </TouchableOpacity>
+      </View>
             <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(0,0,0,0.08)' }} />
           </View>
           <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} onPress={() => Linking.openURL('https://chutex-innovation.com')}>
