@@ -265,7 +265,7 @@ export default function AlertsScreen() {
 
           {/* Intervention info + button to see intervenant */}
           {(selectedAlert.intervener_info || selectedAlert.care_provider) && (
-            <div onClick={() => { if (selectedAlert.intervention?.id) router.push({ pathname: '/intervention-detail', params: { interventionId: selectedAlert.intervention.id } }); }} style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+            <div onClick={() => { if (selectedAlert.intervention?.id) router.push({ pathname: '/intervention-map', params: { interventionId: selectedAlert.intervention.id } }); }} style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
               <div>
                 <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Intervenant</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{selectedAlert.intervener_info?.name || selectedAlert.care_provider || 'Intervenant'}</div>
