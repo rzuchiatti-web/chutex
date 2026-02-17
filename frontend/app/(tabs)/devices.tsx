@@ -21,6 +21,8 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { PageExplainer } from '../../src/components/HelpSystem';
 
 /* ===== BENEFICIARY: DEVICE MANAGEMENT ===== */
+const BG_BLACK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
+
 function DeviceManagement({ token }: { token: string }) {
   const router = useRouter();
   const [devices, setDevices] = useState<any[]>([]);
@@ -49,43 +51,148 @@ function DeviceManagement({ token }: { token: string }) {
   useEffect(() => { fetchDevices(); }, [fetchDevices]);
 
   const syncDevice = async (deviceType: string) => {
-    if (deviceType === 'vest') {
-      router.push('/vest-connect');
-      return;
-    }
+    if (deviceType === 'vest') { router.push('/vest-connect'); return; }
     if (deviceType === 'bracelet') {
-      if (!subscription?.can_use_bracelet) {
-        Alert.alert('Abonnement requis', 'Un abonnement Standard ou Care est necessaire pour utiliser le bracelet Elio.');
-        return;
-      }
-      router.push('/bracelet-connect');
-      return;
+      if (!subscription?.can_use_bracelet) { Alert.alert('Abonnement requis', 'Un abonnement Standard ou Care est necessaire.'); return; }
+      router.push('/bracelet-connect'); return;
     }
     setSyncingDevice(deviceType);
     try {
-      const res = await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: {} }) }, token);
-      Alert.alert('Synchronise', `${deviceType === 'bracelet' ? 'Bracelet' : 'Balance'} synchronise.${res.anomalies?.length ? `\n${res.anomalies.length} anomalie(s)` : ''}`);
+      await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: {} }) }, token);
+      Alert.alert('Synchronise', `${deviceType} synchronise.`);
       fetchDevices();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSyncingDevice(null); }
   };
 
   const getDeviceName = (type: string) => type === 'bracelet' ? 'Bracelet Elio' : type === 'scale' ? 'Balance Connectee' : 'Gilet Anti-Chute S-AIRBAG';
-  const getDeviceIcon = (type: string) => type === 'bracelet' ? 'watch' : type === 'scale' ? 'scale-bathroom' : 'tshirt-crew';
+  const getDeviceRiIcon = (type: string) => type === 'bracelet' ? 'ri-pulse-line' : type === 'scale' ? 'ri-scales-3-line' : 'ri-shield-check-line';
+  const getDeviceDesc = (type: string) => type === 'bracelet' ? 'Rythme cardiaque, SpO2, temperature, chutes' : type === 'scale' ? 'Poids et composition corporelle (30+ metriques)' : 'Protection anti-chute par airbag';
 
-  if (loading) return <View style={d.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
 
+  /* ─── WEB: Full-page black satin design ─── */
+  if (Platform.OS === 'web') {
+    return (
+      <div data-testid="devices-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_BLACK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+
+        {/* Header */}
+        <div style={{ position: 'relative', padding: '24px 20px 20px', zIndex: 10, textAlign: 'center' } as any}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 12 } as any}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: subscription?.has_subscription ? '#10B981' : '#F59E0B' } as any} />
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{subscription?.has_subscription ? `Abonnement ${subscription.subscription_type || 'Standard'} actif` : 'Gilet et balance disponibles'}</span>
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Appareils connectes</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>Gerez vos dispositifs de sante</div>
+        </div>
+
+        {/* Content */}
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+
+          {/* Device cards */}
+          {devices.map((device) => {
+            const isVest = device.device_type === 'vest';
+            const isBracelet = device.device_type === 'bracelet';
+            const vestConnected = isVest && vestStatus?.connected;
+            const braceletConnected = isBracelet && braceletStatus?.connected;
+            const realBattery = isVest ? (vestStatus?.battery || device.battery) : isBracelet ? (braceletStatus?.battery || device.battery) : device.battery;
+            const realConnected = isVest ? vestConnected : isBracelet ? braceletConnected : device.connected;
+            const needsSub = isBracelet && !subscription?.can_use_bracelet;
+
+            return (
+              <div key={device.id} data-testid={`device-card-${device.device_type}`} style={{
+                padding: '18px 18px', borderRadius: 20, marginBottom: 12,
+                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                opacity: needsSub ? 0.5 : 1,
+              } as any}>
+                {/* Top row: icon + name + status + battery */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 } as any}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className={getDeviceRiIcon(device.device_type)} style={{ fontSize: 24, color: '#FFF' }} />
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{getDeviceName(device.device_type)}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{getDeviceDesc(device.device_type)}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: realBattery > 20 ? '#10B981' : '#EF4444' }}>{realBattery}%</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 } as any}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: realConnected ? '#10B981' : 'rgba(255,255,255,0.25)' } as any} />
+                      <span style={{ fontSize: 11, fontWeight: 600, color: realConnected ? '#10B981' : 'rgba(255,255,255,0.4)' }}>{realConnected ? 'Actif' : 'Inactif'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action button */}
+                <div onClick={() => {
+                  if (isVest) router.push('/vest-connect');
+                  else if (isBracelet) syncDevice('bracelet');
+                  else if (device.device_type === 'scale') router.push('/scale-detail');
+                  else syncDevice(device.device_type);
+                }} style={{
+                  padding: '12px 18px', borderRadius: 999, cursor: needsSub ? 'not-allowed' : 'pointer',
+                  background: realConnected ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)',
+                  border: `1px solid ${realConnected ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.1)'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  transition: 'all 0.25s',
+                } as any}
+                  onMouseEnter={(e: any) => { if (!needsSub) e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.background = realConnected ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)'; }}
+                >
+                  <i className={realConnected ? 'ri-bluetooth-connect-line' : device.device_type === 'scale' ? 'ri-line-chart-line' : 'ri-bluetooth-line'} style={{ fontSize: 16, color: realConnected ? '#10B981' : '#FFF' }} />
+                  <span style={{ fontSize: 14, fontWeight: 600, color: realConnected ? '#10B981' : '#FFF' }}>
+                    {isVest ? (vestConnected ? 'Gilet actif - Voir details' : 'Connecter via Bluetooth')
+                      : isBracelet ? (braceletConnected ? 'Bracelet actif - Voir details' : needsSub ? 'Abonnement requis' : 'Connecter via Bluetooth')
+                      : device.device_type === 'scale' ? 'Voir mes mesures'
+                      : 'Synchroniser'}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Empty state */}
+          {devices.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '40px 20px' } as any}>
+              <i className="ri-bluetooth-connect-line" style={{ fontSize: 40, color: 'rgba(255,255,255,0.25)' }} />
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF', marginTop: 14 }}>Aucun appareil</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Vos appareils connectes apparaitront ici</div>
+            </div>
+          )}
+
+          {/* Info section */}
+          <div style={{ marginTop: 8, padding: '16px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 12 }}>A propos des appareils</div>
+            {[
+              { icon: 'ri-pulse-line', label: 'Bracelet Elio', desc: 'Mesure en continu votre rythme cardiaque, SpO2, temperature et detecte les chutes. Abonnement Standard ou Care requis.' },
+              { icon: 'ri-shield-check-line', label: 'Gilet Anti-Chute', desc: 'Le S-AIRBAG se gonfle automatiquement en cas de chute pour proteger vos hanches.' },
+              { icon: 'ri-scales-3-line', label: 'Balance connectee', desc: 'Poids et composition corporelle avec plus de 30 metriques. Connexion Bluetooth ou WiFi.' },
+            ].map((info, i) => (
+              <div key={i} style={{ display: 'flex', gap: 12, marginBottom: i < 2 ? 12 : 0, alignItems: 'flex-start' } as any}>
+                <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className={info.icon} style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>{info.label}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{info.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── NATIVE FALLBACK ─── */
   return (
     <ScrollView style={d.sv} contentContainerStyle={d.sc}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchDevices(); }} tintColor={Colors.primary} />}
       showsVerticalScrollIndicator={false}>
 
-      <PageExplainer pageId="devices" title="Vos appareils connectes" sections={[
-        { icon: 'watch-outline', heading: 'Bracelet Elio', text: 'Mesure en continu votre rythme cardiaque, SpO2, temperature et detecte les chutes. Necessite un abonnement Standard ou Care.' },
-        { icon: 'shield-outline', heading: 'Gilet Anti-Chute', text: 'Le S-AIRBAG se gonfle automatiquement en cas de chute pour proteger vos hanches. Connexion Bluetooth.' },
-        { icon: 'scale-outline', heading: 'Balance connectee', text: 'Mesurez votre poids et composition corporelle (30+ metriques). Connectez-la en Bluetooth ou WiFi.' },
-      ]} />
-
-      {/* Subscription Status */}
       {subscription && (
         <View style={[d.infoText, { flexDirection: 'row', alignItems: 'center', gap: 8, borderColor: subscription.has_subscription ? Colors.success : Colors.border }]}>
           <Icon name={subscription.has_subscription ? "checkmark-circle" : "alert-circle"} size={16} color={subscription.has_subscription ? Colors.success : Colors.textMuted} />
@@ -109,52 +216,29 @@ function DeviceManagement({ token }: { token: string }) {
         return (
           <View key={device.id} style={[d.deviceCard, needsSub && { opacity: 0.6 }]} testID={`device-card-${device.device_type}`}>
             <View style={d.deviceHeader}>
-              <View style={d.deviceIconBg}><MCIcon name={getDeviceIcon(device.device_type) as any} size={24} color={Colors.textPrimary} /></View>
+              <View style={d.deviceIconBg}><MCIcon name={(device.device_type === 'bracelet' ? 'watch' : device.device_type === 'scale' ? 'scale-bathroom' : 'tshirt-crew') as any} size={24} color={Colors.textPrimary} /></View>
               <View style={d.deviceInfo}>
                 <Text style={d.deviceName}>{getDeviceName(device.device_type)}</Text>
                 <View style={d.deviceMeta}>
                   <View style={[d.connDot, { backgroundColor: realConnected ? Colors.success : Colors.textMuted }]} />
                   <Text style={[d.connText, { color: realConnected ? Colors.success : Colors.textMuted }]}>
-                    {realConnected ? 'Actif' : (isVest || isBracelet) && realBattery > 0 ? 'Eteint' : 'Deconnecte'}
+                    {realConnected ? 'Actif' : 'Deconnecte'}
                   </Text>
-                  {needsSub && <Text style={{ fontSize: 10, color: Colors.destructive, marginLeft: 6 }}>Abonnement requis</Text>}
                 </View>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={d.batteryT}>{realBattery}%</Text>
-                <Icon name={(realBattery > 50) ? "battery-full" : (realBattery > 20) ? "battery-half" : "battery-dead"} size={16} color={(realBattery > 20) ? Colors.success : Colors.destructive} />
               </View>
             </View>
-
-            {isVest ? (
-              <TouchableOpacity testID="connect-vest-ble-btn" style={[d.syncBtn, vestConnected && { borderColor: Colors.success }]}
-                onPress={() => router.push('/vest-connect')}>
-                <Icon name="bluetooth" size={16} color={vestConnected ? Colors.success : Colors.primary} />
-                <Text style={[d.syncBtnText, vestConnected && { color: Colors.success }]}>
-                  {vestConnected ? 'Gilet actif - Voir details' : 'Connecter via Bluetooth'}
-                </Text>
-              </TouchableOpacity>
-            ) : isBracelet ? (
-              <TouchableOpacity testID="connect-bracelet-ble-btn" style={[d.syncBtn, braceletConnected && { borderColor: Colors.success }, needsSub && { opacity: 0.5 }]}
-                onPress={() => syncDevice('bracelet')} disabled={needsSub}>
-                <Icon name="bluetooth" size={16} color={braceletConnected ? Colors.success : Colors.primary} />
-                <Text style={[d.syncBtnText, braceletConnected && { color: Colors.success }]}>
-                  {braceletConnected ? 'Bracelet actif - Voir details' : needsSub ? 'Abonnement requis' : 'Connecter via Bluetooth'}
-                </Text>
-              </TouchableOpacity>
-            ) : device.device_type === 'scale' ? (
-              <TouchableOpacity testID="scale-detail-btn" style={[d.syncBtn, { borderColor: '#4CAF50' }]}
-                onPress={() => router.push('/scale-detail')}>
-                <Icon name="analytics" size={16} color="#4CAF50" />
-                <Text style={[d.syncBtnText, { color: '#10B981' }]}>Voir mes mesures</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity testID={`sync-${device.device_type}-btn`} style={[d.syncBtn, needsSub && { opacity: 0.5 }]}
-                onPress={() => syncDevice(device.device_type)} disabled={syncingDevice === device.device_type || needsSub}>
-                {syncingDevice === device.device_type ? <ActivityIndicator color={Colors.primary} size="small" /> : (
-                  <><MCIcon name="bluetooth-connect" size={16} color={Colors.primary} /><Text style={d.syncBtnText}>Synchroniser</Text></>)}
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity style={d.syncBtn} onPress={() => {
+              if (isVest) router.push('/vest-connect');
+              else if (isBracelet) syncDevice('bracelet');
+              else if (device.device_type === 'scale') router.push('/scale-detail');
+              else syncDevice(device.device_type);
+            }} disabled={needsSub}>
+              <Icon name="bluetooth" size={16} color={realConnected ? Colors.success : Colors.primary} />
+              <Text style={d.syncBtnText}>{realConnected ? 'Voir details' : 'Connecter'}</Text>
+            </TouchableOpacity>
           </View>
         );
       })}
