@@ -109,8 +109,8 @@ function DeviceManagement({ token }: { token: string }) {
             return (
               <div key={device.id} data-testid={`device-card-${device.device_type}`} style={{
                 borderRadius: 24, marginBottom: 16, overflow: 'hidden',
-                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-                backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+                background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)',
+                backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
               } as any}>
 
                 {/* Product image + status/delete overlays */}
