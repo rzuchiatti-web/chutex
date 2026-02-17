@@ -158,7 +158,6 @@ export default function AlertsScreen() {
       { id: 'actions', label: 'Actions realisees', options: ['Levee de doute telephonique', 'Intervention physique au domicile', 'Contact avec les secours (SAMU/Pompiers)', 'Contact avec le medecin traitant', 'Aucune action necessaire'] },
       { id: 'condition', label: 'Etat du beneficiaire', options: ['Stable - pas de blessure', 'Blessure legere - soins apportes', 'Necessitant un suivi medical', 'Hospitalisation necessaire'] },
     ];
-    const [reportAnswers, setReportAnswers] = useState<Record<string, string>>({});
     const allAnswered = reportQuestions.every(q => reportAnswers[q.id]);
 
     return (
