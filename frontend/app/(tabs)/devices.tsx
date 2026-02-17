@@ -640,8 +640,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
           <View style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '90%', backgroundColor: 'rgba(30,30,40,0.85)', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)', borderTop: '1px solid rgba(255,255,255,0.1)' } : {}) } as any}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ fontSize: 20, fontWeight: '800', color: '#111' }}>Nouvelle prescription</Text>
-              <TouchableOpacity onPress={() => setShowForm(false)}><Icon name="close" size={24} color="#111" /></TouchableOpacity>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>Nouvelle prescription</Text>
+              <TouchableOpacity onPress={() => setShowForm(false)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' }}><Icon name="close" size={20} color="#FFF" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               {[
