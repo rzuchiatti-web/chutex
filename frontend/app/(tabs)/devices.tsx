@@ -571,29 +571,64 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
       </View>{/* End white rounded container */}
 
-      {/* Prescriber Detail Modal */}
+      {/* Prescriber Detail Modal — GLASS DARK */}
       <Modal visible={showPrescModal} transparent animationType="fade" onRequestClose={() => setShowPrescModal(false)}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
+          <View style={{
+            borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%',
+            backgroundColor: 'rgba(30,30,40,0.85)',
+            ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)', borderTop: '1px solid rgba(255,255,255,0.1)' } : {}),
+          } as any}>
+            {/* Header */}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ fontSize: 20, fontWeight: '900', color: '#111' }}>Espace Prescripteur</Text>
-              <TouchableOpacity onPress={() => setShowPrescModal(false)}><Icon name="close" size={24} color="#111827" /></TouchableOpacity>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>Espace Prescripteur</Text>
+              <TouchableOpacity onPress={() => setShowPrescModal(false)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' }}>
+                <Icon name="close" size={20} color="#FFF" />
+              </TouchableOpacity>
             </View>
+
             <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' }}>
-                  <Icon name="medical" size={24} color="#111" />
+              {/* Profile */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 20, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 20, padding: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
+                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' }}>
+                  <Icon name="medical" size={24} color="#FFF" />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>{user.name}</Text>
-                  <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{user.prescriber_structure}</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{user.name}</Text>
+                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{user.prescriber_structure || 'Structure'}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(16,185,129,0.15)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 }}>
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' }} />
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#10B981' }}>ACTIF</Text>
                 </View>
               </View>
-              <TouchableOpacity style={{ borderWidth: 1.5, borderColor: '#E53935', borderRadius: 999, paddingVertical: 14, alignItems: 'center', marginTop: 16 }}
+
+              {/* Details */}
+              {[
+                { icon: 'business-outline', label: 'Structure', value: user.prescriber_structure || '-' },
+                { icon: 'key-outline', label: 'Code', value: user.prescriber_code_used || '-' },
+                { icon: 'call-outline', label: 'Telephone', value: user.phone || '-' },
+                { icon: 'mail-outline', label: 'Email', value: user.email || '-' },
+              ].map(({ icon, label, value }) => value !== '-' ? (
+                <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(255,255,255,0.06)' }}>
+                  <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center' }}>
+                    <Icon name={icon as any} size={14} color="rgba(255,255,255,0.5)" />
+                  </View>
+                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', width: 80 }}>{label}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF', flex: 1 }}>{value}</Text>
+                </View>
+              ) : null)}
+
+              {/* Desactiver — glass red button */}
+              <TouchableOpacity style={{
+                marginTop: 24, borderRadius: 999, paddingVertical: 16, alignItems: 'center',
+                backgroundColor: 'rgba(239,68,68,0.15)', borderWidth: 1, borderColor: 'rgba(239,68,68,0.25)',
+                ...(Platform.OS === 'web' ? { backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } : {}),
+              } as any}
                 onPress={() => { setShowPrescModal(false); confirmAction('Desactiver', 'Confirmer la desactivation ?', async () => {
                   try { await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_prescriber: false }) }, token); await refreshUser(); } catch {}
                 }); }}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#E53935' }}>Desactiver</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#FCA5A5' }}>Desactiver mon espace prescripteur</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
