@@ -651,17 +651,17 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 { key: 'notes', label: 'Notes', placeholder: 'Informations supplementaires...' },
               ].map(f => (
                 <View key={f.key} style={{ marginBottom: 14 }}>
-                  <Text style={{ fontSize: 12, fontWeight: '600', color: '#6B7280', marginBottom: 6 }}>{f.label}</Text>
-                  <TextInput style={{ backgroundColor: '#F9FAFB', borderRadius: 14, padding: 14, fontSize: 15, borderWidth: 1, borderColor: '#E5E7EB', color: '#111' }}
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>{f.label}</Text>
+                  <TextInput style={{ backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 14, padding: 14, fontSize: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', color: '#FFF' }}
                     placeholder={f.placeholder} placeholderTextColor="#9CA3AF"
                     value={(formData as any)[f.key]} onChangeText={(v: string) => setFormData({ ...formData, [f.key]: v })} />
                 </View>
               ))}
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#6B7280', marginBottom: 8 }}>Type d'abonnement</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Type d'abonnement</Text>
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 20 }}>
                 {['standard', 'teleassistance'].map(t => (
-                  <TouchableOpacity key={t} style={{ flex: 1, paddingVertical: 12, borderRadius: 999, alignItems: 'center', borderWidth: 1.5, borderColor: formData.type === t ? '#111' : '#E5E7EB', backgroundColor: formData.type === t ? '#111' : '#FFF' }} onPress={() => setFormData({ ...formData, type: t })}>
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: formData.type === t ? '#FFF' : '#6B7280' }}>{t === 'standard' ? 'Standard' : 'Teleassistance'}</Text>
+                  <TouchableOpacity key={t} style={{ flex: 1, paddingVertical: 12, borderRadius: 999, alignItems: 'center', borderWidth: 1.5, borderColor: formData.type === t ? '#FFF' : 'rgba(255,255,255,0.1)', backgroundColor: formData.type === t ? 'rgba(255,255,255,0.15)' : 'transparent' }} onPress={() => setFormData({ ...formData, type: t })}>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: formData.type === t ? '#FFF' : 'rgba(255,255,255,0.5)' }}>{t === 'standard' ? 'Standard' : 'Teleassistance'}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
