@@ -18,6 +18,8 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { PageExplainer } from '../../src/components/HelpSystem';
 
 /* ===== BENEFICIARY: QCM ===== */
+const BG_BLUE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
+
 function BeneficiaryTeleconsult({ token }: { token: string }) {
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<any>({});
@@ -38,35 +40,137 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
-  if (submitted && callInfo) return (
-    <ScrollView contentContainerStyle={s.sc}>
-      <View style={s.successCard}>
-        <Icon name="checkmark-circle" size={48} color={Colors.success} />
-        <Text style={s.successT}>Demande envoyée</Text>
-        <Text style={s.successSub}>Un médecin vous rappellera sous peu</Text>
-        <View style={s.callCard}><Icon name="call" size={18} color={Colors.textPrimary} /><Text style={s.callNum}>{callInfo.call_number}</Text></View>
-        <TouchableOpacity testID="new-consult-btn" style={s.newBtn} onPress={() => { setSubmitted(false); setStep(0); setAnswers({}); }}>
-          <Text style={s.newBtnT}>Nouvelle consultation</Text></TouchableOpacity>
-      </View>
-    </ScrollView>);
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' }}><ActivityIndicator size="large" color="#111" /></View>;
 
+  /* ─── SUCCESS PAGE ─── */
+  if (submitted && callInfo && Platform.OS === 'web') {
+    return (
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px' } as any}>
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginTop: 16, marginBottom: 6 }}>Demande envoyee</div>
+          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 24, textAlign: 'center' }}>Un medecin vous rappellera sous peu</div>
+          <div style={{ padding: '14px 24px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32 } as any}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span style={{ fontSize: 18, fontWeight: 700, color: '#FFF' }}>{callInfo.call_number}</span>
+          </div>
+          <div onClick={() => { setSubmitted(false); setStep(0); setAnswers({}); }} style={{ padding: '16px 32px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 15, fontWeight: 600, cursor: 'pointer' } as any}>Nouvelle consultation</div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── QCM PAGE — full screen blue satin ─── */
+  if (Platform.OS === 'web') {
+    const q = questions[step];
+    return (
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
+
+        {/* Header */}
+        <div style={{ position: 'relative', padding: '20px 20px 16px', zIndex: 10, textAlign: 'center' } as any}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 12 } as any}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>MEDECIN DISPONIBLE 24/7</span>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Teleconsultation</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>Questionnaire pre-consultation</div>
+          {/* Progress dots */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 14 } as any}>
+            {questions.map((_, i) => <div key={i} style={{ width: i <= step ? 20 : 6, height: 6, borderRadius: 3, backgroundColor: i <= step ? '#FFF' : 'rgba(255,255,255,0.2)', transition: 'all 0.3s' }} />)}
+          </div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Etape {step + 1} / {questions.length}</div>
+        </div>
+
+        {/* Question content */}
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '8px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+          {q && (
+            <>
+              <div style={{ padding: '18px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
+                <div style={{ fontSize: 17, fontWeight: 700, color: '#FFF', lineHeight: 1.4 }}>{q.question}</div>
+              </div>
+
+              {q.type === 'choice' && q.options?.map((o: string, i: number) => (
+                <div key={i} onClick={() => setAnswers({ ...answers, [q.id]: o })} style={{
+                  padding: '14px 18px', borderRadius: 16, marginBottom: 8, cursor: 'pointer',
+                  background: answers[q.id] === o ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
+                  border: `1px solid ${answers[q.id] === o ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                  display: 'flex', alignItems: 'center', gap: 12, transition: 'all 0.2s',
+                } as any}>
+                  <div style={{ width: 22, height: 22, borderRadius: 999, border: `2px solid ${answers[q.id] === o ? '#FFF' : 'rgba(255,255,255,0.25)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    {answers[q.id] === o && <div style={{ width: 10, height: 10, borderRadius: 999, background: '#FFF' }} />}
+                  </div>
+                  <span style={{ fontSize: 15, fontWeight: 600, color: '#FFF' }}>{o}</span>
+                </div>
+              ))}
+
+              {q.type === 'scale' && (
+                <div style={{ textAlign: 'center', marginTop: 8 } as any}>
+                  <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', marginBottom: 16 }}>{painLevel}</div>
+                  <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' } as any}>
+                    {[0,1,2,3,4,5,6,7,8,9,10].map(n => (
+                      <div key={n} onClick={() => { setPainLevel(n); setAnswers({ ...answers, [q.id]: n.toString() }); }}
+                        style={{ width: 38, height: 38, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                          background: painLevel === n ? '#FFF' : 'rgba(255,255,255,0.06)', border: `1px solid ${painLevel === n ? '#FFF' : 'rgba(255,255,255,0.1)'}`, color: painLevel === n ? '#111' : '#FFF', fontSize: 14, fontWeight: 700, transition: 'all 0.2s',
+                        } as any}>{n}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {q.type === 'text' && (
+                <textarea value={freeText} onChange={(e: any) => { setFreeText(e.target.value); setAnswers({ ...answers, [q.id]: e.target.value }); }}
+                  placeholder="Decrivez vos symptomes..."
+                  style={{ width: '100%', minHeight: 120, padding: '16px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', resize: 'none', outline: 'none' } as any} />
+              )}
+            </>
+          )}
+
+          {/* Navigation */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, gap: 10 } as any}>
+            {step > 0 ? (
+              <div onClick={() => setStep(step - 1)} style={{ padding: '14px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+                Precedent
+              </div>
+            ) : <div />}
+            {step < questions.length - 1 ? (
+              <div onClick={() => setStep(step + 1)} style={{ padding: '14px 24px', borderRadius: 999, background: '#FFF', color: '#111', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 16px rgba(0,0,0,0.2)' } as any}>
+                Suivant
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+              </div>
+            ) : (
+              <div onClick={submitQCM} style={{ padding: '14px 24px', borderRadius: 999, background: '#FFF', color: '#111', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 16px rgba(0,0,0,0.2)' } as any}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Envoyer
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── NATIVE FALLBACK ─── */
   const q = questions[step];
   return (
     <ScrollView contentContainerStyle={s.sc} showsVerticalScrollIndicator={false}>
       <View style={s.prog}>{questions.map((_, i) => <View key={i} style={[s.progDot, i <= step && { backgroundColor: Colors.primary }]} />)}</View>
-      <Text style={s.stepL}>Étape {step + 1} / {questions.length}</Text>
+      <Text style={s.stepL}>Etape {step + 1} / {questions.length}</Text>
       {q && <View style={s.qCard}><Text style={s.qText}>{q.question}</Text>
         {q.type === 'choice' && q.options?.map((o: string, i: number) => (
-          <TouchableOpacity key={i} testID={`opt-${i}`} style={[s.optBtn, answers[q.id] === o && s.optBtnA]} onPress={() => setAnswers({ ...answers, [q.id]: o })}>
+          <TouchableOpacity key={i} style={[s.optBtn, answers[q.id] === o && s.optBtnA]} onPress={() => setAnswers({ ...answers, [q.id]: o })}>
             <View style={[s.radio, answers[q.id] === o && s.radioA]}>{answers[q.id] === o && <View style={s.radioI} />}</View>
             <Text style={[s.optT, answers[q.id] === o && s.optTA]}>{o}</Text></TouchableOpacity>))}
         {q.type === 'scale' && <View style={s.scaleC}><Text style={s.scaleV}>{painLevel}</Text><View style={s.scaleR}>
-          {[0,1,2,3,4,5,6,7,8,9,10].map(n => <TouchableOpacity key={n} testID={`sc-${n}`} style={[s.scaleB, painLevel === n && { backgroundColor: Colors.primary }]}
+          {[0,1,2,3,4,5,6,7,8,9,10].map(n => <TouchableOpacity key={n} style={[s.scaleB, painLevel === n && { backgroundColor: Colors.primary }]}
             onPress={() => { setPainLevel(n); setAnswers({ ...answers, [q.id]: n.toString() }); }}><Text style={[s.scaleBT, painLevel === n && { color: '#FFF' }]}>{n}</Text></TouchableOpacity>)}</View></View>}
-        {q.type === 'text' && <TextInput testID="qcm-text" style={s.textInp} placeholder="Décrivez..." placeholderTextColor={Colors.textMuted} value={freeText} onChangeText={v => { setFreeText(v); setAnswers({ ...answers, [q.id]: v }); }} multiline />}
+        {q.type === 'text' && <TextInput style={s.textInp} placeholder="Decrivez..." placeholderTextColor={Colors.textMuted} value={freeText} onChangeText={v => { setFreeText(v); setAnswers({ ...answers, [q.id]: v }); }} multiline />}
       </View>}
-      <View style={s.navR}>{step > 0 && <TouchableOpacity style={s.prevB} onPress={() => setStep(step - 1)}><Icon name="chevron-back" size={16} color={Colors.textSecondary} /><Text style={s.prevBT}>Précédent</Text></TouchableOpacity>}
+      <View style={s.navR}>{step > 0 && <TouchableOpacity style={s.prevB} onPress={() => setStep(step - 1)}><Icon name="chevron-back" size={16} color={Colors.textSecondary} /><Text style={s.prevBT}>Precedent</Text></TouchableOpacity>}
         <View style={{ flex: 1 }} />{step < questions.length - 1 ? <TouchableOpacity style={s.nextB} onPress={() => setStep(step + 1)}><Text style={s.nextBT}>Suivant</Text><Icon name="chevron-forward" size={16} color="#111827" /></TouchableOpacity>
           : <TouchableOpacity testID="submit-qcm" style={s.submitB} onPress={submitQCM}><Icon name="send" size={14} color="#111827" /><Text style={s.submitBT}>Envoyer</Text></TouchableOpacity>}</View>
     </ScrollView>);
