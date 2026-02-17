@@ -294,6 +294,11 @@ export function PastelMistBackground() {
       [role="tablist"] ~ div, [role="tabpanel"] { padding-bottom: 84px !important; }
       /* Remove any white padding at top */
       [role="tabpanel"] > div:first-child { padding-top: 0 !important; }
+      /* Kill ALL page headers/titles from Expo Router */
+      header[role="banner"], [data-testid*="header"], div[style*="headerTitle"] { display: none !important; }
+      /* Full screen - no white borders */
+      #root, #root > div, #root > div > div, [data-testid="login-screen"] { min-height: 100dvh !important; }
+      html, body, #root { margin: 0 !important; padding: 0 !important; background: #0b0f16 !important; }
 
       /* ── GUARDIANS STACK ── */
       .chx-guard-stack { display: flex; align-items: center; }
