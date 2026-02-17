@@ -259,6 +259,13 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </View>
           </TouchableOpacity>
           <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity onPress={() => setDarkMode(!darkMode)} style={{
+              paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999,
+              backgroundColor: darkMode ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.06)',
+              borderWidth: 1, borderColor: darkMode ? 'rgba(255,255,255,.15)' : 'rgba(0,0,0,.08)',
+            }}>
+              <Text style={{ fontSize: 10, fontWeight: '600', color: darkMode ? 'rgba(255,255,255,.65)' : 'rgba(0,0,0,.5)' }}>{darkMode ? '☀ Light' : '● Dark'}</Text>
+            </TouchableOpacity>
             <IconBtn icon="notifications-outline" onPress={() => setShowNotifs(!showNotifs)} testID="notification-bell" badge={guardianRequests.length > 0 || activeAlerts.length > 0} />
             <IconBtn icon="settings-outline" onPress={() => router.push('/(tabs)/profile')} />
           </View>
