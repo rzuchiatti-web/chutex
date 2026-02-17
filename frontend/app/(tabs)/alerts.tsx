@@ -204,9 +204,12 @@ export default function AlertsScreen() {
               .catch(() => {});
           }} style={{
             width: '100%', padding: '16px', borderRadius: 999, textAlign: 'center', cursor: allAnswered ? 'pointer' : 'not-allowed',
-            background: allAnswered ? '#10B981' : 'rgba(255,255,255,0.08)',
-            color: allAnswered ? '#FFF' : 'rgba(255,255,255,0.3)',
+            background: allAnswered ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.05)',
+            border: allAnswered ? '1px solid rgba(16,185,129,0.35)' : '1px solid rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+            color: allAnswered ? '#10B981' : 'rgba(255,255,255,0.3)',
             fontSize: 16, fontWeight: 700, transition: 'all 0.25s',
+            boxShadow: allAnswered ? '0 4px 20px rgba(16,185,129,0.2)' : 'none',
           } as any}>
             {allAnswered ? 'Confirmer la cloture' : 'Repondez a la question'}
           </div>
