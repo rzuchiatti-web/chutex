@@ -454,7 +454,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
       )}
 
       {/* White container for cards */}
-      <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20, minHeight: 300 }}>
+      <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20 }}>
 
       {/* Prescription cards */}
       <View>
