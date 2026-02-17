@@ -307,11 +307,103 @@ export default function AlertsScreen() {
             </div>
           )}
 
-          {/* Resolved info */}
-          {isResolved && selectedAlert.resolved_at && (
-            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
-              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Resolution</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>Resolue le {new Date(selectedAlert.resolved_at).toLocaleString('fr-FR')}</div>
+          {/* Resolved info — FULL DETAIL with intervention, report, timeline */}
+          {isResolved && (
+            <div style={{ marginTop: 6 } as any}>
+              {/* Resolution summary */}
+              <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Resolution</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Resolue le {selectedAlert.resolved_at ? new Date(selectedAlert.resolved_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</div>
+                {selectedAlert.resolved_by_name && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>Par {selectedAlert.resolved_by_name}</div>}
+                {selectedAlert.created_at && selectedAlert.resolved_at && (() => {
+                  const dur = Math.round((new Date(selectedAlert.resolved_at).getTime() - new Date(selectedAlert.created_at).getTime()) / 60000);
+                  return <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', marginTop: 8 } as any}>
+                    <i className="ri-time-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }} />
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>Duree : {dur >= 60 ? `${Math.floor(dur/60)}h${dur%60 > 0 ? String(dur%60).padStart(2,'0') : ''}` : `${dur} min`}</span>
+                  </div>;
+                })()}
+              </div>
+
+              {/* Intervention report (if exists) */}
+              {(() => {
+                const ivReport = selectedAlert.intervention_report || (alertDetail?.interventions?.[0]?.report);
+                const ivData = alertDetail?.interventions?.[0];
+                if (!ivReport && !ivData) return null;
+                const report = ivReport || {};
+                return (
+                  <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rapport d'intervention</div>
+                    {report.description && <div style={{ marginBottom: 10 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Description</div><div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{report.description}</div></div>}
+                    {report.actions_taken && <div style={{ marginBottom: 10 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Actions realisees</div><div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{report.actions_taken}</div></div>}
+                    {report.patient_condition && <div style={{ marginBottom: 10 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Etat du patient</div><div style={{ fontSize: 13, color: '#FFF' }}>{report.patient_condition === 'stable' ? 'Stable' : report.patient_condition}</div></div>}
+                    {report.follow_up_notes && <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' } as any}><div style={{ fontSize: 9, fontWeight: 600, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 2 }}>Suivi necessaire</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.4 }}>{report.follow_up_notes}</div></div>}
+                    {report.completed_by && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>Redige par {report.completed_by}</div>}
+                  </div>
+                );
+              })()}
+
+              {/* Closure report (from guardian/beneficiary form) */}
+              {selectedAlert.report?.answers && (
+                <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rapport de cloture</div>
+                  {Object.entries(selectedAlert.report.answers).filter(([k]) => !['notes','closed_by','closed_at','closed_by_role'].includes(k)).map(([key, val]: any) => (
+                    <div key={key} style={{ marginBottom: 8 } as any}>
+                      <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{key === 'situation' ? 'Situation' : key === 'actions' ? 'Actions' : key === 'condition' ? 'Etat' : key === 'reason' ? 'Raison' : key}</div>
+                      <div style={{ fontSize: 13, color: '#FFF' }}>{val}</div>
+                    </div>
+                  ))}
+                  {selectedAlert.report.answers.notes && <div style={{ marginTop: 4 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Note</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>{selectedAlert.report.answers.notes}</div></div>}
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>Cloture par {selectedAlert.report.answers.closed_by || selectedAlert.report.closed_by_name || '-'} ({selectedAlert.report.answers.closed_by_role || 'gardien'})</div>
+                </div>
+              )}
+
+              {/* Intervener who handled it */}
+              {(() => {
+                const iv = alertDetail?.interventions?.[0];
+                if (!iv?.assigned_name) return null;
+                const dur = iv.accepted_at && (iv.completed_at || selectedAlert.resolved_at) ? Math.round((new Date(iv.completed_at || selectedAlert.resolved_at).getTime() - new Date(iv.accepted_at).getTime()) / 60000) : null;
+                return (
+                  <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Intervenant</div>
+                      {iv.structure_name && <div style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 } as any}>
+                      <div style={{ width: 40, height: 40, borderRadius: 999, background: iv.structure_name ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                        <span style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{iv.assigned_name.charAt(0)}</span>
+                      </div>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{iv.assigned_name}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{iv.structure_name || 'Gardien'}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 } as any}>
+                      {iv.distance_km && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Distance</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{iv.distance_km} km</div></div>}
+                      {dur != null && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Duree</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{dur >= 60 ? `${Math.floor(dur/60)}h${dur%60 > 0 ? String(dur%60).padStart(2,'0') : ''}` : `${dur} min`}</div></div>}
+                      {iv.accepted_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Accepte a</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.accepted_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Timeline */}
+              {alertDetail?.timeline && alertDetail.timeline.length > 0 && (
+                <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Chronologie</div>
+                  {alertDetail.timeline.sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime()).map((t: any, i: number) => (
+                    <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 8 } as any}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 } as any}>
+                        <div style={{ width: 8, height: 8, borderRadius: 4, background: i === alertDetail.timeline.length - 1 ? '#10B981' : 'rgba(255,255,255,0.25)', marginTop: 4 } as any} />
+                        {i < alertDetail.timeline.length - 1 && <div style={{ width: 1, flex: 1, background: 'rgba(255,255,255,0.08)', marginTop: 4 } as any} />}
+                      </div>
+                      <div style={{ flex: 1, paddingBottom: 4 } as any}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{t.detail}</div>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{t.time ? new Date(t.time).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
