@@ -58,22 +58,27 @@ export default function AlertsScreen() {
           </div>
         </div>
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+          {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
             <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{selectedAlert.message || selectedAlert.alert_type || 'Alerte'}</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{new Date(selectedAlert.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
           </div>
-          {/* Beneficiary */}
+
+          {/* Beneficiary avatar */}
           <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
             <div style={{ width: 56, height: 56, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 } as any}><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{selectedAlert.beneficiary_name || 'Beneficiaire'}</div>
           </div>
+
           {/* Info grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
             {[
-              { label: 'Type', value: selectedAlert.alert_type === 'sos' ? 'SOS' : selectedAlert.alert_type === 'fall' ? 'Chute' : selectedAlert.alert_type || '-' },
+              { label: 'Type', value: selectedAlert.alert_type === 'sos' ? 'SOS' : selectedAlert.alert_type === 'fall' ? 'Chute' : selectedAlert.alert_type === 'health_anomaly' ? 'Anomalie' : selectedAlert.alert_type || '-' },
               { label: 'Severite', value: selectedAlert.severity === 'critical' ? 'Critique' : selectedAlert.severity === 'high' ? 'Haute' : 'Moyenne' },
               { label: 'Statut', value: isResolved ? 'Resolue' : STATE_LABEL[selectedAlert.incident_state || selectedAlert.teleassistance_status] || 'Active' },
               { label: 'Appareil', value: selectedAlert.device_type || '-' },
+              { label: 'Date', value: new Date(selectedAlert.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) },
+              { label: 'Heure', value: new Date(selectedAlert.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' }) },
             ].map((item, i) => (
               <div key={i} style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
                 <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 3 }}>{item.label}</div>
@@ -81,6 +86,15 @@ export default function AlertsScreen() {
               </div>
             ))}
           </div>
+
+          {/* Message */}
+          {selectedAlert.message && (
+            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Message</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF', lineHeight: 1.5 }}>{selectedAlert.message}</div>
+            </div>
+          )}
+
           {/* Intervention info */}
           {(selectedAlert.intervener_info || selectedAlert.care_provider) && (
             <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
@@ -89,18 +103,39 @@ export default function AlertsScreen() {
               {selectedAlert.incident_state && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{STATE_LABEL[selectedAlert.incident_state] || selectedAlert.incident_state}</div>}
             </div>
           )}
-          {/* Message */}
-          {selectedAlert.message && (
-            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
-              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Message</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF', lineHeight: 1.5 }}>{selectedAlert.message}</div>
-            </div>
-          )}
+
           {/* Resolved info */}
           {isResolved && selectedAlert.resolved_at && (
             <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
               <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Resolution</div>
               <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>Resolue le {new Date(selectedAlert.resolved_at).toLocaleString('fr-FR')}</div>
+            </div>
+          )}
+
+          {/* Action buttons — GUARDIAN: intervenir + cloturer, BENEFICIARY: cloturer only */}
+          {!isResolved && (
+            <div style={{ marginTop: 16 } as any}>
+              {/* Intervenir — GUARDIAN only */}
+              {r === 'guardian' && (
+                <div style={{ width: '100%', height: 58, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, touchAction: 'none' } as any}
+                  onMouseDown={(e: any) => { const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52; const startX = e.clientX; const onMove = (ev: any) => { const dx = Math.max(0, Math.min(ev.clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); router.push({ pathname: '/intervention-detail', params: { interventionId: selectedAlert.intervention?.id || selectedAlert.id } }); } }; const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if(thumb) thumb.style.transition = ''; }, 300); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); }}
+                  onTouchStart={(e: any) => { e.stopPropagation(); const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52; const startX = e.touches[0].clientX; const onMove = (ev: any) => { ev.preventDefault(); const dx = Math.max(0, Math.min(ev.touches[0].clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); router.push({ pathname: '/intervention-detail', params: { interventionId: selectedAlert.intervention?.id || selectedAlert.id } }); } }; const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if(thumb) thumb.style.transition = ''; }, 300); bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); }; bar.addEventListener('touchmove', onMove, { passive: false }); bar.addEventListener('touchend', onUp); }}>
+                  <div data-thumb style={{ position: 'absolute', top: 4, left: 4, width: 50, height: 50, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.2)', willChange: 'transform', touchAction: 'none' } as any}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+                  </div>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', fontSize: 16, fontWeight: 700, pointerEvents: 'none', paddingLeft: 36 } as any}>Glisser pour intervenir</div>
+                </div>
+              )}
+
+              {/* Cloturer — both guardian + beneficiary */}
+              <div style={{ width: '100%', height: 58, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', touchAction: 'none' } as any}
+                onMouseDown={(e: any) => { const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52; const startX = e.clientX; const onMove = (ev: any) => { const dx = Math.max(0, Math.min(ev.clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); apiFetch(`/api/alerts/${selectedAlert.id}/resolve`, { method: 'PUT' }, token).then(() => { fetchAlerts(); setSelectedAlert(null); }).catch(() => {}); } }; const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if(thumb) thumb.style.transition = ''; }, 300); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); }}
+                onTouchStart={(e: any) => { e.stopPropagation(); const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52; const startX = e.touches[0].clientX; const onMove = (ev: any) => { ev.preventDefault(); const dx = Math.max(0, Math.min(ev.touches[0].clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); apiFetch(`/api/alerts/${selectedAlert.id}/resolve`, { method: 'PUT' }, token).then(() => { fetchAlerts(); setSelectedAlert(null); }).catch(() => {}); } }; const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if(thumb) thumb.style.transition = ''; }, 300); bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); }; bar.addEventListener('touchmove', onMove, { passive: false }); bar.addEventListener('touchend', onUp); }}>
+                <div data-thumb style={{ position: 'absolute', top: 4, left: 4, width: 50, height: 50, borderRadius: 999, background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.2)', willChange: 'transform', touchAction: 'none' } as any}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(16,185,129,0.7)', fontSize: 16, fontWeight: 700, pointerEvents: 'none', paddingLeft: 36 } as any}>Glisser pour cloturer</div>
+              </div>
             </div>
           )}
         </div>
