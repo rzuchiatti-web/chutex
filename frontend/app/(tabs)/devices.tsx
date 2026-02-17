@@ -317,6 +317,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const BG_HEADER_P = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 
   const [slideActivatedP, setSlideActivatedP] = useState(false);
+  const [prescError, setPrescError] = useState('');
 
   if (loading) return <View style={d.center}><ActivityIndicator size="large" color="#D4845A" /></View>;
 
