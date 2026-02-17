@@ -418,9 +418,9 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   /* ─── ACTIF: page prescriptions avec header orange ─── */
   return (
     <ScrollView contentContainerStyle={[d.sc, { paddingBottom: 80, paddingHorizontal: 0 }]} showsVerticalScrollIndicator={false}>
-      {/* Header orange collé en haut */}
+      {/* Header orange avec toggle DANS le header */}
       {Platform.OS === 'web' ? (
-        <div style={{ position: 'relative', padding: '28px 20px 20px', textAlign: 'center', overflow: 'hidden' } as any}>
+        <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', overflow: 'hidden' } as any}>
           <img src={BG_HEADER_P} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
           <div style={{ position: 'relative', zIndex: 2 } as any}>
@@ -428,7 +428,11 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
               <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.prescription_structure || user.structure_name || 'Structure'}</span>
             </div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF' }}>Prescription</div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Prescription</div>
+            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
+              <div onClick={() => setPrescTab('pending')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'pending' ? '#FFF' : 'transparent', color: prescTab === 'pending' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.25s', boxShadow: prescTab === 'pending' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none' } as any}>En cours</div>
+              <div onClick={() => setPrescTab('validated')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'validated' ? '#FFF' : 'transparent', color: prescTab === 'validated' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.25s', boxShadow: prescTab === 'validated' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none' } as any}>Cloturees</div>
+            </div>
           </div>
         </div>
       ) : (
@@ -437,22 +441,23 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />
             <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Actif - {user.prescription_structure || 'Structure'}</Text>
           </View>
-          <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF' }}>Prescription</Text>
+          <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF', marginBottom: 14 }}>Prescription</Text>
+          <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 999, padding: 4 }}>
+            <TouchableOpacity style={[{ paddingVertical: 10, paddingHorizontal: 24, borderRadius: 999 }, prescTab === 'pending' && { backgroundColor: '#FFF' }]} onPress={() => setPrescTab('pending')}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: prescTab === 'pending' ? '#111' : 'rgba(255,255,255,0.8)' }}>En cours</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[{ paddingVertical: 10, paddingHorizontal: 24, borderRadius: 999 }, prescTab === 'validated' && { backgroundColor: '#FFF' }]} onPress={() => setPrescTab('validated')}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: prescTab === 'validated' ? '#111' : 'rgba(255,255,255,0.8)' }}>Cloturees</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 
-      {/* Tabs En cours / Cloturées — glass pill */}
-      <View style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 14, marginBottom: 14, backgroundColor: 'rgba(0,0,0,0.04)', borderRadius: 999, padding: 4, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 999 }, prescTab === 'pending' && { backgroundColor: '#FFF', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(0,0,0,0.08)' } as any : {}) }]} onPress={() => setPrescTab('pending')}>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: prescTab === 'pending' ? '#111' : '#888' }}>En cours</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 999 }, prescTab === 'validated' && { backgroundColor: '#FFF', ...(Platform.OS === 'web' ? { boxShadow: '0 2px 8px rgba(0,0,0,0.08)' } as any : {}) }]} onPress={() => setPrescTab('validated')}>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: prescTab === 'validated' ? '#111' : '#888' }}>Cloturees</Text>
-        </TouchableOpacity>
-      </View>
+      {/* White container for cards */}
+      <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20, minHeight: 300 }}>
 
-      {/* Prescription cards with orange background */}
-      <View style={{ paddingHorizontal: 16 }}>
+      {/* Prescription cards */}
+      <View>
         {displayedPresc.length > 0 ? displayedPresc.map((p: any) => {
           const isValidated = p.status === 'subscribed';
           return Platform.OS === 'web' ? (
