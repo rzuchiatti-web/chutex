@@ -95,8 +95,12 @@ function DeviceManagement({ token }: { token: string }) {
         {/* Content */}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* Product cards */}
-          {devices.map((device) => {
+          {/* Product cards — sorted: associated first */}
+          {[...devices].sort((a, b) => {
+            const aActive = (a.device_type === 'vest' ? vestStatus?.connected : a.device_type === 'bracelet' ? braceletStatus?.connected : a.connected) || a.battery > 0;
+            const bActive = (b.device_type === 'vest' ? vestStatus?.connected : b.device_type === 'bracelet' ? braceletStatus?.connected : b.connected) || b.battery > 0;
+            return (bActive ? 1 : 0) - (aActive ? 1 : 0);
+          }).map((device) => {
             const isVest = device.device_type === 'vest';
             const isBracelet = device.device_type === 'bracelet';
             const vestConnected = isVest && vestStatus?.connected;
