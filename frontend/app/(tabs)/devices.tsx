@@ -276,6 +276,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const [selectedPresc, setSelectedPresc] = useState<any>(null);
   const [showRewardsPage, setShowRewardsPage] = useState(false);
   const [rewardsData, setRewardsData] = useState<any>(null);
+  const [expandedChallenge, setExpandedChallenge] = useState<string | null>(null);
+  const [anonymize, setAnonymize] = useState(false);
 
   const fetchPrescriptions = useCallback(async () => {
     try { setPrescriptions(await apiFetch('/api/guardian/prescriptions', {}, token)); } catch (e) { console.error(e); } finally { setLoading(false); }
