@@ -131,9 +131,41 @@ export default function InterventionMapScreen() {
         <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
 
-        {/* Drag handle */}
-        <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', padding: '10px 0 4px', cursor: 'grab' } as any}
-          onClick={() => setSheetHeight(sheetHeight > 50 ? 25 : sheetHeight < 30 ? 55 : 85)}>
+        {/* Drag handle — real touch/mouse drag */}
+        <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', padding: '10px 0 4px', cursor: 'grab', touchAction: 'none' } as any}
+          onMouseDown={(e: any) => {
+            const parent = e.currentTarget.parentElement;
+            if (!parent) return;
+            const startY = e.clientY;
+            const startH = parent.offsetHeight;
+            const pageH = window.innerHeight;
+            const onMove = (ev: any) => {
+              const dy = startY - ev.clientY;
+              const newH = Math.max(120, Math.min(pageH * 0.92, startH + dy));
+              const pct = Math.round((newH / pageH) * 100);
+              setSheetHeight(pct);
+            };
+            const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          }}
+          onTouchStart={(e: any) => {
+            const parent = e.currentTarget.parentElement;
+            if (!parent) return;
+            const startY = e.touches[0].clientY;
+            const startH = parent.offsetHeight;
+            const pageH = window.innerHeight;
+            const onMove = (ev: any) => {
+              ev.preventDefault();
+              const dy = startY - ev.touches[0].clientY;
+              const newH = Math.max(120, Math.min(pageH * 0.92, startH + dy));
+              const pct = Math.round((newH / pageH) * 100);
+              setSheetHeight(pct);
+            };
+            const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onUp);
+          }}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.3)' } as any} />
         </div>
 
