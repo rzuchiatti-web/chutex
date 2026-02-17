@@ -295,16 +295,6 @@ export function PastelMistBackground() {
       }
       [role="tablist"] ~ div, [role="tabpanel"] { padding-bottom: 80px !important; }
 
-      /* Block ALL scroll when detail page is open */
-      body.detail-open { overflow: hidden !important; position: fixed !important; width: 100% !important; height: 100% !important; }
-      body.detail-open [role="tabpanel"] { overflow: hidden !important; }
-
-      /* Detail page open animation */
-      @keyframes detailOpen {
-        0% { opacity: 0; transform: scale(0.92) translateY(20px); border-radius: 24px; }
-        100% { opacity: 1; transform: scale(1) translateY(0); border-radius: 0; }
-      }
-      .detail-animate-in {
         animation: detailOpen 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
       }
       /* Remove any white padding at top */
