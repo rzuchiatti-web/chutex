@@ -181,40 +181,26 @@ export default function InterventionMapScreen() {
         </div>
       </div>
 
-      {/* BOTTOM SHEET */}
+      {/* BOTTOM SHEET — 3 snap levels with smooth animation */}
       <div data-testid="bottom-sheet" style={{
         position: 'absolute', left: 0, right: 0, bottom: 0,
         height: sheetPx, minHeight: 70,
         borderTopLeftRadius: 28, borderTopRightRadius: 28,
         display: 'flex', flexDirection: 'column', zIndex: 20,
+        transition: SNAPS.includes(sheetHeight) ? 'height 0.35s cubic-bezier(.32,.72,.37,1.12)' : 'none',
       } as any}>
         <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, borderTopLeftRadius: 28, borderTopRightRadius: 28 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1, borderTopLeftRadius: 28, borderTopRightRadius: 28 } as any} />
 
-        {/* Drag handle */}
-        <div data-testid="drag-handle" style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', padding: '12px 0 6px', cursor: 'ns-resize', touchAction: 'none', flexShrink: 0 } as any}
-          onMouseDown={(e: any) => {
-            e.preventDefault();
-            const startY = e.clientY;
-            const startPct = sheetHeight;
-            const pageH = window.innerHeight;
-            document.body.style.cursor = 'ns-resize';
-            document.body.style.userSelect = 'none';
-            const onMove = (ev: any) => { setSheetHeight(clampSheet(startPct + ((startY - ev.clientY) / pageH) * 100)); };
-            const onUp = () => { document.body.style.cursor = ''; document.body.style.userSelect = ''; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
-          }}
-          onTouchStart={(e: any) => {
-            const startY = e.touches[0].clientY;
-            const startPct = sheetHeight;
-            const pageH = window.innerHeight;
-            const onMove = (ev: any) => { ev.preventDefault(); setSheetHeight(clampSheet(startPct + ((startY - ev.touches[0].clientY) / pageH) * 100)); };
-            const onUp = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onUp); };
-            document.addEventListener('touchmove', onMove, { passive: false });
-            document.addEventListener('touchend', onUp);
-          }}>
-          <div style={{ width: 44, height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.4)' } as any} />
+        {/* Drag handle + pill — both draggable */}
+        <div data-testid="drag-zone" style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '10px 20px 0', cursor: 'ns-resize', touchAction: 'none', flexShrink: 0 } as any}
+          onMouseDown={(e: any) => { e.preventDefault(); startDrag(e.clientY, true); }}
+          onTouchStart={(e: any) => { startDrag(e.touches[0].clientY, false); }}>
+          <div style={{ width: 44, height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.4)', margin: '0 auto 10px' } as any} />
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.35)', marginBottom: 8 } as any}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Intervention en cours</span>
+          </div>
         </div>
 
         {/* Sheet content — scrollable */}
