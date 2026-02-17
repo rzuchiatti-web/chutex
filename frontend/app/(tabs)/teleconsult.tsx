@@ -529,7 +529,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
             </div>
           </div>
         ) : (
-          <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}>
+          <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => setSelectedIv(iv)}>
             <View style={{ borderRadius: 20, overflow: 'hidden', padding: 18, marginBottom: 12, backgroundColor: isActive ? '#0a3a2a' : '#5a1020' }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
                 <View><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.beneficiary_name}</Text><Text style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{new Date(iv.created_at).toLocaleString('fr-FR')}</Text></View>
