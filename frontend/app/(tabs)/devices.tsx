@@ -645,6 +645,10 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>Total</div>
               <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{displayedPresc.reduce((s: number, p: any) => s + (p.commission || 25), 0)}EUR</div>
             </div>
+            <div onClick={() => setShowRewardsExplainer(true)} data-testid="programme-recompenses-btn" style={{ marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' } as any}>
+              <i className="ri-trophy-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)' }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>Programme de recompenses</span>
+            </div>
           </div>
         </div>
       ) : (
