@@ -455,41 +455,45 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
   /* ─── ACTIF: page interventions avec header violet ─── */
   return (
-    <ScrollView contentContainerStyle={[s.sc, { paddingBottom: 80 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchIvs(); }} />}>
-      {/* Header violet */}
+    <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' }} contentContainerStyle={{ paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchIvs(); }} />}>
+      {/* Header violet avec image, pilule, titre ET toggle */}
       {Platform.OS === 'web' ? (
-        <div style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '28px 20px 20px', marginBottom: 14, textAlign: 'center' } as any}>
+        <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', overflow: 'hidden' } as any}>
           <img src={BG_HEADER} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} />
           <div style={{ position: 'relative', zIndex: 2 } as any}>
-            <TouchableOpacity onPress={() => setShowCareModal(true)} style={{ alignSelf: 'center' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', cursor: 'pointer', marginBottom: 10 } as any}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.intervention_structure || user.structure_name || 'Structure'}</span>
-              </div>
-            </TouchableOpacity>
-            <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF', textAlign: 'center' }}>Intervention Care</Text>
+            <div onClick={() => setShowCareModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', cursor: 'pointer', marginBottom: 10 } as any}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.intervention_structure || user.structure_name || 'Structure'}</span>
+            </div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Intervention Care</div>
+            {/* Toggle En cours / Cloturées - glass pill ON the violet header */}
+            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
+              <div onClick={() => setIvTab('active')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'active' ? '#FFF' : 'transparent', color: ivTab === 'active' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.25s', boxShadow: ivTab === 'active' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none' } as any}>En cours</div>
+              <div onClick={() => setIvTab('done')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'done' ? '#FFF' : 'transparent', color: ivTab === 'done' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.25s', boxShadow: ivTab === 'done' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none' } as any}>Cloturees</div>
+            </div>
           </div>
         </div>
       ) : (
-        <TouchableOpacity onPress={() => setShowCareModal(true)} style={{ backgroundColor: '#2d1050', borderRadius: 22, padding: 20, marginBottom: 14, alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 999, paddingVertical: 7, paddingHorizontal: 16, marginBottom: 10 }}>
+        <View style={{ backgroundColor: '#2d1050', padding: 20, alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => setShowCareModal(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 999, paddingVertical: 7, paddingHorizontal: 16, marginBottom: 10 }}>
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />
             <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Actif - {user.intervention_structure || user.structure_name || 'Structure'}</Text>
+          </TouchableOpacity>
+          <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF', marginBottom: 14 }}>Intervention Care</Text>
+          <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 999, padding: 4 }}>
+            <TouchableOpacity style={[{ paddingVertical: 10, paddingHorizontal: 24, borderRadius: 999 }, ivTab === 'active' && { backgroundColor: '#FFF' }]} onPress={() => setIvTab('active')}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: ivTab === 'active' ? '#111' : 'rgba(255,255,255,0.8)' }}>En cours</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[{ paddingVertical: 10, paddingHorizontal: 24, borderRadius: 999 }, ivTab === 'done' && { backgroundColor: '#FFF' }]} onPress={() => setIvTab('done')}>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: ivTab === 'done' ? '#111' : 'rgba(255,255,255,0.8)' }}>Cloturees</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF' }}>Intervention Care</Text>
-        </TouchableOpacity>
+        </View>
       )}
 
-      {/* Tabs En cours / Cloturées */}
-      <View style={{ flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 999, padding: 4, marginBottom: 14, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 999 }, ivTab === 'active' && { backgroundColor: '#111' }]} onPress={() => setIvTab('active')}>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: ivTab === 'active' ? '#FFF' : '#888' }}>En cours</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 999 }, ivTab === 'done' && { backgroundColor: '#111' }]} onPress={() => setIvTab('done')}>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: ivTab === 'done' ? '#FFF' : '#888' }}>Cloturees</Text>
-        </TouchableOpacity>
-      </View>
+      {/* White rounded container for cards */}
+      <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20, minHeight: 300 }}>
 
       {/* Care Detail Modal - violet theme */}
       <Modal visible={showCareModal} transparent animationType="fade" onRequestClose={() => setShowCareModal(false)}>
