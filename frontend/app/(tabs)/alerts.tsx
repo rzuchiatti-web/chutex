@@ -2,280 +2,213 @@ import { Icon, MCIcon } from '../../src/components/WebIcon';
 import { useTheme } from '../../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, ScrollView, TextInput } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiFetch } from '../../src/services/api';
 import { useRouter } from 'expo-router';
-import { ContextualTip, HelpBubble, PageExplainer, MiniTuto } from '../../src/components/HelpSystem';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
-const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
-);
+const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/rz4euggr_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
+const BG_GREEN = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/3nimaiv0_background_intervention_care_valide_prescription_valide.jpg';
+const BG_HEADER = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/n96e8u48_Banner_Care.jpg';
 
-/* ===== COMPANY: PRESCRIBERS LIST ===== */
-function CompanyPrescribers({ token }: { token: string }) {
-  const router = useRouter();
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [search, setSearch] = useState('');
-
-  const fetchData = useCallback(async () => {
-    try { setData(await apiFetch('/api/company/dashboard', {}, token)); }
-    catch {} finally { setLoading(false); setRefreshing(false); }
-  }, [token]);
-  useEffect(() => { fetchData(); }, [fetchData]);
-
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}><ActivityIndicator size="large" color="#111827" /></View>;
-  if (!data) return null;
-
-  const allPrescribers = data.prescriber_ranking || [];
-  const prescribers = search.trim()
-    ? allPrescribers.filter((pr: any) => pr.name?.toLowerCase().includes(search.toLowerCase()) || pr.email?.toLowerCase().includes(search.toLowerCase()))
-    : allPrescribers;
-
-  return (
-    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: '#111827', letterSpacing: -0.5 }}>Prescripteurs</Text>
-        <Text style={{ fontSize: 12, color: '#6B7280' }}>{allPrescribers.length} prescripteurs actifs</Text>
-      </View>
-      {/* Search */}
-      <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glass }}>
-          <Icon name="search-outline" size={16} color="#888" />
-          <TextInput style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: '#111827' }}
-            placeholder="Rechercher un prescripteur..." placeholderTextColor="#AAA" value={search} onChangeText={setSearch} />
-          {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Icon name="close-circle" size={16} color="#AAA" /></TouchableOpacity>}
-        </View>
-      </View>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#111827" />}>
-        {prescribers.map((pr: any, idx: number) => (
-          <TouchableOpacity key={pr.id} activeOpacity={0.7} data-testid={`prescriber-card-${pr.id}`}
-            onPress={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })}>
-            <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 24, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{pr.name?.charAt(0)?.toUpperCase()}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: '#111827' }}>{pr.name}</Text>
-                <Text style={{ fontSize: 11, color: '#6B7280' }}>{pr.email}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
-                  <Icon name="business-outline" size={11} color="#FF9800" />
-                  <Text style={{ fontSize: 10, color: '#FF9800', fontWeight: '600' }}>{pr.agency_name}</Text>
-                </View>
-              </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ fontSize: 11, color: '#6B7280' }}>{pr.prescription_count} presc.</Text>
-                <View style={{ flexDirection: 'row', gap: 6, marginTop: 2 }}>
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#10B981' }}>{pr.comm_validated}EUR</Text>
-                  {pr.comm_pending > 0 && <Text style={{ fontSize: 12, fontWeight: '700', color: '#FF9800' }}>+{pr.comm_pending}</Text>}
-                </View>
-              </View>
-              <Icon name="chevron-forward" size={16} color="#888" />
-            </GlassCard>
-          </TouchableOpacity>
-        ))}
-        {prescribers.length === 0 && (
-          <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-            <Icon name="people-outline" size={36} color="#CCC" />
-            <Text style={{ fontSize: 14, color: '#6B7280', marginTop: 8 }}>{search ? 'Aucun resultat' : 'Aucun prescripteur'}</Text>
-          </View>
-        )}
-      </ScrollView>
-    </View>
-  );
-}
-
-const SEV = { critical: { label: 'CRITIQUE', color: '#E53935' }, high: { label: 'ELEVE', color: '#FF6F00' }, medium: { label: 'MOYEN', color: '#FF9800' }, low: { label: 'FAIBLE', color: '#9CA3AF' } };
-const TYPE_CFG: Record<string, { icon: string; label: string; color: string }> = {
-  sos: { icon: 'alert-circle', label: 'SOS - Urgence', color: '#E53935' },
-  fall: { icon: 'trending-down', label: 'Chute detectee', color: '#FF6F00' },
-  heart_rate: { icon: 'heart', label: 'Anomalie cardiaque', color: '#E91E63' },
-  spo2: { icon: 'water', label: 'SpO2 anormale', color: '#2196F3' },
-  inactivity: { icon: 'moon', label: 'Inactivite', color: '#9C27B0' },
-};
-const STATE_LABEL: Record<string, string> = {
-  CALLING_PATIENT: 'Appel patient', PATIENT_CONFIRMED_OK: 'Patient OK', PATIENT_NEEDS_HELP: 'Patient en detresse',
-  PATIENT_NO_RESPONSE: 'Pas de reponse', CALLING_GUARDIAN_1: 'Appel gardien 1', CALLING_GUARDIAN_2: 'Appel gardien 2',
-  GUARDIAN_INTERVENTION_ACCEPTED: 'Gardien intervient', CARE_DISPATCHED: 'Intervenant dispatche', RESOLVED: 'Resolue',
-};
+const STATE_LABEL: Record<string, string> = { IDLE: 'En attente', CALLING_PATIENT: 'Appel patient', CALLING_GUARDIANS: 'Appel gardiens', CARE_DISPATCHED: 'Intervenant envoye', RESOLVED: 'Resolue' };
 
 export default function AlertsScreen() {
-  const { colors, isDark } = useTheme();
   const { token, user } = useAuth();
   const router = useRouter();
-  const effectiveRole = user?.active_role || user?.role || '';
-
-  // Company sees prescripteurs list
-  if (effectiveRole === 'prescriber_company' && token) {
-    return <CompanyPrescribers token={token} />;
-  }
-
+  const r = user?.active_role || user?.role || '';
   const [alerts, setAlerts] = useState<any[]>([]);
   const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState<'active' | 'resolved'>('active');
+  const [selectedAlert, setSelectedAlert] = useState<any>(null);
 
   const fetchAlerts = useCallback(async () => {
     try {
-      const isAdmin = effectiveRole === 'admin';
-      const [all, active, incidents] = await Promise.all([
+      const isAdmin = r === 'admin';
+      const [all, active] = await Promise.all([
         apiFetch(isAdmin ? '/api/backoffice/alerts' : '/api/alerts', {}, token).catch(() => []),
         apiFetch('/api/alerts/active-with-interventions', {}, token).catch(() => []),
-        isAdmin ? apiFetch('/api/carewatch/incidents', {}, token).catch(() => []) : Promise.resolve([]),
       ]);
       setAlerts(Array.isArray(all) ? all : []);
-      // Merge active alerts with CARE WATCH incident info
-      const activeArr = Array.isArray(active) ? active : [];
-      const incArr = Array.isArray(incidents) ? incidents : [];
-      // Enrich active alerts with incident state if available
-      const enriched = activeArr.map((a: any) => {
-        const inc = incArr.find((i: any) => i.alert_id === a.id);
-        return inc ? { ...a, incident_state: inc.state, care_provider: inc.care_provider, assigned_guardian: inc.assigned_guardian } : a;
-      });
-      setActiveAlerts(enriched);
+      setActiveAlerts(Array.isArray(active) ? active : []);
     } catch {} finally { setLoading(false); setRefreshing(false); }
-  }, [token, effectiveRole]);
+  }, [token, r]);
 
   useEffect(() => { fetchAlerts(); const t = setInterval(fetchAlerts, 10000); return () => clearInterval(t); }, [fetchAlerts]);
-
-  const resolveAlert = async (alertId: string) => {
-    try { await apiFetch(`/api/alerts/${alertId}/resolve`, { method: 'PUT' }, token); fetchAlerts(); } catch {}
-  };
 
   const resolved = alerts.filter(a => a.status === 'resolved');
   const filtered = tab === 'active' ? activeAlerts : resolved;
 
-  const renderAlert = ({ item }: { item: any }) => {
-    const cfg = TYPE_CFG[item.alert_type] || TYPE_CFG.sos;
-    const sev = (SEV as any)[item.severity] || SEV.medium;
-    const isActive = item.status === 'active';
-    const incState = item.incident_state;
-    const stateLabel = incState ? STATE_LABEL[incState] || incState : item.teleassistance_status || '';
-
+  /* ─── DETAIL PAGE: alert (early return, replaces entire view) ─── */
+  if (selectedAlert && Platform.OS === 'web') {
+    const isResolved = selectedAlert.status === 'resolved';
+    const bgImg = isResolved ? BG_GREEN : BG_RED;
     return (
-      <TouchableOpacity testID={`alert-card-${item.id}`}
-        style={[{ backgroundColor: '#F0F1F3', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', marginBottom: 12, overflow: 'hidden', ...glass },
-          isActive && { borderLeftWidth: 4, borderLeftColor: cfg.color }]}
-        onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: item.id } })}>
-
-        {/* Header */}
-        <View style={{ padding: 16, paddingBottom: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: cfg.color + '15', justifyContent: 'center', alignItems: 'center' }}>
-              <Icon name={cfg.icon as any} size={20} color={cfg.color} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 15, fontWeight: '800', color: '#111827' }}>{cfg.label}</Text>
-              <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 1 }}>
-                {new Date(item.created_at).toLocaleDateString('fr-FR')} a {new Date(item.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-              </Text>
-            </View>
-            <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: sev.color + '15' }}>
-              <Text style={{ fontSize: 9, fontWeight: '800', color: sev.color }}>{sev.label}</Text>
-            </View>
-          </View>
-          <Text style={{ fontSize: 13, color: '#111827', lineHeight: 18, marginTop: 8 }}>{item.message}</Text>
-        </View>
-
-        {/* Beneficiary info */}
-        {item.beneficiary_name && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingBottom: 8 }}>
-            <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ fontSize: 10, fontWeight: '800' }}>{item.beneficiary_name?.charAt(0)}</Text>
-            </View>
-            <Text style={{ fontSize: 12, color: '#555', fontWeight: '600' }}>{item.beneficiary_name}</Text>
-          </View>
-        )}
-
-        {/* Protocol Status */}
-        {isActive && stateLabel && (
-          <View style={{ backgroundColor: 'rgba(0,0,0,0.03)', paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: incState === 'RESOLVED' ? '#4CAF50' : incState === 'CARE_DISPATCHED' ? '#FF5722' : '#FF9800' }} />
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#555' }}>{stateLabel}</Text>
-            </View>
-            {item.intervener_info && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
-                <Icon name="person" size={12} color="#4CAF50" />
-                <Text style={{ fontSize: 11, color: '#2E7D32', fontWeight: '600' }}>{item.intervener_info.name} - {item.intervener_info.structure}</Text>
-              </View>
-            )}
-            {item.care_provider && !item.intervener_info && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
-                <Icon name="navigate" size={12} color="#FF9800" />
-                <Text style={{ fontSize: 11, color: '#E65100', fontWeight: '600' }}>Intervenant: {item.care_provider}</Text>
-              </View>
-            )}
-          </View>
-        )}
-
-        {/* Actions */}
-        {isActive && (
-          <View style={{ flexDirection: 'row', gap: 8, padding: 12, borderTopWidth: 0.5, borderTopColor: 'rgba(0,0,0,0.04)' }}>
-            <TouchableOpacity testID={`resolve-${item.id}`} style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 9999, paddingVertical: 10, alignItems: 'center' }}
-              onPress={(e) => { e.stopPropagation(); resolveAlert(item.id); }}>
-              <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>RESOUDRE</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{ flex: 1, backgroundColor: cfg.color, borderRadius: 9999, paddingVertical: 10, alignItems: 'center' }}
-              onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: item.id } })}>
-              <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '700' }}>VOIR DETAILS</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Resolved */}
-        {!isActive && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingBottom: 12 }}>
-            <Icon name="checkmark-circle" size={14} color="#4CAF50" />
-            <Text style={{ fontSize: 11, fontWeight: '600', color: '#10B981' }}>Resolue {item.resolved_at ? `le ${new Date(item.resolved_at).toLocaleDateString('fr-FR')}` : ''}</Text>
-          </View>
-        )}
-      </TouchableOpacity>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={bgImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
+          <div onClick={() => setSelectedAlert(null)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: isResolved ? '#10B981' : '#EF4444' } as any} />
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isResolved ? 'Alerte resolue' : 'Alerte active'}</span>
+          </div>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+          <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+            <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{selectedAlert.message || selectedAlert.alert_type || 'Alerte'}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{new Date(selectedAlert.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+          </div>
+          {/* Beneficiary */}
+          <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+            <div style={{ width: 56, height: 56, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 } as any}><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{selectedAlert.beneficiary_name || 'Beneficiaire'}</div>
+          </div>
+          {/* Info grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
+            {[
+              { label: 'Type', value: selectedAlert.alert_type === 'sos' ? 'SOS' : selectedAlert.alert_type === 'fall' ? 'Chute' : selectedAlert.alert_type || '-' },
+              { label: 'Severite', value: selectedAlert.severity === 'critical' ? 'Critique' : selectedAlert.severity === 'high' ? 'Haute' : 'Moyenne' },
+              { label: 'Statut', value: isResolved ? 'Resolue' : STATE_LABEL[selectedAlert.incident_state || selectedAlert.teleassistance_status] || 'Active' },
+              { label: 'Appareil', value: selectedAlert.device_type || '-' },
+            ].map((item, i) => (
+              <div key={i} style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 3 }}>{item.label}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{item.value}</div>
+              </div>
+            ))}
+          </div>
+          {/* Intervention info */}
+          {(selectedAlert.intervener_info || selectedAlert.care_provider) && (
+            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Intervention</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{selectedAlert.intervener_info?.name || selectedAlert.care_provider || 'Intervenant'}</div>
+              {selectedAlert.incident_state && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{STATE_LABEL[selectedAlert.incident_state] || selectedAlert.incident_state}</div>}
+            </div>
+          )}
+          {/* Message */}
+          {selectedAlert.message && (
+            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Message</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF', lineHeight: 1.5 }}>{selectedAlert.message}</div>
+            </div>
+          )}
+          {/* Resolved info */}
+          {isResolved && selectedAlert.resolved_at && (
+            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Resolution</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>Resolue le {new Date(selectedAlert.resolved_at).toLocaleString('fr-FR')}</div>
+            </div>
+          )}
+        </div>
+      </div>
     );
-  };
+  }
 
-  return (
-    <View key={effectiveRole} style={{ flex: 1, backgroundColor: '#FFFFFF' }} testID="alerts-screen">
-      <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>
-        <Text style={{ fontSize: 28, fontWeight: '900', color: '#111827', letterSpacing: -0.5 }}>Alertes</Text>
-      </View>
-      <View style={{ paddingHorizontal: 16 }}>
-        <PageExplainer pageId="alerts" title="Comprendre les alertes" sections={[
-          { icon: 'alert-circle-outline', heading: 'Qu\'est-ce qu\'une alerte ?', text: 'Une alerte est declenchee automatiquement (chute, anomalie cardiaque) ou manuellement via le bouton SOS. Elle previent vos gardiens et la teleassistance.' },
-          { icon: 'git-branch-outline', heading: 'Le protocole CARE WATCH', text: 'L\'IA appelle d\'abord le patient, puis les gardiens, et si besoin dispatch un intervenant SAAD a proximite.' },
-          { icon: 'checkmark-circle-outline', heading: 'Resolution', text: 'Une alerte est resolue quand la situation est maitrisee. Un rapport d\'intervention est alors genere si un intervenant est intervenu.' },
-        ]} />
-      </View>
-      <View style={{ flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: '#FFFFFF', borderRadius: 14, padding: 4, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glass }}>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'active' && { backgroundColor: '#FFFFFF' }]} onPress={() => setTab('active')}>
-          <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'active' ? '#FFF' : '#888' }}>Actives ({activeAlerts.length})</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 11 }, tab === 'resolved' && { backgroundColor: '#FFFFFF' }]} onPress={() => setTab('resolved')}>
-          <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'resolved' ? '#FFF' : '#888' }}>Resolues ({resolved.length})</Text>
-        </TouchableOpacity>
-      </View>
-      {loading ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></View>
-      ) : (
-        <FlatList data={filtered} renderItem={renderAlert} keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAlerts(); }} tintColor="#111827" />}
-          ListEmptyComponent={
-            <View style={[{ alignItems: 'center', paddingVertical: 48, backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', ...glass }]}>
-              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(76,175,80,0.1)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
-                <Icon name={tab === 'active' ? 'checkmark-circle' : 'archive-outline'} size={28} color="#4CAF50" />
-              </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>{tab === 'active' ? 'Tout va bien !' : 'Aucun historique'}</Text>
-              <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 4, textAlign: 'center', paddingHorizontal: 20, lineHeight: 18 }}>{tab === 'active' ? 'Aucune alerte active. Notre systeme veille sur vous 24h/24. Si une anomalie est detectee, elle apparaitra ici instantanement.' : 'Vos alertes resolues s\'afficheront ici avec leur rapport d\'intervention, pour un suivi medical complet.'}</Text>
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' }}><ActivityIndicator size="large" color="#111" /></View>;
+
+  /* ─── GUARDIAN: bypass wrapper, full screen with header ─── */
+  if (r === 'guardian' || r === 'beneficiary') {
+    return (
+      <ScrollView style={{ flex: 1, backgroundColor: '#FFFFFF' }} contentContainerStyle={{ paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAlerts(); }} />}>
+        {/* Header with background */}
+        {Platform.OS === 'web' ? (
+          <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', overflow: 'hidden', borderBottomLeftRadius: 28, borderBottomRightRadius: 28 } as any}>
+            <img src={BG_HEADER} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+            <div style={{ position: 'relative', zIndex: 2 } as any}>
+              <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Alertes</div>
+              <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
+                <div onClick={() => setTab('active')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: tab === 'active' ? '#FFF' : 'transparent', color: tab === 'active' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.25s' } as any}>Actives ({activeAlerts.length})</div>
+                <div onClick={() => setTab('resolved')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: tab === 'resolved' ? '#FFF' : 'transparent', color: tab === 'resolved' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.25s' } as any}>Resolues ({resolved.length})</div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <View style={{ backgroundColor: '#2d1050', padding: 20, alignItems: 'center', borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }}>
+            <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF', marginBottom: 14 }}>Alertes</Text>
+            <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 999, padding: 4 }}>
+              <TouchableOpacity style={[{ paddingVertical: 10, paddingHorizontal: 24, borderRadius: 999 }, tab === 'active' && { backgroundColor: '#FFF' }]} onPress={() => setTab('active')}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: tab === 'active' ? '#111' : 'rgba(255,255,255,0.8)' }}>Actives</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[{ paddingVertical: 10, paddingHorizontal: 24, borderRadius: 999 }, tab === 'resolved' && { backgroundColor: '#FFF' }]} onPress={() => setTab('resolved')}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: tab === 'resolved' ? '#111' : 'rgba(255,255,255,0.8)' }}>Resolues</Text>
+              </TouchableOpacity>
             </View>
-          }
-        />
-      )}
+          </View>
+        )}
+
+        {/* Alert cards */}
+        <View style={{ padding: 16 }}>
+          {filtered.length > 0 ? filtered.map((alert: any) => {
+            const isActive = alert.status === 'active';
+            const bgImg = isActive ? BG_RED : BG_GREEN;
+            return Platform.OS === 'web' ? (
+              <div key={alert.id} onClick={() => setSelectedAlert(alert)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 100, boxShadow: '0 8px 24px rgba(0,0,0,.15)', transition: 'transform 0.25s ease' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                <img src={bgImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} />
+                <div style={{ position: 'relative', zIndex: 2 } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
+                    <div>
+                      <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF' }}>{alert.message || alert.alert_type || 'Alerte'}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{alert.beneficiary_name} · {new Date(alert.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,.15)', borderRadius: 999, padding: '5px 12px', border: '1px solid rgba(255,255,255,.2)' } as any}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: isActive ? '#EF4444' : '#10B981' } as any} />
+                      <span style={{ fontSize: 11, fontWeight: 600, color: '#FFF' }}>{isActive ? 'Active' : 'Resolue'}</span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.6)' }}>{alert.severity === 'critical' ? 'Critique' : alert.severity}</div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.15)', borderRadius: 999, padding: '8px 16px', border: '1px solid rgba(255,255,255,.2)' } as any}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Voir</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <TouchableOpacity key={alert.id} onPress={() => setSelectedAlert(alert)}>
+                <View style={{ borderRadius: 20, overflow: 'hidden', padding: 18, marginBottom: 12, backgroundColor: isActive ? '#3a0a0a' : '#0a2a1a' }}>
+                  <Text style={{ fontSize: 17, fontWeight: '800', color: '#FFF' }}>{alert.message || 'Alerte'}</Text>
+                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{alert.beneficiary_name} · {new Date(alert.created_at).toLocaleString('fr-FR')}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          }) : (
+            <View style={{ alignItems: 'center', padding: 40 }}>
+              <Icon name={tab === 'active' ? 'checkmark-circle' : 'archive-outline'} size={32} color="#10B981" />
+              <Text style={{ fontSize: 16, fontWeight: '700', color: '#111', marginTop: 12 }}>{tab === 'active' ? 'Tout va bien !' : 'Aucun historique'}</Text>
+              <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 4, textAlign: 'center' }}>{tab === 'active' ? 'Aucune alerte active' : 'Les alertes resolues apparaitront ici'}</Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    );
+  }
+
+  /* ─── FALLBACK for other roles ─── */
+  return (
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>
+        <Text style={{ fontSize: 28, fontWeight: '900', color: '#111', letterSpacing: -0.5 }}>Alertes</Text>
+      </View>
+      <FlatList data={filtered} keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAlerts(); }} />}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => router.push({ pathname: '/alert-detail', params: { alertId: item.id } })} style={{ backgroundColor: '#F3F4F6', borderRadius: 16, padding: 16, marginBottom: 10, borderLeftWidth: 3, borderLeftColor: item.status === 'active' ? '#EF4444' : '#10B981' }}>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: '#111' }}>{item.message || 'Alerte'}</Text>
+            <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 4 }}>{item.beneficiary_name} · {new Date(item.created_at).toLocaleDateString('fr-FR')}</Text>
+          </TouchableOpacity>
+        )}
+        ListEmptyComponent={<View style={{ alignItems: 'center', paddingVertical: 48 }}><Text style={{ color: '#6B7280' }}>Aucune alerte</Text></View>}
+      />
     </View>
   );
 }
