@@ -257,19 +257,20 @@ export function PastelMistBackground() {
       .glass-pill-dark { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.72); }
       .glass-pill-light { background: rgba(255,255,255,.62); border: 1px solid rgba(0,0,0,.10); color: rgba(0,0,0,.62); }
 
-      /* Navbar on white bg: dark icons, active = black circle white icon */
+      /* Navbar — adapts to background via CSS custom property */
       [role="tablist"] {
         position: fixed !important; bottom: 10px !important; left: 20px !important; right: 20px !important;
         width: auto !important;
         z-index: 99999 !important; height: 56px !important; padding: 4px 6px !important;
         border-radius: 999px !important;
-        background: rgba(255,255,255,0.85) !important;
         backdrop-filter: blur(28px) saturate(160%) !important; -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
-        border: 1px solid rgba(0,0,0,0.06) !important;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.1) !important;
         border-top: none !important;
         display: flex !important; align-items: center !important; justify-content: space-around !important;
         margin: 0 !important; transform: none !important;
+        /* Default: light bg mode */
+        background: rgba(255,255,255,0.85) !important;
+        border: 1px solid rgba(0,0,0,0.06) !important;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.1) !important;
       }
       [role="tablist"] span {
         font-size: 0 !important; line-height: 0 !important; height: 0 !important; overflow: hidden !important; display: none !important;
@@ -287,11 +288,26 @@ export function PastelMistBackground() {
         border-radius: 999px !important;
       }
       [role="tablist"] [role="tab"] svg {
-        color: rgba(0,0,0,0.45) !important; width: 22px !important; height: 22px !important;
+        color: rgba(0,0,0,0.4) !important; width: 22px !important; height: 22px !important;
         fill: none !important; stroke: currentColor !important;
       }
       [role="tablist"] [role="tab"][aria-selected="true"] svg {
         color: #FFF !important; fill: none !important; stroke: #FFF !important;
+      }
+      /* Dark mode navbar — applied via JS class on body */
+      body.navbar-dark [role="tablist"] {
+        background: rgba(255,255,255,0.08) !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.3) !important;
+      }
+      body.navbar-dark [role="tablist"] [role="tab"] svg {
+        color: rgba(255,255,255,0.6) !important;
+      }
+      body.navbar-dark [role="tablist"] [role="tab"][aria-selected="true"] {
+        background: rgba(255,255,255,0.18) !important;
+      }
+      body.navbar-dark [role="tablist"] [role="tab"][aria-selected="true"] svg {
+        color: #FFF !important; stroke: #FFF !important;
       }
       [role="tablist"] ~ div, [role="tabpanel"] { padding-bottom: 80px !important; }
       /* Remove any white padding at top */
