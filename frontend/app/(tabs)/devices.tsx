@@ -461,6 +461,48 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
       {/* White container for cards */}
       <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20 }}>
 
+      {/* Récompenses card — dark satin background */}
+      {Platform.OS === 'web' ? (
+        <div onClick={() => setShowPrescModal(true)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px', marginBottom: 14, cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}>
+          <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/4tk4fqvn_background_r%C3%A9compense.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
+          <div style={{ position: 'relative', zIndex: 2 } as any}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 } as any}>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Recompenses</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>01/04/2026 - 30/04/2026</div>
+              </div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#FFF' }}>Actif</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: 10 } as any}>
+              {[{ pos: '1er', amount: '+100EUR' }, { pos: '2eme', amount: '+70EUR' }, { pos: '3eme', amount: '+30EUR' }].map(r => (
+                <div key={r.pos} style={{ textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{r.pos}</div>
+                  <div style={{ display: 'inline-block', padding: '4px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 13, fontWeight: 700, color: '#FFF', marginTop: 4 } as any}>{r.amount}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', textAlign: 'center' }}>Votre position actuelle 26eme</div>
+          </div>
+        </div>
+      ) : (
+        <TouchableOpacity onPress={() => setShowPrescModal(true)} style={{ backgroundColor: '#1a1a1a', borderRadius: 20, padding: 18, marginBottom: 14 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+            <View><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>Recompenses</Text><Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>01/04/2026 - 30/04/2026</Text></View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 5 }}><View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' }} /><Text style={{ fontSize: 11, fontWeight: '600', color: '#FFF' }}>Actif</Text></View>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 10 }}>
+            {[{ pos: '1er', amount: '+100EUR' }, { pos: '2eme', amount: '+70EUR' }, { pos: '3eme', amount: '+30EUR' }].map(r => (
+              <View key={r.pos} style={{ alignItems: 'center' }}><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{r.pos}</Text><View style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 4, marginTop: 4 }}><Text style={{ fontSize: 13, fontWeight: '700', color: '#FFF' }}>{r.amount}</Text></View></View>
+            ))}
+          </View>
+          <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', textAlign: 'center' }}>Votre position actuelle 26eme</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Prescription cards */}
       <View>
         {displayedPresc.length > 0 ? displayedPresc.map((p: any) => {
