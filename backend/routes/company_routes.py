@@ -321,6 +321,59 @@ async def set_monthly_reward(data: dict, user=Depends(get_current_user)):
 
 
 
+@router.get("/rewards/history")
+async def get_rewards_history(user=Depends(get_current_user)):
+    """Get full rewards history for prescriber — past challenges + current"""
+    history = await db.rewards_history.find({}, {"_id": 0}).sort("month", -1).to_list(12)
+    # Find user's total rewards earned
+    total_earned = 0
+    my_history = []
+    for h in history:
+        for r in h.get('ranking', []):
+            if r.get('prescriber_id') == user['id'] or r.get('name') == user.get('name'):
+                my_history.append({
+                    "month": h['month'],
+                    "month_label": h.get('month_label', h['month']),
+                    "position": r['position'],
+                    "prescriptions_count": r.get('prescriptions_count', 0),
+                    "reward": r.get('reward', 0),
+                    "status": h.get('status', 'completed'),
+                })
+                total_earned += r.get('reward', 0)
+                break
+    # Current month ranking
+    now = datetime.now(timezone.utc)
+    month_key = now.strftime("%Y-%m")
+    reward = await db.rewards.find_one({"month": month_key, "active": True}, {"_id": 0})
+    prizes = {"prize_1": reward.get("prize_1", 100) if reward else 100, "prize_2": reward.get("prize_2", 70) if reward else 70, "prize_3": reward.get("prize_3", 30) if reward else 30}
+    # Current position
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat()
+    all_prescs = await db.prescriptions.find({"created_at": {"$gte": month_start}}, {"_id": 0}).to_list(1000)
+    counts = {}
+    for p in all_prescs:
+        gid = p.get('guardian_id', '')
+        if gid: counts[gid] = counts.get(gid, 0) + 1
+    ranking = sorted(counts.items(), key=lambda x: x[1], reverse=True)
+    my_position = len(ranking) + 1
+    my_count = 0
+    for i, (gid, count) in enumerate(ranking):
+        if gid == user['id']:
+            my_position = i + 1
+            my_count = count
+            break
+    return {
+        "current_month": month_key,
+        "current_position": my_position,
+        "current_prescriptions": my_count,
+        "total_participants": len(ranking),
+        "prizes": prizes,
+        "total_earned": total_earned,
+        "my_history": my_history,
+        "all_history": history,
+    }
+
+
+
 @router.get("/company/analytics")
 async def company_analytics(user=Depends(get_current_user)):
     if user.get('role') != 'prescriber_company':
