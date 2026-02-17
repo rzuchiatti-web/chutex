@@ -24,60 +24,109 @@ const REMINDER_IMAGES = {
   alarm: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/hzoi0qcr_alarmes.png',
 };
 
-const webShadow = Platform.OS === 'web' ? { boxShadow: '0 1px 3px rgba(0,0,0,0.08)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 3, elevation: 1 };
-const webGlass = Platform.OS === 'web' ? {} : {};
+const isDarkMode = true; // Will be connected to theme context later
+const CHX = {
+  bg: isDarkMode ? '#0b0f16' : '#f5f7fa',
+  fg: isDarkMode ? '#f4f7ff' : '#0f172a',
+  fgSub: isDarkMode ? 'rgba(255,255,255,.68)' : 'rgba(0,0,0,.58)',
+  fgMuted: isDarkMode ? 'rgba(255,255,255,.45)' : 'rgba(0,0,0,.35)',
+  border: isDarkMode ? 'rgba(255,255,255,.12)' : 'rgba(0,0,0,.08)',
+  cardBg: isDarkMode ? 'linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02))' : 'linear-gradient(180deg, rgba(255,255,255,.76), rgba(255,255,255,.54))',
+  headerBg: isDarkMode
+    ? 'linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.04)), radial-gradient(120% 120% at 12% 10%, #35507f 0%, #23355b 45%, #1a2742 100%)'
+    : 'linear-gradient(145deg, rgba(255,255,255,.25), rgba(255,255,255,.18)), radial-gradient(140% 140% at 10% 10%, #ffb187 0%, #f39c70 30%, #cc9fbe 64%, #a9b8ea 100%)',
+  bgClass: isDarkMode ? 'chx-bg-dark' : 'chx-bg-light',
+  cardClass: isDarkMode ? 'chx-card-dark' : 'chx-card-light',
+  headerClass: isDarkMode ? 'chx-header-dark' : 'chx-header-light',
+  btnClass: isDarkMode ? 'chx-btn chx-btn-dark-primary' : 'chx-btn chx-btn-light-primary',
+  btnDangerClass: isDarkMode ? 'chx-btn chx-btn-dark-danger' : 'chx-btn chx-btn-light-danger',
+};
 
-/* ─── CARD ─── */
-const Card = ({ children, style, testID }: any) => (
-  <View testID={testID} style={[{ backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#E5E7EB', padding: 16, marginBottom: 12, ...webShadow }, style]}>{children}</View>
-);
+const webShadow = Platform.OS === 'web' ? { boxShadow: '0 12px 28px rgba(0,0,0,.18)' } : { shadowColor: '#000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.18, shadowRadius: 28, elevation: 4 };
+const webGlass = Platform.OS === 'web' ? { backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' } : {};
 
-/* ─── HEADER CARD ─── */
-const HeroCard = ({ children, style }: any) => (
-  <View style={[{
-    borderRadius: 16, padding: 20, marginBottom: 16, overflow: 'hidden',
-    backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB',
-  }, style]}>{children}</View>
-);
+/* ─── GLASS CARD (Chutex style) ─── */
+const Card = ({ children, style, testID }: any) => {
+  if (Platform.OS === 'web') {
+    return <div data-testid={testID} className={CHX.cardClass} style={{ padding: 14, marginBottom: 12, ...style }}>{children}</div>;
+  }
+  return <View testID={testID} style={[{ backgroundColor: CHX.bg, borderRadius: 22, borderWidth: 1, borderColor: CHX.border, padding: 14, marginBottom: 12, ...webShadow, ...webGlass }, style]}>{children}</View>;
+};
+
+/* ─── HEADER ACCOUNT CARD (Chutex style) ─── */
+const HeroCard = ({ children, style }: any) => {
+  if (Platform.OS === 'web') {
+    return <div className={CHX.headerClass} style={{ padding: 14, marginBottom: 14, ...style }}>{children}</div>;
+  }
+  return <View style={[{ borderRadius: 24, padding: 14, marginBottom: 14, overflow: 'hidden', backgroundColor: '#23355b' }, style]}>{children}</View>;
+};
 
 /* ─── STATUS BADGE ─── */
 const StatusBadge = ({ label, color }: { label: string; color?: string }) => (
-  <View style={{ backgroundColor: color ? `${color}15` : '#ECFDF5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 99, alignSelf: 'flex-start', marginTop: 4 }}>
+  <View style={{ backgroundColor: color ? `${color}20` : 'rgba(16,185,129,0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 99, alignSelf: 'flex-start', marginTop: 4 }}>
     <Text style={{ fontSize: 10, fontWeight: '600', color: color || '#10B981', letterSpacing: 0.3, textTransform: 'uppercase' }}>{label}</Text>
   </View>
 );
 
-/* ─── BUTTON ─── */
-const PillButton = ({ label, icon, onPress, testID, variant = 'dark' }: any) => (
-  <TouchableOpacity testID={testID} activeOpacity={0.85} style={{
-    backgroundColor: '#111827', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 24,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12,
-  }} onPress={onPress}>
-    {icon && <Icon name={icon} size={16} color="#FFF" />}
-    <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '600' }}>{label}</Text>
+/* ─── CHUTEX BUTTON (scan + halo) ─── */
+const PillButton = ({ label, icon, onPress, testID, variant = 'dark', isIA }: any) => {
+  if (Platform.OS === 'web') {
+    const cls = isIA ? 'chx-btn chx-btn-ia has-glare' : variant === 'danger' ? CHX.btnDangerClass : CHX.btnClass;
+    return (
+      <button data-testid={testID} className={`${cls} has-glare`} onClick={onPress} style={{ marginBottom: 12, width: '100%' } as any}>
+        {isIA && <span className="chx-btn-icon" style={{ width:18,height:18,borderRadius:99,display:'grid',placeItems:'center',fontSize:11,fontWeight:800,border:'1px solid rgba(31,41,55,.14)',background:'rgba(255,255,255,.52)',color:'#1f2937' } as any}>AI</span>}
+        {icon && !isIA && <span style={{ position:'relative',zIndex:4 }}><Icon name={icon} size={16} color={variant === 'danger' ? '#FFF' : (isDarkMode ? '#0b0f17' : '#FFF')} /></span>}
+        <span className="chx-btn-label">{label}</span>
+        <span className="chx-btn-scan"></span><span className="chx-btn-halo"></span>
+      </button>
+    );
+  }
+  return (
+    <TouchableOpacity testID={testID} activeOpacity={0.85} style={{
+      backgroundColor: isIA ? '#e8c4f0' : variant === 'danger' ? '#e93f5d' : '#111827',
+      borderRadius: 999, paddingVertical: 14, paddingHorizontal: 24,
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12,
+    }} onPress={onPress}>
+      {icon && <Icon name={icon} size={16} color={isIA ? '#1a2030' : '#FFF'} />}
+      <Text style={{ color: isIA ? '#1a2030' : '#FFFFFF', fontSize: 14, fontWeight: '600' }}>{label}</Text>
+    </TouchableOpacity>
+  );
+};
+
+/* ─── ICON BUTTON (round gray, Chutex style) ─── */
+const IconBtn = ({ icon, onPress, testID, badge }: any) => (
+  <TouchableOpacity testID={testID} activeOpacity={0.85} onPress={onPress} style={{
+    width: 38, height: 38, borderRadius: 19,
+    backgroundColor: '#eef2f6', borderWidth: 1, borderColor: '#d8e2ef',
+    justifyContent: 'center', alignItems: 'center',
+    ...(Platform.OS === 'web' ? { boxShadow: 'inset 0 1px 0 rgba(255,255,255,.96)' } : {}),
+  }}>
+    <Icon name={icon} size={18} color="#111827" />
+    {badge && <View style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', borderWidth: 2, borderColor: '#eef2f6' }} />}
   </TouchableOpacity>
 );
 
 /* ─── QUICK ACTION ─── */
-const QuickAction = ({ icon, label, onPress, color = '#F3F4F6' }: any) => (
+const QuickAction = ({ icon, label, onPress }: any) => (
   <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ alignItems: 'center', flex: 1 }}>
     <View style={{
-      width: 48, height: 48, borderRadius: 12, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center',
-      marginBottom: 6, borderWidth: 1, borderColor: '#E5E7EB',
+      width: 48, height: 48, borderRadius: 14, backgroundColor: isDarkMode ? 'rgba(255,255,255,.06)' : '#eef2f6',
+      justifyContent: 'center', alignItems: 'center', marginBottom: 6,
+      borderWidth: 1, borderColor: isDarkMode ? 'rgba(255,255,255,.10)' : '#d8e2ef',
     }}>
-      <Icon name={icon} size={20} color="#111827" />
+      <Icon name={icon} size={20} color={isDarkMode ? '#f4f7ff' : '#111827'} />
     </View>
-    <Text style={{ fontSize: 11, fontWeight: '500', color: '#6B7280', textAlign: 'center' }}>{label}</Text>
+    <Text style={{ fontSize: 11, fontWeight: '500', color: CHX.fgSub, textAlign: 'center' }}>{label}</Text>
   </TouchableOpacity>
 );
 
 /* ─── SECTION HEADER ─── */
 const SectionHeader = ({ title, action, onAction }: any) => (
   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, marginTop: 8 }}>
-    <Text style={{ fontSize: 17, fontWeight: '800', color: '#111827', letterSpacing: -0.3 }}>{title}</Text>
+    <Text style={{ fontSize: 12, fontWeight: '700', color: CHX.fgMuted, letterSpacing: 1.2, textTransform: 'uppercase' }}>{title}</Text>
     {action && (
       <TouchableOpacity onPress={onAction}>
-        <Text style={{ fontSize: 13, fontWeight: '600', color: '#111827' }}>{action}</Text>
+        <Text style={{ fontSize: 13, fontWeight: '600', color: CHX.fgSub }}>{action}</Text>
       </TouchableOpacity>
     )}
   </View>
