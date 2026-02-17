@@ -465,7 +465,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
       {/* Récompenses card — dark satin background */}
       {Platform.OS === 'web' ? (
-        <div onClick={() => setShowPrescModal(true)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px', marginBottom: 14, cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}>
+        <div onClick={() => { apiFetch("/api/rewards/history", {}, token).then((d: any) => { setRewardsData(d); setShowRewardsPage(true); }).catch(() => {}); }} style={{ borderRadius: 20, overflow: "hidden", position: "relative", padding: "18px", marginBottom: 14, cursor: "pointer", boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}>
           <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/4tk4fqvn_background_r%C3%A9compense.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
           <div style={{ position: 'relative', zIndex: 2 } as any}>
