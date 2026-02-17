@@ -433,6 +433,11 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <div onClick={() => setPrescTab('pending')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'pending' ? '#FFF' : 'transparent', color: prescTab === 'pending' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.25s', boxShadow: prescTab === 'pending' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none' } as any}>En cours</div>
               <div onClick={() => setPrescTab('validated')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'validated' ? '#FFF' : 'transparent', color: prescTab === 'validated' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.25s', boxShadow: prescTab === 'validated' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none' } as any}>Cloturees</div>
             </div>
+            {/* Total */}
+            <div style={{ marginTop: 16 } as any}>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>Total</div>
+              <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{displayedPresc.reduce((s: number, p: any) => s + (p.commission || 25), 0)}EUR</div>
+            </div>
           </div>
         </div>
       ) : (
