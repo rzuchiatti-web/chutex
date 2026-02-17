@@ -111,10 +111,10 @@ export default function InterventionMapScreen() {
   }
 
   return (
-    <div data-testid="intervention-map-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#0a0a0a' } as any}>
+    <div data-testid="intervention-map-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#0a0a0a' } as any}>
 
-      {/* MAP — fills remaining space */}
-      <div style={{ flex: 1, position: 'relative', transition: 'flex 0.3s ease' } as any}>
+      {/* MAP — fills entire screen */}
+      <div style={{ position: 'absolute', inset: 0 } as any}>
         <div id="intervention-map-container" style={{ width: '100%', height: '100%' } as any} />
         {/* Back button */}
         <div onClick={() => router.back()} data-testid="map-back-btn" style={{ position: 'absolute', top: 16, left: 16, width: 44, height: 44, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', zIndex: 1000 } as any}>
