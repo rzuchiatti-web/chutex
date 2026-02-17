@@ -50,6 +50,10 @@ export function PastelMistBackground() {
         50%  { transform: translate3d(1.5%,1.4%,0) scale(1.06); }
         100% { transform: translate3d(-1.2%,0,0) scale(1); }
       }
+      @keyframes batteryShine {
+        0%   { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
 
       .chx-bg-dark {
         background: #0b0f16 !important;
