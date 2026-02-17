@@ -377,12 +377,12 @@ export default function AlertsScreen() {
                 <div style={{ position: 'relative', zIndex: 2 } as any}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
                     <div>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 14px', borderRadius: 999, background: isActive ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)', border: `1px solid ${isActive ? 'rgba(239,68,68,0.4)' : 'rgba(16,185,129,0.4)'}`, marginBottom: 8 } as any}>
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: isActive ? '#EF4444' : '#10B981' } as any} />
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#FFF', textTransform: 'uppercase', letterSpacing: 0.5 }}>{isActive ? 'Alerte active' : 'Resolue'}</span>
-                      </div>
                       <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{alert.beneficiary_name || 'Beneficiaire'}</div>
                       <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>Le {new Date(alert.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 999, background: isActive ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)', border: `1px solid ${isActive ? 'rgba(239,68,68,0.4)' : 'rgba(16,185,129,0.4)'}`, flexShrink: 0 } as any}>
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: isActive ? '#EF4444' : '#10B981' } as any} />
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF', letterSpacing: 0.3 }}>{isActive ? 'Alerte active' : 'Resolue'}</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
