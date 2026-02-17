@@ -78,7 +78,7 @@ export default function OnboardingScreen() {
           <button onClick={finish} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', padding: '4px 0' } as any}>Passer</button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
             <button onClick={() => setDark(!dark)} style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 999, padding: '6px 14px', color: '#FFF', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.3s' } as any}>
-              {dark ? '● Light' : '● Dark'}
+              {dark ? 'Light' : 'Dark'}
             </button>
             <div style={{ width: 28, height: 20, borderRadius: 4, overflow: 'hidden', display: 'flex', border: '1px solid rgba(255,255,255,0.2)' } as any}>
               <div style={{ flex: 1, background: '#002395' }} /><div style={{ flex: 1, background: '#FFF' }} /><div style={{ flex: 1, background: '#ED2939' }} />
@@ -166,7 +166,7 @@ export default function OnboardingScreen() {
         <img src={LOGO} alt="Chutex" style={{ height: 20, width: 'auto', filter: dark ? 'none' : 'invert(1)', transition: 'filter 0.3s' } as any} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
           <button onClick={() => setDark(!dark)} data-testid="theme-toggle" style={{ background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)', border: `1px solid ${border}`, borderRadius: 999, padding: '5px 11px', color: fgSub, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', letterSpacing: 0.5, transition: 'all 0.3s' } as any}>
-            {dark ? '☀ LIGHT' : '● DARK'}
+            LIGHT / DARK
           </button>
           {!isLast && <button onClick={finish} style={{ background: 'none', border: 'none', color: fgMuted, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', padding: '5px 8px' } as any}>Passer</button>}
         </div>
