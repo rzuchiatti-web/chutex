@@ -493,7 +493,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       )}
 
       {/* White rounded container for cards */}
-      <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20, minHeight: 300 }}>
+      <View style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20, minHeight: 300 }}>
 
       {/* Interventions List with background images — INSIDE white container */}
       {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => {
