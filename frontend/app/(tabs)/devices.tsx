@@ -716,8 +716,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               </View>
             </View>
           </Modal>
-        </>
-      )}
+
     </ScrollView>
   );
 }
