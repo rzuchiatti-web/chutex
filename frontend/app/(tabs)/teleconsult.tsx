@@ -551,6 +551,38 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
           <Text style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4, textAlign: 'center', paddingHorizontal: 20 }}>{ivTab === 'active' ? 'Vous serez notifie des que vous recevrez une mission d\'intervention' : 'Vos missions completees s\'afficheront ici avec le rapport'}</Text>
         </View>
       ))}
+
+      </View>{/* End white container */}
+
+      {/* Care Detail Modal */}
+      <Modal visible={showCareModal} transparent animationType="fade" onRequestClose={() => setShowCareModal(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#111' }}>Espace Intervenant Care</Text>
+              <TouchableOpacity onPress={() => setShowCareModal(false)}><Icon name="close" size={24} color="#111" /></TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {[
+                { icon: 'business-outline', label: 'Structure', value: user.intervention_structure || user.structure_name || '-' },
+                { icon: 'briefcase-outline', label: 'Profession', value: user.profession || '-' },
+                { icon: 'call-outline', label: 'Telephone', value: user.phone || '-' },
+              ].map(({ icon, label, value }) => value !== '-' ? (
+                <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+                  <Icon name={icon as any} size={16} color="#888" />
+                  <Text style={{ fontSize: 12, color: '#6B7280', width: 85 }}>{label}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#111', flex: 1 }}>{value}</Text>
+                </View>
+              ) : null)}
+              <TouchableOpacity style={{ borderWidth: 1.5, borderColor: '#E53935', borderRadius: 999, paddingVertical: 14, alignItems: 'center', marginTop: 20 }}
+                onPress={() => confirmAction('Desactiver', 'Confirmer ?', deactivateCare)}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#E53935' }}>Desactiver</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
     </ScrollView>);
 }
 
