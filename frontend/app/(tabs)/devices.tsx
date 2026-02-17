@@ -920,14 +920,18 @@ export default function DevicesScreen() {
   const { colors } = useTheme();
   if (!user || !token) return null;
   const r = user.active_role || user.role;
+  // Guardian: full screen, no wrapper header
+  if (r === 'guardian') {
+    return <PrescriptionManagement token={token} user={user} />;
+  }
+
   return (
     <View key={r} style={[d.safeArea, { backgroundColor: '#FFFFFF' }]} testID="devices-screen">
       <View style={d.header}>
-        <Text style={[d.title, { color: '#111827' }]}>{r === 'admin' ? 'Prescripteurs' : r === 'prescriber_company' ? 'Prescriptions' : r === 'guardian' ? 'Prescriptions' : r === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
+        <Text style={[d.title, { color: '#111827' }]}>{r === 'admin' ? 'Prescripteurs' : r === 'prescriber_company' ? 'Prescriptions' : r === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
       </View>
       {r === 'admin' ? <AdminPrescripteurs token={token} />
         : r === 'prescriber_company' ? <CompanyPrescriptionsTab token={token} />
-        : r === 'guardian' ? <PrescriptionManagement token={token} user={user} />
         : r === 'teleassistance' ? <SubscribersList token={token} />
         : <DeviceManagement token={token} />}
     </View>
