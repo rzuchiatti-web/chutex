@@ -13,6 +13,15 @@ export function PastelMistBackground() {
       document.head.appendChild(link);
     }
 
+    // Remix Icon CDN
+    if (!document.getElementById('remix-icon')) {
+      const ri = document.createElement('link');
+      ri.id = 'remix-icon';
+      ri.rel = 'stylesheet';
+      ri.href = 'https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css';
+      document.head.appendChild(ri);
+    }
+
     let style = document.getElementById('clinic-bg') as HTMLStyleElement;
     if (!style) {
       style = document.createElement('style');
