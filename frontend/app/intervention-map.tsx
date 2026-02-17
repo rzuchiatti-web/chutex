@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ActivityIndicator, Platform, Linking } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { View, Text, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
@@ -13,25 +13,84 @@ export default function InterventionMapScreen() {
   const router = useRouter();
   const [iv, setIv] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [sheetHeight, setSheetHeight] = useState(55);
+  const mapRef = useRef<any>(null);
+  const leafletLoaded = useRef(false);
 
   const fetchData = useCallback(async () => {
     try {
       if (interventionId) {
-        const data = await apiFetch(`/api/interventions/${interventionId}`, {}, token);
-        setIv(data);
+        setIv(await apiFetch(`/api/interventions/${interventionId}`, {}, token));
       } else if (alertId) {
         const alerts = await apiFetch('/api/alerts/active-with-interventions', {}, token);
         const alert = (alerts || []).find((a: any) => a.id === alertId);
-        if (alert?.intervention?.id) {
-          const data = await apiFetch(`/api/interventions/${alert.intervention.id}`, {}, token);
-          setIv(data);
-        }
+        if (alert?.intervention?.id) setIv(await apiFetch(`/api/interventions/${alert.intervention.id}`, {}, token));
       }
     } catch {} finally { setLoading(false); }
   }, [interventionId, alertId, token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
   useEffect(() => { const t = setInterval(fetchData, 8000); return () => clearInterval(t); }, [fetchData]);
+
+  // Init Leaflet map
+  useEffect(() => {
+    if (!iv || Platform.OS !== 'web' || leafletLoaded.current) return;
+    const benLoc = iv.beneficiary_location || iv.beneficiary_info || {};
+    if (!benLoc.latitude) return;
+
+    // Load Leaflet CSS
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    setTimeout(() => {
+      try {
+        const L = require('leaflet');
+        const container = document.getElementById('intervention-map-container');
+        if (!container || mapRef.current) return;
+
+        const map = L.map(container, { zoomControl: false, attributionControl: false }).setView([benLoc.latitude, benLoc.longitude], 14);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+        // Beneficiary marker
+        const benIcon = L.divIcon({
+          html: '<div style="width:36px;height:36px;border-radius:50%;background:#EF4444;border:3px solid #FFF;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(239,68,68,0.5)"><i class="ri-user-heart-line" style="font-size:16px;color:#FFF"></i></div>',
+          className: '', iconSize: [36, 36], iconAnchor: [18, 18],
+        });
+        L.marker([benLoc.latitude, benLoc.longitude], { icon: benIcon }).addTo(map).bindPopup(`<b>${iv.beneficiary_name || 'Beneficiaire'}</b>`);
+
+        // Intervener marker
+        const intLoc = iv.intervener_location || {};
+        if (intLoc.latitude) {
+          const intIcon = L.divIcon({
+            html: '<div style="width:36px;height:36px;border-radius:50%;background:#3B82F6;border:3px solid #FFF;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(59,130,246,0.5)"><i class="ri-map-pin-user-line" style="font-size:16px;color:#FFF"></i></div>',
+            className: '', iconSize: [36, 36], iconAnchor: [18, 18],
+          });
+          L.marker([intLoc.latitude, intLoc.longitude], { icon: intIcon }).addTo(map).bindPopup(`<b>${iv.assigned_name || 'Intervenant'}</b>`);
+
+          // Route line
+          L.polyline([[intLoc.latitude, intLoc.longitude], [benLoc.latitude, benLoc.longitude]], {
+            color: '#3B82F6', weight: 3, opacity: 0.6, dashArray: '8, 8',
+          }).addTo(map);
+
+          // Fit bounds
+          map.fitBounds([[benLoc.latitude, benLoc.longitude], [intLoc.latitude, intLoc.longitude]], { padding: [50, 50] });
+        }
+
+        mapRef.current = map;
+        leafletLoaded.current = true;
+      } catch (e) { console.error('Leaflet error:', e); }
+    }, 500);
+  }, [iv]);
+
+  // Resize map when sheet changes
+  useEffect(() => {
+    if (mapRef.current) setTimeout(() => mapRef.current.invalidateSize(), 300);
+  }, [sheetHeight]);
 
   if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
   if (!iv) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.5)' }}>Intervention non trouvee</Text></SafeAreaView>;
@@ -42,181 +101,139 @@ export default function InterventionMapScreen() {
   const benLoc = iv.beneficiary_location || {};
   const intLoc = iv.intervener_location || {};
   const isCare = intervener.role === 'care_provider' || iv.intervener_type === 'care';
-  const isGuardian = iv.intervener_type === 'guardian' || intervener.role === 'guardian';
+  const isMyIntervention = iv.assigned_to === user?.id;
   const distKm = iv.distance_km || (benLoc.latitude && intLoc.latitude ? Math.round(Math.sqrt(Math.pow((benLoc.latitude - intLoc.latitude) * 111, 2) + Math.pow((benLoc.longitude - intLoc.longitude) * 85, 2)) * 10) / 10 : null);
   const etaMin = distKm ? Math.ceil(distKm * 2.5) : null;
   const etaTime = etaMin ? new Date(Date.now() + etaMin * 60000) : null;
 
   if (Platform.OS !== 'web') {
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: '#FFF', fontSize: 16 }}>Suivi intervention</Text>
-      </SafeAreaView>
-    );
+    return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Suivi intervention</Text></SafeAreaView>;
   }
 
   return (
-    <div data-testid="intervention-map-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+    <div data-testid="intervention-map-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#0a0a0a' } as any}>
 
-      {/* MAP SECTION — top half */}
-      <div style={{ position: 'relative', height: '45%', minHeight: 280, flexShrink: 0 } as any}>
-        {benLoc.latitude ? (
-          <iframe
-            src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${intLoc.latitude || benLoc.latitude + 0.008},${intLoc.longitude || benLoc.longitude + 0.008}&destination=${benLoc.latitude},${benLoc.longitude}&mode=driving`}
-            style={{ width: '100%', height: '100%', border: 'none' } as any}
-            allowFullScreen
-          />
-        ) : (
-          <div style={{ width: '100%', height: '100%', background: '#1a1a2e', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-            <i className="ri-map-2-line" style={{ fontSize: 48, color: 'rgba(255,255,255,0.2)' }} />
-          </div>
-        )}
-        {/* Back button overlay */}
-        <div onClick={() => router.back()} data-testid="map-back-btn" style={{ position: 'absolute', top: 16, left: 16, width: 44, height: 44, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' } as any}>
+      {/* MAP — fills remaining space */}
+      <div style={{ flex: 1, position: 'relative', transition: 'flex 0.3s ease' } as any}>
+        <div id="intervention-map-container" style={{ width: '100%', height: '100%' } as any} />
+        {/* Back button */}
+        <div onClick={() => router.back()} data-testid="map-back-btn" style={{ position: 'absolute', top: 16, left: 16, width: 44, height: 44, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', zIndex: 1000 } as any}>
           <i className="ri-arrow-left-s-line" style={{ fontSize: 22, color: '#111' }} />
         </div>
       </div>
 
-      {/* BOTTOM SHEET — intervention info with red background */}
-      <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -24 } as any}>
+      {/* BOTTOM SHEET — draggable */}
+      <div style={{
+        position: 'relative', height: `${sheetHeight}%`, minHeight: 180, maxHeight: '90%',
+        borderTopLeftRadius: 28, borderTopRightRadius: 28, overflow: 'hidden',
+        transition: 'height 0.3s cubic-bezier(.22,.61,.36,1)',
+      } as any}>
         <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
 
         {/* Drag handle */}
-        <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', padding: '10px 0 6px' } as any}>
-          <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.25)' } as any} />
+        <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', padding: '10px 0 4px', cursor: 'grab' } as any}
+          onClick={() => setSheetHeight(sheetHeight > 50 ? 25 : sheetHeight < 30 ? 55 : 85)}>
+          <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.3)' } as any} />
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 40px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 30px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* Status pill + ETA */}
-          <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 18px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.35)', marginBottom: 14 } as any}>
+          {/* Status + ETA */}
+          <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.35)', marginBottom: 10 } as any}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
               <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Intervention en cours</span>
             </div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Heure d'arrivee</div>
-            <div style={{ fontSize: 42, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>{etaTime ? `${etaTime.getHours()}h${String(etaTime.getMinutes()).padStart(2, '0')}` : '--:--'}</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Heure d'arrivee</div>
+            <div style={{ fontSize: 38, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>{etaTime ? `${etaTime.getHours()}h${String(etaTime.getMinutes()).padStart(2, '0')}` : '--:--'}</div>
             {distKm && (
-              <div style={{ display: 'inline-flex', padding: '5px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginTop: 8 } as any}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{distKm} km restant</span>
+              <div style={{ display: 'inline-flex', padding: '4px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginTop: 6 } as any}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{distKm} km restant</span>
               </div>
             )}
           </div>
 
-          {/* ─── FICHE ALERTE ─── */}
-          <div style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.2, textTransform: 'uppercase' }}>Fiche alerte</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.3)' } as any}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#EF4444' } as any} />
-                <span style={{ fontSize: 10, fontWeight: 600, color: '#EF4444' }}>{alertInfo.status === 'resolved' ? 'Resolue' : 'Active'}</span>
+          {/* FICHE ALERTE */}
+          <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase' }}>Fiche alerte</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: 'rgba(239,68,68,0.2)' } as any}>
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#EF4444' } as any} />
+                <span style={{ fontSize: 9, fontWeight: 600, color: '#EF4444' }}>Active</span>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 } as any}>
               {[
-                { label: 'Type', value: alertInfo.alert_type === 'fall' ? 'Chute detectee' : alertInfo.alert_type === 'sos' ? 'SOS' : alertInfo.alert_type || '-' },
-                { label: 'Severite', value: alertInfo.severity === 'critical' ? 'Critique' : alertInfo.severity || '-' },
-                { label: 'Appareil', value: alertInfo.device_type || '-' },
-                { label: 'Heure', value: alertInfo.created_at ? new Date(alertInfo.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '-' },
+                { l: 'Type', v: alertInfo.alert_type === 'fall' ? 'Chute' : alertInfo.alert_type === 'sos' ? 'SOS' : alertInfo.alert_type || '-' },
+                { l: 'Severite', v: alertInfo.severity === 'critical' ? 'Critique' : '-' },
+                { l: 'Appareil', v: alertInfo.device_type || '-' },
+                { l: 'Heure', v: alertInfo.created_at ? new Date(alertInfo.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '-' },
               ].map((item, i) => (
-                <div key={i} style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
-                  <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 2 }}>{item.label}</div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{item.value}</div>
+                <div key={i} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}>
+                  <div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', marginBottom: 1 }}>{item.l}</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{item.v}</div>
                 </div>
               ))}
             </div>
-            {alertInfo.message && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 8, lineHeight: 1.4 }}>{alertInfo.message}</div>}
           </div>
 
-          {/* ─── FICHE BENEFICIAIRE ─── */}
-          <div style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10 }}>Fiche beneficiaire</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 } as any}>
-              <div style={{ width: 48, height: 48, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                <span style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{(ben.name || iv.beneficiary_name || '?').charAt(0)}</span>
+          {/* FICHE BENEFICIAIRE */}
+          <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Fiche beneficiaire</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 } as any}>
+              <div style={{ width: 42, height: 42, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{(ben.name || iv.beneficiary_name || '?').charAt(0)}</span>
               </div>
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF' }}>{ben.name || iv.beneficiary_name}</div>
-                {ben.date_of_birth && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 1 }}>Ne(e) le {ben.date_of_birth}</div>}
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{ben.name || iv.beneficiary_name}</div>
+                {ben.date_of_birth && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Ne(e) le {ben.date_of_birth}</div>}
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 } as any}>
-              {[
-                ben.blood_type && { label: 'Groupe sanguin', value: ben.blood_type },
-                ben.gender && { label: 'Genre', value: ben.gender },
-                ben.height_cm && { label: 'Taille', value: `${ben.height_cm} cm` },
-                ben.weight_kg && { label: 'Poids', value: `${ben.weight_kg} kg` },
-              ].filter(Boolean).map((item: any, i) => (
-                <div key={i} style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)' } as any}>
-                  <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{item.label}</div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{item.value}</div>
-                </div>
-              ))}
-            </div>
-            {ben.medical_conditions && (
-              <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 8 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 600, color: '#EF4444', textTransform: 'uppercase', marginBottom: 2 }}>Pathologies</div>
-                <div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.4 }}>{ben.medical_conditions}</div>
-              </div>
-            )}
-            {ben.allergies && (
-              <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 8 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 600, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 2 }}>Allergies</div>
-                <div style={{ fontSize: 12, color: '#FFF' }}>{ben.allergies}</div>
-              </div>
-            )}
-            {ben.address && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}><i className="ri-map-pin-line" style={{ fontSize: 12, marginRight: 6 }} />{ben.address}</div>}
-            {ben.phone && (
-              <div onClick={() => window.location.href = `tel:${ben.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 999, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', cursor: 'pointer', marginTop: 8 } as any}>
-                <i className="ri-phone-line" style={{ fontSize: 16, color: '#10B981' }} />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#10B981' }}>Appeler {ben.name?.split(' ')[0]}</span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginLeft: 'auto' }}>{ben.phone}</span>
-              </div>
-            )}
+            {ben.medical_conditions && <div style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.12)', marginBottom: 6 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: '#EF4444', textTransform: 'uppercase' }}>Pathologies</div><div style={{ fontSize: 11, color: '#FFF', marginTop: 2 }}>{ben.medical_conditions}</div></div>}
+            {ben.allergies && <div style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.12)', marginBottom: 6 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: '#F59E0B', textTransform: 'uppercase' }}>Allergies</div><div style={{ fontSize: 11, color: '#FFF', marginTop: 2 }}>{ben.allergies}</div></div>}
+            {ben.phone && <div onClick={() => window.location.href = `tel:${ben.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer', marginTop: 4 } as any}><i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#10B981' }}>Appeler {ben.name?.split(' ')[0]}</span></div>}
           </div>
 
-          {/* ─── FICHE INTERVENANT ─── */}
+          {/* FICHE INTERVENANT */}
           {iv.assigned_name && (
-            <div style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.2, textTransform: 'uppercase' }}>Fiche intervenant</div>
-                {isCare && (
-                  <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.35)' } as any}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span>
-                  </div>
-                )}
+            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase' }}>Fiche intervenant</span>
+                {isCare && <div style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 } as any}>
-                <div style={{ width: 48, height: 48, borderRadius: 999, background: isCare ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <span style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{iv.assigned_name.charAt(0)}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ width: 42, height: 42, borderRadius: 999, background: isCare ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{iv.assigned_name.charAt(0)}</span>
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF' }}>{iv.assigned_name}</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 1 }}>{intervener.structure_name || intervener.profession || (isGuardian ? 'Gardien' : 'Intervenant')}</div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{iv.assigned_name}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{intervener.structure_name || intervener.profession || (iv.intervener_type === 'guardian' ? 'Gardien' : 'Intervenant')}</div>
                 </div>
               </div>
-              {intervener.phone && (
-                <div onClick={() => window.location.href = `tel:${intervener.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' } as any}>
-                  <i className="ri-phone-line" style={{ fontSize: 16, color: '#FFF' }} />
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>Appeler l'intervenant</span>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginLeft: 'auto' }}>{intervener.phone}</span>
-                </div>
-              )}
+              {intervener.phone && <div onClick={() => window.location.href = `tel:${intervener.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', marginTop: 8 } as any}><i className="ri-phone-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} /><span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Appeler</span></div>}
             </div>
           )}
 
-          {/* Navigate button */}
-          {benLoc.latitude && (
-            <div onClick={() => {
-              const url = `https://www.google.com/maps/dir/?api=1&destination=${benLoc.latitude},${benLoc.longitude}`;
-              window.open(url, '_blank');
-            }} data-testid="navigate-btn" style={{
-              padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer',
-              background: '#FFF', color: '#111', fontSize: 16, fontWeight: 800,
+          {/* Navigate button — ONLY for the assigned intervener */}
+          {isMyIntervention && benLoc.latitude && (
+            <div data-testid="navigate-btn" onClick={() => {
+              // Navigate in-app — show route on the map
+              if (mapRef.current && benLoc.latitude) {
+                setSheetHeight(25);
+                setTimeout(() => {
+                  if (mapRef.current) {
+                    mapRef.current.setView([benLoc.latitude, benLoc.longitude], 15, { animate: true });
+                    mapRef.current.invalidateSize();
+                  }
+                }, 400);
+              }
+            }} style={{
+              padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer',
+              background: '#FFF', color: '#111', fontSize: 15, fontWeight: 800,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-              boxShadow: '0 4px 20px rgba(0,0,0,0.3)', marginTop: 6,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.3)', marginTop: 4,
             } as any}>
               <i className="ri-navigation-line" style={{ fontSize: 18 }} />
               Lancer la navigation
