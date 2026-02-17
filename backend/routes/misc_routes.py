@@ -139,6 +139,23 @@ async def get_intervention(iid: str, user=Depends(get_current_user)):
     iv = await db.interventions.find_one({"id": iid}, {"_id": 0})
     if not iv:
         raise HTTPException(status_code=404, detail="Non trouvee")
+    # Enrich with beneficiary info
+    if iv.get('beneficiary_id'):
+        ben = await db.users.find_one({"id": iv['beneficiary_id']}, {"_id": 0, "password_hash": 0})
+        if ben:
+            iv['beneficiary_info'] = {k: ben.get(k) for k in ['name','phone','address','date_of_birth','blood_type','medical_conditions','allergies','doctor_name','emergency_contact_name','emergency_contact_phone','gender','height_cm','weight_kg','latitude','longitude']}
+            iv['beneficiary_location'] = {"latitude": ben.get('latitude', 45.47), "longitude": ben.get('longitude', 4.51)}
+    # Enrich with alert info
+    if iv.get('alert_id'):
+        alert = await db.alerts.find_one({"id": iv['alert_id']}, {"_id": 0})
+        if alert:
+            iv['alert_info'] = {k: alert.get(k) for k in ['id','alert_type','severity','message','device_type','status','created_at','teleassistance_status']}
+    # Enrich with intervener info
+    if iv.get('assigned_to'):
+        intervener = await db.users.find_one({"id": iv['assigned_to']}, {"_id": 0, "password_hash": 0})
+        if intervener:
+            iv['intervener_full'] = {k: intervener.get(k) for k in ['name','phone','email','role','guardian_type','structure_name','profession','latitude','longitude']}
+    # Simulate intervener location near beneficiary
     ben_loc = iv.get('beneficiary_location', {})
     if ben_loc and ben_loc.get('latitude'):
         iv['intervener_location'] = {"latitude": ben_loc['latitude'] + random.uniform(-0.005, 0.005), "longitude": ben_loc['longitude'] + random.uniform(-0.005, 0.005)}
