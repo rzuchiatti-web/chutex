@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://premium-dark-ui-5.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://telehealth-alerts.preview.emergentagent.com')
 
 # Test credentials
 CREDENTIALS = {
