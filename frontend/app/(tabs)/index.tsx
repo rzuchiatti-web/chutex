@@ -265,7 +265,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
           <View style={{ flexDirection: 'row', gap: 6, backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 999, padding: 3, borderWidth: 1, borderColor: 'rgba(255,255,255,0.46)' }}>
             <View style={{ backgroundColor: '#FFF', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 12 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: '#111827' }}>{t('beneficiary')}</Text>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: CHX.fg }}>{t('beneficiary')}</Text>
             </View>
             {user.has_guardian_space && (
               <TouchableOpacity onPress={switchToGuardian} style={{ paddingVertical: 8, paddingHorizontal: 12 }}>
@@ -297,11 +297,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       {showNotifs && (
         <Card style={{ borderLeftWidth: 3, borderLeftColor: '#111827' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-            <Text style={{ fontSize: 15, fontWeight: '800', color: '#111827' }}>Notifications</Text>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: CHX.fg }}>Notifications</Text>
             <TouchableOpacity onPress={() => setShowNotifs(false)}><Icon name="close" size={18} color="#9CA3AF" /></TouchableOpacity>
           </View>
           {activeAlerts.length === 0 && guardianRequests.length === 0 && (
-            <Text style={{ fontSize: 12, color: '#6B7280', textAlign: 'center', paddingVertical: 8 }}>Aucune notification</Text>
+            <Text style={{ fontSize: 12, color: CHX.fgSub, textAlign: 'center', paddingVertical: 8 }}>Aucune notification</Text>
           )}
           {activeAlerts.map((a: any) => (
             <TouchableOpacity key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}
@@ -310,8 +310,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 <Icon name="alert-circle" size={16} color="#EF4444" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827' }}>{a.message}</Text>
-                <Text style={{ fontSize: 11, color: '#6B7280' }}>{a.incident_state || a.teleassistance_status}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: CHX.fg }}>{a.message}</Text>
+                <Text style={{ fontSize: 11, color: CHX.fgSub }}>{a.incident_state || a.teleassistance_status}</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -320,7 +320,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(245,158,11,0.08)', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="person-add" size={16} color="#F59E0B" />
               </View>
-              <Text style={{ fontSize: 13, color: '#111827', flex: 1 }}>{req.guardian_name} veut devenir gardien</Text>
+              <Text style={{ fontSize: 13, color: CHX.fg, flex: 1 }}>{req.guardian_name} veut devenir gardien</Text>
             </View>
           ))}
         </Card>
@@ -336,17 +336,17 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 13, fontWeight: '800', color: '#EF4444', textTransform: 'uppercase', letterSpacing: 0.5 }}>ALERTE EN COURS</Text>
-                <Text style={{ fontSize: 13, color: '#111827', marginTop: 2 }}>{a.message}</Text>
+                <Text style={{ fontSize: 13, color: CHX.fg, marginTop: 2 }}>{a.message}</Text>
               </View>
             </View>
             <View style={{ backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 12 }}>
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: CHX.fgSub, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                 {a.incident_state === 'CARE_DISPATCHED' ? 'INTERVENANT EN ROUTE' : a.incident_state === 'CALLING_PATIENT' ? 'APPEL EN COURS' : a.incident_state === 'RESOLVED' ? 'RESOLUE' : a.teleassistance_status || 'EN COURS'}
               </Text>
               {a.intervener_info && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}>
                   <View style={{ width: 28, height: 28, borderRadius: 10, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}><Icon name="person" size={14} color="#FFF" /></View>
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827' }}>{a.intervener_info.name}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: CHX.fg }}>{a.intervener_info.name}</Text>
                 </View>
               )}
             </View>
@@ -371,7 +371,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             {braceletData?.connected && <View style={{ position: 'absolute', top: 2, right: 2, width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />}
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>Bracelet Elio</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: CHX.fg }}>Bracelet Elio</Text>
             {braceletData?.battery > 0 && <Text style={{ fontSize: 11, color: '#EF4444', fontWeight: '600' }}>{braceletData.battery}% batterie</Text>}
           </View>
           <Icon name="chevron-forward" size={16} color="#9CA3AF" />
@@ -382,8 +382,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <Icon name="shield-outline" size={22} color="#10B981" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>Gilet Anti-Chute</Text>
-            <Text style={{ fontSize: 11, color: '#6B7280' }}>{vestData?.connected ? 'Connecte' : 'Non connecte'}</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: CHX.fg }}>Gilet Anti-Chute</Text>
+            <Text style={{ fontSize: 11, color: CHX.fgSub }}>{vestData?.connected ? 'Connecte' : 'Non connecte'}</Text>
           </View>
           <Icon name="chevron-forward" size={16} color="#9CA3AF" />
         </TouchableOpacity>
@@ -398,29 +398,29 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <Text style={{ fontSize: 16, fontWeight: '800', color: ['#111827', '#4FC3F7', '#66BB6A', '#FF8A65', '#CE93D8'][i % 5] }}>{g.name?.charAt(0)}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{g.name}</Text>
-              <Text style={{ fontSize: 11, color: '#6B7280' }}>{g.relationship || g.profession || t('guardian')}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: CHX.fg }}>{g.name}</Text>
+              <Text style={{ fontSize: 11, color: CHX.fgSub }}>{g.relationship || g.profession || t('guardian')}</Text>
             </View>
             <Icon name="chevron-forward" size={16} color="#9CA3AF" />
           </TouchableOpacity>
         ))}
-        {guardians.length === 0 && <Text style={{ fontSize: 13, color: '#6B7280', textAlign: 'center', paddingVertical: 12 }}>Aucun gardien pour le moment</Text>}
+        {guardians.length === 0 && <Text style={{ fontSize: 13, color: CHX.fgSub, textAlign: 'center', paddingVertical: 12 }}>Aucun gardien pour le moment</Text>}
       </Card>
 
       {/* ─── GUARDIAN REQUESTS ─── */}
       {guardianRequests.map((req: any) => (
         <Card key={req.id} style={{ borderLeftWidth: 3, borderLeftColor: '#F59E0B' }}>
           <Text style={{ fontSize: 11, fontWeight: '700', color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 1 }}>{t('guardian_request')}</Text>
-          <Text style={{ fontSize: 17, fontWeight: '800', color: '#111827', marginTop: 4 }}>{req.guardian_name}</Text>
-          <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Souhaite devenir votre gardien</Text>
+          <Text style={{ fontSize: 17, fontWeight: '800', color: CHX.fg, marginTop: 4 }}>{req.guardian_name}</Text>
+          <Text style={{ fontSize: 12, color: CHX.fgSub, marginTop: 2 }}>Souhaite devenir votre gardien</Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
             <TouchableOpacity testID={`accept-guardian-${req.id}`} style={{ flex: 1, backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
               onPress={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/accept`, { method: 'POST' }, token); Alert.alert('Accepte', `${req.guardian_name} est maintenant votre gardien.`); fetchData(); } catch (e: any) { Alert.alert('Erreur', e.message); } }}>
               <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>{t('accept')}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ flex: 1, backgroundColor: '#F3F4F6', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
+            <TouchableOpacity style={{ flex: 1, backgroundColor: isDarkMode ? 'rgba(255,255,255,.06)' : '#F3F4F6', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
               onPress={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }}>
-              <Text style={{ color: '#6B7280', fontSize: 13, fontWeight: '700' }}>{t('reject')}</Text>
+              <Text style={{ color: CHX.fgSub, fontSize: 13, fontWeight: '700' }}>{t('reject')}</Text>
             </TouchableOpacity>
           </View>
         </Card>
@@ -436,7 +436,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <>
               <Icon name="alert-circle" size={32} color="#FFF" />
               <Text style={{ color: '#FFF', fontSize: 24, fontWeight: '900', letterSpacing: 4, marginTop: 4 }}>{t('sos')}</Text>
-              <Text style={{ color: '#9CA3AF', fontSize: 11, marginTop: 2 }}>{t('sos_sub')}</Text>
+              <Text style={{ color: CHX.fgMuted, fontSize: 11, marginTop: 2 }}>{t('sos_sub')}</Text>
             </>
           )}
         </TouchableOpacity>
@@ -451,11 +451,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           { key: 'sleep', title: t('sleep_health'), img: HEALTH_IMAGES.sleep, route: '/sleep', bg: 'rgba(124,92,255,0.06)' },
           { key: 'physical', title: t('physical_health'), img: HEALTH_IMAGES.physical, route: '/health-detail', params: { metricId: 'temperature' }, bg: 'rgba(16,185,129,0.06)' },
         ].map(cat => (
-          <TouchableOpacity key={cat.key} testID={`health-cat-${cat.key}`} style={{ width: '48%', backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', overflow: 'hidden', ...webShadow }} onPress={() => router.push(cat.params ? { pathname: cat.route as any, params: cat.params } : cat.route as any)}>
+          <TouchableOpacity key={cat.key} testID={`health-cat-${cat.key}`} style={{ width: '48%', backgroundColor: CHX.bg, borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', overflow: 'hidden', ...webShadow }} onPress={() => router.push(cat.params ? { pathname: cat.route as any, params: cat.params } : cat.route as any)}>
             <View style={{ height: 100, justifyContent: 'center', alignItems: 'center', backgroundColor: cat.bg }}>
               <Image source={{ uri: cat.img }} style={{ width: 80, height: 80, resizeMode: 'contain' }} />
             </View>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827', textAlign: 'center', paddingVertical: 12, paddingHorizontal: 8 }}>{cat.title}</Text>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: CHX.fg, textAlign: 'center', paddingVertical: 12, paddingHorizontal: 8 }}>{cat.title}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -463,7 +463,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       {/* ─── QUICK VITALS ─── */}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
         {[
-          { id: 'spo2', label: t('spo2'), val: vitals?.spo2 || '--', unit: '%', icon: 'water-outline', color: '#111827' },
+          { id: 'spo2', label: t('spo2'), val: vitals?.spo2 || '--', unit: '%', icon: 'water-outline', color: CHX.fg },
           { id: 'heart_rate', label: t('pulse'), val: vitals?.heart_rate || '--', unit: t('bpm'), icon: 'heart-outline', color: '#EF4444' },
           { id: 'sleep', label: t('sleep'), val: '--', unit: '', icon: 'moon-outline', color: '#7C5CFF' },
           { id: 'temperature', label: t('temperature'), val: vitals?.temperature || '--', unit: '', icon: 'thermometer-outline', color: '#10B981' },
@@ -472,8 +472,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <Card style={{ marginBottom: 0, padding: 16 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <View>
-                  <Text style={{ fontSize: 11, fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>{v.label}</Text>
-                  <Text style={{ fontSize: 22, fontWeight: '800', color: '#111827', marginTop: 4 }}>{v.val}<Text style={{ fontSize: 13, color: '#9CA3AF' }}> {v.unit}</Text></Text>
+                  <Text style={{ fontSize: 11, fontWeight: '600', color: CHX.fgSub, textTransform: 'uppercase', letterSpacing: 0.5 }}>{v.label}</Text>
+                  <Text style={{ fontSize: 22, fontWeight: '800', color: CHX.fg, marginTop: 4 }}>{v.val}<Text style={{ fontSize: 13, color: CHX.fgMuted }}> {v.unit}</Text></Text>
                 </View>
                 <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: `${v.color}15`, justifyContent: 'center', alignItems: 'center' }}>
                   <Icon name={v.icon as any} size={16} color={v.color} />
@@ -490,7 +490,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         <View style={{ alignItems: 'center', marginBottom: 10 }}>
           <Image source={{ uri: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/mdk4g3eq_Muscle.png' }} style={{ width: 50, height: 50, resizeMode: 'contain' }} />
         </View>
-        <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827', textAlign: 'center', marginBottom: 14 }}>{t('physical_activity')}</Text>
+        <Text style={{ fontSize: 16, fontWeight: '800', color: CHX.fg, textAlign: 'center', marginBottom: 14 }}>{t('physical_activity')}</Text>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 16 }}>
           {[
             { val: vitals?.steps || '0', label: t('steps') },
@@ -498,19 +498,19 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             { val: '0', label: t('km') },
           ].map((s, i) => (
             <View key={i} style={{ alignItems: 'center', flex: 1, borderRightWidth: i < 2 ? 1 : 0, borderColor: 'rgba(0,0,0,0.06)' }}>
-              <Text style={{ fontSize: 26, fontWeight: '800', color: '#111827' }}>{s.val}</Text>
-              <Text style={{ fontSize: 12, color: '#6B7280' }}>{s.label}</Text>
+              <Text style={{ fontSize: 26, fontWeight: '800', color: CHX.fg }}>{s.val}</Text>
+              <Text style={{ fontSize: 12, color: CHX.fgSub }}>{s.label}</Text>
             </View>
           ))}
         </View>
         {/* Progress bars */}
         {[
-          { label: '500 KCAL', current: '0 KCAL', pct: '0%', color: '#111827' },
+          { label: '500 KCAL', current: '0 KCAL', pct: '0%', color: CHX.fg },
           { label: `2000 ${t('steps').toUpperCase()}`, current: `${vitals?.steps || 0} ${t('steps').toUpperCase()}`, pct: `${Math.min(100, ((vitals?.steps || 0) / 2000) * 100)}%`, color: '#10B981' },
         ].map((bar, i) => (
-          <View key={i} style={{ backgroundColor: '#FFFFFF', borderRadius: 16, padding: 14, marginBottom: i === 0 ? 8 : 0 }}>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>{t('daily_goal')} | <Text style={{ color: bar.color }}>{bar.label}</Text></Text>
-            <View style={{ height: 22, backgroundColor: '#F3F4F6', borderRadius: 11, overflow: 'hidden' }}>
+          <View key={i} style={{ backgroundColor: CHX.bg, borderRadius: 16, padding: 14, marginBottom: i === 0 ? 8 : 0 }}>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: CHX.fgSub, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>{t('daily_goal')} | <Text style={{ color: bar.color }}>{bar.label}</Text></Text>
+            <View style={{ height: 22, backgroundColor: isDarkMode ? 'rgba(255,255,255,.06)' : '#F3F4F6', borderRadius: 11, overflow: 'hidden' }}>
               <View style={{ height: 22, backgroundColor: bar.color, borderRadius: 11, width: bar.pct, justifyContent: 'center', paddingLeft: 10, minWidth: 40 }}>
                 <Text style={{ fontSize: 9, fontWeight: '700', color: '#FFF' }}>{bar.current}</Text>
               </View>
@@ -532,8 +532,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         <TouchableOpacity key={cat.key} onPress={() => router.push('/reminders')} activeOpacity={0.8}>
           <Card style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 15, fontWeight: '700', color: '#111827' }}>{cat.title}</Text>
-              <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{cat.count} rappel{cat.count !== 1 ? 's' : ''} par jour</Text>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: CHX.fg }}>{cat.title}</Text>
+              <Text style={{ fontSize: 12, color: CHX.fgSub, marginTop: 2 }}>{cat.count} rappel{cat.count !== 1 ? 's' : ''} par jour</Text>
             </View>
             <Image source={{ uri: cat.img }} style={{ width: 48, height: 48, resizeMode: 'contain' }} />
           </Card>
@@ -547,9 +547,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.10)', justifyContent: 'center', alignItems: 'center' }}>
               <Icon name="sparkles" size={16} color="#111827" />
             </View>
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>Recommandation IA</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: CHX.fg }}>Recommandation IA</Text>
           </View>
-          <Text style={{ fontSize: 13, color: '#6B7280', lineHeight: 20 }} numberOfLines={4}>{rec}</Text>
+          <Text style={{ fontSize: 13, color: CHX.fgSub, lineHeight: 20 }} numberOfLines={4}>{rec}</Text>
         </Card>
       ) : null}
 
