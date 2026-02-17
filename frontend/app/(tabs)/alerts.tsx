@@ -22,6 +22,8 @@ export default function AlertsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState<'active' | 'resolved'>('active');
   const [selectedAlert, setSelectedAlert] = useState<any>(null);
+  const [showReport, setShowReport] = useState(false);
+  const [reportText, setReportText] = useState('');
 
   const fetchAlerts = useCallback(async () => {
     try {
