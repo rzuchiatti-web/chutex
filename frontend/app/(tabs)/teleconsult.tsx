@@ -496,12 +496,12 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       {/* White rounded container for cards */}
       <View style={{ padding: 16, paddingTop: 12 }}>
 
-      {/* Interventions List with background images — INSIDE white container */}
+      {/* Interventions List — INSIDE white container */}
       {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => {
         const isActive = ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status);
-        const bgImg = isActive ? BG_GREEN : BG_RED;
+        const bgImg = isActive ? BG_VIOLET : BG_GREEN;
         return Platform.OS === 'web' ? (
-          <div key={iv.id} data-testid={`iv-${iv.id}`} onClick={() => router.push({ pathname: '/intervention-detail', params: { interventionId: iv.id } })}
+          <div key={iv.id} data-testid={`iv-${iv.id}`} onClick={() => setSelectedIv(iv)}
             style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 110, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.25s ease, box-shadow 0.25s ease', boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}
             onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 32px rgba(0,0,0,.22)'; }}
             onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,.15)'; }}>
