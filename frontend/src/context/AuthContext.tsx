@@ -124,6 +124,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (e) {}
     setUser(null);
     setToken(null);
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
   };
 
   const refreshUser = async () => {

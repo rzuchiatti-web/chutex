@@ -83,7 +83,7 @@ async def resolve_alert(alert_id: str, data: dict = None, user=Depends(get_curre
     now = datetime.now(timezone.utc).isoformat()
     update = {"status": "resolved", "resolved_at": now, "resolved_by": user['id'], "resolved_by_name": user['name']}
     if data and data.get('answers'):
-        update['report'] = {"answers": data['answers'], "notes": data.get('notes', ''), "closed_by": user['id'], "closed_by_name": user['name'], "closed_at": now}
+        update['report'] = {"answers": data.get('answers', data.get('report', {})), "notes": data.get('notes', ''), "closed_by": user['id'], "closed_by_name": user['name'], "closed_at": now}
     await db.alerts.update_one({"id": alert_id}, {"$set": update})
     return {"status": "resolved"}
 
