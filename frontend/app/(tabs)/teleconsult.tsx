@@ -455,7 +455,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
   /* ─── ACTIF: page interventions avec header violet ─── */
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' }} contentContainerStyle={{ paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchIvs(); }} />}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#0b0f16' }} contentContainerStyle={{ paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchIvs(); }} />}>
       {/* Header violet avec image, pilule, titre ET toggle */}
       {Platform.OS === 'web' ? (
         <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', overflow: 'hidden', borderBottomLeftRadius: 28, borderBottomRightRadius: 28 } as any}>
