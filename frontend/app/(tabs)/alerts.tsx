@@ -257,7 +257,10 @@ export default function AlertsScreen() {
 
   /* ─── REPORT PAGE: full screen on red background ─── */
   if (showReport && selectedAlert && Platform.OS === 'web') {
-    const reportQuestions = [
+    const isBeneficiary = r === 'beneficiary';
+    const reportQuestions = isBeneficiary ? [
+      { id: 'reason', label: 'Pourquoi cloturez-vous cette alerte ?', options: ['Fausse alerte / Erreur de manipulation', 'Je vais bien, pas besoin d\'aide', 'L\'aide est deja arrivee', 'Autre raison'] },
+    ] : [
       { id: 'situation', label: 'La situation est-elle maitrisee ?', options: ['Oui, situation resolue', 'Partiellement, surveillance necessaire', 'Non, necessite un suivi'] },
       { id: 'actions', label: 'Actions realisees', options: ['Levee de doute telephonique', 'Intervention physique au domicile', 'Contact avec les secours (SAMU/Pompiers)', 'Contact avec le medecin traitant', 'Aucune action necessaire'] },
       { id: 'condition', label: 'Etat du beneficiaire', options: ['Stable - pas de blessure', 'Blessure legere - soins apportes', 'Necessitant un suivi medical', 'Hospitalisation necessaire'] },
@@ -270,16 +273,15 @@ export default function AlertsScreen() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
           <div onClick={() => setShowReport(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
           </div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Rapport de cloture</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{isBeneficiary ? 'Cloturer l\'alerte' : 'Rapport de cloture'}</div>
         </div>
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
           <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Alerte : {selectedAlert.beneficiary_name}</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>{isBeneficiary ? 'Dites-nous ce qui s\'est passe' : `Alerte : ${selectedAlert.beneficiary_name}`}</div>
           </div>
 
-          {/* Questions with radio options */}
           {reportQuestions.map((q, qi) => (
             <div key={q.id} style={{ marginBottom: 16 } as any}>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>{qi + 1}. {q.label} <span style={{ color: '#EF4444' }}>*</span></div>
@@ -299,19 +301,17 @@ export default function AlertsScreen() {
             </div>
           ))}
 
-          {/* Note personnalisée */}
           <div style={{ marginBottom: 16 } as any}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>Note personnalisee</div>
-            <textarea value={reportText} onChange={(e: any) => setReportText(e.target.value)} placeholder="Ajoutez des details supplementaires..."
-              style={{ width: '100%', minHeight: 100, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', resize: 'none', outline: 'none' } as any} />
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>{isBeneficiary ? 'Un commentaire ?' : 'Note personnalisee'}</div>
+            <textarea value={reportText} onChange={(e: any) => setReportText(e.target.value)} placeholder={isBeneficiary ? 'Optionnel - Ajoutez un commentaire...' : 'Ajoutez des details supplementaires...'}
+              style={{ width: '100%', minHeight: isBeneficiary ? 80 : 100, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', resize: 'none', outline: 'none' } as any} />
           </div>
 
-          {/* Confirm button — disabled if not all answered */}
           <div onClick={() => {
             if (!allAnswered) return;
-            const report = { ...reportAnswers, notes: reportText, closed_by: user?.name, closed_at: new Date().toISOString() };
-            apiFetch(`/api/alerts/${selectedAlert.id}/resolve`, { method: 'PUT', body: JSON.stringify({ report: JSON.stringify(report) }) }, token)
-              .then(() => { fetchAlerts(); setSelectedAlert(null); setShowReport(false); setReportText(''); })
+            const report = { ...reportAnswers, notes: reportText, closed_by: user?.name, closed_at: new Date().toISOString(), closed_by_role: r };
+            apiFetch(`/api/alerts/${selectedAlert.id}/resolve`, { method: 'PUT', body: JSON.stringify({ answers: report, notes: reportText }) }, token)
+              .then(() => { fetchAlerts(); setSelectedAlert(null); setShowReport(false); setReportText(''); setReportAnswers({}); })
               .catch(() => {});
           }} style={{
             width: '100%', padding: '16px', borderRadius: 999, textAlign: 'center', cursor: allAnswered ? 'pointer' : 'not-allowed',
@@ -319,7 +319,7 @@ export default function AlertsScreen() {
             color: allAnswered ? '#FFF' : 'rgba(255,255,255,0.3)',
             fontSize: 16, fontWeight: 700, transition: 'all 0.25s',
           } as any}>
-            {allAnswered ? 'Confirmer la cloture' : 'Repondez a toutes les questions'}
+            {allAnswered ? 'Confirmer la cloture' : 'Repondez a la question'}
           </div>
         </div>
       </div>
