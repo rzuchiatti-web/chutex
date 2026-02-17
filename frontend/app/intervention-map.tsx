@@ -132,14 +132,15 @@ export default function InterventionMapScreen() {
     return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Suivi intervention</Text></SafeAreaView>;
   }
 
-  // Min sheet = 8% so it never disappears
-  const clampSheet = (pct: number) => Math.max(8, Math.min(92, pct));
+  // Min sheet height = never below 70px (handle always visible)
+  const clampSheet = (pct: number) => Math.max(8, Math.min(92, Math.round(pct)));
+  const sheetPx = typeof window !== 'undefined' ? Math.max(70, (sheetHeight / 100) * window.innerHeight) : 400;
 
   return (
     <div data-testid="intervention-map-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#0a0a0a' } as any}>
 
       {/* MAP — fills entire screen */}
-      <div style={{ position: 'absolute', inset: 0 } as any}>
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1 } as any}>
         <div id="intervention-map-container" style={{ width: '100%', height: '100%' } as any} />
         {/* Back button */}
         <div onClick={() => router.back()} data-testid="map-back-btn" style={{ position: 'absolute', top: 16, left: 16, width: 44, height: 44, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', zIndex: 1000 } as any}>
