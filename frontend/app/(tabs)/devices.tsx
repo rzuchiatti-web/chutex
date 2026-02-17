@@ -82,12 +82,8 @@ function DeviceManagement({ token }: { token: string }) {
         <img src={BG_BLACK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
 
-        {/* Header */}
-        <div style={{ position: 'relative', padding: '24px 20px 16px', zIndex: 10, textAlign: 'center' } as any}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 12 } as any}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: subscription?.has_subscription ? '#10B981' : '#F59E0B' } as any} />
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{subscription?.has_subscription ? `Abonnement ${subscription.subscription_type || 'Standard'} actif` : 'Gilet et balance disponibles'}</span>
-          </div>
+        {/* Header — no subscription pill */}
+        <div style={{ position: 'relative', padding: '28px 20px 16px', zIndex: 10, textAlign: 'center' } as any}>
           <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Appareils connectes</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Gerez vos dispositifs de sante Chutex</div>
         </div>
