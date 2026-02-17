@@ -366,13 +366,170 @@ export default function HealthScreen() {
     return <CompanyAgences token={token} />;
   }
 
-  const metrics = vitals ? [
-    { id: 'heart_rate', label: 'Frequence cardiaque', value: vitals.heart_rate, unit: 'bpm', icon: 'heart', color: '#EF4444', range: '60-100' },
-    { id: 'spo2', label: 'Saturation O2', value: vitals.spo2, unit: '%', icon: 'water', color: '#3B82F6', range: '95-100' },
-    { id: 'blood_pressure', label: 'Tension arterielle', value: `${vitals.systolic || vitals.blood_pressure_systolic || 0}/${vitals.diastolic || vitals.blood_pressure_diastolic || 0}`, unit: 'mmHg', icon: 'pulse', color: '#8B5CF6', range: '120/80' },
-    { id: 'temperature', label: 'Temperature', value: vitals.temperature, unit: 'C', icon: 'thermometer', color: '#F59E0B', range: '36.5-37.5' },
-    { id: 'steps', label: 'Pas aujourd\'hui', value: vitals.steps, unit: 'pas', icon: 'footsteps', color: '#10B981', range: '> 6000' },
-  ] : [];
+const BG_HEALTH = 'https://static.prod-images.emergentagent.com/jobs/8afdc991-0ab2-4687-a2a5-438b9a5f0711/images/93b4240c9303718119c72930976df061406f498e9727712063b57ec6ec698425.png';
+
+  // Simulated data when no real data
+  const simVitals = vitals || { heart_rate: 72, spo2: 97, systolic: 128, diastolic: 78, blood_pressure_systolic: 128, blood_pressure_diastolic: 78, temperature: 36.6, steps: 3842 };
+  const simHistory = [
+    { hour: '08h', hr: 68, spo2: 98 }, { hour: '10h', hr: 74, spo2: 97 }, { hour: '12h', hr: 82, spo2: 96 },
+    { hour: '14h', hr: 76, spo2: 97 }, { hour: '16h', hr: 71, spo2: 98 }, { hour: '18h', hr: 78, spo2: 97 },
+    { hour: '20h', hr: simVitals.heart_rate, spo2: simVitals.spo2 },
+  ];
+  const sleepData = { duration: '7h 23min', quality: 82, deep: '2h 10min', light: '4h 05min', rem: '1h 08min' };
+  const maxHR = Math.max(...simHistory.map(h => h.hr));
+
+  const metrics = [
+    { id: 'heart_rate', label: 'Frequence cardiaque', value: simVitals.heart_rate, unit: 'bpm', icon: 'ri-heart-pulse-line', color: '#EF4444', range: '60-100', status: simVitals.heart_rate >= 60 && simVitals.heart_rate <= 100 ? 'normal' : 'alerte' },
+    { id: 'spo2', label: 'Saturation O2', value: simVitals.spo2, unit: '%', icon: 'ri-drop-line', color: '#3B82F6', range: '95-100', status: simVitals.spo2 >= 95 ? 'normal' : 'alerte' },
+    { id: 'blood_pressure', label: 'Tension arterielle', value: `${simVitals.systolic || simVitals.blood_pressure_systolic || 128}/${simVitals.diastolic || simVitals.blood_pressure_diastolic || 78}`, unit: 'mmHg', icon: 'ri-pulse-line', color: '#8B5CF6', range: '120/80', status: 'normal' },
+    { id: 'temperature', label: 'Temperature', value: simVitals.temperature || 36.6, unit: 'C', icon: 'ri-temp-hot-line', color: '#F59E0B', range: '36.5-37.5', status: 'normal' },
+  ];
+
+  /* ─── WEB: Full-page health with midnight blue satin ─── */
+  if (Platform.OS === 'web' && effectiveRole === 'beneficiary') {
+    return (
+      <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_HEALTH} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+
+        {/* Header */}
+        <div style={{ position: 'relative', padding: '28px 20px 14px', zIndex: 10, textAlign: 'center' } as any}>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Ma sante</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Suivi de vos constantes en temps reel</div>
+        </div>
+
+        {/* Content */}
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+
+          {/* Main vitals — big cards grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
+            {metrics.map(m => (
+              <div key={m.id} data-testid={`health-metric-${m.id}`} onClick={() => router.push({ pathname: '/health-detail', params: { metricId: m.id } })}
+                style={{ padding: '16px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer', transition: 'transform 0.2s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
+                  <div style={{ width: 36, height: 36, borderRadius: 12, background: `${m.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className={m.icon} style={{ fontSize: 18, color: m.color }} />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: m.status === 'normal' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)' } as any}>
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: m.status === 'normal' ? '#10B981' : '#EF4444' } as any} />
+                    <span style={{ fontSize: 9, fontWeight: 600, color: m.status === 'normal' ? '#10B981' : '#EF4444' }}>{m.status === 'normal' ? 'Normal' : 'Alerte'}</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>{m.value}<span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginLeft: 4 }}>{m.unit}</span></div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{m.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Activity card — steps + calories */}
+          <div style={{ padding: '18px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase' }}>Activite du jour</div>
+              <i className="ri-footprint-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
+            </div>
+            <div style={{ display: 'flex', gap: 12 } as any}>
+              {[
+                { val: simVitals.steps?.toLocaleString() || '3 842', label: 'Pas', icon: 'ri-footprint-line', color: '#10B981', pct: Math.min(100, ((simVitals.steps || 3842) / 8000) * 100) },
+                { val: Math.round((simVitals.steps || 3842) * 0.04), label: 'Kcal', icon: 'ri-fire-line', color: '#F59E0B', pct: Math.min(100, ((simVitals.steps || 3842) * 0.04 / 400) * 100) },
+                { val: ((simVitals.steps || 3842) * 0.0007).toFixed(1), label: 'Km', icon: 'ri-route-line', color: '#3B82F6', pct: Math.min(100, ((simVitals.steps || 3842) * 0.0007 / 5) * 100) },
+              ].map((s, i) => (
+                <div key={i} style={{ flex: 1, textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>{s.label}</div>
+                  <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                    <div style={{ height: 6, borderRadius: 3, width: `${s.pct}%`, background: s.color, transition: 'width 1s', boxShadow: `0 0 8px ${s.color}50` } as any} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Heart rate graph — mini bar chart */}
+          <div style={{ padding: '18px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase' }}>Frequence cardiaque</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Aujourd'hui</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 80 } as any}>
+              {simHistory.map((h, i) => (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 } as any}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{h.hr}</div>
+                  <div style={{ width: '100%', borderRadius: 4, background: i === simHistory.length - 1 ? 'linear-gradient(180deg, #EF4444, #B91C1C)' : 'rgba(239,68,68,0.25)', height: `${(h.hr / maxHR) * 60}px`, transition: 'height 0.5s', boxShadow: i === simHistory.length - 1 ? '0 0 12px rgba(239,68,68,0.4)' : 'none' } as any} />
+                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)' }}>{h.hour}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sleep card */}
+          <div style={{ padding: '18px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(124,92,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-moon-line" style={{ fontSize: 18, color: '#A78BFA' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>Sommeil</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{sleepData.duration}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.15)' } as any}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#A78BFA' }}>{sleepData.quality}%</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 10 } as any}>
+              {[
+                { label: 'Profond', value: sleepData.deep, color: '#6D28D9', pct: 30 },
+                { label: 'Leger', value: sleepData.light, color: '#A78BFA', pct: 55 },
+                { label: 'REM', value: sleepData.rem, color: '#C4B5FD', pct: 15 },
+              ].map((s, i) => (
+                <div key={i} style={{ flex: s.pct, height: 8, borderRadius: 4, background: s.color } as any} />
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 12 } as any}>
+              {[
+                { label: 'Profond', value: sleepData.deep, color: '#6D28D9' },
+                { label: 'Leger', value: sleepData.light, color: '#A78BFA' },
+                { label: 'REM', value: sleepData.rem, color: '#C4B5FD' },
+              ].map((s, i) => (
+                <div key={i} style={{ flex: 1 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
+                    <span style={{ width: 6, height: 6, borderRadius: 3, background: s.color } as any} />
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{s.label}</span>
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginTop: 2 }}>{s.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick actions */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
+            {[
+              { label: 'ECG', icon: 'ri-pulse-line', route: '/ecg' },
+              { label: 'Sommeil', icon: 'ri-moon-line', route: '/sleep' },
+              { label: 'Seuils d\'alerte', icon: 'ri-alarm-warning-line', route: '/edit-thresholds' },
+              { label: 'Balance', icon: 'ri-scales-3-line', route: '/scale-detail' },
+            ].map((a, i) => (
+              <div key={i} onClick={() => router.push(a.route as any)} style={{
+                padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
+              } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}>
+                <i className={a.icon} style={{ fontSize: 20, color: 'rgba(255,255,255,0.5)' }} />
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{a.label}</span>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </div>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} testID="health-screen">
