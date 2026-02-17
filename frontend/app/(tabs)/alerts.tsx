@@ -410,7 +410,7 @@ export default function AlertsScreen() {
             const isActive = alert.status === 'active';
             const bgImg = isActive ? BG_RED : BG_GREEN;
             return Platform.OS === 'web' ? (
-              <div key={alert.id} onClick={() => setSelectedAlert(alert)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 100, boxShadow: '0 8px 24px rgba(0,0,0,.15)', transition: 'transform 0.25s ease' } as any}
+              <div key={alert.id} onClick={() => selectAlert(alert)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 100, boxShadow: '0 8px 24px rgba(0,0,0,.15)', transition: 'transform 0.25s ease' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                 <img src={bgImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
@@ -436,7 +436,7 @@ export default function AlertsScreen() {
                 </div>
               </div>
             ) : (
-              <TouchableOpacity key={alert.id} onPress={() => setSelectedAlert(alert)}>
+              <TouchableOpacity key={alert.id} onPress={() => selectAlert(alert)}>
                 <View style={{ borderRadius: 20, overflow: 'hidden', padding: 18, marginBottom: 12, backgroundColor: isActive ? '#3a0a0a' : '#0a2a1a' }}>
                   <Text style={{ fontSize: 17, fontWeight: '800', color: '#FFF' }}>{alert.message || 'Alerte'}</Text>
                   <Text style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{alert.beneficiary_name} · {new Date(alert.created_at).toLocaleString('fr-FR')}</Text>
