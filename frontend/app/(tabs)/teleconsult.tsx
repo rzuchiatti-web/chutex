@@ -501,7 +501,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         const isActive = ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status);
         const bgImg = isActive ? BG_VIOLET : BG_GREEN;
         return Platform.OS === 'web' ? (
-          <div key={iv.id} data-testid={`iv-${iv.id}`} onClick={() => { window.scrollTo(0,0); document.body.style.overflow = 'hidden'; setSelectedIv(iv); }}
+          <div key={iv.id} data-testid={`iv-${iv.id}`} onClick={() => { document.body.classList.add('detail-open'); setSelectedIv(iv); }}
             style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 110, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.25s ease, box-shadow 0.25s ease', boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}
             onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 32px rgba(0,0,0,.22)'; }}
             onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,.15)'; }}>
@@ -565,7 +565,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
           {/* Top bar */}
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
-            <div onClick={() => { document.body.classList.remove('navbar-dark'); document.body.style.overflow = ''; setSelectedIv(null); }} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <div onClick={() => { document.body.classList.remove('detail-open'); setSelectedIv(null); }} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}>

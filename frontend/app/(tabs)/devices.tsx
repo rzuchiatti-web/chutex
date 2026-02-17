@@ -510,7 +510,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         {displayedPresc.length > 0 ? displayedPresc.map((p: any) => {
           const isValidated = p.status === 'subscribed';
           return Platform.OS === 'web' ? (
-            <div key={p.id} onClick={() => { window.scrollTo(0,0); document.body.style.overflow = 'hidden'; setSelectedPresc(p); }}
+            <div key={p.id} onClick={() => { document.body.classList.add('detail-open'); setSelectedPresc(p); }}
               style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px', marginBottom: 12, cursor: 'pointer', minHeight: 90, boxShadow: '0 8px 24px rgba(0,0,0,.12)', transition: 'transform 0.25s ease' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
@@ -684,7 +684,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
           {/* Top bar: back + status */}
           <div style={{ position: 'absolute', top: 16, left: 16, right: 16, display: 'flex', alignItems: 'center', gap: 12, zIndex: 10 } as any}>
-            <div onClick={() => { window.scrollTo(0,0); document.body.style.overflow = ''; document.body.style.touchAction = ''; setSelectedPresc(null); }} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <div onClick={() => { document.body.classList.remove('detail-open'); setSelectedPresc(null); }} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)' } as any}>
