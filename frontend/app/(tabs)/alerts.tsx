@@ -44,6 +44,109 @@ export default function AlertsScreen() {
   const resolved = alerts.filter(a => a.status === 'resolved');
   const filtered = tab === 'active' ? activeAlerts : resolved;
 
+  /* ─── EXPLAINER: Comprendre les alertes (early return) ─── */
+  if (showExplainer && Platform.OS === 'web') {
+    const steps = [
+      { icon: 'ri-alarm-warning-line', title: 'Declenchement', desc: 'Une alerte se declenche automatiquement via un appareil connecte (chute, anomalie cardiaque) ou manuellement par le bouton SOS du beneficiaire.', color: '#EF4444' },
+      { icon: 'ri-phone-line', title: 'Appel automatique', desc: 'Le plateau de teleassistance CARE WATCH est immediatement notifie. Un operateur appelle le beneficiaire pour evaluer la situation.', color: '#F59E0B' },
+      { icon: 'ri-group-line', title: 'Notification des gardiens', desc: 'Tous les gardiens du beneficiaire recoivent une notification en temps reel avec les details de l\'alerte.', color: '#3B82F6' },
+      { icon: 'ri-map-pin-range-line', title: 'Envoi d\'un intervenant', desc: 'Si necessaire, un intervenant Care est envoye sur place. Il peut etre suivi en temps reel sur la carte par les gardiens.', color: '#8B5CF6' },
+      { icon: 'ri-file-text-line', title: 'Rapport de cloture', desc: 'L\'alerte est cloturee avec un rapport detaille : etat du beneficiaire, actions realisees et notes. Le rapport est accessible a tous les gardiens.', color: '#10B981' },
+    ];
+    const roles = [
+      { icon: 'ri-user-heart-line', role: 'Beneficiaire', actions: ['Declencher un SOS', 'Recevoir l\'appel du plateau', 'Cloturer l\'alerte a tout moment'] },
+      { icon: 'ri-shield-check-line', role: 'Gardien / Prescripteur', actions: ['Recevoir les notifications', 'Intervenir si aucun intervenant assigne', 'Cloturer l\'alerte', 'Suivre l\'intervenant en temps reel'] },
+      { icon: 'ri-first-aid-kit-line', role: 'Intervenant Care', actions: ['Accepter ou refuser une intervention', 'Se rendre sur place', 'Rediger le rapport de cloture'] },
+      { icon: 'ri-headphone-line', role: 'Teleassistance', actions: ['Gerer le flux d\'appels', 'Escalader les situations critiques', 'Coordonner les intervenants'] },
+    ];
+    return (
+      <div data-testid="comprendre-alertes-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
+
+        {/* Top bar */}
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, padding: '16px 16px 0', zIndex: 10 } as any}>
+          <div data-testid="back-from-explainer" onClick={() => setShowExplainer(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
+          </div>
+          <span style={{ fontSize: 17, fontWeight: 700, color: '#FFF' }}>Comprendre les alertes</span>
+        </div>
+
+        {/* Content */}
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+
+          {/* Intro */}
+          <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+            <div style={{ width: 64, height: 64, borderRadius: 999, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+              <i className="ri-shield-check-line" style={{ fontSize: 32, color: '#FFF' }} />
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Le processus CARE WATCH</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, maxWidth: 400, margin: '0 auto' }}>
+              De l'alerte a la resolution, chaque etape est concue pour assurer la securite de vos proches en un minimum de temps.
+            </div>
+          </div>
+
+          {/* Timeline steps */}
+          <div style={{ marginBottom: 28 } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Les 5 etapes</div>
+            {steps.map((s, i) => (
+              <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 16, alignItems: 'flex-start' } as any}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 } as any}>
+                  <div style={{ width: 44, height: 44, borderRadius: 14, background: `${s.color}25`, border: `1px solid ${s.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className={s.icon} style={{ fontSize: 22, color: s.color }} />
+                  </div>
+                  {i < steps.length - 1 && <div style={{ width: 2, height: 20, background: 'rgba(255,255,255,0.1)', marginTop: 4 } as any} />}
+                </div>
+                <div style={{ flex: 1, paddingTop: 2 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{`${i + 1}. ${s.title}`}</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>{s.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Roles */}
+          <div style={{ marginBottom: 28 } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Roles et permissions</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
+              {roles.map((ro, i) => (
+                <div key={i} style={{ padding: '16px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                    <i className={ro.icon} style={{ fontSize: 20, color: '#FFF' }} />
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{ro.role}</div>
+                  </div>
+                  {ro.actions.map((a, j) => (
+                    <div key={j} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 } as any}>
+                      <i className="ri-check-line" style={{ fontSize: 12, color: '#10B981' }} />
+                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>{a}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* FAQ */}
+          <div style={{ marginBottom: 20 } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Questions frequentes</div>
+            {[
+              { q: 'Que se passe-t-il si je declenche un SOS par erreur ?', a: 'Vous pouvez cloturer l\'alerte immediatement depuis l\'application. Le plateau sera notifie de l\'annulation.' },
+              { q: 'Combien de temps avant l\'arrivee d\'un intervenant ?', a: 'Le delai depend de votre localisation. En zone urbaine, comptez 15 a 30 minutes en moyenne.' },
+              { q: 'Puis-je voir la position de l\'intervenant ?', a: 'Oui, les gardiens peuvent suivre l\'intervenant en temps reel sur la carte de l\'application.' },
+              { q: 'Les alertes sont-elles archivees ?', a: 'Oui, toutes les alertes cloturees restent accessibles avec leur rapport dans l\'onglet "Cloturees".' },
+            ].map((faq, i) => (
+              <div key={i} style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 6 }}>{faq.q}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{faq.a}</div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
   /* ─── DETAIL PAGE: alert (early return, replaces entire view) ─── */
   if (selectedAlert && Platform.OS === 'web') {
     const isResolved = selectedAlert.status === 'resolved';
