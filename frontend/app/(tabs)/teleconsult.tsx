@@ -318,7 +318,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const displayedIvs = ivTab === 'active' ? activeIvs : doneIvs;
 
   const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/qgy38yhz_banner_mobile_intervention_care.jpg';
-  const BG_GREEN = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/e7xxtzh1_background_intervention_care_en_cour.jpg';
+  const BG_GREEN = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/3nimaiv0_background_intervention_care_valide_prescription_valide.jpg';
   const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/3nimaiv0_background_intervention_care_valide_prescription_valide.jpg';
   const BG_HEADER = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/n96e8u48_Banner_Care.jpg';
   const LOGO_URL = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
