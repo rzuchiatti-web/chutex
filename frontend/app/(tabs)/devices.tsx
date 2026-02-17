@@ -459,7 +459,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
       )}
 
       {/* White container for cards */}
-      <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20 }}>
+      <View style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -4, padding: 16, paddingTop: 20 }}>
 
       {/* Récompenses card — dark satin background */}
       {Platform.OS === 'web' ? (
