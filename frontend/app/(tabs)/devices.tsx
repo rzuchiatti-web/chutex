@@ -776,6 +776,87 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         </div>
       )}
 
+
+      {/* REWARDS FULL SCREEN PAGE */}
+      {showRewardsPage && rewardsData && Platform.OS === 'web' && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', touchAction: 'none' } as any}>
+          <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/4tk4fqvn_background_r%C3%A9compense.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
+            <div onClick={() => setShowRewardsPage(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Challenge actif</span>
+            </div>
+          </div>
+          <div data-scroll style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}
+            onTouchMove={(e: any) => e.stopPropagation()}>
+            <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+              <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Recompenses</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Programme de challenge prescripteur</div>
+              <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', letterSpacing: -2, marginTop: 8 }}>{rewardsData.total_earned}EUR</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Total gagne</div>
+            </div>
+
+            {/* Current position */}
+            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, textAlign: 'center' } as any}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Position actuelle</div>
+              <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF' }}>{rewardsData.current_position}<span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>e</span></div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{rewardsData.current_prescriptions} prescription(s) ce mois · {rewardsData.total_participants} participant(s)</div>
+            </div>
+
+            {/* Prizes */}
+            <div style={{ display: 'flex', justifyContent: 'space-around', padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16 } as any}>
+              {[{ pos: '1er', amount: rewardsData.prizes?.prize_1 || 100 }, { pos: '2e', amount: rewardsData.prizes?.prize_2 || 70 }, { pos: '3e', amount: rewardsData.prizes?.prize_3 || 30 }].map(r => (
+                <div key={r.pos} style={{ textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{r.pos}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 2 }}>+{r.amount}EUR</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Historique */}
+            {rewardsData.my_history && rewardsData.my_history.length > 0 && (
+              <>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Historique</div>
+                {rewardsData.my_history.map((h: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8 } as any}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{h.month_label}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>#{h.position} · {h.prescriptions_count} prescriptions</div>
+                    </div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: h.reward > 0 ? '#10B981' : '#FFF' }}>+{h.reward}EUR</div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* All challenges */}
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginTop: 16, marginBottom: 10 }}>Tous les challenges</div>
+            {(rewardsData.all_history || []).map((ch: any, i: number) => (
+              <div key={i} style={{ padding: '12px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8 } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{ch.month_label || ch.month}</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: ch.status === 'active' ? '#10B981' : 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1 }}>{ch.status === 'active' ? 'En cours' : 'Termine'}</div>
+                </div>
+                {ch.ranking && ch.ranking.length > 0 && (
+                  <div style={{ marginTop: 8 } as any}>
+                    {ch.ranking.slice(0, 3).map((r: any, j: number) => (
+                      <div key={j} style={{ display: 'flex', justifyContent: 'space-between', paddingVertical: 3 } as any}>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>#{r.position} {r.name}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: r.reward > 0 ? '#10B981' : 'rgba(255,255,255,0.4)' }}>{r.reward > 0 ? `+${r.reward}EUR` : '-'}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Native detail */}
       {selectedPresc && Platform.OS !== 'web' && (
         <Modal visible={!!selectedPresc} transparent animationType="fade" onRequestClose={() => setSelectedPresc(null)}>
