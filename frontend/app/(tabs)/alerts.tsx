@@ -307,17 +307,21 @@ export default function AlertsScreen() {
           {/* Action buttons */}
           {!isResolved && (
             <div style={{ marginTop: 16 } as any}>
-              {/* Suivre l'intervention — shown when intervenant IS assigned (for beneficiary and other guardians) */}
-              {(selectedAlert.intervener_info || selectedAlert.care_provider) && selectedAlert.intervention?.id && (
-                <div style={{ width: '100%', height: 58, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)', marginBottom: 12, touchAction: 'none' } as any}
+              {/* Suivre / Ouvrir itineraire — when intervenant IS assigned */}
+              {(selectedAlert.intervener_info || selectedAlert.care_provider) && selectedAlert.intervention?.id && (() => {
+                const isAssignedIntervener = selectedAlert.intervention?.assigned_to === user?.id;
+                const slideLabel = isAssignedIntervener ? 'Ouvrir l\'itineraire' : 'Suivre l\'intervention';
+                return (
+                <div style={{ width: '100%', height: 58, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 12, touchAction: 'none' } as any}
                   onMouseDown={(e: any) => { const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52; const startX = e.clientX; const onMove = (ev: any) => { const dx = Math.max(0, Math.min(ev.clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); router.push({ pathname: '/intervention-map', params: { interventionId: selectedAlert.intervention.id } }); } }; const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if(thumb) thumb.style.transition = ''; }, 300); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); }}
                   onTouchStart={(e: any) => { e.stopPropagation(); const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52; const startX = e.touches[0].clientX; const onMove = (ev: any) => { ev.preventDefault(); const dx = Math.max(0, Math.min(ev.touches[0].clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); router.push({ pathname: '/intervention-map', params: { interventionId: selectedAlert.intervention.id } }); } }; const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if(thumb) thumb.style.transition = ''; }, 300); bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); }; bar.addEventListener('touchmove', onMove, { passive: false }); bar.addEventListener('touchend', onUp); }}>
-                  <div data-thumb style={{ position: 'absolute', top: 4, left: 4, width: 50, height: 50, borderRadius: 999, background: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(59,130,246,0.4)', willChange: 'transform', touchAction: 'none' } as any}>
-                    <i className="ri-map-pin-range-line" style={{ fontSize: 20, color: '#FFF' }} />
+                  <div data-thumb style={{ position: 'absolute', top: 4, left: 4, width: 50, height: 50, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.2)', willChange: 'transform', touchAction: 'none' } as any}>
+                    <i className={isAssignedIntervener ? 'ri-navigation-line' : 'ri-map-pin-range-line'} style={{ fontSize: 20, color: '#111' }} />
                   </div>
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(59,130,246,0.7)', fontSize: 16, fontWeight: 700, pointerEvents: 'none', paddingLeft: 36 } as any}>Suivre l'intervention</div>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', fontSize: 16, fontWeight: 700, pointerEvents: 'none', paddingLeft: 36 } as any}>{slideLabel}</div>
                 </div>
-              )}
+                );
+              })()}
 
               {/* Intervenir — GUARDIAN only, ONLY if no intervenant assigned */}
               {r === 'guardian' && !selectedAlert.intervener_info && !selectedAlert.care_provider && (
