@@ -554,29 +554,57 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
       </View>{/* End white container */}
 
-      {/* Care Detail Modal */}
+      {/* Care Detail Modal — GLASS DARK */}
       <Modal visible={showCareModal} transparent animationType="fade" onRequestClose={() => setShowCareModal(false)}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' }}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
+          <View style={{
+            borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%',
+            backgroundColor: 'rgba(30,30,40,0.85)',
+            ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)', borderTop: '1px solid rgba(255,255,255,0.1)' } : {}),
+          } as any}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ fontSize: 20, fontWeight: '800', color: '#111' }}>Espace Intervenant Care</Text>
-              <TouchableOpacity onPress={() => setShowCareModal(false)}><Icon name="close" size={24} color="#111" /></TouchableOpacity>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>Espace Intervenant Care</Text>
+              <TouchableOpacity onPress={() => setShowCareModal(false)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' }}>
+                <Icon name="close" size={20} color="#FFF" />
+              </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 20, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 20, padding: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
+                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' }}>
+                  <Icon name="shield-checkmark" size={24} color="#FFF" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{user.name}</Text>
+                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{user.intervention_structure || user.structure_name || 'Structure'}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(16,185,129,0.15)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 }}>
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' }} />
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#10B981' }}>ACTIF</Text>
+                </View>
+              </View>
               {[
                 { icon: 'business-outline', label: 'Structure', value: user.intervention_structure || user.structure_name || '-' },
                 { icon: 'briefcase-outline', label: 'Profession', value: user.profession || '-' },
+                { icon: 'card-outline', label: 'SIRET', value: user.siret || '-' },
+                { icon: 'location-outline', label: 'Adresse', value: user.address || '-' },
                 { icon: 'call-outline', label: 'Telephone', value: user.phone || '-' },
+                { icon: 'navigate-outline', label: 'Rayon', value: `${user.intervention_radius_km || 30} km` },
               ].map(({ icon, label, value }) => value !== '-' ? (
-                <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-                  <Icon name={icon as any} size={16} color="#888" />
-                  <Text style={{ fontSize: 12, color: '#6B7280', width: 85 }}>{label}</Text>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#111', flex: 1 }}>{value}</Text>
+                <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(255,255,255,0.06)' }}>
+                  <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center' }}>
+                    <Icon name={icon as any} size={14} color="rgba(255,255,255,0.5)" />
+                  </View>
+                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', width: 80 }}>{label}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF', flex: 1 }}>{value}</Text>
                 </View>
               ) : null)}
-              <TouchableOpacity style={{ borderWidth: 1.5, borderColor: '#E53935', borderRadius: 999, paddingVertical: 14, alignItems: 'center', marginTop: 20 }}
-                onPress={() => confirmAction('Desactiver', 'Confirmer ?', deactivateCare)}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#E53935' }}>Desactiver</Text>
+              <TouchableOpacity style={{
+                marginTop: 24, borderRadius: 999, paddingVertical: 16, alignItems: 'center',
+                backgroundColor: 'rgba(239,68,68,0.15)', borderWidth: 1, borderColor: 'rgba(239,68,68,0.25)',
+                ...(Platform.OS === 'web' ? { backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } : {}),
+              } as any}
+                onPress={() => confirmAction('Desactiver', 'Vous ne recevrez plus de missions. Confirmez ?', deactivateCare)}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#FCA5A5' }}>Desactiver mon espace intervenant</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
