@@ -293,9 +293,10 @@ export function PastelMistBackground() {
       /* Icon colors */
       [role="tablist"] [role="tab"] svg {
         color: rgba(255,255,255,0.8) !important; width: 22px !important; height: 22px !important;
+        fill: none !important; stroke: currentColor !important;
       }
       [role="tablist"] [role="tab"][aria-selected="true"] svg {
-        color: #111 !important;
+        color: #000 !important; fill: none !important; stroke: #000 !important;
       }
       [role="tablist"] ~ div, [role="tabpanel"] { padding-bottom: 80px !important; }
       /* Remove any white padding at top */
