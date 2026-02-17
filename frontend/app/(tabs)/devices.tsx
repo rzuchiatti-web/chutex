@@ -1339,6 +1339,10 @@ export default function DevicesScreen() {
   if (r === 'guardian') {
     return <PrescriptionManagement token={token} user={user} />;
   }
+  // Beneficiary: full screen devices page (web)
+  if (r === 'beneficiary' && Platform.OS === 'web') {
+    return <DeviceManagement token={token} />;
+  }
 
   return (
     <View key={r} style={[d.safeArea, { backgroundColor: '#FFFFFF' }]} testID="devices-screen">
