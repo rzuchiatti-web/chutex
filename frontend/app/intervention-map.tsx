@@ -132,9 +132,39 @@ export default function InterventionMapScreen() {
     return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Suivi intervention</Text></SafeAreaView>;
   }
 
-  // Min sheet height = never below 70px (handle always visible)
-  const clampSheet = (pct: number) => Math.max(8, Math.min(92, Math.round(pct)));
+  // 3 snap levels: collapsed (8%), mid (40%), full (90%)
+  const SNAPS = [8, 40, 90];
+  const snapTo = (pct: number) => {
+    // Find nearest snap
+    let closest = SNAPS[0];
+    for (const s of SNAPS) { if (Math.abs(pct - s) < Math.abs(pct - closest)) closest = s; }
+    setSheetHeight(closest);
+  };
   const sheetPx = typeof window !== 'undefined' ? Math.max(70, (sheetHeight / 100) * window.innerHeight) : 400;
+
+  // Drag handler — shared between handle and pill
+  const startDrag = (startY: number, isMouse: boolean) => {
+    const startPct = sheetHeight;
+    const pageH = window.innerHeight;
+    if (isMouse) { document.body.style.cursor = 'ns-resize'; document.body.style.userSelect = 'none'; }
+    const onMove = (ev: any) => {
+      const y = isMouse ? ev.clientY : ev.touches[0].clientY;
+      if (!isMouse) ev.preventDefault();
+      const rawPct = startPct + ((startY - y) / pageH) * 100;
+      // Live drag without snap (will snap on release)
+      setSheetHeight(Math.max(8, Math.min(92, Math.round(rawPct))));
+    };
+    const onUp = (ev: any) => {
+      if (isMouse) { document.body.style.cursor = ''; document.body.style.userSelect = ''; }
+      const y = isMouse ? ev.clientY : (ev.changedTouches?.[0]?.clientY || startY);
+      const finalPct = startPct + ((startY - y) / pageH) * 100;
+      snapTo(finalPct);
+      document.removeEventListener(isMouse ? 'mousemove' : 'touchmove', onMove);
+      document.removeEventListener(isMouse ? 'mouseup' : 'touchend', onUp);
+    };
+    document.addEventListener(isMouse ? 'mousemove' : 'touchmove', onMove, isMouse ? undefined : { passive: false });
+    document.addEventListener(isMouse ? 'mouseup' : 'touchend', onUp);
+  };
 
   return (
     <div data-testid="intervention-map-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#0a0a0a' } as any}>
@@ -142,7 +172,6 @@ export default function InterventionMapScreen() {
       {/* MAP — fills entire screen */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 } as any}>
         <div id="intervention-map-container" style={{ width: '100%', height: '100%' } as any} />
-        {/* Back button */}
         <div onClick={() => router.back()} data-testid="map-back-btn" style={{ position: 'absolute', top: 16, left: 16, width: 44, height: 44, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', zIndex: 1000 } as any}>
           <i className="ri-arrow-left-s-line" style={{ fontSize: 22, color: '#111' }} />
         </div>
