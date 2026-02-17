@@ -378,8 +378,8 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' } as any} />
                 <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Inactif</span>
               </div>
-              <h2 style={{ fontSize: 26, fontWeight: 800, color: '#FFF', margin: '0 0 8px', fontStyle: 'italic' }}>Activation</h2>
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: '0 0 28px', fontStyle: 'italic' } as any}>Renseigner votre code.</p>
+              <h2 style={{ fontSize: 26, fontWeight: 800, color: '#FFF', margin: '0 0 8px' }}>Activation</h2>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: '0 0 28px' } as any}>Renseigner votre code.</p>
 
               {/* 6 digit circles */}
               <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 32 } as any}>
