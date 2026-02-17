@@ -257,23 +257,20 @@ export function PastelMistBackground() {
       .glass-pill-dark { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.72); }
       .glass-pill-light { background: rgba(255,255,255,.62); border: 1px solid rgba(0,0,0,.10); color: rgba(0,0,0,.62); }
 
-      /* ── TAB BAR — floating glass, rounded, transparent ── */
-      [role="tablist"],
-      div[role="tablist"],
-      nav[role="tablist"] {
+      /* Navbar on white bg: dark icons, active = black circle white icon */
+      [role="tablist"] {
         position: fixed !important; bottom: 10px !important; left: 20px !important; right: 20px !important;
         width: auto !important;
         z-index: 99999 !important; height: 56px !important; padding: 4px 6px !important;
         border-radius: 999px !important;
-        background: rgba(255,255,255,0.05) !important;
+        background: rgba(255,255,255,0.85) !important;
         backdrop-filter: blur(28px) saturate(160%) !important; -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
-        border: 1px solid rgba(255,255,255,0.12) !important;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.2) !important;
+        border: 1px solid rgba(0,0,0,0.06) !important;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.1) !important;
         border-top: none !important;
         display: flex !important; align-items: center !important; justify-content: space-around !important;
         margin: 0 !important; transform: none !important;
       }
-      /* Hide ALL tab labels */
       [role="tablist"] span {
         font-size: 0 !important; line-height: 0 !important; height: 0 !important; overflow: hidden !important; display: none !important;
       }
@@ -285,15 +282,12 @@ export function PastelMistBackground() {
         border: none !important;
         transition: background 0.25s ease !important;
       }
-      /* Active tab = blur circle, icon stays white */
       [role="tablist"] [role="tab"][aria-selected="true"] {
-        background: rgba(255,255,255,0.18) !important;
-        backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;
+        background: #111 !important;
         border-radius: 999px !important;
       }
-      /* Icon colors */
       [role="tablist"] [role="tab"] svg {
-        color: rgba(255,255,255,0.8) !important; width: 22px !important; height: 22px !important;
+        color: rgba(0,0,0,0.45) !important; width: 22px !important; height: 22px !important;
         fill: none !important; stroke: currentColor !important;
       }
       [role="tablist"] [role="tab"][aria-selected="true"] svg {
