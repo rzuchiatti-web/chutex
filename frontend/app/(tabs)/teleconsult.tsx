@@ -324,6 +324,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const LOGO_URL = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
 
   const [slideActivated, setSlideActivated] = useState(false);
+  const [careError, setCareError] = useState('');
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#9C27B0" /></View>;
 
