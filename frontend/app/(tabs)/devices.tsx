@@ -1419,54 +1419,46 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
 
   /* ─── LIST: copie exacte du design gardien ─── */
   if (Platform.OS === 'web') {
+    const nextMonth = new Date(); nextMonth.setMonth(nextMonth.getMonth() + 1);
+    const nextPayDate = `01/${String(nextMonth.getMonth() + 1).padStart(2, '0')}/${nextMonth.getFullYear()}`;
+    const monthPrescs = prescTab === 'subscribed' ? subscribedPrescs.filter((p: any) => p.created_at && p.created_at.startsWith(selectedMonth)) : displayedPrescs;
+    const filteredPrescs = searchPresc.trim() ? (prescTab === 'subscribed' ? monthPrescs : displayedPrescs).filter((p: any) => p.beneficiary_name?.toLowerCase().includes(searchPresc.toLowerCase()) || p.prescriber_name?.toLowerCase().includes(searchPresc.toLowerCase())) : (prescTab === 'subscribed' ? monthPrescs : displayedPrescs);
+    const monthTotal = monthPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <div style={{ position: 'absolute', inset: 0 } as any}>
-          <img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-        </div>
-        <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', zIndex: 10, flexShrink: 0 } as any}>
-          <div style={{ position: 'relative', zIndex: 2 } as any}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', marginBottom: 10 } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#10B981' }}>Actif</span></div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescriptions</div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{(prescTab === 'pending' ? pendingPrescs : subscribedPrescs).reduce((s: number, p: any) => s + (p.commission || 0), 0)} EUR</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4, marginBottom: 14 }}>{prescTab === 'pending' ? 'En cours de validation' : 'Souscriptions validees'} · Prochain versement de {subscribedPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0)} EUR le 01/{String(new Date().getMonth() + 2).padStart(2, '0')}/{new Date().getFullYear()}</div>
-            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
-              <div onClick={() => setPrescTab('pending')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'pending' ? '#FFF' : 'transparent', color: prescTab === 'pending' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>En cours ({pendingPrescs.length})</div>
-              <div onClick={() => setPrescTab('subscribed')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'subscribed' ? '#FFF' : 'transparent', color: prescTab === 'subscribed' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>Validees ({subscribedPrescs.length})</div>
-            </div>
-            <div onClick={() => setShowAllPrescribers(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', marginTop: 10 } as any}>
-              <div style={{ display: 'flex' } as any}>{prescribers.slice(0, 3).map((p: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{p.name?.charAt(0)}</span></div>))}</div>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {prescribers.length} prescripteurs</span>
-            </div>
+        <div style={{ position: 'absolute', inset: 0 } as any}><img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} /><div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} /></div>
+        {/* Sticky top: search + tabs */}
+        <div style={{ position: 'relative', zIndex: 10, padding: '16px 20px 0', flexShrink: 0 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 12 } as any}><i className="ri-search-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} /><input value={searchPresc} onChange={(e: any) => setSearchPresc(e.target.value)} placeholder="Rechercher une prescription..." style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#FFF', fontSize: 14, fontFamily: 'inherit' } as any} /></div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' } as any}>
+            <div onClick={() => setPrescTab('pending')} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'pending' ? '#FFF' : 'rgba(255,255,255,0.1)', color: prescTab === 'pending' ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700 } as any}>En cours ({pendingPrescs.length})</div>
+            <div onClick={() => setPrescTab('subscribed')} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'subscribed' ? '#FFF' : 'rgba(255,255,255,0.1)', color: prescTab === 'subscribed' ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700 } as any}>Validees ({subscribedPrescs.length})</div>
+            <div onClick={() => setShowAllPrescribers(true)} style={{ padding: '8px 16px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600, marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-group-line" style={{ fontSize: 14 }} />{prescribers.length}</div>
+          </div>
+          {/* Amount header */}
+          <div style={{ textAlign: 'center', marginBottom: 8 } as any}>
+            <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{prescTab === 'subscribed' ? monthTotal : pendingPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0)} EUR</div>
+            {prescTab === 'subscribed' && (<>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 6 } as any}><i className="ri-calendar-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} /><input type="month" value={selectedMonth} onChange={(e: any) => setSelectedMonth(e.target.value)} style={{ background: 'transparent', border: 'none', color: '#FFF', fontSize: 13, fontWeight: 600, outline: 'none' } as any} /></div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Prochain versement de {subscribedPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0)} EUR le {nextPayDate}</div>
+            </>)}
+            {prescTab === 'pending' && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>En cours de validation</div>}
           </div>
         </div>
-        {/* Challenge rewards button */}
-        <div onClick={() => setShowRewardsDetail(true)} style={{ position: 'relative', zIndex: 10, margin: '8px 16px 0', borderRadius: 20, overflow: 'hidden', padding: '16px 18px', cursor: 'pointer' } as any}>
-          <img src={BG_GOLD} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} />
-          <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 14 } as any}>
-            <i className="ri-trophy-line" style={{ fontSize: 22, color: '#FFF' }} />
-            <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Challenge prescripteurs</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>Classement et recompenses du mois</div></div>
-            <div style={{ display: 'flex', gap: 3 } as any}>{[{ c: '#FFD700' }, { c: '#C0C0C0' }, { c: '#CD7F32' }].map((m, i) => (<div key={i} style={{ width: 18, height: 18, borderRadius: 999, background: m.c, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 7, fontWeight: 800, color: '#FFF' }}>{i+1}</span></div>))}</div>
-            <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
-          </div>
-        </div>
-        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 100px', position: 'relative', zIndex: 5 } as any}>
-          {displayedPrescs.map((p: any) => { const isVal = p.status === 'subscribed'; return (
-            <div key={p.id} onClick={() => setSelectedPresc(p)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 90, boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}>
-              <img src={isVal ? BG_GREEN_P : BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
-              <div style={{ position: 'relative', zIndex: 2 } as any}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 } as any}>
-                  <div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{p.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>Par {p.guardian_name || p.prescriber_name}</div></div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isVal ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: isVal ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isVal ? 'Validee' : 'En cours'}</span></div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>+{p.commission || 0} EUR</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.18)', borderRadius: 999, padding: '8px 16px', border: '1px solid rgba(255,255,255,.2)' } as any}><i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span></div></div>
+        {/* Challenge button */}
+        <div onClick={() => setShowRewardsDetail(true)} style={{ position: 'relative', zIndex: 10, margin: '0 20px 8px', borderRadius: 16, overflow: 'hidden', padding: '12px 16px', cursor: 'pointer' } as any}><img src={BG_GOLD} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} /><div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} /><div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 10 } as any}><i className="ri-trophy-line" style={{ fontSize: 18, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF', flex: 1 }}>Challenge prescripteurs</span><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} /></div></div>
+        {/* Cards */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '4px 16px 100px', position: 'relative', zIndex: 5 } as any}>
+          {filteredPrescs.map((p: any) => (
+            <div key={p.id} onClick={() => setSelectedPresc(p)} style={{ borderRadius: 20, padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 90, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 } as any}>
+                <div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{p.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Par {p.guardian_name || p.prescriber_name}</div></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: p.status === 'subscribed' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: p.status === 'subscribed' ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{p.status === 'subscribed' ? 'Validee' : 'En cours'}</span></div>
               </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>+{p.commission || 0} EUR</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', borderRadius: 999, padding: '8px 16px' } as any}><i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span></div></div>
             </div>
-          ); })}
-          {displayedPrescs.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-file-text-line" style={{ fontSize: 36, color: '#CCC' }} /><div style={{ fontSize: 14, fontWeight: 700, color: '#888', marginTop: 10 }}>Aucune prescription {prescTab === 'pending' ? 'en cours' : 'validee'}</div></div>}
+          ))}
+          {filteredPrescs.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-file-text-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>{searchPresc ? 'Aucun resultat' : `Aucune prescription ${prescTab === 'pending' ? 'en cours' : 'validee'}`}</div></div>}
         </div>
       </div>
     );
