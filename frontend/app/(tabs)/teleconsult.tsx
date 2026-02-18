@@ -812,35 +812,6 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
 /* ====================== TELEASSISTANCE ====================== */
 function TeleassistanceDashboard({ token }: { token: string }) {
-                <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(255,255,255,0.06)' }}>
-                  <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center' }}>
-                    <Icon name={icon as any} size={14} color="rgba(255,255,255,0.5)" />
-                  </View>
-                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', width: 80 }}>{label}</Text>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF', flex: 1 }}>{value}</Text>
-                </View>
-              ) : null)}
-              <TouchableOpacity style={{
-                marginTop: 24, borderRadius: 999, paddingVertical: 16, alignItems: 'center',
-                backgroundColor: 'rgba(239,68,68,0.15)', borderWidth: 1, borderColor: 'rgba(239,68,68,0.25)',
-                ...(Platform.OS === 'web' ? { backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } : {}),
-              } as any}
-                onPress={() => confirmAction('Desactiver', 'Vous ne recevrez plus de missions. Confirmez ?', deactivateCare)}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#FCA5A5' }}>Desactiver mon espace intervenant</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
-    </ScrollView>);
-}
-
-/* ===== ADMIN: INTERVENANTS MANAGEMENT ===== */
-function AdminIntervenants({ token }: { token: string }) {
-  const router = useRouter();
-  const [codes, setCodes] = useState<any[]>([]);
-  const [providers, setProviders] = useState<any[]>([]);
   const [interventions, setInterventions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
