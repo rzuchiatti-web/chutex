@@ -343,39 +343,44 @@ export default function AlertsScreen() {
           {/* ─── FICHE INTERVENANT COMPLETE ─── */}
           {(selectedAlert.intervener_info || selectedAlert.care_provider || (alertDetail?.interventions?.length > 0)) && (() => {
             const iv = alertDetail?.interventions?.[0] || {};
-            const name = selectedAlert.intervener_info?.name || selectedAlert.care_provider || iv.assigned_name || iv.structure_name || 'Intervention';
-            const structure = selectedAlert.intervener_info?.structure || iv.structure_name;
-            const phone = selectedAlert.intervener_info?.phone || iv.intervener_phone;
+            const recipients = iv.recipients || [];
+            const assigned = iv.assigned_name ? { name: iv.assigned_name, phone: iv.intervener_phone, distance_km: iv.distance_km } : null;
+            const name = selectedAlert.intervener_info?.name || selectedAlert.care_provider || iv.assigned_name || iv.company_name || iv.structure_name || 'Intervention Care';
+            const structure = selectedAlert.intervener_info?.structure || iv.structure_name || iv.company_name;
             const isCare = !!structure;
-            const isCareInt = isCare;
-            const isGuardianIntervener = iv.intervener_type === 'guardian';
+            const statusLabel = iv.status === 'completed' ? 'Terminee' : iv.status === 'in_progress' ? 'En cours' : iv.status === 'en_route' ? 'En route' : iv.status === 'pending_acceptance' ? 'En attente d\'acceptation' : iv.status || '';
             return (
               <div onClick={() => setShowIntervenantPopup(true)} style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer' } as any}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Fiche intervenant</div>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>{assigned ? 'Intervenant assigne' : 'Intervention Care'}</div>
                   <div style={{ display: 'flex', gap: 6 } as any}>
-                    {isCareInt && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
-                    {isGuardianIntervener && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Gardien</span></div>}
+                    {isCare && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
                     <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                  <div style={{ width: 44, height: 44, borderRadius: 999, background: isCare ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{name.charAt(0)}</span></div>
+                  <div style={{ width: 44, height: 44, borderRadius: 16, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 20, color: '#A78BFA' }} /></div>
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{name}</div>
-                    {structure && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 1 }}>{structure}</div>}
-                    {iv.status && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{iv.status === 'completed' ? 'Intervention terminee' : iv.status === 'in_progress' ? 'En cours' : iv.status}</div>}
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{assigned ? assigned.name : structure}</div>
+                    {assigned && structure && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 1 }}>{structure}</div>}
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{statusLabel}</div>
                   </div>
                 </div>
-                {(iv.distance_km || iv.accepted_at) && (<>
+                {/* Stats row */}
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
+                <div style={{ display: 'grid', gridTemplateColumns: recipients.length > 0 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 6 } as any}>
+                  {recipients.length > 0 && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Notifies</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{recipients.length} intervenant{recipients.length > 1 ? 's' : ''}</div></div>}
+                  {iv.distance_km && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Distance</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{iv.distance_km} km</div></div>}
+                  {iv.created_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Envoye a</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
+                </div>
+                {/* Recipients preview */}
+                {recipients.length > 0 && (<>
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 } as any}>
-                    {iv.distance_km && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Distance</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{iv.distance_km} km</div></div>}
-                    {iv.accepted_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Accepte a</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.accepted_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
-                    {iv.completed_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Termine a</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.completed_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                    {recipients.slice(0, 3).map((r: any, i: number) => (<div key={i} style={{ width: 26, height: 26, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -8 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 800, color: '#FFF' }}>{r.name?.charAt(0)}</span></div>))}
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginLeft: 4 }}>Voir les {recipients.length} intervenants</span>
                   </div>
                 </>)}
-                {phone && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} /><div onClick={() => window.location.href = `tel:${phone}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' } as any}><i className="ri-phone-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} /><span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Appeler {name.split(' ')[0]}</span><span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>{phone}</span></div></>)}
               </div>
             );
           })()}
