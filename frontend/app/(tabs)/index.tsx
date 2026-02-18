@@ -1279,6 +1279,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [ranking, setRanking] = useState<any[]>([]);
   const [reward, setReward] = useState<any>(null);
+  const [agencies, setAgencies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
