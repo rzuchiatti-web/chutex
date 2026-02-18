@@ -1448,7 +1448,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
             <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
           </div>
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 100px' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 100px', position: 'relative', zIndex: 5 } as any}>
           {displayedPrescs.map((p: any) => { const isVal = p.status === 'subscribed'; return (
             <div key={p.id} onClick={() => setSelectedPresc(p)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 90, boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}>
               <img src={isVal ? BG_GREEN_P : BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
