@@ -359,43 +359,56 @@ export default function AlertsScreen() {
           {(selectedAlert.intervener_info || selectedAlert.care_provider || (alertDetail?.interventions?.length > 0)) && (() => {
             const iv = alertDetail?.interventions?.[0] || {};
             const recipients = iv.recipients || [];
-            const assigned = iv.assigned_name ? { name: iv.assigned_name, phone: iv.intervener_phone, distance_km: iv.distance_km } : null;
-            const name = selectedAlert.intervener_info?.name || selectedAlert.care_provider || iv.assigned_name || iv.company_name || iv.structure_name || 'Intervention Care';
+            const hasAssigned = !!iv.assigned_to;
+            const assignedRecipient = hasAssigned ? recipients.find((r: any) => r.id === iv.assigned_to) : null;
+            const displayName = iv.assigned_name || assignedRecipient?.name || selectedAlert.intervener_info?.name || selectedAlert.care_provider || iv.company_name || iv.structure_name || 'Intervention Care';
             const structure = selectedAlert.intervener_info?.structure || iv.structure_name || iv.company_name;
             const isCare = !!structure;
             const statusLabel = iv.status === 'completed' ? 'Terminee' : iv.status === 'in_progress' ? 'En cours' : iv.status === 'en_route' ? 'En route' : iv.status === 'pending_acceptance' ? 'En attente d\'acceptation' : iv.status || '';
             return (
               <div onClick={() => openIntervenantPopup(iv.assigned_to || recipients[0]?.id)} style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer' } as any}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>{assigned ? 'Intervenant assigne' : 'Intervention Care'}</div>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>{hasAssigned ? 'Intervenant' : 'Intervention Care'}</div>
                   <div style={{ display: 'flex', gap: 6 } as any}>
                     {isCare && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
                     <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                  <div style={{ width: 44, height: 44, borderRadius: 16, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 20, color: '#A78BFA' }} /></div>
+                  <div style={{ width: 44, height: 44, borderRadius: 16, background: hasAssigned ? 'rgba(124,92,255,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${hasAssigned ? 'rgba(124,92,255,0.3)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>{hasAssigned ? <span style={{ fontSize: 18, fontWeight: 800, color: '#A78BFA' }}>{displayName.charAt(0)}</span> : <i className="ri-building-line" style={{ fontSize: 20, color: '#A78BFA' }} />}</div>
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{assigned ? assigned.name : structure}</div>
-                    {assigned && structure && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 1 }}>{structure}</div>}
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{statusLabel}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{displayName}</div>
+                    {hasAssigned && structure && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 1 }}>{structure}</div>}
+                    {!hasAssigned && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{statusLabel}</div>}
                   </div>
                 </div>
-                {/* Stats row */}
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
-                <div style={{ display: 'grid', gridTemplateColumns: recipients.length > 0 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 6 } as any}>
-                  {recipients.length > 0 && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Notifies</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{recipients.length} intervenant{recipients.length > 1 ? 's' : ''}</div></div>}
-                  {iv.distance_km && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Distance</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{iv.distance_km} km</div></div>}
-                  {iv.created_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Envoye a</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
-                </div>
-                {/* Recipients preview */}
-                {recipients.length > 0 && (<>
+                {/* Stats — only show recipients count if NOT assigned */}
+                {!hasAssigned && (<>
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                    {recipients.slice(0, 3).map((r: any, i: number) => (<div key={i} style={{ width: 26, height: 26, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -8 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 800, color: '#FFF' }}>{r.name?.charAt(0)}</span></div>))}
-                    <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginLeft: 4 }}>Voir les {recipients.length} intervenants</span>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 } as any}>
+                    {recipients.length > 0 && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Notifies</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{recipients.length}</div></div>}
+                    {iv.distance_km && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Distance</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{iv.distance_km} km</div></div>}
+                    {iv.created_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Envoye</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
+                  </div>
+                  {recipients.length > 0 && (<>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                      {recipients.slice(0, 3).map((r: any, i: number) => (<div key={i} style={{ width: 26, height: 26, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -8 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 800, color: '#FFF' }}>{r.name?.charAt(0)}</span></div>))}
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginLeft: 4 }}>Voir les {recipients.length} intervenants</span>
+                    </div>
+                  </>)}
+                </>)}
+                {/* Assigned — show accepted/completed info */}
+                {hasAssigned && (iv.accepted_at || iv.distance_km) && (<>
+                  <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 } as any}>
+                    {iv.distance_km && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Distance</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{iv.distance_km} km</div></div>}
+                    {iv.accepted_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Accepte</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.accepted_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
                   </div>
                 </>)}
+              </div>
+            );
+          })()}
               </div>
             );
           })()}
