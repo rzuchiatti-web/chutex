@@ -570,38 +570,137 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   /* ─── DETAIL PAGE: intervention (replaces entire view) ─── */
   if (selectedIv && Platform.OS === 'web') {
     const isDone = ['completed', 'resolved'].includes(selectedIv.status);
+    const b = selectedIv.beneficiary_info || {};
+    const isCare = !!selectedIv.structure_name;
+    const benRows = [
+      b.date_of_birth && { icon: 'ri-calendar-line', label: 'Date de naissance', value: b.date_of_birth },
+      b.gender && { icon: 'ri-user-line', label: 'Genre', value: b.gender },
+      b.blood_type && { icon: 'ri-drop-line', label: 'Groupe sanguin', value: b.blood_type, color: '#EF4444' },
+      (b.height_cm || b.weight_kg) && { icon: 'ri-ruler-line', label: 'Morphologie', value: [b.height_cm && `${b.height_cm} cm`, b.weight_kg && `${b.weight_kg} kg`].filter(Boolean).join(' - ') },
+      b.medical_conditions && { icon: 'ri-heart-pulse-line', label: 'Pathologies', value: b.medical_conditions, color: '#F59E0B', highlight: true },
+      b.allergies && { icon: 'ri-alarm-warning-line', label: 'Allergies', value: b.allergies, color: '#EF4444', highlight: true },
+      b.doctor_name && { icon: 'ri-stethoscope-line', label: 'Medecin traitant', value: b.doctor_name + (b.doctor_phone ? ` — ${b.doctor_phone}` : ''), phone: b.doctor_phone },
+      b.emergency_contact_name && { icon: 'ri-shield-user-line', label: 'Contact d\'urgence', value: b.emergency_contact_name + (b.emergency_contact_phone ? ` — ${b.emergency_contact_phone}` : ''), phone: b.emergency_contact_phone },
+      b.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: b.address },
+    ].filter(Boolean);
+
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={isDone ? BG_GREEN : BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
+
+        {/* Header */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
-          <div onClick={() => setSelectedIv(null)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-          </div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: isDone ? '#10B981' : '#F59E0B' } as any} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isDone ? 'Alerte resolue' : 'En cours'}</span>
-          </div>
+          <div onClick={() => setSelectedIv(null)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: isDone ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isDone ? 'Terminee' : 'En cours'}</span></div>
         </div>
+
+        {/* Content */}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
-          <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-            <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{selectedIv.alert_message || 'Intervention'}</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{new Date(selectedIv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
-            {selectedIv.beneficiary_location?.address && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{selectedIv.beneficiary_location.address}</div>}
-          </div>
           <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
-            <div style={{ width: 56, height: 56, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 } as any}><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{selectedIv.beneficiary_name}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{selectedIv.alert_message || 'Intervention'}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{new Date(selectedIv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
           </div>
-          {selectedIv.beneficiary_info && <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Informations medicales</div>{[selectedIv.beneficiary_info.date_of_birth && `Naissance : ${selectedIv.beneficiary_info.date_of_birth}`, selectedIv.beneficiary_info.blood_type && `Groupe sanguin : ${selectedIv.beneficiary_info.blood_type}`, selectedIv.beneficiary_info.medical_conditions && `Pathologies : ${selectedIv.beneficiary_info.medical_conditions}`, selectedIv.beneficiary_info.allergies && `Allergies : ${selectedIv.beneficiary_info.allergies}`, selectedIv.beneficiary_info.doctor_name && `Medecin : ${selectedIv.beneficiary_info.doctor_name}`].filter(Boolean).map((l, i) => <div key={i} style={{ fontSize: 13, color: '#FFF', lineHeight: 1.6 }}>{l}</div>)}</div>}
-          {(selectedIv.beneficiary_info?.phone || selectedIv.beneficiary_phone) && <div onClick={() => window.location.href = `tel:${selectedIv.beneficiary_info?.phone || selectedIv.beneficiary_phone}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer' } as any}><div style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{selectedIv.beneficiary_info?.phone || selectedIv.beneficiary_phone}</div></div>}
-          {(selectedIv.beneficiary_info?.address || selectedIv.beneficiary_location?.address) && <div onClick={() => window.location.href = `https://maps.google.com/?q=${encodeURIComponent(selectedIv.beneficiary_info?.address || selectedIv.beneficiary_location?.address)}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer' } as any}><div style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div style={{ fontSize: 14, fontWeight: 600, color: '#FFF', lineHeight: 1.4 }}>{selectedIv.beneficiary_info?.address || selectedIv.beneficiary_location?.address}</div></div>}
-          {selectedIv.beneficiary_info?.emergency_contact_name && <div onClick={() => { if (selectedIv.beneficiary_info?.emergency_contact_phone) window.location.href = `tel:${selectedIv.beneficiary_info.emergency_contact_phone}`; }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16, cursor: 'pointer' } as any}><div style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F87171" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{selectedIv.beneficiary_info.emergency_contact_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Contact urgence · {selectedIv.beneficiary_info.emergency_contact_phone}</div></div></div>}
-          <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', textAlign: 'center', marginBottom: 12 }}>Intervention</div>
-          {selectedIv.assigned_name ? <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Intervenant</div><div style={{ fontSize: 16, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{selectedIv.assigned_name}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{selectedIv.structure_name || ''} {selectedIv.distance_km ? `· ${selectedIv.distance_km} km` : ''}</div></div> : <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, textAlign: 'center' } as any}><div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Aucun intervenant</div></div>}
-          {selectedIv.report && <><div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', textAlign: 'center', marginTop: 8, marginBottom: 12 }}>Rapport</div><div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>{selectedIv.report.description && <><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Description</div><div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.6, marginBottom: 10 }}>{selectedIv.report.description}</div></>}{selectedIv.report.actions_taken && <><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Actions</div><div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.6, marginBottom: 10 }}>{selectedIv.report.actions_taken}</div></>}{selectedIv.report.patient_condition && <><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Etat patient</div><div style={{ fontSize: 13, color: '#FFF', marginBottom: 10 }}>{selectedIv.report.patient_condition === 'stable' ? 'Stable' : selectedIv.report.patient_condition}</div></>}{selectedIv.report.follow_up_notes && <><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Suivi</div><div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.6 }}>{selectedIv.report.follow_up_notes}</div></>}</div></>}
-          {selectedIv.timeline && selectedIv.timeline.length > 0 && <><div style={{ fontSize: 16, fontWeight: 700, color: '#FFF', textAlign: 'center', marginTop: 8, marginBottom: 10 }}>Chronologie</div>{selectedIv.timeline.map((t: any, i: number) => <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 8 } as any}><div style={{ width: 8, height: 8, borderRadius: 4, background: i === selectedIv.timeline.length - 1 ? '#10B981' : 'rgba(255,255,255,0.3)', marginTop: 6, flexShrink: 0 }} /><div><div style={{ fontSize: 12, color: '#FFF', fontWeight: 600 }}>{t.note}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{new Date(t.time).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div></div></div>)}</>}
+
+          {/* FICHE BENEFICIAIRE */}
+          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Fiche beneficiaire</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+              <div style={{ width: 44, height: 44, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{(b.name || selectedIv.beneficiary_name || '?').charAt(0)}</span></div>
+              <div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{b.name || selectedIv.beneficiary_name}</div>{b.phone && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{b.phone}</div>}{b.email && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{b.email}</div>}</div>
+            </div>
+            {benRows.map((item: any, i: number) => (
+              <div key={i}>
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
+                {item.highlight ? (
+                  <div style={{ padding: '10px 12px', borderRadius: 12, background: `${item.color}12`, border: `1px solid ${item.color}25` } as any}><div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><i className={item.icon} style={{ fontSize: 14, color: item.color }} /><div style={{ fontSize: 9, fontWeight: 600, color: item.color, textTransform: 'uppercase' }}>{item.label}</div></div><div style={{ fontSize: 13, color: '#FFF', marginTop: 4, lineHeight: 1.4 }}>{item.value}</div></div>
+                ) : (
+                  <div onClick={() => item.phone && (window.location.href = `tel:${item.phone}`)} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: item.phone ? 'pointer' : 'default' } as any}><i className={item.icon} style={{ fontSize: 14, color: item.color || 'rgba(255,255,255,0.35)', marginTop: 2, flexShrink: 0 }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 13, color: '#FFF' }}>{item.value}</div></div>{item.phone && <i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981', marginTop: 2 }} />}</div>
+                )}
+              </div>
+            ))}
+            {b.phone && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} /><div onClick={() => window.location.href = `tel:${b.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer' } as any}><i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#10B981' }}>Appeler {(b.name || selectedIv.beneficiary_name)?.split(' ')[0]}</span></div></>)}
+          </div>
+
+          {/* FICHE INTERVENANT — cliquable pour popup */}
+          {selectedIv.assigned_name && (
+            <div onClick={() => setShowIntervenantPopup(true)} style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Fiche intervenant</div>
+                <div style={{ display: 'flex', gap: 6 } as any}>
+                  {isCare && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 999, background: isCare ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{selectedIv.assigned_name.charAt(0)}</span></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{selectedIv.assigned_name}</div>{selectedIv.structure_name && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{selectedIv.structure_name}</div>}<div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{selectedIv.status === 'completed' ? 'Terminee' : 'En cours'}{selectedIv.distance_km ? ` · ${selectedIv.distance_km} km` : ''}</div></div>
+              </div>
+            </div>
+          )}
+
+          {/* RAPPORT */}
+          {selectedIv.report && (
+            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rapport d'intervention</div>
+              {[
+                selectedIv.report.description && { label: 'Description', value: selectedIv.report.description },
+                selectedIv.report.actions_taken && { label: 'Actions realisees', value: selectedIv.report.actions_taken },
+                selectedIv.report.patient_condition && { label: 'Etat du patient', value: selectedIv.report.patient_condition === 'stable' ? 'Stable' : selectedIv.report.patient_condition },
+                selectedIv.report.follow_up_notes && { label: 'Suivi necessaire', value: selectedIv.report.follow_up_notes, warn: true },
+              ].filter(Boolean).map((e: any, i: number, arr: any[]) => (
+                <div key={i}>{e.warn ? (<div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', margin: '6px 0' } as any}><div style={{ fontSize: 9, fontWeight: 600, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 2 }}>{e.label}</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.4 }}>{e.value}</div></div>) : (<div style={{ padding: '10px 0' } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{e.label}</div><div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{e.value}</div></div>)}{i < arr.length - 1 && !e.warn && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}</div>
+              ))}
+              {selectedIv.report.completed_by && <><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0' } as any} /><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Redige par {selectedIv.report.completed_by}</div></>}
+            </div>
+          )}
+
+          {/* CHRONOLOGIE */}
+          {selectedIv.timeline && selectedIv.timeline.length > 0 && (
+            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Chronologie</div>
+              {selectedIv.timeline.map((t: any, i: number) => (
+                <div key={i}>{i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0' } as any} />}<div style={{ display: 'flex', gap: 10 } as any}><div style={{ width: 8, height: 8, borderRadius: 4, background: i === selectedIv.timeline.length - 1 ? '#10B981' : 'rgba(255,255,255,0.25)', marginTop: 5, flexShrink: 0 } as any} /><div><div style={{ fontSize: 12, color: '#FFF', fontWeight: 600 }}>{t.note}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{new Date(t.time).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div></div></div></div>
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* POPUP FICHE INTERVENANT */}
+        {showIntervenantPopup && selectedIv.assigned_name && (
+          <div onClick={() => setShowIntervenantPopup(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ background: '#1a1a2e', borderRadius: 28, padding: 24, width: '100%', maxWidth: 380, border: '1px solid rgba(255,255,255,0.1)', maxHeight: '80vh', overflowY: 'auto' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Fiche intervenant</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
+                  {isCare && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
+                  <div onClick={() => setShowIntervenantPopup(false)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#FFF' }} /></div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 } as any}>
+                <div style={{ width: 56, height: 56, borderRadius: 999, background: isCare ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>{selectedIv.assigned_name.charAt(0)}</span></div>
+                <div><div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{selectedIv.assigned_name}</div>{selectedIv.structure_name && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{selectedIv.structure_name}</div>}</div>
+              </div>
+              {[
+                selectedIv.intervener_phone && { icon: 'ri-phone-line', label: 'Telephone', value: selectedIv.intervener_phone, phone: true },
+                selectedIv.intervener_email && { icon: 'ri-mail-line', label: 'Email', value: selectedIv.intervener_email },
+                selectedIv.structure_name && { icon: 'ri-building-line', label: 'Structure', value: selectedIv.structure_name },
+                selectedIv.distance_km && { icon: 'ri-route-line', label: 'Distance', value: `${selectedIv.distance_km} km` },
+                selectedIv.accepted_at && { icon: 'ri-time-line', label: 'Accepte a', value: new Date(selectedIv.accepted_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) },
+                selectedIv.completed_at && { icon: 'ri-check-double-line', label: 'Termine a', value: new Date(selectedIv.completed_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) },
+                { icon: 'ri-pulse-line', label: 'Statut', value: selectedIv.status === 'completed' ? 'Terminee' : selectedIv.status === 'in_progress' ? 'En cours' : selectedIv.status },
+              ].filter(Boolean).map((item: any, i: number) => (
+                <div key={i}>
+                  {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0' } as any} />}
+                  <div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: item.phone ? 'pointer' : 'default', padding: '4px 0' } as any}>
+                    <i className={item.icon} style={{ fontSize: 14, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.35)', flexShrink: 0 }} />
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 1 }}>{item.label}</div><div style={{ fontSize: 14, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
