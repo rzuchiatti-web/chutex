@@ -830,6 +830,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}>Desactiver mon espace prescripteur</div>
             </div>
+            </div>
           </div>
         )}
       </div>
