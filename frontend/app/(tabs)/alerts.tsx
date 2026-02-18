@@ -259,10 +259,6 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
     return <ReportPage alert={alert} role={role} token={token} onClose={() => setShowReport(false)} onDone={() => { onRefresh(); onClose(); }} />;
   }
 
-  if (showIntervenantPopup && selectedPerson) {
-    return <IntervenantPopup person={selectedPerson} onClose={() => { setShowIntervenantPopup(false); setSelectedPerson(null); }} />;
-  }
-
   /* ── Slide button helper ── */
   const SlideButton = ({ label, icon, color, bgColor, borderColor, onSlideComplete }: any) => (
     <div data-testid={`slide-btn-${label.replace(/\s+/g, '-').toLowerCase()}`}
