@@ -420,6 +420,10 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
           </div>
         )}
       </div>
+      {/* Intervenant popup — rendered as OVERLAY on top of detail page */}
+      {showIntervenantPopup && selectedPerson && (
+        <IntervenantPopup person={selectedPerson} onClose={() => { setShowIntervenantPopup(false); setSelectedPerson(null); }} />
+      )}
     </div>
   );
 }
