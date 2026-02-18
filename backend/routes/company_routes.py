@@ -241,6 +241,117 @@ async def delete_agency(agency_id: str, user=Depends(get_current_user)):
     return {"status": "deleted"}
 
 
+# ==================== SAAD ALERTS (filtered by professional guardians) ====================
+PROFESSIONAL_PROFESSIONS = ['Auxiliaire de vie', 'Aide-soignante', 'Aide soignante', 'Aide-soignant', 'Infirmiere', 'Infirmiere liberale', 'Infirmier']
+
+@router.get("/company/alerts")
+async def company_alerts(user=Depends(get_current_user)):
+    """Get alerts only for beneficiaries whose guardian is a professional (aide-soignante, auxiliaire de vie, infirmiere) linked to this company's structure"""
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    structure = user.get('structure_name', '')
+    # Find professional guardians of this structure
+    pro_guardians = await db.users.find(
+        {"guardian_type": "professional", "profession": {"$in": PROFESSIONAL_PROFESSIONS}, "structure_name": structure},
+        {"_id": 0, "id": 1, "name": 1}
+    ).to_list(500)
+    guardian_ids = [g['id'] for g in pro_guardians]
+    if not guardian_ids:
+        return []
+    # Find beneficiaries who have these guardians
+    beneficiaries = await db.users.find(
+        {"guardians": {"$in": guardian_ids}},
+        {"_id": 0, "id": 1, "name": 1}
+    ).to_list(1000)
+    ben_ids = [b['id'] for b in beneficiaries]
+    if not ben_ids:
+        return []
+    # Get alerts for these beneficiaries
+    alerts = await db.alerts.find(
+        {"beneficiary_id": {"$in": ben_ids}},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(200)
+    return alerts
+
+
+@router.get("/company/prescriptions")
+async def company_prescriptions(user=Depends(get_current_user)):
+    """Get all prescriptions linked to this company's prescribers"""
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    structure = user.get('structure_name', '')
+    prescriptions = await db.prescriptions.find(
+        {"structure_name": structure},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(500)
+    # Also get from prescribers linked to company
+    prescribers = await db.users.find(
+        {"prescriber_company_id": user['id'], "is_prescriber": True},
+        {"_id": 0, "id": 1, "name": 1}
+    ).to_list(200)
+    prescriber_ids = [p['id'] for p in prescribers]
+    if prescriber_ids:
+        more = await db.prescriptions.find(
+            {"prescriber_id": {"$in": prescriber_ids}, "structure_name": {"$ne": structure}},
+            {"_id": 0}
+        ).to_list(500)
+        prescriptions.extend(more)
+    return prescriptions
+
+
+@router.get("/company/prescribers")
+async def company_prescribers(user=Depends(get_current_user)):
+    """Get all prescribers linked to this company"""
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    # Prescribers linked by company_id or same structure
+    prescribers = await db.users.find(
+        {"$or": [{"prescriber_company_id": user['id']}, {"structure_name": user.get('structure_name', ''), "is_prescriber": True}]},
+        {"_id": 0, "password_hash": 0}
+    ).to_list(200)
+    for p in prescribers:
+        count = await db.prescriptions.count_documents({"prescriber_id": p['id']})
+        p['prescriptions_count'] = count
+    return prescribers
+
+
+@router.get("/company/stats")
+async def company_stats(user=Depends(get_current_user)):
+    """Global stats for company dashboard"""
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    structure = user.get('structure_name', '')
+    intervenants_count = await db.users.count_documents({"prescriber_company_id": user['id'], "is_intervention_provider": True})
+    prescribers = await db.users.find({"$or": [{"prescriber_company_id": user['id']}, {"structure_name": structure, "is_prescriber": True}]}, {"_id": 0, "id": 1}).to_list(200)
+    prescribers_count = len(prescribers)
+    prescriber_ids = [p['id'] for p in prescribers]
+    prescriptions_count = await db.prescriptions.count_documents({"prescriber_id": {"$in": prescriber_ids}}) if prescriber_ids else 0
+    agencies_count = await db.agencies.count_documents({"company_id": user['id']})
+    return {
+        "total_intervenants": intervenants_count,
+        "total_prescribers": prescribers_count,
+        "total_prescriptions": prescriptions_count,
+        "total_agencies": agencies_count,
+    }
+
+
+@router.get("/company/ranking")
+async def company_ranking(user=Depends(get_current_user)):
+    """Prescriber ranking for this company"""
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    structure = user.get('structure_name', '')
+    prescribers = await db.users.find(
+        {"$or": [{"prescriber_company_id": user['id']}, {"structure_name": structure, "is_prescriber": True}]},
+        {"_id": 0, "password_hash": 0}
+    ).to_list(200)
+    for p in prescribers:
+        p['prescriptions_count'] = await db.prescriptions.count_documents({"prescriber_id": p['id']})
+    prescribers.sort(key=lambda x: x.get('prescriptions_count', 0), reverse=True)
+    return prescribers
+
+
+
 # ==================== REWARDS PROGRAM ====================
 @router.get("/company/rewards/current")
 async def get_current_reward(user=Depends(get_current_user)):
