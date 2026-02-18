@@ -143,7 +143,7 @@ function CompanyAgences({ token }: { token: string }) {
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{(data.agencies || []).length} agences · {data.total_prescribers} prescripteurs</div>
         </div>
         {/* Content */}
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           {/* Create button */}
           <div onClick={() => setShowCreate(true)} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontWeight: 700, marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><i className="ri-add-circle-line" style={{ fontSize: 16 }} />Nouvelle agence</div>
 
@@ -499,7 +499,7 @@ const BG_HEALTH = 'https://static.prod-images.emergentagent.com/jobs/8afdc991-0a
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
 
           {/* Main vitals — big cards grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>

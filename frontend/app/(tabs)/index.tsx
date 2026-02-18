@@ -301,7 +301,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           </div>
 
           {/* SOS Button */}
-          <div data-testid="sos-button" onClick={handleSOS} style={{
+          <div data-testid="sos-button" data-sos-btn onClick={handleSOS} style={{
             padding: '20px', borderRadius: 22, textAlign: 'center', cursor: 'pointer', marginBottom: 14,
             background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
             backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
