@@ -73,7 +73,18 @@
 - teleconsult.tsx: Pilule Actif-Structure sans popup -> popup ultra-glass ajoute
 - devices.tsx: Pilule Actif-Structure prescription sans popup web -> popup ultra-glass ajoute
 
+## Session 18/02/2026 — Reconstruction alerts.tsx
+- alerts.tsx: REECRIT COMPLETEMENT depuis zero (700 -> 550 lignes, modulaire)
+  - Composants separes: ExplainerPage, ReportPage, IntervenantPopup, AlertDetailWeb, BeneficiaireCard, InterventionCard, ResolvedSection
+  - Correction: Interventions en attente montrent nom structure SAAD (pas liste intervenants)
+  - Correction: Boutons d'action dans le contenu scrollable (pas fixes en bas)
+  - Correction: Background image rouge/vert charge correctement
+  - Correction: Popups ultra-glass (blur 32px, scrollable)
+  - Teste et valide pour tous les roles: Guardian, SAAD, Admin, Teleassistance
+  - Test report: /app/test_reports/iteration_33.json — 100% PASS
+
 ## Taches restantes
+- P1: Verification coherence globale app (toutes pages, tous roles)
 - P1: Deployer backend sur hebergeur permanent
 - P1: Correction parsing BLE Lefu Scale (SDK PPBluetoothKit natif iOS)
 - P2: Build natif et integration BLE bracelet J-Style
