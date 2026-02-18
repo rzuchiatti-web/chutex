@@ -510,8 +510,8 @@ export default function AlertsScreen() {
           {/* POPUP FICHE INTERVENANT */}
           {showIntervenantPopup && (() => {
             const iv = alertDetail?.interventions?.[0] || {};
-            const intName = selectedAlert.intervener_info?.name || selectedAlert.care_provider || iv.assigned_name || 'Intervenant';
-            const intStructure = selectedAlert.intervener_info?.structure || iv.structure_name;
+            const intName = selectedAlert.intervener_info?.name || selectedAlert.care_provider || iv.assigned_name || iv.structure_name || 'Intervention';
+            const intStructure = selectedAlert.intervener_info?.structure || iv.structure_name || iv.company_name;
             const intPhone = selectedAlert.intervener_info?.phone || iv.intervener_phone;
             const intEmail = iv.intervener_email;
             const intIsCare = !!intStructure;
