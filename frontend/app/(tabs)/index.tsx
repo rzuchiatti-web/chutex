@@ -1340,8 +1340,6 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
               ))}
             </>)}
           </div>
-          {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>{[{ val: stats.total_intervenants || intervenants.length, label: 'Intervenants', icon: 'ri-map-pin-user-line' }, { val: stats.total_prescribers || prescribers.length, label: 'Prescripteurs', icon: 'ri-file-text-line' }, { val: activeAlerts.length, label: 'Alertes', icon: 'ri-alarm-warning-line', color: activeAlerts.length > 0 ? '#EF4444' : undefined }, { val: activeIvs.length, label: 'En cours', icon: 'ri-map-pin-range-line', color: activeIvs.length > 0 ? '#A78BFA' : undefined }].map((s: any, i) => (<div key={i} style={{ padding: '12px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' } as any}><i className={s.icon} style={{ fontSize: 16, color: s.color || 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 4 }} /><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{s.val}</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</div></div>))}</div>
           {/* Alerte card — with red background */}
           <div onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
             <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
