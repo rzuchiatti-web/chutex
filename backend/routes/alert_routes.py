@@ -187,6 +187,20 @@ async def get_alert_detail(aid: str, user=Depends(get_current_user)):
     escalations = await db.escalations.find({"alert_id": aid}, {"_id": 0}).sort("created_at", -1).to_list(10)
     calls = await db.twilio_calls.find({"alert_id": aid}, {"_id": 0}).sort("created_at", -1).to_list(20)
     interventions = await db.interventions.find({"alert_id": aid}, {"_id": 0}).sort("created_at", -1).to_list(10)
+    # Enrich interventions with full intervenant/recipient profiles
+    for iv in interventions:
+        if iv.get('assigned_to'):
+            iu = await db.users.find_one({"id": iv['assigned_to']}, {"_id": 0, "password_hash": 0})
+            if iu:
+                iv['intervenant_profile'] = {"name": iu.get('name',''), "phone": iu.get('phone',''), "email": iu.get('email',''), "address": iu.get('address',''), "profession": iu.get('profession',''), "structure_name": iu.get('structure_name','') or iu.get('intervention_structure',''), "guardian_type": iu.get('guardian_type',''), "is_prescriber": iu.get('is_prescriber',False), "intervention_radius_km": iu.get('intervention_radius_km'), "agency_id": iu.get('agency_id','')}
+        enriched_r = []
+        for r in iv.get('recipients', []):
+            ru = await db.users.find_one({"id": r.get('id')}, {"_id": 0, "password_hash": 0})
+            er = {**r}
+            if ru:
+                er.update({"email": ru.get('email',''), "address": ru.get('address',''), "profession": ru.get('profession',''), "structure_name": ru.get('structure_name','') or ru.get('intervention_structure',''), "guardian_type": ru.get('guardian_type',''), "is_prescriber": ru.get('is_prescriber',False), "intervention_radius_km": ru.get('intervention_radius_km')})
+            enriched_r.append(er)
+        iv['recipients'] = enriched_r
     location = await db.locations.find_one({"user_id": alert['beneficiary_id']}, {"_id": 0})
     timeline = _build_alert_timeline(alert, escalations, calls, interventions)
     return {
