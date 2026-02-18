@@ -1296,7 +1296,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
         apiFetch('/api/company/rewards/current', {}, token).catch(() => null),
         apiFetch('/api/company/agencies', {}, token).catch(() => []),
       ]);
-      setStats(st); setIntervenants(iv); setPrescribers(pr); setInterventions(intr); setPrescriptions(pres); setAlerts(al); setRanking(rk); setReward(rw);
+      setStats(st); setIntervenants(iv); setPrescribers(pr); setInterventions(intr); setPrescriptions(pres); setAlerts(al); setRanking(rk); setReward(rw); setAgencies(Array.isArray(ag) ? ag : []);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
