@@ -69,6 +69,8 @@ export default function ProfileScreen() {
   const [showNotifPrefs, setShowNotifPrefs] = useState(false);
   const [notifPrefs, setNotifPrefs] = useState<any>(null);
   const [savingNotif, setSavingNotif] = useState(false);
+  const [showCareDetail, setShowCareDetail] = useState(false);
+  const [subData, setSubData] = useState<any>(null);
 
   const fetchNotifPrefs = useCallback(async () => {
     try { setNotifPrefs(await apiFetch('/api/push/preferences', {}, token)); } catch {}
