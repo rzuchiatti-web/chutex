@@ -823,7 +823,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => {
         const isActive = ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status);
         return (
-          <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => setSelectedIv(iv)}>
+          <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => selectIntervention(iv)}>
             <View style={{ borderRadius: 20, overflow: 'hidden', padding: 18, marginBottom: 12, backgroundColor: 'rgba(255,255,255,0.05)' }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
                 <View><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.beneficiary_name}</Text></View>
