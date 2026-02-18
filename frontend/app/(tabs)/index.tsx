@@ -240,9 +240,132 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSwitching(false); }
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}><ActivityIndicator size="large" color="#111827" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
   const activeReminders = reminders.filter((r: any) => r.active);
+  const simVitals = vitals || { heart_rate: 72, spo2: 97, steps: 3842, temperature: 36.6 };
+  const BG_DASH = 'https://static.prod-images.emergentagent.com/jobs/8afdc991-0ab2-4687-a2a5-438b9a5f0711/images/df76213cf8e83ebc2df01c203a9433129a2a5ad870f7b25bd74b875565d329e1.png';
 
+  /* ─── WEB: Full-page beneficiary dashboard ─── */
+  if (Platform.OS === 'web') {
+    return (
+      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_DASH} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} />
+
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+
+          {/* Header — Name + role toggle + notifications */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+              <div style={{ width: 46, height: 46, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.4)', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' } as any}>
+                {user.avatar_url ? <img src={user.avatar_url} style={{ width: 46, height: 46, borderRadius: 999, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+              </div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{user.name}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{t('beneficiary')}</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 } as any}>
+              {user.has_guardian_space && (
+                <div onClick={switchToGuardian} style={{ padding: '7px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 11, fontWeight: 600, color: '#FFF' } as any}>{t('guardian')}</div>
+              )}
+              <div onClick={() => setShowNotifs(!showNotifs)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                <i className="ri-notification-3-line" style={{ fontSize: 18, color: '#FFF' }} />
+                {(guardianRequests.length > 0 || activeAlerts.length > 0) && <div style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(255,255,255,0.5)' } as any} />}
+              </div>
+            </div>
+          </div>
+
+          {/* Active alert banner */}
+          {activeAlerts.map((a: any) => (
+            <div key={a.id} onClick={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-alarm-warning-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
+              <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>ALERTE EN COURS</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{a.message}</div></div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }} />
+            </div>
+          ))}
+
+          {/* Vitals — compact row */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
+            {[
+              { val: simVitals.heart_rate || '--', label: 'BPM', icon: 'ri-heart-pulse-line', color: '#EF4444' },
+              { val: simVitals.spo2 ? `${simVitals.spo2}%` : '--', label: 'SpO2', icon: 'ri-drop-line', color: '#3B82F6' },
+              { val: simVitals.steps || '0', label: t('steps'), icon: 'ri-footprint-line', color: '#10B981' },
+            ].map((v, i) => (
+              <div key={i} onClick={() => router.push('/(tabs)/health')} style={{ flex: 1, padding: '14px 10px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', textAlign: 'center', cursor: 'pointer' } as any}>
+                <i className={v.icon} style={{ fontSize: 18, color: v.color, marginBottom: 4, display: 'block' }} />
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{v.val}</div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{v.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* SOS Button */}
+          <div data-testid="sos-button" onClick={handleSOS} style={{
+            padding: '20px', borderRadius: 22, textAlign: 'center', cursor: 'pointer', marginBottom: 14,
+            background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
+            backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            boxShadow: '0 4px 24px rgba(239,68,68,0.2)',
+          } as any}>
+            {sosLoading ? <div style={{ color: '#FFF' }}>...</div> : <>
+              <i className="ri-alarm-warning-line" style={{ fontSize: 32, color: '#EF4444', display: 'block', marginBottom: 4 }} />
+              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', letterSpacing: 4 }}>SOS</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{t('sos_sub')}</div>
+            </>}
+          </div>
+
+          {/* Quick actions */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>
+            {[
+              { icon: 'ri-pulse-line', label: 'ECG', route: '/ecg' },
+              { icon: 'ri-focus-3-line', label: 'Zones', route: '/geofencing' },
+              { icon: 'ri-qr-code-line', label: 'QR Code', route: '/link-code' },
+              { icon: 'ri-time-line', label: 'Rappels', route: '/reminders' },
+            ].map((a, i) => (
+              <div key={i} onClick={() => router.push(a.route as any)} style={{ padding: '14px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', cursor: 'pointer', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}>
+                <i className={a.icon} style={{ fontSize: 20, color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: 4 }} />
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{a.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Guardians */}
+          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', marginBottom: 12 } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>{guardians.length} {t('guardians')}</div>
+            {guardians.map((g: any, i: number) => (
+              <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none', cursor: 'pointer' } as any}>
+                <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{g.name?.charAt(0)}</span></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{g.name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{g.relationship || t('guardian')}</div></div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
+              </div>
+            ))}
+            {guardians.length === 0 && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '8px 0' }}>Aucun gardien</div>}
+          </div>
+
+          {/* Teleconsultation card */}
+          <DoctorCard onPress={() => router.push('/(tabs)/teleconsult')} />
+
+          {/* Devices status */}
+          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', marginBottom: 12 } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Appareils</div>
+            {[
+              { label: 'Bracelet Elio', icon: 'ri-pulse-line', connected: braceletData?.connected, route: '/bracelet-connect' },
+              { label: 'Gilet Anti-Chute', icon: 'ri-shield-check-line', connected: vestData?.connected, route: '/vest-connect' },
+            ].map((d, i) => (
+              <div key={i} onClick={() => router.push(d.route as any)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none', cursor: 'pointer' } as any}>
+                <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={d.icon} style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} /></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{d.label}</div></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : 'rgba(255,255,255,0.2)' } as any} /><span style={{ fontSize: 11, color: d.connected ? '#10B981' : 'rgba(255,255,255,0.3)' }}>{d.connected ? 'Actif' : 'Inactif'}</span></div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── NATIVE FALLBACK ─── */
   return (
     <ScrollView className={Platform.OS === 'web' ? CHX.bgClass : undefined} style={{ flex: 1, backgroundColor: CHX.bg }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96, position: 'relative', zIndex: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={CHX.fg} />} showsVerticalScrollIndicator={false}>
 
