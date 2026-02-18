@@ -277,35 +277,103 @@ export default function AlertsScreen() {
             </div>
           )}
 
-          {/* Intervention info — fiche intervenant (not clickable) */}
-          {(selectedAlert.intervener_info || selectedAlert.care_provider) && (
-            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Fiche intervenant</div>
-                {selectedAlert.intervener_info?.structure && (
-                  <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span>
+          {/* ─── FICHE BENEFICIAIRE COMPLETE ─── */}
+          {alertDetail?.beneficiary && (() => {
+            const b = alertDetail.beneficiary;
+            const rows = [
+              b.date_of_birth && { icon: 'ri-calendar-line', label: 'Date de naissance', value: b.date_of_birth },
+              b.gender && { icon: 'ri-user-line', label: 'Genre', value: b.gender },
+              b.blood_type && { icon: 'ri-drop-line', label: 'Groupe sanguin', value: b.blood_type, color: '#EF4444' },
+              (b.height_cm || b.weight_kg) && { icon: 'ri-ruler-line', label: 'Morphologie', value: [b.height_cm && `${b.height_cm} cm`, b.weight_kg && `${b.weight_kg} kg`].filter(Boolean).join(' - ') },
+              b.medical_conditions && { icon: 'ri-heart-pulse-line', label: 'Pathologies', value: b.medical_conditions, color: '#F59E0B', highlight: true },
+              b.allergies && { icon: 'ri-alarm-warning-line', label: 'Allergies', value: b.allergies, color: '#EF4444', highlight: true },
+              b.doctor_name && { icon: 'ri-stethoscope-line', label: 'Medecin traitant', value: b.doctor_name + (b.doctor_phone ? ` — ${b.doctor_phone}` : ''), phone: b.doctor_phone },
+              b.emergency_contact_name && { icon: 'ri-shield-user-line', label: 'Contact d\'urgence', value: b.emergency_contact_name + (b.emergency_contact_phone ? ` — ${b.emergency_contact_phone}` : ''), phone: b.emergency_contact_phone },
+              b.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: b.address },
+            ].filter(Boolean);
+            return (
+              <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Fiche beneficiaire</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                  <div style={{ width: 44, height: 44, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{(b.name || '?').charAt(0)}</span></div>
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{b.name}</div>{b.phone && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{b.phone}</div>}{b.email && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{b.email}</div>}</div>
+                </div>
+                {rows.map((item: any, i: number) => (
+                  <div key={i}>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
+                    {item.highlight ? (
+                      <div style={{ padding: '10px 12px', borderRadius: 12, background: `${item.color}12`, border: `1px solid ${item.color}25` } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><i className={item.icon} style={{ fontSize: 14, color: item.color }} /><div style={{ fontSize: 9, fontWeight: 600, color: item.color, textTransform: 'uppercase' }}>{item.label}</div></div>
+                        <div style={{ fontSize: 13, color: '#FFF', marginTop: 4, lineHeight: 1.4 }}>{item.value}</div>
+                      </div>
+                    ) : (
+                      <div onClick={() => item.phone && (window.location.href = `tel:${item.phone}`)} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: item.phone ? 'pointer' : 'default', padding: '2px 0' } as any}>
+                        <i className={item.icon} style={{ fontSize: 14, color: item.color || 'rgba(255,255,255,0.35)', marginTop: 2, flexShrink: 0 }} />
+                        <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 13, color: '#FFF' }}>{item.value}</div></div>
+                        {item.phone && <i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981', marginTop: 2 }} />}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
+                {b.phone && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} /><div onClick={() => window.location.href = `tel:${b.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer' } as any}><i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#10B981' }}>Appeler {b.name?.split(' ')[0]}</span><span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>{b.phone}</span></div></>)}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 999, background: selectedAlert.intervener_info?.structure ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{(selectedAlert.intervener_info?.name || selectedAlert.care_provider || '?').charAt(0)}</span>
+            );
+          })()}
+
+          {/* ─── GARDIENS DU BENEFICIAIRE ─── */}
+          {alertDetail?.guardians && alertDetail.guardians.length > 0 && (
+            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Gardiens ({alertDetail.guardians.length})</div>
+              {alertDetail.guardians.map((g: any, i: number) => (
+                <div key={g.id}>
+                  {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0' } as any} />}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                    <div style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{g.name?.charAt(0)}</span></div>
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{g.name}</div>{g.email && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{g.email}</div>}</div>
+                    {g.phone && <div onClick={() => window.location.href = `tel:${g.phone}`} style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981' }} /></div>}
+                  </div>
                 </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{selectedAlert.intervener_info?.name || selectedAlert.care_provider || 'Intervenant'}</div>
-                  {selectedAlert.intervener_info?.structure && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{selectedAlert.intervener_info.structure}</div>}
-                  {selectedAlert.incident_state && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{STATE_LABEL[selectedAlert.incident_state] || selectedAlert.incident_state}</div>}
-                </div>
-              </div>
-              {selectedAlert.intervener_info?.phone && (
-                <div onClick={() => window.location.href = `tel:${selectedAlert.intervener_info.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', marginTop: 10, cursor: 'pointer' } as any}>
-                  <i className="ri-phone-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{selectedAlert.intervener_info.phone}</span>
-                </div>
-              )}
+              ))}
             </div>
           )}
+
+          {/* ─── FICHE INTERVENANT COMPLETE ─── */}
+          {(selectedAlert.intervener_info || selectedAlert.care_provider || (alertDetail?.interventions?.length > 0 && alertDetail.interventions[0].assigned_name)) && (() => {
+            const iv = alertDetail?.interventions?.[0] || {};
+            const name = selectedAlert.intervener_info?.name || selectedAlert.care_provider || iv.assigned_name || 'Intervenant';
+            const structure = selectedAlert.intervener_info?.structure || iv.structure_name;
+            const phone = selectedAlert.intervener_info?.phone || iv.intervener_phone;
+            const isCare = !!structure;
+            const isGuardianIntervener = iv.intervener_type === 'guardian';
+            return (
+              <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Fiche intervenant</div>
+                  <div style={{ display: 'flex', gap: 6 } as any}>
+                    {isCare && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
+                    {isGuardianIntervener && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Gardien</span></div>}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                  <div style={{ width: 44, height: 44, borderRadius: 999, background: isCare ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{name.charAt(0)}</span></div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{name}</div>
+                    {structure && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 1 }}>{structure}</div>}
+                    {iv.status && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{iv.status === 'completed' ? 'Intervention terminee' : iv.status === 'in_progress' ? 'En cours' : iv.status}</div>}
+                  </div>
+                </div>
+                {(iv.distance_km || iv.accepted_at) && (<>
+                  <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 } as any}>
+                    {iv.distance_km && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Distance</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{iv.distance_km} km</div></div>}
+                    {iv.accepted_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Accepte a</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.accepted_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
+                    {iv.completed_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Termine a</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.completed_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
+                  </div>
+                </>)}
+                {phone && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} /><div onClick={() => window.location.href = `tel:${phone}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' } as any}><i className="ri-phone-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} /><span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Appeler {name.split(' ')[0]}</span><span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>{phone}</span></div></>)}
+              </div>
+            );
+          })()}
 
           {/* Resolved info — FULL DETAIL */}
           {isResolved && (
