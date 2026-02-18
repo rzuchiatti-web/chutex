@@ -1372,15 +1372,24 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
             </div>
           </div>
 
-          {/* PRESCRIPTIONS — simplified */}
+          {/* PRESCRIPTIONS — with real data + month selector */}
+          {(() => {
+            const validatedP = prescriptions.filter((p: any) => p.status === 'validated' || p.status === 'subscribed');
+            const pendingP = prescriptions.filter((p: any) => p.status !== 'validated' && p.status !== 'subscribed');
+            const totalValidated = validatedP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+            const totalPending = pendingP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+            const nextM = new Date(); nextM.setMonth(nextM.getMonth() + 1);
+            const nextPay = `01/${String(nextM.getMonth() + 1).padStart(2, '0')}/${nextM.getFullYear()}`;
+            return (
           <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12, cursor: 'pointer' } as any}>
             <img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescriptions</div>
-              <div style={{ display: 'inline-flex', padding: '4px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginBottom: 14 } as any}><span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Total: +{prescriptions.reduce((s: number, p: any) => s + (p.commission || 0), 0)} EUR</span></div>
+              <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{totalValidated + totalPending} EUR</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4, marginBottom: 14 }}>Prochain versement de {totalValidated} EUR le {nextPay}</div>
               <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-                {[{ val: prescriptions.filter((p: any) => p.status === 'validated' || p.status === 'subscribed').length, label: 'Validees', pill: '#10B981' }, { val: prescriptions.filter((p: any) => p.status !== 'validated' && p.status !== 'subscribed').length, label: 'En attente', pill: '#F59E0B' }, { val: prescribers.length, label: 'Prescripteurs', pill: null }].map((s, i) => (
+                {[{ val: validatedP.length, label: 'Validees', pill: '#10B981' }, { val: pendingP.length, label: 'En attente', pill: '#F59E0B' }, { val: prescribers.length, label: 'Prescripteurs', pill: null }].map((s, i) => (
                   <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>{s.pill ? <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: `${s.pill}30`, marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: s.pill }}>{s.label}</span></div> : <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>}</div>
                 ))}
               </div>
@@ -1388,6 +1397,8 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><div style={{ display: 'flex' } as any}>{prescribers.slice(0, 3).map((p: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{p.name?.charAt(0)}</span></div>))}</div><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {prescribers.length} prescripteurs</span></div>
             </div>
           </div>
+            );
+          })()}
 
           {/* CHALLENGE RECOMPENSES — gold card */}
           <div style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12 } as any}>
