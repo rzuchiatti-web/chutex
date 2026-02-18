@@ -416,9 +416,6 @@ export default function AlertsScreen() {
               </div>
             );
           })()}
-              </div>
-            );
-          })()}
 
           {/* Resolved info — FULL DETAIL */}
           {isResolved && (
