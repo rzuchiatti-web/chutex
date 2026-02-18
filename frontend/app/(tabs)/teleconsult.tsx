@@ -817,7 +817,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         {showStructurePopup && (
           <div style={{ position: 'fixed', inset: 0, zIndex: 200, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)' } as any}>
             <div onClick={() => setShowStructurePopup(false)} style={{ position: 'absolute', inset: 0, overflow: 'auto', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' } as any}>
-              <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', minHeight: '100%', boxSizing: 'border-box' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
               {/* Close */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
                 <div onClick={() => setShowStructurePopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
