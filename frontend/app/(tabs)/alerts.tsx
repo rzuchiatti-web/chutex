@@ -27,6 +27,7 @@ export default function AlertsScreen() {
   const [reportAnswers, setReportAnswers] = useState<Record<string, string>>({});
   const [showExplainer, setShowExplainer] = useState(false);
   const [alertDetail, setAlertDetail] = useState<any>(null);
+  const [showIntervenantPopup, setShowIntervenantPopup] = useState(false);
 
   // Fetch enriched detail when selecting an alert
   const selectAlert = useCallback(async (alert: any) => {
