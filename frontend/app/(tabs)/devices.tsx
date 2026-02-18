@@ -445,7 +445,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
   /* ─── EXPLAINER: Programme recompenses (early return) ─── */
   if (showRewardsExplainer && Platform.OS === 'web') {
-    const BG_REWARD_EX = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/4tk4fqvn_background_r%C3%A9compense.jpg';
+    const BG_REWARD_EX = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/s2281oc6_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_16_35.png';
     return (
       <div data-testid="programme-recompenses-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_REWARD_EX} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
