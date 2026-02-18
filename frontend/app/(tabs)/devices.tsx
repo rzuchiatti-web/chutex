@@ -774,6 +774,13 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <div onClick={() => setPrescTab('validated')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'validated' ? '#FFF' : 'transparent', color: prescTab === 'validated' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>Validees ({validated.length})</div>
             </div>
           </div>
+          {/* Nouvelle prescription button */}
+          <div onClick={() => setShowForm(true)} data-testid="new-prescription-btn" style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 14, transition: 'all 0.2s' } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}>
+            <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
+            <span style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Nouvelle prescription</span>
+          </div>
           {/* Rewards card */}
           <div onClick={() => { apiFetch("/api/rewards/history", {}, token).then((d2: any) => { setRewardsData(d2); setShowRewardsPage(true); }).catch(() => {}); }} style={{ borderRadius: 20, overflow: "hidden", position: "relative", padding: "18px", marginBottom: 14, cursor: "pointer" } as any} data-glass-card>
             <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/s2281oc6_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_16_35.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
