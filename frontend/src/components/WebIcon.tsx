@@ -180,6 +180,7 @@ export function MCIcon({ name, size = 20, color = '#1A1D21', style }: IconProps)
     'scale-bathroom': 'ri-scales-3-line',
     'tshirt-crew': 'ri-t-shirt-line',
     'bluetooth-connect': 'ri-bluetooth-connect-line',
+    'bluetooth-off': 'ri-bluetooth-off-line',
     'map-marker-radius-outline': 'ri-map-pin-range-line',
   };
 
