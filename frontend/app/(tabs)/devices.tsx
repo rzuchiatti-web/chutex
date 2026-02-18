@@ -1399,6 +1399,16 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   /* ─── DETAIL: prescription (early return) ─── */
   if (selectedPresc && Platform.OS === 'web') {
     const isValidated = selectedPresc.status === 'subscribed';
+    const pRows = [
+      selectedPresc.guardian_name && { icon: 'ri-user-settings-line', label: 'Prescripteur', value: selectedPresc.guardian_name || selectedPresc.prescriber_name },
+      selectedPresc.subscription_type && { icon: 'ri-vip-crown-line', label: 'Abonnement', value: selectedPresc.subscription_type },
+      selectedPresc.commission && { icon: 'ri-money-euro-circle-line', label: 'Commission', value: `${selectedPresc.commission} EUR` },
+      selectedPresc.created_at && { icon: 'ri-calendar-line', label: 'Date', value: new Date(selectedPresc.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
+      selectedPresc.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone beneficiaire', value: selectedPresc.beneficiary_phone, phone: true },
+      selectedPresc.beneficiary_email && { icon: 'ri-mail-line', label: 'Email beneficiaire', value: selectedPresc.beneficiary_email },
+      selectedPresc.beneficiary_address && { icon: 'ri-map-pin-line', label: 'Adresse', value: selectedPresc.beneficiary_address },
+      selectedPresc.structure_name && { icon: 'ri-building-line', label: 'Structure', value: selectedPresc.structure_name },
+    ].filter(Boolean);
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={isValidated ? BG_GREEN_P : BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
@@ -1408,18 +1418,43 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: isValidated ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isValidated ? 'Validee' : 'En attente'}</span></div>
         </div>
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
-          <div style={{ textAlign: 'center', marginBottom: 16 } as any}><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{selectedPresc.beneficiary_name}</div><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>Prescription {selectedPresc.subscription_type || 'Standard'}</div>{selectedPresc.commission && <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginTop: 8 }}>+{selectedPresc.commission} EUR</div>}</div>
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+            <div style={{ width: 56, height: 56, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, border: '3px solid rgba(255,255,255,0.2)' } as any}><span style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>{(selectedPresc.beneficiary_name || '?').charAt(0)}</span></div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{selectedPresc.beneficiary_name}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginTop: 4 }}>Prescription {selectedPresc.subscription_type || 'Standard'}</div>
+            {selectedPresc.commission && <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', marginTop: 8, letterSpacing: -1 }}>+{selectedPresc.commission} EUR</div>}
+          </div>
+          {/* Details */}
           <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Details</div>
-            {[{ l: 'Prescripteur', v: selectedPresc.guardian_name || selectedPresc.prescriber_name }, { l: 'Abonnement', v: selectedPresc.subscription_type || 'Standard' }, { l: 'Commission', v: `${selectedPresc.commission || 0} EUR` }, { l: 'Date', v: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : '-' }].map((item, i, arr) => (<div key={i}>{i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0' } as any} />}<div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{item.l}</div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{item.v}</div></div>))}
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Details de la prescription</div>
+            {pRows.map((item: any, i: number) => (<div key={i}>{i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />}<div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: item.phone ? 'pointer' : 'default' } as any}><i className={item.icon} style={{ fontSize: 14, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.35)' }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 14, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div>{item.phone && <i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981' }} />}</div></div>))}
+          </div>
+          {/* Prescriber card */}
+          {(selectedPresc.guardian_name || selectedPresc.prescriber_name) && (
+            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Prescripteur</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(212,132,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#D4845A' }}>{(selectedPresc.guardian_name || selectedPresc.prescriber_name || '?').charAt(0)}</span></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{selectedPresc.guardian_name || selectedPresc.prescriber_name}</div>{selectedPresc.structure_name && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{selectedPresc.structure_name}</div>}</div>
+              </div>
+              {selectedPresc.guardian_phone && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} /><div onClick={() => window.location.href = `tel:${selectedPresc.guardian_phone}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer' } as any}><i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#10B981' }}>Appeler le prescripteur</span></div></>)}
+            </div>
+          )}
+          {/* Beneficiary card */}
+          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Beneficiaire</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+              <div style={{ width: 44, height: 44, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{(selectedPresc.beneficiary_name || '?').charAt(0)}</span></div>
+              <div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{selectedPresc.beneficiary_name}</div>{selectedPresc.beneficiary_email && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{selectedPresc.beneficiary_email}</div>}</div>
+            </div>
+            {selectedPresc.beneficiary_phone && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} /><div onClick={() => window.location.href = `tel:${selectedPresc.beneficiary_phone}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer' } as any}><i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#10B981' }}>Appeler le beneficiaire</span></div></>)}
           </div>
         </div>
       </div>
     );
   }
 
-  /* ─── LIST: copie exacte du design gardien ─── */
-  if (Platform.OS === 'web') {
   /* ─── LIST ─── */
   if (Platform.OS === 'web') {
     const nextMonth = new Date(); nextMonth.setMonth(nextMonth.getMonth() + 1);
