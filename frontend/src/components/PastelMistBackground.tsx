@@ -39,6 +39,10 @@ export function PastelMistBackground() {
       * { font-family: 'Inter', system-ui, -apple-system, sans-serif !important; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
       body { -webkit-font-smoothing: antialiased; margin: 0; }
 
+      /* ══════════════════════════════════════════════════════════
+         CARE WATCH — PREMIUM ANIMATION SYSTEM
+         ══════════════════════════════════════════════════════════ */
+
       /* ── ANIMATED BACKGROUNDS ── */
       @keyframes chxDriftDark {
         0%   { transform: translate3d(-1.6%,-.6%,0) scale(1); }
@@ -54,6 +58,165 @@ export function PastelMistBackground() {
         0%   { transform: translateX(-100%); }
         100% { transform: translateX(100%); }
       }
+
+      /* ── FADE IN UP — staggered entrance ── */
+      @keyframes cw-fadeInUp {
+        from { opacity: 0; transform: translateY(18px) scale(0.98); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      @keyframes cw-fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @keyframes cw-slideInRight {
+        from { opacity: 0; transform: translateX(24px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+
+      /* ── PULSE GLOW — active status pills ── */
+      @keyframes cw-pulseGlow {
+        0%, 100% { box-shadow: 0 0 0 0 currentColor; }
+        50%      { box-shadow: 0 0 12px 4px currentColor; }
+      }
+      @keyframes cw-pulseRing {
+        0%   { transform: scale(0.8); opacity: 0.8; }
+        100% { transform: scale(2.2); opacity: 0; }
+      }
+      @keyframes cw-pulseDot {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50%      { transform: scale(1.4); opacity: 0.7; }
+      }
+
+      /* ── SOS PULSE — emergency button ── */
+      @keyframes cw-sosPulse {
+        0%   { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+        70%  { box-shadow: 0 0 0 20px rgba(239,68,68,0); }
+        100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+      }
+      @keyframes cw-sosBreath {
+        0%, 100% { transform: scale(1); }
+        50%      { transform: scale(1.03); }
+      }
+
+      /* ── SHIMMER — glass card hover shine ── */
+      @keyframes cw-shimmer {
+        0%   { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+
+      /* ── FLOAT — subtle breathing for key elements ── */
+      @keyframes cw-float {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-4px); }
+      }
+
+      /* ── GRADIENT SHIFT — premium background animation ── */
+      @keyframes cw-gradientShift {
+        0%   { background-position: 0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      /* ── BORDER GLOW — glass card highlight ── */
+      @keyframes cw-borderGlow {
+        0%, 100% { border-color: rgba(255,255,255,0.08); }
+        50%      { border-color: rgba(255,255,255,0.18); }
+      }
+
+      /* ── COUNTER UP — number animation ── */
+      @keyframes cw-scaleIn {
+        from { opacity: 0; transform: scale(0.5); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+
+      /* ── RIPPLE — click feedback ── */
+      @keyframes cw-ripple {
+        to { transform: scale(4); opacity: 0; }
+      }
+
+      /* ══════════════════════════════════════════════════════════
+         UTILITY CLASSES
+         ══════════════════════════════════════════════════════════ */
+
+      /* Staggered entrance — add to scrollable containers */
+      [data-animate] > * {
+        opacity: 0;
+        animation: cw-fadeInUp 0.5s cubic-bezier(.22,.61,.36,1) forwards;
+      }
+      [data-animate] > *:nth-child(1)  { animation-delay: 0.05s; }
+      [data-animate] > *:nth-child(2)  { animation-delay: 0.1s; }
+      [data-animate] > *:nth-child(3)  { animation-delay: 0.15s; }
+      [data-animate] > *:nth-child(4)  { animation-delay: 0.2s; }
+      [data-animate] > *:nth-child(5)  { animation-delay: 0.25s; }
+      [data-animate] > *:nth-child(6)  { animation-delay: 0.3s; }
+      [data-animate] > *:nth-child(7)  { animation-delay: 0.35s; }
+      [data-animate] > *:nth-child(8)  { animation-delay: 0.4s; }
+      [data-animate] > *:nth-child(9)  { animation-delay: 0.45s; }
+      [data-animate] > *:nth-child(10) { animation-delay: 0.5s; }
+      [data-animate] > *:nth-child(n+11) { animation-delay: 0.55s; }
+
+      /* Glass card hover — premium interaction */
+      [data-glass-card] {
+        transition: transform 0.3s cubic-bezier(.22,.61,.36,1), box-shadow 0.3s cubic-bezier(.22,.61,.36,1), border-color 0.3s ease !important;
+      }
+      [data-glass-card]:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.2) !important;
+        border-color: rgba(255,255,255,0.15) !important;
+      }
+      [data-glass-card]:active {
+        transform: translateY(0) scale(0.98) !important;
+        transition-duration: 0.1s !important;
+      }
+
+      /* Pulse dot for active status */
+      [data-pulse-dot] {
+        animation: cw-pulseDot 2s ease-in-out infinite;
+      }
+
+      /* SOS button animation */
+      [data-sos-btn] {
+        animation: cw-sosPulse 2s infinite, cw-sosBreath 3s ease-in-out infinite !important;
+      }
+
+      /* Float animation for key numbers */
+      [data-float] {
+        animation: cw-float 4s ease-in-out infinite;
+      }
+
+      /* Glow border for active cards */
+      [data-glow-border] {
+        animation: cw-borderGlow 3s ease-in-out infinite;
+      }
+
+      /* Search input focus glow */
+      [data-search-input]:focus-within {
+        border-color: rgba(255,255,255,0.25) !important;
+        box-shadow: 0 0 20px rgba(255,255,255,0.08) !important;
+        transition: all 0.3s ease !important;
+      }
+
+      /* Smooth tab transitions */
+      [data-tab-pill] {
+        transition: all 0.25s cubic-bezier(.22,.61,.36,1) !important;
+      }
+
+      /* Scale in for numbers */
+      [data-scale-number] {
+        animation: cw-scaleIn 0.4s cubic-bezier(.22,.61,.36,1) forwards;
+      }
+
+      /* Premium scrollbar */
+      ::-webkit-scrollbar { width: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+      /* Smooth scroll */
+      * { scroll-behavior: smooth; }
+
+      /* Selection color */
+      ::selection { background: rgba(212,132,90,0.3); color: #FFF; }
 
       .chx-bg-dark {
         background: #0b0f16 !important;
