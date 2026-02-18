@@ -1325,6 +1325,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   const [showIntervenantPopup, setShowIntervenantPopup] = useState(false);
   const [showAllIntervenants, setShowAllIntervenants] = useState(false);
   const [search, setSearch] = useState('');
+  const [searchIv, setSearchIv] = useState('');
 
   const fetchData = useCallback(async () => {
     try {
