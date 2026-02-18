@@ -810,8 +810,11 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 }
 
 
-/* ====================== TELEASSISTANCE ====================== */
-function TeleassistanceDashboard({ token }: { token: string }) {
+/* ====================== ADMIN INTERVENANTS ====================== */
+function AdminIntervenants({ token }: { token: string }) {
+  const router = useRouter();
+  const [codes, setCodes] = useState<any[]>([]);
+  const [providers, setProviders] = useState<any[]>([]);
   const [interventions, setInterventions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
