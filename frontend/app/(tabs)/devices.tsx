@@ -1317,7 +1317,56 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   const displayedPrescs = prescTab === 'pending' ? pendingPrescs : subscribedPrescs;
   const prescTotal = displayedPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
 
-  /* ─── ALL PRESCRIBERS: full-screen list (early return) ─── */
+  const BG_GOLD = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/s2281oc6_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_16_35.png';
+
+  /* ─── REWARDS DETAIL: full-screen gold (early return) ─── */
+  if (showRewardsDetail && Platform.OS === 'web') {
+    const totalComm = allPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+    return (
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_GOLD} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
+          <div onClick={() => setShowRewardsDetail(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Challenge prescripteurs</div>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+          <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+            <i className="ri-trophy-line" style={{ fontSize: 40, color: '#FFF', display: 'block', marginBottom: 8 }} />
+            <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>Challenge du mois</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>{new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}</div>
+            <div style={{ display: 'inline-flex', padding: '6px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', marginTop: 10 } as any}><span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Total: {totalComm} EUR</span></div>
+          </div>
+          {/* Prizes */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16 } as any}>
+            {[{ pos: '1er', amount: '100 EUR', color: '#FFD700' }, { pos: '2eme', amount: '70 EUR', color: '#C0C0C0' }, { pos: '3eme', amount: '30 EUR', color: '#CD7F32' }].map((p, i) => (
+              <div key={i} style={{ flex: 1, padding: '16px 10px', borderRadius: 18, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', textAlign: 'center' } as any}>
+                <div style={{ width: 36, height: 36, borderRadius: 999, background: p.color, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 } as any}><i className="ri-medal-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{p.pos}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: p.color }}>{p.amount}</div>
+              </div>
+            ))}
+          </div>
+          {/* Ranking */}
+          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Classement</div>
+            {prescribers.sort((a: any, b: any) => (b.prescriptions_count || 0) - (a.prescriptions_count || 0)).map((p: any, i: number) => (
+              <div key={p.id}>
+                {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0' } as any} />}
+                <div onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 0', cursor: 'pointer' } as any}>
+                  <div style={{ width: 30, height: 30, borderRadius: 10, background: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>#{i + 1}</span></div>
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{p.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{p.structure_name || ''}</div></div>
+                  <div style={{ textAlign: 'right' } as any}><div style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{p.prescriptions_count || 0}</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>prescriptions</div></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ─── ALL PRESCRIBERS ─── */
   if (showAllPrescribers && Platform.OS === 'web') {
     const filtered = search.trim() ? prescribers.filter((p: any) => p.name?.toLowerCase().includes(search.toLowerCase())) : prescribers;
     return (
