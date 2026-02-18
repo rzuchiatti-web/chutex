@@ -42,8 +42,10 @@ export default function AlertsScreen() {
   const fetchAlerts = useCallback(async () => {
     try {
       const isAdmin = r === 'admin';
+      const isCompany = r === 'prescriber_company';
+      const alertsUrl = isAdmin ? '/api/backoffice/alerts' : isCompany ? '/api/company/alerts' : '/api/alerts';
       const [all, active] = await Promise.all([
-        apiFetch(isAdmin ? '/api/backoffice/alerts' : '/api/alerts', {}, token).catch(() => []),
+        apiFetch(alertsUrl, {}, token).catch(() => []),
         apiFetch('/api/alerts/active-with-interventions', {}, token).catch(() => []),
       ]);
       setAlerts(Array.isArray(all) ? all : []);
