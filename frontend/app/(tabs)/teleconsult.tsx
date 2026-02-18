@@ -1261,7 +1261,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState<'interventions' | 'intervenants'>('interventions');
-  const [ivTab, setIvTab] = useState<'pending' | 'active' | 'completed'>('pending');
+  const [ivTab, setIvTab] = useState<'active' | 'completed'>('active');
   const [search, setSearch] = useState('');
 
   const fetchData = useCallback(async () => {
@@ -1276,19 +1276,70 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); const t = setInterval(fetchData, 10000); return () => clearInterval(t); }, [fetchData]);
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#111827" /></View>;
+  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#FFF" /></View>;
 
-  const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
-  const pendingIvs = interventions.filter((iv: any) => iv.status === 'pending_acceptance');
-  const activeIvs = interventions.filter((iv: any) => ['in_progress', 'en_route', 'dispatched'].includes(iv.status));
+  const activeIvs = interventions.filter((iv: any) => ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status));
   const completedIvs = interventions.filter((iv: any) => iv.status === 'completed');
-  const displayedIvs = ivTab === 'pending' ? pendingIvs : ivTab === 'active' ? activeIvs : completedIvs;
-  const filteredIntervenants = search.trim()
-    ? intervenants.filter((iv: any) => iv.name?.toLowerCase().includes(search.toLowerCase()))
-    : intervenants;
+  const displayedIvs = ivTab === 'active' ? activeIvs : completedIvs;
+  const filteredIntervenants = search.trim() ? intervenants.filter((iv: any) => iv.name?.toLowerCase().includes(search.toLowerCase())) : intervenants;
+  const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/qgy38yhz_banner_mobile_intervention_care.jpg';
+  const BG_GREEN_IV = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
+  const BG_HEADER = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/n96e8u48_Banner_Care.jpg';
 
-  const stColor = (st: string) => ({ pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' }[st] || '#888');
-  const stLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
+  if (Platform.OS === 'web') {
+    return (
+      <div data-testid="company-interventions" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_HEADER} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
+        {/* Header */}
+        <div style={{ position: 'relative', padding: '24px 20px 16px', zIndex: 10, textAlign: 'center' } as any}>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Interventions</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{interventions.length} interventions · {intervenants.length} intervenants</div>
+          {/* Main tabs */}
+          <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', marginTop: 14 } as any}>
+            <div onClick={() => setTab('interventions')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: tab === 'interventions' ? '#FFF' : 'transparent', color: tab === 'interventions' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>Missions</div>
+            <div onClick={() => setTab('intervenants')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: tab === 'intervenants' ? '#FFF' : 'transparent', color: tab === 'intervenants' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>Intervenants</div>
+          </div>
+        </div>
+        {/* Content */}
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+          {tab === 'interventions' && (<>
+            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
+              <div onClick={() => setIvTab('active')} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'active' ? 'rgba(255,255,255,0.15)' : 'transparent', color: '#FFF', fontSize: 12, fontWeight: 700 } as any}>En cours ({activeIvs.length})</div>
+              <div onClick={() => setIvTab('completed')} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'completed' ? 'rgba(255,255,255,0.15)' : 'transparent', color: '#FFF', fontSize: 12, fontWeight: 700 } as any}>Terminees ({completedIvs.length})</div>
+            </div>
+            {displayedIvs.map((iv: any) => { const isActive = ['pending_acceptance','in_progress','en_route','dispatched'].includes(iv.status); return (
+              <div key={iv.id} onClick={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: iv.id } })} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px', marginBottom: 10, cursor: 'pointer', minHeight: 80 } as any}>
+                <img src={isActive ? BG_VIOLET : BG_GREEN_IV} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} />
+                <div style={{ position: 'relative', zIndex: 2 } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 } as any}>
+                    <div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{iv.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{iv.alert_message || 'Intervention'}</div></div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isActive ? 'rgba(124,92,255,0.25)' : 'rgba(16,185,129,0.25)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: isActive ? '#A78BFA' : '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isActive ? 'En cours' : 'Terminee'}</span></div>
+                  </div>
+                  <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 0' } as any} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><i className="ri-user-line" style={{ fontSize: 12, color: '#A78BFA' }} /><span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{iv.intervenant_name || iv.assigned_name || 'En attente'}</span>{iv.distance_km && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginLeft: 'auto' }}>{iv.distance_km} km</span>}</div>
+                </div>
+              </div>
+            ); })}
+            {displayedIvs.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-map-pin-range-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 10 }}>Aucune intervention</div></div>}
+          </>)}
+          {tab === 'intervenants' && (<>
+            <div style={{ marginBottom: 12 } as any}><div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' } as any}><i className="ri-search-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} /><input value={search} onChange={(e: any) => setSearch(e.target.value)} placeholder="Rechercher..." style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#FFF', fontSize: 14 } as any} /></div></div>
+            {filteredIntervenants.map((iv: any) => (
+              <div key={iv.id} onClick={() => router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: iv.id } })} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, cursor: 'pointer' } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{iv.name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{iv.profession || 'Intervenant Care'} · {iv.agency_name}</div></div>
+                <div style={{ textAlign: 'right' } as any}><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{iv.total_interventions} missions</div>{iv.active_interventions > 0 && <div style={{ fontSize: 10, fontWeight: 700, color: '#F59E0B' }}>{iv.active_interventions} actives</div>}</div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} />
+              </div>
+            ))}
+            {filteredIntervenants.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-group-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 10 }}>Aucun intervenant</div></div>}
+          </>)}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
