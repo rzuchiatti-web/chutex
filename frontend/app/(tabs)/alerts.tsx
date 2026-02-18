@@ -345,6 +345,7 @@ export default function AlertsScreen() {
             const structure = selectedAlert.intervener_info?.structure || iv.structure_name;
             const phone = selectedAlert.intervener_info?.phone || iv.intervener_phone;
             const isCare = !!structure;
+            const isCareInt = isCare;
             const isGuardianIntervener = iv.intervener_type === 'guardian';
             return (
               <div onClick={() => setShowIntervenantPopup(true)} style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer' } as any}>
