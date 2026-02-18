@@ -1613,7 +1613,6 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   );
   // end native
 }
-}
 
 /* ===== MAIN ===== */
 export default function DevicesScreen() {
