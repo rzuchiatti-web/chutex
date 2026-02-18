@@ -1284,15 +1284,16 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [st, iv, pr, intr, pres, al, rk, rw] = await Promise.all([
+      const [st, iv, pr, intr, pres, al, rk, rw, ag] = await Promise.all([
         apiFetch('/api/company/stats', {}, token).catch(() => ({})),
         apiFetch('/api/company/intervenants', {}, token).catch(() => []),
         apiFetch('/api/company/prescribers', {}, token).catch(() => []),
         apiFetch('/api/company/interventions', {}, token).catch(() => []),
         apiFetch('/api/company/prescriptions', {}, token).catch(() => []),
-        apiFetch('/api/alerts', {}, token).catch(() => []),
+        apiFetch('/api/company/alerts', {}, token).catch(() => []),
         apiFetch('/api/company/ranking', {}, token).catch(() => []),
         apiFetch('/api/company/rewards/current', {}, token).catch(() => null),
+        apiFetch('/api/company/agencies', {}, token).catch(() => []),
       ]);
       setStats(st); setIntervenants(iv); setPrescribers(pr); setInterventions(intr); setPrescriptions(pres); setAlerts(al); setRanking(rk); setReward(rw);
     } catch {} finally { setLoading(false); setRefreshing(false); }
