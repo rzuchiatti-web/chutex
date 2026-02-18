@@ -83,7 +83,7 @@ function DeviceManagement({ token }: { token: string }) {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
 
         {/* Header — no subscription pill */}
-        <div style={{ position: 'relative', padding: '28px 20px 16px', zIndex: 10, textAlign: 'center' } as any}>
+        <div style={{ position: 'relative', padding: '28px 20px 16px', zIndex: 5, textAlign: 'center' } as any}>
           <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Appareils connectes</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Gerez vos dispositifs de sante Chutex</div>
         </div>
@@ -452,7 +452,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
 
         {/* Top bar */}
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, padding: '16px 16px 0', zIndex: 10 } as any}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, padding: '16px 16px 0', zIndex: 5 } as any}>
           <div data-testid="back-from-rewards-explainer" onClick={() => setShowRewardsExplainer(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
           </div>
@@ -558,7 +558,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   /* ─── INACTIF: plein écran orange ─── */
   if (!user?.is_prescriber && Platform.OS === 'web') {
     return (
-      <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', zIndex: 10 } as any}>
+      <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', zIndex: 5 } as any}>
         <img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
         <div style={{ position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 28px', width: '100%', maxWidth: 400 } as any}>
@@ -656,7 +656,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_REWARD} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 5 } as any}>
           <div onClick={() => setShowRewardsPage(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
           </div>
@@ -719,7 +719,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={bgImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 5 } as any}>
           <div onClick={() => setSelectedPresc(null)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
           </div>
@@ -1128,7 +1128,7 @@ function SubscribersList({ token }: { token: string }) {
       <div data-testid="subscribers-list" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', padding: '28px 20px 14px', zIndex: 10, textAlign: 'center' } as any}><div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Abonnes</div><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{subs.length} abonne(s) CARE WATCH</div></div>
+        <div style={{ position: 'relative', padding: '28px 20px 14px', zIndex: 5, textAlign: 'center' } as any}><div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Abonnes</div><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{subs.length} abonne(s) CARE WATCH</div></div>
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           {subs.map((su: any) => (<div key={su.id} onClick={() => router.push({ pathname: '/subscriber-detail', params: { subscriberId: su.id } })} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, cursor: 'pointer' } as any}><div style={{ width: 44, height: 44, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{su.name?.charAt(0)}</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{su.name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{su.email || 'Pas d\'email'}</div></div>{su.active_alerts > 0 && <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 999, background: 'rgba(239,68,68,0.2)' } as any}><span style={{ width: 5, height: 5, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#EF4444' }}>{su.active_alerts}</span></div>}<i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} /></div>))}
           {subs.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-group-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 10 }}>Aucun abonne</div></div>}
@@ -1223,7 +1223,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
       <div data-testid="admin-prescripteurs" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_ADM} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', padding: '24px 20px 12px', zIndex: 10, textAlign: 'center' } as any}>
+        <div style={{ position: 'relative', padding: '24px 20px 12px', zIndex: 5, textAlign: 'center' } as any}>
           <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Prescripteurs</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{codes.length} codes · {prescribers.length} prescripteurs · {prescriptions.length} souscriptions</div>
           <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', marginTop: 14 } as any}>
@@ -1431,7 +1431,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_GOLD} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 5 } as any}>
           <div onClick={() => setShowRewardsDetail(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
           <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Challenge prescripteurs</div>
         </div>
@@ -1478,11 +1478,11 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 5 } as any}>
           <div onClick={() => { setShowAllPrescribers(false); setSearch(''); }} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
           <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Tous les prescripteurs ({prescribers.length})</div>
         </div>
-        <div style={{ position: 'relative', zIndex: 10, padding: '12px 20px 0' } as any}><div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' } as any}><i className="ri-search-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} /><input value={search} onChange={(e: any) => setSearch(e.target.value)} placeholder="Rechercher un prescripteur..." style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#FFF', fontSize: 14, fontFamily: 'inherit' } as any} /></div></div>
+        <div style={{ position: 'relative', zIndex: 5, padding: '12px 20px 0' } as any}><div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' } as any}><i className="ri-search-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} /><input value={search} onChange={(e: any) => setSearch(e.target.value)} placeholder="Rechercher un prescripteur..." style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#FFF', fontSize: 14, fontFamily: 'inherit' } as any} /></div></div>
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '12px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
           {filtered.map((p: any) => (
             <div key={p.id} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, cursor: 'pointer' } as any}>
@@ -1515,7 +1515,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={isValidated ? BG_GREEN_P : BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 5 } as any}>
           <div onClick={() => setSelectedPresc(null)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: isValidated ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isValidated ? 'Validee' : 'En attente'}</span></div>
         </div>

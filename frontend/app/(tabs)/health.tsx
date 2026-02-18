@@ -138,7 +138,7 @@ function CompanyAgences({ token }: { token: string }) {
         <img src={BG_AG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
         {/* Header */}
-        <div style={{ position: 'relative', padding: '28px 20px 14px', zIndex: 10, textAlign: 'center' } as any}>
+        <div style={{ position: 'relative', padding: '28px 20px 14px', zIndex: 5, textAlign: 'center' } as any}>
           <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Agences</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{(data.agencies || []).length} agences · {data.total_prescribers} prescripteurs</div>
         </div>
@@ -494,7 +494,7 @@ const BG_HEALTH = 'https://static.prod-images.emergentagent.com/jobs/8afdc991-0a
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
 
         {/* Header */}
-        <div style={{ position: 'relative', padding: '28px 20px 14px', zIndex: 10, textAlign: 'center' } as any}>
+        <div style={{ position: 'relative', padding: '28px 20px 14px', zIndex: 5, textAlign: 'center' } as any}>
           <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Ma sante</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Suivi de vos constantes en temps reel</div>
         </div>
