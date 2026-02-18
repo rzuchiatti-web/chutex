@@ -626,7 +626,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{selectedIv.alert_message || 'Intervention'}</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{new Date(selectedIv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
@@ -1399,7 +1399,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
           <div onClick={() => setSelectedIv(null)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: isDone ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isDone ? 'Terminee' : 'En cours'}</span></div>
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           <div style={{ textAlign: 'center', marginBottom: 16 } as any}><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{selectedIv.alert_message || 'Intervention'}</div><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{new Date(selectedIv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div></div>
           {/* BENEFICIAIRE */}
           <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>

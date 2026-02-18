@@ -204,7 +204,7 @@ export default function InterventionMapScreen() {
         </div>
 
         {/* Sheet content — scrollable */}
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 30px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 30px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
 
           {/* ETA */}
           <div style={{ textAlign: 'center', marginBottom: 14 } as any}>

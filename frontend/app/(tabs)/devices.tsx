@@ -668,7 +668,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             <span style={{ fontSize: 10, fontWeight: 600, color: anonymize ? '#10B981' : 'rgba(255,255,255,0.6)' }}>{anonymize ? 'Anonyme' : 'Visible'}</span>
           </div>
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Recompenses</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Programme de challenge prescripteur</div>
@@ -709,7 +709,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isValidated ? 'Valide' : 'En attente'}</span>
           </div>
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Prescription</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>{selectedPresc.subscription_type === 'teleassistance' ? 'Abonnement Teleassistance' : `Abonnement ${selectedPresc.subscription_type || 'Standard'}`}</div>
@@ -1333,7 +1333,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
           <div onClick={() => setShowRewardsDetail(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
           <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Challenge prescripteurs</div>
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
             <i className="ri-trophy-line" style={{ fontSize: 40, color: '#FFF', display: 'block', marginBottom: 8 }} />
             <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>Challenge du mois</div>
@@ -1417,7 +1417,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
           <div onClick={() => setSelectedPresc(null)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: isValidated ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isValidated ? 'Validee' : 'En attente'}</span></div>
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
             <div style={{ width: 56, height: 56, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, border: '3px solid rgba(255,255,255,0.2)' } as any}><span style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>{(selectedPresc.beneficiary_name || '?').charAt(0)}</span></div>
