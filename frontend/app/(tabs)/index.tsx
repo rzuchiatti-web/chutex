@@ -1356,55 +1356,61 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
             </div>
           </div>
 
-          {/* INTERVENTION CARE — full summary violet card */}
+          {/* INTERVENTION CARE — simplified */}
           <div onClick={() => router.push('/(tabs)/teleconsult' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12, cursor: 'pointer' } as any}>
             <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 2 } as any}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase' }}>Intervention Care</div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
-              </div>
-              <div style={{ display: 'flex', gap: 10, marginBottom: 12 } as any}>
-                {[{ val: activeIvs.length, label: 'En cours', color: activeIvs.length > 0 ? '#A78BFA' : 'rgba(255,255,255,0.4)' }, { val: interventions.filter((iv: any) => iv.status === 'completed').length, label: 'Terminees', color: 'rgba(255,255,255,0.4)' }, { val: intervenants.length, label: 'Intervenants', color: 'rgba(255,255,255,0.4)' }].map((s, i) => (
-                  <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: s.color }}>{s.val}</div><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</div></div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Intervention Care</div>
+              <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
+                {[{ val: activeIvs.length, label: 'En cours', pill: activeIvs.length > 0 ? '#A78BFA' : null }, { val: interventions.filter((iv: any) => iv.status === 'completed').length, label: 'Terminees', pill: '#10B981' }, { val: intervenants.length, label: 'Intervenants', pill: null }].map((s, i) => (
+                  <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>{s.pill ? <div style={{ display: 'inline-flex', padding: '2px 8px', borderRadius: 999, background: `${s.pill}30`, marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 600, color: s.pill }}>{s.label}</span></div> : <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginTop: 4 }}>{s.label}</div>}</div>
                 ))}
               </div>
-              {activeIvs.length > 0 && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.1)', marginBottom: 10 } as any} />{activeIvs.slice(0, 2).map((iv: any) => (<div key={iv.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' } as any}><div style={{ width: 28, height: 28, borderRadius: 999, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 11, fontWeight: 800, color: '#FFF' }}>{(iv.assigned_name || '?').charAt(0)}</span></div><div style={{ flex: 1 } as any}><span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{iv.assigned_name || 'En attente'}</span><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>{iv.beneficiary_name}</span></div></div>))}</>)}
-              {/* Voir les intervenants button */}
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '10px 0' } as any} />
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-                <div style={{ display: 'flex' } as any}>{intervenants.slice(0, 3).map((iv: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span></div>))}</div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {intervenants.length} intervenants</span>
-              </div>
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', marginBottom: 10 } as any} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><div style={{ display: 'flex' } as any}>{intervenants.slice(0, 3).map((iv: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span></div>))}</div><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {intervenants.length} intervenants</span></div>
             </div>
           </div>
 
-          {/* PRESCRIPTIONS — full summary orange card */}
+          {/* PRESCRIPTIONS — simplified */}
           <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12, cursor: 'pointer' } as any}>
             <img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 2 } as any}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase' }}>Prescriptions</div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
-              </div>
-              <div style={{ display: 'flex', gap: 10, marginBottom: 12 } as any}>
-                {[{ val: prescriptions.filter((p: any) => p.status === 'validated' || p.status === 'subscribed').length, label: 'Validees', color: '#10B981' }, { val: prescriptions.filter((p: any) => p.status !== 'validated' && p.status !== 'subscribed').length, label: 'En attente', color: '#F59E0B' }, { val: prescribers.length, label: 'Prescripteurs', color: 'rgba(255,255,255,0.4)' }].map((s, i) => (
-                  <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: s.color }}>{s.val}</div><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</div></div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Prescriptions</div>
+              <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
+                {[{ val: prescriptions.filter((p: any) => p.status === 'validated' || p.status === 'subscribed').length, label: 'Validees', pill: '#10B981' }, { val: prescriptions.filter((p: any) => p.status !== 'validated' && p.status !== 'subscribed').length, label: 'En attente', pill: '#F59E0B' }, { val: prescribers.length, label: 'Prescripteurs', pill: null }].map((s, i) => (
+                  <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>{s.pill ? <div style={{ display: 'inline-flex', padding: '2px 8px', borderRadius: 999, background: `${s.pill}30`, marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 600, color: s.pill }}>{s.label}</span></div> : <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginTop: 4 }}>{s.label}</div>}</div>
                 ))}
               </div>
-              {prescriptions.length > 0 && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.1)', marginBottom: 10 } as any} />{prescriptions.slice(0, 2).map((p: any) => (<div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' } as any}><div style={{ flex: 1 } as any}><span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{p.beneficiary_name || 'Souscription'}</span><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>{p.prescriber_name}</span></div><div style={{ padding: '2px 8px', borderRadius: 999, background: (p.status === 'validated' || p.status === 'subscribed') ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 600, color: (p.status === 'validated' || p.status === 'subscribed') ? '#10B981' : '#F59E0B' }}>{(p.status === 'validated' || p.status === 'subscribed') ? 'Validee' : 'Pending'}</span></div></div>))}</>)}
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '10px 0' } as any} />
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-                <div style={{ display: 'flex' } as any}>{prescribers.slice(0, 3).map((p: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{p.name?.charAt(0)}</span></div>))}</div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {prescribers.length} prescripteurs</span>
-              </div>
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', marginBottom: 10 } as any} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><div style={{ display: 'flex' } as any}>{prescribers.slice(0, 3).map((p: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{p.name?.charAt(0)}</span></div>))}</div><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {prescribers.length} prescripteurs</span></div>
             </div>
           </div>
 
-          {/* Ranking */}
-          {ranking.length > 0 && (<><div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10, marginTop: 4 }}>Classement prescripteurs</div>{ranking.slice(0, 5).map((p: any, i: number) => (<div key={p.id || i} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 6, cursor: 'pointer' } as any}><div style={{ width: 30, height: 30, borderRadius: 10, background: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? '#FFF' : 'rgba(255,255,255,0.5)' }}>#{i + 1}</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{p.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{p.prescriptions_count || 0} prescriptions</div></div><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }} /></div>))}</>)}
+          {/* CHALLENGE RECOMPENSES — gold card */}
+          <div style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12 } as any}>
+            <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/s2281oc6_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_16_35.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+            <div style={{ position: 'relative', zIndex: 2 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
+                <i className="ri-trophy-line" style={{ fontSize: 22, color: '#FFF' }} />
+                <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>Challenge prescripteurs</div>
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginBottom: 14 }}>Classement du mois — {new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}</div>
+              {ranking.slice(0, 5).map((p: any, i: number) => (
+                <div key={p.id || i} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ cursor: 'pointer' } as any}>
+                  {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 0' } as any} />}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' } as any}>
+                    <div style={{ width: 30, height: 30, borderRadius: 10, background: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>#{i + 1}</span></div>
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{p.name}</div></div>
+                    <div style={{ textAlign: 'right' } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{p.prescriptions_count || 0}</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>prescriptions</div></div>
+                  </div>
+                </div>
+              ))}
+              {ranking.length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '10px 0' }}>Aucun prescripteur ce mois</div>}
+            </div>
+          </div>
         </div>
       </div>
     );
