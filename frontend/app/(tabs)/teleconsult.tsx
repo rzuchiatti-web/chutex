@@ -484,9 +484,14 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       }
       if (detail.intervenant) {
         enriched.assigned_name = detail.intervenant.name || iv.assigned_name;
-        enriched.structure_name = detail.intervenant.intervention_structure || detail.intervenant.structure_name;
+        enriched.structure_name = detail.intervenant.structure_name || detail.intervenant.intervention_structure;
         enriched.intervener_phone = detail.intervenant.phone;
         enriched.intervener_email = detail.intervenant.email;
+        enriched.intervener_address = detail.intervenant.address;
+        enriched.intervener_profession = detail.intervenant.profession;
+        enriched.intervener_guardian_type = detail.intervenant.guardian_type;
+        enriched.intervener_is_prescriber = detail.intervenant.is_prescriber;
+        enriched.intervener_radius_km = detail.intervenant.intervention_radius_km;
         enriched.distance_km = detail.intervenant.distance_km || iv.distance_km;
       }
       if (detail.intervention) {
@@ -495,6 +500,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         enriched.accepted_at = detail.intervention.accepted_at || iv.accepted_at;
         enriched.completed_at = detail.intervention.completed_at || iv.completed_at;
         enriched.alert_message = detail.alert?.message || detail.intervention.notes || iv.notes;
+        enriched.recipients = detail.intervention.recipients || iv.recipients || [];
       }
       if (detail.alert) {
         enriched.alert_message = detail.alert.message || enriched.alert_message;
