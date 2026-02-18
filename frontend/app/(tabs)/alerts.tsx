@@ -377,18 +377,26 @@ export default function AlertsScreen() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                   <div style={{ width: 44, height: 44, borderRadius: 16, background: hasAssigned ? 'rgba(124,92,255,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${hasAssigned ? 'rgba(124,92,255,0.3)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>{hasAssigned ? <span style={{ fontSize: 18, fontWeight: 800, color: '#A78BFA' }}>{displayName.charAt(0)}</span> : <i className="ri-building-line" style={{ fontSize: 20, color: '#A78BFA' }} />}</div>
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{hasAssigned ? displayName : structure || 'Intervention Care'}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{displayName}</div>
                     {hasAssigned && structure && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 1 }}>{structure}</div>}
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{statusLabel}</div>
+                    {!hasAssigned && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{statusLabel}</div>}
                   </div>
                 </div>
-                {/* Stats — only for non-assigned, show distance and time without recipient names */}
-                {!hasAssigned && (iv.distance_km || iv.created_at) && (<>
+                {/* Stats — only show recipients count if NOT assigned */}
+                {!hasAssigned && (<>
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 } as any}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 } as any}>
+                    {recipients.length > 0 && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Notifies</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{recipients.length}</div></div>}
                     {iv.distance_km && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Distance</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{iv.distance_km} km</div></div>}
                     {iv.created_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Envoye</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
                   </div>
+                  {recipients.length > 0 && (<>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                      {recipients.slice(0, 3).map((r: any, i: number) => (<div key={i} style={{ width: 26, height: 26, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -8 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 800, color: '#FFF' }}>{r.name?.charAt(0)}</span></div>))}
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginLeft: 4 }}>Voir les {recipients.length} intervenants</span>
+                    </div>
+                  </>)}
                 </>)}
                 {/* Assigned — show accepted/completed info */}
                 {hasAssigned && (iv.accepted_at || iv.distance_km) && (<>
@@ -398,6 +406,9 @@ export default function AlertsScreen() {
                     {iv.accepted_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Accepte</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.accepted_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
                   </div>
                 </>)}
+              </div>
+            );
+          })()}
               </div>
             );
           })()}
@@ -529,7 +540,7 @@ export default function AlertsScreen() {
 
           {/* Report form — FULL SCREEN PAGE (early return handled above) */}
 
-          {/* POPUP INTERVENANT */}
+          {/* POPUP INTERVENANT — inside container but position:fixed escapes */}
           {showIntervenantPopup && (() => {
             const iv = alertDetail?.interventions?.[0] || {};
             const recipients = iv.recipients || [];
@@ -542,6 +553,7 @@ export default function AlertsScreen() {
                     <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase' }}>Fiche intervenant</div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
                       {p.guardian_type === 'professional' && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
+                      {p.is_prescriber && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(212,132,90,0.15)', border: '1px solid rgba(212,132,90,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#D4845A' }}>Prescripteur</span></div>}
                       <div onClick={() => { setShowIntervenantPopup(false); setSelectedRecipient(null); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
                     </div>
                   </div>
@@ -549,12 +561,14 @@ export default function AlertsScreen() {
                     <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 26, fontWeight: 800, color: '#A78BFA' }}>{displayName.charAt(0)}</span></div>
                     <div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{displayName}</div>{p.profession && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{p.profession}</div>}</div>
                   </div>
-                  {[p.phone && { icon: 'ri-phone-line', label: 'Telephone', value: p.phone, phone: true }, p.email && { icon: 'ri-mail-line', label: 'Email', value: p.email }, p.structure_name && { icon: 'ri-building-line', label: 'Structure', value: p.structure_name }, p.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: p.address }, p.distance_km && { icon: 'ri-route-line', label: 'Distance', value: `${p.distance_km} km` }].filter(Boolean).map((item: any, i: number, arr: any[]) => (<div key={i}><div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: item.phone ? 'pointer' : 'default', padding: '13px 0' } as any}><div style={{ width: 34, height: 34, borderRadius: 10, background: item.phone ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.08)', border: `1px solid ${item.phone ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={item.icon} style={{ fontSize: 15, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.5)' }} /></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 15, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div></div>{i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.08)' } as any} />}</div>))}
+                  {[p.phone && { icon: 'ri-phone-line', label: 'Telephone', value: p.phone, phone: true }, p.email && { icon: 'ri-mail-line', label: 'Email', value: p.email }, p.profession && { icon: 'ri-stethoscope-line', label: 'Profession', value: p.profession }, p.structure_name && { icon: 'ri-building-line', label: 'Structure', value: p.structure_name }, p.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: p.address }, p.intervention_radius_km && { icon: 'ri-map-pin-range-line', label: 'Rayon', value: `${p.intervention_radius_km} km` }, p.distance_km && { icon: 'ri-route-line', label: 'Distance', value: `${p.distance_km} km` }].filter(Boolean).map((item: any, i: number, arr: any[]) => (<div key={i}><div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: item.phone ? 'pointer' : 'default', padding: '13px 0' } as any}><div style={{ width: 34, height: 34, borderRadius: 10, background: item.phone ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.08)', border: `1px solid ${item.phone ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={item.icon} style={{ fontSize: 15, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.5)' }} /></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 15, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div></div>{i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.08)' } as any} />}</div>))}
+                  {!iv.assigned_to && recipients.length > 1 && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0 16px' } as any} /><div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Autres intervenants</div>{recipients.filter((r: any) => r.id !== (selectedRecipient?.id || iv.assigned_to)).map((r: any, i: number) => (<div key={i} onClick={() => setSelectedRecipient(r)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}><div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 14, fontWeight: 800, color: '#A78BFA' }}>{r.name?.charAt(0)}</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{r.name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{r.profession || r.structure_name || ''}{r.distance_km ? ` · ${r.distance_km} km` : ''}</div></div><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} /></div>))}</>)}
                 </div>
               </div>
             );
       })()}
-    </div>
+        </div>
+      </div>
     );
   }
 
