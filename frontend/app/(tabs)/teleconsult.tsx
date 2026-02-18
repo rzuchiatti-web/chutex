@@ -1263,6 +1263,8 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   const [ivTab, setIvTab] = useState<'active' | 'done'>('active');
   const [selectedIv, setSelectedIv] = useState<any>(null);
   const [showIntervenantPopup, setShowIntervenantPopup] = useState(false);
+  const [showAllIntervenants, setShowAllIntervenants] = useState(false);
+  const [search, setSearch] = useState('');
 
   const fetchData = useCallback(async () => {
     try {
