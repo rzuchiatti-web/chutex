@@ -1435,7 +1435,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
           </div>
         </div>
         {/* Cards = copie exacte gardien */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 100px' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 100px', position: 'relative', zIndex: 5 } as any}>
           {displayedIvs.map((iv: any) => { const isActive = ['pending_acceptance','in_progress','en_route','dispatched'].includes(iv.status); return (
             <div key={iv.id} onClick={() => setSelectedIv(iv)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 110, background: 'rgba(255,255,255,0.05)', border: `1px solid ${isActive ? 'rgba(124,92,255,0.2)' : 'rgba(16,185,129,0.2)'}`, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}>
               <div style={{ position: 'relative', zIndex: 2 } as any}>
