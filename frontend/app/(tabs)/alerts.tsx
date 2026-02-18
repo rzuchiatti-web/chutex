@@ -246,6 +246,26 @@ export default function AlertsScreen() {
   if (selectedAlert && Platform.OS === 'web') {
     const isResolved = selectedAlert.status === 'resolved';
     const bgImg = isResolved ? BG_GREEN : BG_RED;
+
+    if (showIntervenantPopup && Platform.OS === 'web') {
+      const iv = alertDetail?.interventions?.[0] || {};
+      const p = selectedRecipient || iv.intervenant_profile || {};
+      const dn = p.name || iv.assigned_name || iv.structure_name || 'Intervention';
+      return (
+        <div onClick={() => { setShowIntervenantPopup(false); setSelectedRecipient(null); }} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => { setShowIntervenantPopup(false); setSelectedRecipient(null); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>Fiche intervenant</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 } as any}>
+              <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 26, fontWeight: 800, color: '#A78BFA' }}>{dn.charAt(0)}</span></div>
+              <div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{dn}</div>{p.profession && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{p.profession}</div>}</div>
+            </div>
+            {[p.phone && { icon: 'ri-phone-line', label: 'Telephone', value: p.phone, phone: true }, p.email && { icon: 'ri-mail-line', label: 'Email', value: p.email }, p.profession && { icon: 'ri-stethoscope-line', label: 'Profession', value: p.profession }, p.structure_name && { icon: 'ri-building-line', label: 'Structure', value: p.structure_name }, p.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: p.address }, p.distance_km && { icon: 'ri-route-line', label: 'Distance', value: `${p.distance_km} km` }].filter(Boolean).map((item: any, i: number, arr: any[]) => (<div key={i}><div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: item.phone ? 'pointer' : 'default', padding: '13px 0' } as any}><div style={{ width: 34, height: 34, borderRadius: 10, background: item.phone ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.08)', border: `1px solid ${item.phone ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={item.icon} style={{ fontSize: 15, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.5)' }} /></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 15, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div></div>{i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.08)' } as any} />}</div>))}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={bgImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
