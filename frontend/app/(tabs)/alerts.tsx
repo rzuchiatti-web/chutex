@@ -605,7 +605,7 @@ export default function AlertsScreen() {
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
           </div>
           {/* Header */}
-          <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', zIndex: 10, flexShrink: 0 } as any}>
+          <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', zIndex: 5, flexShrink: 0 } as any}>
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Alertes</div>
             <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
               <div onClick={() => setTab('active')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: tab === 'active' ? '#FFF' : 'transparent', color: tab === 'active' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>En cours ({activeAlerts.length})</div>
