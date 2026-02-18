@@ -168,46 +168,54 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
     );
   };
 
-  /* ─── WEB: Full-page profile with satin background ─── */
+  /* ─── WEB: Full-page profile with dark background ─── */
   if (Platform.OS === 'web') {
+    const BG_DARK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
+
+    const GlassPopup = ({ visible, onClose, children }: any) => !visible ? null : (
+      <div onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+        <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+            <div onClick={onClose} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+          </div>
+          {children}
+        </div>
+      </div>
+    );
+
     return (
       <div data-testid="profile-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <img src={BG_PROFILE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.08)', zIndex: 1 } as any} />
+        <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
 
           {/* Avatar + Name + Role pills */}
-          <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+          <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
             <div onClick={handleAvatarUpload} data-testid="avatar-upload-btn" style={{ position: 'relative', display: 'inline-block', cursor: 'pointer', marginBottom: 12 } as any}>
-              <div style={{ width: 80, height: 80, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '3px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 24px rgba(0,0,0,0.15)' } as any}>
+              <div style={{ width: 80, height: 80, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '3px solid rgba(255,255,255,0.2)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' } as any}>
                 {user.avatar_url ? <img src={user.avatar_url} style={{ width: 80, height: 80, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 32, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
               </div>
-              <div style={{ position: 'absolute', bottom: -2, right: -4, width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' } as any}>
-                {uploading ? <i className="ri-loader-4-line" style={{ fontSize: 14, color: '#111' }} /> : <i className="ri-camera-line" style={{ fontSize: 14, color: '#111' }} />}
+              <div style={{ position: 'absolute', bottom: -2, right: -4, width: 28, height: 28, borderRadius: 999, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                {uploading ? <i className="ri-loader-4-line" style={{ fontSize: 14, color: '#FFF' }} /> : <i className="ri-camera-line" style={{ fontSize: 14, color: '#FFF' }} />}
               </div>
             </div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: '#111' }}>{user.name}</div>
-
-            {/* Role pills */}
+            <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>{user.name}</div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' } as any}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.08)' } as any}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#555' }}>{roleName}</span>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>{roleName}</span>
               </div>
-              {/* Beneficiary: subscription pill */}
               {isBen && user.has_subscription && (
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Abonnement {user.subscription_type || 'Standard'}</span>
                 </div>
               )}
-              {/* Guardian: Care pill */}
               {isGuardian && user.guardian_type === 'professional' && (
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)' } as any}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Care</span>
                 </div>
               )}
-              {/* Guardian: Prescriber pill */}
               {isGuardian && user.is_prescriber && (
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(212,132,90,0.15)', border: '1px solid rgba(212,132,90,0.3)' } as any}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#D4845A' }}>Prescripteur</span>
@@ -216,8 +224,8 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
             </div>
           </div>
 
-          {/* Menu items — glass card */}
-          <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14, boxShadow: '0 4px 20px rgba(0,0,0,0.06)' } as any}>
+          {/* Menu items — dark glass card */}
+          <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
             <MenuItem testID="edit-profile-btn" icon="ri-user-settings-line" label={t('modify_profile')} onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
             <MenuItem icon="ri-lock-line" label={t('security')} onPress={() => setShowPwChange(true)} />
             {effectiveRole !== 'prescriber_company' && effectiveRole !== 'admin' && effectiveRole !== 'teleassistance' && (
@@ -232,7 +240,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
           </div>
 
           {/* Second card */}
-          <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14, boxShadow: '0 4px 20px rgba(0,0,0,0.06)' } as any}>
+          <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
             <MenuItem icon="ri-file-text-line" label={t('terms')} onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
             <MenuItem icon="ri-question-line" label="Centre d'aide" onPress={() => setShowHelp(true)} />
             <MenuItem icon="ri-mail-line" label={t('support')} onPress={() => setShowContact(true)} />
@@ -246,54 +254,74 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
             <i className="ri-logout-box-r-line" style={{ fontSize: 16, color: '#EF4444' }} />
             <span style={{ fontSize: 15, fontWeight: 800, color: '#EF4444' }}>{t('logout')}</span>
           </div>
-          <div style={{ textAlign: 'center', fontSize: 11, color: 'rgba(0,0,0,0.3)', marginTop: 16 }}>Chutex Innovation SAS - v3.0</div>
+          <div style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 16 }}>Chutex Innovation SAS - v3.0</div>
 
-          {/* Edit/PW/Contact forms — rendered as overlays */}
-          {editMode && (
-            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 20 } as any} onClick={() => setEditMode(false)}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ background: '#FFF', borderRadius: 24, padding: 24, width: '100%', maxWidth: 380 } as any}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111', marginBottom: 14 }}>{t('modify_profile')}</div>
-                <WebInput val={editName} onChange={setEditName} placeholder="Nom complet" />
-                <WebInput val={editPhone} onChange={setEditPhone} placeholder="Telephone" type="tel" />
-                <WebInput val={editAddress} onChange={setEditAddress} placeholder="Adresse" />
-                <div style={{ display: 'flex', gap: 10, marginTop: 8 } as any}>
-                  <div onClick={() => setEditMode(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: 'rgba(0,0,0,0.06)', color: '#555', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
-                  <div onClick={saveProfile} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: '#111', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : 'Enregistrer'}</div>
-                </div>
+          {/* GLASS POPUPS */}
+          <GlassPopup visible={editMode} onClose={() => setEditMode(false)}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>{t('modify_profile')}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>{user.name}</div>
+            {[{ val: editName, set: setEditName, label: 'Nom complet', icon: 'ri-user-line' }, { val: editPhone, set: setEditPhone, label: 'Telephone', icon: 'ri-phone-line' }, { val: editAddress, set: setEditAddress, label: 'Adresse', icon: 'ri-map-pin-line' }].map((f, i) => (
+              <div key={i} style={{ marginBottom: 12 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
+                <input value={f.val} onChange={(e: any) => f.set(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', color: '#FFF', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
               </div>
+            ))}
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}>
+              <div onClick={() => setEditMode(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
+              <div onClick={saveProfile} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : 'Enregistrer'}</div>
             </div>
-          )}
+          </GlassPopup>
 
-          {showPwChange && (
-            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 20 } as any} onClick={() => setShowPwChange(false)}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ background: '#FFF', borderRadius: 24, padding: 24, width: '100%', maxWidth: 380 } as any}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111', marginBottom: 14 }}>{t('security')}</div>
-                <WebInput val={oldPw} onChange={setOldPw} placeholder="Mot de passe actuel" type="password" />
-                <WebInput val={newPw} onChange={setNewPw} placeholder="Nouveau mot de passe" type="password" />
-                <div style={{ display: 'flex', gap: 10, marginTop: 8 } as any}>
-                  <div onClick={() => setShowPwChange(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: 'rgba(0,0,0,0.06)', color: '#555', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
-                  <div onClick={changePassword} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: '#111', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>Confirmer</div>
-                </div>
+          <GlassPopup visible={showPwChange} onClose={() => setShowPwChange(false)}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>{t('security')}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Mot de passe</div>
+            {[{ val: oldPw, set: setOldPw, label: 'Mot de passe actuel' }, { val: newPw, set: setNewPw, label: 'Nouveau mot de passe' }].map((f, i) => (
+              <div key={i} style={{ marginBottom: 12 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
+                <input type="password" value={f.val} onChange={(e: any) => f.set(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', color: '#FFF', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
               </div>
+            ))}
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}>
+              <div onClick={() => setShowPwChange(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
+              <div onClick={changePassword} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>Confirmer</div>
             </div>
-          )}
+          </GlassPopup>
 
-          {showContact && (
-            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 20 } as any} onClick={() => setShowContact(false)}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ background: '#FFF', borderRadius: 24, padding: 24, width: '100%', maxWidth: 380, maxHeight: '80vh', overflowY: 'auto' } as any}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111', marginBottom: 4 }}>{t('support')}</div>
-                <div style={{ fontSize: 12, color: '#888', marginBottom: 14 }}>contact@chutex-innovation.com</div>
-                <WebInput val={contactObj} onChange={setContactObj} placeholder="Objet" />
-                <WebInput val={contactName} onChange={setContactName} placeholder="Nom" />
-                <WebInput val={contactEmail} onChange={setContactEmail} placeholder="Email" type="email" />
-                <WebInput val={contactMsg} onChange={setContactMsg} placeholder="Message..." rows={4} />
-                <div style={{ display: 'flex', gap: 10, marginTop: 8 } as any}>
-                  <div onClick={() => setShowContact(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: 'rgba(0,0,0,0.06)', color: '#555', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
-                  <div onClick={sendContactForm} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: '#111', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{sendingContact ? '...' : 'Envoyer'}</div>
-                </div>
+          <GlassPopup visible={showContact} onClose={() => setShowContact(false)}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>{t('support')}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Assistance</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>contact@chutex-innovation.com</div>
+            {[{ val: contactObj, set: setContactObj, label: 'Objet' }, { val: contactName, set: setContactName, label: 'Nom' }, { val: contactEmail, set: setContactEmail, label: 'Email' }].map((f, i) => (
+              <div key={i} style={{ marginBottom: 12 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
+                <input value={f.val} onChange={(e: any) => f.set(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', color: '#FFF', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
               </div>
+            ))}
+            <div style={{ marginBottom: 12 } as any}>
+              <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Message</div>
+              <textarea value={contactMsg} onChange={(e: any) => setContactMsg(e.target.value)} rows={4} style={{ width: '100%', fontSize: 14, padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', color: '#FFF', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', resize: 'none' } as any} />
             </div>
-          )}
+            <div style={{ display: 'flex', gap: 10, marginTop: 8 } as any}>
+              <div onClick={() => setShowContact(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
+              <div onClick={sendContactForm} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{sendingContact ? '...' : 'Envoyer'}</div>
+            </div>
+          </GlassPopup>
+
+          <GlassPopup visible={showNotifPrefs} onClose={() => setShowNotifPrefs(false)}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>Notifications</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Preferences</div>
+            {notifPrefs ? ['sos_alerts','fall_detection','health_thresholds','low_battery'].map((key, i, arr) => (
+              <div key={key}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0' } as any}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#FFF', textTransform: 'capitalize' }}>{key.replace(/_/g, ' ')}</span>
+                  <div onClick={() => toggleNotifPref(key, !(notifPrefs[key] ?? true))} style={{ width: 44, height: 24, borderRadius: 12, background: (notifPrefs[key] ?? true) ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)', border: `1px solid ${(notifPrefs[key] ?? true) ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.15)'}`, cursor: 'pointer', position: 'relative', transition: 'all 0.2s' } as any}>
+                    <div style={{ width: 18, height: 18, borderRadius: 9, background: (notifPrefs[key] ?? true) ? '#10B981' : 'rgba(255,255,255,0.4)', position: 'absolute', top: 2, left: (notifPrefs[key] ?? true) ? 22 : 2, transition: 'left 0.2s' } as any} />
+                  </div>
+                </div>
+                {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}
+              </div>
+            )) : <div style={{ textAlign: 'center', padding: '30px 0' } as any}><i className="ri-loader-4-line" style={{ fontSize: 24, color: 'rgba(255,255,255,0.3)' }} /></div>}
+          </GlassPopup>
 
           <HelpCenter visible={showHelp} onClose={() => setShowHelp(false)} />
         </div>
