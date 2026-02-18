@@ -1478,6 +1478,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
 
   const glass = {};
   return (
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: '900', color: '#111827', letterSpacing: -0.5 }}>Prescriptions</Text>
         <Text style={{ fontSize: 12, color: '#6B7280' }}>{allPrescs.length} prescriptions au total</Text>
