@@ -745,68 +745,45 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
     );
   }
 
-  /* ─── ACTIF: page interventions avec header violet ─── */
-  return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#FFFFFF' }} contentContainerStyle={{ paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchIvs(); }} />}>
-      {/* Header violet avec image, pilule, titre ET toggle */}
-      {Platform.OS === 'web' ? (
-        <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', overflow: 'hidden', borderBottomLeftRadius: 28, borderBottomRightRadius: 28 } as any}>
-          <img src={BG_HEADER} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} />
-          <div style={{ position: 'relative', zIndex: 2 } as any}>
-            <div onClick={() => setShowCareModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', cursor: 'pointer', marginBottom: 10 } as any}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.intervention_structure || user.structure_name || 'Structure'}</span>
-            </div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Intervention Care</div>
-            {/* Toggle En cours / Cloturées - glass pill ON the violet header */}
-            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
-              <div onClick={() => setIvTab('active')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'active' ? '#FFF' : 'transparent', color: ivTab === 'active' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.25s', boxShadow: ivTab === 'active' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none' } as any}>En cours</div>
-              <div onClick={() => setIvTab('done')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'done' ? '#FFF' : 'transparent', color: ivTab === 'done' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.25s', boxShadow: ivTab === 'done' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none' } as any}>Cloturees</div>
+  /* ─── ACTIF: page interventions plein ecran ─── */
+  if (Platform.OS === 'web') {
+    return (
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <div style={{ position: 'absolute', inset: 0 } as any}><img src={BG_HEADER} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} /><div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} /></div>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
+            <div onClick={() => setShowCareModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', marginBottom: 10 } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.intervention_structure || user.structure_name || 'Structure'}</span></div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Intervention Care</div>
+            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
+              <div onClick={() => setIvTab('active')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'active' ? '#FFF' : 'transparent', color: ivTab === 'active' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>En cours</div>
+              <div onClick={() => setIvTab('done')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'done' ? '#FFF' : 'transparent', color: ivTab === 'done' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>Cloturees</div>
             </div>
           </div>
-        </div>
-      ) : (
-        <View style={{ backgroundColor: '#2d1050', padding: 20, alignItems: 'center' }}>
-          <TouchableOpacity onPress={() => setShowCareModal(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 999, paddingVertical: 7, paddingHorizontal: 16, marginBottom: 10 }}>
-            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />
-            <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Actif - {user.intervention_structure || user.structure_name || 'Structure'}</Text>
-          </TouchableOpacity>
-          <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF', marginBottom: 14 }}>Intervention Care</Text>
-          <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 999, padding: 4 }}>
-            <TouchableOpacity style={[{ paddingVertical: 10, paddingHorizontal: 24, borderRadius: 999 }, ivTab === 'active' && { backgroundColor: '#FFF' }]} onPress={() => setIvTab('active')}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: ivTab === 'active' ? '#111' : 'rgba(255,255,255,0.8)' }}>En cours</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[{ paddingVertical: 10, paddingHorizontal: 24, borderRadius: 999 }, ivTab === 'done' && { backgroundColor: '#FFF' }]} onPress={() => setIvTab('done')}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: ivTab === 'done' ? '#111' : 'rgba(255,255,255,0.8)' }}>Cloturees</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
-      {/* White rounded container for cards */}
-      <View style={{ padding: 16, paddingTop: 12 }}>
-
-      {/* Interventions List — INSIDE white container */}
-      {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => {
-        const isActive = ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status);
-        const bgImg = isActive ? BG_VIOLET : BG_GREEN;
-        return Platform.OS === 'web' ? (
-          <div key={iv.id} data-testid={`iv-${iv.id}`} onClick={() => { setSelectedIv(iv); }}
-            style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 110, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.25s ease, box-shadow 0.25s ease', boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}
-            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 14px 32px rgba(0,0,0,.22)'; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,.15)'; }}>
-            <img src={bgImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2 } as any}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 } as any}>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{iv.beneficiary_name}</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>Le {new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+          {/* Cards glass */}
+          {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => {
+            const isActive = ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status);
+            return (
+              <div key={iv.id} data-testid={`iv-${iv.id}`} onClick={() => setSelectedIv(iv)} style={{ borderRadius: 20, padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 110, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any} data-glass-card>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 } as any}>
+                  <div><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{iv.beneficiary_name}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,.6)', marginTop: 2 }}>Le {new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div></div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isActive ? 'rgba(124,92,255,0.25)' : 'rgba(16,185,129,0.15)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: isActive ? '#A78BFA' : '#10B981' } as any} data-pulse-dot /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isActive ? 'En cours' : 'Terminee'}</span></div>
                 </div>
-                {iv.distance_km && (
-                  <div style={{ background: 'rgba(255,255,255,.2)', borderRadius: 12, padding: '6px 12px', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,.2)' } as any}>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{iv.distance_km} Km</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{iv.alert_message || 'Intervention'}{iv.distance_km ? ` · ${iv.distance_km} km` : ''}</div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', borderRadius: 999, padding: '8px 16px' } as any}><i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span></div>
+                </div>
+              </div>
+            );
+          }) : (
+            <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-map-pin-range-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>Aucune intervention {ivTab === 'active' ? 'en cours' : 'terminee'}</div></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
                   </div>
                 )}
               </div>
