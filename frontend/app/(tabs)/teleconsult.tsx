@@ -1414,11 +1414,13 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   /* ─── LIST: copie exacte du design gardien ─── */
   if (Platform.OS === 'web') {
     return (
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#FFF' } as any}>
-        {/* Header violet = copie gardien */}
-        <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', overflow: 'hidden', borderBottomLeftRadius: 28, borderBottomRightRadius: 28, flexShrink: 0 } as any}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        {/* Header violet = full screen */}
+        <div style={{ position: 'absolute', inset: 0 } as any}>
           <img src={BG_HEADER} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
+        </div>
+        <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', zIndex: 10, flexShrink: 0 } as any}>
           <div style={{ position: 'relative', zIndex: 2 } as any}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 10 } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Structure</span></div>
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Intervention Care</div>
