@@ -46,10 +46,10 @@ export default function AlertsScreen() {
       const alertsUrl = isAdmin ? '/api/backoffice/alerts' : isCompany ? '/api/company/alerts' : '/api/alerts';
       const [all, active] = await Promise.all([
         apiFetch(alertsUrl, {}, token).catch(() => []),
-        apiFetch('/api/alerts/active-with-interventions', {}, token).catch(() => []),
+        isCompany ? apiFetch('/api/company/alerts', {}, token).catch(() => []) : apiFetch('/api/alerts/active-with-interventions', {}, token).catch(() => []),
       ]);
       setAlerts(Array.isArray(all) ? all : []);
-      setActiveAlerts(Array.isArray(active) ? active : []);
+      setActiveAlerts(isCompany ? (Array.isArray(all) ? all : []).filter((a: any) => a.status === 'active') : Array.isArray(active) ? active : []);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token, r]);
 
