@@ -1122,7 +1122,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
 
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
 
-  const BG_ADM = 'https://static.prod-images.emergentagent.com/jobs/8afdc991-0ab2-4687-a2a5-438b9a5f0711/images/7817bd897a96f17da57f3c7cf9fdc22711c55b1f8d9cf67ef7c434a6bd1dd29d.png';
+  const BG_ADM = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
   if (Platform.OS === 'web') {
     return (
       <div data-testid="admin-prescripteurs" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
