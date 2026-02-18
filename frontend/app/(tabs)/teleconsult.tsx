@@ -813,6 +813,38 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
             <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-map-pin-range-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>Aucune intervention {ivTab === 'active' ? 'en cours' : 'terminee'}</div></div>
           ))}
         </div>
+        {/* POPUP STRUCTURE CARE */}
+        {showStructurePopup && (
+          <div onClick={() => setShowStructurePopup(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ background: 'rgba(26,26,46,0.95)', borderRadius: 28, padding: 24, width: '100%', maxWidth: 400, border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 60px rgba(0,0,0,0.5)' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 } as any}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase' }}>Structure d'intervention</div>
+                <div onClick={() => setShowStructurePopup(false)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#FFF' }} /></div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 } as any}>
+                <div style={{ width: 56, height: 56, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 24, color: '#FFF' }} /></div>
+                <div><div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{user.intervention_structure || user.structure_name || 'Structure'}</div><div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 } as any}><span style={{ width: 8, height: 8, borderRadius: 4, background: '#10B981' } as any} /><span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Intervenant actif</span></div></div>
+              </div>
+              {[
+                user.intervention_structure && { icon: 'ri-building-line', label: 'Structure', value: user.intervention_structure },
+                user.intervention_radius_km && { icon: 'ri-map-pin-range-line', label: 'Rayon d\'intervention', value: `${user.intervention_radius_km} km` },
+                user.phone && { icon: 'ri-phone-line', label: 'Telephone', value: user.phone, phone: true },
+                user.email && { icon: 'ri-mail-line', label: 'Email', value: user.email },
+                user.name && { icon: 'ri-user-line', label: 'Intervenant', value: user.name },
+              ].filter(Boolean).map((item: any, i: number) => (
+                <div key={i}>
+                  {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />}
+                  <div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: item.phone ? 'pointer' : 'default', padding: '4px 0' } as any}>
+                    <i className={item.icon} style={{ fontSize: 14, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.35)', flexShrink: 0 }} />
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 1 }}>{item.label}</div><div style={{ fontSize: 14, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div>
+                  </div>
+                </div>
+              ))}
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '14px 0' } as any} />
+              <div onClick={() => { deactivateCare(); setShowStructurePopup(false); }} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: 14, fontWeight: 700 } as any}>Desactiver mon espace Care</div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
