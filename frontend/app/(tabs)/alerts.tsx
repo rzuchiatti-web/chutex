@@ -523,59 +523,66 @@ export default function AlertsScreen() {
 
           {/* Report form — FULL SCREEN PAGE (early return handled above) */}
 
-          {/* POPUP FICHE INTERVENANT */}
+          {/* POPUP FICHE INTERVENANT — PROFIL COMPLET */}
           {showIntervenantPopup && (() => {
             const iv = alertDetail?.interventions?.[0] || {};
             const recipients = iv.recipients || [];
-            const intName = selectedAlert.intervener_info?.name || selectedAlert.care_provider || iv.assigned_name || iv.company_name || iv.structure_name || 'Intervention Care';
-            const intStructure = selectedAlert.intervener_info?.structure || iv.structure_name || iv.company_name;
-            const intPhone = selectedAlert.intervener_info?.phone || iv.intervener_phone;
-            const intEmail = iv.intervener_email;
-            const intIsCare = !!intStructure;
+            const intStructure = iv.structure_name || iv.company_name;
+            const p = intervenantProfile?.intervenant || {};
+            const agency = intervenantProfile?.agency;
+            const hasProfile = !!p.name;
+            const displayName = p.name || iv.assigned_name || intStructure || 'Intervention';
             return (
-              <div onClick={() => setShowIntervenantPopup(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+              <div onClick={() => { setShowIntervenantPopup(false); setIntervenantProfile(null); }} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
                 <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase' }}>Intervention Care</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase' }}>Fiche intervenant</div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-                      {intIsCare && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
-                      <div onClick={() => setShowIntervenantPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                      {p.guardian_type === 'professional' && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
+                      {p.is_prescriber && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(212,132,90,0.15)', border: '1px solid rgba(212,132,90,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#D4845A' }}>Prescripteur</span></div>}
+                      <div onClick={() => { setShowIntervenantPopup(false); setIntervenantProfile(null); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
                     </div>
                   </div>
-                  {/* Structure header */}
+                  {/* Avatar + Name */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 } as any}>
-                    <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 28, color: '#A78BFA' }} /></div>
-                    <div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{intStructure || intName}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '4px 12px', borderRadius: 999, background: iv.status === 'completed' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', border: `1px solid ${iv.status === 'completed' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)'}` } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: iv.status === 'completed' ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 11, fontWeight: 600, color: iv.status === 'completed' ? '#10B981' : '#F59E0B' }}>{iv.status === 'completed' ? 'Terminee' : iv.status === 'in_progress' ? 'En cours' : iv.status === 'pending_acceptance' ? 'En attente' : iv.status || 'En attente'}</span></div></div>
+                    <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 26, fontWeight: 800, color: '#A78BFA' }}>{displayName.charAt(0)}</span></div>
+                    <div>
+                      <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{displayName}</div>
+                      {p.profession && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{p.profession}</div>}
+                      {!p.profession && intStructure && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{intStructure}</div>}
+                    </div>
                   </div>
-                  {/* Info rows */}
+                  {/* Personal info rows */}
                   {[
-                    intStructure && { icon: 'ri-building-line', label: 'Structure', value: intStructure },
+                    p.phone && { icon: 'ri-phone-line', label: 'Telephone', value: p.phone, phone: true },
+                    p.email && { icon: 'ri-mail-line', label: 'Email', value: p.email },
+                    p.profession && { icon: 'ri-stethoscope-line', label: 'Profession', value: p.profession },
+                    (p.structure_name || p.intervention_structure) && { icon: 'ri-building-line', label: 'Structure', value: p.structure_name || p.intervention_structure },
+                    p.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: p.address },
+                    p.intervention_radius_km && { icon: 'ri-map-pin-range-line', label: 'Rayon d\'intervention', value: `${p.intervention_radius_km} km` },
+                    agency && { icon: 'ri-building-2-line', label: 'Agence SAAD', value: `${agency.name}${agency.address ? ` — ${agency.address}` : ''}` },
                     iv.distance_km && { icon: 'ri-route-line', label: 'Distance', value: `${iv.distance_km} km` },
-                    iv.created_at && { icon: 'ri-time-line', label: 'Mission envoyee', value: new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) },
-                    iv.accepted_at && { icon: 'ri-check-line', label: 'Acceptee a', value: new Date(iv.accepted_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) },
-                    iv.completed_at && { icon: 'ri-check-double-line', label: 'Terminee a', value: new Date(iv.completed_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) },
-                    iv.notes && { icon: 'ri-file-text-line', label: 'Notes', value: iv.notes },
+                    iv.accepted_at && { icon: 'ri-check-line', label: 'Acceptee a', value: new Date(iv.accepted_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) },
+                    iv.completed_at && { icon: 'ri-check-double-line', label: 'Terminee a', value: new Date(iv.completed_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) },
+                    { icon: 'ri-pulse-line', label: 'Statut intervention', value: iv.status === 'completed' ? 'Terminee' : iv.status === 'in_progress' ? 'En cours' : iv.status === 'pending_acceptance' ? 'En attente' : iv.status || 'En attente' },
                   ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
                     <div key={i}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 0' } as any}>
-                        <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={item.icon} style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)' }} /></div>
-                        <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 15, color: '#FFF', fontWeight: 500 }}>{item.value}</div></div>
+                      <div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: item.phone ? 'pointer' : 'default', padding: '13px 0' } as any}>
+                        <div style={{ width: 34, height: 34, borderRadius: 10, background: item.phone ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.08)', border: `1px solid ${item.phone ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={item.icon} style={{ fontSize: 15, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.5)' }} /></div>
+                        <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 15, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div>
                       </div>
                       {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.08)' } as any} />}
                     </div>
                   ))}
-                  {/* Recipients list */}
-                  {recipients.length > 0 && (<>
+                  {/* Other recipients */}
+                  {recipients.length > 1 && (<>
                     <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0 16px' } as any} />
-                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Intervenants notifies ({recipients.length})</div>
-                    {recipients.map((r: any, i: number) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < recipients.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Autres intervenants ({recipients.length - 1})</div>
+                    {recipients.filter((r: any) => r.id !== (iv.assigned_to || recipients[0]?.id)).map((r: any, i: number) => (
+                      <div key={i} onClick={() => { setIntervenantProfile(null); apiFetch(`/api/company/intervenant/${r.id}`, {}, token).then((d: any) => setIntervenantProfile(d)).catch(() => {}); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}>
                         <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 14, fontWeight: 800, color: '#A78BFA' }}>{r.name?.charAt(0)}</span></div>
-                        <div style={{ flex: 1 } as any}>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{r.name}</div>
-                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{r.distance_km ? `${r.distance_km} km` : ''}{r.phone ? ` · ${r.phone}` : ''}</div>
-                        </div>
-                        {r.phone && <div onClick={(e: any) => { e.stopPropagation(); window.location.href = `tel:${r.phone}`; }} style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981' }} /></div>}
+                        <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{r.name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{r.distance_km ? `${r.distance_km} km` : ''}</div></div>
+                        <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} />
                       </div>
                     ))}
                   </>)}
