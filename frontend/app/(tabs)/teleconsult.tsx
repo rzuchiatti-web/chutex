@@ -848,7 +848,6 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
               <div onClick={() => { deactivateCare(); setShowStructurePopup(false); }} style={{ padding: '15px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444', fontSize: 14, fontWeight: 700, marginTop: 20, transition: 'all 0.2s' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}>Desactiver mon espace Care</div>
-              </div>
             </div>
           </div>
         )}
