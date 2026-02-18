@@ -127,50 +127,66 @@ export function HelpCenter({ visible, onClose }: { visible: boolean; onClose: ()
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<number | null>(null);
   const filtered = search.trim() ? FAQ_DATA.filter(f => f.q.toLowerCase().includes(search.toLowerCase()) || f.a.toLowerCase().includes(search.toLowerCase())) : FAQ_DATA;
+
+  if (!visible) return null;
+
+  if (Platform.OS === 'web') {
+    return (
+      <div onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+        <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ width: '100%', maxWidth: 440, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+            <div onClick={onClose} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+          </div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Assistance</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Centre d'aide</div>
+          {/* Search */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 20 } as any}>
+            <i className="ri-search-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
+            <input value={search} onChange={(e: any) => setSearch(e.target.value)} placeholder="Rechercher..." style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: '#FFF', fontSize: 14, fontFamily: 'inherit' } as any} />
+          </div>
+          {/* FAQ */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>Questions frequentes</div>
+          {filtered.map((f, i) => (
+            <div key={i} onClick={() => setExpanded(expanded === i ? null : i)} style={{ padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                <i className={expanded === i ? 'ri-arrow-down-s-line' : 'ri-arrow-right-s-line'} style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', flexShrink: 0 }} />
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF', flex: 1 }}>{f.q}</span>
+              </div>
+              {expanded === i && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, marginTop: 10, marginLeft: 26 }}>{f.a}</div>}
+            </div>
+          ))}
+          {filtered.length === 0 && <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>Aucun resultat</div>}
+          {/* Contact */}
+          <div style={{ marginTop: 24, padding: '18px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
+            <i className="ri-mail-line" style={{ fontSize: 22, color: 'rgba(255,255,255,0.4)' }} />
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 8 }}>Besoin d'aide ?</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>support@chutex.fr</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-        <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%', flex: 1 }}>
-          <View style={{ alignItems: 'center', paddingTop: 12 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: '#DDD' }} /></View>
+        <View style={{ backgroundColor: '#111', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%', flex: 1 }}>
+          <View style={{ alignItems: 'center', paddingTop: 12 }}><View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.2)' }} /></View>
           <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, gap: 10 }}>
-            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
-              <Icon name="help-buoy" size={22} color="#2196F3" />
-            </View>
-            <Text style={{ fontSize: 20, fontWeight: '900', color: 'rgba(255,255,255,0.92)', flex: 1 }}>Centre d'aide</Text>
+            <Text style={{ fontSize: 20, fontWeight: '900', color: '#FFF', flex: 1 }}>Centre d'aide</Text>
             <TouchableOpacity onPress={onClose}><Icon name="close" size={24} color="#888" /></TouchableOpacity>
           </View>
-          <View style={{ paddingHorizontal: 20, marginBottom: 12 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F5F5F5', borderRadius: 12, paddingHorizontal: 12, gap: 8 }}>
-              <Icon name="search" size={18} color="#888" />
-              <TextInput style={{ flex: 1, paddingVertical: 12, fontSize: 14 }} placeholder="Rechercher dans l'aide..." placeholderTextColor="#AAA" value={search} onChangeText={setSearch} />
-            </View>
-          </View>
           <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
-            <Text style={{ fontSize: 15, fontWeight: '800', color: 'rgba(255,255,255,0.92)', marginBottom: 12 }}>Questions frequentes</Text>
             {filtered.map((f, i) => (
               <TouchableOpacity key={i} onPress={() => setExpanded(expanded === i ? null : i)}
-                style={{ backgroundColor: expanded === i ? '#F5F9FF' : '#FAFAFA', borderRadius: 14, padding: 14, marginBottom: 8 }}>
+                style={{ backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 14, padding: 14, marginBottom: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <Icon name={expanded === i ? 'chevron-down' : 'chevron-forward'} size={16} color="#2196F3" />
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)', flex: 1 }}>{f.q}</Text>
+                  <Icon name={expanded === i ? 'chevron-down' : 'chevron-forward'} size={16} color="#A78BFA" />
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFF', flex: 1 }}>{f.q}</Text>
                 </View>
-                {expanded === i && <Text style={{ fontSize: 13, color: '#555', lineHeight: 20, marginTop: 10, marginLeft: 26 }}>{f.a}</Text>}
+                {expanded === i && <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 20, marginTop: 10, marginLeft: 26 }}>{f.a}</Text>}
               </TouchableOpacity>
             ))}
-            {filtered.length === 0 && (
-              <View style={{ alignItems: 'center', paddingVertical: 30 }}>
-                <Icon name="search-outline" size={36} color="#DDD" />
-                <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.50)', marginTop: 8 }}>Aucun resultat</Text>
-              </View>
-            )}
-            <View style={{ backgroundColor: '#F5F5F5', borderRadius: 14, padding: 16, marginTop: 16, alignItems: 'center' }}>
-              <Icon name="mail-outline" size={24} color="#2196F3" />
-              <Text style={{ fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.92)', marginTop: 8 }}>Besoin d'aide supplementaire ?</Text>
-              <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 4, textAlign: 'center' }}>Contactez notre equipe support</Text>
-              <TouchableOpacity style={{ backgroundColor: '#2196F3', borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, marginTop: 12 }}>
-                <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>support@chutex.fr</Text>
-              </TouchableOpacity>
-            </View>
           </ScrollView>
         </View>
       </View>
