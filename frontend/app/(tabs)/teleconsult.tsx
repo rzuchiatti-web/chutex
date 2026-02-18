@@ -759,16 +759,18 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 } as any}>
                 <div style={{ width: 64, height: 64, borderRadius: 20, background: isCare ? 'rgba(124,92,255,0.15)' : 'rgba(255,255,255,0.08)', border: `1px solid ${isCare ? 'rgba(124,92,255,0.3)' : 'rgba(255,255,255,0.12)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 26, fontWeight: 800, color: '#FFF' }}>{selectedIv.assigned_name.charAt(0)}</span></div>
-                <div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{selectedIv.assigned_name}</div>{selectedIv.structure_name && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{selectedIv.structure_name}</div>}</div>
+                <div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{selectedIv.assigned_name}</div>{selectedIv.intervener_profession && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{selectedIv.intervener_profession}</div>}{!selectedIv.intervener_profession && selectedIv.structure_name && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{selectedIv.structure_name}</div>}</div>
               </div>
               {[
                 selectedIv.intervener_phone && { icon: 'ri-phone-line', label: 'Telephone', value: selectedIv.intervener_phone, phone: true },
                 selectedIv.intervener_email && { icon: 'ri-mail-line', label: 'Email', value: selectedIv.intervener_email },
+                selectedIv.intervener_profession && { icon: 'ri-stethoscope-line', label: 'Profession', value: selectedIv.intervener_profession },
                 selectedIv.structure_name && { icon: 'ri-building-line', label: 'Structure', value: selectedIv.structure_name },
+                selectedIv.intervener_address && { icon: 'ri-map-pin-line', label: 'Adresse', value: selectedIv.intervener_address },
+                selectedIv.intervener_radius_km && { icon: 'ri-map-pin-range-line', label: 'Rayon', value: `${selectedIv.intervener_radius_km} km` },
                 selectedIv.distance_km && { icon: 'ri-route-line', label: 'Distance', value: `${selectedIv.distance_km} km` },
                 selectedIv.accepted_at && { icon: 'ri-time-line', label: 'Accepte a', value: new Date(selectedIv.accepted_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) },
                 selectedIv.completed_at && { icon: 'ri-check-double-line', label: 'Termine a', value: new Date(selectedIv.completed_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) },
-                { icon: 'ri-pulse-line', label: 'Statut', value: selectedIv.status === 'completed' ? 'Terminee' : selectedIv.status === 'in_progress' ? 'En cours' : selectedIv.status },
               ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
                 <div key={i}>
                   <div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: item.phone ? 'pointer' : 'default', padding: '13px 0' } as any}>
