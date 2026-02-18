@@ -1416,17 +1416,25 @@ function CompanyInterventionsTab({ token }: { token: string }) {
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <div style={{ position: 'absolute', inset: 0 } as any}><img src={BG_HEADER} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} /><div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} /></div>
-        {/* Sticky top bar: search + tabs */}
+        {/* Sticky top bar: search */}
         <div style={{ position: 'relative', zIndex: 10, padding: '16px 20px 0', flexShrink: 0 } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 12 } as any}><i className="ri-search-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} /><input value={searchIv} onChange={(e: any) => setSearchIv(e.target.value)} placeholder="Rechercher une intervention..." style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#FFF', fontSize: 14, fontFamily: 'inherit' } as any} /></div>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 8 } as any}>
-            <div onClick={() => setIvTab('active')} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'active' ? '#FFF' : 'rgba(255,255,255,0.1)', color: ivTab === 'active' ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700 } as any}>En cours ({activeIvs.length})</div>
-            <div onClick={() => setIvTab('done')} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'done' ? '#FFF' : 'rgba(255,255,255,0.1)', color: ivTab === 'done' ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700 } as any}>Cloturees ({doneIvs.length})</div>
-            <div onClick={() => setShowAllIntervenants(true)} style={{ padding: '8px 16px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600, marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-group-line" style={{ fontSize: 14 }} />{intervenants.length} intervenants</div>
-          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 10 } as any}><i className="ri-search-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} /><input value={searchIv} onChange={(e: any) => setSearchIv(e.target.value)} placeholder="Rechercher une intervention..." style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#FFF', fontSize: 14, fontFamily: 'inherit' } as any} /></div>
         </div>
-        {/* Cards */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '4px 16px 100px', position: 'relative', zIndex: 5 } as any}>
+        {/* Content with header inside scroll */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 100px', position: 'relative', zIndex: 5 } as any}>
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: 14, paddingTop: 4 } as any}>
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Intervention Care</div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 8, flexWrap: 'wrap' } as any}>
+              <div onClick={() => setIvTab('active')} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'active' ? '#FFF' : 'rgba(255,255,255,0.1)', color: ivTab === 'active' ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700 } as any}>En cours ({activeIvs.length})</div>
+              <div onClick={() => setIvTab('done')} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'done' ? '#FFF' : 'rgba(255,255,255,0.1)', color: ivTab === 'done' ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700 } as any}>Cloturees ({doneIvs.length})</div>
+            </div>
+            <div onClick={() => setShowAllIntervenants(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' } as any}>
+              <div style={{ display: 'flex' } as any}>{intervenants.slice(0, 3).map((iv2: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{iv2.name?.charAt(0)}</span></div>))}</div>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {intervenants.length} intervenants</span>
+            </div>
+          </div>
+          {/* Cards */}
           {filteredIvs.map((iv: any) => { const isActive = ['pending_acceptance','in_progress','en_route','dispatched'].includes(iv.status); return (
             <div key={iv.id} onClick={() => setSelectedIv(iv)} style={{ borderRadius: 20, padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 100, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
