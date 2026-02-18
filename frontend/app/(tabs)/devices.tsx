@@ -792,18 +792,19 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           ))}
           {displayedPresc.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-file-text-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>Aucune prescription {prescTab === 'pending' ? 'en cours' : 'validee'}</div></div>}
         </div>
-        {/* POPUP STRUCTURE PRESCRIPTEUR */}
+        {/* POPUP STRUCTURE PRESCRIPTEUR — ULTRA GLASS */}
         {showPrescModal && (
-          <div onClick={() => setShowPrescModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}>
-            <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ background: 'rgba(26,26,46,0.95)', borderRadius: 28, padding: 24, width: '100%', maxWidth: 400, border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 60px rgba(0,0,0,0.5)' } as any}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 } as any}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase' }}>Structure prescripteur</div>
-                <div onClick={() => setShowPrescModal(false)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#FFF' }} /></div>
+          <div onClick={() => setShowPrescModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20, backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 32, padding: 28, width: '100%', maxWidth: 420, border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 2, textTransform: 'uppercase' }}>Structure prescripteur</div>
+                <div onClick={() => setShowPrescModal(false)} style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.7)' }} /></div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 24, color: '#FFF' }} /></div>
-                <div><div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{user.prescription_structure || user.structure_name || 'Structure'}</div><div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 } as any}><span style={{ width: 8, height: 8, borderRadius: 4, background: '#10B981' } as any} /><span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Prescripteur actif</span></div></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 } as any}>
+                <div style={{ width: 60, height: 60, borderRadius: 20, background: 'rgba(212,132,90,0.15)', border: '1px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}><i className="ri-building-line" style={{ fontSize: 26, color: '#E8A87C' }} /></div>
+                <div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{user.prescription_structure || user.structure_name || 'Structure'}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 11, fontWeight: 600, color: '#10B981' }}>Prescripteur actif</span></div></div>
               </div>
+              <div style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '4px 16px', marginBottom: 16 } as any}>
               {[
                 user.prescription_structure && { icon: 'ri-building-line', label: 'Structure', value: user.prescription_structure },
                 user.phone && { icon: 'ri-phone-line', label: 'Telephone', value: user.phone, phone: true },
@@ -811,17 +812,19 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 user.name && { icon: 'ri-user-line', label: 'Prescripteur', value: user.name },
                 { icon: 'ri-file-text-line', label: 'Prescriptions', value: `${prescriptions.length} prescription(s)` },
                 { icon: 'ri-money-euro-circle-line', label: 'Commission totale', value: `${prescriptions.reduce((s: number, p: any) => s + (p.commission || 25), 0)} EUR` },
-              ].filter(Boolean).map((item: any, i: number) => (
+              ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
                 <div key={i}>
-                  {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />}
-                  <div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: item.phone ? 'pointer' : 'default', padding: '4px 0' } as any}>
-                    <i className={item.icon} style={{ fontSize: 14, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.35)', flexShrink: 0 }} />
-                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 1 }}>{item.label}</div><div style={{ fontSize: 14, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div>
+                  <div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: item.phone ? 'pointer' : 'default', padding: '12px 0' } as any}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: item.phone ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.06)', border: `1px solid ${item.phone ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={item.icon} style={{ fontSize: 14, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.45)' }} /></div>
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 14, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div>
                   </div>
+                  {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}
                 </div>
               ))}
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '14px 0' } as any} />
-              <div onClick={async () => { try { await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_prescriber: false }) }, token); await refreshUser(); setShowPrescModal(false); } catch {} }} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: 14, fontWeight: 700 } as any}>Desactiver mon espace prescripteur</div>
+              </div>
+              <div onClick={async () => { try { await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_prescriber: false }) }, token); await refreshUser(); setShowPrescModal(false); } catch {} }} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', color: '#EF4444', fontSize: 14, fontWeight: 700, transition: 'all 0.2s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}>Desactiver mon espace prescripteur</div>
             </div>
           </div>
         )}
