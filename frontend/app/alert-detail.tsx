@@ -363,23 +363,22 @@ export default function AlertDetailScreen() {
           </GlassCard>
         )}
 
-        {/* Pending - list of notified intervenants */}
+        {/* Pending - show structure name instead of recipients list */}
         {intervention && isPending && (
           <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               <Icon name="time" size={18} color="#FF9800" />
               <Text style={{ fontSize: 14, fontWeight: '800', color: '#FF9800' }}>En attente d'un intervenant</Text>
             </View>
-            <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 8 }}>{intervention.recipients?.length || 0} intervenants notifies</Text>
-            {(intervention.recipients || []).map((r: any) => (
-              <View key={r.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
+            {intervention.structure_name && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
                 <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#9C27B015', justifyContent: 'center', alignItems: 'center' }}>
-                  <Icon name="person" size={14} color="#9C27B0" />
+                  <Icon name="business" size={14} color="#9C27B0" />
                 </View>
-                <Text style={{ fontSize: 12, fontWeight: '600', color: '#111827', flex: 1 }}>{r.name}</Text>
-                {r.distance_km && <Text style={{ fontSize: 10, color: '#6B7280' }}>{r.distance_km} km</Text>}
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#111827', flex: 1 }}>{intervention.structure_name}</Text>
               </View>
-            ))}
+            )}
+            <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 4 }}>Un intervenant sera bientot assigne</Text>
           </GlassCard>
         )}
 
