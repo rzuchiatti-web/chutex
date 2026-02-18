@@ -1,20 +1,13 @@
-import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, ActivityIndicator, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
-import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
-const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 20, marginBottom: 12, ...glass }, style]}>{children}</View>
-);
+const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
 
 export default function GuardianDetailScreen() {
-  const { colors } = useTheme();
   const { guardianId } = useLocalSearchParams<{ guardianId: string }>();
   const { token } = useAuth();
   const router = useRouter();
@@ -25,87 +18,61 @@ export default function GuardianDetailScreen() {
     (async () => {
       try {
         const guards = await apiFetch('/api/guardians/my', {}, token);
-        const g = guards.find((g: any) => g.id === guardianId);
-        setGuardian(g || null);
+        setGuardian((guards || []).find((g: any) => g.id === guardianId) || null);
       } catch {} finally { setLoading(false); }
     })();
   }, [guardianId, token]);
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></SafeAreaView>;
-  if (!guardian) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#6B7280' }}>Gardien non trouve</Text></SafeAreaView>;
+  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
+  if (!guardian) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.5)' }}>Gardien non trouve</Text></SafeAreaView>;
 
-  const infoRows = [
-    { icon: 'call-outline', label: 'Telephone', val: guardian.phone },
-    { icon: 'mail-outline', label: 'Email', val: guardian.email },
-    { icon: 'location-outline', label: 'Adresse', val: guardian.address },
-    { icon: 'people-outline', label: 'Lien', val: guardian.relationship },
-    { icon: 'briefcase-outline', label: 'Profession', val: guardian.profession },
-    { icon: 'business-outline', label: 'Structure / Societe', val: guardian.structure_name },
-    { icon: 'shield-checkmark-outline', label: 'Type', val: guardian.guardian_type === 'professional' ? 'Professionnel' : guardian.guardian_type === 'particular' ? 'Particulier' : guardian.guardian_type },
-  ].filter(r => r.val);
+  const isPro = guardian.guardian_type === 'professional';
+  const rows = [
+    guardian.phone && { icon: 'ri-phone-line', label: 'Telephone', value: guardian.phone, phone: true },
+    guardian.email && { icon: 'ri-mail-line', label: 'Email', value: guardian.email },
+    guardian.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: guardian.address },
+    guardian.relationship && { icon: 'ri-heart-line', label: 'Lien', value: guardian.relationship },
+    guardian.profession && { icon: 'ri-stethoscope-line', label: 'Profession', value: guardian.profession },
+    guardian.structure_name && { icon: 'ri-building-line', label: 'Structure', value: guardian.structure_name },
+    { icon: 'ri-shield-check-line', label: 'Type', value: isPro ? 'Professionnel' : 'Particulier' },
+  ].filter(Boolean);
+
+  if (Platform.OS !== 'web') return <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF', padding: 20 }}>{guardian.name}</Text></SafeAreaView>;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}>
-          <Icon name="chevron-back" size={24} color="#111827" />
-        </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#111827' }}>Fiche Gardien</Text>
-      </View>
-
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
-        {/* Avatar + Name */}
-        <GlassCard style={{ alignItems: 'center', padding: 28 }}>
-          <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#FFB74D', justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 32, fontWeight: '800', color: '#FFF' }}>{guardian.name?.charAt(0)}</Text>
-          </View>
-          <Text style={{ fontSize: 22, fontWeight: '900', color: '#111827', marginTop: 12 }}>{guardian.name}</Text>
-          {guardian.profession && <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>{guardian.profession}</Text>}
-          {guardian.structure_name && <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>{guardian.structure_name}</Text>}
-        </GlassCard>
-
-        {/* Info rows */}
-        <GlassCard>
-          {infoRows.map((r, i) => (
-            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: i < infoRows.length - 1 ? 0.5 : 0, borderBottomColor: 'rgba(0,0,0,0.06)' }}>
-              <Icon name={r.icon as any} size={20} color="#888" />
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 10, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>{r.label}</Text>
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#111827', marginTop: 2 }}>{r.val}</Text>
-              </View>
-            </View>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+      <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
+        <div onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Fiche gardien</div>
+      </div>
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        {/* Avatar + name */}
+        <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+          <div style={{ width: 72, height: 72, borderRadius: 999, background: isPro ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, border: '3px solid rgba(255,255,255,0.2)' } as any}><span style={{ fontSize: 30, fontWeight: 800, color: '#FFF' }}>{guardian.name?.charAt(0)}</span></div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{guardian.name}</div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 8 } as any}>
+            {isPro && <div style={{ padding: '4px 12px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Professionnel</span></div>}
+            {!isPro && <div style={{ padding: '4px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}><span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Particulier</span></div>}
+          </div>
+        </div>
+        {/* Info card */}
+        <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 14 } as any}>
+          {rows.map((item: any, i: number) => (
+            <div key={i}>
+              {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />}
+              <div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: item.phone ? 'pointer' : 'default' } as any}>
+                <i className={item.icon} style={{ fontSize: 14, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.35)', flexShrink: 0 }} />
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 14, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div>
+                {item.phone && <i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981' }} />}
+              </div>
+            </div>
           ))}
-        </GlassCard>
-
-        {/* Coordinates */}
-        {guardian.latitude && (
-          <GlassCard>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <Icon name="navigate-outline" size={20} color="#888" />
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 10, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>Coordonnees GPS</Text>
-                <Text style={{ fontSize: 15, fontWeight: '600', color: '#111827', marginTop: 2 }}>{guardian.latitude?.toFixed(4)}, {guardian.longitude?.toFixed(4)}</Text>
-              </View>
-            </View>
-          </GlassCard>
-        )}
-
-        {/* Delete guardian button */}
-        <TouchableOpacity style={{ backgroundColor: '#E53935', borderRadius: 9999, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, ...(Platform.OS === 'web' ? { boxShadow: '0 4px 16px rgba(229,57,53,0.2)' } : {}) }}
-          onPress={() => Alert.alert('Supprimer ce gardien ?', `${guardian.name} ne sera plus votre gardien.`, [
-            { text: 'Annuler' },
-            { text: 'Supprimer', style: 'destructive', onPress: async () => {
-              try {
-                await apiFetch(`/api/guardians/${guardian.id}/unlink`, { method: 'POST' }, token);
-                Alert.alert('Gardien supprime');
-                router.back();
-              } catch (e: any) { Alert.alert('Erreur', e.message); }
-            }},
-          ])}>
-          <Icon name="trash-outline" size={18} color="#111827" />
-          <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 }}>SUPPRIMER CE GARDIEN</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </SafeAreaView>
+        </div>
+        {/* Delete */}
+        <div onClick={() => { if (window.confirm(`Supprimer ${guardian.name} comme gardien ?`)) { apiFetch(`/api/guardians/${guardian.id}/unlink`, { method: 'POST' }, token).then(() => router.back()).catch(() => {}); } }} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><i className="ri-delete-bin-line" style={{ fontSize: 14 }} />Supprimer ce gardien</div>
+      </div>
+    </div>
   );
 }
