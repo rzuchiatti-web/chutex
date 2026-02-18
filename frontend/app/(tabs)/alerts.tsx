@@ -539,10 +539,9 @@ export default function AlertsScreen() {
           )}
 
           {/* Report form — FULL SCREEN PAGE (early return handled above) */}
-        </div>
-      </div>
-      {/* POPUPS — rendered OUTSIDE overflow:hidden container */}
-      {showIntervenantPopup && (() => {
+
+          {/* POPUP INTERVENANT — inside container but position:fixed escapes */}
+          {showIntervenantPopup && (() => {
             const iv = alertDetail?.interventions?.[0] || {};
             const recipients = iv.recipients || [];
             const p = selectedRecipient || iv.intervenant_profile || {};
