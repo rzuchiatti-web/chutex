@@ -1396,9 +1396,13 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
         apiFetch('/api/company/prescribers', {}, token).catch(() => []),
         apiFetch('/api/company/prescriptions', {}, token).catch(() => []),
       ]);
-      // Use company/prescriptions for accurate data, fallback to dashboard
-      const realPrescs = Array.isArray(cp) && cp.length > 0 ? cp : (dd?.prescriptions || []);
-      setDashData({ ...dd, prescriptions: realPrescs });
+      // Merge: use dashboard prescriptions (more complete), enrich with company/prescriptions data
+      const dashPrescs = dd?.prescriptions || [];
+      const companyPrescs = Array.isArray(cp) ? cp : [];
+      // Dashboard has more data — use it, but also include any from company endpoint not in dashboard
+      const dashIds = new Set(dashPrescs.map((p: any) => p.id));
+      const merged = [...dashPrescs, ...companyPrescs.filter((p: any) => !dashIds.has(p.id))];
+      setDashData({ ...dd, prescriptions: merged });
       setPrescribers(Array.isArray(prs) ? prs : []);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
