@@ -815,8 +815,9 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         </div>
         {/* POPUP STRUCTURE CARE — SANS CARTE, DIRECT SUR BLUR */}
         {showStructurePopup && (
-          <div onClick={() => setShowStructurePopup(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 200, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
-            <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ width: '100%', maxWidth: 400, padding: '40px 28px 100px' } as any}>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 200, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)' } as any}>
+            <div onClick={() => setShowStructurePopup(false)} style={{ position: 'absolute', inset: 0, overflow: 'auto', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', minHeight: '100%', boxSizing: 'border-box' } as any}>
               {/* Close */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
                 <div onClick={() => setShowStructurePopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
@@ -828,7 +829,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
                 <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 28, color: '#A78BFA' }} /></div>
                 <div><div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{user.intervention_structure || user.structure_name || 'Structure'}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 11, fontWeight: 600, color: '#10B981' }}>Intervenant actif</span></div></div>
               </div>
-              {/* Info rows — directly on blur */}
+              {/* Info rows */}
               {[
                 user.intervention_structure && { icon: 'ri-building-line', label: 'Structure', value: user.intervention_structure },
                 user.intervention_radius_km && { icon: 'ri-map-pin-range-line', label: 'Rayon d\'intervention', value: `${user.intervention_radius_km} km` },
@@ -848,6 +849,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
               <div onClick={() => { deactivateCare(); setShowStructurePopup(false); }} style={{ padding: '15px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444', fontSize: 14, fontWeight: 700, marginTop: 20, transition: 'all 0.2s' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}>Desactiver mon espace Care</div>
+              </div>
             </div>
           </div>
         )}
