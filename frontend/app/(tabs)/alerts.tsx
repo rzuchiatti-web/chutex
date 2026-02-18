@@ -398,20 +398,12 @@ export default function AlertsScreen() {
                   </div>
                 </div>
                 {/* Stats — only show recipients count if NOT assigned */}
-                {!hasAssigned && (<>
+                {!hasAssigned && (iv.distance_km || iv.created_at) && (<>
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 } as any}>
-                    {recipients.length > 0 && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Notifies</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{recipients.length}</div></div>}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 } as any}>
                     {iv.distance_km && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Distance</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{iv.distance_km} km</div></div>}
                     {iv.created_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Envoye</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
                   </div>
-                  {recipients.length > 0 && (<>
-                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                      {recipients.slice(0, 3).map((r: any, i: number) => (<div key={i} style={{ width: 26, height: 26, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -8 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 800, color: '#FFF' }}>{r.name?.charAt(0)}</span></div>))}
-                      <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginLeft: 4 }}>Voir les {recipients.length} intervenants</span>
-                    </div>
-                  </>)}
                 </>)}
                 {/* Assigned — show accepted/completed info */}
                 {hasAssigned && (iv.accepted_at || iv.distance_km) && (<>
