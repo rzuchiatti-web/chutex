@@ -739,7 +739,44 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
     );
   }
 
-  /* ─── ACTIF: page prescriptions avec header orange ─── */
+  /* ─── ACTIF: page prescriptions plein ecran ─── */
+  if (Platform.OS === 'web') {
+    return (
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <div style={{ position: 'absolute', inset: 0 } as any}><img src={BG_HEADER_P} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} /><div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} /></div>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
+            <div onClick={() => setShowPrescModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', marginBottom: 10 } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.prescription_structure || user.structure_name || 'Structure'}</span></div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescription</div>
+            <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1, marginBottom: 4 }}>+{displayedPresc.reduce((s: number, p: any) => s + (p.commission || 25), 0)}EUR</div>
+            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 10 } as any}>
+              <div onClick={() => setPrescTab('pending')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'pending' ? '#FFF' : 'transparent', color: prescTab === 'pending' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>En cours ({pendingP.length})</div>
+              <div onClick={() => setPrescTab('subscribed')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'subscribed' ? '#FFF' : 'transparent', color: prescTab === 'subscribed' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>Validees ({subscribedP.length})</div>
+            </div>
+          </div>
+          {/* Rewards card */}
+          <div onClick={() => { apiFetch("/api/rewards/history", {}, token).then((d2: any) => { setRewardsData(d2); setShowRewardsPage(true); }).catch(() => {}); }} style={{ borderRadius: 20, overflow: "hidden", position: "relative", padding: "18px", marginBottom: 14, cursor: "pointer" } as any} data-glass-card>
+            <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/4tk4fqvn_background_r%C3%A9compense.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 14 } as any}><i className="ri-trophy-line" style={{ fontSize: 22, color: '#FFF' }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>Recompenses</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>Challenge prescripteurs du mois</div></div><div style={{ display: 'flex', gap: 3 } as any}>{[{ c: '#FFD700' }, { c: '#C0C0C0' }, { c: '#CD7F32' }].map((m, i) => (<div key={i} style={{ width: 18, height: 18, borderRadius: 999, background: m.c, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 7, fontWeight: 800, color: '#FFF' }}>{i+1}</span></div>))}</div><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} /></div>
+          </div>
+          {/* Prescription cards — glass */}
+          {displayedPresc.map(p => (
+            <div key={p.id} onClick={() => setSelectedPresc(p)} style={{ borderRadius: 20, padding: '18px 16px', marginBottom: 12, cursor: 'pointer', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any} data-glass-card>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 } as any}>
+                <div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{p.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{p.subscription_type || 'Standard'}</div></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: p.status === 'subscribed' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: p.status === 'subscribed' ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{p.status === 'subscribed' ? 'Validee' : 'En cours'}</span></div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>+{p.commission || 25}EUR</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', borderRadius: 999, padding: '8px 16px' } as any}><i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span></div></div>
+            </div>
+          ))}
+          {displayedPresc.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-file-text-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>Aucune prescription {prescTab === 'pending' ? 'en cours' : 'validee'}</div></div>}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#FFFFFF' }} contentContainerStyle={[d.sc, { paddingBottom: 80, paddingHorizontal: 0 }]} showsVerticalScrollIndicator={false}>
       {/* Header orange avec toggle DANS le header */}
