@@ -1290,7 +1290,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPresc, setSelectedPresc] = useState<any>(null);
   const [prescTab, setPrescTab] = useState<'pending' | 'subscribed'>('pending');
-  const [showAllPrescribers, setShowAllPrescribers] = useState(false);
+  const [showRewardsDetail, setShowRewardsDetail] = useState(false);
   const [search, setSearch] = useState('');
 
   const fetchData = useCallback(async () => {
