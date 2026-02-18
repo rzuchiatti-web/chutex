@@ -1414,41 +1414,31 @@ function CompanyInterventionsTab({ token }: { token: string }) {
 
   /* ─── LIST: copie exacte du design gardien ─── */
   if (Platform.OS === 'web') {
+    const filteredIvs = searchIv.trim() ? displayedIvs.filter((iv: any) => iv.beneficiary_name?.toLowerCase().includes(searchIv.toLowerCase()) || iv.assigned_name?.toLowerCase().includes(searchIv.toLowerCase())) : displayedIvs;
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        {/* Header violet = full screen */}
-        <div style={{ position: 'absolute', inset: 0 } as any}>
-          <img src={BG_HEADER} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-        </div>
-        <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', zIndex: 10, flexShrink: 0 } as any}>
-          <div style={{ position: 'relative', zIndex: 2 } as any}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 10 } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Structure</span></div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Intervention Care</div>
-            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
-              <div onClick={() => setIvTab('active')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'active' ? '#FFF' : 'transparent', color: ivTab === 'active' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>En cours ({activeIvs.length})</div>
-              <div onClick={() => setIvTab('done')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'done' ? '#FFF' : 'transparent', color: ivTab === 'done' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>Cloturees ({doneIvs.length})</div>
-            </div>
-            <div onClick={() => setShowAllIntervenants(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', marginTop: 10 } as any}>
-              <div style={{ display: 'flex' } as any}>{intervenants.slice(0, 3).map((iv: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span></div>))}</div>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {intervenants.length} intervenants</span>
-            </div>
+        <div style={{ position: 'absolute', inset: 0 } as any}><img src={BG_HEADER} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} /><div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} /></div>
+        {/* Sticky top bar: search + tabs */}
+        <div style={{ position: 'relative', zIndex: 10, padding: '16px 20px 0', flexShrink: 0 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 12 } as any}><i className="ri-search-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} /><input value={searchIv} onChange={(e: any) => setSearchIv(e.target.value)} placeholder="Rechercher une intervention..." style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#FFF', fontSize: 14, fontFamily: 'inherit' } as any} /></div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 8 } as any}>
+            <div onClick={() => setIvTab('active')} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'active' ? '#FFF' : 'rgba(255,255,255,0.1)', color: ivTab === 'active' ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700 } as any}>En cours ({activeIvs.length})</div>
+            <div onClick={() => setIvTab('done')} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'done' ? '#FFF' : 'rgba(255,255,255,0.1)', color: ivTab === 'done' ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700 } as any}>Cloturees ({doneIvs.length})</div>
+            <div onClick={() => setShowAllIntervenants(true)} style={{ padding: '8px 16px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600, marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-group-line" style={{ fontSize: 14 }} />{intervenants.length} intervenants</div>
           </div>
         </div>
-        {/* Cards = copie exacte gardien */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 100px', position: 'relative', zIndex: 5 } as any}>
-          {displayedIvs.map((iv: any) => { const isActive = ['pending_acceptance','in_progress','en_route','dispatched'].includes(iv.status); return (
-            <div key={iv.id} onClick={() => setSelectedIv(iv)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 110, background: 'rgba(255,255,255,0.05)', border: `1px solid ${isActive ? 'rgba(124,92,255,0.2)' : 'rgba(16,185,129,0.2)'}`, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}>
-              <div style={{ position: 'relative', zIndex: 2 } as any}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
-                  <div><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{iv.beneficiary_name}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>Le {new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div></div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isActive ? 'rgba(124,92,255,0.25)' : 'rgba(16,185,129,0.25)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: isActive ? '#A78BFA' : '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isActive ? 'En cours' : 'Terminee'}</span></div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{iv.alert_message || 'Intervention'}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.18)', borderRadius: 999, padding: '8px 16px', border: '1px solid rgba(255,255,255,.2)' } as any}><i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span></div></div>
+        {/* Cards */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '4px 16px 100px', position: 'relative', zIndex: 5 } as any}>
+          {filteredIvs.map((iv: any) => { const isActive = ['pending_acceptance','in_progress','en_route','dispatched'].includes(iv.status); return (
+            <div key={iv.id} onClick={() => setSelectedIv(iv)} style={{ borderRadius: 20, padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 100, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
+                <div><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{iv.beneficiary_name}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,.6)', marginTop: 2 }}>Le {new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isActive ? 'rgba(124,92,255,0.25)' : 'rgba(16,185,129,0.15)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: isActive ? '#A78BFA' : '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isActive ? 'En cours' : 'Terminee'}</span></div>
               </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{iv.alert_message || iv.assigned_name || 'Intervention'}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', borderRadius: 999, padding: '8px 16px' } as any}><i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span></div></div>
             </div>
           ); })}
-          {displayedIvs.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-map-pin-range-line" style={{ fontSize: 36, color: '#CCC' }} /><div style={{ fontSize: 14, fontWeight: 700, color: '#888', marginTop: 10 }}>Aucune intervention {ivTab === 'active' ? 'en cours' : 'terminee'}</div></div>}
+          {filteredIvs.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-map-pin-range-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>{searchIv ? 'Aucun resultat' : `Aucune intervention ${ivTab === 'active' ? 'en cours' : 'terminee'}`}</div></div>}
         </div>
       </div>
     );
