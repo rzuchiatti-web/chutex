@@ -801,6 +801,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                   </div>
                 </div>
               ))}
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '14px 0' } as any} />
+              <div onClick={async () => { try { await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_prescriber: false }) }, token); await refreshUser(); setShowPrescModal(false); } catch {} }} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: 14, fontWeight: 700 } as any}>Desactiver mon espace prescripteur</div>
             </div>
           </div>
         )}
