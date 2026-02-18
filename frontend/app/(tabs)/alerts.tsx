@@ -341,9 +341,9 @@ export default function AlertsScreen() {
           )}
 
           {/* ─── FICHE INTERVENANT COMPLETE ─── */}
-          {(selectedAlert.intervener_info || selectedAlert.care_provider || (alertDetail?.interventions?.length > 0 && alertDetail.interventions[0].assigned_name)) && (() => {
+          {(selectedAlert.intervener_info || selectedAlert.care_provider || (alertDetail?.interventions?.length > 0)) && (() => {
             const iv = alertDetail?.interventions?.[0] || {};
-            const name = selectedAlert.intervener_info?.name || selectedAlert.care_provider || iv.assigned_name || 'Intervenant';
+            const name = selectedAlert.intervener_info?.name || selectedAlert.care_provider || iv.assigned_name || iv.structure_name || 'Intervention';
             const structure = selectedAlert.intervener_info?.structure || iv.structure_name;
             const phone = selectedAlert.intervener_info?.phone || iv.intervener_phone;
             const isCare = !!structure;
