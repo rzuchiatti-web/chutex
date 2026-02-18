@@ -150,10 +150,10 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
           onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
           onMouseLeave={(e: any) => { e.currentTarget.style.background = 'transparent'; }}>
           <div style={{ width: 38, height: 38, borderRadius: 12, background: danger ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.06)', border: `1px solid ${danger ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-            <i className={danger ? 'ri-logout-box-r-line' : icon} style={{ fontSize: 16, color: danger ? '#EF4444' : 'rgba(0,0,0,0.7)' }} />
+            <i className={danger ? 'ri-logout-box-r-line' : icon} style={{ fontSize: 16, color: danger ? '#EF4444' : 'rgba(255,255,255,0.6)' }} />
           </div>
-          <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: danger ? '#EF4444' : '#111' }}>{label}</span>
-          <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(0,0,0,0.25)' }} />
+          <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: danger ? '#EF4444' : '#FFF' }}>{label}</span>
+          <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }} />
         </div>
       );
     }
