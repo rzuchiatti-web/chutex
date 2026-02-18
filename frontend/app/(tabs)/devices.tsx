@@ -1306,6 +1306,9 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const [searchPresc, setSearchPresc] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; });
+
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
 
   const BG_ORANGE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
@@ -1316,8 +1319,6 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   const subscribedPrescs = allPrescs.filter((p: any) => p.status === 'subscribed');
   const displayedPrescs = prescTab === 'pending' ? pendingPrescs : subscribedPrescs;
   const prescTotal = displayedPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
-  const [searchPresc, setSearchPresc] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; });
 
   const BG_GOLD = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/s2281oc6_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_16_35.png';
 
