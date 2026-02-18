@@ -459,10 +459,10 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const [ivTab, setIvTab] = useState<'active'|'done'>('active');
   const displayedIvs = ivTab === 'active' ? activeIvs : doneIvs;
 
-  const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/qgy38yhz_banner_mobile_intervention_care.jpg';
+  const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
   const BG_GREEN = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
   const BG_RED = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
-  const BG_HEADER = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/n96e8u48_Banner_Care.jpg';
+  const BG_HEADER = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
   const LOGO_URL = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
 
   const [slideActivated, setSlideActivated] = useState(false);
@@ -971,7 +971,7 @@ function AdminIntervenants({ token }: { token: string }) {
 
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
 
-  const BG_ADM_IV = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/qgy38yhz_banner_mobile_intervention_care.jpg';
+  const BG_ADM_IV = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
   if (Platform.OS === 'web') {
     const activeIvsAdm = interventions.filter((iv: any) => ['pending_acceptance','in_progress','en_route'].includes(iv.status));
     return (
@@ -1343,9 +1343,9 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   const activeIvs = interventions.filter((iv: any) => ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status));
   const doneIvs = interventions.filter((iv: any) => iv.status === 'completed');
   const displayedIvs = ivTab === 'active' ? activeIvs : doneIvs;
-  const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/qgy38yhz_banner_mobile_intervention_care.jpg';
+  const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
   const BG_GREEN_IV = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
-  const BG_HEADER = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/n96e8u48_Banner_Care.jpg';
+  const BG_HEADER = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
 
   /* ─── ALL INTERVENANTS: full-screen list (early return) ─── */
   if (showAllIntervenants && Platform.OS === 'web') {
