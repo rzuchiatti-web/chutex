@@ -127,8 +127,108 @@ function CompanyAgences({ token }: { token: string }) {
     setAssignModal(null); fetchData();
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></View>;
+  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
   if (!data) return null;
+
+  const BG_AG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
+
+  if (Platform.OS === 'web') {
+    return (
+      <div data-testid="company-agences" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        <img src={BG_AG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
+        {/* Header */}
+        <div style={{ position: 'relative', padding: '28px 20px 14px', zIndex: 10, textAlign: 'center' } as any}>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Agences</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{(data.agencies || []).length} agences · {data.total_prescribers} prescripteurs</div>
+        </div>
+        {/* Content */}
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+          {/* Create button */}
+          <div onClick={() => setShowCreate(true)} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontWeight: 700, marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><i className="ri-add-circle-line" style={{ fontSize: 16 }} />Nouvelle agence</div>
+
+          {/* Agency cards */}
+          {(data.agencies || []).map((ag: any) => (
+            <div key={ag.agency.id} style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12 } as any}>
+              {/* Agency header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(212,132,90,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 20, color: '#D4845A' }} /></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{ag.agency.name}</div>{ag.agency.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{ag.agency.address}</div>}</div>
+                <div style={{ display: 'flex', gap: 6 } as any}>
+                  <div onClick={() => { setEditAgency(ag.agency); setEditName(ag.agency.name); setEditAddr(ag.agency.address || ''); }} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-edit-line" style={{ fontSize: 14, color: '#FFF' }} /></div>
+                  <div onClick={() => { if (window.confirm(`Supprimer l'agence ${ag.agency.name} ?`)) { apiFetch(`/api/company/agencies/${ag.agency.id}`, { method: 'DELETE' }, token).then(fetchData); } }} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-delete-bin-line" style={{ fontSize: 14, color: '#EF4444' }} /></div>
+                </div>
+              </div>
+              {/* Stats */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
+                {[{ val: ag.prescriber_count, label: 'Prescripteurs', color: '#FFF' }, { val: ag.comm_validated, label: 'EUR validees', color: '#10B981' }, { val: ag.comm_pending, label: 'EUR en att.', color: '#F59E0B' }].map((s, i) => (
+                  <div key={i} style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.val}</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>{s.label}</div></div>
+                ))}
+              </div>
+              {/* Prescribers in agency */}
+              {(data.prescriber_ranking || []).filter((p: any) => p.agency_id === ag.agency.id).map((pr: any, i: number) => (
+                <div key={pr.id}>
+                  {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' } as any} />}
+                  <div onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', cursor: 'pointer' } as any}>
+                    <div style={{ width: 28, height: 28, borderRadius: 999, background: 'rgba(212,132,90,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 11, fontWeight: 800, color: '#D4845A' }}>{pr.name?.charAt(0)}</span></div>
+                    <div style={{ flex: 1, fontSize: 13, fontWeight: 600, color: '#FFF' }}>{pr.name}</div>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{pr.prescription_count} presc.</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>{(pr.comm_validated || 0) + (pr.comm_pending || 0)} EUR</span>
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.2)' }} />
+                  </div>
+                </div>
+              ))}
+              {/* Assign prescriber button */}
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0' } as any} />
+              <div onClick={() => setAssignModal({ targetAgencyId: ag.agency.id, targetAgencyName: ag.agency.name })} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 0', cursor: 'pointer' } as any}>
+                <i className="ri-user-add-line" style={{ fontSize: 14, color: data.unassigned_prescribers > 0 ? '#3B82F6' : 'rgba(255,255,255,0.3)' }} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: data.unassigned_prescribers > 0 ? '#3B82F6' : 'rgba(255,255,255,0.3)' }}>{data.unassigned_prescribers > 0 ? `Ajouter un prescripteur (${data.unassigned_prescribers} dispo.)` : 'Gerer les prescripteurs'}</span>
+              </div>
+            </div>
+          ))}
+
+          {/* Unassigned prescribers */}
+          {data.unassigned_prescribers > 0 && (
+            <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 12 } as any}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#EF4444', marginBottom: 8 }}>Non assignes ({data.unassigned_prescribers})</div>
+              {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).map((pr: any, i: number) => (
+                <div key={pr.id}>
+                  {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' } as any} />}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' } as any}>
+                    <i className="ri-user-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }} />
+                    <span style={{ flex: 1, fontSize: 13, color: '#FFF' }}>{pr.name}</span>
+                    <div onClick={() => setAssignModal(pr)} style={{ padding: '4px 12px', borderRadius: 999, background: 'rgba(59,130,246,0.15)', cursor: 'pointer' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#3B82F6' }}>Assigner</span></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Create modal */}
+        {showCreate && (<div onClick={() => setShowCreate(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ background: '#1a1a2e', borderRadius: 28, padding: 24, width: '100%', maxWidth: 400, border: '1px solid rgba(255,255,255,0.1)' } as any}><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Nouvelle agence</div><div style={{ marginBottom: 10 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>Nom</div><input value={newName} onChange={(e: any) => setNewName(e.target.value)} placeholder="Ex: Agence Paris Nord" style={{ width: '100%', padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14 } as any} /></div><div style={{ marginBottom: 10 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>Adresse</div><input value={newAddr} onChange={(e: any) => setNewAddr(e.target.value)} placeholder="Ex: 12 rue de la Paix" style={{ width: '100%', padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14 } as any} /></div><div style={{ display: 'flex', gap: 10, marginTop: 8 } as any}><div onClick={() => setShowCreate(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div><div onClick={createAgency} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: '#FFF', color: '#111', fontWeight: 700, cursor: 'pointer' } as any}>{creating ? '...' : 'Creer'}</div></div></div></div>)}
+
+        {/* Edit modal */}
+        {editAgency && (<div onClick={() => setEditAgency(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ background: '#1a1a2e', borderRadius: 28, padding: 24, width: '100%', maxWidth: 400, border: '1px solid rgba(255,255,255,0.1)' } as any}><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Modifier l'agence</div><div style={{ marginBottom: 10 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>Nom</div><input value={editName} onChange={(e: any) => setEditName(e.target.value)} style={{ width: '100%', padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14 } as any} /></div><div style={{ marginBottom: 10 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>Adresse</div><input value={editAddr} onChange={(e: any) => setEditAddr(e.target.value)} style={{ width: '100%', padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14 } as any} /></div><div style={{ display: 'flex', gap: 10, marginTop: 8 } as any}><div onClick={() => setEditAgency(null)} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div><div onClick={async () => { await apiFetch(`/api/company/agencies/${editAgency.id}`, { method: 'PUT', body: JSON.stringify({ name: editName.trim(), address: editAddr.trim() }) }, token); setEditAgency(null); fetchData(); }} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: '#FFF', color: '#111', fontWeight: 700, cursor: 'pointer' } as any}>Enregistrer</div></div></div></div>)}
+
+        {/* Assign modal */}
+        {assignModal && (<div onClick={() => setAssignModal(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ background: '#1a1a2e', borderRadius: 28, padding: 24, width: '100%', maxWidth: 400, border: '1px solid rgba(255,255,255,0.1)', maxHeight: '80vh', overflowY: 'auto' } as any}>
+          {assignModal.targetAgencyId ? (<>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Gerer {assignModal.targetAgencyName}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Prescripteurs non assignes</div>
+            {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).map((pr: any) => (<div key={pr.id} onClick={() => assignToAgency(pr.id, assignModal.targetAgencyId)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}><i className="ri-user-line" style={{ fontSize: 14, color: '#10B981' }} /><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{pr.name}</span><i className="ri-add-circle-line" style={{ fontSize: 16, color: '#3B82F6' }} /></div>))}
+            {(data.prescriber_ranking || []).filter((p: any) => !p.agency_id).length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: 12 }}>Tous assignes</div>}
+            {(data.prescriber_ranking || []).filter((p: any) => p.agency_id === assignModal.targetAgencyId).length > 0 && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0' } as any} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Dans cette agence</div>{(data.prescriber_ranking || []).filter((p: any) => p.agency_id === assignModal.targetAgencyId).map((pr: any) => (<div key={pr.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}><i className="ri-user-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{pr.name}</span><div onClick={() => assignToAgency(pr.id, null)} style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.15)', cursor: 'pointer' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#EF4444' }}>Retirer</span></div></div>))}</>)}
+          </>) : (<>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Assigner {assignModal.name}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez une agence</div>
+            {(data.agencies || []).map((ag: any) => (<div key={ag.agency.id} onClick={() => assignToAgency(assignModal.id, ag.agency.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}><i className="ri-building-line" style={{ fontSize: 14, color: '#D4845A' }} /><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{ag.agency.name}</span><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} /></div>))}
+          </>)}
+          <div onClick={() => setAssignModal(null)} style={{ padding: '12px', textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontWeight: 600, cursor: 'pointer', marginTop: 10 } as any}>Fermer</div>
+        </div></div>)}
+      </div>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
