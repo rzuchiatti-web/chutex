@@ -1296,11 +1296,14 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [dd, prs] = await Promise.all([
+      const [dd, prs, cp] = await Promise.all([
         apiFetch('/api/company/dashboard', {}, token),
         apiFetch('/api/company/prescribers', {}, token).catch(() => []),
+        apiFetch('/api/company/prescriptions', {}, token).catch(() => []),
       ]);
-      setDashData(dd);
+      // Use company/prescriptions for accurate data, fallback to dashboard
+      const realPrescs = Array.isArray(cp) && cp.length > 0 ? cp : (dd?.prescriptions || []);
+      setDashData({ ...dd, prescriptions: realPrescs });
       setPrescribers(Array.isArray(prs) ? prs : []);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
