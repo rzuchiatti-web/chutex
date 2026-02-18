@@ -807,7 +807,6 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
       ))}
     </ScrollView>
   );
-}
                   <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' }} />
                   <Text style={{ fontSize: 10, fontWeight: '700', color: '#10B981' }}>ACTIF</Text>
                 </View>
