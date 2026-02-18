@@ -1576,6 +1576,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
       </Modal>
     </View>
   );
+  // end native
 }
 
 /* ===== MAIN ===== */
