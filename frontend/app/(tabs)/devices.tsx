@@ -1376,6 +1376,12 @@ export default function DevicesScreen() {
   if (r === 'beneficiary' && Platform.OS === 'web') {
     return <DeviceManagement token={token} />;
   }
+  // Admin, Company, Teleassistance: full screen web
+  if (Platform.OS === 'web') {
+    if (r === 'admin') return <AdminPrescripteurs token={token} />;
+    if (r === 'prescriber_company') return <CompanyPrescriptionsTab token={token} />;
+    if (r === 'teleassistance') return <SubscribersList token={token} />;
+  }
 
   return (
     <View key={r} style={[d.safeArea, { backgroundColor: '#FFFFFF' }]} testID="devices-screen">
