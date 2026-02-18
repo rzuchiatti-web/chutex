@@ -342,6 +342,61 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
             )) : <div style={{ textAlign: 'center', padding: '30px 0' } as any}><i className="ri-loader-4-line" style={{ fontSize: 24, color: 'rgba(255,255,255,0.3)' }} /></div>}
           </GlassPopup>
 
+          {/* CARE SUBSCRIPTION DETAIL POPUP */}
+          {showCareDetail && (
+            <div onClick={() => setShowCareDetail(false)} data-testid="care-detail-popup" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(88,40,200,0.15)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                  <div onClick={() => setShowCareDetail(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                </div>
+                {/* Header */}
+                <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+                  <div style={{ width: 72, height: 72, borderRadius: 22, background: 'linear-gradient(135deg, rgba(124,92,255,0.3), rgba(139,92,246,0.2))', border: '1px solid rgba(124,92,255,0.4)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+                    <i className="ri-shield-star-line" style={{ fontSize: 36, color: '#A78BFA' }} />
+                  </div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>Abonnement Care</div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', marginTop: 10 } as any}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
+                  </div>
+                </div>
+                {/* Details */}
+                {[
+                  { icon: 'ri-shield-check-line', label: 'Type', value: 'Care — Teleassistance 24/7' },
+                  { icon: 'ri-phone-line', label: 'Teleassistance', value: 'Plateau d\'ecoute 24h/24, 7j/7' },
+                  { icon: 'ri-first-aid-kit-line', label: 'Intervention', value: 'Intervenants Care a domicile' },
+                  { icon: 'ri-map-pin-line', label: 'Suivi temps reel', value: 'Geolocalisation des intervenants' },
+                  { icon: 'ri-file-text-line', label: 'Rapports', value: 'Rapports d\'intervention detailles' },
+                  subData?.subscription?.created_at && { icon: 'ri-calendar-line', label: 'Souscrit le', value: new Date(subData.subscription.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
+                  subData?.subscription?.source && { icon: 'ri-information-line', label: 'Source', value: subData.subscription.source === 'manual' ? 'Activation manuelle' : subData.subscription.source },
+                ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
+                  <div key={i}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0' } as any}>
+                      <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(124,92,255,0.12)', border: '1px solid rgba(124,92,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                        <i className={item.icon} style={{ fontSize: 16, color: '#A78BFA' }} />
+                      </div>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>{item.label}</div>
+                        <div style={{ fontSize: 14, color: '#FFF', fontWeight: 500 }}>{item.value}</div>
+                      </div>
+                    </div>
+                    {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}
+                  </div>
+                ))}
+                {/* Included features */}
+                <div style={{ marginTop: 20, padding: '16px 18px', borderRadius: 18, background: 'rgba(124,92,255,0.08)', border: '1px solid rgba(124,92,255,0.15)' } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>Inclus dans votre abonnement</div>
+                  {['Detection de chute automatique', 'Bouton SOS sur bracelet', 'Plateau d\'ecoute 24/7', 'Envoi d\'intervenants Care', 'Suivi GPS en temps reel', 'Notifications aux gardiens', 'Rapports de cloture'].map((f, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 } as any}>
+                      <i className="ri-check-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                      <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>{f}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           <HelpCenter visible={showHelp} onClose={() => setShowHelp(false)} />
         </div>
       </div>
