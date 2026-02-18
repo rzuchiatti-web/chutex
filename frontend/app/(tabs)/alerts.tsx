@@ -32,6 +32,15 @@ export default function AlertsScreen() {
 
   const openIntervenantPopup = (userId?: string) => {
     setShowIntervenantPopup(true);
+    const iv = alertDetail?.interventions?.[0] || {};
+    const recipients = iv.recipients || [];
+    if (userId) { const found = recipients.find((r: any) => r.id === userId); if (found) { setSelectedRecipient(found); return; } }
+    if (iv.intervenant_profile) { setSelectedRecipient(iv.intervenant_profile); }
+    else if (recipients.length > 0) { setSelectedRecipient(recipients[0]); }
+  };
+
+  const openIntervenantPopup = (userId?: string) => {
+    setShowIntervenantPopup(true);
     // Find the recipient profile from enriched data
     const iv = alertDetail?.interventions?.[0] || {};
     const recipients = iv.recipients || [];
