@@ -1290,13 +1290,14 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
         apiFetch('/api/company/intervenants', {}, token).catch(() => []),
         apiFetch('/api/company/prescribers', {}, token).catch(() => []),
         apiFetch('/api/company/interventions', {}, token).catch(() => []),
-        apiFetch('/api/company/prescriptions', {}, token).catch(() => []),
+        apiFetch('/api/company/dashboard', {}, token).catch(() => ({})),
         apiFetch('/api/company/alerts', {}, token).catch(() => []),
         apiFetch('/api/company/ranking', {}, token).catch(() => []),
         apiFetch('/api/company/rewards/current', {}, token).catch(() => null),
         apiFetch('/api/company/agencies', {}, token).catch(() => []),
       ]);
-      setStats(st); setIntervenants(iv); setPrescribers(pr); setInterventions(intr); setPrescriptions(pres); setAlerts(al); setRanking(rk); setReward(rw); setAgencies(Array.isArray(ag) ? ag : []);
+      const dashPrescs = pres?.prescriptions || [];
+      setStats(st); setIntervenants(iv); setPrescribers(pr); setInterventions(intr); setPrescriptions(dashPrescs); setAlerts(al); setRanking(rk); setReward(rw); setAgencies(Array.isArray(ag) ? ag : []);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
