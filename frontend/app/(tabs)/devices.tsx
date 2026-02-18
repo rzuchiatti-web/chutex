@@ -1420,6 +1420,13 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
 
   /* ─── LIST: copie exacte du design gardien ─── */
   if (Platform.OS === 'web') {
+  /* ─── LIST ─── */
+  if (Platform.OS === 'web') {
+    const nextMonth = new Date(); nextMonth.setMonth(nextMonth.getMonth() + 1);
+    const nextPayDate = `01/${String(nextMonth.getMonth() + 1).padStart(2, '0')}/${nextMonth.getFullYear()}`;
+    const monthPrescs = prescTab === 'subscribed' ? subscribedPrescs.filter((p: any) => p.created_at && p.created_at.startsWith(selectedMonth)) : displayedPrescs;
+    const filteredPrescs = searchPresc.trim() ? monthPrescs.filter((p: any) => p.beneficiary_name?.toLowerCase().includes(searchPresc.toLowerCase()) || p.prescriber_name?.toLowerCase().includes(searchPresc.toLowerCase())) : monthPrescs;
+    const monthTotal = monthPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <div style={{ position: 'absolute', inset: 0 } as any}><img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} /><div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} /></div>
