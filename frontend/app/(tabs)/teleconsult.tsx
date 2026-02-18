@@ -1350,12 +1350,10 @@ function CompanyInterventionsTab({ token }: { token: string }) {
 
   /* ─── ALL INTERVENANTS: full-screen list (early return) ─── */
   if (showAllIntervenants && Platform.OS === 'web') {
-    const BG_BLACK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
     const filtered = search.trim() ? intervenants.filter((iv: any) => iv.name?.toLowerCase().includes(search.toLowerCase())) : intervenants;
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <img src={BG_BLACK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
+        <div style={{ position: 'absolute', inset: 0 } as any}><img src={BG_HEADER} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} /><div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' } as any} /></div>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
           <div onClick={() => { setShowAllIntervenants(false); setSearch(''); }} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
           <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Tous les intervenants ({intervenants.length})</div>
