@@ -393,30 +393,6 @@ export default function AlertsScreen() {
                 })()}
               </div>
 
-              {/* Beneficiary medical info */}
-              {alertDetail?.beneficiary && (
-                <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Fiche beneficiaire</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 } as any}>
-                    <div style={{ width: 40, height: 40, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{(alertDetail.beneficiary.name || '?').charAt(0)}</span></div>
-                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{alertDetail.beneficiary.name}</div>{alertDetail.beneficiary.phone && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{alertDetail.beneficiary.phone}</div>}</div>
-                  </div>
-                  {[
-                    alertDetail.beneficiary.blood_type && { label: 'Groupe sanguin', value: alertDetail.beneficiary.blood_type, icon: 'ri-drop-line', color: '#EF4444' },
-                    alertDetail.beneficiary.medical_conditions && { label: 'Pathologies', value: alertDetail.beneficiary.medical_conditions, icon: 'ri-heart-pulse-line', color: '#F59E0B' },
-                    alertDetail.beneficiary.allergies && { label: 'Allergies', value: alertDetail.beneficiary.allergies, icon: 'ri-alarm-warning-line', color: '#EF4444' },
-                  ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
-                    <div key={i}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 0' } as any}>
-                        <i className={item.icon} style={{ fontSize: 14, color: item.color, marginTop: 2, flexShrink: 0 }} />
-                        <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.4 }}>{item.value}</div></div>
-                      </div>
-                      {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}
-                    </div>
-                  ))}
-                </div>
-              )}
-
               {/* Intervention report */}
               {(() => {
                 const ivReport = selectedAlert.intervention_report || (alertDetail?.interventions?.[0]?.report);
