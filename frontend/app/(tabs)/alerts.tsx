@@ -307,57 +307,90 @@ export default function AlertsScreen() {
             </div>
           )}
 
-          {/* Resolved info — FULL DETAIL with intervention, report, timeline */}
+          {/* Resolved info — FULL DETAIL */}
           {isResolved && (
             <div style={{ marginTop: 6 } as any}>
               {/* Resolution summary */}
               <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Resolution</div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Resolution</div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Resolue le {selectedAlert.resolved_at ? new Date(selectedAlert.resolved_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</div>
-                {selectedAlert.resolved_by_name && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>Par {selectedAlert.resolved_by_name}</div>}
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
+                {selectedAlert.resolved_by_name && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Par {selectedAlert.resolved_by_name}</div>}
                 {selectedAlert.created_at && selectedAlert.resolved_at && (() => {
                   const dur = Math.round((new Date(selectedAlert.resolved_at).getTime() - new Date(selectedAlert.created_at).getTime()) / 60000);
-                  return <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', marginTop: 8 } as any}>
-                    <i className="ri-time-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }} />
-                    <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>Duree : {dur >= 60 ? `${Math.floor(dur/60)}h${dur%60 > 0 ? String(dur%60).padStart(2,'0') : ''}` : `${dur} min`}</span>
-                  </div>;
+                  return <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', marginTop: 8 } as any}><i className="ri-time-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }} /><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>Duree : {dur >= 60 ? `${Math.floor(dur/60)}h${dur%60 > 0 ? String(dur%60).padStart(2,'0') : ''}` : `${dur} min`}</span></div>;
                 })()}
               </div>
 
-              {/* Intervention report (if exists) */}
+              {/* Beneficiary medical info */}
+              {alertDetail?.beneficiary && (
+                <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Fiche beneficiaire</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 } as any}>
+                    <div style={{ width: 40, height: 40, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{(alertDetail.beneficiary.name || '?').charAt(0)}</span></div>
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{alertDetail.beneficiary.name}</div>{alertDetail.beneficiary.phone && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{alertDetail.beneficiary.phone}</div>}</div>
+                  </div>
+                  {[
+                    alertDetail.beneficiary.blood_type && { label: 'Groupe sanguin', value: alertDetail.beneficiary.blood_type, icon: 'ri-drop-line', color: '#EF4444' },
+                    alertDetail.beneficiary.medical_conditions && { label: 'Pathologies', value: alertDetail.beneficiary.medical_conditions, icon: 'ri-heart-pulse-line', color: '#F59E0B' },
+                    alertDetail.beneficiary.allergies && { label: 'Allergies', value: alertDetail.beneficiary.allergies, icon: 'ri-alarm-warning-line', color: '#EF4444' },
+                  ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
+                    <div key={i}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 0' } as any}>
+                        <i className={item.icon} style={{ fontSize: 14, color: item.color, marginTop: 2, flexShrink: 0 }} />
+                        <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.4 }}>{item.value}</div></div>
+                      </div>
+                      {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Intervention report */}
               {(() => {
                 const ivReport = selectedAlert.intervention_report || (alertDetail?.interventions?.[0]?.report);
-                const ivData = alertDetail?.interventions?.[0];
-                if (!ivReport && !ivData) return null;
-                const report = ivReport || {};
+                if (!ivReport) return null;
+                const entries = [
+                  ivReport.description && { label: 'Description', value: ivReport.description },
+                  ivReport.actions_taken && { label: 'Actions realisees', value: ivReport.actions_taken },
+                  ivReport.patient_condition && { label: 'Etat du patient', value: ivReport.patient_condition === 'stable' ? 'Stable' : ivReport.patient_condition },
+                  ivReport.follow_up_notes && { label: 'Suivi necessaire', value: ivReport.follow_up_notes, warn: true },
+                ].filter(Boolean);
                 return (
                   <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
                     <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rapport d'intervention</div>
-                    {report.description && <div style={{ marginBottom: 10 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Description</div><div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{report.description}</div></div>}
-                    {report.actions_taken && <div style={{ marginBottom: 10 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Actions realisees</div><div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{report.actions_taken}</div></div>}
-                    {report.patient_condition && <div style={{ marginBottom: 10 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Etat du patient</div><div style={{ fontSize: 13, color: '#FFF' }}>{report.patient_condition === 'stable' ? 'Stable' : report.patient_condition}</div></div>}
-                    {report.follow_up_notes && <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' } as any}><div style={{ fontSize: 9, fontWeight: 600, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 2 }}>Suivi necessaire</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.4 }}>{report.follow_up_notes}</div></div>}
-                    {report.completed_by && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>Redige par {report.completed_by}</div>}
+                    {entries.map((e: any, i: number) => (
+                      <div key={i}>
+                        {e.warn ? (
+                          <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', margin: '6px 0' } as any}><div style={{ fontSize: 9, fontWeight: 600, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 2 }}>{e.label}</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.4 }}>{e.value}</div></div>
+                        ) : (
+                          <div style={{ padding: '10px 0' } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{e.label}</div><div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{e.value}</div></div>
+                        )}
+                        {i < entries.length - 1 && !e.warn && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}
+                      </div>
+                    ))}
+                    {ivReport.completed_by && <><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0' } as any} /><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Redige par {ivReport.completed_by}</div></>}
                   </div>
                 );
               })()}
 
-              {/* Closure report (from guardian/beneficiary form) */}
+              {/* Closure report */}
               {selectedAlert.report?.answers && (
                 <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
                   <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rapport de cloture</div>
-                  {Object.entries(selectedAlert.report.answers).filter(([k]) => !['notes','closed_by','closed_at','closed_by_role'].includes(k)).map(([key, val]: any) => (
-                    <div key={key} style={{ marginBottom: 8 } as any}>
-                      <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{key === 'situation' ? 'Situation' : key === 'actions' ? 'Actions' : key === 'condition' ? 'Etat' : key === 'reason' ? 'Raison' : key}</div>
-                      <div style={{ fontSize: 13, color: '#FFF' }}>{val}</div>
+                  {Object.entries(selectedAlert.report.answers).filter(([k]) => !['notes','closed_by','closed_at','closed_by_role'].includes(k)).map(([key, val]: any, i: number, arr: any[]) => (
+                    <div key={key}>
+                      <div style={{ padding: '10px 0' } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{key === 'situation' ? 'Situation' : key === 'actions' ? 'Actions' : key === 'condition' ? 'Etat' : key === 'reason' ? 'Raison' : key}</div><div style={{ fontSize: 13, color: '#FFF' }}>{val}</div></div>
+                      {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}
                     </div>
                   ))}
-                  {selectedAlert.report.answers.notes && <div style={{ marginTop: 4 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Note</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>{selectedAlert.report.answers.notes}</div></div>}
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>Cloture par {selectedAlert.report.answers.closed_by || selectedAlert.report.closed_by_name || '-'} ({selectedAlert.report.answers.closed_by_role || 'gardien'})</div>
+                  {selectedAlert.report.answers.notes && <><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' } as any} /><div style={{ padding: '8px 0' } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Note</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>{selectedAlert.report.answers.notes}</div></div></>}
+                  <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' } as any} />
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', paddingTop: 4 }}>Cloture par {selectedAlert.report.answers.closed_by || selectedAlert.report.closed_by_name || '-'} ({selectedAlert.report.answers.closed_by_role || 'gardien'})</div>
                 </div>
               )}
 
-              {/* Intervener who handled it */}
+              {/* Intervener */}
               {(() => {
                 const iv = alertDetail?.interventions?.[0];
                 if (!iv?.assigned_name) return null;
@@ -368,19 +401,19 @@ export default function AlertsScreen() {
                       <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Intervenant</div>
                       {iv.structure_name && <div style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 } as any}>
-                      <div style={{ width: 40, height: 40, borderRadius: 999, background: iv.structure_name ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        <span style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{iv.assigned_name.charAt(0)}</span>
-                      </div>
-                      <div style={{ flex: 1 } as any}>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{iv.assigned_name}</div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{iv.structure_name || 'Gardien'}</div>
-                      </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                      <div style={{ width: 40, height: 40, borderRadius: 999, background: iv.structure_name ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{iv.assigned_name.charAt(0)}</span></div>
+                      <div style={{ flex: 1 } as any}><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{iv.assigned_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{iv.structure_name || 'Gardien'}</div></div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 } as any}>
-                      {iv.distance_km && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Distance</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{iv.distance_km} km</div></div>}
-                      {dur != null && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Duree</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{dur >= 60 ? `${Math.floor(dur/60)}h${dur%60 > 0 ? String(dur%60).padStart(2,'0') : ''}` : `${dur} min`}</div></div>}
-                      {iv.accepted_at && <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Accepte a</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{new Date(iv.accepted_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div></div>}
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 } as any}>
+                      {[
+                        iv.distance_km && { label: 'Distance', value: `${iv.distance_km} km` },
+                        dur != null && { label: 'Duree', value: dur >= 60 ? `${Math.floor(dur/60)}h${dur%60>0?String(dur%60).padStart(2,'0'):''}` : `${dur} min` },
+                        iv.accepted_at && { label: 'Accepte a', value: new Date(iv.accepted_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' }) },
+                      ].filter(Boolean).map((item: any, i: number) => (
+                        <div key={i} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{item.label}</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{item.value}</div></div>
+                      ))}
                     </div>
                   </div>
                 );
