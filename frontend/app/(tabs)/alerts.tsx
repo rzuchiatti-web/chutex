@@ -28,6 +28,17 @@ export default function AlertsScreen() {
   const [showExplainer, setShowExplainer] = useState(false);
   const [alertDetail, setAlertDetail] = useState<any>(null);
   const [showIntervenantPopup, setShowIntervenantPopup] = useState(false);
+  const [intervenantProfile, setIntervenantProfile] = useState<any>(null);
+
+  const openIntervenantPopup = async (userId?: string) => {
+    setShowIntervenantPopup(true);
+    if (userId) {
+      try {
+        const profile = await apiFetch(`/api/company/intervenant/${userId}`, {}, token).catch(() => null);
+        if (profile) setIntervenantProfile(profile);
+      } catch {}
+    }
+  };
 
   // Fetch enriched detail when selecting an alert
   const selectAlert = useCallback(async (alert: any) => {
