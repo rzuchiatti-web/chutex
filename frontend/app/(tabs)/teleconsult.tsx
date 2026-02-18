@@ -469,6 +469,40 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const [careError, setCareError] = useState('');
   const [selectedIv, setSelectedIv] = useState<any>(null);
   const [showIntervenantPopup, setShowIntervenantPopup] = useState(false);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [showStructurePopup, setShowStructurePopup] = useState(false);
+
+  const selectIntervention = async (iv: any) => {
+    setSelectedIv(iv);
+    setLoadingDetail(true);
+    try {
+      const detail = await apiFetch(`/api/interventions/${iv.id}/detail`, {}, token);
+      const enriched = { ...iv };
+      if (detail.beneficiary) {
+        enriched.beneficiary_info = detail.beneficiary;
+        enriched.beneficiary_name = detail.beneficiary.name || iv.beneficiary_name;
+      }
+      if (detail.intervenant) {
+        enriched.assigned_name = detail.intervenant.name || iv.assigned_name;
+        enriched.structure_name = detail.intervenant.intervention_structure || detail.intervenant.structure_name;
+        enriched.intervener_phone = detail.intervenant.phone;
+        enriched.intervener_email = detail.intervenant.email;
+        enriched.distance_km = detail.intervenant.distance_km || iv.distance_km;
+      }
+      if (detail.intervention) {
+        enriched.report = detail.intervention.report || iv.report;
+        enriched.timeline = detail.intervention.timeline || iv.timeline;
+        enriched.accepted_at = detail.intervention.accepted_at || iv.accepted_at;
+        enriched.completed_at = detail.intervention.completed_at || iv.completed_at;
+        enriched.alert_message = detail.alert?.message || detail.intervention.notes || iv.notes;
+      }
+      if (detail.alert) {
+        enriched.alert_message = detail.alert.message || enriched.alert_message;
+      }
+      setSelectedIv(enriched);
+    } catch (e) { console.warn('Detail fetch failed', e); }
+    finally { setLoadingDetail(false); }
+  };
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#9C27B0" /></View>;
 
