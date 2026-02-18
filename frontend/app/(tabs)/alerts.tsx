@@ -553,7 +553,7 @@ export default function AlertsScreen() {
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' }}><ActivityIndicator size="large" color="#111" /></View>;
 
   /* ─── GUARDIAN: bypass wrapper, full screen with header ─── */
-  if (r === 'guardian' || r === 'beneficiary') {
+  if (r === 'guardian' || r === 'beneficiary' || r === 'prescriber_company') {
     return (
       <ScrollView style={{ flex: 1, backgroundColor: '#FFFFFF' }} contentContainerStyle={{ paddingBottom: 80 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAlerts(); }} />}>
         {/* Header with background */}
