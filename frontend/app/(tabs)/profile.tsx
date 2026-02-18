@@ -222,22 +222,16 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
 
           {/* Care subscription card — beneficiary only */}
           {isBen && user.has_subscription && (
-            <div onClick={() => { setShowCareDetail(true); if (!subData) apiFetch('/api/subscriptions/my', {}, token).then(setSubData).catch(() => {}); }} data-testid="care-subscription-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, padding: '20px 18px', marginBottom: 14, cursor: 'pointer', background: 'linear-gradient(135deg, rgba(124,92,255,0.25), rgba(139,92,246,0.15))', border: '1px solid rgba(124,92,255,0.35)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 0.15s' } as any}
+            <div onClick={() => { setShowCareDetail(true); if (!subData) apiFetch('/api/subscriptions/my', {}, token).then(setSubData).catch(() => {}); }} data-testid="care-subscription-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.01)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = 'scale(1)'; }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                <div style={{ width: 50, height: 50, borderRadius: 16, background: 'rgba(124,92,255,0.25)', border: '1px solid rgba(124,92,255,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className="ri-shield-star-line" style={{ fontSize: 24, color: '#A78BFA' }} />
-                </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>Abonnement Care</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>Teleassistance 24/7 · Intervenants Care</div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                  <div style={{ padding: '4px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)' } as any}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#10B981' }}>ACTIF</span>
-                  </div>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 22 } as any} />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', borderRadius: 22 } as any} />
+              <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', padding: '0 22px' } as any}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>Abonnement Care</div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.25)', border: '1px solid rgba(16,185,129,0.4)' } as any}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
                 </div>
               </div>
             </div>
