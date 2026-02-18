@@ -811,16 +811,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
 
 /* ====================== TELEASSISTANCE ====================== */
-                </View>
-              </View>
-              {[
-                { icon: 'business-outline', label: 'Structure', value: user.intervention_structure || user.structure_name || '-' },
-                { icon: 'briefcase-outline', label: 'Profession', value: user.profession || '-' },
-                { icon: 'card-outline', label: 'SIRET', value: user.siret || '-' },
-                { icon: 'location-outline', label: 'Adresse', value: user.address || '-' },
-                { icon: 'call-outline', label: 'Telephone', value: user.phone || '-' },
-                { icon: 'navigate-outline', label: 'Rayon', value: `${user.intervention_radius_km || 30} km` },
-              ].map(({ icon, label, value }) => value !== '-' ? (
+function TeleassistanceDashboard({ token }: { token: string }) {
                 <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(255,255,255,0.06)' }}>
                   <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center' }}>
                     <Icon name={icon as any} size={14} color="rgba(255,255,255,0.5)" />
