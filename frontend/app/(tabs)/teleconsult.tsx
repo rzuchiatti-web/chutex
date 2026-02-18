@@ -1436,10 +1436,8 @@ function CompanyInterventionsTab({ token }: { token: string }) {
         </div>
         {/* Cards = copie exacte gardien */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 100px' } as any}>
-          {displayedIvs.map((iv: any) => { const isActive = ['pending_acceptance','in_progress','en_route','dispatched'].includes(iv.status); const bgImg = isActive ? BG_VIOLET : BG_GREEN_IV; return (
-            <div key={iv.id} onClick={() => setSelectedIv(iv)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 110, boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}>
-              <img src={bgImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
+          {displayedIvs.map((iv: any) => { const isActive = ['pending_acceptance','in_progress','en_route','dispatched'].includes(iv.status); return (
+            <div key={iv.id} onClick={() => setSelectedIv(iv)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 110, background: 'rgba(255,255,255,0.05)', border: `1px solid ${isActive ? 'rgba(124,92,255,0.2)' : 'rgba(16,185,129,0.2)'}`, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}>
               <div style={{ position: 'relative', zIndex: 2 } as any}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
                   <div><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{iv.beneficiary_name}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>Le {new Date(iv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div></div>
