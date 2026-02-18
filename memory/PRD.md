@@ -4,7 +4,7 @@
 - Palette: Noir/Blanc/Gris + fonds images satines
 - Fonds: Rouge (alertes), Violet (interventions), Orange (prescriptions), Vert (resolues), Noir (dashboards/appareils), Bleu nuit (sante), Peche (beneficiaire), Argente (profil), Gold (challenges)
 - Composants: glass cards (backdrop-blur), boutons slide, pilules status, grilles info glass
-- Icons: Remix Icon CDN via WebIcon.tsx
+- Icons: Remix Icon CDN via WebIcon.tsx (116+ icones mappees)
 - Separateurs glass entre chaque donnee dans les fiches
 
 ## Comptes test
@@ -62,3 +62,22 @@
 - Intervenant: nom, structure, pilule Care, tel, email, distance, heure accepte/termine, statut — popup cliquable
 - Prescripteur: nom, structure, tel, email, prescriptions count, commission
 - Alerte resolue: resolution + duree, beneficiaire complet, rapport intervention, rapport cloture, intervenant, chronologie
+
+## Architecture
+- Frontend: Expo/React Native for Web + Expo Router
+- Backend: FastAPI + MongoDB
+- Icons: Remix Icon CDN (remixicon@4.6.0) via WebIcon.tsx
+- Maps: Leaflet + OSRM
+- Auth: JWT tokens
+
+## Bugs connus
+- Lefu Scale BLE: donnees live non fonctionnelles (parsing incorrect)
+- App native TestFlight: "Network Request Failed" (URL backend temporaire)
+
+## Taches restantes
+- P1: Deployer backend sur hebergeur permanent
+- P1: Correction parsing BLE Lefu Scale (SDK PPBluetoothKit natif iOS)
+- P2: Build natif et integration BLE bracelet J-Style
+- P2: Resolution connectivite app native
+- P3: Integration Shopify (bloque)
+- P4: Mode hors-ligne intervenants
