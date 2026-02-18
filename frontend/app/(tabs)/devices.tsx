@@ -838,6 +838,41 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             </div>
           </div>
         )}
+        {/* GLASS POPUP — Nouvelle prescription (web) */}
+        {showForm && (
+          <div onClick={() => setShowForm(false)} data-testid="new-prescription-popup" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                <div onClick={() => setShowForm(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Prescription</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 24 }}>Nouvelle prescription</div>
+              {[
+                { key: 'name', label: 'Nom du beneficiaire', placeholder: 'Jean Dupont' },
+                { key: 'email', label: 'Email', placeholder: 'jean@email.com', type: 'email' },
+                { key: 'phone', label: 'Telephone', placeholder: '06 12 34 56 78', type: 'tel' },
+                { key: 'notes', label: 'Notes', placeholder: 'Informations supplementaires...' },
+              ].map(f => (
+                <div key={f.key} style={{ marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
+                  <input type={f.type || 'text'} value={(formData as any)[f.key]} onChange={(e: any) => setFormData({ ...formData, [f.key]: e.target.value })} placeholder={f.placeholder}
+                    style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                </div>
+              ))}
+              <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Type d'abonnement</div>
+              <div style={{ display: 'flex', gap: 10, marginBottom: 20 } as any}>
+                {['standard', 'teleassistance'].map(t => (
+                  <div key={t} onClick={() => setFormData({ ...formData, type: t })} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${formData.type === t ? '#FFF' : 'rgba(255,255,255,0.1)'}`, background: formData.type === t ? 'rgba(255,255,255,0.15)' : 'transparent', color: formData.type === t ? '#FFF' : 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 600, transition: 'all 0.2s' } as any}>{t === 'standard' ? 'Standard' : 'Teleassistance'}</div>
+                ))}
+              </div>
+              <div onClick={() => { if (!submitting) submitPrescription(); }} data-testid="submit-prescription-btn" style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: submitting ? 'not-allowed' : 'pointer', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontSize: 15, fontWeight: 700, transition: 'all 0.2s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.25)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}>
+                {submitting ? '...' : 'Envoyer la prescription'}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
