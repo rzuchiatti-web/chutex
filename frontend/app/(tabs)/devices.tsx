@@ -1385,6 +1385,12 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
             </div>
           </div>
         </div>
+        {/* Rewards card */}
+        <div style={{ padding: '16px 18px', margin: '12px 16px 0', borderRadius: 20, background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.15)', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+          <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,215,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-trophy-line" style={{ fontSize: 22, color: '#FFD700' }} /></div>
+          <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Challenges prescripteurs</div><div style={{ fontSize: 11, color: '#888' }}>Classement et recompenses du mois</div></div>
+          <div style={{ display: 'flex', gap: 4 } as any}>{[{ c: '#FFD700' }, { c: '#C0C0C0' }, { c: '#CD7F32' }].map((m, i) => (<div key={i} style={{ width: 20, height: 20, borderRadius: 999, background: m.c, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 8, fontWeight: 800, color: '#FFF' }}>{i+1}</span></div>))}</div>
+        </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 100px' } as any}>
           {displayedPrescs.map((p: any) => { const isVal = p.status === 'subscribed'; return (
             <div key={p.id} onClick={() => setSelectedPresc(p)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 90, boxShadow: '0 8px 24px rgba(0,0,0,.15)' } as any}>
