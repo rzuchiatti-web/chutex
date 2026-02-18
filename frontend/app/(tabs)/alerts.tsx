@@ -39,20 +39,6 @@ export default function AlertsScreen() {
     else if (recipients.length > 0) { setSelectedRecipient(recipients[0]); }
   };
 
-  const openIntervenantPopup = (userId?: string) => {
-    setShowIntervenantPopup(true);
-    // Find the recipient profile from enriched data
-    const iv = alertDetail?.interventions?.[0] || {};
-    const recipients = iv.recipients || [];
-    if (userId) {
-      const found = recipients.find((r: any) => r.id === userId);
-      if (found) { setSelectedRecipient(found); return; }
-    }
-    // Fallback: use intervenant_profile or first recipient
-    if (iv.intervenant_profile) { setSelectedRecipient(iv.intervenant_profile); }
-    else if (recipients.length > 0) { setSelectedRecipient(recipients[0]); }
-  };
-
   // Fetch enriched detail when selecting an alert
   const selectAlert = useCallback(async (alert: any) => {
     setSelectedAlert(alert);
