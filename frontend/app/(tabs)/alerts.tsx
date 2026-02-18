@@ -377,9 +377,9 @@ export default function AlertsScreen() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                   <div style={{ width: 44, height: 44, borderRadius: 16, background: hasAssigned ? 'rgba(124,92,255,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${hasAssigned ? 'rgba(124,92,255,0.3)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>{hasAssigned ? <span style={{ fontSize: 18, fontWeight: 800, color: '#A78BFA' }}>{displayName.charAt(0)}</span> : <i className="ri-building-line" style={{ fontSize: 20, color: '#A78BFA' }} />}</div>
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{displayName}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{hasAssigned ? displayName : structure || 'Intervention Care'}</div>
                     {hasAssigned && structure && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 1 }}>{structure}</div>}
-                    {!hasAssigned && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{statusLabel}</div>}
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{statusLabel}</div>
                   </div>
                 </div>
                 {/* Stats — only show recipients count if NOT assigned */}
