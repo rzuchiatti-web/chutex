@@ -437,35 +437,6 @@ export default function AlertsScreen() {
                 </div>
               )}
 
-              {/* Intervener */}
-              {(() => {
-                const iv = alertDetail?.interventions?.[0];
-                if (!iv?.assigned_name) return null;
-                const dur = iv.accepted_at && (iv.completed_at || selectedAlert.resolved_at) ? Math.round((new Date(iv.completed_at || selectedAlert.resolved_at).getTime() - new Date(iv.accepted_at).getTime()) / 60000) : null;
-                return (
-                  <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
-                      <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Intervenant</div>
-                      {iv.structure_name && <div style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                      <div style={{ width: 40, height: 40, borderRadius: 999, background: iv.structure_name ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{iv.assigned_name.charAt(0)}</span></div>
-                      <div style={{ flex: 1 } as any}><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{iv.assigned_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{iv.structure_name || 'Gardien'}</div></div>
-                    </div>
-                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 } as any}>
-                      {[
-                        iv.distance_km && { label: 'Distance', value: `${iv.distance_km} km` },
-                        dur != null && { label: 'Duree', value: dur >= 60 ? `${Math.floor(dur/60)}h${dur%60>0?String(dur%60).padStart(2,'0'):''}` : `${dur} min` },
-                        iv.accepted_at && { label: 'Accepte a', value: new Date(iv.accepted_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' }) },
-                      ].filter(Boolean).map((item: any, i: number) => (
-                        <div key={i} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' } as any}><div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{item.label}</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{item.value}</div></div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-
               {/* Timeline */}
               {alertDetail?.timeline && alertDetail.timeline.length > 0 && (
                 <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
