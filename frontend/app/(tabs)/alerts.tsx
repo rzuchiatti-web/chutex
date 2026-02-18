@@ -28,16 +28,20 @@ export default function AlertsScreen() {
   const [showExplainer, setShowExplainer] = useState(false);
   const [alertDetail, setAlertDetail] = useState<any>(null);
   const [showIntervenantPopup, setShowIntervenantPopup] = useState(false);
-  const [intervenantProfile, setIntervenantProfile] = useState<any>(null);
+  const [selectedRecipient, setSelectedRecipient] = useState<any>(null);
 
-  const openIntervenantPopup = async (userId?: string) => {
+  const openIntervenantPopup = (userId?: string) => {
     setShowIntervenantPopup(true);
+    // Find the recipient profile from enriched data
+    const iv = alertDetail?.interventions?.[0] || {};
+    const recipients = iv.recipients || [];
     if (userId) {
-      try {
-        const profile = await apiFetch(`/api/company/intervenant/${userId}`, {}, token).catch(() => null);
-        if (profile) setIntervenantProfile(profile);
-      } catch {}
+      const found = recipients.find((r: any) => r.id === userId);
+      if (found) { setSelectedRecipient(found); return; }
     }
+    // Fallback: use intervenant_profile or first recipient
+    if (iv.intervenant_profile) { setSelectedRecipient(iv.intervenant_profile); }
+    else if (recipients.length > 0) { setSelectedRecipient(recipients[0]); }
   };
 
   // Fetch enriched detail when selecting an alert
