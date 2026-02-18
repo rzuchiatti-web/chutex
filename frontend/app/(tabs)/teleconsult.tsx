@@ -783,71 +783,31 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
     );
   }
 
+  /* ─── NATIVE FALLBACK ─── */
   return (
-                  </div>
-                )}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{iv.alert_message || 'Intervention'}</div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.18)', borderRadius: 999, padding: '8px 16px', border: '1px solid rgba(255,255,255,.2)', backdropFilter: 'blur(6px)' } as any}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
+    <ScrollView style={{ flex: 1, backgroundColor: '#111' }} contentContainerStyle={{ paddingBottom: 80, padding: 16 }}>
+      {user?.is_intervention_provider && (displayedIvs.length > 0 ? displayedIvs.map(iv => {
+        const isActive = ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status);
+        return (
           <TouchableOpacity key={iv.id} testID={`iv-${iv.id}`} onPress={() => setSelectedIv(iv)}>
-            <View style={{ borderRadius: 20, overflow: 'hidden', padding: 18, marginBottom: 12, backgroundColor: isActive ? '#0a3a2a' : '#5a1020' }}>
+            <View style={{ borderRadius: 20, overflow: 'hidden', padding: 18, marginBottom: 12, backgroundColor: 'rgba(255,255,255,0.05)' }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
-                <View><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.beneficiary_name}</Text><Text style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{new Date(iv.created_at).toLocaleString('fr-FR')}</Text></View>
-                {iv.distance_km && <View style={{ backgroundColor: 'rgba(255,255,255,.2)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}><Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>{iv.distance_km} Km</Text></View>}
+                <View><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{iv.beneficiary_name}</Text></View>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={{ fontSize: 14, fontWeight: '600', color: '#FFF' }}>{iv.alert_message || 'Intervention'}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,.18)', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 16 }}>
-                  <Icon name="heart-outline" size={16} color="#FFF" />
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Consulter</Text>
-                </View>
               </View>
             </View>
           </TouchableOpacity>
         );
       }) : (
-        <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 40, alignItems: 'center', ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } : {}) }}>
-          <Icon name={ivTab === 'active' ? 'time-outline' : 'checkmark-circle-outline'} size={40} color="#CCC" />
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#6B7280', marginTop: 12 }}>{ivTab === 'active' ? 'Aucune intervention en cours' : 'Aucune intervention terminee'}</Text>
-          <Text style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4, textAlign: 'center', paddingHorizontal: 20 }}>{ivTab === 'active' ? 'Vous serez notifie des que vous recevrez une mission d\'intervention' : 'Vos missions completees s\'afficheront ici avec le rapport'}</Text>
+        <View style={{ padding: 40, alignItems: 'center' }}>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: '#888' }}>Aucune intervention</Text>
         </View>
       ))}
-
-      </View>{/* End white container */}
-
-
-      {/* Care Detail Modal — GLASS DARK */}
-      <Modal visible={showCareModal} transparent animationType="fade" onRequestClose={() => setShowCareModal(false)}>
-        <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.5)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
-          <View style={{
-            borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%',
-            backgroundColor: '#111',
-            ...(Platform.OS === 'web' ? { backdropFilter: 'blur(24px) saturate(150%)', WebkitBackdropFilter: 'blur(24px) saturate(150%)', borderTop: '1px solid rgba(255,255,255,0.1)' } : {}),
-          } as any}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ fontSize: 20, fontWeight: '800', color: '#FFF' }}>Espace Intervenant Care</Text>
-              <TouchableOpacity onPress={() => setShowCareModal(false)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' }}>
-                <Icon name="close" size={20} color="#FFF" />
-              </TouchableOpacity>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 20, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 20, padding: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
-                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' }}>
-                  <Icon name="shield-checkmark" size={24} color="#FFF" />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{user.name}</Text>
-                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{user.intervention_structure || user.structure_name || 'Structure'}</Text>
-                </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(16,185,129,0.15)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 }}>
+    </ScrollView>
+  );
+}
                   <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' }} />
                   <Text style={{ fontSize: 10, fontWeight: '700', color: '#10B981' }}>ACTIF</Text>
                 </View>
