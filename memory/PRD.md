@@ -28,8 +28,10 @@
 ### Gardien
 - [x] Dashboard (fond noir, stats, alertes, beneficiaires)
 - [x] Alertes (fond rouge, detail avec beneficiaire complet, gardiens, intervenant popup)
-- [x] Interventions Care (fond violet, toggle, cartes glass, detail complet)
+- [x] Interventions Care (fond violet, toggle, cartes glass, detail complet avec appel API detail)
 - [x] Prescriptions (fond orange, toggle, detail complet)
+- [x] Pilule structure Care (popup ultra-glass avec infos structure, desactivation)
+- [x] Pilule structure Prescripteur (popup ultra-glass avec infos structure, commissions)
 
 ### SAAD Company
 - [x] Dashboard (fond noir, carte structure + agences, alertes rouge, intervention Care violet, prescriptions orange, challenge gold)
@@ -57,12 +59,6 @@
 - [x] Page intervention en cours (Leaflet carte + bottom sheet draggable 3 snaps)
 - [x] Fiches detail (gardien, beneficiaire, intervenant, prescripteur, abonne) — fond noir glass
 
-## Fiches detail enrichies
-- Beneficiaire: nom, tel, email, date naissance, genre, morphologie, groupe sanguin, pathologies (jaune), allergies (rouge), medecin + tel, contact urgence + tel, adresse
-- Intervenant: nom, structure, pilule Care, tel, email, distance, heure accepte/termine, statut — popup cliquable
-- Prescripteur: nom, structure, tel, email, prescriptions count, commission
-- Alerte resolue: resolution + duree, beneficiaire complet, rapport intervention, rapport cloture, intervenant, chronologie
-
 ## Architecture
 - Frontend: Expo/React Native for Web + Expo Router
 - Backend: FastAPI + MongoDB
@@ -70,9 +66,12 @@
 - Maps: Leaflet + OSRM
 - Auth: JWT tokens
 
-## Bugs connus
-- Lefu Scale BLE: donnees live non fonctionnelles (parsing incorrect)
-- App native TestFlight: "Network Request Failed" (URL backend temporaire)
+## Bugs corriges dans cette session
+- teleconsult.tsx: Fonction TeleassistanceDashboard dupliquee -> renommee AdminIntervenants
+- devices.tsx: Variables pendingP/subscribedP non definies -> pending/validated
+- teleconsult.tsx: Fiche detail intervention sans donnees enrichies -> appel API /interventions/{id}/detail
+- teleconsult.tsx: Pilule Actif-Structure sans popup -> popup ultra-glass ajoute
+- devices.tsx: Pilule Actif-Structure prescription sans popup web -> popup ultra-glass ajoute
 
 ## Taches restantes
 - P1: Deployer backend sur hebergeur permanent
