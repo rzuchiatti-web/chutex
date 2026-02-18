@@ -663,10 +663,23 @@ export default function AlertsScreen() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{alert.alert_type === 'fall' ? 'Chute detectee' : alert.alert_type === 'sos' ? 'SOS' : alert.alert_type === 'health_anomaly' ? 'Anomalie de sante' : alert.message || 'Alerte'}</div>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.15)', borderRadius: 999, padding: '8px 16px', border: '1px solid rgba(255,255,255,.2)' } as any}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                      <i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} />
                       <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span>
                     </div>
                   </div>
+                  {/* Intervention banner if active */}
+                  {isActive && (alert.care_provider || alert.intervener_info) && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10, padding: '10px 14px', borderRadius: 14, background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.3)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}>
+                      <div style={{ width: 32, height: 32, borderRadius: 999, background: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                        <i className="ri-map-pin-user-line" style={{ fontSize: 16, color: '#FFF' }} />
+                      </div>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>Intervention en cours</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{alert.intervener_info?.name || alert.care_provider} en route</div>
+                      </div>
+                      <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
