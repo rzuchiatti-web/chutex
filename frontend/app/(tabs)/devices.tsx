@@ -1370,6 +1370,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   }
 
   /* ─── ALL PRESCRIBERS ─── */
+  if (showAllPrescribers && Platform.OS === 'web') {
     const filtered = search.trim() ? prescribers.filter((p: any) => p.name?.toLowerCase().includes(search.toLowerCase())) : prescribers;
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
