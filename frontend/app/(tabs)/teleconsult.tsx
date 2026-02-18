@@ -1493,6 +1493,7 @@ export default function TeleconsultScreen() {
 
   // Company sees interventions with intervenants
   if (r === 'prescriber_company') {
+    if (Platform.OS === 'web') return <CompanyInterventionsTab token={token} />;
     return <CompanyInterventionsTab token={token} />;
   }
 
@@ -1502,6 +1503,12 @@ export default function TeleconsultScreen() {
   }
   if (r === 'beneficiary') {
     return <BeneficiaryTeleconsult token={token} />;
+  }
+
+  // Teleassistance + Admin: full screen web
+  if (Platform.OS === 'web') {
+    if (r === 'teleassistance') return <TeleassistanceDashboard token={token} />;
+    if (r === 'admin') return <AdminIntervenants token={token} />;
   }
 
   return (
