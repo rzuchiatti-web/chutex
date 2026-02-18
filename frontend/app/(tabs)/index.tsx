@@ -1360,11 +1360,11 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
           <div onClick={() => router.push('/(tabs)/teleconsult' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12, cursor: 'pointer' } as any}>
             <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2 } as any}>
+            <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Intervention Care</div>
               <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
                 {[{ val: activeIvs.length, label: 'En cours', pill: activeIvs.length > 0 ? '#A78BFA' : null }, { val: interventions.filter((iv: any) => iv.status === 'completed').length, label: 'Terminees', pill: '#10B981' }, { val: intervenants.length, label: 'Intervenants', pill: null }].map((s, i) => (
-                  <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>{s.pill ? <div style={{ display: 'inline-flex', padding: '2px 8px', borderRadius: 999, background: `${s.pill}30`, marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 600, color: s.pill }}>{s.label}</span></div> : <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginTop: 4 }}>{s.label}</div>}</div>
+                  <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>{s.pill ? <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: `${s.pill}30`, marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: s.pill }}>{s.label}</span></div> : <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>}</div>
                 ))}
               </div>
               <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', marginBottom: 10 } as any} />
