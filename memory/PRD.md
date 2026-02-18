@@ -82,6 +82,10 @@
   - Correction: Popups ultra-glass (blur 32px, scrollable)
   - Teste et valide pour tous les roles: Guardian, SAAD, Admin, Teleassistance
   - Test report: /app/test_reports/iteration_33.json — 100% PASS
+- alerts.tsx: Popup intervenant rendu en overlay (plus de fond gris)
+- profile.tsx: Carte Care violette pour beneficiaire (remplace pilule verte)
+  - Carte cliquable avec fond violet + badge ACTIF
+  - Popup detail Care avec toutes les infos abonnement + features incluses
 
 ## Taches restantes
 - P1: Verification coherence globale app (toutes pages, tous roles)
