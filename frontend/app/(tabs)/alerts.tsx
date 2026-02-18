@@ -87,7 +87,7 @@ export default function AlertsScreen() {
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
 
           {/* Intro */}
           <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
