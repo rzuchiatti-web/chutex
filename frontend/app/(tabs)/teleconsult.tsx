@@ -639,6 +639,16 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
             </div>
           )}
 
+          {/* SUIVRE L'INTERVENTION — visible pour tous les intervenants Care quand en cours */}
+          {!isDone && selectedIv.id && (
+            <div onClick={() => router.push({ pathname: '/intervention-map', params: { interventionId: selectedIv.id } })} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 10 } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}>
+              <i className="ri-map-pin-range-line" style={{ fontSize: 18, color: '#FFF' }} />
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Suivre l'intervention</span>
+            </div>
+          )}
+
           {/* RAPPORT */}
           {selectedIv.report && (
             <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
