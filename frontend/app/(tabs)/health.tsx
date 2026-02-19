@@ -480,31 +480,41 @@ function CompanyAgences({ token }: { token: string }) {
 
               {memberDetail && (<>
                 {/* Espace Intervenant Care */}
-                {memberDetail.intervenant && (
-                  <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(124,92,255,0.08)', border: '1px solid rgba(124,92,255,0.2)', marginBottom: 12 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
-                      <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(124,92,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-stethoscope-line" style={{ fontSize: 18, color: '#A78BFA' }} /></div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#A78BFA' }}>Espace Intervenant Care</div>
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
-                      {[
-                        { val: memberDetail.intervenant.total_interventions || 0, label: 'Total missions', color: '#FFF' },
-                        { val: memberDetail.intervenant.active_interventions || 0, label: 'En cours', color: '#A78BFA' },
-                        { val: memberDetail.intervenant.completed_interventions || 0, label: 'Terminées', color: '#10B981' },
-                      ].map((s, i) => (
-                        <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                          <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.val}</div>
-                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>{s.label}</div>
+                {memberDetail.intervenant && (() => {
+                  const ivActive = memberDetail.spaceStatus?.intervenant_active !== false;
+                  return (
+                    <div style={{ padding: '16px', borderRadius: 18, background: ivActive ? 'rgba(124,92,255,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${ivActive ? 'rgba(124,92,255,0.2)' : 'rgba(255,255,255,0.08)'}`, marginBottom: 12 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
+                        <div style={{ width: 36, height: 36, borderRadius: 12, background: ivActive ? 'rgba(124,92,255,0.2)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-stethoscope-line" style={{ fontSize: 18, color: ivActive ? '#A78BFA' : 'rgba(255,255,255,0.3)' }} /></div>
+                        <div style={{ flex: 1, fontSize: 14, fontWeight: 700, color: ivActive ? '#A78BFA' : 'rgba(255,255,255,0.4)' }}>Espace Intervenant Care{!ivActive && ' (désactivé)'}</div>
+                        {/* Toggle */}
+                        <div onClick={() => toggleSpace('intervenant', !ivActive)} style={{ padding: '6px 12px', borderRadius: 999, cursor: 'pointer', background: ivActive ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${ivActive ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)'}`, fontSize: 11, fontWeight: 700, color: ivActive ? '#EF4444' : '#10B981', display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                          <i className={ivActive ? 'ri-forbid-line' : 'ri-checkbox-circle-line'} style={{ fontSize: 13 }} />
+                          {ivActive ? 'Désactiver' : 'Réactiver'}
                         </div>
-                      ))}
+                      </div>
+                      {ivActive && (<>
+                        <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+                          {[
+                            { val: memberDetail.intervenant.total_interventions || 0, label: 'Total missions', color: '#FFF' },
+                            { val: memberDetail.intervenant.active_interventions || 0, label: 'En cours', color: '#A78BFA' },
+                            { val: memberDetail.intervenant.completed_interventions || 0, label: 'Terminées', color: '#10B981' },
+                          ].map((s, i) => (
+                            <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
+                              <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.val}</div>
+                              <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>{s.label}</div>
+                            </div>
+                          ))}
+                        </div>
+                        {memberDetail.intervenant.agency && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}><i className="ri-building-line" style={{ marginRight: 4 }} />{memberDetail.intervenant.agency.name}</div>}
+                        {memberDetail.intervenant.intervenant?.intervention_radius_km && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}><i className="ri-map-pin-range-line" style={{ marginRight: 4 }} />Rayon : {memberDetail.intervenant.intervenant.intervention_radius_km} km</div>}
+                        <div onClick={() => { setSelectedMember(null); setMemberDetail(null); router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: selectedMember.id } }); }} style={{ marginTop: 10, padding: '8px 14px', borderRadius: 999, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#A78BFA' }}>Voir la fiche complète</span><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                        </div>
+                      </>)}
                     </div>
-                    {memberDetail.intervenant.agency && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}><i className="ri-building-line" style={{ marginRight: 4 }} />{memberDetail.intervenant.agency.name}</div>}
-                    {memberDetail.intervenant.intervenant?.intervention_radius_km && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}><i className="ri-map-pin-range-line" style={{ marginRight: 4 }} />Rayon : {memberDetail.intervenant.intervenant.intervention_radius_km} km</div>}
-                    <div onClick={() => { setSelectedMember(null); setMemberDetail(null); router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: selectedMember.id } }); }} style={{ marginTop: 10, padding: '8px 14px', borderRadius: 999, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#A78BFA' }}>Voir la fiche complète</span><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: '#A78BFA' }} />
-                    </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Espace Prescripteur */}
                 {memberDetail.prescriber && (
