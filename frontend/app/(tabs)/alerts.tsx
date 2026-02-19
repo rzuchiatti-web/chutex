@@ -13,6 +13,58 @@ const STATE_LABEL: Record<string, string> = {
   CARE_DISPATCHED: 'Intervenant envoye', RESOLVED: 'Resolue',
 };
 
+/* Clean alert type label */
+const getAlertLabel = (t: string) => {
+  if (t === 'fall') return 'Chute detectee';
+  if (t === 'sos') return 'SOS';
+  if (t === 'heart_rate' || t === 'health_anomaly') return 'Anomalie de sante detectee';
+  if (t === 'spo2') return 'Anomalie de sante detectee';
+  if (t === 'inactivity') return 'Inactivite detectee';
+  return t || 'Alerte';
+};
+
+/* Anomaly detail card (for health anomalies with vital data) */
+function AnomalyCard({ alert }: { alert: any }) {
+  const isAnomaly = ['heart_rate', 'health_anomaly', 'spo2'].includes(alert.alert_type);
+  if (!isAnomaly) return null;
+  const vd = alert.vital_data || {};
+  const td = alert.threshold_data || {};
+  // Try to parse from message if no vital_data
+  const msg = alert.message || '';
+  const hasVitalData = Object.keys(vd).length > 0;
+  const items: any[] = [];
+  if (vd.heart_rate || td.heart_rate_max) items.push({ label: 'Pouls', value: vd.heart_rate ? `${vd.heart_rate} bpm` : '?', threshold: td.heart_rate_max ? `Seuil : ${td.heart_rate_max} bpm` : '', icon: 'ri-heart-pulse-line', color: '#EF4444' });
+  if (vd.spo2 || td.spo2_min) items.push({ label: 'SpO2', value: vd.spo2 ? `${vd.spo2}%` : '?', threshold: td.spo2_min ? `Seuil min : ${td.spo2_min}%` : '', icon: 'ri-lungs-line', color: '#3B82F6' });
+  if (vd.temperature || td.temperature_max) items.push({ label: 'Temperature', value: vd.temperature ? `${vd.temperature}°C` : '?', threshold: td.temperature_max ? `Seuil : ${td.temperature_max}°C` : '', icon: 'ri-temp-hot-line', color: '#F59E0B' });
+  if (items.length === 0 && !hasVitalData) {
+    // Fallback: show a generic anomaly message from the alert message
+    return (
+      <div style={{ padding: '12px 16px', borderRadius: 16, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 10 } as any}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><i className="ri-alert-line" style={{ fontSize: 16, color: '#EF4444' }} /><span style={{ fontSize: 12, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase' }}>Anomalie detectee</span></div>
+        <div style={{ fontSize: 14, color: '#FFF', marginTop: 6, lineHeight: 1.4 }}>{msg}</div>
+      </div>
+    );
+  }
+  return (
+    <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 10 } as any}>
+      <div style={{ fontSize: 10, fontWeight: 600, color: '#EF4444', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Anomalie detectee</div>
+      {items.map((item, i) => (
+        <div key={i}>
+          {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0' } as any} />}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: `${item.color}15`, border: `1px solid ${item.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={item.icon} style={{ fontSize: 18, color: item.color }} /></div>
+            <div style={{ flex: 1 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>{item.label}</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{item.value}</div>
+            </div>
+            {item.threshold && <div style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.2)' } as any}><span style={{ fontSize: 10, fontWeight: 600, color: '#EF4444' }}>{item.threshold}</span></div>}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ────────────────────────────────────────────────────────────────────
    EXPLAINER PAGE  — "Comprendre les alertes"
    ──────────────────────────────────────────────────────────────────── */
