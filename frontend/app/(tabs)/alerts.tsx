@@ -367,7 +367,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
         {/* Info grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
           {[
-            { label: 'Type', value: alert.alert_type === 'sos' ? 'SOS' : alert.alert_type === 'fall' ? 'Chute detectee' : alert.alert_type === 'health_anomaly' ? 'Anomalie de sante' : alert.alert_type || '-' },
+            { label: 'Type', value: getAlertLabel(alert.alert_type) },
             { label: 'Statut', value: isResolved ? 'Resolue' : STATE_LABEL[alert.incident_state || alert.teleassistance_status] || 'Active' },
             { label: 'Appareil', value: alert.device_type || '-' },
             { label: 'Heure', value: new Date(alert.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' }) },
