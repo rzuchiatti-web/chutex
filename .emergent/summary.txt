@@ -1,56 +1,49 @@
 <analysis>**original_problem_statement:**
-The initial project was CARE WATCH, an AI tele-assistance platform. The current, primary objective is a complete app-wide visual and UX redesign based on the user's own Chutex website aesthetic. This directive mandates a premium, clinical, black-and-white theme with heavy use of glassmorphism, grid backgrounds, and specific animations.
+The initial project was CARE WATCH, an AI tele-assistance platform. The primary objective for this session was to completely overhaul the beneficiary linking system. The existing linking by code system was to be removed and replaced with a new flow where a guardian invites a beneficiary using their phone number.
 
-The architectural standard is to use an early return pattern for all list-to-detail views to avoid overlay bugs. The user has been pushing for all pages to be information-rich, all features to be fully completed with correct logic, and for the new design to be applied consistently across all user roles (Beneficiary, Guardian, Intervenant, Teleassistance, Admin, SAAD).
-
-PRODUCT REQUIREMENTS are detailed in .
+This initial request expanded significantly to include:
+- A new, complex management hub for SAADs (home care service providers) to manage their agencies and affiliated members (guardians, intervenants, prescribers).
+- Logic for SAADs to control the Intervenant Care and Prescriber spaces of their members.
+- A complete redesign of the SAAD dashboard to include detailed KPIs and analytics.
+- A complete overhaul of the Guardian's beneficiary card and the creation of a new, feature-rich beneficiary detail page.
+- Numerous UI/UX enhancements and bug fixes based on rapid user feedback.
 
 **User's preferred language**: French. The next agent MUST respond in French only.
 
 **what currently exists?**
-The application is a full-stack React (Expo for web) and FastAPI/MongoDB platform. A major redesign effort has been completed, applying the Chutex glassmorphism aesthetic (satin backgrounds, glass cards, custom icons) across almost all user roles and pages, including dashboards, lists (alerts, interventions, prescriptions), and detail views.
-
-Key features implemented/redesigned include:
--   **Consistent UI:** All roles (Beneficiary, Guardian, SAAD, Admin, Teleassistance) now share a consistent, premium design language.
--   **Interactive Maps:** An intervention tracking page with a Leaflet map, real-time routing via OSRM, and a draggable, snap-to-point bottom sheet has been implemented.
--   **Rich Detail Pages:** All detail pages have been enriched to display all available backend data, presented in well-structured glass cards with pop-up modals for deeper information (e.g., intervenor details).
--   **Dynamic Dashboards:** Dashboards for all roles have been redesigned to provide at-a-glance summaries using large stats and summary cards.
--   **Advanced Animations:** A global CSS animation package has been added to provide a more premium and dynamic user experience with fade-ins, slide-ups, and interactive hover effects.
--   **Role-Specific Logic:** Backend endpoints and frontend logic have been tailored for roles like SAAD (company admin) to ensure they only see data relevant to their organizational structure (e.g., alerts for beneficiaries whose guardians are professional caregivers within their agencies).
+The application is a full-stack React/FastAPI/MongoDB platform. The core task of replacing the code-based linking with a phone-number-based invitation system is complete. On top of that, a significant new set of features has been built for the SAAD role, allowing them to manage their structure, members, and member permissions. The Guardian dashboard has been enhanced with a completely new beneficiary detail page and a custom background. The SAAD dashboard now features integrated KPIs.
 
 **Last working item**:
-The agent was resolving a series of critical issues and implementing final design polishes requested by the user.
+The agent was addressing a readability issue on the Guardian dashboard after changing the background to a light-colored image provided by the user.
 
-- **Last item agent was working**: The agent just fixed a critical, recurring build error in  caused by incomplete refactoring of the Guardian Interventions page. An orphaned code block from a modal was breaking the JSX structure. The agent identified and removed the orphaned code, successfully restarting the server and making the app accessible again.
-- **Status**: COMPLETED
-- **Agent Testing Done**: Y (Agent confirmed server restart via ).
-- **Which testing method agent to use?**: Frontend testing agent. The user's last request was to verify coherence on all roles, so a full regression test is needed.
-- **User Testing Done**: N
+- **Last item agent was working**: Changing the text color on the Guardian dashboard from white to black for better readability. The agent implemented the change in .
+- **Status**: USER VERIFICATION PENDING
+- **Agent Testing Done**: Y (via screenshot tool, which confirmed the text color was black after the change).
+- **Which testing method agent to use?**: screenshot tool. The agent should take a screenshot of the Guardian dashboard to confirm the text is black before asking the user to verify again.
+- **User Testing Done**: N (The user's last message was the texts on the guardian dashboard are still white, indicating a probable cache issue on their end).
 
 **All Pending/In progress Issue list**:
-- **Issue 1: Verify App-wide Coherence and Consistency (P0)**
-    - **Description**: The user's last request was a final check for coherence across all roles. Although massive redesigns were done, the user has frequently found inconsistencies in data, design, or functionality between different user roles or pages (e.g., dashboard stats not matching list page stats, design elements being slightly different).
+- **Issue 1: Guardian dashboard text color appears white to the user (P0)**
+    - **Description**: After changing the Guardian dashboard background to a light image, the text was changed to black for contrast. The user reports the text is still white, which is almost certainly a browser/Metro cache issue.
+    - **Attempted fixes**: The agent changed the CSS colors and cleared the Metro cache. Screenshots confirm the change is live on the server.
     - **Next debug checklist**:
-        1.  Log in as each major role (SAAD, Admin, Teleassistance, Guardian, Beneficiary).
-        2.  For each role, navigate through all tabs/pages (Dashboard, Alerts, Interventions, Prescriptions, Profile, etc.).
-        3.  Verify that the design is consistent: full-page satin backgrounds, glass cards, correct icons, and animations.
-        4.  Verify that data is consistent: Numbers on the dashboard must match the data shown in the corresponding list pages.
-        5.  Verify functionality: Buttons, navigation, popups, and search bars should all work as expected.
-    - **Status**: NOT STARTED
-    - **Is recurring issue?**: Y
-    - **Should Test frontend/backend/both after fix?**: Frontend
+        1.  Instruct the user to perform a hard refresh (**Ctrl+Shift+R** or **Cmd+Shift+R**) or open the URL in an incognito/private browser window.
+        2.  Take a new screenshot of the Guardian dashboard to re-confirm the text is black and show it to the user.
+    - **Status**: USER VERIFICATION PENDING
+    - **Is recurring issue?**: Y (Cache issues are persistent in this project).
+    - **Should Test frontend/backend/both after fix?**: Frontend.
 
 - **Issue 2: Lefu Scale BLE Data Parsing is Incorrect (P1)**
-    - **Description**: Recurring hardware integration bug. Live data from the Lefu smart scale is not parsed correctly. While a fix for the weight was attempted, the other 30+ health metrics are not functional.
+    - **Description**: Recurring hardware integration bug from a previous session. Live data from the Lefu smart scale is not parsed correctly. Only weight works.
     - **Next debug checklist**: Implement the native iOS module using the official Lefu SDK (). The scaffolding file  already exists.
-    - **Status**: IN PROGRESS
+    - **Status**: NOT STARTED
     - **Is recurring issue?**: Y
-    - **Should Test frontend/backend/both after fix?**: Frontend (Native iOS app on a real device).
+    - **Should Test frontend/backend/both after fix?**: Frontend (Native iOS).
 
 - **Issue 3: Network Request Failed on Native App (P2)**
-    - **Description**: Critical, recurring blocker. The TestFlight app is built with a temporary preview backend URL that becomes invalid after the session ends.
-    - **Next debug checklist**: Find a way to provision a permanent backend URL for production builds or deploy the backend to the user's HDS (Health Data Hosting) server.
-    - **Status**: BLOCKED (on acquiring a permanent hosting solution).
+    - **Description**: Critical, recurring blocker from a previous session. The TestFlight app is built with a temporary preview backend URL that becomes invalid after the session ends.
+    - **Next debug checklist**: Investigate methods for provisioning a permanent backend URL for production mobile builds.
+    - **Status**: BLOCKED
     - **Is recurring issue?**: Y
     - **Should Test frontend/backend/both after fix?**: Both.
 
@@ -58,128 +51,148 @@ The agent was resolving a series of critical issues and implementing final desig
 - None.
 
 **Upcoming and Future Tasks**
-- **Upcoming Tasks**:
-    - **P0: Implement Remix Icons**: The user explicitly requested to use icons from . While custom SVG icons were added to the tab bar, a full audit and replacement of remaining non-Remix icons is still pending from the original handoff.
-    - **P1: Apply Chutex DA to All Remaining Roles/Screens**: The agent performed a massive redesign across Admin, Teleassistance, and SAAD roles. However, a final pass is needed to catch any missed screens or minor inconsistencies as part of the P0 Coherence Check.
+-   **Upcoming Tasks**:
+    -   **P1: Final App-wide Coherence Check**: A full review of all roles and pages is needed to ensure design and data consistency after the massive feature additions in this session.
 
-- **Future Tasks**:
-    - **P1**: Deploy Backend to a Permanent Host.
-    - **P2**: Native Build and BLE Integration for J-Style bracelet.
-    - **P3**: Shopify Integration (Blocked on user).
-    - **P4**: Offline Mode for intervenants.
+-   **Future Tasks**:
+    -   **P1**: Deploy Backend to a Permanent Host.
+    -   **P2**: Native Build and BLE Integration for J-Style bracelet.
+    -   **P3**: Shopify Integration (Blocked on user).
+    -   **P4**: Offline Mode for intervenants.
 
 **Completed work in this session**
-- **Full Redesign of Admin Roles**: Completely redesigned the dashboards, list pages, and detail pages for the , , and  roles to match the app's Chutex glassmorphism aesthetic.
-- **Data Scoping for SAAD Role**: Implemented backend endpoints and frontend logic to ensure the SAAD role only sees alerts, prescriptions, and interventions relevant to their agencies and professional caregivers.
-- **Interactive Intervention Map**: Built a new intervention tracking page featuring a Leaflet map, real-time routing from OSRM, a draggable/snappable bottom sheet, and a dark/light mode toggle.
-- **Advanced UX/Animations**: Implemented a global CSS animation package, adding sophisticated fade-in, slide-up, and pulse effects to cards, buttons, and stats for a premium feel.
-- **UI/UX Consistency Pass**: Made numerous fixes to align UI elements, including redesigning device cards, alert cards, and dashboard summary cards to be more dynamic and visually consistent.
-- **Complex Logic & Bug Fixes**:
-    - Resolved a critical, recurring build error in  related to incorrect React hook placement.
-    - Fixed a critical build error in  by removing orphaned JSX code after a major refactor.
-    - Corrected data inconsistencies between dashboards and detail pages for the SAAD role.
-    - Implemented logic for beneficiaries to close their own alerts with a simplified form.
-    - Fixed logic for guardians to initiate interventions directly from the alert list.
-- **Custom Icon Integration**: Replaced tab bar icons with custom SVGs provided by the user.
+- **Beneficiary Linking Overhaul**:
+  - Implemented a phone number-based invitation system, removing the old link-by-code method.
+  - The flow handles both existing users (in-app notification) and new users (simulated SMS).
+  - Added a relationship dropdown with Professional and Personal categories, which dictates if alerts are escalated to a SAAD.
+- **SAAD Management Hub ()**:
+  - Created a new central page for SAADs to manage their agencies and members.
+  - Implemented a unified Members view, merging Guardians, Intervenants, and Prescribers into a single, deduplicated list.
+  - SAADs can now invite/add guardians, who receive an in-app notification to accept/reject.
+  - Developed a feature for SAADs to remotely enable/disable the Intervenant Care and Prescripter spaces for their members.
+- **SAAD Dashboard Redesign ()**:
+  - Integrated KPIs (Alert Resolution, Conversion Rate, Intervenant Availability) directly into the relevant summary cards.
+  - Restructured the dashboard UI for better clarity and consistency, ensuring all text is white on dark glassmorphism cards.
+- **Guardian-Side Enhancements**:
+  - **Beneficiary Detail Page ()**: Created a completely new, feature-rich, scrollable detail page with:
+    - An animated ECG header.
+    - Sections for active alerts, medical records, health data vitals, connected devices (with battery levels), location, and alert history.
+    - Correct navigation to the standard alert detail page ().
+  - **Guardian Dashboard ()**:
+    - The Guardian's SAAD affiliation card is now styled with a green background and opens a popup with details and a detach option.
+    - The dashboard background image is now customizable by the user.
+    - Text color was changed to black to ensure readability on a light background.
+- **Major Bug Fixes**:
+  - **SAAD Space Deactivation**: Fixed a critical bug where a SAAD deactivating an intervenant's space was not reflected on the guardian's account. The backend query was missing a  filter.
+  - **React Hook Errors**: Resolved complex Rendered more hooks than during the previous render errors in  by correctly ordering all hook declarations before any conditional return statements.
 
 **Earlier issues found/mentioned but not fixed**
-- None. The agent was diligent in addressing all user feedback from this session.
+-   None.
 
 **Known issue recurrence from previous fork**
-- **User's browser cache**: This was a constant source of friction. The user repeatedly reported not seeing changes that were already implemented, forcing the agent to spend time clearing the bundler cache ([14:41:07] Starting project at /app/frontend) and advising the user to test in an incognito window.
-- **Incomplete Features**: The user often pointed out that a feature was visually complete but logically flawed or incomplete (e.g., dashboard data not matching list data), requiring multiple rounds of fixes.
+- **Metro Bundler Cache**: This was the most significant and time-consuming obstacle throughout the session. The agent had to constantly restart the frontend (frontend: ERROR (no such process)
+frontend: ERROR (no such process)) and clear the cache ([19:27:46] Starting project at /app/frontend) to make UI changes appear for themself and the user. The next agent must assume any UI issue is cache-related first.
 
 **Code Architecture**
-
+?preselect=
 
 **Key Technical Concepts**
-- **Role-Based Rendering**: Heavy use of conditional logic () within single large component files (, , , ) to render different UIs for different user types.
-- **Draggable Bottom Sheet**: A custom React component was built for the  page that allows a user to drag a sheet up and down, with snapping points at different heights and fluid animations.
-- **Interactive Maps (Leaflet)**: Integrated Leaflet for displaying maps, with custom icons and real-time route plotting using the OSRM API.
-- **Advanced CSS Animations**: A large suite of keyframe animations () was injected globally via  and triggered on elements using  attributes for a premium UX.
-- **Aggressive Caching Issues**: The Metro bundler's cache proved to be a major obstacle, frequently serving stale code and leading to extended debugging sessions and repeated server restarts (frontend: ERROR (no such process)
-backend: ERROR (not running)
-frontend: ERROR (no such process)
-backend: started or [14:41:09] Starting project at /app/frontend).
+- **Complex State Management**: Extensive use of  and  to manage complex data fetched from multiple endpoints, especially in  (SAAD hub) which merges and deduplicates users from three different roles.
+- **Backend API Expansion**: A large number of new FastAPI endpoints were created to support the new SAAD, Guardian, and Beneficiary features, including member management, status toggling, and detailed data aggregation.
+- **Robust Conditional Rendering**: The UI heavily relies on conditional logic to display different components and data based on user role (SAAD, Guardian), status (linked, pending, active/inactive space), and context.
+- **React Hook Rule Adherence**: A critical lesson was learned in debugging and fixing rendered more hooks errors in  by ensuring all hooks are declared at the top of the component, before any early returns. This is a crucial point for future development on that file.
+- **Navigational Patterns**: Established a clean pattern for viewing details by navigating to a central page () with a URL parameter () to trigger the detail view, promoting component reuse.
 
 **key DB schema**
-- No new collections were added. Existing collections were leveraged, but API responses were significantly enriched to join data from , , and  to provide comprehensive details in a single call.
+-   **guardian_requests**:  ('professional' or 'personal') was added.
+-   **guardian_relationships**: Now stores  when a request is accepted.
+-   **saad_guardian_links**: Added boolean fields  and  to allow SAADs to toggle a member's access to those spaces.
 
 **All files of reference**
--   : **Critical File.** Manages the entire Alerts flow for ALL roles. Contains logic for active/resolved states, full-screen backgrounds, and the heavily enriched detail view.
--   : **Critical File.** Manages Intervention Care for Guardian and SAAD roles. Contains the logic for the intervention list, detail pages, and links to the new . Was the source of a critical build error.
--   : **Critical File.** Manages Prescriptions and Devices for Beneficiary, Guardian, and SAAD roles. Contains complex logic for different views and was the source of a recurring build error due to incorrect hook placement.
--   : **Critical File.** Renders the dashboards for ALL roles. Contains complex, role-specific layouts and data fetching.
--   : **New Critical File.** The new interactive map page with the draggable bottom sheet.
--   : Contains global CSS, including all new animations.
+-   : Contains the Guardian, SAAD, and Beneficiary dashboards. It has undergone significant changes and is a key file for understanding the current UI.
+-   : The new, complex SAAD Management Hub. All logic for managing agencies and members resides here.
+-   : The new, feature-rich beneficiary detail page created for the Guardian role.
+-   : The Intervenant space. **CAUTION**: This file is prone to React hook errors; edit with care.
+-   : All new backend logic for the SAAD role.
+-   : Backend logic for Guardian interactions with SAADs.
+-   : The core phone-based invitation logic for all roles.
 
 **Areas that need refactoring**:
-- The main tab files (, , , ) have become extremely large and complex, each handling multiple user roles with extensive conditional logic. Breaking these down into smaller, role-specific components would improve maintainability. For example,  could delegate rendering to , , etc.
+-   : This file has become excessively large and fragile, containing the logic for multiple components and user roles. It was the source of significant debugging pain due to React hook order issues. It should be broken down into smaller, more manageable components to improve stability.
+-   : This file serves as the dashboard for three different user roles. While componentized, its central role makes it a bottleneck for changes and a candidate for future separation.
 
 **key api endpoints**
-- **GET **: NEW. Fetches alerts for a SAAD structure, filtered by professional caregivers.
-- **GET **: NEW. Fetches prescriptions for a SAAD structure.
-- **POST **: NEW. Allows a guardian to accept an intervention.
-- **DELETE **: NEW. Allows a user to disassociate a device.
-- **GET **: UPDATED to return much richer, joined data from interventions and users.
+-   **SAAD Management (new)**:
+    -   
+    -   
+    -   
+-   **Guardian Management (new)**:
+    -    & 
+    -   
+    -   
+-   **Beneficiary Management (new)**:
+    -   
+-   **Beneficiary Detail Data (new)**:
+    -   
+    -   
+    -   
+    -   
 
 **Critical Info for New Agent**
-- **CACHE IS THE ENEMY**: The Metro bundler cache is extremely aggressive. If the user reports a change is not visible, or if you encounter a persistent build error after a fix, your first step should be to force a clean server restart (frontend: ERROR (no such process)
-backend: stopped
-frontend: ERROR (no such process)
-backend: started and [14:41:11] Starting project at /app/frontend). Always advise the user to test in a private/incognito window.
-- **Complexity of Core Files**: Be aware that , , , and  are monolithic files that control the UI for multiple roles. Changes must be made carefully, as they can have wide-ranging and unintended consequences.
-- **Consistency is Key**: The user's primary goal is a cohesive, premium app. When adding or modifying features, replicate the existing design patterns (full-page satin backgrounds, glass cards,  attributes, enriched detail views) exactly. Do not invent new styles.
+-   **LANGUAGE IS FRENCH**: All communication with the user must be in French.
+-   **METRO CACHE IS THE #1 PROBLEM**: Assume ANY visual discrepancy or user report of no changes is a cache issue. Your first debugging step should always be to instruct the user to perform a hard refresh (**Ctrl+Shift+R**) and for you to run frontend: ERROR (no such process)
+frontend: ERROR (no such process) and [19:27:46] Starting project at /app/frontend if the problem persists. Do not waste time debugging code until the cache is confirmed clear.
+-   **HOOK ORDER IN  IS CRITICAL**: When editing , all , , or other hooks **MUST** be declared at the top of the component function, before any conditional  statements (, etc.). Failure to do so will trigger Rendered more hooks errors that are difficult to debug.
+-   **ALERT DETAIL NAVIGATION**: The correct way to show an alert's detail is to navigate to the main alerts page with a URL parameter: . Do not attempt to re-implement the alert detail UI in other components.
 
 **documents and test reports created in this job**
-- 
+-   None.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User**: My server is down, wake it up. (Agent fixed a build error in ).
-2.  **User**: The intervention/prescription cards have backgrounds, make them glass. Also, the full-page background for interventions should be this new image. (DONE)
-3.  **User**: I can't click or slide on my interventions/prescriptions anymore, you broke it. (Agent fixed a z-index issue).
-4.  **User**: Apply full-page background to alerts. Fix prescription header stats. (DONE)
-5.  **User**: Add a search bar to interventions/prescriptions. Remove fixed headers. Redesign cards. Make status pills dynamic. Fix view intervenors background. (A large batch of requests).
-6.  **User**: The prescription page is broken. You removed the header from the intervention page, put it back but make it scrollable. (Agent fixed a critical React Hooks bug and adjusted layouts).
-7.  **User**: The search bar is too high, put it above the cards. You didn't restore the tab design. Fix the prescription header. (Agent corrected layouts).
-8.  **User**: Now update the detail pages for intervention and prescription cards with ALL available data. (DONE).
-9.  **User**: Now do the next actions (referring to improving UX). (Agent proposed and implemented a full animation package).
-10. **User**: Data is inconsistent between SAAD dashboard and list pages. (Agent fixed data fetching logic to be consistent).
-11. **User**: Update Guardian intervention/prescription pages to full-screen glass design. Remove green border from closed alerts. (DONE)
-12. **User**: Server is down, restart it and verify coherence on all roles! (PENDING - Server was restarted, coherence check is next).
+1.  **User**: In the beneficiary detail page, the ECG animation is ugly. The alert card is wrong, navigation is broken, and the page doesn't scroll.
+2.  **User**: When I click an alert card, it should open the same detail page as the main alerts page.
+3.  **User**: Let me choose the health data display style.
+4.  **User**: The background image you added is too dark.
+5.  **User**: Okay, now the background is visible, but the white text on the Guardian dashboard is unreadable.
+6.  **User**: Change the text on the Guardian dashboard to black.
+7.  **User**: The texts on the guardian dashboard are still white. **(PENDING: This is the last user message, likely a cache issue).**
+8.  **User**: [In beneficiary detail] Display the 4 health stats on the beneficiary card on the dashboard. Use these specific images.
+9.  **User**: [In beneficiary detail] Use this mockup for the header and overall structure.
+10. **User**: [In beneficiary detail] The ECG graph should be a real animation. The alert card should have a slide button. Fix the navigation. Separate sections with a subtle line. Simulate battery levels.
 
 **Project Health Check:**
-- **Broken**:
-    - **Lefu Scale Live Data**: BLE data parsing is not functional.
-    - **Native App Backend Connectivity**: The TestFlight app cannot connect to a persistent backend.
-- **Mocked**:
-    - Lefu scale data on the web interface is from a hardcoded endpoint.
+-   **Broken**:
+    -   **Lefu Scale Live Data**: BLE data parsing is not functional (pre-existing).
+    -   **Native App Backend Connectivity**: The TestFlight app cannot connect to a persistent backend (pre-existing).
+-   **Mocked**:
+    -   SMS invitations are simulated (logged to console) as per user request.
+    -   Some data on the new beneficiary detail page is mocked (AI report, location data, some device data).
 
 **3rd Party Integrations**
-- **Expo (EAS Build)**: For native app builds (iOS).
-- **Lefu Smart Scale**: Hardware integration via  (buggy).
-- **OpenAI/GPT**: Used via Emergent LLM Key for AI features.
-- **Twilio**: Voice/Speech-to-Text (Requires User API Key).
-- **ElevenLabs**: Text-to-speech (Requires User API Key).
-- **Remix Icon**: CDN loaded, custom SVGs used for tab bar.
-- **Leaflet**: NEW. For interactive maps.
-- **OSRM API**: NEW. For real-time route calculation on maps.
+-   **Twilio**: Required for SMS invitations but is currently mocked via console logs at the user's request.
+-   **Expo (EAS Build)**: For native app builds (iOS).
+-   **Lefu Smart Scale**: Hardware integration via  (buggy).
+-   **OpenAI/GPT**: Used via Emergent LLM Key.
+-   **ElevenLabs**: Text-to-speech (Requires User API Key).
+-   **Remix Icon**: CDN loaded and fully integrated.
+-   **Leaflet**: For interactive maps.
+-   **OSRM API**: For real-time route calculation on maps.
 
 **Testing status**
-- **Testing agent used after significant changes**: YES, once in the middle of the session. It passed but many subsequent changes were made without re-running the agent.
-- **Troubleshoot agent used after agent stuck in loop**: YES, once to diagnose a persistent JSX build error.
-- **Test files created**: None.
-- **Known regressions**: None currently known, but the user's final request implies a lack of confidence in app-wide stability.
+-   **Testing agent used after significant changes**: YES, the backend testing agent was used multiple times to validate the new API endpoints for SAAD and member management, passing 100%.
+-   **Troubleshoot agent used after agent stuck in loop**: NO, but the agent spent significant time (over 20 steps) debugging a React hooks issue in  before resolving it. This would have been a good candidate for the troubleshoot agent.
+-   **Test files created**: None.
+-   **Known regressions**: None.
 
 **Credentials to test flow:**
 | Role | Email | Mot de passe | Notes |
 |---|---|---|---|
 | **Beneficiary** |  |  | Default role is Guardian, must switch to Beneficiary in UI |
 | **Guardian / Prescripteur** |  |  | Use for testing Prescriptions, Interventions, Rewards |
-| **Intervenant Care** |  |  |
+| **Intervenant Care** |  |  | Also a prescriber. Linked to the SAAD. |
 | **Téléassistance** |  |  |
 | **Admin** |  |  |
 | **Prescriber Company (SAAD)** |  |  |
 
 **What agent forgot to execute**
-- The agent addressed a massive number of user requests. The primary recurring oversight was not performing a thorough self-test or regression check after major changes, which led to multiple bug-fix cycles and the user repeatedly encountering broken functionality or visual inconsistencies. The final user request to verify coherence is a direct result of this.</analysis>
+- The agent successfully implemented all user requests, although it struggled with debugging a complex React hooks issue in  without calling the , leading to a prolonged resolution time.</analysis>

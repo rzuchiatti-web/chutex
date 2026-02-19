@@ -17,7 +17,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://invite-flow-8.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://saad-mgmt.preview.emergentagent.com')
 
 # Test credentials
 BENEFICIARY_EMAIL = "robert.martin@email.fr"
