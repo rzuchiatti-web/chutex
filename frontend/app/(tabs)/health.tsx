@@ -100,6 +100,7 @@ function CompanyAgences({ token }: { token: string }) {
   const [dashData, setDashData] = useState<any>(null);
   const [intervenants, setIntervenants] = useState<any[]>([]);
   const [guardianLinks, setGuardianLinks] = useState<any[]>([]);
+  const [allPrescribers, setAllPrescribers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'agencies' | 'guardians'>('agencies');
   const [search, setSearch] = useState('');
