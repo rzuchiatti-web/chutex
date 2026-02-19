@@ -1549,8 +1549,8 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
         <img src={BG_DASH} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
-          {/* Header — Structure info (simplifié → tout est dans /company-agency) */}
-          <div style={{ padding: '16px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+          {/* Header — Structure info (cliquable → page agence) */}
+          <div onClick={() => router.push('/(tabs)/health' as any)} style={{ padding: '16px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'pointer' } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 } as any}>
               <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(212,132,90,0.3)', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 24, color: '#D4845A' }} /></div>
               <div style={{ flex: 1 } as any}>
@@ -1558,9 +1558,10 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{user.address || 'Structure SAAD'}</div>
                 {user.siret && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>SIRET: {user.siret}</div>}
               </div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)' }} />
             </div>
             {/* Stats inline */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
+            <div style={{ display: 'flex', gap: 8 } as any}>
               {[
                 { val: agencies.length, label: 'Agences', color: '#D4845A' },
                 { val: intervenants.length, label: 'Intervenants', color: '#A78BFA' },
@@ -1571,11 +1572,6 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
                   <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
                 </div>
               ))}
-            </div>
-            {/* Bouton Gérer */}
-            <div onClick={() => router.push('/(tabs)/health' as any)} style={{ padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-              <i className="ri-settings-3-line" style={{ fontSize: 14 }} />Gérer la structure
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 14 }} />
             </div>
           </div>
           {/* Alerte card — with red background */}
