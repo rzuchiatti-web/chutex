@@ -1054,7 +1054,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         </Card>
       )}
 
-      <PillButton label={t('add_beneficiary')} icon="heart-outline" onPress={() => router.push('/link-code')} testID="add-beneficiary-btn" variant="warm" />
+      <PillButton label={t('add_beneficiary')} icon="heart-outline" onPress={() => setShowAddBenPopup(true)} testID="add-beneficiary-btn" variant="warm" />
 
       {/* Help system */}
       <ContextualTip id="guardian-welcome" icon="people-outline" text="Bienvenue dans votre espace gardien ! Suivez la sante de vos proches en temps reel." color="#111827" />
