@@ -767,6 +767,8 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         apiFetch('/api/alerts', {}, token).catch(() => []),
         apiFetch('/api/guardian/invitations', {}, token).catch(() => []),
         apiFetch('/api/interventions/pending', {}, token).catch(() => []),
+        apiFetch('/api/guardian/saad-invitations', {}, token).catch(() => []),
+        apiFetch('/api/guardian/saad-link', {}, token).catch(() => null),
       ]);
       const aa = await apiFetch('/api/alerts/active-with-interventions', {}, token).catch(() => []);
       setActiveAlertsG(Array.isArray(aa) ? aa : []);
@@ -774,6 +776,8 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
       setAlerts(Array.isArray(a) ? a : []);
       setInvitations(Array.isArray(inv) ? inv : []);
       setPendingInterventions(Array.isArray(piv) ? piv : []);
+      setSaadInvitations(Array.isArray(saadInv) ? saadInv : []);
+      setSaadLink(saadLk || null);
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
