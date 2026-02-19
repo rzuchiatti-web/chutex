@@ -375,7 +375,13 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* Guardians */}
           <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', marginBottom: 12 } as any}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>{guardians.length} {t('guardians')}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase' }}>{guardians.length} {t('guardians')}</div>
+              <div onClick={() => setShowAddGuardianPopup(true)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer' } as any}>
+                <i className="ri-add-line" style={{ fontSize: 13, color: '#FFF' }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>Ajouter</span>
+              </div>
+            </div>
             {guardians.map((g: any, i: number) => (
               <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none', cursor: 'pointer' } as any}>
                 <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{g.name?.charAt(0)}</span></div>
@@ -383,8 +389,109 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
               </div>
             ))}
-            {guardians.length === 0 && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '8px 0' }}>Aucun gardien</div>}
+            {guardians.length === 0 && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '8px 0' }}>Aucun gardien — ajoutez un proche ou un professionnel</div>}
           </div>
+
+          {/* POPUP AJOUTER UN GARDIEN */}
+          {showAddGuardianPopup && (
+            <div onClick={() => { setShowAddGuardianPopup(false); setInviteGuardPhone(''); setInviteGuardRelationship(''); setInviteGuardMsg(''); }} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+                {/* Close */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                  <div onClick={() => { setShowAddGuardianPopup(false); setInviteGuardPhone(''); setInviteGuardRelationship(''); setInviteGuardMsg(''); }} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                </div>
+
+                {/* Title */}
+                <div style={{ marginBottom: 24 } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>Bénéficiaire · Gardien</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 8, lineHeight: 1.1 }}>Ajouter un<br />gardien</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>Entrez le numéro de téléphone de votre gardien. S'il a un compte, il recevra une notification. Sinon, un SMS lui sera envoyé.</div>
+                </div>
+
+                {/* Phone */}
+                <div style={{ marginBottom: 28 } as any}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numéro de téléphone</div>
+                  <div style={{ position: 'relative' } as any}>
+                    <i className="ri-phone-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
+                    <input value={inviteGuardPhone} onChange={(e: any) => setInviteGuardPhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" style={{ width: '100%', padding: '15px 16px 15px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                  </div>
+                </div>
+
+                {/* Lien — 2 cartes + dropdown conditionnel */}
+                {(() => {
+                  const PROS_G = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale', 'Coach sportif', 'Préparateur physique'];
+                  const PERSO_G = ['Mère', 'Père', 'Fils', 'Fille', 'Petit-enfant', 'Conjoint(e)', 'Frère', 'Sœur', 'Ami(e)', 'Voisin(e)', 'Autre'];
+                  const isPro = PROS_G.includes(inviteGuardRelationship);
+                  const isPerso = PERSO_G.includes(inviteGuardRelationship);
+                  return (
+                    <div style={{ marginBottom: 28 } as any}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Lien avec le gardien</div>
+                      {/* 2 cartes */}
+                      <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
+                        <div onClick={() => { if (!isPro) setInviteGuardRelationship(PROS_G[0]); }} style={{ flex: 1, padding: '14px 12px', borderRadius: 16, cursor: 'pointer', background: isPro ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)', border: `2px solid ${isPro ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`, textAlign: 'center', transition: 'all 0.2s', opacity: isPerso ? 0.5 : 1 } as any}>
+                          <i className="ri-briefcase-line" style={{ fontSize: 22, color: '#FFF', display: 'block', marginBottom: 6 }} />
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Professionnel</div>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Auxil., coach…</div>
+                          {isPro && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: '#FFF' }}>✓ {inviteGuardRelationship}</div>}
+                        </div>
+                        <div onClick={() => { if (!isPerso) setInviteGuardRelationship(PERSO_G[0]); }} style={{ flex: 1, padding: '14px 12px', borderRadius: 16, cursor: 'pointer', background: isPerso ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)', border: `2px solid ${isPerso ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`, textAlign: 'center', transition: 'all 0.2s', opacity: isPro ? 0.5 : 1 } as any}>
+                          <i className="ri-heart-line" style={{ fontSize: 22, color: '#FFF', display: 'block', marginBottom: 6 }} />
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Particulier</div>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Famille, ami…</div>
+                          {isPerso && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: '#FFF' }}>✓ {inviteGuardRelationship}</div>}
+                        </div>
+                      </div>
+                      {isPro && (
+                        <div style={{ position: 'relative' } as any}>
+                          <select value={inviteGuardRelationship} onChange={(e: any) => setInviteGuardRelationship(e.target.value)} style={{ width: '100%', padding: '13px 40px 13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', outline: 'none', appearance: 'none', cursor: 'pointer' } as any}>
+                            {PROS_G.map(r => <option key={r} value={r} style={{ background: '#1a1a2e', color: '#FFF' }}>{r}</option>)}
+                          </select>
+                          <i className="ri-arrow-down-s-line" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' } as any} />
+                        </div>
+                      )}
+                      {isPerso && (
+                        <div style={{ position: 'relative' } as any}>
+                          <select value={inviteGuardRelationship} onChange={(e: any) => setInviteGuardRelationship(e.target.value)} style={{ width: '100%', padding: '13px 40px 13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', outline: 'none', appearance: 'none', cursor: 'pointer' } as any}>
+                            {PERSO_G.map(r => <option key={r} value={r} style={{ background: '#1a1a2e', color: '#FFF' }}>{r}</option>)}
+                          </select>
+                          <i className="ri-arrow-down-s-line" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' } as any} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Message */}
+                {inviteGuardMsg && (
+                  <div style={{ padding: '13px 16px', borderRadius: 14, marginBottom: 16, background: inviteGuardMsg.startsWith('Erreur') ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${inviteGuardMsg.startsWith('Erreur') ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)'}` } as any}>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' } as any}>
+                      <i className={inviteGuardMsg.startsWith('Erreur') ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'} style={{ fontSize: 17, color: inviteGuardMsg.startsWith('Erreur') ? '#EF4444' : '#10B981', flexShrink: 0 }} />
+                      <span style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{inviteGuardMsg}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Send button */}
+                <div onClick={async () => {
+                  if (!inviteGuardPhone.trim() || inviteGuardLoading) return;
+                  setInviteGuardLoading(true); setInviteGuardMsg('');
+                  try {
+                    const res = await apiFetch('/api/beneficiary/invite-guardian', {
+                      method: 'POST', body: JSON.stringify({ phone: inviteGuardPhone.trim(), relationship: inviteGuardRelationship.trim() })
+                    }, token);
+                    setInviteGuardMsg(res.message || 'Invitation envoyée !');
+                    if (res.status !== 'error') {
+                      fetchData();
+                      setTimeout(() => { setShowAddGuardianPopup(false); setInviteGuardPhone(''); setInviteGuardRelationship(''); setInviteGuardMsg(''); }, 2000);
+                    }
+                  } catch (e: any) { setInviteGuardMsg(`Erreur : ${(e as any).message}`); }
+                  finally { setInviteGuardLoading(false); }
+                }} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: inviteGuardPhone.trim() && !inviteGuardLoading ? 'pointer' : 'not-allowed', background: inviteGuardPhone.trim() && !inviteGuardLoading ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${inviteGuardPhone.trim() ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)'}`, color: inviteGuardPhone.trim() ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+                  {inviteGuardLoading ? <><i className="ri-loader-4-line" style={{ fontSize: 16 }} />Envoi...</> : <><i className="ri-send-plane-line" style={{ fontSize: 16 }} />Envoyer l'invitation</>}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Teleconsultation card */}
           <DoctorCard onPress={() => router.push('/(tabs)/teleconsult')} />
