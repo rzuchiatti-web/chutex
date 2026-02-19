@@ -1612,9 +1612,9 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
         {/* Everything scrolls together */}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
           {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: 10 } as any}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', marginBottom: 10 } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#10B981' }}>Actif</span></div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescriptions</div>
+          <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', marginBottom: 12 } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#10B981' }}>Actif</span></div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Prescriptions</div>
             <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{prescTab === 'subscribed' ? monthTotal : pendingPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0)} EUR</div>
             {prescTab === 'subscribed' && (<>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 6 } as any}><i className="ri-calendar-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} /><input type="month" value={selectedMonth} onChange={(e: any) => setSelectedMonth(e.target.value)} style={{ background: 'transparent', border: 'none', color: '#FFF', fontSize: 13, fontWeight: 600, outline: 'none' } as any} /></div>
