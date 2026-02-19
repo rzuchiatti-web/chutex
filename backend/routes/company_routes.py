@@ -241,37 +241,169 @@ async def delete_agency(agency_id: str, user=Depends(get_current_user)):
     return {"status": "deleted"}
 
 
-# ==================== SAAD ALERTS (filtered by professional guardians) ====================
+# ==================== SAAD GUARDIAN LINKS ====================
+PROFESSIONAL_RELATIONSHIPS = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Aide soignante', 'Aide-soignante', 'Aide-soignant']
+# Legacy professions kept for backward compat
 PROFESSIONAL_PROFESSIONS = ['Auxiliaire de vie', 'Aide-soignante', 'Aide soignante', 'Aide-soignant', 'Infirmiere', 'Infirmiere liberale', 'Infirmier']
 
-@router.get("/company/alerts")
-async def company_alerts(user=Depends(get_current_user)):
-    """Get alerts only for beneficiaries whose guardian is a professional (aide-soignante, auxiliaire de vie, infirmiere) linked to this company's structure"""
+
+@router.post("/company/invite-guardian")
+async def invite_guardian(data: dict, user=Depends(get_current_user)):
+    """SAAD invites a guardian by phone number to link them to the company."""
     if user.get('role') != 'prescriber_company':
         raise HTTPException(status_code=403, detail="Acces entreprise requis")
-    structure = user.get('structure_name', '')
-    # Find professional guardians of this structure
-    pro_guardians = await db.users.find(
-        {"guardian_type": "professional", "profession": {"$in": PROFESSIONAL_PROFESSIONS}, "structure_name": structure},
-        {"_id": 0, "id": 1, "name": 1}
+    phone = data.get('phone', '').strip()
+    if not phone:
+        raise HTTPException(status_code=400, detail="Numero de telephone requis")
+    cleaned = phone.replace(' ', '').replace('.', '').replace('-', '')
+    if cleaned.startswith('0') and len(cleaned) >= 10:
+        cleaned = '+33' + cleaned[1:]
+
+    # Check existing link
+    existing_link = await db.saad_guardian_links.find_one(
+        {"company_id": user['id'], "guardian_phone": {"$regex": cleaned[-9:]}}, {"_id": 0}
+    )
+    if existing_link and existing_link.get('status') == 'accepted':
+        return {"status": "already_linked", "message": "Ce gardien est deja rattache a votre structure."}
+    if existing_link and existing_link.get('status') == 'pending':
+        return {"status": "pending", "message": "Invitation deja envoyee a ce gardien."}
+
+    # Find guardian by phone
+    guardian = await db.users.find_one(
+        {"phone": {"$regex": cleaned[-9:]}, "role": "guardian"}, {"_id": 0, "password_hash": 0}
+    )
+    company_name = user.get('structure_name', user.get('name', 'SAAD'))
+
+    if not guardian:
+        # Simulate SMS
+        logger.info(f"[SMS SIMULE SAAD] {company_name} invite {cleaned} a creer un compte gardien sur Chutex")
+        await db.saad_guardian_links.insert_one({
+            "id": str(uuid.uuid4()), "company_id": user['id'], "company_name": company_name,
+            "guardian_id": None, "guardian_phone": cleaned, "guardian_name": None,
+            "status": "sms_sent", "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        return {"status": "sms_sent", "message": f"Aucun compte gardien trouve. Un SMS d'invitation a ete envoye au {cleaned}."}
+
+    # Guardian exists — check if already linked to a SAAD
+    existing_saad = await db.saad_guardian_links.find_one(
+        {"guardian_id": guardian['id'], "status": "accepted"}, {"_id": 0}
+    )
+    if existing_saad and existing_saad.get('company_id') != user['id']:
+        return {"status": "error", "message": f"{guardian['name']} est deja rattache a une autre structure SAAD."}
+
+    inv_id = str(uuid.uuid4())
+    await db.saad_guardian_links.insert_one({
+        "id": inv_id, "company_id": user['id'], "company_name": company_name,
+        "guardian_id": guardian['id'], "guardian_phone": cleaned, "guardian_name": guardian['name'],
+        "status": "pending", "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"status": "pending", "message": f"Invitation envoyee a {guardian['name']}. En attente de son accord."}
+
+
+@router.get("/company/guardians")
+async def company_guardians(user=Depends(get_current_user)):
+    """Get all guardians linked (or invited) to this SAAD company."""
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    links = await db.saad_guardian_links.find(
+        {"company_id": user['id']}, {"_id": 0}
+    ).sort("created_at", -1).to_list(200)
+    result = []
+    for lk in links:
+        if lk.get('guardian_id'):
+            g = await db.users.find_one({"id": lk['guardian_id']}, {"_id": 0, "password_hash": 0})
+            if g:
+                # Count professional beneficiaries
+                pro_bens = await db.guardian_relationships.count_documents(
+                    {"guardian_id": g['id'], "relationship_type": "professional"}
+                )
+                result.append({
+                    "link_id": lk['id'], "status": lk['status'],
+                    "id": g['id'], "name": g['name'], "email": g.get('email', ''),
+                    "phone": g.get('phone', lk.get('guardian_phone', '')),
+                    "profession": g.get('profession', ''), "address": g.get('address', ''),
+                    "professional_beneficiaries": pro_bens,
+                    "created_at": lk['created_at'],
+                })
+                continue
+        result.append({
+            "link_id": lk['id'], "status": lk['status'],
+            "id": None, "name": lk.get('guardian_name') or "Non inscrit",
+            "phone": lk.get('guardian_phone', ''), "email": '', "profession": '',
+            "professional_beneficiaries": 0, "created_at": lk['created_at'],
+        })
+    return result
+
+
+@router.delete("/company/guardians/{link_id}")
+async def remove_guardian_link(link_id: str, user=Depends(get_current_user)):
+    """Remove a guardian link from this SAAD company."""
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    lk = await db.saad_guardian_links.find_one({"id": link_id, "company_id": user['id']}, {"_id": 0})
+    if not lk:
+        raise HTTPException(status_code=404, detail="Lien non trouve")
+    await db.saad_guardian_links.update_one({"id": link_id}, {"$set": {"status": "removed"}})
+    if lk.get('guardian_id'):
+        await db.users.update_one({"id": lk['guardian_id']}, {"$unset": {"saad_company_id": ""}})
+    return {"status": "removed"}
+
+
+# ==================== SAAD ALERTS (filtered by linked professional guardians) ====================
+@router.get("/company/alerts")
+async def company_alerts(user=Depends(get_current_user)):
+    """Get alerts for beneficiaries whose guardian:
+    1. Is linked (accepted) to this SAAD company
+    2. Has a PROFESSIONAL relationship with the beneficiary
+    """
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    company_id = user['id']
+
+    # === NEW LOGIC: Guardians linked to this SAAD ===
+    saad_links = await db.saad_guardian_links.find(
+        {"company_id": company_id, "status": "accepted"}, {"_id": 0}
     ).to_list(500)
-    guardian_ids = [g['id'] for g in pro_guardians]
-    if not guardian_ids:
+    linked_guardian_ids = [lk['guardian_id'] for lk in saad_links if lk.get('guardian_id')]
+
+    # === LEGACY LOGIC: Guardians with professional profession + structure match ===
+    structure = user.get('structure_name', '')
+    legacy_guardians = await db.users.find(
+        {"guardian_type": "professional", "profession": {"$in": PROFESSIONAL_PROFESSIONS}, "structure_name": structure},
+        {"_id": 0, "id": 1}
+    ).to_list(500)
+    legacy_guardian_ids = [g['id'] for g in legacy_guardians]
+
+    all_guardian_ids = list(set(linked_guardian_ids + legacy_guardian_ids))
+    if not all_guardian_ids:
         return []
-    # Find beneficiaries who have these guardians
-    beneficiaries = await db.users.find(
-        {"guardians": {"$in": guardian_ids}},
-        {"_id": 0, "id": 1, "name": 1}
+
+    # === Find beneficiaries via PROFESSIONAL relationships ===
+    pro_rels = await db.guardian_relationships.find(
+        {"guardian_id": {"$in": all_guardian_ids}, "relationship_type": "professional"},
+        {"_id": 0, "beneficiary_id": 1}
     ).to_list(1000)
-    ben_ids = [b['id'] for b in beneficiaries]
-    if not ben_ids:
+    pro_ben_ids = list(set([r['beneficiary_id'] for r in pro_rels]))
+
+    # === LEGACY: all beneficiaries of legacy guardians ===
+    if legacy_guardian_ids:
+        legacy_bens = await db.users.find(
+            {"guardians": {"$in": legacy_guardian_ids}},
+            {"_id": 0, "id": 1}
+        ).to_list(1000)
+        for b in legacy_bens:
+            if b['id'] not in pro_ben_ids:
+                pro_ben_ids.append(b['id'])
+
+    if not pro_ben_ids:
         return []
-    # Get alerts for these beneficiaries
+
+    # === Get alerts ===
     alerts = await db.alerts.find(
-        {"beneficiary_id": {"$in": ben_ids}},
+        {"beneficiary_id": {"$in": pro_ben_ids}},
         {"_id": 0}
     ).sort("created_at", -1).to_list(200)
-    # Enrich with intervention data
+
     result = []
     for a in alerts:
         iv = await db.interventions.find_one({"alert_id": a['id'], "status": {"$in": ["pending_acceptance", "in_progress", "en_route"]}}, {"_id": 0})
