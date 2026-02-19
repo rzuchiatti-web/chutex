@@ -1075,24 +1075,21 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
                   <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} />
                 </div>
               </div>
-              {/* Vitaux en ligne */}
+              {/* Vitaux — 4 images PNG */}
               {b.latest_vitals && (
-                <div style={{ display: 'flex', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', gap: 0 } as any}>
+                <div style={{ display: 'flex', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '10px 16px', gap: 0 } as any}>
                   {[
-                    b.latest_vitals.heart_rate && { icon: 'ri-heart-pulse-line', val: `${b.latest_vitals.heart_rate}`, unit: 'bpm', color: '#EF4444' },
-                    b.latest_vitals.spo2 && { icon: 'ri-drop-line', val: `${b.latest_vitals.spo2}`, unit: '%', color: '#3B82F6' },
-                    b.latest_vitals.steps && { icon: 'ri-footprint-line', val: (b.latest_vitals.steps > 999 ? `${(b.latest_vitals.steps/1000).toFixed(1)}k` : b.latest_vitals.steps), unit: 'pas', color: '#10B981' },
-                    b.latest_vitals.temperature && { icon: 'ri-temp-hot-line', val: `${b.latest_vitals.temperature}`, unit: '°C', color: '#F59E0B' },
-                  ].filter(Boolean).map((vital: any, i: number, arr: any[]) => (
-                    <div key={i} style={{ flex: 1, textAlign: 'center', borderRight: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none', padding: '0 8px' } as any}>
-                      <i className={vital.icon} style={{ fontSize: 13, color: vital.color, display: 'block', marginBottom: 3 }} />
-                      <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{vital.val}</div>
-                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginTop: 2 }}>{vital.unit}</div>
+                    { img: 'https://customer-assets.emergentagent.com/job_19f6c899-022d-4e6d-bcf0-8571d24b1fb2/artifacts/4os5ruyj_hearth%20red%20app%20healthbeat%20Chutex.png', val: b.latest_vitals.heart_rate, unit: 'bpm', label: 'Pouls' },
+                    { img: 'https://customer-assets.emergentagent.com/job_19f6c899-022d-4e6d-bcf0-8571d24b1fb2/artifacts/byji5pya_spo2.png', val: b.latest_vitals.spo2, unit: '%', label: 'SpO2' },
+                    { img: 'https://customer-assets.emergentagent.com/job_19f6c899-022d-4e6d-bcf0-8571d24b1fb2/artifacts/zsw7vqfm_tension.png', val: b.latest_vitals.blood_pressure_systolic ? `${b.latest_vitals.blood_pressure_systolic}/${b.latest_vitals.blood_pressure_diastolic}` : null, unit: 'mmHg', label: 'Tension' },
+                    { img: 'https://customer-assets.emergentagent.com/job_19f6c899-022d-4e6d-bcf0-8571d24b1fb2/artifacts/yw3z379s_physical%20health%20analys%20app%20health%20Chutex.png', val: b.latest_vitals.temperature, unit: '°C', label: 'Temp.' },
+                  ].map((vital: any, i: number) => (
+                    <div key={i} style={{ flex: 1, textAlign: 'center', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none', padding: '0 4px' } as any}>
+                      <img src={vital.img} alt={vital.label} style={{ width: 28, height: 28, objectFit: 'contain', display: 'block', margin: '0 auto 4px', mixBlendMode: 'screen' } as any} />
+                      <div style={{ fontSize: 13, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{vital.val || '--'}</div>
+                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginTop: 2 }}>{vital.val ? vital.unit : vital.label}</div>
                     </div>
                   ))}
-                  {!b.latest_vitals.heart_rate && !b.latest_vitals.spo2 && !b.latest_vitals.steps && (
-                    <div style={{ flex: 1, textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.3)', padding: '4px 0' }}>Aucune donnée de santé</div>
-                  )}
                 </div>
               )}
               {/* Batterie + localisation si dispo */}
