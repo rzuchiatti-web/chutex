@@ -772,7 +772,7 @@ export default function AlertsScreen() {
                       <span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isActive ? 'Alerte active' : 'Resolue'}</span>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: (hasIntervention || (isActive && r === 'guardian')) ? 12 : 0 } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: (isActive && (hasIntervention && hasAssignedIntervenant)) ? 12 : ((isActive && r === 'guardian' && !hasAssignedIntervenant) ? 12 : 0) } as any}>
                     <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{alertTypeLabel}</div>
                     {alert.intervention?.distance_km && <div style={{ padding: '4px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{alert.intervention.distance_km} Km</span></div>}
                   </div>
