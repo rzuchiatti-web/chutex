@@ -561,6 +561,43 @@ async def get_guardian_requests(user=Depends(get_current_user)):
     return requests
 
 
+@router.post("/beneficiary/invite-guardian")
+async def beneficiary_invite_guardian(data: dict, user=Depends(get_current_user)):
+    """Beneficiary invites a guardian by phone number."""
+    phone = data.get('phone', '').strip()
+    relationship = data.get('relationship', '')
+    if not phone:
+        raise HTTPException(status_code=400, detail="Numero de telephone requis")
+    cleaned = phone.replace(' ', '').replace('.', '').replace('-', '')
+    if cleaned.startswith('0') and len(cleaned) >= 10:
+        cleaned = '+33' + cleaned[1:]
+    guardian = await db.users.find_one(
+        {"phone": {"$regex": cleaned[-9:]}, "role": "guardian"}, {"_id": 0, "password_hash": 0}
+    )
+    if not guardian:
+        logger.info(f"[SMS SIMULE] Invitation gardien au {cleaned} par {user['name']}")
+        return {"status": "sms_sent", "message": f"Aucun compte gardien trouve. Un SMS a ete envoye au {cleaned}."}
+    if user['id'] in (guardian.get('beneficiaries') or []):
+        return {"status": "already_linked", "message": f"{guardian['name']} est deja votre gardien."}
+    existing = await db.guardian_requests.find_one(
+        {"guardian_id": guardian['id'], "beneficiary_id": user['id'], "status": "pending"}
+    )
+    if existing:
+        return {"status": "pending", "message": f"Demande deja envoyee a {guardian['name']}."}
+    PROS = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide a domicile', 'Professionnel de sante',
+            'Infirmier(e) liberale', 'Coach sportif', 'Preparateur physique']
+    req_id = str(uuid.uuid4())
+    await db.guardian_requests.insert_one({
+        "id": req_id, "guardian_id": guardian['id'], "guardian_name": guardian['name'],
+        "guardian_phone": guardian.get('phone', ''), "guardian_email": guardian.get('email', ''),
+        "beneficiary_id": user['id'], "beneficiary_name": user['name'],
+        "relationship": relationship, "relationship_type": 'professional' if relationship in PROS else 'personal',
+        "method": "beneficiary_invite", "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"status": "pending", "message": f"Invitation envoyee a {guardian['name']}. Il recevra une notification.", "request_id": req_id}
+
+
 @router.post("/beneficiary/guardian-requests/{req_id}/accept")
 async def accept_guardian_request(req_id: str, user=Depends(get_current_user)):
     """Beneficiary accepts a guardian request"""
