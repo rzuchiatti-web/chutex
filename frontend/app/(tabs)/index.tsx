@@ -957,39 +957,66 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
               </div>
 
               {/* Title */}
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Ajouter un beneficiaire</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Inviter par telephone</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 28, lineHeight: 1.6 }}>
-                Entrez le numero de telephone de votre proche. S'il a deja un compte, il recevra une notification pour accepter. Sinon, un SMS lui sera envoye.
+              <div style={{ marginBottom: 28 } as any}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>Gardien · Bénéficiaire</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 8, lineHeight: 1.1 }}>Ajouter un<br />bénéficiaire</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
+                  Entrez le numéro de téléphone de votre proche. S'il a déjà un compte, il recevra une notification. Sinon, un SMS lui sera envoyé.
+                </div>
               </div>
 
               {/* Phone field */}
               <div style={{ marginBottom: 16 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numero de telephone</div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numéro de téléphone</div>
                 <div style={{ position: 'relative' } as any}>
                   <i className="ri-phone-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
                   <input value={linkPhone} onChange={(e: any) => setLinkPhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" style={{ width: '100%', padding: '15px 16px 15px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
                 </div>
               </div>
 
-              {/* Relationship dropdown */}
+              {/* Relationship — dropdown select */}
               <div style={{ marginBottom: 28 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Votre lien avec le beneficiaire</div>
-                {/* Professional group */}
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(16,185,129,0.7)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6, paddingLeft: 4 }}>Professionnel</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 } as any}>
-                  {['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé'].map(r => (
-                    <div key={r} onClick={() => setLinkRelationship(r)} style={{ padding: '8px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: linkRelationship === r ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.05)', border: `1px solid ${linkRelationship === r ? 'rgba(16,185,129,0.5)' : 'rgba(255,255,255,0.1)'}`, color: linkRelationship === r ? '#10B981' : 'rgba(255,255,255,0.6)', transition: 'all 0.15s' } as any}>{r}</div>
-                  ))}
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Votre lien avec le bénéficiaire</div>
+
+                {/* Groupe Professionnel */}
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(16,185,129,0.7)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6, paddingLeft: 2 }}>Professionnel</div>
+                <div style={{ position: 'relative', marginBottom: 12 } as any}>
+                  <select
+                    value={['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].includes(linkRelationship) ? linkRelationship : ''}
+                    onChange={(e: any) => setLinkRelationship(e.target.value)}
+                    style={{ width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(16,185,129,0.08)', border: `1px solid ${['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].includes(linkRelationship) ? 'rgba(16,185,129,0.4)' : 'rgba(16,185,129,0.2)'}`, color: ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].includes(linkRelationship) ? '#10B981' : 'rgba(255,255,255,0.5)', fontSize: 14, fontFamily: 'inherit', outline: 'none', appearance: 'none', cursor: 'pointer' } as any}
+                  >
+                    <option value="" style={{ background: '#1a1a2e', color: '#FFF' }}>— Choisir un rôle professionnel —</option>
+                    {['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].map(r => (
+                      <option key={r} value={r} style={{ background: '#1a1a2e', color: '#FFF' }}>{r}</option>
+                    ))}
+                  </select>
+                  <i className="ri-arrow-down-s-line" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(16,185,129,0.6)', pointerEvents: 'none' } as any} />
                 </div>
-                {/* Personal group */}
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6, paddingLeft: 4 }}>Personnel / Familial</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 } as any}>
-                  {['Mère', 'Père', 'Fils', 'Fille', 'Conjoint(e)', 'Frère', 'Sœur', 'Voisin(e)', 'Autre'].map(r => (
-                    <div key={r} onClick={() => setLinkRelationship(r)} style={{ padding: '8px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: linkRelationship === r ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${linkRelationship === r ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.1)'}`, color: linkRelationship === r ? '#FFF' : 'rgba(255,255,255,0.5)', transition: 'all 0.15s' } as any}>{r}</div>
-                  ))}
+
+                {/* Groupe Personnel */}
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6, paddingLeft: 2 }}>Personnel / Familial</div>
+                <div style={{ position: 'relative' } as any}>
+                  <select
+                    value={['Mère', 'Père', 'Fils', 'Fille', 'Conjoint(e)', 'Frère', 'Sœur', 'Voisin(e)', 'Autre'].includes(linkRelationship) ? linkRelationship : ''}
+                    onChange={(e: any) => setLinkRelationship(e.target.value)}
+                    style={{ width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: `1px solid ${['Mère', 'Père', 'Fils', 'Fille', 'Conjoint(e)', 'Frère', 'Sœur', 'Voisin(e)', 'Autre'].includes(linkRelationship) ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.1)'}`, color: ['Mère', 'Père', 'Fils', 'Fille', 'Conjoint(e)', 'Frère', 'Sœur', 'Voisin(e)', 'Autre'].includes(linkRelationship) ? '#FFF' : 'rgba(255,255,255,0.5)', fontSize: 14, fontFamily: 'inherit', outline: 'none', appearance: 'none', cursor: 'pointer' } as any}
+                  >
+                    <option value="" style={{ background: '#1a1a2e', color: '#FFF' }}>— Choisir un lien familial —</option>
+                    {['Mère', 'Père', 'Fils', 'Fille', 'Conjoint(e)', 'Frère', 'Sœur', 'Voisin(e)', 'Autre'].map(r => (
+                      <option key={r} value={r} style={{ background: '#1a1a2e', color: '#FFF' }}>{r}</option>
+                    ))}
+                  </select>
+                  <i className="ri-arrow-down-s-line" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
                 </div>
-                {linkRelationship && <div style={{ marginTop: 10, fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Selectionne : <span style={{ fontWeight: 700, color: ['Auxiliaire de vie','Aide soignant(e)','Aide à domicile','Professionnel de santé'].includes(linkRelationship) ? '#10B981' : 'rgba(255,255,255,0.7)' }}>{linkRelationship}</span>{['Auxiliaire de vie','Aide soignant(e)','Aide à domicile','Professionnel de santé'].includes(linkRelationship) ? ' → Les alertes remonteront dans l\'espace SAAD' : ''}</div>}
+
+                {/* Affichage sélection + info SAAD si professionnel */}
+                {linkRelationship && (
+                  <div style={{ marginTop: 10, fontSize: 12, color: 'rgba(255,255,255,0.5)', paddingLeft: 2 }}>
+                    Sélectionné : <strong style={{ color: ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].includes(linkRelationship) ? '#10B981' : '#FFF' }}>{linkRelationship}</strong>
+                    {['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].includes(linkRelationship) && <span style={{ color: 'rgba(16,185,129,0.7)' }}> → alertes visibles dans l'espace SAAD</span>}
+                  </div>
+                )}
               </div>
 
               {/* Success/error message */}
