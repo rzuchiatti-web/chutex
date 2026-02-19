@@ -1697,8 +1697,14 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
                 <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescriptions</div>
-                  <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{totalValidated + totalPending} EUR</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 4, marginBottom: 14 }}>Prochain versement de {totalValidated} EUR le {nextPay}</div>
+                  {/* Montant du mois en cours */}
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{currentMonthAmount} EUR</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 2, marginBottom: 2 }}>
+                    Souscriptions validées ce mois
+                  </div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 14 }}>
+                    {allTimeValidated} EUR validés au total · Versement le {nextPay}
+                  </div>
                   {/* Stats en blanc */}
                   <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
                     {[{ val: validatedP.length, label: 'Validees' }, { val: pendingP.length, label: 'En attente' }, { val: prescribers.length, label: 'Prescripteurs' }].map((s, i) => (
