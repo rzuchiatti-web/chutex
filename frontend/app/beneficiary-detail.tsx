@@ -163,7 +163,7 @@ export default function BeneficiaryDetailScreen() {
               const iAmAssigned = alert.intervention?.assigned_to === (user as any)?.id;
               return (
                 <div key={alert.id} style={{ borderRadius: 20, position: 'relative', padding: '18px 16px', marginBottom: 0, minHeight: 100, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
-                  <div onClick={() => router.push({ pathname: '/alert-detail', params: { alertId: alert.id } })} style={{ cursor: 'pointer' } as any}>
+                  <div onClick={() => router.push({ pathname: '/(tabs)/alerts', params: { preselect: alert.id } })} style={{ cursor: 'pointer' } as any}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 } as any}>
                       <div>
                         <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{alert.beneficiary_name || data.name}</div>
