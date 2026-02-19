@@ -517,30 +517,38 @@ function CompanyAgences({ token }: { token: string }) {
                 })()}
 
                 {/* Espace Prescripteur */}
-                {memberDetail.prescriber && (
-                  <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', marginBottom: 12 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
-                      <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(245,158,11,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-file-text-line" style={{ fontSize: 18, color: '#F59E0B' }} /></div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#F59E0B' }}>Espace Prescripteur</div>
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
-                      {[
-                        { val: memberDetail.prescriber.total_prescriptions || 0, label: 'Prescriptions', color: '#FFF' },
-                        { val: Math.round(memberDetail.prescriber.comm_validated || 0), label: 'EUR validés', color: '#10B981' },
-                        { val: Math.round(memberDetail.prescriber.comm_pending || 0), label: 'EUR en att.', color: '#F59E0B' },
-                      ].map((s, i) => (
-                        <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                          <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.val}</div>
-                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>{s.label}</div>
+                {memberDetail.prescriber && (() => {
+                  const prActive = memberDetail.spaceStatus?.prescripteur_active !== false;
+                  return (
+                    <div style={{ padding: '16px', borderRadius: 18, background: prActive ? 'rgba(245,158,11,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${prActive ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.08)'}`, marginBottom: 12 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
+                        <div style={{ width: 36, height: 36, borderRadius: 12, background: prActive ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-file-text-line" style={{ fontSize: 18, color: prActive ? '#F59E0B' : 'rgba(255,255,255,0.3)' }} /></div>
+                        <div style={{ flex: 1, fontSize: 14, fontWeight: 700, color: prActive ? '#F59E0B' : 'rgba(255,255,255,0.4)' }}>Espace Prescripteur{!prActive && ' (désactivé)'}</div>
+                        {/* Toggle */}
+                        <div onClick={() => toggleSpace('prescripteur', !prActive)} style={{ padding: '6px 12px', borderRadius: 999, cursor: 'pointer', background: prActive ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${prActive ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)'}`, fontSize: 11, fontWeight: 700, color: prActive ? '#EF4444' : '#10B981', display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                          <i className={prActive ? 'ri-forbid-line' : 'ri-checkbox-circle-line'} style={{ fontSize: 13 }} />
+                          {prActive ? 'Désactiver' : 'Réactiver'}
                         </div>
-                      ))}
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+                        {[
+                          { val: memberDetail.prescriber.total_prescriptions || 0, label: 'Prescriptions', color: '#FFF' },
+                          { val: Math.round(memberDetail.prescriber.comm_validated || 0), label: 'EUR validés', color: '#10B981' },
+                          { val: Math.round(memberDetail.prescriber.comm_pending || 0), label: 'EUR en att.', color: '#F59E0B' },
+                        ].map((s, i) => (
+                          <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
+                            <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.val}</div>
+                            <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>{s.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                      {memberDetail.prescriber.agency && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}><i className="ri-building-line" style={{ marginRight: 4 }} />{memberDetail.prescriber.agency.name}</div>}
+                      <div onClick={() => { setSelectedMember(null); setMemberDetail(null); router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: selectedMember.id } }); }} style={{ marginTop: 10, padding: '8px 14px', borderRadius: 999, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>Voir la fiche complète</span><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: '#F59E0B' }} />
+                      </div>
                     </div>
-                    {memberDetail.prescriber.agency && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}><i className="ri-building-line" style={{ marginRight: 4 }} />{memberDetail.prescriber.agency.name}</div>}
-                    <div onClick={() => { setSelectedMember(null); setMemberDetail(null); router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: selectedMember.id } }); }} style={{ marginTop: 10, padding: '8px 14px', borderRadius: 999, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>Voir la fiche complète</span><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: '#F59E0B' }} />
-                    </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Espace Gardien SAAD */}
                 {selectedMember.is_guardian_link && (
