@@ -604,6 +604,7 @@ export default function HealthScreen() {
   const [vitals, setVitals] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [dashData, setDashData] = useState<any>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -623,7 +624,15 @@ export default function HealthScreen() {
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
+  const fetchDashData = useCallback(async () => {
+    try {
+      const dd = await apiFetch('/api/devices/dashboard-summary', {}, token);
+      setDashData(dd);
+    } catch {}
+  }, [token]);
+
   useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchDashData(); }, [fetchDashData]);
 
   // Admin sees Clients page, Company sees Agences
   const effectiveRole = user?.active_role || user?.role;
