@@ -1623,7 +1623,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
             {prescTab === 'pending' && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>En cours de validation</div>}
           </div>
           {/* Tabs */}
-          <div style={{ textAlign: 'center', marginBottom: 10 } as any}>
+          <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
             <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
               <div onClick={() => setPrescTab('pending')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'pending' ? '#FFF' : 'transparent', color: prescTab === 'pending' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>En cours ({pendingPrescs.length})</div>
               <div onClick={() => setPrescTab('subscribed')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'subscribed' ? '#FFF' : 'transparent', color: prescTab === 'subscribed' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>Validees ({subscribedPrescs.length})</div>
