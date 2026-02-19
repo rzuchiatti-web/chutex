@@ -461,29 +461,6 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#9C27B0" /></View>;
 
-  /* ─── ESPACE DÉSACTIVÉ PAR LA SAAD — écran plein ─── */
-  if (ivSpaceDeactivated && user?.is_intervention_provider && Platform.OS === 'web') {
-    return (
-      <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', zIndex: 5 } as any}>
-        <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 28px', width: '100%', maxWidth: 400, textAlign: 'center' } as any}>
-          <div style={{ width: 72, height: 72, borderRadius: 22, background: 'rgba(239,68,68,0.15)', border: '2px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
-            <i className="ri-forbid-line" style={{ fontSize: 36, color: '#EF4444' }} />
-          </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Espace désactivé</div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginBottom: 24 }}>
-            Votre espace Intervenant Care a été temporairement désactivé par {saadLink?.company_name || 'votre structure SAAD'}.
-          </div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', padding: '14px 20px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
-            <i className="ri-information-line" style={{ marginRight: 6, color: '#A78BFA' }} />
-            Contactez {saadLink?.company_name || 'votre administrateur SAAD'} pour réactiver votre accès.
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const activateCare = async () => {
     if (!ivCode.trim()) { setCareError('Entrez un code intervenant'); return; }
     setActivating(true); setCareError('');
