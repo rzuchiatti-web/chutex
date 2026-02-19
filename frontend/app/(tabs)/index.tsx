@@ -987,7 +987,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
                     {/* 2 cartes */}
                     <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
                       <div onClick={() => { if (linkType !== 'pro') { setLinkRelationship(PROS[0]); } }} style={{ flex: 1, padding: '14px 12px', borderRadius: 16, cursor: 'pointer', background: isPro ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)', border: `2px solid ${isPro ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`, textAlign: 'center', transition: 'all 0.2s', opacity: isPerso ? 0.5 : 1 } as any}>
-                        <i className="ri-stethoscope-line" style={{ fontSize: 22, color: '#FFF', display: 'block', marginBottom: 6 }} />
+                        <i className="ri-briefcase-line" style={{ fontSize: 22, color: '#FFF', display: 'block', marginBottom: 6 }} />
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Professionnel</div>
                         <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Auxil., infirmier…</div>
                         {isPro && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: '#FFF' }}>✓ {linkRelationship}</div>}
