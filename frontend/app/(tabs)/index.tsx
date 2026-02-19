@@ -752,6 +752,8 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [invitations, setInvitations] = useState<any[]>([]);
   const [pendingInterventions, setPendingInterventions] = useState<any[]>([]);
+  const [saadInvitations, setSaadInvitations] = useState<any[]>([]);
+  const [saadLink, setSaadLink] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [switching, setSwitching] = useState(false);
@@ -760,7 +762,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [b, a, inv, piv] = await Promise.all([
+      const [b, a, inv, piv, saadInv, saadLk] = await Promise.all([
         apiFetch('/api/guardian/beneficiaries', {}, token).catch(() => []),
         apiFetch('/api/alerts', {}, token).catch(() => []),
         apiFetch('/api/guardian/invitations', {}, token).catch(() => []),
