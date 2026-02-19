@@ -1062,7 +1062,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
                 <div style={{ flex: 1 } as any}>
                   <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{b.name}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' } as any}>
-                    {b.date_of_birth && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{Math.floor((Date.now() - new Date(b.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans</span>}
+                    {b.date_of_birth && !isNaN(new Date(b.date_of_birth).getTime()) && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{Math.floor((Date.now() - new Date(b.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans</span>}
                     {b.subscription_type && <><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>·</span><span style={{ fontSize: 10, color: '#F59E0B', fontWeight: 600 }}>{b.subscription_type}</span></>}
                   </div>
                 </div>
