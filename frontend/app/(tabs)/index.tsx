@@ -800,6 +800,8 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
   };
 
   const [showAddBenPopup, setShowAddBenPopup] = useState(false);
+  const [showSaadPopup, setShowSaadPopup] = useState(false);
+  const [detaching, setDetaching] = useState(false);
   const [linkPhone, setLinkPhone] = useState('');
   const [linkRelationship, setLinkRelationship] = useState('');
   const [linkingBen, setLinkingBen] = useState(false);
