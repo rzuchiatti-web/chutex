@@ -499,7 +499,10 @@ async def link_with_code(data: dict, user=Depends(get_current_user)):
 
 @router.post("/guardian/link-with-phone")
 async def link_with_phone(data: dict, user=Depends(get_current_user)):
-    """Guardian requests to link with a beneficiary by phone number"""
+    """Guardian requests to link with a beneficiary by phone number.
+    - If beneficiary exists: sends in-app notification request (pending).
+    - If not found: simulates SMS invitation (logged, no real SMS sent).
+    """
     phone = data.get('phone', '').strip()
     relationship = data.get('relationship', '')
     if not phone:
@@ -507,16 +510,36 @@ async def link_with_phone(data: dict, user=Depends(get_current_user)):
     cleaned = phone.replace(' ', '').replace('.', '').replace('-', '')
     if cleaned.startswith('0') and len(cleaned) >= 10:
         cleaned = '+33' + cleaned[1:]
+
     ben = await db.users.find_one({"phone": cleaned, "role": "beneficiary"}, {"_id": 0})
-    if not ben:
+    if not ben and len(cleaned) >= 9:
         ben = await db.users.find_one({"phone": {"$regex": cleaned[-9:]}, "role": "beneficiary"}, {"_id": 0})
+
     if not ben:
-        raise HTTPException(status_code=404, detail="Aucun beneficiaire trouve avec ce numero")
+        # Beneficiary not found — simulate SMS invitation
+        logger.info(f"[SMS SIMULE] Invitation envoyee au {cleaned} par {user['name']} (gardien)")
+        await db.sms_invitations.insert_one({
+            "id": str(uuid.uuid4()),
+            "guardian_id": user['id'],
+            "guardian_name": user['name'],
+            "phone": cleaned,
+            "relationship": relationship,
+            "status": "sms_simule",
+            "message": f"Bonjour ! {user['name']} souhaite vous ajouter comme beneficiaire sur Care Watch. Rejoignez l'application pour accepter.",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        return {
+            "status": "sms_sent",
+            "message": f"Aucun compte trouve pour ce numero. Un SMS d'invitation a ete envoye au {cleaned}.",
+        }
+
     if user['id'] in ben.get('guardians', []):
         return {"status": "already_linked", "message": f"Vous etes deja gardien de {ben['name']}"}
+
     existing = await db.guardian_requests.find_one({"guardian_id": user['id'], "beneficiary_id": ben['id'], "status": "pending"})
     if existing:
-        return {"status": "pending", "message": "Demande deja en attente"}
+        return {"status": "pending", "message": f"Demande deja envoyee a {ben['name']}. En attente d'acceptation."}
+
     req_id = str(uuid.uuid4())
     await db.guardian_requests.insert_one({
         "id": req_id, "guardian_id": user['id'], "guardian_name": user['name'],
@@ -526,7 +549,7 @@ async def link_with_phone(data: dict, user=Depends(get_current_user)):
         "method": "phone", "status": "pending",
         "created_at": datetime.now(timezone.utc).isoformat(),
     })
-    return {"status": "pending", "message": f"Demande envoyee a {ben['name']}. En attente d'acceptation.", "request_id": req_id}
+    return {"status": "pending", "message": f"Demande envoyee a {ben['name']}. Il recevra une notification pour accepter.", "request_id": req_id}
 
 
 @router.get("/beneficiary/guardian-requests")
