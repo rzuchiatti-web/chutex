@@ -1117,7 +1117,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
             </div>
           ))}
           {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 10 }}>Aucun beneficiaire</div></div>}
-          <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}><i className="ri-heart-line" style={{ fontSize: 16, color: '#FFF' }} /><span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span></div>
+          <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}><i className="ri-heart-line" style={{ fontSize: 16, color: '#111' }} /><span style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>{t('add_beneficiary')}</span></div>
         </div>
         {/* POPUP AJOUTER BENEFICIAIRE — par numero de telephone */}
         {showAddBenPopup && (
