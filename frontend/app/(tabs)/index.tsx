@@ -315,18 +315,18 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </GC>
           )}
 
-          {/* ── Alert banner ── */}
-          <div data-testid="alert-banner" onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 18, padding: '14px 16px', marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: activeAlerts.length > 0 ? 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(185,28,28,0.15))' : 'rgba(16,185,129,0.08)', border: `1px solid ${activeAlerts.length > 0 ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.15)'}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: activeAlerts.length > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <i className={activeAlerts.length > 0 ? 'ri-alarm-warning-line' : 'ri-shield-check-line'} style={{ fontSize: 20, color: activeAlerts.length > 0 ? '#EF4444' : '#10B981' }} />
-              </div>
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} Alerte${activeAlerts.length > 1 ? 's' : ''} active${activeAlerts.length > 1 ? 's' : ''}` : 'Tout va bien'}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{activeAlerts.length > 0 ? 'Appuyez pour voir les details' : 'Aucune alerte en cours'}</div>
-              </div>
+          {/* ── Alert banner — BG_RED style like guardian ── */}
+          <div data-testid="alert-banner" onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+            <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'absolute', inset: 0, background: activeAlerts.length > 0 ? 'rgba(0,0,0,0.25)' : 'rgba(0,80,60,0.6)', zIndex: 1 } as any} />
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
+              <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
+              <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} en cours` : 'Aucune alerte'}</div></div>
             </div>
-            <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)' }} />
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 6 } as any}>
+              {activeAlerts.length > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div> : <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>OK</span></div>}
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
+            </div>
           </div>
 
           {/* ── Vitals row — 4 metrics ── */}
