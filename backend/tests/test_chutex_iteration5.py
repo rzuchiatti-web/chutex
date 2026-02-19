@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://alerts-stable.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://invite-flow-8.preview.emergentagent.com').rstrip('/')
 
 # New demo accounts with French names
 TEST_ACCOUNTS = [

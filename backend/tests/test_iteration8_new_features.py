@@ -7,9 +7,9 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://alerts-stable.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://invite-flow-8.preview.emergentagent.com')
 if not BASE_URL.startswith('http'):
-    BASE_URL = 'https://alerts-stable.preview.emergentagent.com'
+    BASE_URL = 'https://invite-flow-8.preview.emergentagent.com'
 
 # Test credentials
 BENEFICIARY_EMAIL = "robert.martin@email.fr"
