@@ -105,6 +105,11 @@ function CompanyAgences({ token }: { token: string }) {
   const [tab, setTab] = useState<'agencies' | 'guardians'>('agencies');
   const [search, setSearch] = useState('');
 
+  // Member detail panel
+  const [selectedMember, setSelectedMember] = useState<any>(null);
+  const [memberDetail, setMemberDetail] = useState<any>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
   // Agency CRUD
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
