@@ -1760,33 +1760,6 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
             </div>
           </div>
 
-          {/* PERFORMANCE PRESCRIPTEURS — barres de progression */}
-          {ranking.length > 0 && (() => {
-            const top = ranking.slice(0, 5);
-            const maxP = Math.max(top[0]?.prescriptions_count || 1, 1);
-            return (
-              <div style={{ padding: '16px', borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', marginBottom: 12, backdropFilter: 'blur(8px)' } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
-                  <i className="ri-bar-chart-line" style={{ fontSize: 16, color: '#FFF' }} />
-                  <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Performance prescripteurs</span>
-                </div>
-                {top.map((p: any, i: number) => (
-                  <div key={p.id || i} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ marginBottom: i < top.length - 1 ? 10 : 0, cursor: 'pointer' } as any}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                        <div style={{ width: 22, height: 22, borderRadius: 7, background: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: i < 3 ? '#111' : '#FFF' }}>#{i+1}</span></div>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{p.name}</span>
-                      </div>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{p.prescriptions_count || 0} presc.</span>
-                    </div>
-                    <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-                      <div style={{ height: '100%', borderRadius: 99, background: `linear-gradient(90deg, ${i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#D4845A'}, rgba(255,255,255,0.2))`, width: `${Math.round(((p.prescriptions_count || 0) / maxP) * 100)}%` } as any} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
         </div>
       </div>
     );
