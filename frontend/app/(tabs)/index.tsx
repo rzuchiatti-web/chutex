@@ -1022,59 +1022,6 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
                   </div>
                 );
               })()}
-              <div style={{ marginBottom: 16 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numéro de téléphone</div>
-                <div style={{ position: 'relative' } as any}>
-                  <i className="ri-phone-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
-                  <input value={linkPhone} onChange={(e: any) => setLinkPhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" style={{ width: '100%', padding: '15px 16px 15px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
-                </div>
-              </div>
-
-              {/* Relationship — dropdown select */}
-              <div style={{ marginBottom: 28 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Votre lien avec le bénéficiaire</div>
-
-                {/* Groupe Professionnel */}
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(16,185,129,0.7)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6, paddingLeft: 2 }}>Professionnel</div>
-                <div style={{ position: 'relative', marginBottom: 12 } as any}>
-                  <select
-                    value={['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].includes(linkRelationship) ? linkRelationship : ''}
-                    onChange={(e: any) => setLinkRelationship(e.target.value)}
-                    style={{ width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(16,185,129,0.08)', border: `1px solid ${['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].includes(linkRelationship) ? 'rgba(16,185,129,0.4)' : 'rgba(16,185,129,0.2)'}`, color: ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].includes(linkRelationship) ? '#10B981' : 'rgba(255,255,255,0.5)', fontSize: 14, fontFamily: 'inherit', outline: 'none', appearance: 'none', cursor: 'pointer' } as any}
-                  >
-                    <option value="" style={{ background: '#1a1a2e', color: '#FFF' }}>— Choisir un rôle professionnel —</option>
-                    {['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].map(r => (
-                      <option key={r} value={r} style={{ background: '#1a1a2e', color: '#FFF' }}>{r}</option>
-                    ))}
-                  </select>
-                  <i className="ri-arrow-down-s-line" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(16,185,129,0.6)', pointerEvents: 'none' } as any} />
-                </div>
-
-                {/* Groupe Personnel */}
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6, paddingLeft: 2 }}>Personnel / Familial</div>
-                <div style={{ position: 'relative' } as any}>
-                  <select
-                    value={['Mère', 'Père', 'Fils', 'Fille', 'Conjoint(e)', 'Frère', 'Sœur', 'Voisin(e)', 'Autre'].includes(linkRelationship) ? linkRelationship : ''}
-                    onChange={(e: any) => setLinkRelationship(e.target.value)}
-                    style={{ width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: `1px solid ${['Mère', 'Père', 'Fils', 'Fille', 'Conjoint(e)', 'Frère', 'Sœur', 'Voisin(e)', 'Autre'].includes(linkRelationship) ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.1)'}`, color: ['Mère', 'Père', 'Fils', 'Fille', 'Conjoint(e)', 'Frère', 'Sœur', 'Voisin(e)', 'Autre'].includes(linkRelationship) ? '#FFF' : 'rgba(255,255,255,0.5)', fontSize: 14, fontFamily: 'inherit', outline: 'none', appearance: 'none', cursor: 'pointer' } as any}
-                  >
-                    <option value="" style={{ background: '#1a1a2e', color: '#FFF' }}>— Choisir un lien familial —</option>
-                    {['Mère', 'Père', 'Fils', 'Fille', 'Conjoint(e)', 'Frère', 'Sœur', 'Voisin(e)', 'Autre'].map(r => (
-                      <option key={r} value={r} style={{ background: '#1a1a2e', color: '#FFF' }}>{r}</option>
-                    ))}
-                  </select>
-                  <i className="ri-arrow-down-s-line" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
-                </div>
-
-                {/* Affichage sélection + info SAAD si professionnel */}
-                {linkRelationship && (
-                  <div style={{ marginTop: 10, fontSize: 12, color: 'rgba(255,255,255,0.5)', paddingLeft: 2 }}>
-                    Sélectionné : <strong style={{ color: ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].includes(linkRelationship) ? '#10B981' : '#FFF' }}>{linkRelationship}</strong>
-                    {['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'].includes(linkRelationship) && <span style={{ color: 'rgba(16,185,129,0.7)' }}> → alertes visibles dans l'espace SAAD</span>}
-                  </div>
-                )}
-              </div>
-
               {/* Success/error message */}
               {linkMessage !== '' && (
                 <div style={{ padding: '14px 16px', borderRadius: 14, marginBottom: 16, background: linkMessage.startsWith('Erreur') ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${linkMessage.startsWith('Erreur') ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)'}` } as any}>
