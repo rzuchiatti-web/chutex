@@ -1675,8 +1675,17 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
           {(() => {
             const validatedP = prescriptions.filter((p: any) => p.status === 'validated' || p.status === 'subscribed');
             const pendingP = prescriptions.filter((p: any) => p.status === 'pending');
-            const totalValidated = validatedP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
-            const totalPending = pendingP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+
+            // Mois en cours — souscriptions validées uniquement
+            const now2 = new Date();
+            const currentMonthValidated = validatedP.filter((p: any) => {
+              const d = new Date(p.created_at || p.date || '');
+              return d.getMonth() === now2.getMonth() && d.getFullYear() === now2.getFullYear();
+            });
+            const currentMonthAmount = currentMonthValidated.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+            // Total depuis toujours
+            const allTimeValidated = validatedP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+
             const convRate = prescriptions.length > 0 ? Math.round((validatedP.length / prescriptions.length) * 100) : 0;
             const nextM = new Date(); nextM.setMonth(nextM.getMonth() + 1);
             const nextPay = `01/${String(nextM.getMonth() + 1).padStart(2, '0')}/${nextM.getFullYear()}`;
