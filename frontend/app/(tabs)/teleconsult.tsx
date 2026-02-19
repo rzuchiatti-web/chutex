@@ -1524,7 +1524,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isActive ? 'rgba(124,92,255,0.25)' : 'rgba(16,185,129,0.15)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: isActive ? '#A78BFA' : '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isActive ? 'En cours' : 'Terminee'}</span></div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isActive ? 12 : 0 } as any}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{iv.alert_message || (hasAssigned ? iv.assigned_name : 'En attente') || 'Intervention'}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{getCleanLabel(iv.alert_type, iv.alert_message)}</div>
                   {iv.distance_km && <div style={{ padding: '4px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{iv.distance_km} Km</span></div>}
                 </div>
               </div>
