@@ -331,8 +331,18 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Phone-based beneficiary linking (guardian invites beneficiary by phone)"
+    implemented: true
+    working: true
+    file: "frontend/app/(tabs)/index.tsx, backend/routes/misc_routes.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Replaced code-based linking with phone number invitation flow. Guardian enters phone+relationship. If beneficiary exists: pending guardian_request created with in-app notification. If not found: SMS simulated (logged). Beneficiary web UI has notification dropdown with accept/reject buttons. Backend: POST /api/guardian/link-with-phone updated."
+
 agent_communication:
   - agent: "main"
-    message: "Complete rewrite of frontend with B&W clinical design. Backend escalation endpoints added. Test credentials: admin@vitallink.fr/admin123, teleassist@vitallink.fr/teleassist123, gardien@vitallink.fr/gardien123, patient@vitallink.fr/patient123. Backend runs on port 8001, all API routes prefixed with /api."
-  - agent: "testing"
-    message: "BACKEND TESTING COMPLETED - All 27 tests passed (100% success rate). Created comprehensive backend_test.py suite. All high priority backend APIs working perfectly: Auth (4 roles), Escalation flow (2 variants), Admin codes, Guardian prescriber flow, Alerts CRUD, Backoffice stats. No critical issues found. Backend ready for production. Main agent can now summarize and finish."
+    message: "Implemented phone-based beneficiary linking. Test flow: 1) Login as claire.martin@email.fr (guardian), click 'Ajouter un beneficiaire', enter phone number. 2) For Robert Martin's number +33651245918 -> already linked. 3) For unknown numbers -> SMS simulated. 4) Beneficiary (robert.martin@email.fr) sees pending requests in notification bell (red badge). Test: POST /api/guardian/link-with-phone with phone+relationship. GET /api/beneficiary/guardian-requests for pending list. POST /api/beneficiary/guardian-requests/{id}/accept or /reject."
