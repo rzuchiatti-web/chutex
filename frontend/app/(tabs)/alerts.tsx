@@ -711,6 +711,14 @@ export default function AlertsScreen() {
 
   useEffect(() => { fetchAlerts(); const t = setInterval(fetchAlerts, 10000); return () => clearInterval(t); }, [fetchAlerts]);
 
+  // Auto-ouvrir une alerte depuis un lien externe (ex: fiche bénéficiaire)
+  useEffect(() => {
+    if (preselect && alerts.length > 0) {
+      const found = alerts.find((a: any) => a.id === preselect);
+      if (found) { setSelectedAlert(found); }
+    }
+  }, [preselect, alerts]);
+
   const resolved = alerts.filter(a => a.status === 'resolved');
   const filtered = tab === 'active' ? activeAlerts : resolved;
 
