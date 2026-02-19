@@ -151,7 +151,7 @@ export default function BeneficiaryDetailScreen() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: data.medical_conditions || data.allergies || data.doctor_name ? 12 : 0 } as any}>
               {[
                 data.blood_type && { label: 'Groupe sang.', val: data.blood_type, color: '#EF4444' },
-                data.date_of_birth && { label: 'Né(e) le', val: new Date(data.date_of_birth).toLocaleDateString('fr-FR'), color: '#FFF' },
+                data.date_of_birth && { label: 'Né(e) le', val: (() => { try { const d = new Date(data.date_of_birth); return isNaN(d.getTime()) ? data.date_of_birth : d.toLocaleDateString('fr-FR'); } catch { return data.date_of_birth; } })(), color: '#FFF' },
                 data.gender && { label: 'Genre', val: data.gender, color: '#FFF' },
                 (data.height_cm || data.weight_kg) && { label: 'Taille / Poids', val: [data.height_cm && `${data.height_cm}cm`, data.weight_kg && `${data.weight_kg}kg`].filter(Boolean).join(' · '), color: '#FFF' },
               ].filter(Boolean).map((item: any, i: number) => (
