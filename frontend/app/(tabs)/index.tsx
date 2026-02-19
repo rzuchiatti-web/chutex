@@ -1053,7 +1053,68 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
               </div>
             </div>
           ))}
-          {bens.map((b: any) => (<div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })} style={{ padding: '16px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 10, cursor: 'pointer' } as any}><div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}><div style={{ width: 50, height: 50, borderRadius: 16, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{b.name?.charAt(0)}</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{b.name}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{b.latest_vitals ? `${b.latest_vitals.heart_rate || '--'} bpm` : 'Pas de donnees'}</div>{b.active_alerts > 0 && <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 11, fontWeight: 700, color: '#EF4444' }}>{b.active_alerts} alerte(s)</span></div>}</div><i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.25)' }} /></div></div>))}
+          {/* Beneficiary cards — enrichies */}
+          {bens.map((b: any) => (
+            <div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+              {/* Header de la carte */}
+              <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{b.name?.charAt(0)}</span></div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{b.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' } as any}>
+                    {b.date_of_birth && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{Math.floor((Date.now() - new Date(b.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans</span>}
+                    {b.subscription_type && <><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>·</span><span style={{ fontSize: 10, color: '#F59E0B', fontWeight: 600 }}>{b.subscription_type}</span></>}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 } as any}>
+                  {b.active_alerts > 0 ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 99, background: 'rgba(239,68,68,0.2)' } as any}><span style={{ width: 5, height: 5, borderRadius: 99, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 700, color: '#EF4444' }}>{b.active_alerts} alerte{b.active_alerts > 1 ? 's' : ''}</span></div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 99, background: 'rgba(16,185,129,0.15)' } as any}><span style={{ width: 5, height: 5, borderRadius: 99, background: '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 700, color: '#10B981' }}>OK</span></div>
+                  )}
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} />
+                </div>
+              </div>
+              {/* Vitaux en ligne */}
+              {b.latest_vitals && (
+                <div style={{ display: 'flex', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', gap: 0 } as any}>
+                  {[
+                    b.latest_vitals.heart_rate && { icon: 'ri-heart-pulse-line', val: `${b.latest_vitals.heart_rate}`, unit: 'bpm', color: '#EF4444' },
+                    b.latest_vitals.spo2 && { icon: 'ri-drop-line', val: `${b.latest_vitals.spo2}`, unit: '%', color: '#3B82F6' },
+                    b.latest_vitals.steps && { icon: 'ri-footprint-line', val: (b.latest_vitals.steps > 999 ? `${(b.latest_vitals.steps/1000).toFixed(1)}k` : b.latest_vitals.steps), unit: 'pas', color: '#10B981' },
+                    b.latest_vitals.temperature && { icon: 'ri-temp-hot-line', val: `${b.latest_vitals.temperature}`, unit: '°C', color: '#F59E0B' },
+                  ].filter(Boolean).map((vital: any, i: number, arr: any[]) => (
+                    <div key={i} style={{ flex: 1, textAlign: 'center', borderRight: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none', padding: '0 8px' } as any}>
+                      <i className={vital.icon} style={{ fontSize: 13, color: vital.color, display: 'block', marginBottom: 3 }} />
+                      <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{vital.val}</div>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginTop: 2 }}>{vital.unit}</div>
+                    </div>
+                  ))}
+                  {!b.latest_vitals.heart_rate && !b.latest_vitals.spo2 && !b.latest_vitals.steps && (
+                    <div style={{ flex: 1, textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.3)', padding: '4px 0' }}>Aucune donnée de santé</div>
+                  )}
+                </div>
+              )}
+              {/* Batterie + localisation si dispo */}
+              {(b.bracelet_battery != null || b.last_seen) && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' } as any}>
+                  {b.bracelet_battery != null && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
+                      <i className="ri-battery-line" style={{ fontSize: 13, color: b.bracelet_battery > 30 ? '#10B981' : '#EF4444' }} />
+                      <span style={{ fontSize: 11, fontWeight: 600, color: b.bracelet_battery > 30 ? '#10B981' : '#EF4444' }}>{b.bracelet_battery}%</span>
+                    </div>
+                  )}
+                  {b.last_seen && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
+                      <i className="ri-map-pin-line" style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }} />
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{b.address || 'Position connue'}</span>
+                    </div>
+                  )}
+                  <div style={{ marginLeft: 'auto', fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Voir la fiche →</div>
+                </div>
+              )}
+            </div>
+          ))}
           {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 10 }}>Aucun beneficiaire</div></div>}
           <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}><i className="ri-heart-line" style={{ fontSize: 16, color: '#FFF' }} /><span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span></div>
         </div>
