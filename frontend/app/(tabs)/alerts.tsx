@@ -373,19 +373,19 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
         {/* ACTION BUTTONS — inside scroll, not fixed */}
         {!isResolved && (
           <div style={{ marginTop: 16 } as any}>
-            {/* Suivre intervention */}
+            {/* Lancer navigation / Suivre intervention */}
             {hasAssigned && alert.intervention?.id && (
               <SlideButton
-                label={alert.intervention?.assigned_to === user?.id ? 'Ouvrir l\'itineraire' : 'Suivre l\'intervention'}
-                icon={alert.intervention?.assigned_to === user?.id ? 'ri-navigation-line' : 'ri-map-pin-range-line'}
-                color="#FFF" bgColor="rgba(255,255,255,0.08)" borderColor="rgba(255,255,255,0.15)"
+                label={alert.intervention?.assigned_to === user?.id ? 'Lancer la navigation' : 'Suivre l\'intervention'}
+                icon={alert.intervention?.assigned_to === user?.id ? 'ri-navigation-line' : 'ri-heart-line'}
+                color={alert.intervention?.assigned_to === user?.id ? '#FFF' : '#FFF'} bgColor="rgba(255,255,255,0.08)" borderColor="rgba(255,255,255,0.15)"
                 onSlideComplete={() => router.push({ pathname: '/intervention-map', params: { interventionId: alert.intervention.id } })}
               />
             )}
             {/* Intervenir — guardian only, no intervenant */}
             {role === 'guardian' && !hasAssigned && (
               <SlideButton
-                label="Glisser pour intervenir" icon="ri-arrow-right-s-line"
+                label="Intervenir" icon="ri-shield-check-line"
                 color="#FFF" bgColor="rgba(255,255,255,0.05)" borderColor="rgba(255,255,255,0.1)"
                 onSlideComplete={() => {
                   apiFetch('/api/interventions/accept-as-guardian', { method: 'POST', body: JSON.stringify({ alert_id: alert.id }) }, token)
