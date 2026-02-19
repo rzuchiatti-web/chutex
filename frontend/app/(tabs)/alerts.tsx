@@ -699,25 +699,52 @@ export default function AlertsScreen() {
         <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 100px', position: 'relative', zIndex: 5 } as any}>
           {filtered.length > 0 ? filtered.map((alert: any) => {
             const isActive = alert.status === 'active';
+            const hasIntervention = !!(alert.intervention?.id);
+            const alertTypeLabel = alert.alert_type === 'sos' ? 'SOS' : alert.alert_type === 'fall' ? 'Chute detectee' : alert.alert_type === 'health_anomaly' ? 'Anomalie de sante' : alert.alert_type || '-';
             return (
-              <div key={alert.id} onClick={() => setSelectedAlert(alert)} data-testid={`alert-card-${alert.id}`} style={{ borderRadius: 20, position: 'relative', padding: '18px 16px', marginBottom: 12, cursor: 'pointer', minHeight: 100, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', transition: 'transform 0.15s' } as any}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
-                  <div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{alert.beneficiary_name || 'Beneficiaire'}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>Le {new Date(alert.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+              <div key={alert.id} data-testid={`alert-card-${alert.id}`} style={{ borderRadius: 20, position: 'relative', padding: '18px 16px', marginBottom: 12, minHeight: 100, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', transition: 'transform 0.15s' } as any}>
+                {/* Clickable card area */}
+                <div onClick={() => setSelectedAlert(alert)} style={{ cursor: 'pointer' } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 } as any}>
+                    <div>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{alert.beneficiary_name || 'Beneficiaire'}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>Le {new Date(alert.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isActive ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)', flexShrink: 0 } as any}>
+                      <span style={{ width: 6, height: 6, borderRadius: 3, background: isActive ? '#EF4444' : '#10B981' } as any} />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isActive ? 'Alerte active' : 'Resolue'}</span>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isActive ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)', flexShrink: 0 } as any}>
-                    <span style={{ width: 6, height: 6, borderRadius: 3, background: isActive ? '#EF4444' : '#10B981' } as any} />
-                    <span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isActive ? 'Alerte active' : 'Resolue'}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: hasIntervention ? 12 : 0 } as any}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{alertTypeLabel}</div>
+                    {alert.intervention?.distance_km && <div style={{ padding: '4px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{alert.intervention.distance_km} Km</span></div>}
                   </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
-                    <span style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>{alert.alert_type === 'sos' ? 'SOS' : alert.alert_type === 'fall' ? 'Chute' : alert.alert_type === 'health_anomaly' ? 'Anomalie' : alert.alert_type || '-'}</span>
-                    {alert.device_type && <span style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>{alert.device_type}</span>}
+                {/* Slide button — only if intervention exists */}
+                {hasIntervention && isActive && (
+                  <div style={{ width: '100%', height: 48, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', touchAction: 'none' } as any}
+                    onMouseDown={(e: any) => {
+                      e.stopPropagation();
+                      const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return;
+                      const rect = bar.getBoundingClientRect(); const maxX = rect.width - 44; const startX = e.clientX;
+                      const onMove = (ev: any) => { const dx = Math.max(0, Math.min(ev.clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); router.push({ pathname: '/intervention-map', params: { interventionId: alert.intervention.id } }); } };
+                      const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if (thumb) thumb.style.transition = ''; }, 300); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+                      document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp);
+                    }}
+                    onTouchStart={(e: any) => {
+                      e.stopPropagation();
+                      const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return;
+                      const rect = bar.getBoundingClientRect(); const maxX = rect.width - 44; const startX = e.touches[0].clientX;
+                      const onMove = (ev: any) => { ev.preventDefault(); const dx = Math.max(0, Math.min(ev.touches[0].clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); router.push({ pathname: '/intervention-map', params: { interventionId: alert.intervention.id } }); } };
+                      const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if (thumb) thumb.style.transition = ''; }, 300); bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); };
+                      bar.addEventListener('touchmove', onMove, { passive: false }); bar.addEventListener('touchend', onUp);
+                    }}>
+                    <div data-thumb style={{ position: 'absolute', top: 3, left: 3, width: 42, height: 42, borderRadius: 999, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', willChange: 'transform', touchAction: 'none' } as any}>
+                      <i className="ri-heart-line" style={{ fontSize: 18, color: '#FFF' }} />
+                    </div>
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 700, pointerEvents: 'none', paddingLeft: 30 } as any}>Suivre l'intervention</div>
                   </div>
-                  <div data-testid={`consulter-btn-${alert.id}`} style={{ padding: '8px 18px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', fontSize: 12, fontWeight: 700, color: '#FFF', cursor: 'pointer' } as any}>Consulter</div>
-                </div>
+                )}
               </div>
             );
           }) : (
