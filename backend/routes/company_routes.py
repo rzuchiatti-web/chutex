@@ -353,6 +353,51 @@ async def remove_guardian_link(link_id: str, user=Depends(get_current_user)):
     return {"status": "removed"}
 
 
+@router.post("/company/member/{guardian_id}/toggle-space")
+async def toggle_guardian_space(guardian_id: str, data: dict, user=Depends(get_current_user)):
+    """SAAD activates/deactivates a guardian's intervenant or prescripteur space."""
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    space_type = data.get('space_type')  # 'intervenant' or 'prescripteur'
+    active = data.get('active', True)    # True = activate, False = deactivate
+    if space_type not in ('intervenant', 'prescripteur'):
+        raise HTTPException(status_code=400, detail="space_type invalide")
+
+    field = 'intervenant_deactivated' if space_type == 'intervenant' else 'prescripteur_deactivated'
+    deactivated = not active
+
+    # Update in saad_guardian_links (by guardian_id + company_id)
+    result = await db.saad_guardian_links.update_one(
+        {"guardian_id": guardian_id, "company_id": user['id']},
+        {"$set": {field: deactivated, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+
+    # Also store on the user record for quick access
+    user_field = f'saad_{space_type}_deactivated'
+    await db.users.update_one(
+        {"id": guardian_id},
+        {"$set": {user_field: deactivated}}
+    )
+
+    action = "desactive" if deactivated else "reactivé"
+    space_label = "intervenant Care" if space_type == 'intervenant' else "prescripteur"
+    return {"status": "ok", "message": f"Espace {space_label} {action} pour ce membre."}
+
+
+@router.get("/company/member/{guardian_id}/space-status")
+async def get_member_space_status(guardian_id: str, user=Depends(get_current_user)):
+    """Get activation status of spaces for a member."""
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    lk = await db.saad_guardian_links.find_one(
+        {"guardian_id": guardian_id, "company_id": user['id']}, {"_id": 0}
+    )
+    return {
+        "intervenant_active": not (lk or {}).get('intervenant_deactivated', False),
+        "prescripteur_active": not (lk or {}).get('prescripteur_deactivated', False),
+    }
+
+
 # ==================== SAAD ALERTS (filtered by linked professional guardians) ====================
 @router.get("/company/alerts")
 async def company_alerts(user=Depends(get_current_user)):
