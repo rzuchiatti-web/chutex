@@ -1545,8 +1545,9 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   /* ─── DETAIL: prescription (early return) ─── */
   if (selectedPresc && Platform.OS === 'web') {
     const isValidated = selectedPresc.status === 'subscribed';
+    const prescriberProfile = prescribers.find((p: any) => p.id === selectedPresc.guardian_id || p.id === selectedPresc.prescriber_id) || {};
     const pRows = [
-      selectedPresc.guardian_name && { icon: 'ri-user-settings-line', label: 'Prescripteur', value: selectedPresc.guardian_name || selectedPresc.prescriber_name },
+      (prescriberProfile.name || selectedPresc.guardian_name) && { icon: 'ri-user-settings-line', label: 'Prescripteur', value: prescriberProfile.name || selectedPresc.guardian_name || selectedPresc.prescriber_name },
       selectedPresc.subscription_type && { icon: 'ri-vip-crown-line', label: 'Abonnement', value: selectedPresc.subscription_type },
       selectedPresc.commission && { icon: 'ri-money-euro-circle-line', label: 'Commission', value: `${selectedPresc.commission} EUR` },
       selectedPresc.created_at && { icon: 'ri-calendar-line', label: 'Date', value: new Date(selectedPresc.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
