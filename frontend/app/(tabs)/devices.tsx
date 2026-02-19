@@ -396,10 +396,21 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const [expandedChallenge, setExpandedChallenge] = useState<string | null>(null);
   const [anonymize, setAnonymize] = useState(false);
   const [showRewardsExplainer, setShowRewardsExplainer] = useState(false);
+  const [saadLink, setSaadLink] = useState<any>(null);
 
   const fetchPrescriptions = useCallback(async () => {
-    try { setPrescriptions(await apiFetch('/api/guardian/prescriptions', {}, token)); } catch (e) { console.error(e); } finally { setLoading(false); }
+    try {
+      const [prescs, sl] = await Promise.all([
+        apiFetch('/api/guardian/prescriptions', {}, token).catch(() => []),
+        apiFetch('/api/guardian/saad-link', {}, token).catch(() => null),
+      ]);
+      setPrescriptions(prescs);
+      setSaadLink(sl);
+    } catch (e) { console.error(e); } finally { setLoading(false); }
   }, [token]);
+
+  // Is prescripteur space deactivated by SAAD?
+  const prescSpaceDeactivated = saadLink && saadLink.prescripteur_active === false;
 
   useEffect(() => { if (user?.is_prescriber) fetchPrescriptions(); else setLoading(false); }, [fetchPrescriptions, user]);
 
