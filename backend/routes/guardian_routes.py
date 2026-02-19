@@ -229,7 +229,7 @@ async def reject_saad_invitation(inv_id: str, user=Depends(get_current_user)):
 
 @router.get("/guardian/saad-link")
 async def get_saad_link(user=Depends(get_current_user)):
-    """Get the guardian's current SAAD link info"""
+    """Get the guardian's current SAAD link info including space activation status."""
     if not user.get('saad_company_id'):
         return None
     company = await db.users.find_one(
@@ -247,6 +247,9 @@ async def get_saad_link(user=Depends(get_current_user)):
         "company_siret": company.get('siret', ''),
         "link_id": link['id'] if link else None,
         "linked_since": link['created_at'] if link else None,
+        # Space activation status (True = active, False = deactivated by SAAD)
+        "intervenant_active": not (link or {}).get('intervenant_deactivated', False),
+        "prescripteur_active": not (link or {}).get('prescripteur_deactivated', False),
     }
 
 
