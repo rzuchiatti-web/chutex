@@ -390,7 +390,7 @@ async def get_member_space_status(guardian_id: str, user=Depends(get_current_use
     if user.get('role') != 'prescriber_company':
         raise HTTPException(status_code=403, detail="Acces entreprise requis")
     lk = await db.saad_guardian_links.find_one(
-        {"guardian_id": guardian_id, "company_id": user['id']}, {"_id": 0}
+        {"guardian_id": guardian_id, "company_id": user['id'], "status": "accepted"}, {"_id": 0}
     )
     return {
         "intervenant_active": not (lk or {}).get('intervenant_deactivated', False),
