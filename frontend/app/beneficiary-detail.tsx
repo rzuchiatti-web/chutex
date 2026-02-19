@@ -199,7 +199,7 @@ export default function BeneficiaryDetailScreen() {
                   )}
                   {/* Slide — Voir fiche si pas d'action disponible */}
                   {!hasIntervention && !hasAssigned && r !== 'guardian' && (
-                    <SlideButton label="Voir la fiche alerte" icon="ri-arrow-right-line" white={false} onSlide={() => router.push({ pathname: '/alert-detail', params: { alertId: alert.id } })} />
+                    <SlideButton label="Voir la fiche alerte" icon="ri-arrow-right-line" white={false} onSlide={() => router.push({ pathname: '/(tabs)/alerts', params: { preselect: alert.id } })} />
                   )}
                 </div>
               );
@@ -313,7 +313,7 @@ export default function BeneficiaryDetailScreen() {
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Historique des alertes ({historyAlerts.length})</div>
               {historyAlerts.slice(0, 10).map((alert: any) => (
                 <div key={alert.id} style={{ borderRadius: 20, position: 'relative', padding: '18px 16px', marginBottom: 10, overflow: 'hidden', minHeight: 80, cursor: 'pointer' } as any}
-                  onClick={() => router.push({ pathname: '/alert-detail', params: { alertId: alert.id } })}>
+                  onClick={() => router.push({ pathname: '/(tabs)/alerts', params: { preselect: alert.id } })}>
                   <img src={BG_GREEN} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
                   <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
                   <div style={{ position: 'relative', zIndex: 2 } as any}>
