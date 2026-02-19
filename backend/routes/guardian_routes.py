@@ -361,6 +361,81 @@ async def activate_prescriber(data: ActivatePrescriberRequest, user=Depends(get_
     return {"status": "activated", "structure": code['structure_name']}
 
 
+@router.get("/guardian/beneficiary/{bid}/alerts")
+async def guardian_beneficiary_alerts(bid: str, user=Depends(get_current_user)):
+    """Get all alerts for a specific beneficiary (guardian access)"""
+    alerts = await db.alerts.find({"beneficiary_id": bid}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    enriched = []
+    for a in alerts:
+        iv = await db.interventions.find_one({"alert_id": a['id']}, {"_id": 0})
+        if iv and iv.get('assigned_to'):
+            intervener = await db.users.find_one({"id": iv['assigned_to']}, {"_id": 0, "password_hash": 0})
+            if intervener:
+                a['care_provider'] = intervener.get('name', '')
+                a['teleassistance_status'] = iv.get('status', '')
+        enriched.append(a)
+    return enriched
+
+
+@router.get("/guardian/beneficiary/{bid}/vitals-history")
+async def guardian_beneficiary_vitals_history(bid: str, limit: int = 20, user=Depends(get_current_user)):
+    """Get vitals history for a beneficiary"""
+    readings = await db.device_readings.find(
+        {"user_id": bid, "data.heart_rate": {"$exists": True}},
+        {"_id": 0}
+    ).sort("timestamp", -1).to_list(limit)
+    result = []
+    for r in readings:
+        d = r.get('data', {})
+        result.append({
+            "timestamp": r.get('timestamp', ''),
+            "heart_rate": d.get('heart_rate', 0),
+            "spo2": d.get('spo2', 0),
+            "steps": d.get('steps', 0),
+            "temperature": d.get('temperature', 0),
+        })
+    return list(reversed(result))
+
+
+@router.get("/guardian/beneficiary/{bid}/ai-report")
+async def guardian_beneficiary_ai_report(bid: str, user=Depends(get_current_user)):
+    """Get latest AI health report for a beneficiary"""
+    report = await db.health_reports.find_one(
+        {"user_id": bid}, {"_id": 0}
+    )
+    if report:
+        return {"recommendation": report.get('report', ''), "generated_at": report.get('generated_at', '')}
+    # Try to get from beneficiary's AI recommendations
+    rec = await db.ai_recommendations.find_one(
+        {"user_id": bid}, {"_id": 0}
+    )
+    if rec:
+        return {"recommendation": rec.get('recommendation', ''), "generated_at": rec.get('created_at', '')}
+    return None
+
+
+@router.get("/guardian/beneficiary/{bid}/devices")
+async def guardian_beneficiary_devices(bid: str, user=Depends(get_current_user)):
+    """Get device status for a beneficiary"""
+    bracelet = await db.bracelet_status.find_one({"user_id": bid}, {"_id": 0})
+    vest = await db.vest_status.find_one({"user_id": bid}, {"_id": 0})
+    # Also try device_readings for latest data
+    latest = await db.device_readings.find_one(
+        {"user_id": bid}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    if bracelet is None and latest:
+        d = latest.get('data', {})
+        bracelet = {
+            "connected": True,
+            "heart_rate": d.get('heart_rate', 0),
+            "spo2": d.get('spo2', 0),
+            "steps": d.get('steps', 0),
+            "battery_level": d.get('battery_level', None),
+            "last_sync": latest.get('timestamp', ''),
+        }
+    return {"bracelet": bracelet, "vest": vest}
+
+
 @router.get("/guardian/beneficiary/{bid}/detail")
 async def guardian_beneficiary_detail(bid: str, user=Depends(get_current_user)):
     ben = await db.users.find_one({"id": bid}, {"_id": 0, "password_hash": 0})
