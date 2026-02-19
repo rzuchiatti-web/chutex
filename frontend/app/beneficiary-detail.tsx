@@ -240,21 +240,24 @@ export default function BeneficiaryDetailScreen() {
             )}
           </div>
 
-          {/* 2. DONNÉES DE SANTÉ — sur le fond, pas dans des cartes */}
+          {/* 2. DONNÉES DE SANTÉ — grille glassmorphism */}
           <Sep />
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 16 }}>Données de santé</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 4 } as any}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Données de santé</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 4 } as any}>
             {[
-              { img: IMG_HEART, label: 'Pouls', val: v.heart_rate, unit: 'bpm', type: 'hr' },
-              { img: IMG_SPO2, label: 'SpO2', val: v.spo2, unit: '%', type: 'spo2' },
-              { img: IMG_TENS, label: 'Tension', val: v.blood_pressure_systolic ? `${v.blood_pressure_systolic}/${v.blood_pressure_diastolic}` : null, unit: 'mmHg', type: 'bp' },
-              { img: IMG_TEMP, label: 'Température', val: v.temperature, unit: '°C', type: 'temp' },
+              { label: 'Fréq. cardiaque', val: v.heart_rate, unit: 'bpm', icon: 'ri-heart-pulse-line', color: '#EF4444', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.2)', statusKey: 'hr' },
+              { label: 'SpO2', val: v.spo2, unit: '%', icon: 'ri-drop-line', color: '#60A5FA', bg: 'rgba(96,165,250,0.1)', border: 'rgba(59,130,246,0.2)', statusKey: 'spo2' },
+              { label: 'Tension', val: v.blood_pressure_systolic ? `${v.blood_pressure_systolic}/${v.blood_pressure_diastolic}` : null, unit: 'mmHg', icon: 'ri-pulse-line', color: '#C084FC', bg: 'rgba(192,132,252,0.1)', border: 'rgba(167,139,250,0.2)', statusKey: 'bp' },
+              { label: 'Température', val: v.temperature, unit: '°C', icon: 'ri-temp-hot-line', color: '#FB923C', bg: 'rgba(251,146,60,0.1)', border: 'rgba(245,158,11,0.2)', statusKey: 'temp' },
             ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 } as any}>
-                <img src={item.img} alt={item.label} style={{ width: 52, height: 52, objectFit: 'contain', mixBlendMode: 'screen' } as any} />
-                <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{item.val || '--'}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>{item.val ? item.unit : item.label}</div>
-                <VitalPill type={item.type} val={item.val} />
+              <div key={i} style={{ padding: '14px 14px 12px', borderRadius: 18, background: item.bg, border: `1px solid ${item.border}`, backdropFilter: 'blur(8px)' } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 } as any}>
+                  <i className={item.icon} style={{ fontSize: 14, color: item.color }} />
+                  <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{item.label}</span>
+                </div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: item.val ? item.color : 'rgba(255,255,255,0.2)', lineHeight: 1, letterSpacing: -0.5 }}>{item.val || '--'}</div>
+                <div style={{ fontSize: 10, color: item.val ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)', marginTop: 3, fontWeight: 600 }}>{item.unit}</div>
+                {item.val && <VitalPill type={item.statusKey} val={item.val} />}
               </div>
             ))}
           </div>
