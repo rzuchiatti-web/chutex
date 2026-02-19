@@ -709,15 +709,23 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
             </div>
           )}
 
-          {/* SUIVRE L'INTERVENTION — visible pour tous les intervenants Care quand en cours */}
-          {!isDone && selectedIv.id && (
-            <div onClick={() => router.push({ pathname: '/intervention-map', params: { interventionId: selectedIv.id } })} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 10 } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}>
-              <i className="ri-map-pin-range-line" style={{ fontSize: 18, color: '#FFF' }} />
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Suivre l'intervention</span>
-            </div>
-          )}
+          {/* SLIDE BUTTON — Lancer navigation si assigné à moi, Suivre sinon */}
+          {!isDone && selectedIv.id && (() => {
+            const iAmThisIntervenant = selectedIv.assigned_to === user?.id;
+            const slideLabel = iAmThisIntervenant ? 'Lancer la navigation' : 'Suivre l\'intervention';
+            const slideIcon = iAmThisIntervenant ? 'ri-navigation-line' : 'ri-heart-line';
+            const thumbBg = iAmThisIntervenant ? '#FFF' : 'rgba(255,255,255,0.15)';
+            const thumbBorder = iAmThisIntervenant ? 'none' : '1px solid rgba(255,255,255,0.2)';
+            const iconColor = iAmThisIntervenant ? '#111' : '#FFF';
+            return (
+              <div style={{ width: '100%', height: 52, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 10, touchAction: 'none' } as any}
+                onMouseDown={(e: any) => { e.stopPropagation(); const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 48; const startX = e.clientX; const onMove = (ev: any) => { const dx = Math.max(0, Math.min(ev.clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); router.push({ pathname: '/intervention-map', params: { interventionId: selectedIv.id } }); } }; const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if (thumb) thumb.style.transition = ''; }, 300); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); }}
+                onTouchStart={(e: any) => { e.stopPropagation(); const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 48; const startX = e.touches[0].clientX; const onMove = (ev: any) => { ev.preventDefault(); const dx = Math.max(0, Math.min(ev.touches[0].clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); router.push({ pathname: '/intervention-map', params: { interventionId: selectedIv.id } }); } }; const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if (thumb) thumb.style.transition = ''; }, 300); bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); }; bar.addEventListener('touchmove', onMove, { passive: false }); bar.addEventListener('touchend', onUp); }}>
+                <div data-thumb style={{ position: 'absolute', top: 3, left: 3, width: 46, height: 46, borderRadius: 999, background: thumbBg, border: thumbBorder, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: iAmThisIntervenant ? '0 2px 8px rgba(0,0,0,0.15)' : 'none', willChange: 'transform', touchAction: 'none' } as any}><i className={slideIcon} style={{ fontSize: 20, color: iconColor }} /></div>
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', fontSize: 15, fontWeight: 700, pointerEvents: 'none', paddingLeft: 32 } as any}>{slideLabel}</div>
+              </div>
+            );
+          })()}
 
           {/* RAPPORT */}
           {selectedIv.report && (
