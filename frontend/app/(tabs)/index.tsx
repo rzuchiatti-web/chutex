@@ -276,6 +276,40 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           </div>
 
+          {/* Notifications dropdown — web bénéficiaire */}
+          {showNotifs && (
+            <div style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Notifications</span>
+                <div onClick={() => setShowNotifs(false)} style={{ cursor: 'pointer', fontSize: 18, color: 'rgba(255,255,255,0.5)' } as any}><i className="ri-close-line" /></div>
+              </div>
+              {activeAlerts.length === 0 && guardianRequests.length === 0 && (
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '8px 0' }}>Aucune notification</div>
+              )}
+              {activeAlerts.map((a: any) => (
+                <div key={a.id} onClick={() => { setShowNotifs(false); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}>
+                  <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-alarm-warning-line" style={{ fontSize: 16, color: '#EF4444' }} /></div>
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{a.message}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{a.teleassistance_status || 'En cours'}</div></div>
+                </div>
+              ))}
+              {guardianRequests.map((req: any) => (
+                <div key={req.id} style={{ padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-shield-user-line" style={{ fontSize: 16, color: '#F59E0B' }} /></div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{req.guardian_name}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Souhaite devenir votre gardien{req.relationship ? ` (${req.relationship})` : ''}</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 } as any}>
+                    <div onClick={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/accept`, { method: 'POST' }, token); setShowNotifs(false); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
+                    <div onClick={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/reject`, { method: 'POST' }, token); setShowNotifs(false); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Refuser</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Alert card — SAAD style */}
           <div onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
             <img src={BG_DASH} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, filter: 'hue-rotate(-30deg) saturate(2)' } as any} />
