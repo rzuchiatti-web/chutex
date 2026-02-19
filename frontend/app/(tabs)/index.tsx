@@ -836,17 +836,93 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
             </div>
           </div>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10 }}>Mes beneficiaires</div>
-          {/* SAAD affiliation card */}
+          {/* SAAD affiliation card — fond vert, cliquable */}
           {saadLink && (
-            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', marginBottom: 10, backdropFilter: 'blur(12px)' } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-4-line" style={{ fontSize: 18, color: '#10B981' }} /></div>
+            <div onClick={() => setShowSaadPopup(true)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 10, cursor: 'pointer' } as any}>
+              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+              <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ width: 42, height: 42, borderRadius: 13, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{saadLink.company_name}</div>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: '#10B981', background: 'rgba(16,185,129,0.15)', padding: '2px 7px', borderRadius: 99, letterSpacing: 0.5, textTransform: 'uppercase' }}>Rattache</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 } as any}>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{saadLink.company_name}</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: '#FFF', background: 'rgba(255,255,255,0.2)', padding: '2px 7px', borderRadius: 99, letterSpacing: 0.5, textTransform: 'uppercase' }}>Rattaché</span>
                   </div>
-                  {saadLink.company_address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{saadLink.company_address}</div>}
+                  {saadLink.company_address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{saadLink.company_address}</div>}
+                </div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
+              </div>
+            </div>
+          )}
+
+          {/* POPUP FICHE SAAD */}
+          {showSaadPopup && saadLink && (
+            <div onClick={() => setShowSaadPopup(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+                {/* Close */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                  <div onClick={() => setShowSaadPopup(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                </div>
+
+                {/* Header structure */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 } as any}>
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(16,185,129,0.2)', border: '2px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 26, color: '#10B981' }} /></div>
+                  <div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{saadLink.company_name}</div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4, padding: '3px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
+                      <span style={{ width: 6, height: 6, borderRadius: 99, background: '#10B981', display: 'inline-block' } as any} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Rattaché</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Infos structure */}
+                <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Structure</div>
+                  {[
+                    saadLink.company_address && { icon: 'ri-map-pin-line', label: 'Adresse', value: saadLink.company_address },
+                    saadLink.company_siret && { icon: 'ri-file-text-line', label: 'SIRET', value: saadLink.company_siret },
+                    saadLink.linked_since && { icon: 'ri-calendar-line', label: 'Rattaché depuis', value: new Date(saadLink.linked_since).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
+                  ].filter(Boolean).map((item: any, i: number) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                      <i className={item.icon} style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 2, flexShrink: 0 }} />
+                      <div>
+                        <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{item.label}</div>
+                        <div style={{ fontSize: 13, color: '#FFF' }}>{item.value}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Espaces activés */}
+                <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Mes espaces</div>
+                  <div style={{ display: 'flex', gap: 8 } as any}>
+                    <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: saadLink.intervenant_active !== false ? 'rgba(124,92,255,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${saadLink.intervenant_active !== false ? 'rgba(124,92,255,0.25)' : 'rgba(255,255,255,0.08)'}`, textAlign: 'center' } as any}>
+                      <i className="ri-stethoscope-line" style={{ fontSize: 16, color: saadLink.intervenant_active !== false ? '#A78BFA' : 'rgba(255,255,255,0.25)', display: 'block', marginBottom: 4 }} />
+                      <div style={{ fontSize: 11, fontWeight: 700, color: saadLink.intervenant_active !== false ? '#A78BFA' : 'rgba(255,255,255,0.3)' }}>Intervenant Care</div>
+                      <div style={{ fontSize: 9, color: saadLink.intervenant_active !== false ? 'rgba(164,139,250,0.7)' : 'rgba(255,255,255,0.2)', marginTop: 2 }}>{saadLink.intervenant_active !== false ? 'Actif' : 'Désactivé'}</div>
+                    </div>
+                    <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: saadLink.prescripteur_active !== false ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${saadLink.prescripteur_active !== false ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.08)'}`, textAlign: 'center' } as any}>
+                      <i className="ri-file-text-line" style={{ fontSize: 16, color: saadLink.prescripteur_active !== false ? '#F59E0B' : 'rgba(255,255,255,0.25)', display: 'block', marginBottom: 4 }} />
+                      <div style={{ fontSize: 11, fontWeight: 700, color: saadLink.prescripteur_active !== false ? '#F59E0B' : 'rgba(255,255,255,0.3)' }}>Prescripteur</div>
+                      <div style={{ fontSize: 9, color: saadLink.prescripteur_active !== false ? 'rgba(245,158,11,0.7)' : 'rgba(255,255,255,0.2)', marginTop: 2 }}>{saadLink.prescripteur_active !== false ? 'Actif' : 'Désactivé'}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bouton se détacher */}
+                <div onClick={async () => {
+                  if (!window.confirm(`Vous allez vous détacher de ${saadLink.company_name}. Cette action est irréversible. Continuer ?`)) return;
+                  setDetaching(true);
+                  try {
+                    await apiFetch('/api/guardian/saad-detach', { method: 'POST' }, token);
+                    setShowSaadPopup(false);
+                    fetchData();
+                  } catch (e: any) { window.alert(`Erreur : ${(e as any).message}`); }
+                  finally { setDetaching(false); }
+                }} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: detaching ? 'not-allowed' : 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+                  {detaching ? <><i className="ri-loader-4-line" style={{ fontSize: 16 }} />Détachement...</> : <><i className="ri-link-unlink-m" style={{ fontSize: 16 }} />Se détacher de la structure</>}
                 </div>
               </div>
             </div>
