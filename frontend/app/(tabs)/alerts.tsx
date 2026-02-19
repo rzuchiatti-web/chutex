@@ -716,13 +716,13 @@ export default function AlertsScreen() {
                       <span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isActive ? 'Alerte active' : 'Resolue'}</span>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: hasIntervention ? 12 : 0 } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: (hasIntervention || (isActive && r === 'guardian')) ? 12 : 0 } as any}>
                     <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{alertTypeLabel}</div>
                     {alert.intervention?.distance_km && <div style={{ padding: '4px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{alert.intervention.distance_km} Km</span></div>}
                   </div>
                 </div>
-                {/* Slide button — only if intervention exists */}
-                {hasIntervention && isActive && (
+                {/* Slide button — Suivre if assigned, Intervenir if guardian + no assigned */}
+                {isActive && hasIntervention && hasAssignedIntervenant && (
                   <div style={{ width: '100%', height: 48, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', touchAction: 'none' } as any}
                     onMouseDown={(e: any) => {
                       e.stopPropagation();
@@ -744,6 +744,31 @@ export default function AlertsScreen() {
                       <i className="ri-heart-line" style={{ fontSize: 18, color: '#FFF' }} />
                     </div>
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 700, pointerEvents: 'none', paddingLeft: 30 } as any}>Suivre l'intervention</div>
+                  </div>
+                )}
+                {/* Intervenir — guardian only, no assigned intervenant */}
+                {isActive && r === 'guardian' && !hasAssignedIntervenant && (
+                  <div style={{ width: '100%', height: 48, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', touchAction: 'none' } as any}
+                    onMouseDown={(e: any) => {
+                      e.stopPropagation();
+                      const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return;
+                      const rect = bar.getBoundingClientRect(); const maxX = rect.width - 44; const startX = e.clientX;
+                      const onMove = (ev: any) => { const dx = Math.max(0, Math.min(ev.clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); apiFetch('/api/interventions/accept-as-guardian', { method: 'POST', body: JSON.stringify({ alert_id: alert.id }) }, token).then((res: any) => { fetchAlerts(); router.push({ pathname: '/intervention-map', params: { interventionId: res?.intervention_id || '', alertId: alert.id } }); }).catch(() => router.push({ pathname: '/intervention-map', params: { alertId: alert.id } })); } };
+                      const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if (thumb) thumb.style.transition = ''; }, 300); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+                      document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp);
+                    }}
+                    onTouchStart={(e: any) => {
+                      e.stopPropagation();
+                      const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return;
+                      const rect = bar.getBoundingClientRect(); const maxX = rect.width - 44; const startX = e.touches[0].clientX;
+                      const onMove = (ev: any) => { ev.preventDefault(); const dx = Math.max(0, Math.min(ev.touches[0].clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); apiFetch('/api/interventions/accept-as-guardian', { method: 'POST', body: JSON.stringify({ alert_id: alert.id }) }, token).then((res: any) => { fetchAlerts(); router.push({ pathname: '/intervention-map', params: { interventionId: res?.intervention_id || '', alertId: alert.id } }); }).catch(() => router.push({ pathname: '/intervention-map', params: { alertId: alert.id } })); } };
+                      const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if (thumb) thumb.style.transition = ''; }, 300); bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); };
+                      bar.addEventListener('touchmove', onMove, { passive: false }); bar.addEventListener('touchend', onUp);
+                    }}>
+                    <div data-thumb style={{ position: 'absolute', top: 3, left: 3, width: 42, height: 42, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', willChange: 'transform', touchAction: 'none' } as any}>
+                      <i className="ri-shield-check-line" style={{ fontSize: 18, color: '#111' }} />
+                    </div>
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 700, pointerEvents: 'none', paddingLeft: 30 } as any}>Intervenir</div>
                   </div>
                 )}
               </div>
