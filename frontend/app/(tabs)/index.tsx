@@ -785,12 +785,34 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
               <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10 }}>Mes beneficiaires</div>
           {bens.map((b: any) => (<div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })} style={{ padding: '16px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 10, cursor: 'pointer' } as any}><div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}><div style={{ width: 50, height: 50, borderRadius: 16, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{b.name?.charAt(0)}</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{b.name}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{b.latest_vitals ? `${b.latest_vitals.heart_rate || '--'} bpm` : 'Pas de donnees'}</div>{b.active_alerts > 0 && <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 11, fontWeight: 700, color: '#EF4444' }}>{b.active_alerts} alerte(s)</span></div>}</div><i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.25)' }} /></div></div>))}
           {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 10 }}>Aucun beneficiaire</div></div>}
-          <div onClick={() => router.push('/link-code')} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}><i className="ri-heart-line" style={{ fontSize: 16, color: '#FFF' }} /><span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span></div>
+          <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}><i className="ri-heart-line" style={{ fontSize: 16, color: '#FFF' }} /><span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span></div>
         </div>
+        {/* POPUP AJOUTER BENEFICIAIRE */}
+        {showAddBenPopup && (
+          <div onClick={() => setShowAddBenPopup(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowAddBenPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Lier un beneficiaire</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Ajouter un beneficiaire</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24, lineHeight: 1.5 }}>Entrez le code de liaison fourni par le beneficiaire ou son gardien pour le lier a votre espace.</div>
+              <div style={{ marginBottom: 16 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Code de liaison</div>
+                <input value={linkCode} onChange={(e: any) => setLinkCode(e.target.value.toUpperCase())} placeholder="EX: ABC123" style={{ width: '100%', padding: '16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 18, fontWeight: 700, fontFamily: 'inherit', textAlign: 'center', letterSpacing: 3, boxSizing: 'border-box', outline: 'none' } as any} />
+              </div>
+              <div onClick={async () => {
+                if (!linkCode.trim()) return;
+                setLinkingBen(true);
+                try {
+                  await apiFetch('/api/guardian/link-beneficiary', { method: 'POST', body: JSON.stringify({ code: linkCode.trim() }) }, token);
+                  setShowAddBenPopup(false); setLinkCode(''); fetchData();
+                } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setLinkingBen(false); }
+              }} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: linkCode.trim() ? 'pointer' : 'not-allowed', background: linkCode.trim() ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${linkCode.trim() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)'}`, color: linkCode.trim() ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, transition: 'all 0.2s' } as any}>{linkingBen ? '...' : 'Lier le beneficiaire'}</div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
