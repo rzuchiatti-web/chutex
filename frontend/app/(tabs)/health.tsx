@@ -267,7 +267,7 @@ function CompanyAgences({ token }: { token: string }) {
 
   if (Platform.OS === 'web') {
     // Filtered guardians for search
-    const filteredGuardians = guardianLinks.filter((g: any) => {
+    const filteredGuardians = allMembers.filter((g: any) => {
       if (!search.trim()) return true;
       const q = search.toLowerCase();
       return (g.name || '').toLowerCase().includes(q) || (g.phone || '').includes(q) || (g.profession || '').toLowerCase().includes(q);
