@@ -325,15 +325,12 @@ function CompanyAgences({ token }: { token: string }) {
             </div>
 
             {agencies.map((ag: any) => {
-              // Gardiens de cette agence (dedupliques) — ceux qui sont intervenants OU prescripteurs de cette agence
-              const agIntervenants = intervenants.filter((iv: any) => iv.agency_id === ag.agency.id || iv.agency_name === ag.agency.name);
-              const agPrescs = prescribers.filter((p: any) => p.agency_id === ag.agency.id);
-              // Union des IDs (dedup)
-              const agMemberIds = new Set([...agIntervenants.map((iv: any) => iv.id), ...agPrescs.map((p: any) => p.id)]);
-              // Match avec guardianLinks (pour avoir les pilules)
-              const agGuardians = guardianLinks.filter((g: any) => agMemberIds.has(g.id));
-              // Membres de l'agence sans compte gardien lie (prescripteurs purs)
-              const agPrescsOnly = agPrescs.filter((p: any) => !guardianLinks.some((g: any) => g.id === p.id));
+              // Membres de cette agence depuis allMembers (dédupliqués, avec toutes les pilules)
+              const agMembers = allMembers.filter((m: any) =>
+                m.agency_id === ag.agency.id ||
+                intervenants.some((iv: any) => iv.id === m.id && (iv.agency_id === ag.agency.id || iv.agency_name === ag.agency.name)) ||
+                prescribers.some((p: any) => p.id === m.id && p.agency_id === ag.agency.id)
+              );
 
               return (
                 <div key={ag.agency.id} style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 10, backdropFilter: 'blur(8px)' } as any}>
@@ -350,35 +347,24 @@ function CompanyAgences({ token }: { token: string }) {
                     </div>
                   </div>
 
-                  {/* Gardiens de l'agence (avec pilules) */}
-                  {agGuardians.length > 0 && (<>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Gardiens ({agGuardians.length})</div>
-                    {agGuardians.map((g: any, i: number) => (
-                      <div key={g.link_id || g.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' } as any}>
-                        <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 12, fontWeight: 800, color: '#10B981' }}>{g.name?.charAt(0)}</span></div>
+                  {/* Membres de l'agence (1 fiche par personne, toutes pilules) */}
+                  {agMembers.length > 0 && (<>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Membres ({agMembers.length})</div>
+                    {agMembers.map((m: any, i: number) => (
+                      <div key={m.id || m.link_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' } as any}>
+                        <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 12, fontWeight: 800, color: '#10B981' }}>{m.name?.charAt(0)}</span></div>
                         <div style={{ flex: 1 } as any}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' } as any}>
-                            <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{g.name}</span>
-                            {g.is_intervention_provider && <span style={{ fontSize: 8, fontWeight: 700, color: '#A78BFA', background: 'rgba(124,92,255,0.2)', padding: '1px 6px', borderRadius: 99 } as any}>Care</span>}
-                            {g.is_prescriber && <span style={{ fontSize: 8, fontWeight: 700, color: '#F59E0B', background: 'rgba(245,158,11,0.15)', padding: '1px 6px', borderRadius: 99 } as any}>Prescripteur</span>}
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{m.name}</span>
+                            {m.is_intervention_provider && <span style={{ fontSize: 8, fontWeight: 700, color: '#A78BFA', background: 'rgba(124,92,255,0.2)', padding: '1px 6px', borderRadius: 99 } as any}>Care</span>}
+                            {m.is_prescriber && <span style={{ fontSize: 8, fontWeight: 700, color: '#F59E0B', background: 'rgba(245,158,11,0.15)', padding: '1px 6px', borderRadius: 99 } as any}>Prescripteur</span>}
                           </div>
-                          {g.profession && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{g.profession}</div>}
+                          {m.profession && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{m.profession}</div>}
                         </div>
                       </div>
                     ))}
                   </>)}
-
-                  {/* Prescripteurs non gardiens (si besoin) */}
-                  {agPrescsOnly.length > 0 && agGuardians.length > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '8px 0' } as any} />}
-                  {agPrescsOnly.map((pr: any, i: number) => (
-                    <div key={pr.id} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' } as any}>
-                      <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(212,132,90,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 12, fontWeight: 800, color: '#D4845A' }}>{pr.name?.charAt(0)}</span></div>
-                      <div style={{ flex: 1 } as any}><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{pr.name}</span><span style={{ fontSize: 8, fontWeight: 700, color: '#F59E0B', background: 'rgba(245,158,11,0.15)', padding: '1px 6px', borderRadius: 99, marginLeft: 6 } as any}>Prescripteur</span></div>
-                      <span style={{ fontSize: 11, color: '#10B981', fontWeight: 700 }}>{pr.prescription_count} presc.</span>
-                    </div>
-                  ))}
-
-                  {agGuardians.length === 0 && agPrescsOnly.length === 0 && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '10px 0' }}>Aucun membre</div>}
+                  {agMembers.length === 0 && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '8px 0' }}>Aucun membre</div>}
 
                   {/* Assign prescriber */}
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
