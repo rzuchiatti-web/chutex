@@ -1117,7 +1117,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
       <MiniTuto id="guardian-intro" triggerLabel="Guide du gardien" steps={[
         { title: 'Votre role', text: 'Vous veillez sur vos proches a distance avec des notifications instantanees.', icon: 'shield-outline' },
         { title: 'Alertes', text: 'Quand une alerte se declenche, vous pouvez intervenir ou suivre l\'intervenant.', icon: 'alert-circle-outline' },
-        { title: 'Ajouter', text: 'Demandez le code de liaison de votre proche pour le surveiller.', icon: 'person-add-outline' },
+        { title: 'Ajouter', text: 'Entrez le numero de telephone de votre proche pour lui envoyer une invitation a rejoindre votre espace gardien.', icon: 'person-add-outline' },
       ]} />
     </ScrollView>
   );
