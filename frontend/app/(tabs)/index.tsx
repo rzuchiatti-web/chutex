@@ -966,6 +966,62 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
               </div>
 
               {/* Phone field */}
+              <div style={{ marginBottom: 28 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numéro de téléphone</div>
+                <div style={{ position: 'relative' } as any}>
+                  <i className="ri-phone-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
+                  <input value={linkPhone} onChange={(e: any) => setLinkPhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" style={{ width: '100%', padding: '15px 16px 15px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                </div>
+              </div>
+
+              {/* Lien avec le bénéficiaire — 2 cartes + dropdown conditionnel */}
+              {(() => {
+                const PROS = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'];
+                const PERSO = ['Mère', 'Père', 'Fils', 'Fille', 'Petit-enfant', 'Conjoint(e)', 'Frère', 'Sœur', 'Ami(e)', 'Voisin(e)', 'Autre'];
+                const isPro = PROS.includes(linkRelationship);
+                const isPerso = PERSO.includes(linkRelationship);
+                const linkType = isPro ? 'pro' : isPerso ? 'perso' : '';
+                return (
+                  <div style={{ marginBottom: 28 } as any}>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Lien avec le bénéficiaire</div>
+                    {/* 2 cartes */}
+                    <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
+                      <div onClick={() => { if (linkType !== 'pro') { setLinkRelationship(PROS[0]); } }} style={{ flex: 1, padding: '14px 12px', borderRadius: 16, cursor: 'pointer', background: isPro ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.05)', border: `2px solid ${isPro ? '#10B981' : 'rgba(16,185,129,0.2)'}`, textAlign: 'center', transition: 'all 0.2s', opacity: isPerso ? 0.5 : 1 } as any}>
+                        <i className="ri-stethoscope-line" style={{ fontSize: 22, color: '#10B981', display: 'block', marginBottom: 6 }} />
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Professionnel</div>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Auxil., infirmier…</div>
+                        {isPro && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: '#10B981' }}>✓ {linkRelationship}</div>}
+                      </div>
+                      <div onClick={() => { if (linkType !== 'perso') { setLinkRelationship(PERSO[0]); } }} style={{ flex: 1, padding: '14px 12px', borderRadius: 16, cursor: 'pointer', background: isPerso ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)', border: `2px solid ${isPerso ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`, textAlign: 'center', transition: 'all 0.2s', opacity: isPro ? 0.5 : 1 } as any}>
+                        <i className="ri-heart-line" style={{ fontSize: 22, color: '#FFF', display: 'block', marginBottom: 6 }} />
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Particulier</div>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Famille, ami…</div>
+                        {isPerso && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: '#FFF' }}>✓ {linkRelationship}</div>}
+                      </div>
+                    </div>
+                    {/* Dropdown Professionnel */}
+                    {isPro && (
+                      <div style={{ position: 'relative' } as any}>
+                        <select value={linkRelationship} onChange={(e: any) => setLinkRelationship(e.target.value)} style={{ width: '100%', padding: '13px 40px 13px 16px', borderRadius: 14, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.35)', color: '#10B981', fontSize: 14, fontFamily: 'inherit', outline: 'none', appearance: 'none', cursor: 'pointer' } as any}>
+                          {PROS.map(r => <option key={r} value={r} style={{ background: '#1a1a2e', color: '#FFF' }}>{r}</option>)}
+                        </select>
+                        <i className="ri-arrow-down-s-line" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(16,185,129,0.6)', pointerEvents: 'none' } as any} />
+                      </div>
+                    )}
+                    {/* Dropdown Particulier */}
+                    {isPerso && (
+                      <div style={{ position: 'relative' } as any}>
+                        <select value={linkRelationship} onChange={(e: any) => setLinkRelationship(e.target.value)} style={{ width: '100%', padding: '13px 40px 13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', outline: 'none', appearance: 'none', cursor: 'pointer' } as any}>
+                          {PERSO.map(r => <option key={r} value={r} style={{ background: '#1a1a2e', color: '#FFF' }}>{r}</option>)}
+                        </select>
+                        <i className="ri-arrow-down-s-line" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' } as any} />
+                      </div>
+                    )}
+                    {/* Info SAAD si professionnel */}
+                    {isPro && <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'rgba(16,185,129,0.7)' } as any}><i className="ri-information-line" style={{ fontSize: 13 }} /><span>Les alertes de ce bénéficiaire remonteront dans l'espace SAAD</span></div>}
+                  </div>
+                );
+              })()}
               <div style={{ marginBottom: 16 } as any}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numéro de téléphone</div>
                 <div style={{ position: 'relative' } as any}>
