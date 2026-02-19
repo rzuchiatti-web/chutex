@@ -96,6 +96,80 @@ async def get_latest_readings(user=Depends(get_current_user)):
     return readings
 
 
+@router.get("/devices/dashboard-summary")
+async def get_dashboard_summary(user=Depends(get_current_user)):
+    """Comprehensive device summary with simulated data for demo purposes"""
+    uid = user['id']
+    bracelet_dev = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
+    scale_dev = await db.devices.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0})
+    vest_dev = await db.devices.find_one({"user_id": uid, "device_type": "vest"}, {"_id": 0})
+
+    import math
+    now = datetime.now(timezone.utc)
+    hour = now.hour
+    base_hr = 68 + int(8 * math.sin(hour / 24 * math.pi * 2))
+
+    bracelet = {
+        "connected": True, "battery": 78, "name": "Bracelet Elio",
+        "heart_rate": base_hr + random.randint(-3, 3),
+        "spo2": random.choice([96, 97, 97, 98, 98, 99]),
+        "blood_pressure": {"systolic": 125 + random.randint(-5, 5), "diastolic": 78 + random.randint(-3, 3)},
+        "temperature": round(36.4 + random.random() * 0.5, 1),
+        "steps": 3842 + random.randint(0, 500),
+        "calories": 154 + random.randint(0, 30),
+        "distance_km": round(2.7 + random.random() * 0.5, 1),
+        "last_sync": now.isoformat(),
+        "heart_rate_history": [
+            {"hour": f"{h:02d}h", "value": 68 + int(8 * math.sin(h / 24 * math.pi * 2)) + random.randint(-2, 4)}
+            for h in range(max(0, hour - 6), hour + 1)
+        ],
+    }
+    if bracelet_dev and bracelet_dev.get('last_heart_rate', 0) > 0:
+        bracelet["heart_rate"] = bracelet_dev.get('last_heart_rate', bracelet["heart_rate"])
+        bracelet["spo2"] = bracelet_dev.get('last_spo2', bracelet["spo2"])
+        bracelet["steps"] = bracelet_dev.get('last_steps', bracelet["steps"])
+        bracelet["battery"] = bracelet_dev.get('battery', bracelet["battery"])
+
+    scale = {
+        "connected": True, "battery": 92, "name": "Balance Lefu",
+        "weight": round(72.4 + random.random() * 0.3, 1),
+        "bmi": round(24.1 + random.random() * 0.2, 1),
+        "body_fat": round(22.3 + random.random() * 0.5, 1),
+        "muscle_mass": round(33.8 + random.random() * 0.3, 1),
+        "water_pct": round(55.2 + random.random() * 0.5, 1),
+        "bone_mass": round(3.1 + random.random() * 0.1, 1),
+        "visceral_fat": random.choice([8, 9, 9, 10]),
+        "metabolic_age": random.choice([62, 63, 64]),
+        "last_sync": now.isoformat(),
+        "weight_history": [
+            {"date": f"{d} fev", "value": round(72.4 + random.random() * 0.8 - 0.4, 1)}
+            for d in range(13, 20)
+        ],
+    }
+
+    vest = {
+        "connected": True, "battery": 65, "name": "Gilet CareWatch",
+        "fall_detected": False, "posture_score": random.choice([82, 85, 87, 90]),
+        "chest_temp": round(36.5 + random.random() * 0.3, 1),
+        "impact_events_today": 0, "wearing_hours_today": round(4.5 + random.random() * 2, 1),
+        "last_fall_check": now.isoformat(),
+        "last_sync": now.isoformat(),
+        "alerts_today": 0,
+    }
+
+    sleep = {
+        "duration": "7h 23min", "quality": 82,
+        "deep": "2h 10min", "light": "4h 05min", "rem": "1h 08min",
+        "deep_pct": 30, "light_pct": 55, "rem_pct": 15,
+        "bedtime": "22:45", "wakeup": "06:08",
+    }
+
+    return {
+        "bracelet": bracelet, "scale": scale, "vest": vest, "sleep": sleep,
+        "last_updated": now.isoformat(),
+    }
+
+
 
 # ==================== LEFU WIFI SCALE ENDPOINTS ====================
 @router.post("/lefu/wifi/register")
