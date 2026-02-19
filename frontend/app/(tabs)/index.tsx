@@ -179,6 +179,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
   const [showNotifs, setShowNotifs] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+  const [showAddGuardianPopup, setShowAddGuardianPopup] = useState(false);
+  const [inviteGuardPhone, setInviteGuardPhone] = useState('');
+  const [inviteGuardRelationship, setInviteGuardRelationship] = useState('');
+  const [inviteGuardMsg, setInviteGuardMsg] = useState('');
+  const [inviteGuardLoading, setInviteGuardLoading] = useState(false);
   const sosPulse = useRef(new Animated.Value(1)).current;
   const { refreshUser } = useAuth();
 
