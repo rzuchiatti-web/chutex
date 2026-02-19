@@ -443,6 +443,13 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const [showCareModal, setShowCareModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [saadLink, setSaadLink] = useState<any>(null);
+  const [ivTab, setIvTab] = useState<'active'|'done'>('active');
+  const [slideActivated, setSlideActivated] = useState(false);
+  const [careError, setCareError] = useState('');
+  const [selectedIv, setSelectedIv] = useState<any>(null);
+  const [showIntervenantPopup, setShowIntervenantPopup] = useState(false);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [showStructurePopup, setShowStructurePopup] = useState(false);
 
   const fetchIvs = async () => {
     try {
