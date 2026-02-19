@@ -278,45 +278,45 @@ function CompanyAgences({ token }: { token: string }) {
         <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
 
-        {/* Header */}
-        <div style={{ position: 'relative', zIndex: 5, padding: '22px 20px 14px', textAlign: 'center' } as any}>
-          <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', border: '2px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' } as any}>
-            <i className="ri-building-line" style={{ fontSize: 24, color: '#D4845A' }} />
-          </div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{u?.structure_name || u?.name || 'Structure'}</div>
-          {u?.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 2 }}>{u.address}</div>}
-          {u?.siret && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>SIRET : {u.siret}</div>}
+        {/* Tout dans le scroll */}
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '22px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* Stats */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-            {[
-              { val: agencies.length, label: 'Agences', color: '#D4845A' },
-              { val: allMembers.length, label: 'Membres', color: '#10B981' },
-              { val: allMembers.filter((m: any) => m.is_intervention_provider).length, label: 'Care', color: '#A78BFA' },
-            ].map((s, i) => (
-              <div key={i} style={{ flex: 1, padding: '9px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
-                <div style={{ fontSize: 20, fontWeight: 900, color: s.color }}>{s.val}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
+          {/* Header — dans le scroll */}
+          <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
+            <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', border: '2px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' } as any}>
+              <i className="ri-building-line" style={{ fontSize: 24, color: '#D4845A' }} />
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{u?.structure_name || u?.name || 'Structure'}</div>
+            {u?.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 2 }}>{u.address}</div>}
+            {u?.siret && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>SIRET : {u.siret}</div>}
 
-          {/* 2 Tabs */}
-          <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
-            {([
-              { k: 'agencies', label: `Agences (${agencies.length})`, icon: 'ri-building-line' },
-              { k: 'guardians', label: `Membres (${allMembers.length})`, icon: 'ri-shield-user-line', badge: pendingGuardians },
-            ] as const).map(t => (
-              <div key={t.k} onClick={() => setTab(t.k)} style={{ padding: '8px 18px', borderRadius: 999, cursor: 'pointer', fontSize: 12, fontWeight: 700, background: tab === t.k ? '#FFF' : 'transparent', color: tab === t.k ? '#111' : 'rgba(255,255,255,0.7)', transition: 'all 0.2s', position: 'relative', whiteSpace: 'nowrap' } as any}>
-                <i className={t.icon} style={{ marginRight: 5 }} />{t.label}
-                {(t as any).badge > 0 && <span style={{ position: 'absolute', top: 1, right: 1, width: 14, height: 14, borderRadius: 999, background: '#F59E0B', fontSize: 8, fontWeight: 800, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>{(t as any).badge}</span>}
-              </div>
-            ))}
-          </div>
-        </div>
+            {/* Stats */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
+              {[
+                { val: agencies.length, label: 'Agences', color: '#D4845A' },
+                { val: allMembers.length, label: 'Membres', color: '#10B981' },
+                { val: allMembers.filter((m: any) => m.is_intervention_provider).length, label: 'Care', color: '#A78BFA' },
+              ].map((s, i) => (
+                <div key={i} style={{ flex: 1, padding: '9px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: s.color }}>{s.val}</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
 
-        {/* Content */}
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '8px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+            {/* 2 Tabs */}
+            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
+              {([
+                { k: 'agencies', label: `Agences (${agencies.length})`, icon: 'ri-building-line' },
+                { k: 'guardians', label: `Membres (${allMembers.length})`, icon: 'ri-shield-user-line', badge: pendingGuardians },
+              ] as const).map(t => (
+                <div key={t.k} onClick={() => setTab(t.k)} style={{ padding: '8px 18px', borderRadius: 999, cursor: 'pointer', fontSize: 12, fontWeight: 700, background: tab === t.k ? '#FFF' : 'transparent', color: tab === t.k ? '#111' : 'rgba(255,255,255,0.7)', transition: 'all 0.2s', position: 'relative', whiteSpace: 'nowrap' } as any}>
+                  <i className={t.icon} style={{ marginRight: 5 }} />{t.label}
+                  {(t as any).badge > 0 && <span style={{ position: 'absolute', top: 1, right: 1, width: 14, height: 14, borderRadius: 999, background: '#F59E0B', fontSize: 8, fontWeight: 800, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>{(t as any).badge}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* ── TAB AGENCES ── */}
           {tab === 'agencies' && (<>
