@@ -20,6 +20,10 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
         "device_type": data.device_type, "status": "active", "created_at": now, "resolved_at": None, "resolved_by": None,
         "teleassistance_status": "pending",
     }
+    if data.vital_data:
+        alert["vital_data"] = data.vital_data
+    if data.threshold_data:
+        alert["threshold_data"] = data.threshold_data
     await db.alerts.insert_one(alert)
     
     # Send push notifications to guardians
