@@ -685,6 +685,7 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
 export default function AlertsScreen() {
   const { token, user } = useAuth();
   const router = useRouter();
+  const { preselect } = useLocalSearchParams<{ preselect?: string }>();
   const r = user?.active_role || user?.role || '';
   const [alerts, setAlerts] = useState<any[]>([]);
   const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
