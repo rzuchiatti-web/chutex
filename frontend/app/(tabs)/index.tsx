@@ -1574,62 +1574,150 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
               ))}
             </div>
           </div>
-          {/* Alerte card — with red background */}
-          <div onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-            <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
-              <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{alerts.length}</div>
-              <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{alerts.length > 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length} en cours · {alerts.length - activeAlerts.length} resolue{alerts.length - activeAlerts.length > 1 ? 's' : ''}</div></div>
-            </div>
-            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 6 } as any}>
-              {activeAlerts.length > 0 && <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div>}
-              {activeAlerts.length === 0 && <div style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.2)' } as any}><span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>RAS</span></div>}
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
-            </div>
-          </div>
-
-          {/* INTERVENTION CARE — simplified */}
-          <div onClick={() => router.push('/(tabs)/teleconsult' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12, cursor: 'pointer' } as any}>
-            <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Intervention Care</div>
-              <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-                {[{ val: activeIvs.length, label: 'En cours', pill: activeIvs.length > 0 ? '#A78BFA' : null }, { val: interventions.filter((iv: any) => iv.status === 'completed').length, label: 'Terminees', pill: '#10B981' }, { val: intervenants.length, label: 'Intervenants', pill: null }].map((s, i) => (
-                  <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>{s.pill ? <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: `${s.pill}30`, marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: s.pill }}>{s.label}</span></div> : <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>}</div>
-                ))}
+          {/* Alerte card — enrichie avec KPIs résolution */}
+          {(() => {
+            const totalA = alerts.length;
+            const resolvedA = alerts.filter((a: any) => a.status === 'resolved' || a.status === 'closed').length;
+            const resRate = totalA > 0 ? Math.round((resolvedA / totalA) * 100) : 0;
+            const resColor = resRate >= 70 ? '#10B981' : resRate >= 40 ? '#F59E0B' : '#EF4444';
+            return (
+              <div onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '18px', marginBottom: 12, cursor: 'pointer' } as any}>
+                <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
+                <div style={{ position: 'relative', zIndex: 2 } as any}>
+                  {/* Ligne principale */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                      <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{totalA}</div>
+                      <div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Alerte{totalA > 1 ? 's' : ''}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length} en cours · {resolvedA} résolue{resolvedA > 1 ? 's' : ''}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                      {activeAlerts.length > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div> : <div style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.2)' } as any}><span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>RAS</span></div>}
+                      <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
+                    </div>
+                  </div>
+                  {/* KPIs alertes */}
+                  {totalA > 0 && (<>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.12)', marginBottom: 12 } as any} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 } as any}>
+                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>Taux de résolution</span>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: resColor }}>{resRate}%</span>
+                        </div>
+                        <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.12)', overflow: 'hidden' } as any}>
+                          <div style={{ height: '100%', borderRadius: 99, background: resColor, width: `${resRate}%` } as any} />
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 } as any}>
+                        {[{ val: activeAlerts.length, label: 'Actives', color: '#EF4444' }, { val: resolvedA, label: 'Résolues', color: '#10B981' }].map((s, i) => (
+                          <div key={i} style={{ textAlign: 'center', minWidth: 44 } as any}>
+                            <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.val}</div>
+                            <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>{s.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>)}
+                </div>
               </div>
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', marginBottom: 10 } as any} />
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><div style={{ display: 'flex' } as any}>{intervenants.slice(0, 3).map((iv: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span></div>))}</div><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {intervenants.length} intervenants</span></div>
-            </div>
-          </div>
+            );
+          })()}
 
-          {/* PRESCRIPTIONS — with real data + month selector */}
+          {/* INTERVENTION CARE — enrichie avec disponibilité */}
+          {(() => {
+            const completedIvs = interventions.filter((iv: any) => iv.status === 'completed').length;
+            const inMission = intervenants.filter((iv: any) => (iv.active_interventions || 0) > 0).length;
+            const available = intervenants.length - inMission;
+            const ivMax = Math.max(intervenants.length, 1);
+            return (
+              <div onClick={() => router.push('/(tabs)/teleconsult' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12, cursor: 'pointer' } as any}>
+                <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
+                <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Intervention Care</div>
+                  <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
+                    {[{ val: activeIvs.length, label: 'En cours', pill: activeIvs.length > 0 ? '#A78BFA' : null }, { val: completedIvs, label: 'Terminees', pill: '#10B981' }, { val: intervenants.length, label: 'Intervenants', pill: null }].map((s, i) => (
+                      <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>{s.pill ? <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: `${s.pill}30`, marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: s.pill }}>{s.label}</span></div> : <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>}</div>
+                    ))}
+                  </div>
+                  {/* Disponibilité intervenants */}
+                  {intervenants.length > 0 && (<>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.12)', marginBottom: 12 } as any} />
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+                      {[{ val: available, label: 'Disponibles', color: '#10B981', pct: (available/ivMax)*100 }, { val: inMission, label: 'En mission', color: '#A78BFA', pct: (inMission/ivMax)*100 }].map((s, i) => (
+                        <div key={i} style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: 'rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
+                          <div style={{ fontSize: 20, fontWeight: 900, color: s.color }}>{s.val}</div>
+                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginBottom: 6 }}>{s.label}</div>
+                          <div style={{ height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.15)', overflow: 'hidden' } as any}><div style={{ height: '100%', borderRadius: 99, background: s.color, width: `${s.pct}%` } as any} /></div>
+                        </div>
+                      ))}
+                    </div>
+                  </>)}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><div style={{ display: 'flex' } as any}>{intervenants.slice(0, 3).map((iv: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span></div>))}</div><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {intervenants.length} intervenants</span></div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* PRESCRIPTIONS — enrichie avec taux de conversion */}
           {(() => {
             const validatedP = prescriptions.filter((p: any) => p.status === 'validated' || p.status === 'subscribed');
-            const pendingP = prescriptions.filter((p: any) => p.status !== 'validated' && p.status !== 'subscribed');
+            const pendingP = prescriptions.filter((p: any) => p.status === 'pending');
+            const otherP = prescriptions.filter((p: any) => !['validated','subscribed','pending'].includes(p.status));
             const totalValidated = validatedP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
             const totalPending = pendingP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+            const convRate = prescriptions.length > 0 ? Math.round((validatedP.length / prescriptions.length) * 100) : 0;
+            const convColor = convRate >= 60 ? '#10B981' : convRate >= 30 ? '#F59E0B' : '#EF4444';
             const nextM = new Date(); nextM.setMonth(nextM.getMonth() + 1);
             const nextPay = `01/${String(nextM.getMonth() + 1).padStart(2, '0')}/${nextM.getFullYear()}`;
+            const maxCount = Math.max(validatedP.length, pendingP.length, otherP.length, 1);
             return (
-          <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12, cursor: 'pointer' } as any}>
-            <img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescriptions</div>
-              <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{totalValidated + totalPending} EUR</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4, marginBottom: 14 }}>Prochain versement de {totalValidated} EUR le {nextPay}</div>
-              <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-                {[{ val: validatedP.length, label: 'Validees', pill: '#10B981' }, { val: pendingP.length, label: 'En attente', pill: '#F59E0B' }, { val: prescribers.length, label: 'Prescripteurs', pill: null }].map((s, i) => (
-                  <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>{s.pill ? <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: `${s.pill}30`, marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: s.pill }}>{s.label}</span></div> : <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>}</div>
-                ))}
+              <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12, cursor: 'pointer' } as any}>
+                <img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+                <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescriptions</div>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{totalValidated + totalPending} EUR</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4, marginBottom: 14 }}>Prochain versement de {totalValidated} EUR le {nextPay}</div>
+                  <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
+                    {[{ val: validatedP.length, label: 'Validees', pill: '#10B981' }, { val: pendingP.length, label: 'En attente', pill: '#F59E0B' }, { val: prescribers.length, label: 'Prescripteurs', pill: null }].map((s, i) => (
+                      <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>{s.pill ? <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: `${s.pill}30`, marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: s.pill }}>{s.label}</span></div> : <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>}</div>
+                    ))}
+                  </div>
+                  {/* Taux de conversion + répartition */}
+                  {prescriptions.length > 0 && (<>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.12)', marginBottom: 12 } as any} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 } as any}>
+                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>Taux de conversion</span>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: convColor }}>{convRate}%</span>
+                        </div>
+                        <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.12)', overflow: 'hidden' } as any}>
+                          <div style={{ height: '100%', borderRadius: 99, background: convColor, width: `${convRate}%` } as any} />
+                        </div>
+                      </div>
+                    </div>
+                    {[{ label: 'Validées', count: validatedP.length, color: '#10B981' }, { label: 'En attente', count: pendingP.length, color: '#F59E0B' }].filter(s => s.count > 0).map((s, i) => (
+                      <div key={i} style={{ marginBottom: 6, textAlign: 'left' } as any}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 } as any}>
+                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{s.label}</span>
+                          <span style={{ fontSize: 10, fontWeight: 800, color: s.color }}>{s.count}</span>
+                        </div>
+                        <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' } as any}>
+                          <div style={{ height: '100%', borderRadius: 99, background: s.color, width: `${(s.count / maxCount) * 100}%` } as any} />
+                        </div>
+                      </div>
+                    ))}
+                  </>)}
+                  <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '10px 0' } as any} />
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><div style={{ display: 'flex' } as any}>{prescribers.slice(0, 3).map((p: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{p.name?.charAt(0)}</span></div>))}</div><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {prescribers.length} prescripteurs</span></div>
+                </div>
               </div>
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', marginBottom: 10 } as any} />
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><div style={{ display: 'flex' } as any}>{prescribers.slice(0, 3).map((p: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{p.name?.charAt(0)}</span></div>))}</div><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {prescribers.length} prescripteurs</span></div>
-            </div>
-          </div>
             );
           })()}
 
@@ -1657,146 +1745,31 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
             </div>
           </div>
 
-          {/* ═══ ANALYSES & KPIs ═══ */}
-          {(() => {
-            const totalAlerts = alerts.length;
-            const resolvedAlerts = alerts.filter((a: any) => a.status === 'resolved' || a.status === 'closed').length;
-            const resolutionRate = totalAlerts > 0 ? Math.round((resolvedAlerts / totalAlerts) * 100) : 0;
-
-            const totalPrescs = prescriptions.length;
-            const validatedP = prescriptions.filter((p: any) => p.status === 'validated' || p.status === 'subscribed');
-            const pendingP = prescriptions.filter((p: any) => p.status === 'pending');
-            const conversionRate = totalPrescs > 0 ? Math.round((validatedP.length / totalPrescs) * 100) : 0;
-
-            const activeIvsCount = activeIvs.length;
-            const completedIvs = interventions.filter((iv: any) => iv.status === 'completed').length;
-            const totalRevenue = validatedP.reduce((s: number, p: any) => s + (p.commission || 0), 0) +
-              pendingP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
-
-            const inMissionCount = intervenants.filter((iv: any) => (iv.active_interventions || 0) > 0).length;
-            const availableCount = intervenants.length - inMissionCount;
-            const ivMax = Math.max(intervenants.length, 1);
-
-            const topPrescribers = [...ranking].slice(0, 5);
-            const maxPrescs = topPrescribers.length > 0 ? Math.max(topPrescribers[0].prescriptions_count || 1, 1) : 1;
-
+          {/* PERFORMANCE PRESCRIPTEURS — barres de progression */}
+          {ranking.length > 0 && (() => {
+            const top = ranking.slice(0, 5);
+            const maxP = Math.max(top[0]?.prescriptions_count || 1, 1);
             return (
-              <>
-                {/* Section titre */}
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12, marginTop: 4 }}>Analyses & KPIs</div>
-
-                {/* ── KPIs en grille 2x2 ── */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
-                  {[
-                    { icon: 'ri-checkbox-circle-line', label: 'Résolution alertes', val: `${resolutionRate}%`, sub: `${resolvedAlerts}/${totalAlerts} résolues`, color: resolutionRate >= 70 ? '#10B981' : resolutionRate >= 40 ? '#F59E0B' : '#EF4444', bg: 'rgba(16,185,129,0.08)' },
-                    { icon: 'ri-line-chart-line', label: 'Taux conversion', val: `${conversionRate}%`, sub: `${validatedP.length}/${totalPrescs} validées`, color: conversionRate >= 60 ? '#10B981' : conversionRate >= 30 ? '#F59E0B' : '#EF4444', bg: 'rgba(245,158,11,0.08)' },
-                    { icon: 'ri-navigation-line', label: 'Missions actives', val: activeIvsCount, sub: `${completedIvs} terminées`, color: '#A78BFA', bg: 'rgba(124,92,255,0.08)' },
-                    { icon: 'ri-money-euro-circle-line', label: 'Revenus totaux', val: `${totalRevenue}€`, sub: `${validatedP.reduce((s: number, p: any) => s + (p.commission || 0), 0)}€ validés`, color: '#F59E0B', bg: 'rgba(245,158,11,0.08)' },
-                  ].map((kpi, i) => (
-                    <div key={i} style={{ padding: '14px', borderRadius: 18, background: kpi.bg, border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)' } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
-                        <i className={kpi.icon} style={{ fontSize: 16, color: kpi.color }} />
-                        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{kpi.label}</span>
-                      </div>
-                      <div style={{ fontSize: 26, fontWeight: 900, color: kpi.color, lineHeight: 1 }}>{kpi.val}</div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 5 }}>{kpi.sub}</div>
-                    </div>
-                  ))}
+              <div style={{ padding: '16px', borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', marginBottom: 12, backdropFilter: 'blur(8px)' } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+                  <i className="ri-bar-chart-line" style={{ fontSize: 16, color: '#FFF' }} />
+                  <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Performance prescripteurs</span>
                 </div>
-
-                {/* ── Disponibilité intervenants ── */}
-                {intervenants.length > 0 && (
-                  <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(124,92,255,0.06)', border: '1px solid rgba(124,92,255,0.15)', marginBottom: 12, backdropFilter: 'blur(8px)' } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
-                      <i className="ri-user-star-line" style={{ fontSize: 16, color: '#A78BFA' }} />
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Disponibilité intervenants</span>
-                      <span style={{ marginLeft: 'auto', fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{intervenants.length} au total</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: 6, marginBottom: 12 } as any}>
-                      {[
-                        { val: availableCount, label: 'Disponibles', color: '#10B981', pct: (availableCount / ivMax) * 100 },
-                        { val: inMissionCount, label: 'En mission', color: '#A78BFA', pct: (inMissionCount / ivMax) * 100 },
-                      ].map((s, i) => (
-                        <div key={i} style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                          <div style={{ fontSize: 22, fontWeight: 900, color: s.color }}>{s.val}</div>
-                          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
-                          <div style={{ height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.08)', marginTop: 8, overflow: 'hidden' } as any}>
-                            <div style={{ height: '100%', borderRadius: 99, background: s.color, width: `${s.pct}%` } as any} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {intervenants.slice(0, 3).map((iv: any, i: number) => (
-                      <div key={iv.id} onClick={() => router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: iv.id } })} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' } as any}>
-                        <div style={{ width: 28, height: 28, borderRadius: 999, background: 'linear-gradient(135deg,#7C5CFF,#A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 11, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span></div>
-                        <div style={{ flex: 1 } as any}>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{iv.name}</div>
-                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{iv.profession || 'Intervenant'}{iv.agency_name && iv.agency_name !== 'Non assigne' ? ` · ${iv.agency_name}` : ''}</div>
-                        </div>
-                        <div style={{ textAlign: 'right' } as any}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{iv.total_interventions || 0}</div>
-                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>missions</div>
-                        </div>
-                        {(iv.active_interventions || 0) > 0 && <span style={{ fontSize: 8, fontWeight: 700, color: '#A78BFA', background: 'rgba(124,92,255,0.15)', padding: '2px 6px', borderRadius: 99 } as any}>● Mission</span>}
+                {top.map((p: any, i: number) => (
+                  <div key={p.id || i} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ marginBottom: i < top.length - 1 ? 10 : 0, cursor: 'pointer' } as any}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                        <div style={{ width: 22, height: 22, borderRadius: 7, background: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: i < 3 ? '#111' : '#FFF' }}>#{i+1}</span></div>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{p.name}</span>
                       </div>
-                    ))}
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{p.prescriptions_count || 0} presc.</span>
+                    </div>
+                    <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                      <div style={{ height: '100%', borderRadius: 99, background: `linear-gradient(90deg, ${i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#D4845A'}, rgba(255,255,255,0.2))`, width: `${Math.round(((p.prescriptions_count || 0) / maxP) * 100)}%` } as any} />
+                    </div>
                   </div>
-                )}
-
-                {/* ── Analyse prescriptions par état ── */}
-                {prescriptions.length > 0 && (() => {
-                  const states = [
-                    { label: 'Validées / Souscrites', count: validatedP.length, color: '#10B981' },
-                    { label: 'En attente', count: pendingP.length, color: '#F59E0B' },
-                    { label: 'Autres statuts', count: prescriptions.filter((p: any) => !['validated','subscribed','pending'].includes(p.status)).length, color: '#6B7280' },
-                  ].filter(s => s.count > 0);
-                  const maxCount = Math.max(...states.map(s => s.count), 1);
-                  return (
-                    <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(212,132,90,0.06)', border: '1px solid rgba(212,132,90,0.15)', marginBottom: 12, backdropFilter: 'blur(8px)' } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
-                        <i className="ri-file-chart-line" style={{ fontSize: 16, color: '#D4845A' }} />
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Répartition prescriptions</span>
-                        <span style={{ marginLeft: 'auto', fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{prescriptions.length} total</span>
-                      </div>
-                      {states.map((s, i) => (
-                        <div key={i} style={{ marginBottom: i < states.length - 1 ? 10 : 0 } as any}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 } as any}>
-                            <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>{s.label}</span>
-                            <span style={{ fontSize: 12, fontWeight: 800, color: s.color }}>{s.count}</span>
-                          </div>
-                          <div style={{ height: 6, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-                            <div style={{ height: '100%', borderRadius: 99, background: s.color, width: `${(s.count / maxCount) * 100}%` } as any} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })()}
-
-                {/* ── Top prescripteurs avec barres de performance ── */}
-                {topPrescribers.length > 0 && (
-                  <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', marginBottom: 12, backdropFilter: 'blur(8px)' } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
-                      <i className="ri-bar-chart-line" style={{ fontSize: 16, color: '#FFF' }} />
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Performance prescripteurs</span>
-                    </div>
-                    {topPrescribers.map((p: any, i: number) => (
-                      <div key={p.id || i} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ marginBottom: i < topPrescribers.length - 1 ? 10 : 0, cursor: 'pointer' } as any}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 } as any}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                            <div style={{ width: 20, height: 20, borderRadius: 6, background: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: i < 3 ? '#111' : '#FFF' }}>#{i+1}</span></div>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{p.name}</span>
-                          </div>
-                          <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{p.prescriptions_count || 0} presc.</span>
-                        </div>
-                        <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-                          <div style={{ height: '100%', borderRadius: 99, background: `linear-gradient(90deg, ${i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#D4845A'}, rgba(255,255,255,0.2))`, width: `${Math.round(((p.prescriptions_count || 0) / maxPrescs) * 100)}%` } as any} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
+                ))}
+              </div>
             );
           })()}
         </div>
