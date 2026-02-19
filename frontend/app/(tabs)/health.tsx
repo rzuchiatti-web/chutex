@@ -432,6 +432,110 @@ function CompanyAgences({ token }: { token: string }) {
         </div>
 
         {/* ── MODALS ── */}
+        {/* Fiche détail membre */}
+        {selectedMember && (
+          <div onClick={() => { setSelectedMember(null); setMemberDetail(null); }} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', overflowY: 'auto' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+              {/* Close */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                <div onClick={() => { setSelectedMember(null); setMemberDetail(null); }} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+              </div>
+
+              {/* Identity */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 } as any}>
+                <div style={{ width: 64, height: 64, borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '2px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <span style={{ fontSize: 26, fontWeight: 900, color: '#10B981' }}>{selectedMember.name?.charAt(0)}</span>
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 } as any}>
+                    <span style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{selectedMember.name}</span>
+                    {selectedMember.is_intervention_provider && <span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA', background: 'rgba(124,92,255,0.2)', padding: '3px 8px', borderRadius: 99 } as any}>Care</span>}
+                    {selectedMember.is_prescriber && <span style={{ fontSize: 10, fontWeight: 700, color: '#F59E0B', background: 'rgba(245,158,11,0.15)', padding: '3px 8px', borderRadius: 99 } as any}>Prescripteur</span>}
+                  </div>
+                  {selectedMember.profession && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{selectedMember.profession}</div>}
+                  {selectedMember.phone && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}><i className="ri-phone-line" style={{ marginRight: 4 }} />{selectedMember.phone}</div>}
+                  {selectedMember.agency_name && selectedMember.agency_name !== 'Non assigne' && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}><i className="ri-building-line" style={{ marginRight: 4 }} />{selectedMember.agency_name}</div>}
+                </div>
+              </div>
+
+              {loadingDetail && <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}><i className="ri-loader-4-line" style={{ fontSize: 20 }} /></div>}
+
+              {memberDetail && (<>
+                {/* Espace Intervenant Care */}
+                {memberDetail.intervenant && (
+                  <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(124,92,255,0.08)', border: '1px solid rgba(124,92,255,0.2)', marginBottom: 12 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
+                      <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(124,92,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-stethoscope-line" style={{ fontSize: 18, color: '#A78BFA' }} /></div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#A78BFA' }}>Espace Intervenant Care</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+                      {[
+                        { val: memberDetail.intervenant.total_interventions || 0, label: 'Total missions', color: '#FFF' },
+                        { val: memberDetail.intervenant.active_interventions || 0, label: 'En cours', color: '#A78BFA' },
+                        { val: memberDetail.intervenant.completed_interventions || 0, label: 'Terminées', color: '#10B981' },
+                      ].map((s, i) => (
+                        <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
+                          <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.val}</div>
+                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {memberDetail.intervenant.agency && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}><i className="ri-building-line" style={{ marginRight: 4 }} />{memberDetail.intervenant.agency.name}</div>}
+                    {memberDetail.intervenant.intervenant?.intervention_radius_km && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}><i className="ri-map-pin-range-line" style={{ marginRight: 4 }} />Rayon : {memberDetail.intervenant.intervenant.intervention_radius_km} km</div>}
+                    <div onClick={() => { setSelectedMember(null); setMemberDetail(null); router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: selectedMember.id } }); }} style={{ marginTop: 10, padding: '8px 14px', borderRadius: 999, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#A78BFA' }}>Voir la fiche complète</span><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Espace Prescripteur */}
+                {memberDetail.prescriber && (
+                  <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', marginBottom: 12 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
+                      <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(245,158,11,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-file-text-line" style={{ fontSize: 18, color: '#F59E0B' }} /></div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#F59E0B' }}>Espace Prescripteur</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+                      {[
+                        { val: memberDetail.prescriber.total_prescriptions || 0, label: 'Prescriptions', color: '#FFF' },
+                        { val: Math.round(memberDetail.prescriber.comm_validated || 0), label: 'EUR validés', color: '#10B981' },
+                        { val: Math.round(memberDetail.prescriber.comm_pending || 0), label: 'EUR en att.', color: '#F59E0B' },
+                      ].map((s, i) => (
+                        <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
+                          <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.val}</div>
+                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {memberDetail.prescriber.agency && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}><i className="ri-building-line" style={{ marginRight: 4 }} />{memberDetail.prescriber.agency.name}</div>}
+                    <div onClick={() => { setSelectedMember(null); setMemberDetail(null); router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: selectedMember.id } }); }} style={{ marginTop: 10, padding: '8px 14px', borderRadius: 999, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>Voir la fiche complète</span><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: '#F59E0B' }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Espace Gardien SAAD */}
+                {selectedMember.is_guardian_link && (
+                  <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', marginBottom: 12 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
+                      <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-shield-user-line" style={{ fontSize: 18, color: '#10B981' }} /></div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#10B981' }}>Espace Gardien</div>
+                    </div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+                      Rattaché à la structure SAAD · {selectedMember.professional_beneficiaries || 0} bénéficiaire(s) professionnel(s)
+                    </div>
+                  </div>
+                )}
+
+                {!memberDetail.intervenant && !memberDetail.prescriber && !selectedMember.is_guardian_link && (
+                  <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Aucun espace activé détecté</div>
+                )}
+              </>)}
+            </div>
+          </div>
+        )}
+
+        {/* ── MODALS ── */}
         {showCreate && (<div onClick={() => setShowCreate(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'auto' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowCreate(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Nouvelle agence</div>{[{ k: 'name', label: 'Nom', val: newName, set: setNewName, ph: 'Agence Lyon Centre' }, { k: 'addr', label: 'Adresse', val: newAddr, set: setNewAddr, ph: '45 rue de la Part-Dieu' }].map(({ k, label, val, set, ph }) => (<div key={k} style={{ marginBottom: 12 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>{label}</div><input value={val} onChange={(e: any) => set(e.target.value)} placeholder={ph} style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div>))}<div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}><div onClick={() => setShowCreate(false)} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div><div onClick={createAgency} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: '#FFF', color: '#111', fontWeight: 700, cursor: 'pointer' } as any}>{creating ? '...' : 'Creer'}</div></div></div></div>)}
         {editAgency && (<div onClick={() => setEditAgency(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'auto' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setEditAgency(null)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Modifier l'agence</div>{[{ label: 'Nom', val: editName, set: setEditName }, { label: 'Adresse', val: editAddr, set: setEditAddr }].map(({ label, val, set }) => (<div key={label} style={{ marginBottom: 12 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>{label}</div><input value={val} onChange={(e: any) => set(e.target.value)} style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div>))}<div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}><div onClick={() => setEditAgency(null)} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div><div onClick={async () => { await apiFetch(`/api/company/agencies/${editAgency.id}`, { method: 'PUT', body: JSON.stringify({ name: editName.trim(), address: editAddr.trim() }) }, token); setEditAgency(null); fetchData(); }} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: '#FFF', color: '#111', fontWeight: 700, cursor: 'pointer' } as any}>Enregistrer</div></div></div></div>)}
         {assignModal && (<div onClick={() => setAssignModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'auto' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setAssignModal(null)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>{assignModal.targetAgencyId ? (<><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Gerer {assignModal.targetAgencyName}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Prescripteurs non assignes</div>{prescribers.filter((p: any) => !p.agency_id).map((pr: any) => (<div key={pr.id} onClick={() => assignToAgency(pr.id, assignModal.targetAgencyId)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}><i className="ri-user-line" style={{ fontSize: 14, color: '#10B981' }} /><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{pr.name}</span><i className="ri-add-circle-line" style={{ fontSize: 16, color: '#3B82F6' }} /></div>))}{prescribers.filter((p: any) => !p.agency_id).length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: 12 }}>Tous assignes</div>}{prescribers.filter((p: any) => p.agency_id === assignModal.targetAgencyId).length > 0 && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0' } as any} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Dans cette agence</div>{prescribers.filter((p: any) => p.agency_id === assignModal.targetAgencyId).map((pr: any) => (<div key={pr.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{pr.name}</span><div onClick={() => assignToAgency(pr.id, null)} style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.15)', cursor: 'pointer', fontSize: 10, fontWeight: 700, color: '#EF4444' } as any}>Retirer</div></div>))}</>)}</>) : (<><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Assigner {assignModal.name}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez une agence</div>{agencies.map((ag: any) => (<div key={ag.agency.id} onClick={() => assignToAgency(assignModal.id, ag.agency.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}><i className="ri-building-line" style={{ fontSize: 14, color: '#D4845A' }} /><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{ag.agency.name}</span><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} /></div>))}</>)}<div onClick={() => setAssignModal(null)} style={{ padding: '12px', textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontWeight: 600, cursor: 'pointer', marginTop: 10 } as any}>Fermer</div></div></div>)}
