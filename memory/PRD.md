@@ -1,97 +1,80 @@
-# CARE WATCH — PRD
+# CARE WATCH - PRD
 
-## Direction Artistique : Chutex Clinique
-- Palette: Noir/Blanc/Gris + fonds images satines
-- Fonds: Rouge (alertes), Violet (interventions), Orange (prescriptions), Vert (resolues), Noir (dashboards/appareils), Bleu nuit (sante), Peche (beneficiaire), Argente (profil), Gold (challenges)
-- Composants: glass cards (backdrop-blur), boutons slide, pilules status, grilles info glass
-- Icons: Remix Icon CDN via WebIcon.tsx (116+ icones mappees)
-- Separateurs glass entre chaque donnee dans les fiches
+## Original Problem Statement
+CARE WATCH is an AI tele-assistance platform for elderly care. The app serves multiple roles: Beneficiaries (elderly users), Guardians (family/professional caregivers), SAADs (home care service providers), Teleassistance operators, Intervenants, Prescribers, and Admins.
 
-## Comptes test
+## Core Features Implemented
+- Multi-role authentication with role switching
+- Beneficiary-Guardian linking via phone number invitation
+- SAAD management hub with member and agency management
+- Real-time health monitoring via connected devices (Bracelet, Scale, Vest)
+- SOS alert system with teleassistance integration
+- Intervention management with map routing
+- Teleconsultation with AI doctor
+- Prescription management
+- Geofencing and reminders
+- ECG monitoring and sleep tracking
+
+## Architecture
+- Frontend: Expo/React Native (Web + iOS)
+- Backend: FastAPI + MongoDB
+- Integrations: OpenAI (via Emergent LLM), ElevenLabs TTS, Lefu Scale BLE, Expo EAS
+
+## What's Been Implemented (Latest Session - Feb 19, 2026)
+
+### Beneficiary Dashboard Redesign (COMPLETE)
+- Complete redesign with dark blue/teal silk background
+- 4 vital sign cards (BPM, SpO2, Tension, Temperature)
+- 3 connected device cards (Bracelet Elio, Balance Lefu, Gilet CareWatch) with battery levels
+- Activity tracking (steps, calories, distance) with progress bars
+- Sleep summary (duration, quality, phases)
+- SOS button with gradient styling
+- Quick action buttons (ECG, Zones, Rappels, Teleconsult)
+- Guardian management section with invite popup
+- Alert banner with dynamic status
+
+### Health Page Redesign (COMPLETE)
+- Same dark blue/teal silk background for design coherence
+- Organized by device sections with colored dividers:
+  - BRACELET ELIO: 4 vitals + heart rate history chart + activity tracking
+  - BALANCE LEFU: Weight + BMI + full body composition (6 metrics) + weight history chart
+  - GILET CAREWATCH: Posture score + fall detection + vest details
+  - SOMMEIL: Duration, quality %, sleep phase breakdown
+- Quick navigation actions at bottom
+
+### New Backend Endpoint
+- `GET /api/devices/dashboard-summary`: Comprehensive simulated data for all 3 devices + sleep when no real hardware connected
+
+## Data Simulation (MOCKED)
+All device data is simulated for demo purposes when no real hardware is connected:
+- Bracelet: HR, SpO2, BP, temp, steps, calories, distance, HR history
+- Scale: weight, BMI, body fat, muscle mass, water %, bone mass, visceral fat, metabolic age, weight history
+- Vest: posture score, fall detection, chest temp, wearing hours, impacts
+- Sleep: duration, quality, deep/light/REM phases, bedtime/wakeup times
+- SMS invitations are mocked via console logs
+
+## Pending Issues
+- P1: Lefu Scale BLE data parsing (native iOS only)
+- P2: Network Request Failed on native TestFlight app (backend URL expires)
+- P0/RESOLVED: Guardian dashboard text color issue (was cache-related)
+
+## Upcoming Tasks
+- P1: App-wide coherence check across all roles and pages
+- P1: Deploy backend to permanent host
+- P2: Native Build + J-Style bracelet BLE integration
+- P3: Shopify integration (blocked on user)
+- P4: Offline mode for intervenants
+
+## Refactoring Needed
+- teleconsult.tsx: Too large and fragile, needs component breakdown
+- index.tsx: Serves 3+ roles, could benefit from separation
+
+## Test Credentials
 | Role | Email | Password |
-|---|---|---|
-| Beneficiaire | robert.martin@email.fr | demo123 |
-| Gardien | claire.martin@email.fr | demo123 |
+|------|-------|----------|
+| Beneficiary | robert.martin@email.fr | demo123 |
+| Guardian | claire.martin@email.fr | demo123 |
 | Intervenant | ludivine.moutio@care.fr | demo123 |
 | Teleassistance | plateau@chutex.fr | demo123 |
 | Admin | admin@chutex.fr | demo123 |
-| SAAD Company | saad@chutex.fr | demo123 |
-
-## Pages redesignees (toutes en plein ecran web)
-### Beneficiaire
-- [x] Dashboard (fond peche, vitals, SOS, gardiens, teleconsultation, appareils)
-- [x] Sante (fond bleu nuit, 4 vitals, activite, FC graph, sommeil, actions rapides)
-- [x] Appareils (fond noir, images produits SVG, barre batterie glass, boutons associer/decouvrir)
-- [x] Teleconsultation (fond bleu, QCM glass, slide appel)
-- [x] Alertes (fond rouge plein ecran, cartes glass, detail complet)
-
-### Gardien
-- [x] Dashboard (fond noir, stats, alertes, beneficiaires)
-- [x] Alertes (fond rouge, detail avec beneficiaire complet, gardiens, intervenant popup)
-- [x] Interventions Care (fond violet, toggle, cartes glass, detail complet avec appel API detail)
-- [x] Prescriptions (fond orange, toggle, detail complet)
-- [x] Pilule structure Care (popup ultra-glass avec infos structure, desactivation)
-- [x] Pilule structure Prescripteur (popup ultra-glass avec infos structure, commissions)
-
-### SAAD Company
-- [x] Dashboard (fond noir, carte structure + agences, alertes rouge, intervention Care violet, prescriptions orange, challenge gold)
-- [x] Alertes (fond rouge plein ecran, filtrees par profession pro)
-- [x] Interventions (fond violet plein ecran, header scrollable, barre recherche, voir intervenants fond violet)
-- [x] Prescriptions (fond orange plein ecran, montant dynamique, selecteur mois, prochain versement, carte challenge)
-- [x] Agences (fond noir, liste agences, detail avec intervenants, creer/modifier/supprimer)
-
-### Admin
-- [x] Dashboard (fond noir, stats 4 colonnes, back-office, classement)
-- [x] Intervenants Care (fond violet, tabs codes/actifs/missions)
-- [x] Prescripteurs (fond orange, tabs codes/prescripteurs/souscriptions)
-- [x] Alertes (partage avec gardien)
-
-### Teleassistance
-- [x] Dashboard (fond noir, stats, alertes, abonnes)
-- [x] Teleassistance IA (fond noir, tabs en cours/tous/stats, incidents fond rouge)
-- [x] Abonnes (fond noir, liste glass)
-- [x] Alertes (partage avec gardien)
-
-### Commun
-- [x] Profil (fond argente, avatar, pilules role/abonnement/Care/prescripteur)
-- [x] Login (grille clinique, typewriter)
-- [x] Onboarding (7 slides)
-- [x] Page intervention en cours (Leaflet carte + bottom sheet draggable 3 snaps)
-- [x] Fiches detail (gardien, beneficiaire, intervenant, prescripteur, abonne) — fond noir glass
-
-## Architecture
-- Frontend: Expo/React Native for Web + Expo Router
-- Backend: FastAPI + MongoDB
-- Icons: Remix Icon CDN (remixicon@4.6.0) via WebIcon.tsx
-- Maps: Leaflet + OSRM
-- Auth: JWT tokens
-
-## Bugs corriges dans cette session
-- teleconsult.tsx: Fonction TeleassistanceDashboard dupliquee -> renommee AdminIntervenants
-- devices.tsx: Variables pendingP/subscribedP non definies -> pending/validated
-- teleconsult.tsx: Fiche detail intervention sans donnees enrichies -> appel API /interventions/{id}/detail
-- teleconsult.tsx: Pilule Actif-Structure sans popup -> popup ultra-glass ajoute
-- devices.tsx: Pilule Actif-Structure prescription sans popup web -> popup ultra-glass ajoute
-
-## Session 18/02/2026 — Reconstruction alerts.tsx
-- alerts.tsx: REECRIT COMPLETEMENT depuis zero (700 -> 550 lignes, modulaire)
-  - Composants separes: ExplainerPage, ReportPage, IntervenantPopup, AlertDetailWeb, BeneficiaireCard, InterventionCard, ResolvedSection
-  - Correction: Interventions en attente montrent nom structure SAAD (pas liste intervenants)
-  - Correction: Boutons d'action dans le contenu scrollable (pas fixes en bas)
-  - Correction: Background image rouge/vert charge correctement
-  - Correction: Popups ultra-glass (blur 32px, scrollable)
-  - Teste et valide pour tous les roles: Guardian, SAAD, Admin, Teleassistance
-  - Test report: /app/test_reports/iteration_33.json — 100% PASS
-- alerts.tsx: Popup intervenant rendu en overlay (plus de fond gris)
-- profile.tsx: Carte Care violette pour beneficiaire (remplace pilule verte)
-  - Carte cliquable avec fond violet + badge ACTIF
-  - Popup detail Care avec toutes les infos abonnement + features incluses
-
-## Taches restantes
-- P1: Verification coherence globale app (toutes pages, tous roles)
-- P1: Deployer backend sur hebergeur permanent
-- P1: Correction parsing BLE Lefu Scale (SDK PPBluetoothKit natif iOS)
-- P2: Build natif et integration BLE bracelet J-Style
-- P2: Resolution connectivite app native
-- P3: Integration Shopify (bloque)
-- P4: Mode hors-ligne intervenants
+| SAAD | saad@chutex.fr | demo123 |
