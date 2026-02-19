@@ -976,7 +976,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
 
               {/* Lien avec le bénéficiaire — 2 cartes + dropdown conditionnel */}
               {(() => {
-                const PROS = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale'];
+                const PROS = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale', 'Coach sportif', 'Préparateur physique'];
                 const PERSO = ['Mère', 'Père', 'Fils', 'Fille', 'Petit-enfant', 'Conjoint(e)', 'Frère', 'Sœur', 'Ami(e)', 'Voisin(e)', 'Autre'];
                 const isPro = PROS.includes(linkRelationship);
                 const isPerso = PERSO.includes(linkRelationship);
