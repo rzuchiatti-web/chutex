@@ -366,9 +366,9 @@ async def toggle_guardian_space(guardian_id: str, data: dict, user=Depends(get_c
     field = 'intervenant_deactivated' if space_type == 'intervenant' else 'prescripteur_deactivated'
     deactivated = not active
 
-    # Update in saad_guardian_links (by guardian_id + company_id)
+    # Update in saad_guardian_links — cibler uniquement le lien ACCEPTÉ
     result = await db.saad_guardian_links.update_one(
-        {"guardian_id": guardian_id, "company_id": user['id']},
+        {"guardian_id": guardian_id, "company_id": user['id'], "status": "accepted"},
         {"$set": {field: deactivated, "updated_at": datetime.now(timezone.utc).isoformat()}}
     )
 
