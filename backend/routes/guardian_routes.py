@@ -227,6 +227,23 @@ async def reject_saad_invitation(inv_id: str, user=Depends(get_current_user)):
     return {"status": "rejected"}
 
 
+@router.post("/guardian/saad-detach")
+async def detach_from_saad(user=Depends(get_current_user)):
+    """Guardian voluntarily detaches from their SAAD"""
+    link = await db.saad_guardian_links.find_one(
+        {"guardian_id": user['id'], "status": "accepted"}, {"_id": 0}
+    )
+    if not link:
+        raise HTTPException(status_code=404, detail="Aucun rattachement SAAD actif")
+    await db.saad_guardian_links.update_one(
+        {"id": link['id']}, {"$set": {"status": "detached"}}
+    )
+    await db.users.update_one(
+        {"id": user['id']}, {"$unset": {"saad_company_id": "", "saad_company_name": ""}}
+    )
+    return {"status": "detached", "message": "Vous avez été détaché de la structure SAAD."}
+
+
 @router.get("/guardian/saad-link")
 async def get_saad_link(user=Depends(get_current_user)):
     """Get the guardian's current SAAD link info including space activation status."""
