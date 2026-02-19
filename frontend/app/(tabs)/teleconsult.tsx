@@ -1305,10 +1305,17 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   const [refreshing, setRefreshing] = useState(false);
   const [ivTab, setIvTab] = useState<'active' | 'done'>('active');
   const [selectedIv, setSelectedIv] = useState<any>(null);
+  const [ivDetail, setIvDetail] = useState<any>(null);
   const [showIntervenantPopup, setShowIntervenantPopup] = useState(false);
   const [showAllIntervenants, setShowAllIntervenants] = useState(false);
   const [search, setSearch] = useState('');
   const [searchIv, setSearchIv] = useState('');
+
+  const selectIv = useCallback(async (iv: any) => {
+    setSelectedIv(iv);
+    setIvDetail(null);
+    try { const d = await apiFetch(`/api/interventions/${iv.id}/detail`, {}, token); setIvDetail(d); } catch {}
+  }, [token]);
 
   const fetchData = useCallback(async () => {
     try {
