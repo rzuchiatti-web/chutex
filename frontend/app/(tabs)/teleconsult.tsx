@@ -17,6 +17,21 @@ import { Colors } from '../../src/constants/colors';
 import { useTheme } from '../../src/context/ThemeContext';
 import { PageExplainer } from '../../src/components/HelpSystem';
 
+/* Clean alert/intervention type label */
+const getCleanLabel = (alertType: string, message?: string) => {
+  if (alertType === 'fall') return 'Chute detectee';
+  if (alertType === 'sos') return 'SOS';
+  if (alertType === 'heart_rate' || alertType === 'health_anomaly') return 'Anomalie de sante detectee';
+  if (alertType === 'spo2') return 'Anomalie de sante detectee';
+  if (alertType === 'inactivity') return 'Inactivite detectee';
+  // Fallback: clean the message
+  if (message) {
+    if (message.toLowerCase().includes('chute')) return 'Chute detectee';
+    if (message.toLowerCase().includes('sos')) return 'SOS';
+  }
+  return alertType || 'Alerte';
+};
+
 /* ===== BENEFICIARY: QCM ===== */
 const BG_BLUE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
 
