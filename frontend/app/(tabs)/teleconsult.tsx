@@ -459,6 +459,12 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   // Is intervenant space deactivated by SAAD?
   const ivSpaceDeactivated = saadLink && saadLink.intervenant_active === false;
 
+  const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
+  const BG_GREEN = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
+  const BG_RED = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
+  const BG_HEADER = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
+  const LOGO_URL = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
+
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#9C27B0" /></View>;
 
   const activateCare = async () => {
@@ -484,61 +490,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
   const activeIvs = ivs.filter(iv => ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status));
   const doneIvs = ivs.filter(iv => ['completed', 'cancelled'].includes(iv.status));
-  const [ivTab, setIvTab] = useState<'active'|'done'>('active');
   const displayedIvs = ivTab === 'active' ? activeIvs : doneIvs;
-
-  const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
-  const BG_GREEN = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
-  const BG_RED = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
-  const BG_HEADER = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
-  const LOGO_URL = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
-
-  const [slideActivated, setSlideActivated] = useState(false);
-  const [careError, setCareError] = useState('');
-  const [selectedIv, setSelectedIv] = useState<any>(null);
-  const [showIntervenantPopup, setShowIntervenantPopup] = useState(false);
-  const [loadingDetail, setLoadingDetail] = useState(false);
-  const [showStructurePopup, setShowStructurePopup] = useState(false);
-
-  const selectIntervention = async (iv: any) => {
-    setSelectedIv(iv);
-    setLoadingDetail(true);
-    try {
-      const detail = await apiFetch(`/api/interventions/${iv.id}/detail`, {}, token);
-      const enriched = { ...iv };
-      if (detail.beneficiary) {
-        enriched.beneficiary_info = detail.beneficiary;
-        enriched.beneficiary_name = detail.beneficiary.name || iv.beneficiary_name;
-      }
-      if (detail.intervenant) {
-        enriched.assigned_name = detail.intervenant.name || iv.assigned_name;
-        enriched.structure_name = detail.intervenant.structure_name || detail.intervenant.intervention_structure;
-        enriched.intervener_phone = detail.intervenant.phone;
-        enriched.intervener_email = detail.intervenant.email;
-        enriched.intervener_address = detail.intervenant.address;
-        enriched.intervener_profession = detail.intervenant.profession;
-        enriched.intervener_guardian_type = detail.intervenant.guardian_type;
-        enriched.intervener_is_prescriber = detail.intervenant.is_prescriber;
-        enriched.intervener_radius_km = detail.intervenant.intervention_radius_km;
-        enriched.distance_km = detail.intervenant.distance_km || iv.distance_km;
-      }
-      if (detail.intervention) {
-        enriched.report = detail.intervention.report || iv.report;
-        enriched.timeline = detail.intervention.timeline || iv.timeline;
-        enriched.accepted_at = detail.intervention.accepted_at || iv.accepted_at;
-        enriched.completed_at = detail.intervention.completed_at || iv.completed_at;
-        enriched.alert_message = detail.alert?.message || detail.intervention.notes || iv.notes;
-        enriched.recipients = detail.intervention.recipients || iv.recipients || [];
-      }
-      if (detail.alert) {
-        enriched.alert_message = detail.alert.message || enriched.alert_message;
-      }
-      setSelectedIv(enriched);
-    } catch (e) { console.warn('Detail fetch failed', e); }
-    finally { setLoadingDetail(false); }
-  };
-
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#9C27B0" /></View>;
 
   /* ─── ESPACE DÉSACTIVÉ PAR LA SAAD — écran plein (après déclaration des constantes) ─── */
   if (ivSpaceDeactivated && user?.is_intervention_provider && Platform.OS === 'web') {
