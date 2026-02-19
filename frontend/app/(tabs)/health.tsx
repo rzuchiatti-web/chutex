@@ -123,14 +123,16 @@ function CompanyAgences({ token }: { token: string }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [dash, iv, gl] = await Promise.all([
+      const [dash, iv, gl, pr] = await Promise.all([
         apiFetch('/api/company/dashboard', {}, token).catch(() => ({})),
         apiFetch('/api/company/intervenants', {}, token).catch(() => []),
         apiFetch('/api/company/guardians', {}, token).catch(() => []),
+        apiFetch('/api/company/prescribers', {}, token).catch(() => []),
       ]);
       setDashData(dash);
       setIntervenants(Array.isArray(iv) ? iv : []);
       setGuardianLinks(Array.isArray(gl) ? gl : []);
+      setAllPrescribers(Array.isArray(pr) ? pr : []);
     } catch {} finally { setLoading(false); }
   }, [token]);
   useEffect(() => { fetchData(); }, [fetchData]);
