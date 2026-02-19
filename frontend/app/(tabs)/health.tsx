@@ -101,7 +101,8 @@ function CompanyAgences({ token }: { token: string }) {
   const [intervenants, setIntervenants] = useState<any[]>([]);
   const [guardianLinks, setGuardianLinks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'agencies' | 'intervenants' | 'guardians'>('agencies');
+  const [tab, setTab] = useState<'agencies' | 'guardians'>('agencies');
+  const [search, setSearch] = useState('');
 
   // Agency CRUD
   const [showCreate, setShowCreate] = useState(false);
@@ -152,7 +153,7 @@ function CompanyAgences({ token }: { token: string }) {
     setInviting(true); setInviteMsg('');
     try {
       const res = await apiFetch('/api/company/invite-guardian', { method: 'POST', body: JSON.stringify({ phone: invitePhone.trim() }) }, token);
-      setInviteMsg(res.message || 'Invitation envoyée !');
+      setInviteMsg(res.message || 'Invitation envoyee !');
       if (res.status !== 'error') { fetchData(); setTimeout(() => { setShowInvite(false); setInvitePhone(''); setInviteMsg(''); }, 2500); }
     } catch (e: any) { setInviteMsg(`Erreur : ${e.message}`); } finally { setInviting(false); }
   };
@@ -167,24 +168,53 @@ function CompanyAgences({ token }: { token: string }) {
   const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
   const agencies = dashData?.agencies || [];
   const prescribers = dashData?.prescriber_ranking || [];
+  const acceptedGuardians = guardianLinks.filter((g: any) => g.status === 'accepted');
   const pendingGuardians = guardianLinks.filter((g: any) => g.status === 'pending').length;
-  const acceptedGuardians = guardianLinks.filter((g: any) => g.status === 'accepted').length;
   const u = user as any;
 
   const STATUS_COLOR: any = { accepted: '#10B981', pending: '#F59E0B', sms_sent: '#A78BFA', removed: '#6B7280', rejected: '#EF4444' };
-  const STATUS_LABEL: any = { accepted: 'Rattaché', pending: 'En attente', sms_sent: 'SMS envoyé', removed: 'Retiré', rejected: 'Refusé' };
+  const STATUS_LABEL: any = { accepted: 'Rattache', pending: 'En attente', sms_sent: 'SMS envoye', removed: 'Retire', rejected: 'Refuse' };
 
-  const Pill = ({ label, color, bg }: any) => (
-    <span style={{ fontSize: 9, fontWeight: 700, color, background: bg, padding: '2px 7px', borderRadius: 99, whiteSpace: 'nowrap', marginLeft: 4 } as any}>{label}</span>
+  // Guardian card used in both tabs
+  const GuardianCard = ({ gl }: { gl: any }) => (
+    <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, backdropFilter: 'blur(8px)' } as any}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+        <div style={{ width: 46, height: 46, borderRadius: 999, background: gl.status === 'accepted' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: gl.status === 'accepted' ? '1px solid rgba(16,185,129,0.3)' : 'none' } as any}>
+          {gl.id ? <span style={{ fontSize: 18, fontWeight: 800, color: gl.status === 'accepted' ? '#10B981' : '#FFF' }}>{gl.name?.charAt(0)}</span> : <i className="ri-user-unfollow-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.35)' }} />}
+        </div>
+        <div style={{ flex: 1 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 5, marginBottom: 3 } as any}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{gl.name || 'Non inscrit'}</span>
+            {gl.is_intervention_provider && <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA', background: 'rgba(124,92,255,0.2)', padding: '2px 7px', borderRadius: 99 } as any}>Care</span>}
+            {gl.is_prescriber && <span style={{ fontSize: 9, fontWeight: 700, color: '#F59E0B', background: 'rgba(245,158,11,0.15)', padding: '2px 7px', borderRadius: 99 } as any}>Prescripteur</span>}
+          </div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{gl.phone}{gl.profession ? ` · ${gl.profession}` : ''}</div>
+          {gl.professional_beneficiaries > 0 && <div style={{ fontSize: 10, color: '#10B981', marginTop: 2 }}>{gl.professional_beneficiaries} beneficiaire(s) professionnel(s)</div>}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0 } as any}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 99, background: `${STATUS_COLOR[gl.status] || '#6B7280'}20`, fontSize: 9, fontWeight: 700, color: STATUS_COLOR[gl.status] || '#6B7280' } as any}>
+            <span style={{ width: 4, height: 4, borderRadius: 99, background: STATUS_COLOR[gl.status] || '#6B7280', display: 'inline-block' } as any} />{STATUS_LABEL[gl.status] || gl.status}
+          </div>
+          {gl.status !== 'removed' && <div onClick={() => { if (window.confirm(`Retirer ${gl.name || gl.phone} ?`)) removeGuardian(gl.link_id); }} style={{ width: 26, height: 26, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 12, color: '#EF4444' }} /></div>}
+        </div>
+      </div>
+    </div>
   );
 
   if (Platform.OS === 'web') {
+    // Filtered guardians for search
+    const filteredGuardians = guardianLinks.filter((g: any) => {
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      return (g.name || '').toLowerCase().includes(q) || (g.phone || '').includes(q) || (g.profession || '').toLowerCase().includes(q);
+    });
+
     return (
       <div data-testid="company-agences" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
 
-        {/* ── Header ── */}
+        {/* Header */}
         <div style={{ position: 'relative', zIndex: 5, padding: '22px 20px 14px', textAlign: 'center' } as any}>
           <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', border: '2px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' } as any}>
             <i className="ri-building-line" style={{ fontSize: 24, color: '#D4845A' }} />
@@ -197,8 +227,8 @@ function CompanyAgences({ token }: { token: string }) {
           <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
             {[
               { val: agencies.length, label: 'Agences', color: '#D4845A' },
-              { val: intervenants.length, label: 'Intervenants', color: '#A78BFA' },
-              { val: acceptedGuardians, label: 'Gardiens', color: '#10B981' },
+              { val: guardianLinks.length, label: 'Gardiens', color: '#10B981' },
+              { val: acceptedGuardians.filter((g: any) => g.is_intervention_provider).length, label: 'Care', color: '#A78BFA' },
             ].map((s, i) => (
               <div key={i} style={{ flex: 1, padding: '9px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
                 <div style={{ fontSize: 20, fontWeight: 900, color: s.color }}>{s.val}</div>
@@ -207,33 +237,40 @@ function CompanyAgences({ token }: { token: string }) {
             ))}
           </div>
 
-          {/* Tabs — style Prescriptions */}
+          {/* 2 Tabs */}
           <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
             {([
               { k: 'agencies', label: `Agences (${agencies.length})`, icon: 'ri-building-line' },
-              { k: 'intervenants', label: `Intervenants (${intervenants.length})`, icon: 'ri-user-star-line' },
               { k: 'guardians', label: `Gardiens (${guardianLinks.length})`, icon: 'ri-shield-user-line', badge: pendingGuardians },
             ] as const).map(t => (
-              <div key={t.k} onClick={() => setTab(t.k)} style={{ padding: '8px 14px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 700, background: tab === t.k ? '#FFF' : 'transparent', color: tab === t.k ? '#111' : 'rgba(255,255,255,0.7)', transition: 'all 0.2s', position: 'relative', whiteSpace: 'nowrap' } as any}>
-                <i className={t.icon} style={{ marginRight: 4 }} />{t.label}
+              <div key={t.k} onClick={() => setTab(t.k)} style={{ padding: '8px 18px', borderRadius: 999, cursor: 'pointer', fontSize: 12, fontWeight: 700, background: tab === t.k ? '#FFF' : 'transparent', color: tab === t.k ? '#111' : 'rgba(255,255,255,0.7)', transition: 'all 0.2s', position: 'relative', whiteSpace: 'nowrap' } as any}>
+                <i className={t.icon} style={{ marginRight: 5 }} />{t.label}
                 {(t as any).badge > 0 && <span style={{ position: 'absolute', top: 1, right: 1, width: 14, height: 14, borderRadius: 999, background: '#F59E0B', fontSize: 8, fontWeight: 800, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>{(t as any).badge}</span>}
               </div>
             ))}
           </div>
         </div>
 
-        {/* ── Content ── */}
+        {/* Content */}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '8px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
           {/* ── TAB AGENCES ── */}
           {tab === 'agencies' && (<>
             <div onClick={() => setShowCreate(true)} style={{ padding: '12px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-              <i className="ri-add-circle-line" style={{ fontSize: 16 }} />Créer une agence
+              <i className="ri-add-circle-line" style={{ fontSize: 16 }} />Creer une agence
             </div>
 
             {agencies.map((ag: any) => {
-              const agIvs = intervenants.filter((iv: any) => iv.agency_id === ag.agency.id || iv.agency_name === ag.agency.name);
+              // Gardiens de cette agence (dedupliques) — ceux qui sont intervenants OU prescripteurs de cette agence
+              const agIntervenants = intervenants.filter((iv: any) => iv.agency_id === ag.agency.id || iv.agency_name === ag.agency.name);
               const agPrescs = prescribers.filter((p: any) => p.agency_id === ag.agency.id);
+              // Union des IDs (dedup)
+              const agMemberIds = new Set([...agIntervenants.map((iv: any) => iv.id), ...agPrescs.map((p: any) => p.id)]);
+              // Match avec guardianLinks (pour avoir les pilules)
+              const agGuardians = guardianLinks.filter((g: any) => agMemberIds.has(g.id));
+              // Membres de l'agence sans compte gardien lie (prescripteurs purs)
+              const agPrescsOnly = agPrescs.filter((p: any) => !guardianLinks.some((g: any) => g.id === p.id));
+
               return (
                 <div key={ag.agency.id} style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 10, backdropFilter: 'blur(8px)' } as any}>
                   {/* Agency header */}
@@ -243,151 +280,78 @@ function CompanyAgences({ token }: { token: string }) {
                       <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{ag.agency.name}</div>
                       {ag.agency.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{ag.agency.address}</div>}
                     </div>
-                    {/* Edit / Delete */}
                     <div style={{ display: 'flex', gap: 6 } as any}>
                       <div onClick={() => { setEditAgency(ag.agency); setEditName(ag.agency.name); setEditAddr(ag.agency.address || ''); }} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-edit-line" style={{ fontSize: 14, color: '#FFF' }} /></div>
                       <div onClick={() => { if (window.confirm(`Supprimer "${ag.agency.name}" ?`)) apiFetch(`/api/company/agencies/${ag.agency.id}`, { method: 'DELETE' }, token).then(fetchData); }} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-delete-bin-line" style={{ fontSize: 14, color: '#EF4444' }} /></div>
                     </div>
                   </div>
 
-                  {/* Stats mini row */}
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
-                    {[
-                      { val: agIvs.length, label: 'Intervenants', color: '#A78BFA' },
-                      { val: agPrescs.length, label: 'Prescripteurs', color: '#FFF' },
-                      { val: ag.comm_validated || 0, label: 'EUR validés', color: '#10B981' },
-                    ].map((s, i) => (
-                      <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 17, fontWeight: 900, color: s.color }}>{s.val}</div>
-                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>{s.label}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Intervenants inline */}
-                  {agIvs.length > 0 && (<>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Intervenants</div>
-                    {agIvs.map((iv: any, i: number) => (
-                      <div key={iv.id} onClick={() => router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: iv.id } })} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' } as any}>
-                        <div style={{ width: 30, height: 30, borderRadius: 999, background: 'linear-gradient(135deg,#7C5CFF,#A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 11, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span></div>
-                        <div style={{ flex: 1 } as any}><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{iv.name}</span><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginLeft: 6 }}>{iv.profession || ''}</span></div>
-                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{iv.total_interventions || 0} missions</span>
-                        {iv.active_interventions > 0 && <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA', background: 'rgba(124,92,255,0.15)', padding: '2px 7px', borderRadius: 99 } as any}>● En mission</span>}
-                        <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.2)' }} />
+                  {/* Gardiens de l'agence (avec pilules) */}
+                  {agGuardians.length > 0 && (<>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Gardiens ({agGuardians.length})</div>
+                    {agGuardians.map((g: any, i: number) => (
+                      <div key={g.link_id || g.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' } as any}>
+                        <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 12, fontWeight: 800, color: '#10B981' }}>{g.name?.charAt(0)}</span></div>
+                        <div style={{ flex: 1 } as any}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' } as any}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{g.name}</span>
+                            {g.is_intervention_provider && <span style={{ fontSize: 8, fontWeight: 700, color: '#A78BFA', background: 'rgba(124,92,255,0.2)', padding: '1px 6px', borderRadius: 99 } as any}>Care</span>}
+                            {g.is_prescriber && <span style={{ fontSize: 8, fontWeight: 700, color: '#F59E0B', background: 'rgba(245,158,11,0.15)', padding: '1px 6px', borderRadius: 99 } as any}>Prescripteur</span>}
+                          </div>
+                          {g.profession && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{g.profession}</div>}
+                        </div>
                       </div>
                     ))}
                   </>)}
 
-                  {/* Prescripteurs inline */}
-                  {agPrescs.length > 0 && (<>
-                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
-                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Prescripteurs</div>
-                    {agPrescs.map((pr: any, i: number) => (
-                      <div key={pr.id} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' } as any}>
-                        <div style={{ width: 30, height: 30, borderRadius: 999, background: 'rgba(212,132,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 11, fontWeight: 800, color: '#D4845A' }}>{pr.name?.charAt(0)}</span></div>
-                        <div style={{ flex: 1 } as any}><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{pr.name}</span></div>
-                        <span style={{ fontSize: 11, color: '#10B981', fontWeight: 700 }}>{pr.prescription_count} presc.</span>
-                        <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.2)' }} />
-                      </div>
-                    ))}
-                  </>)}
+                  {/* Prescripteurs non gardiens (si besoin) */}
+                  {agPrescsOnly.length > 0 && agGuardians.length > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '8px 0' } as any} />}
+                  {agPrescsOnly.map((pr: any, i: number) => (
+                    <div key={pr.id} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: pr.id } })} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' } as any}>
+                      <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(212,132,90,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 12, fontWeight: 800, color: '#D4845A' }}>{pr.name?.charAt(0)}</span></div>
+                      <div style={{ flex: 1 } as any}><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{pr.name}</span><span style={{ fontSize: 8, fontWeight: 700, color: '#F59E0B', background: 'rgba(245,158,11,0.15)', padding: '1px 6px', borderRadius: 99, marginLeft: 6 } as any}>Prescripteur</span></div>
+                      <span style={{ fontSize: 11, color: '#10B981', fontWeight: 700 }}>{pr.prescription_count} presc.</span>
+                    </div>
+                  ))}
+
+                  {agGuardians.length === 0 && agPrescsOnly.length === 0 && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '10px 0' }}>Aucun membre</div>}
 
                   {/* Assign prescriber */}
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
-                  <div onClick={() => setAssignModal({ targetAgencyId: ag.agency.id, targetAgencyName: ag.agency.name })} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px 0', cursor: 'pointer' } as any}>
+                  <div onClick={() => setAssignModal({ targetAgencyId: ag.agency.id, targetAgencyName: ag.agency.name })} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '6px 0', cursor: 'pointer' } as any}>
                     <i className="ri-user-add-line" style={{ fontSize: 13, color: dashData?.unassigned_prescribers > 0 ? '#3B82F6' : 'rgba(255,255,255,0.3)' }} />
-                    <span style={{ fontSize: 12, fontWeight: 600, color: dashData?.unassigned_prescribers > 0 ? '#3B82F6' : 'rgba(255,255,255,0.3)' }}>{dashData?.unassigned_prescribers > 0 ? `Assigner un prescripteur (${dashData.unassigned_prescribers} dispo.)` : 'Gérer les prescripteurs'}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: dashData?.unassigned_prescribers > 0 ? '#3B82F6' : 'rgba(255,255,255,0.3)' }}>{dashData?.unassigned_prescribers > 0 ? `Assigner un prescripteur (${dashData.unassigned_prescribers} dispo.)` : 'Gerer les prescripteurs'}</span>
                   </div>
                 </div>
               );
             })}
-
-            {/* Non assignés */}
-            {dashData?.unassigned_prescribers > 0 && (
-              <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 10 } as any}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#EF4444', marginBottom: 8 }}>Non assignés ({dashData.unassigned_prescribers})</div>
-                {prescribers.filter((p: any) => !p.agency_id).map((pr: any, i: number) => (
-                  <div key={pr.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' } as any}>
-                    <span style={{ flex: 1, fontSize: 13, color: '#FFF' }}>{pr.name}</span>
-                    <div onClick={() => setAssignModal(pr)} style={{ padding: '4px 12px', borderRadius: 999, background: 'rgba(59,130,246,0.15)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#3B82F6' } as any}>Assigner</div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {agencies.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '50px 20px' } as any}>
-                <i className="ri-building-line" style={{ fontSize: 40, color: 'rgba(255,255,255,0.1)' }} />
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 12 }}>Aucune agence</div>
-              </div>
-            )}
-          </>)}
-
-          {/* ── TAB INTERVENANTS ── */}
-          {tab === 'intervenants' && (<>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10 }}>{intervenants.length} intervenant{intervenants.length > 1 ? 's' : ''} au total</div>
-            {intervenants.map((iv: any) => (
-              <div key={iv.id} onClick={() => router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: iv.id } })} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, cursor: 'pointer', backdropFilter: 'blur(8px)' } as any}>
-                <div style={{ width: 46, height: 46, borderRadius: 999, background: 'linear-gradient(135deg,#7C5CFF,#A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span></div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{iv.name}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{iv.profession || 'Intervenant'}{iv.agency_name && iv.agency_name !== 'Non assigne' ? ` · ${iv.agency_name}` : ''}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{iv.total_interventions || 0} missions au total{iv.active_interventions > 0 ? <><span style={{ color: '#A78BFA', fontWeight: 700 }}> · </span><span style={{ color: '#A78BFA', fontWeight: 700 }}>En mission</span></> : ''}</div>
-                </div>
-                <div style={{ textAlign: 'right', flexShrink: 0 } as any}><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{iv.total_interventions || 0}</div><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>missions</div></div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)', marginLeft: 6 }} />
-              </div>
-            ))}
-            {intervenants.length === 0 && <div style={{ textAlign: 'center', padding: '50px 20px' } as any}><i className="ri-user-star-line" style={{ fontSize: 40, color: 'rgba(255,255,255,0.1)' }} /><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 12 }}>Aucun intervenant</div></div>}
+            {agencies.length === 0 && <div style={{ textAlign: 'center', padding: '50px 20px' } as any}><i className="ri-building-line" style={{ fontSize: 40, color: 'rgba(255,255,255,0.1)' }} /><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 12 }}>Aucune agence</div></div>}
           </>)}
 
           {/* ── TAB GARDIENS ── */}
           {tab === 'guardians' && (<>
-            <div onClick={() => setShowInvite(true)} style={{ padding: '12px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#10B981', fontSize: 14, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><i className="ri-shield-user-add-line" style={{ fontSize: 16 }} />Ajouter un gardien</div>
-            {guardianLinks.map((gl: any) => (
-              <div key={gl.link_id} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, backdropFilter: 'blur(8px)' } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                  <div style={{ width: 46, height: 46, borderRadius: 999, background: gl.status === 'accepted' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: gl.status === 'accepted' ? '1px solid rgba(16,185,129,0.3)' : 'none' } as any}>
-                    {gl.id ? <span style={{ fontSize: 18, fontWeight: 800, color: gl.status === 'accepted' ? '#10B981' : '#FFF' }}>{gl.name?.charAt(0)}</span> : <i className="ri-user-unfollow-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.35)' }} />}
-                  </div>
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4, marginBottom: 3 } as any}>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{gl.name}</span>
-                      {/* Pilules de rôle */}
-                      {gl.is_intervention_provider && <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA', background: 'rgba(124,92,255,0.15)', padding: '2px 7px', borderRadius: 99, whiteSpace: 'nowrap' } as any}>Intervenant Care</span>}
-                      {gl.is_prescriber && <span style={{ fontSize: 9, fontWeight: 700, color: '#F59E0B', background: 'rgba(245,158,11,0.15)', padding: '2px 7px', borderRadius: 99, whiteSpace: 'nowrap' } as any}>Prescripteur</span>}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{gl.phone}{gl.profession ? ` · ${gl.profession}` : ''}</div>
-                    {gl.professional_beneficiaries > 0 && <div style={{ fontSize: 10, color: '#10B981', marginTop: 3 }}><i className="ri-heart-pulse-line" style={{ marginRight: 3 }} />{gl.professional_beneficiaries} bénéficiaire(s) pro</div>}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 } as any}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 9px', borderRadius: 99, background: `${STATUS_COLOR[gl.status] || '#6B7280'}20`, fontSize: 10, fontWeight: 700, color: STATUS_COLOR[gl.status] || '#6B7280' } as any}>
-                      <span style={{ width: 5, height: 5, borderRadius: 99, background: STATUS_COLOR[gl.status], display: 'inline-block' } as any} />{STATUS_LABEL[gl.status] || gl.status}
-                    </div>
-                    {gl.status !== 'removed' && <div onClick={() => { if (window.confirm(`Retirer ${gl.name} ?`)) removeGuardian(gl.link_id); }} style={{ width: 28, height: 28, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 13, color: '#EF4444' }} /></div>}
-                  </div>
-                </div>
+            {/* Search + Add button */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
+              <div style={{ flex: 1, position: 'relative' } as any}>
+                <i className="ri-search-line" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
+                <input value={search} onChange={(e: any) => setSearch(e.target.value)} placeholder="Rechercher un gardien..." style={{ width: '100%', padding: '11px 14px 11px 36px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
               </div>
-            ))}
-            {guardianLinks.length === 0 && <div style={{ textAlign: 'center', padding: '50px 20px' } as any}><i className="ri-shield-user-line" style={{ fontSize: 40, color: 'rgba(255,255,255,0.1)' }} /><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 12 }}>Aucun gardien rattaché</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>Les gardiens professionnels rattachés font remonter les alertes de leurs bénéficiaires</div></div>}
+              <div onClick={() => setShowInvite(true)} style={{ width: 44, height: 44, borderRadius: 14, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.2)' } as any}>
+                <i className="ri-add-line" style={{ fontSize: 22, color: '#111' }} />
+              </div>
+            </div>
+
+            {filteredGuardians.length === 0 && search && <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Aucun gardien correspondant</div>}
+            {filteredGuardians.map((gl: any) => <GuardianCard key={gl.link_id} gl={gl} />)}
+            {guardianLinks.length === 0 && !search && <div style={{ textAlign: 'center', padding: '50px 20px' } as any}><i className="ri-shield-user-line" style={{ fontSize: 40, color: 'rgba(255,255,255,0.1)' }} /><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 12 }}>Aucun gardien rattache</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>Les gardiens professionnels rattaches font remonter les alertes de leurs beneficiaires</div></div>}
           </>)}
         </div>
 
         {/* ── MODALS ── */}
-        {/* Create agency */}
-        {showCreate && (<div onClick={() => setShowCreate(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'auto' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowCreate(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Nouvelle agence</div>{[{ k: 'name', label: 'Nom', val: newName, set: setNewName, ph: 'Agence Lyon Centre' }, { k: 'addr', label: 'Adresse', val: newAddr, set: setNewAddr, ph: '45 rue de la Part-Dieu' }].map(({ k, label, val, set, ph }) => (<div key={k} style={{ marginBottom: 12 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>{label}</div><input value={val} onChange={(e: any) => set(e.target.value)} placeholder={ph} style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div>))}<div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}><div onClick={() => setShowCreate(false)} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div><div onClick={createAgency} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: '#FFF', color: '#111', fontWeight: 700, cursor: 'pointer' } as any}>{creating ? '...' : 'Créer'}</div></div></div></div>)}
-
-        {/* Edit agency */}
+        {showCreate && (<div onClick={() => setShowCreate(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'auto' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowCreate(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Nouvelle agence</div>{[{ k: 'name', label: 'Nom', val: newName, set: setNewName, ph: 'Agence Lyon Centre' }, { k: 'addr', label: 'Adresse', val: newAddr, set: setNewAddr, ph: '45 rue de la Part-Dieu' }].map(({ k, label, val, set, ph }) => (<div key={k} style={{ marginBottom: 12 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>{label}</div><input value={val} onChange={(e: any) => set(e.target.value)} placeholder={ph} style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div>))}<div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}><div onClick={() => setShowCreate(false)} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div><div onClick={createAgency} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: '#FFF', color: '#111', fontWeight: 700, cursor: 'pointer' } as any}>{creating ? '...' : 'Creer'}</div></div></div></div>)}
         {editAgency && (<div onClick={() => setEditAgency(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'auto' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setEditAgency(null)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Modifier l'agence</div>{[{ label: 'Nom', val: editName, set: setEditName }, { label: 'Adresse', val: editAddr, set: setEditAddr }].map(({ label, val, set }) => (<div key={label} style={{ marginBottom: 12 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>{label}</div><input value={val} onChange={(e: any) => set(e.target.value)} style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div>))}<div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}><div onClick={() => setEditAgency(null)} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div><div onClick={async () => { await apiFetch(`/api/company/agencies/${editAgency.id}`, { method: 'PUT', body: JSON.stringify({ name: editName.trim(), address: editAddr.trim() }) }, token); setEditAgency(null); fetchData(); }} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: '#FFF', color: '#111', fontWeight: 700, cursor: 'pointer' } as any}>Enregistrer</div></div></div></div>)}
-
-        {/* Assign modal */}
-        {assignModal && (<div onClick={() => setAssignModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'auto' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setAssignModal(null)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
-          {assignModal.targetAgencyId ? (<><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Gérer {assignModal.targetAgencyName}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Prescripteurs non assignés</div>{prescribers.filter((p: any) => !p.agency_id).map((pr: any) => (<div key={pr.id} onClick={() => assignToAgency(pr.id, assignModal.targetAgencyId)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}><i className="ri-user-line" style={{ fontSize: 14, color: '#10B981' }} /><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{pr.name}</span><i className="ri-add-circle-line" style={{ fontSize: 16, color: '#3B82F6' }} /></div>))}{prescribers.filter((p: any) => !p.agency_id).length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: 12 }}>Tous assignés</div>}{prescribers.filter((p: any) => p.agency_id === assignModal.targetAgencyId).length > 0 && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0' } as any} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Dans cette agence</div>{prescribers.filter((p: any) => p.agency_id === assignModal.targetAgencyId).map((pr: any) => (<div key={pr.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}><i className="ri-user-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{pr.name}</span><div onClick={() => assignToAgency(pr.id, null)} style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.15)', cursor: 'pointer', fontSize: 10, fontWeight: 700, color: '#EF4444' } as any}>Retirer</div></div>))}</>)}</>) : (<><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Assigner {assignModal.name}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez une agence</div>{agencies.map((ag: any) => (<div key={ag.agency.id} onClick={() => assignToAgency(assignModal.id, ag.agency.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}><i className="ri-building-line" style={{ fontSize: 14, color: '#D4845A' }} /><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{ag.agency.name}</span><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} /></div>))}</>)}
-          <div onClick={() => setAssignModal(null)} style={{ padding: '12px', textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontWeight: 600, cursor: 'pointer', marginTop: 10 } as any}>Fermer</div>
-        </div></div>)}
-
-        {/* Invite guardian */}
-        {showInvite && (<div onClick={() => { setShowInvite(false); setInvitePhone(''); setInviteMsg(''); }} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => { setShowInvite(false); setInvitePhone(''); setInviteMsg(''); }} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Ajouter un gardien</div><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 24, lineHeight: 1.6 }}>Entrez le numéro du gardien. S'il a un compte, il reçoit une notification. Sinon, un SMS l'invite à s'inscrire.</div><div style={{ marginBottom: 20 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numéro de téléphone</div><div style={{ position: 'relative' } as any}><i className="ri-phone-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} /><input value={invitePhone} onChange={(e: any) => setInvitePhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" onKeyDown={(e: any) => { if (e.key === 'Enter') inviteGuardian(); }} style={{ width: '100%', padding: '14px 16px 14px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div></div>{inviteMsg && (<div style={{ padding: '13px 16px', borderRadius: 14, marginBottom: 16, background: inviteMsg.startsWith('Erreur') ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${inviteMsg.startsWith('Erreur') ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)'}` } as any}><div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' } as any}><i className={inviteMsg.startsWith('Erreur') ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'} style={{ fontSize: 17, color: inviteMsg.startsWith('Erreur') ? '#EF4444' : '#10B981', flexShrink: 0 }} /><span style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{inviteMsg}</span></div></div>)}<div onClick={inviteGuardian} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: invitePhone.trim() && !inviting ? 'pointer' : 'not-allowed', background: invitePhone.trim() && !inviting ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${invitePhone.trim() ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.08)'}`, color: invitePhone.trim() ? '#10B981' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>{inviting ? <><i className="ri-loader-4-line" style={{ fontSize: 16 }} />Envoi...</> : <><i className="ri-send-plane-line" style={{ fontSize: 16 }} />Envoyer l'invitation</>}</div></div></div>)}
+        {assignModal && (<div onClick={() => setAssignModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'auto' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setAssignModal(null)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>{assignModal.targetAgencyId ? (<><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Gerer {assignModal.targetAgencyName}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Prescripteurs non assignes</div>{prescribers.filter((p: any) => !p.agency_id).map((pr: any) => (<div key={pr.id} onClick={() => assignToAgency(pr.id, assignModal.targetAgencyId)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}><i className="ri-user-line" style={{ fontSize: 14, color: '#10B981' }} /><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{pr.name}</span><i className="ri-add-circle-line" style={{ fontSize: 16, color: '#3B82F6' }} /></div>))}{prescribers.filter((p: any) => !p.agency_id).length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: 12 }}>Tous assignes</div>}{prescribers.filter((p: any) => p.agency_id === assignModal.targetAgencyId).length > 0 && (<><div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0' } as any} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Dans cette agence</div>{prescribers.filter((p: any) => p.agency_id === assignModal.targetAgencyId).map((pr: any) => (<div key={pr.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{pr.name}</span><div onClick={() => assignToAgency(pr.id, null)} style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.15)', cursor: 'pointer', fontSize: 10, fontWeight: 700, color: '#EF4444' } as any}>Retirer</div></div>))}</>)}</>) : (<><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Assigner {assignModal.name}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez une agence</div>{agencies.map((ag: any) => (<div key={ag.agency.id} onClick={() => assignToAgency(assignModal.id, ag.agency.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}><i className="ri-building-line" style={{ fontSize: 14, color: '#D4845A' }} /><span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#FFF' }}>{ag.agency.name}</span><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} /></div>))}</>)}<div onClick={() => setAssignModal(null)} style={{ padding: '12px', textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontWeight: 600, cursor: 'pointer', marginTop: 10 } as any}>Fermer</div></div></div>)}
+        {showInvite && (<div onClick={() => { setShowInvite(false); setInvitePhone(''); setInviteMsg(''); }} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => { setShowInvite(false); setInvitePhone(''); setInviteMsg(''); }} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Ajouter un gardien</div><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 24, lineHeight: 1.6 }}>Entrez le numero du gardien. S'il a un compte, il recoit une notification. Sinon, un SMS l'invite a s'inscrire.</div><div style={{ marginBottom: 20 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numero de telephone</div><div style={{ position: 'relative' } as any}><i className="ri-phone-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} /><input value={invitePhone} onChange={(e: any) => setInvitePhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" onKeyDown={(e: any) => { if (e.key === 'Enter') inviteGuardian(); }} style={{ width: '100%', padding: '14px 16px 14px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div></div>{inviteMsg && (<div style={{ padding: '13px 16px', borderRadius: 14, marginBottom: 16, background: inviteMsg.startsWith('Erreur') ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${inviteMsg.startsWith('Erreur') ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)'}` } as any}><div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' } as any}><i className={inviteMsg.startsWith('Erreur') ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'} style={{ fontSize: 17, color: inviteMsg.startsWith('Erreur') ? '#EF4444' : '#10B981', flexShrink: 0 }} /><span style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{inviteMsg}</span></div></div>)}<div onClick={inviteGuardian} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: invitePhone.trim() && !inviting ? 'pointer' : 'not-allowed', background: invitePhone.trim() && !inviting ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${invitePhone.trim() ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.08)'}`, color: invitePhone.trim() ? '#10B981' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>{inviting ? <><i className="ri-loader-4-line" style={{ fontSize: 16 }} />Envoi...</> : <><i className="ri-send-plane-line" style={{ fontSize: 16 }} />Envoyer l'invitation</>}</div></div></div>)}
       </div>
     );
   }
@@ -396,23 +360,18 @@ function CompanyAgences({ token }: { token: string }) {
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: '#111827', letterSpacing: -0.5 }}>Structure</Text>
-        <Text style={{ fontSize: 12, color: '#6B7280' }}>{agencies.length} agences · {intervenants.length} intervenants</Text>
+        <Text style={{ fontSize: 22, fontWeight: '900', color: '#111827' }}>Structure</Text>
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}>
         {agencies.map((ag: any) => (
           <GlassCard key={ag.agency.id} style={{ padding: 16, marginBottom: 12 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-              <Icon name="business-outline" size={20} color="#FF9800" />
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827', flex: 1 }}>{ag.agency.name}</Text>
-            </View>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>{ag.agency.name}</Text>
           </GlassCard>
         ))}
       </ScrollView>
     </View>
   );
 }
-
 
 export default function HealthScreen() {
   const { token, user } = useAuth();
