@@ -263,10 +263,10 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
               <div style={{ width: 46, height: 46, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.4)', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' } as any}>
-                {user.avatar_url ? <img src={user.avatar_url} style={{ width: 46, height: 46, borderRadius: 999, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+                {user.avatar_url ? <img src={user.avatar_url} style={{ width: 46, height: 46, borderRadius: 999, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#111' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
               </div>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{user.name}</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#111' }}>{user.name}</div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{t('beneficiary')}</div>
               </div>
             </div>
@@ -283,7 +283,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* Notifications dropdown — web bénéficiaire */}
           {showNotifs && (
-            <div style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 14 } as any}>
+            <div style={{ borderRadius: 20, background: 'rgba(255,255,255,0.85)', border: '1px solid rgba(0,0,0,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 14 } as any}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Notifications</span>
                 <div onClick={() => setShowNotifs(false)} style={{ cursor: 'pointer', fontSize: 18, color: 'rgba(255,255,255,0.5)' } as any}><i className="ri-close-line" /></div>
@@ -931,8 +931,8 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.08)', zIndex: 1 } as any} />
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}><div style={{ width: 46, height: 46, borderRadius: 999, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.2)' } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span></div><div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{user.name}</div><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{t('guardian')}{user.is_prescriber ? ' | Prescripteur' : ''}</span></div></div>
-            <div style={{ display: 'flex', gap: 8 } as any}><div onClick={switchToBeneficiary} style={{ padding: '7px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: 11, fontWeight: 600, color: '#FFF' } as any}>{t('beneficiary')}</div><div onClick={() => setShowNotifsG(!showNotifsG)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}><i className="ri-notification-3-line" style={{ fontSize: 18, color: '#FFF' }} />{(invitations.length > 0 || activeAlertsG.length > 0) && <div style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, background: '#EF4444' } as any} />}</div></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}><div style={{ width: 46, height: 46, borderRadius: 999, background: 'rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(0,0,0,0.12)' } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span></div><div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{user.name}</div><span style={{ fontSize: 11, color: 'rgba(0,0,0,0.5)' }}>{t('guardian')}{user.is_prescriber ? ' | Prescripteur' : ''}</span></div></div>
+            <div style={{ display: 'flex', gap: 8 } as any}><div onClick={switchToBeneficiary} style={{ padding: '7px 14px', borderRadius: 999, background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.12)', cursor: 'pointer', fontSize: 11, fontWeight: 600, color: '#111' } as any}>{t('beneficiary')}</div><div onClick={() => setShowNotifsG(!showNotifsG)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}><i className="ri-notification-3-line" style={{ fontSize: 18, color: '#111' }} />{(invitations.length > 0 || activeAlertsG.length > 0) && <div style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, background: '#EF4444' } as any} />}</div></div>
           </div>
           {/* SAAD affiliation card — AU DESSUS de la carte alerte */}
           {saadLink && (
@@ -966,7 +966,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
               <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
             </div>
           </div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10 }}>Mes beneficiaires</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10, color: 'rgba(0,0,0,0.4)' }}>Mes beneficiaires</div>
 
           {/* POPUP FICHE SAAD */}
           {showSaadPopup && saadLink && (
@@ -1060,7 +1060,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
               <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
                 <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{b.name?.charAt(0)}</span></div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{b.name}</div>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: '#111', marginBottom: 2 }}>{b.name}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' } as any}>
                     {b.date_of_birth && !isNaN(new Date(b.date_of_birth).getTime()) && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{Math.floor((Date.now() - new Date(b.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans</span>}
                     {b.subscription_type && <><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>·</span><span style={{ fontSize: 10, color: '#F59E0B', fontWeight: 600 }}>{b.subscription_type}</span></>}
