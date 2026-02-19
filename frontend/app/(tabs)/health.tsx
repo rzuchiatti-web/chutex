@@ -645,16 +645,6 @@ export default function HealthScreen() {
 
 const BG_HEALTH = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/f6mxkxnu_ChatGPT%20Image%2019%20f%C3%A9vr.%202026%2C%2017_54_27.png';
 
-  // Fetch comprehensive dashboard data for health page
-  const [dashData, setDashData] = useState<any>(null);
-  const fetchDashData = useCallback(async () => {
-    try {
-      const dd = await apiFetch('/api/devices/dashboard-summary', {}, token);
-      setDashData(dd);
-    } catch {}
-  }, [token]);
-  useEffect(() => { fetchDashData(); }, [fetchDashData]);
-
   const br = dashData?.bracelet || { heart_rate: 72, spo2: 97, steps: 3842, blood_pressure: { systolic: 125, diastolic: 78 }, temperature: 36.6, battery: 78, connected: true, calories: 154, distance_km: 2.7, heart_rate_history: [{ hour: '08h', value: 68 }, { hour: '10h', value: 74 }, { hour: '12h', value: 82 }, { hour: '14h', value: 76 }, { hour: '16h', value: 71 }, { hour: '18h', value: 78 }, { hour: '20h', value: 72 }] };
   const sc = dashData?.scale || { weight: 72.4, bmi: 24.1, body_fat: 22.3, muscle_mass: 33.8, water_pct: 55.2, bone_mass: 3.1, visceral_fat: 9, metabolic_age: 63, battery: 92, connected: true, weight_history: [{ date: '13 fev', value: 72.8 }, { date: '14 fev', value: 72.6 }, { date: '15 fev', value: 72.3 }, { date: '16 fev', value: 72.5 }, { date: '17 fev', value: 72.2 }, { date: '18 fev', value: 72.4 }, { date: '19 fev', value: 72.4 }] };
   const vs = dashData?.vest || { fall_detected: false, posture_score: 87, chest_temp: 36.7, battery: 65, connected: true, wearing_hours_today: 6.2, alerts_today: 0, impact_events_today: 0 };
