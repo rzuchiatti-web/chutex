@@ -367,40 +367,68 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             )}
           </div>
 
-          {/* ── Connected Devices — 3 device cards ── */}
+          {/* ── Connected Devices — Guardian-style enriched cards ── */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Appareils connectes</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 } as any}>
-            {[
-              { name: 'Bracelet', icon: 'ri-pulse-line', battery: br.battery, connected: br.connected, color: '#22D3EE', route: '/bracelet-connect',
-                stats: [{ l: 'FC', v: `${br.heart_rate}` }, { l: 'Pas', v: `${br.steps}` }] },
-              { name: 'Balance', icon: 'ri-scales-3-line', battery: sc.battery, connected: sc.connected, color: '#A78BFA', route: '/scale-detail',
-                stats: [{ l: 'Poids', v: `${sc.weight}kg` }, { l: 'IMC', v: `${sc.bmi}` }] },
-              { name: 'Gilet', icon: 'ri-shield-check-line', battery: vs.battery, connected: vs.connected, color: '#10B981', route: '/vest-connect',
-                stats: [{ l: 'Posture', v: `${vs.posture_score}%` }, { l: 'Chutes', v: `${vs.alerts_today}` }] },
-            ].map((d, i) => (
-              <div key={i} data-testid={`device-card-${i}`} onClick={() => router.push(d.route as any)} style={{ padding: '14px 12px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer', transition: 'transform 0.2s' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
-                  <div style={{ width: 34, height: 34, borderRadius: 10, background: `${d.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className={d.icon} style={{ fontSize: 16, color: d.color }} />
+          {[
+            { name: 'Bracelet Elio', icon: 'ri-pulse-line', img: HEALTH_IMAGES.heart, battery: br.battery, connected: br.connected, color: '#22D3EE', accentBg: 'linear-gradient(135deg, #0E7490, #22D3EE)', route: '/bracelet-connect',
+              vitals: [
+                { val: br.heart_rate, unit: 'bpm', color: '#EF4444', dot: '#EF4444' },
+                { val: `${br.spo2}%`, unit: 'SpO2', color: '#38BDF8', dot: '#38BDF8' },
+                { val: br.steps, unit: 'pas', color: '#10B981', dot: '#10B981' },
+                { val: `${br.temperature}°`, unit: 'C', color: '#F59E0B', dot: '#F59E0B' },
+              ]},
+            { name: 'Balance Lefu', icon: 'ri-scales-3-line', img: HEALTH_IMAGES.physical, battery: sc.battery, connected: sc.connected, color: '#A78BFA', accentBg: 'linear-gradient(135deg, #6D28D9, #A78BFA)', route: '/scale-detail',
+              vitals: [
+                { val: `${sc.weight}`, unit: 'kg', color: '#A78BFA', dot: '#A78BFA' },
+                { val: sc.bmi, unit: 'IMC', color: '#38BDF8', dot: '#38BDF8' },
+                { val: `${sc.body_fat}%`, unit: 'graisse', color: '#F59E0B', dot: '#F59E0B' },
+                { val: `${sc.muscle_mass}%`, unit: 'muscle', color: '#10B981', dot: '#10B981' },
+              ]},
+            { name: 'Gilet CareWatch', icon: 'ri-shield-check-line', img: HEALTH_IMAGES.sleep, battery: vs.battery, connected: vs.connected, color: '#10B981', accentBg: 'linear-gradient(135deg, #047857, #10B981)', route: '/vest-connect',
+              vitals: [
+                { val: `${vs.posture_score}%`, unit: 'posture', color: '#10B981', dot: '#10B981' },
+                { val: `${vs.chest_temp}°`, unit: 'C', color: '#F59E0B', dot: '#F59E0B' },
+                { val: vs.fall_detected ? '!' : '0', unit: 'chute', color: vs.fall_detected ? '#EF4444' : '#10B981', dot: vs.fall_detected ? '#EF4444' : '#10B981' },
+                { val: `${vs.wearing_hours_today}h`, unit: 'port', color: '#38BDF8', dot: '#38BDF8' },
+              ]},
+          ].map((d, i) => (
+            <div key={i} data-testid={`device-card-${i}`} onClick={() => router.push(d.route as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 0.2s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+              {/* Header */}
+              <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                <div style={{ width: 52, height: 52, borderRadius: 16, background: d.accentBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)', boxShadow: `0 4px 16px ${d.color}30` } as any}>
+                  <img src={d.img} alt="" style={{ width: 36, height: 36, objectFit: 'contain' } as any} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{d.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                    <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : 'rgba(255,255,255,0.2)' } as any} />
+                    <span style={{ fontSize: 10, color: d.connected ? '#10B981' : 'rgba(255,255,255,0.3)', fontWeight: 600 }}>{d.connected ? 'Connecte' : 'Deconnecte'}</span>
                   </div>
-                  <BatteryIcon pct={d.battery} />
                 </div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>{d.name}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 10 } as any}>
-                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: d.connected ? '#10B981' : 'rgba(255,255,255,0.2)' } as any} />
-                  <span style={{ fontSize: 9, color: d.connected ? '#10B981' : 'rgba(255,255,255,0.3)' }}>{d.connected ? 'Connecte' : 'Deconnecte'}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 } as any}>
+                  {/* Battery bar */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                    <div style={{ width: 40, height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' } as any}>
+                      <div style={{ height: 8, borderRadius: 4, width: `${d.battery}%`, background: d.battery > 50 ? '#10B981' : d.battery > 20 ? '#F59E0B' : '#EF4444', transition: 'width 0.5s' } as any} />
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: d.battery > 50 ? '#10B981' : d.battery > 20 ? '#F59E0B' : '#EF4444' }}>{d.battery}%</span>
+                  </div>
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} />
                 </div>
-                {d.stats.map((s, j) => (
-                  <div key={j} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0' } as any}>
-                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{s.l}</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>{s.v}</span>
+              </div>
+              {/* Vitals row */}
+              <div style={{ display: 'flex', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px 12px', gap: 6 } as any}>
+                {d.vitals.map((v: any, j: number) => (
+                  <div key={j} style={{ flex: 1, padding: '6px 4px', borderRadius: 10, background: `${v.dot}12`, textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 900, color: v.color, lineHeight: 1 }}>{v.val}</div>
+                    <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{v.unit}</div>
                   </div>
                 ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
 
           {/* ── Activity + Sleep row ── */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 } as any}>
