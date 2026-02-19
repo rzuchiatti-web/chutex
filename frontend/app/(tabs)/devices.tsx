@@ -1426,6 +1426,8 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPresc, setSelectedPresc] = useState<any>(null);
+  const [showPrescriberPopup, setShowPrescriberPopup] = useState(false);
+  const [showBenPopup, setShowBenPopup] = useState(false);
   const [prescTab, setPrescTab] = useState<'pending' | 'subscribed'>('pending');
   const [showRewardsDetail, setShowRewardsDetail] = useState(false);
   const [showAllPrescribers, setShowAllPrescribers] = useState(false);
