@@ -291,8 +291,8 @@ function CompanyAgences({ token }: { token: string }) {
           <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
             {[
               { val: agencies.length, label: 'Agences', color: '#D4845A' },
-              { val: guardianLinks.length, label: 'Gardiens', color: '#10B981' },
-              { val: acceptedGuardians.filter((g: any) => g.is_intervention_provider).length, label: 'Care', color: '#A78BFA' },
+              { val: allMembers.length, label: 'Membres', color: '#10B981' },
+              { val: allMembers.filter((m: any) => m.is_intervention_provider).length, label: 'Care', color: '#A78BFA' },
             ].map((s, i) => (
               <div key={i} style={{ flex: 1, padding: '9px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
                 <div style={{ fontSize: 20, fontWeight: 900, color: s.color }}>{s.val}</div>
