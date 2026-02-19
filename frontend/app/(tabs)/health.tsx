@@ -178,14 +178,32 @@ function CompanyAgences({ token }: { token: string }) {
     setLoadingDetail(true);
     try {
       const details: any = { member };
-      if (member.is_intervention_provider) {
-        details.intervenant = await apiFetch(`/api/company/intervenant/${member.id}`, {}, token).catch(() => null);
-      }
-      if (member.is_prescriber) {
-        details.prescriber = await apiFetch(`/api/company/prescriber/${member.id}`, {}, token).catch(() => null);
-      }
+      const [ivDetail, prDetail, spaceStatus] = await Promise.all([
+        member.is_intervention_provider
+          ? apiFetch(`/api/company/intervenant/${member.id}`, {}, token).catch(() => null)
+          : Promise.resolve(null),
+        member.is_prescriber
+          ? apiFetch(`/api/company/prescriber/${member.id}`, {}, token).catch(() => null)
+          : Promise.resolve(null),
+        apiFetch(`/api/company/member/${member.id}/space-status`, {}, token).catch(() => ({
+          intervenant_active: true, prescripteur_active: true
+        })),
+      ]);
+      details.intervenant = ivDetail;
+      details.prescriber = prDetail;
+      details.spaceStatus = spaceStatus;
       setMemberDetail(details);
     } catch {} finally { setLoadingDetail(false); }
+  };
+
+  const toggleSpace = async (spaceType: 'intervenant' | 'prescripteur', active: boolean) => {
+    if (!selectedMember) return;
+    try {
+      await apiFetch(`/api/company/member/${selectedMember.id}/toggle-space`, {
+        method: 'POST', body: JSON.stringify({ space_type: spaceType, active })
+      }, token);
+      await openMemberDetail(selectedMember);
+    } catch (e: any) { window.alert(`Erreur : ${(e as any).message}`); }
   };
 
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
