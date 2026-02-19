@@ -442,6 +442,15 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const [prescTab, setPrescTab] = useState<'pending'|'validated'>('pending');
   const displayedPresc = prescTab === 'pending' ? pending : validated;
 
+  // Montant du mois en cours (souscriptions validées ce mois seulement)
+  const now = new Date();
+  const currentMonthValidated = validated.filter((p: any) => {
+    const d = new Date(p.created_at || p.date || '');
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+  const currentMonthAmount = currentMonthValidated.reduce((s: number, p: any) => s + (p.commission || 25), 0);
+  const allTimeAmount = validated.reduce((s: number, p: any) => s + (p.commission || 25), 0);
+
   const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
   const BG_ORANGE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
