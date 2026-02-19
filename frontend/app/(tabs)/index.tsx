@@ -1579,7 +1579,6 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
             const totalA = alerts.length;
             const resolvedA = alerts.filter((a: any) => a.status === 'resolved' || a.status === 'closed').length;
             const resRate = totalA > 0 ? Math.round((resolvedA / totalA) * 100) : 0;
-            const resColor = resRate >= 70 ? '#10B981' : resRate >= 40 ? '#F59E0B' : '#EF4444';
             return (
               <div onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '18px', marginBottom: 12, cursor: 'pointer' } as any}>
                 <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
@@ -1591,32 +1590,32 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
                       <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{totalA}</div>
                       <div>
                         <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Alerte{totalA > 1 ? 's' : ''}</div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length} en cours · {resolvedA} résolue{resolvedA > 1 ? 's' : ''}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{activeAlerts.length} en cours · {resolvedA} résolue{resolvedA > 1 ? 's' : ''}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                      {activeAlerts.length > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div> : <div style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.2)' } as any}><span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>RAS</span></div>}
-                      <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
+                      {activeAlerts.length > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#FFF' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div> : <div style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>RAS</span></div>}
+                      <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)' }} />
                     </div>
                   </div>
-                  {/* KPIs alertes */}
+                  {/* KPI résolution */}
                   {totalA > 0 && (<>
-                    <div style={{ height: 1, background: 'rgba(255,255,255,0.12)', marginBottom: 12 } as any} />
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.2)', marginBottom: 12 } as any} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
                       <div style={{ flex: 1 } as any}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 } as any}>
-                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>Taux de résolution</span>
-                          <span style={{ fontSize: 11, fontWeight: 800, color: resColor }}>{resRate}%</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Taux de résolution</span>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{resRate}%</span>
                         </div>
-                        <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.12)', overflow: 'hidden' } as any}>
-                          <div style={{ height: '100%', borderRadius: 99, background: resColor, width: `${resRate}%` } as any} />
+                        <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.2)', overflow: 'hidden' } as any}>
+                          <div style={{ height: '100%', borderRadius: 99, background: '#FFF', width: `${resRate}%` } as any} />
                         </div>
                       </div>
-                      <div style={{ display: 'flex', gap: 8 } as any}>
-                        {[{ val: activeAlerts.length, label: 'Actives', color: '#EF4444' }, { val: resolvedA, label: 'Résolues', color: '#10B981' }].map((s, i) => (
+                      <div style={{ display: 'flex', gap: 10 } as any}>
+                        {[{ val: activeAlerts.length, label: 'Actives' }, { val: resolvedA, label: 'Résolues' }].map((s, i) => (
                           <div key={i} style={{ textAlign: 'center', minWidth: 44 } as any}>
-                            <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.val}</div>
-                            <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>{s.label}</div>
+                            <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
+                            <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}>{s.label}</div>
                           </div>
                         ))}
                       </div>
@@ -1627,7 +1626,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
             );
           })()}
 
-          {/* INTERVENTION CARE — enrichie avec disponibilité */}
+          {/* INTERVENTION CARE — enrichie avec disponibilité intervenants */}
           {(() => {
             const completedIvs = interventions.filter((iv: any) => iv.status === 'completed').length;
             const inMission = intervenants.filter((iv: any) => (iv.active_interventions || 0) > 0).length;
@@ -1639,42 +1638,54 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
                 <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Intervention Care</div>
+                  {/* Stats principales */}
                   <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-                    {[{ val: activeIvs.length, label: 'En cours', pill: activeIvs.length > 0 ? '#A78BFA' : null }, { val: completedIvs, label: 'Terminees', pill: '#10B981' }, { val: intervenants.length, label: 'Intervenants', pill: null }].map((s, i) => (
-                      <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>{s.pill ? <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: `${s.pill}30`, marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: s.pill }}>{s.label}</span></div> : <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>}</div>
+                    {[{ val: activeIvs.length, label: 'En cours' }, { val: completedIvs, label: 'Terminees' }, { val: intervenants.length, label: 'Intervenants' }].map((s, i) => (
+                      <div key={i} style={{ flex: 1, textAlign: 'center' } as any}>
+                        <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
+                        <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>
+                      </div>
                     ))}
                   </div>
                   {/* Disponibilité intervenants */}
                   {intervenants.length > 0 && (<>
-                    <div style={{ height: 1, background: 'rgba(255,255,255,0.12)', marginBottom: 12 } as any} />
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
-                      {[{ val: available, label: 'Disponibles', color: '#10B981', pct: (available/ivMax)*100 }, { val: inMission, label: 'En mission', color: '#A78BFA', pct: (inMission/ivMax)*100 }].map((s, i) => (
-                        <div key={i} style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: 'rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
-                          <div style={{ fontSize: 20, fontWeight: 900, color: s.color }}>{s.val}</div>
-                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginBottom: 6 }}>{s.label}</div>
-                          <div style={{ height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.15)', overflow: 'hidden' } as any}><div style={{ height: '100%', borderRadius: 99, background: s.color, width: `${s.pct}%` } as any} /></div>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.2)', marginBottom: 14 } as any} />
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Disponibilité des intervenants</div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
+                      {[
+                        { val: available, label: 'Disponibles', barColor: '#10B981', pct: (available / ivMax) * 100 },
+                        { val: inMission, label: 'En intervention', barColor: '#A78BFA', pct: (inMission / ivMax) * 100 },
+                      ].map((s, i) => (
+                        <div key={i} style={{ flex: 1, padding: '12px 10px', borderRadius: 14, background: 'rgba(255,255,255,0.1)', textAlign: 'center' } as any}>
+                          <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>{s.val}</div>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontWeight: 600, marginBottom: 8 }}>{s.label}</div>
+                          <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.2)', overflow: 'hidden' } as any}>
+                            <div style={{ height: '100%', borderRadius: 99, background: s.barColor, width: `${s.pct}%` } as any} />
+                          </div>
                         </div>
                       ))}
                     </div>
                   </>)}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><div style={{ display: 'flex' } as any}>{intervenants.slice(0, 3).map((iv: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span></div>))}</div><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {intervenants.length} intervenants</span></div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+                    <div style={{ display: 'flex' } as any}>{intervenants.slice(0, 3).map((iv: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span></div>))}</div>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>Voir les {intervenants.length} intervenants</span>
+                  </div>
                 </div>
               </div>
             );
           })()}
 
-          {/* PRESCRIPTIONS — enrichie avec taux de conversion */}
+          {/* PRESCRIPTIONS — taux de conversion + top performeurs */}
           {(() => {
             const validatedP = prescriptions.filter((p: any) => p.status === 'validated' || p.status === 'subscribed');
             const pendingP = prescriptions.filter((p: any) => p.status === 'pending');
-            const otherP = prescriptions.filter((p: any) => !['validated','subscribed','pending'].includes(p.status));
             const totalValidated = validatedP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
             const totalPending = pendingP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
             const convRate = prescriptions.length > 0 ? Math.round((validatedP.length / prescriptions.length) * 100) : 0;
-            const convColor = convRate >= 60 ? '#10B981' : convRate >= 30 ? '#F59E0B' : '#EF4444';
             const nextM = new Date(); nextM.setMonth(nextM.getMonth() + 1);
             const nextPay = `01/${String(nextM.getMonth() + 1).padStart(2, '0')}/${nextM.getFullYear()}`;
-            const maxCount = Math.max(validatedP.length, pendingP.length, otherP.length, 1);
+            const topP = [...ranking].slice(0, 5);
+            const maxP = Math.max(topP[0]?.prescriptions_count || 1, 1);
             return (
               <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12, cursor: 'pointer' } as any}>
                 <img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
@@ -1682,40 +1693,55 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
                 <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescriptions</div>
                   <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{totalValidated + totalPending} EUR</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4, marginBottom: 14 }}>Prochain versement de {totalValidated} EUR le {nextPay}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 4, marginBottom: 14 }}>Prochain versement de {totalValidated} EUR le {nextPay}</div>
                   <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-                    {[{ val: validatedP.length, label: 'Validees', pill: '#10B981' }, { val: pendingP.length, label: 'En attente', pill: '#F59E0B' }, { val: prescribers.length, label: 'Prescripteurs', pill: null }].map((s, i) => (
-                      <div key={i} style={{ flex: 1, textAlign: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>{s.pill ? <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: `${s.pill}30`, marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: s.pill }}>{s.label}</span></div> : <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>}</div>
+                    {[{ val: validatedP.length, label: 'Validees' }, { val: pendingP.length, label: 'En attente' }, { val: prescribers.length, label: 'Prescripteurs' }].map((s, i) => (
+                      <div key={i} style={{ flex: 1, textAlign: 'center' } as any}>
+                        <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
+                        <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>
+                      </div>
                     ))}
                   </div>
-                  {/* Taux de conversion + répartition */}
-                  {prescriptions.length > 0 && (<>
-                    <div style={{ height: 1, background: 'rgba(255,255,255,0.12)', marginBottom: 12 } as any} />
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
-                      <div style={{ flex: 1 } as any}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 } as any}>
-                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>Taux de conversion</span>
-                          <span style={{ fontSize: 11, fontWeight: 800, color: convColor }}>{convRate}%</span>
-                        </div>
-                        <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.12)', overflow: 'hidden' } as any}>
-                          <div style={{ height: '100%', borderRadius: 99, background: convColor, width: `${convRate}%` } as any} />
-                        </div>
+
+                  {/* Taux de conversion */}
+                  <div style={{ height: 1, background: 'rgba(255,255,255,0.2)', marginBottom: 14 } as any} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: topP.length > 0 ? 14 : 0 } as any}>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Taux de conversion</span>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{convRate}%</span>
+                      </div>
+                      <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.2)', overflow: 'hidden' } as any}>
+                        <div style={{ height: '100%', borderRadius: 99, background: '#FFF', width: `${convRate}%` } as any} />
                       </div>
                     </div>
-                    {[{ label: 'Validées', count: validatedP.length, color: '#10B981' }, { label: 'En attente', count: pendingP.length, color: '#F59E0B' }].filter(s => s.count > 0).map((s, i) => (
-                      <div key={i} style={{ marginBottom: 6, textAlign: 'left' } as any}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 } as any}>
-                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{s.label}</span>
-                          <span style={{ fontSize: 10, fontWeight: 800, color: s.color }}>{s.count}</span>
+                  </div>
+
+                  {/* Top prescripteurs intégrés */}
+                  {topP.length > 0 && (<>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.2)', marginBottom: 12 } as any} />
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10, textAlign: 'left' }}>Top prescripteurs</div>
+                    {topP.slice(0, 3).map((p: any, i: number) => (
+                      <div key={p.id || i} style={{ marginBottom: 8, textAlign: 'left' } as any}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 } as any}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                            <div style={{ width: 20, height: 20, borderRadius: 6, background: i === 0 ? 'rgba(255,215,0,0.8)' : i === 1 ? 'rgba(192,192,192,0.8)' : 'rgba(205,127,50,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>#{i+1}</span></div>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{p.name}</span>
+                          </div>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{p.prescriptions_count || 0} presc.</span>
                         </div>
-                        <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' } as any}>
-                          <div style={{ height: '100%', borderRadius: 99, background: s.color, width: `${(s.count / maxCount) * 100}%` } as any} />
+                        <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.15)', overflow: 'hidden' } as any}>
+                          <div style={{ height: '100%', borderRadius: 99, background: 'rgba(255,255,255,0.7)', width: `${Math.round(((p.prescriptions_count || 0) / maxP) * 100)}%` } as any} />
                         </div>
                       </div>
                     ))}
                   </>)}
-                  <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '10px 0' } as any} />
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><div style={{ display: 'flex' } as any}>{prescribers.slice(0, 3).map((p: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{p.name?.charAt(0)}</span></div>))}</div><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {prescribers.length} prescripteurs</span></div>
+
+                  <div style={{ height: 1, background: 'rgba(255,255,255,0.2)', margin: '12px 0' } as any} />
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+                    <div style={{ display: 'flex' } as any}>{prescribers.slice(0, 3).map((p: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{p.name?.charAt(0)}</span></div>))}</div>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>Voir les {prescribers.length} prescripteurs</span>
+                  </div>
                 </div>
               </div>
             );
