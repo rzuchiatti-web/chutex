@@ -271,7 +271,18 @@ async def company_alerts(user=Depends(get_current_user)):
         {"beneficiary_id": {"$in": ben_ids}},
         {"_id": 0}
     ).sort("created_at", -1).to_list(200)
-    return alerts
+    # Enrich with intervention data
+    result = []
+    for a in alerts:
+        iv = await db.interventions.find_one({"alert_id": a['id'], "status": {"$in": ["pending_acceptance", "in_progress", "en_route"]}}, {"_id": 0})
+        a['intervention'] = iv
+        if iv and iv.get('assigned_to'):
+            intervener = await db.users.find_one({"id": iv['assigned_to']}, {"_id": 0, "password_hash": 0})
+            if intervener:
+                a['intervener_info'] = {"name": intervener.get('name', ''), "phone": intervener.get('phone', ''), "structure": intervener.get('structure_name', '') or intervener.get('intervention_structure', '')}
+                a['care_provider'] = intervener.get('name', '')
+        result.append(a)
+    return result
 
 
 @router.get("/company/prescriptions")
