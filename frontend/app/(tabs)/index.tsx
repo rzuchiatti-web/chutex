@@ -760,8 +760,10 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
   };
 
   const [showAddBenPopup, setShowAddBenPopup] = useState(false);
-  const [linkCode, setLinkCode] = useState('');
+  const [linkPhone, setLinkPhone] = useState('');
+  const [linkRelationship, setLinkRelationship] = useState('');
   const [linkingBen, setLinkingBen] = useState(false);
+  const [linkMessage, setLinkMessage] = useState('');
 
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
