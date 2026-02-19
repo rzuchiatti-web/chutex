@@ -1415,13 +1415,14 @@ function CompanyInterventionsTab({ token }: { token: string }) {
         {/* Everything scrolls together */}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
-            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Intervention Care</div>
-            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 10 } as any}>
+          <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.25)', marginBottom: 12 } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#A78BFA' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#A78BFA' }}>Actif</span></div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Intervention Care</div>
+            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 14 } as any}>
               <div onClick={() => setIvTab('active')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'active' ? '#FFF' : 'transparent', color: ivTab === 'active' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>En cours ({activeIvs.length})</div>
               <div onClick={() => setIvTab('done')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: ivTab === 'done' ? '#FFF' : 'transparent', color: ivTab === 'done' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>Cloturees ({doneIvs.length})</div>
             </div>
-            <div onClick={() => setShowAllIntervenants(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' } as any}>
+            <div><div onClick={() => setShowAllIntervenants(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' } as any}>
               <div style={{ display: 'flex' } as any}>{intervenants.slice(0, 3).map((iv2: any, i: number) => (<div key={i} style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -6 : 0, border: '2px solid rgba(0,0,0,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{iv2.name?.charAt(0)}</span></div>))}</div>
               <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Voir les {intervenants.length} intervenants</span>
             </div>
