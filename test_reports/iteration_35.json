@@ -1,0 +1,71 @@
+{
+  "summary": "Complete testing of SAAD-Guardian link features. All 15 backend API tests passed. Frontend UI tests verified SAAD company-agency page with 2 tabs (Agences + Gardiens), guardian invite popup, relationship chips (professional green, personal white), and SAAD affiliation card on guardian dashboard.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "backend_api_tests": {
+      "GET /api/company/guardians": "PASS - Returns list of linked guardians with statuses",
+      "POST /api/company/invite-guardian": {
+        "missing_phone": "PASS - Returns 400 for empty phone",
+        "unknown_phone": "PASS - Returns sms_sent status for unknown numbers",
+        "known_guardian": "PASS - Returns pending/already_linked status"
+      },
+      "DELETE /api/company/guardians/{link_id}": "PASS - Returns 404 for invalid ID",
+      "GET /api/guardian/saad-invitations": "PASS - Returns pending SAAD invitations",
+      "POST /api/guardian/saad-invitations/{id}/accept": "PASS - Accepts invitation, sets saad_company_id",
+      "POST /api/guardian/saad-invitations/{id}/reject": "PASS - Rejects invitation",
+      "GET /api/guardian/saad-link": "PASS - Returns null or SAAD affiliation object"
+    },
+    "frontend_ui_tests": {
+      "SAAD_company_agency_page": {
+        "tabs": "PASS - Both 'Agences' and 'Gardiens' tabs visible",
+        "agencies_tab": "PASS - Shows list of agencies with intervenant counts",
+        "gardiens_tab": "PASS - Shows linked guardians with status badges (SMS envoye, Rattache)",
+        "add_guardian_button": "PASS - 'Ajouter un gardien' button opens popup",
+        "add_guardian_popup": "PASS - Phone input field visible, 'Envoyer l'invitation' button works"
+      },
+      "guardian_dashboard_saad_card": {
+        "affiliation_card": "PASS - Green card shows 'SAAD Aide a Domicile' with RATTACHE badge",
+        "building_icon": "PASS - ri-building icon visible",
+        "company_address": "PASS - Shows '15 avenue de la Gare, 42000 Saint-Etienne'"
+      },
+      "relationship_chips_popup": {
+        "professional_group": "PASS - Green label 'PROFESSIONNEL' with chips: Auxiliaire de vie, Aide soignant(e), Aide à domicile, Professionnel de santé",
+        "personal_group": "PASS - White label 'PERSONNEL / FAMILIAL' with chips: Mère, Père, Fils, Fille, Conjoint(e), Frère, Sœur, Voisin(e), Autre",
+        "chip_styling": "PASS - Professional chips show green when selected, personal chips show white/light"
+      }
+    }
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_saad_guardian_links.py",
+    "/app/test_reports/pytest/pytest_results_saad_links.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_saad_guardian_links.py"
+  ],
+  "success_rate": {
+    "backend": "100% (15/15 tests passed)",
+    "frontend": "100%"
+  },
+  "test_credentials": {
+    "SAAD_company": "saad@chutex.fr / demo123",
+    "guardian_claire": "claire.martin@email.fr / demo123",
+    "guardian_ludivine": "ludivine.moutio@care.fr / demo123 (phone: +3362020202) - has SAAD affiliation"
+  },
+  "mocked_apis": {
+    "SMS_sending": "SIMULATED - SMS invitations logged via logger, not sent via Twilio"
+  },
+  "seed_data_creation": "None - used existing demo users. Ludivine has accepted SAAD invitation during testing.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All SAAD-Guardian link features are working. Ludivine Moutio is now linked to 'SAAD Aide a Domicile' (company_id: 648435e1-c187-4bc9-bce1-e461c8710b2f). The relationship_type field is stored in guardian_relationships collection when beneficiary accepts guardian request. Professional relationships trigger alerts visible in SAAD space."
+}
