@@ -683,7 +683,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
         {/* Content */}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{selectedIv.alert_message || 'Intervention'}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{getCleanLabel(selectedIv.alert_type, selectedIv.alert_message)}</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{new Date(selectedIv.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
           </div>
 
