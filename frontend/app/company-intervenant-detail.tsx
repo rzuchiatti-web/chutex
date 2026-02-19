@@ -23,18 +23,26 @@ export default function CompanyIntervenantDetailScreen() {
 
   if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
   if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.5)' }}>Intervenant non trouve</Text></SafeAreaView>;
-  if (Platform.OS !== 'web') return <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF', padding: 20 }}>{data.name || 'Intervenant'}</Text></SafeAreaView>;
+  if (Platform.OS !== 'web') return <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF', padding: 20 }}>{data.intervenant?.name || 'Intervenant'}</Text></SafeAreaView>;
+
+  const p = data.intervenant || data;
+  const interventions = data.interventions || [];
+  const agency = data.agency;
+  const activeCount = data.active_interventions || 0;
+  const completedCount = data.completed_interventions || 0;
+  const totalCount = data.total_interventions || interventions.length;
 
   const profileRows = [
-    data.phone && { icon: 'ri-phone-line', label: 'Telephone', value: data.phone, phone: true },
-    data.email && { icon: 'ri-mail-line', label: 'Email', value: data.email },
-    data.profession && { icon: 'ri-stethoscope-line', label: 'Profession', value: data.profession },
-    (data.intervention_structure || data.structure_name) && { icon: 'ri-building-line', label: 'Structure', value: data.intervention_structure || data.structure_name },
-    data.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: data.address },
-    data.agency_name && { icon: 'ri-community-line', label: 'Agence', value: data.agency_name },
-    data.intervention_radius_km && { icon: 'ri-compass-3-line', label: 'Rayon d\'intervention', value: `${data.intervention_radius_km} km` },
-    data.date_of_birth && { icon: 'ri-calendar-line', label: 'Date de naissance', value: data.date_of_birth },
-    data.guardian_type && { icon: 'ri-user-star-line', label: 'Type', value: data.guardian_type === 'professional' ? 'Professionnel' : 'Particulier' },
+    p.phone && { icon: 'ri-phone-line', label: 'Telephone', value: p.phone, phone: true },
+    p.email && { icon: 'ri-mail-line', label: 'Email', value: p.email },
+    p.profession && { icon: 'ri-stethoscope-line', label: 'Profession', value: p.profession },
+    p.structure_name && { icon: 'ri-building-line', label: 'Structure', value: p.structure_name },
+    p.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: p.address },
+    agency?.name && { icon: 'ri-community-line', label: 'Agence', value: agency.name },
+    p.intervention_radius_km && { icon: 'ri-compass-3-line', label: 'Rayon d\'intervention', value: `${p.intervention_radius_km} km` },
+    p.guardian_type && { icon: 'ri-user-star-line', label: 'Type', value: p.guardian_type === 'professional' ? 'Professionnel' : 'Particulier' },
+    p.is_prescriber && { icon: 'ri-file-text-line', label: 'Prescripteur', value: 'Oui' },
+    p.prescriber_structure && { icon: 'ri-hospital-line', label: 'Structure prescripteur', value: p.prescriber_structure },
   ].filter(Boolean);
 
   return (
@@ -49,15 +57,15 @@ export default function CompanyIntervenantDetailScreen() {
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-          <div style={{ width: 72, height: 72, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, border: '3px solid rgba(255,255,255,0.2)' } as any}><span style={{ fontSize: 30, fontWeight: 800, color: '#FFF' }}>{data.name?.charAt(0)}</span></div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>{data.name}</div>
-          {data.profession && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{data.profession}</div>}
+          <div style={{ width: 72, height: 72, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, border: '3px solid rgba(255,255,255,0.2)' } as any}><span style={{ fontSize: 30, fontWeight: 800, color: '#FFF' }}>{p.name?.charAt(0)}</span></div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>{p.name}</div>
+          {p.profession && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{p.profession}</div>}
         </div>
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>
-          <div style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{data.total_interventions || 0}</div><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginTop: 2 }}>Missions</div></div>
-          <div style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#10B981' }}>{data.completed_interventions || 0}</div><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginTop: 2 }}>Terminees</div></div>
-          <div style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#F59E0B' }}>{data.active_interventions || 0}</div><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginTop: 2 }}>Actives</div></div>
+          <div style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{totalCount}</div><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginTop: 2 }}>Missions</div></div>
+          <div style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#10B981' }}>{completedCount}</div><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginTop: 2 }}>Terminees</div></div>
+          <div style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#F59E0B' }}>{activeCount}</div><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginTop: 2 }}>Actives</div></div>
         </div>
         {/* Profile */}
         <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
@@ -72,6 +80,25 @@ export default function CompanyIntervenantDetailScreen() {
             </div>
           ))}
         </div>
+        {/* Interventions list */}
+        {interventions.length > 0 && (
+          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' } as any}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Interventions ({interventions.length})</div>
+            {interventions.map((iv: any, i: number) => (
+              <div key={iv.id || i}>
+                {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{iv.beneficiary_name || 'Intervention'}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{iv.alert_message || iv.alert_type || ''}</div>
+                    {iv.created_at && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{new Date(iv.created_at).toLocaleDateString('fr-FR')}</div>}
+                  </div>
+                  <div style={{ padding: '4px 10px', borderRadius: 999, background: iv.status === 'completed' ? 'rgba(16,185,129,0.2)' : 'rgba(124,92,255,0.2)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: iv.status === 'completed' ? '#10B981' : '#A78BFA' }}>{iv.status === 'completed' ? 'Terminee' : 'En cours'}</span></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
