@@ -798,26 +798,88 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 10 }}>Aucun beneficiaire</div></div>}
           <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}><i className="ri-heart-line" style={{ fontSize: 16, color: '#FFF' }} /><span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span></div>
         </div>
-        {/* POPUP AJOUTER BENEFICIAIRE */}
+        {/* POPUP AJOUTER BENEFICIAIRE — par numero de telephone */}
         {showAddBenPopup && (
-          <div onClick={() => setShowAddBenPopup(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
-            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowAddBenPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Lier un beneficiaire</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Ajouter un beneficiaire</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24, lineHeight: 1.5 }}>Entrez le code de liaison fourni par le beneficiaire ou son gardien pour le lier a votre espace.</div>
-              <div style={{ marginBottom: 16 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Code de liaison</div>
-                <input value={linkCode} onChange={(e: any) => setLinkCode(e.target.value.toUpperCase())} placeholder="EX: ABC123" style={{ width: '100%', padding: '16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 18, fontWeight: 700, fontFamily: 'inherit', textAlign: 'center', letterSpacing: 3, boxSizing: 'border-box', outline: 'none' } as any} />
+          <div onClick={() => { setShowAddBenPopup(false); setLinkMessage(''); setLinkPhone(''); setLinkRelationship(''); }} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+              {/* Close button */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                <div onClick={() => { setShowAddBenPopup(false); setLinkMessage(''); setLinkPhone(''); setLinkRelationship(''); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                  <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
+                </div>
               </div>
-              <div onClick={async () => {
-                if (!linkCode.trim()) return;
-                setLinkingBen(true);
-                try {
-                  await apiFetch('/api/guardian/link-beneficiary', { method: 'POST', body: JSON.stringify({ code: linkCode.trim() }) }, token);
-                  setShowAddBenPopup(false); setLinkCode(''); fetchData();
-                } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setLinkingBen(false); }
-              }} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: linkCode.trim() ? 'pointer' : 'not-allowed', background: linkCode.trim() ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${linkCode.trim() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)'}`, color: linkCode.trim() ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, transition: 'all 0.2s' } as any}>{linkingBen ? '...' : 'Lier le beneficiaire'}</div>
+
+              {/* Title */}
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Ajouter un beneficiaire</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Inviter par telephone</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 28, lineHeight: 1.6 }}>
+                Entrez le numero de telephone de votre proche. S'il a deja un compte, il recevra une notification pour accepter. Sinon, un SMS lui sera envoye.
+              </div>
+
+              {/* Phone field */}
+              <div style={{ marginBottom: 16 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numero de telephone</div>
+                <div style={{ position: 'relative' } as any}>
+                  <i className="ri-phone-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
+                  <input
+                    value={linkPhone}
+                    onChange={(e: any) => setLinkPhone(e.target.value)}
+                    placeholder="06 12 34 56 78"
+                    type="tel"
+                    style={{ width: '100%', padding: '15px 16px 15px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any}
+                  />
+                </div>
+              </div>
+
+              {/* Relationship field */}
+              <div style={{ marginBottom: 28 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Lien de parente (optionnel)</div>
+                <div style={{ position: 'relative' } as any}>
+                  <i className="ri-heart-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
+                  <input
+                    value={linkRelationship}
+                    onChange={(e: any) => setLinkRelationship(e.target.value)}
+                    placeholder="Ex: Fils, Fille, Voisin..."
+                    style={{ width: '100%', padding: '15px 16px 15px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 15, fontWeight: 500, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any}
+                  />
+                </div>
+              </div>
+
+              {/* Success/error message */}
+              {linkMessage !== '' && (
+                <div style={{ padding: '14px 16px', borderRadius: 14, marginBottom: 16, background: linkMessage.startsWith('Erreur') ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${linkMessage.startsWith('Erreur') ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)'}` } as any}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 } as any}>
+                    <i className={linkMessage.startsWith('Erreur') ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'} style={{ fontSize: 18, color: linkMessage.startsWith('Erreur') ? '#EF4444' : '#10B981', flexShrink: 0, marginTop: 1 }} />
+                    <span style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{linkMessage}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Send button */}
+              <div
+                onClick={async () => {
+                  if (!linkPhone.trim() || linkingBen) return;
+                  setLinkingBen(true);
+                  setLinkMessage('');
+                  try {
+                    const res = await apiFetch('/api/guardian/link-with-phone', { method: 'POST', body: JSON.stringify({ phone: linkPhone.trim(), relationship: linkRelationship.trim() }) }, token);
+                    setLinkMessage(res.message || 'Demande envoyee avec succes !');
+                    if (res.status === 'pending' || res.status === 'already_linked') {
+                      fetchData();
+                      setTimeout(() => { setShowAddBenPopup(false); setLinkPhone(''); setLinkRelationship(''); setLinkMessage(''); }, 2000);
+                    }
+                  } catch (e: any) {
+                    setLinkMessage(`Erreur : ${e.message}`);
+                  } finally { setLinkingBen(false); }
+                }}
+                style={{ padding: '17px', borderRadius: 999, textAlign: 'center', cursor: linkPhone.trim() && !linkingBen ? 'pointer' : 'not-allowed', background: linkPhone.trim() && !linkingBen ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.05)', border: `1px solid ${linkPhone.trim() ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)'}`, color: linkPhone.trim() ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}
+              >
+                {linkingBen ? (
+                  <><i className="ri-loader-4-line" style={{ fontSize: 16 }} /><span>Envoi en cours...</span></>
+                ) : (
+                  <><i className="ri-send-plane-line" style={{ fontSize: 16 }} /><span>Envoyer l'invitation</span></>
+                )}
+              </div>
             </div>
           </div>
         )}
