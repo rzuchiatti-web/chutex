@@ -323,6 +323,10 @@ async def company_guardians(user=Depends(get_current_user)):
                     "phone": g.get('phone', lk.get('guardian_phone', '')),
                     "profession": g.get('profession', ''), "address": g.get('address', ''),
                     "professional_beneficiaries": pro_bens,
+                    "is_intervention_provider": g.get('is_intervention_provider', False),
+                    "is_prescriber": g.get('is_prescriber', False),
+                    "intervention_structure": g.get('intervention_structure', g.get('structure_name', '')),
+                    "prescriber_structure": g.get('prescriber_structure', ''),
                     "created_at": lk['created_at'],
                 })
                 continue
