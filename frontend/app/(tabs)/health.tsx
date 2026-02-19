@@ -258,11 +258,19 @@ function CompanyAgences({ token }: { token: string }) {
           {gl.professional_beneficiaries > 0 && <div style={{ fontSize: 10, color: '#10B981', marginTop: 2 }}>{gl.professional_beneficiaries} beneficiaire(s) professionnel(s)</div>}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0 } as any}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 99, background: `${STATUS_COLOR[gl.status] || '#6B7280'}20`, fontSize: 9, fontWeight: 700, color: STATUS_COLOR[gl.status] || '#6B7280' } as any}>
-            <span style={{ width: 4, height: 4, borderRadius: 99, background: STATUS_COLOR[gl.status] || '#6B7280', display: 'inline-block' } as any} />{STATUS_LABEL[gl.status] || gl.status}
-          </div>
-          {gl.is_guardian_link && gl.link_id && gl.status !== 'removed' && (
+          {/* Statut — sauf "member" qui a juste le bouton suppression */}
+          {gl.status !== 'member' && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 99, background: `${STATUS_COLOR[gl.status] || '#6B7280'}20`, fontSize: 9, fontWeight: 700, color: STATUS_COLOR[gl.status] || '#6B7280' } as any}>
+              <span style={{ width: 4, height: 4, borderRadius: 99, background: STATUS_COLOR[gl.status] || '#6B7280', display: 'inline-block' } as any} />{STATUS_LABEL[gl.status] || gl.status}
+            </div>
+          )}
+          {/* Bouton suppression pour gardiens liés OU membres */}
+          {(gl.is_guardian_link && gl.link_id && gl.status !== 'removed') && (
             <div onClick={() => { if (window.confirm(`Retirer ${gl.name || gl.phone} ?`)) removeGuardian(gl.link_id); }} style={{ width: 26, height: 26, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 12, color: '#EF4444' }} /></div>
+          )}
+          {/* Bouton suppression pour membres sans link_id (intervenants/prescripteurs purs) */}
+          {!gl.is_guardian_link && gl.status === 'member' && (
+            <div onClick={() => window.alert(`${gl.name} est lié(e) à la structure via son espace Care / Prescripteur. Pour le retirer, désactivez son code d'accès dans la gestion des codes.`)} style={{ width: 26, height: 26, borderRadius: 999, background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: 0.5 } as any}><i className="ri-close-line" style={{ fontSize: 12, color: '#EF4444' }} /></div>
           )}
         </div>
       </div>
