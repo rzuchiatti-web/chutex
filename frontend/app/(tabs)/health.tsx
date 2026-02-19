@@ -168,19 +168,81 @@ function CompanyAgences({ token }: { token: string }) {
   const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
   const agencies = dashData?.agencies || [];
   const prescribers = dashData?.prescriber_ranking || [];
-  const acceptedGuardians = guardianLinks.filter((g: any) => g.status === 'accepted');
-  const pendingGuardians = guardianLinks.filter((g: any) => g.status === 'pending').length;
   const u = user as any;
 
-  const STATUS_COLOR: any = { accepted: '#10B981', pending: '#F59E0B', sms_sent: '#A78BFA', removed: '#6B7280', rejected: '#EF4444' };
-  const STATUS_LABEL: any = { accepted: 'Rattache', pending: 'En attente', sms_sent: 'SMS envoye', removed: 'Retire', rejected: 'Refuse' };
+  const STATUS_COLOR: any = { accepted: '#10B981', pending: '#F59E0B', sms_sent: '#A78BFA', member: '#3B82F6', removed: '#6B7280', rejected: '#EF4444' };
+  const STATUS_LABEL: any = { accepted: 'Rattache', pending: 'En attente', sms_sent: 'SMS envoye', member: 'Membre', removed: 'Retire', rejected: 'Refuse' };
 
-  // Guardian card used in both tabs
+  // ── Fusion dédupliquée : gardiens + intervenants + prescripteurs ──
+  // Chaque personne = 1 seule fiche avec toutes ses pilules
+  const mergedMap = new Map<string, any>();
+
+  // 1. Ajouter les gardiens liés (ont un link_id pour le retrait)
+  guardianLinks.forEach((g: any) => {
+    if (g.id) {
+      mergedMap.set(g.id, {
+        id: g.id, link_id: g.link_id, name: g.name, phone: g.phone,
+        profession: g.profession, status: g.status,
+        is_intervention_provider: g.is_intervention_provider || false,
+        is_prescriber: g.is_prescriber || false,
+        is_guardian_link: true,
+        agency_id: null,
+        professional_beneficiaries: g.professional_beneficiaries || 0,
+      });
+    } else {
+      // Non inscrits (SMS envoyés) — garder tels quels
+      mergedMap.set(`sms_${g.link_id}`, { ...g, id: null, is_guardian_link: true });
+    }
+  });
+
+  // 2. Ajouter/enrichir avec les intervenants
+  intervenants.forEach((iv: any) => {
+    if (mergedMap.has(iv.id)) {
+      const existing = mergedMap.get(iv.id);
+      existing.is_intervention_provider = true;
+      existing.agency_id = existing.agency_id || iv.agency_id;
+      existing.agency_name = existing.agency_name || iv.agency_name;
+      if (!existing.status || existing.status === 'removed') existing.status = 'member';
+    } else {
+      mergedMap.set(iv.id, {
+        id: iv.id, link_id: null, name: iv.name, phone: iv.phone || '',
+        profession: iv.profession, status: 'member',
+        is_intervention_provider: true, is_prescriber: false,
+        is_guardian_link: false, agency_id: iv.agency_id,
+        agency_name: iv.agency_name, professional_beneficiaries: 0,
+      });
+    }
+  });
+
+  // 3. Ajouter/enrichir avec les prescripteurs
+  prescribers.forEach((p: any) => {
+    if (mergedMap.has(p.id)) {
+      const existing = mergedMap.get(p.id);
+      existing.is_prescriber = true;
+      existing.agency_id = existing.agency_id || p.agency_id;
+      existing.prescriptions_count = p.prescription_count || 0;
+      if (!existing.status || existing.status === 'removed') existing.status = 'member';
+    } else {
+      mergedMap.set(p.id, {
+        id: p.id, link_id: null, name: p.name, phone: '',
+        profession: '', status: 'member',
+        is_intervention_provider: false, is_prescriber: true,
+        is_guardian_link: false, agency_id: p.agency_id,
+        prescriptions_count: p.prescription_count || 0,
+        professional_beneficiaries: 0,
+      });
+    }
+  });
+
+  const allMembers = Array.from(mergedMap.values()).filter((m: any) => m.status !== 'removed');
+  const pendingGuardians = allMembers.filter((m: any) => m.status === 'pending').length;
+
+  // Guardian card component (shared)
   const GuardianCard = ({ gl }: { gl: any }) => (
     <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, backdropFilter: 'blur(8px)' } as any}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-        <div style={{ width: 46, height: 46, borderRadius: 999, background: gl.status === 'accepted' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: gl.status === 'accepted' ? '1px solid rgba(16,185,129,0.3)' : 'none' } as any}>
-          {gl.id ? <span style={{ fontSize: 18, fontWeight: 800, color: gl.status === 'accepted' ? '#10B981' : '#FFF' }}>{gl.name?.charAt(0)}</span> : <i className="ri-user-unfollow-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.35)' }} />}
+        <div style={{ width: 46, height: 46, borderRadius: 999, background: gl.status === 'accepted' || gl.status === 'member' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: gl.status === 'accepted' || gl.status === 'member' ? '1px solid rgba(16,185,129,0.3)' : 'none' } as any}>
+          {gl.id ? <span style={{ fontSize: 18, fontWeight: 800, color: (gl.status === 'accepted' || gl.status === 'member') ? '#10B981' : '#FFF' }}>{gl.name?.charAt(0)}</span> : <i className="ri-user-unfollow-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.35)' }} />}
         </div>
         <div style={{ flex: 1 } as any}>
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 5, marginBottom: 3 } as any}>
@@ -188,14 +250,16 @@ function CompanyAgences({ token }: { token: string }) {
             {gl.is_intervention_provider && <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA', background: 'rgba(124,92,255,0.2)', padding: '2px 7px', borderRadius: 99 } as any}>Care</span>}
             {gl.is_prescriber && <span style={{ fontSize: 9, fontWeight: 700, color: '#F59E0B', background: 'rgba(245,158,11,0.15)', padding: '2px 7px', borderRadius: 99 } as any}>Prescripteur</span>}
           </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{gl.phone}{gl.profession ? ` · ${gl.profession}` : ''}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{gl.phone}{gl.profession ? ` · ${gl.profession}` : ''}{gl.agency_name && gl.agency_name !== 'Non assigne' ? ` · ${gl.agency_name}` : ''}</div>
           {gl.professional_beneficiaries > 0 && <div style={{ fontSize: 10, color: '#10B981', marginTop: 2 }}>{gl.professional_beneficiaries} beneficiaire(s) professionnel(s)</div>}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0 } as any}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 99, background: `${STATUS_COLOR[gl.status] || '#6B7280'}20`, fontSize: 9, fontWeight: 700, color: STATUS_COLOR[gl.status] || '#6B7280' } as any}>
             <span style={{ width: 4, height: 4, borderRadius: 99, background: STATUS_COLOR[gl.status] || '#6B7280', display: 'inline-block' } as any} />{STATUS_LABEL[gl.status] || gl.status}
           </div>
-          {gl.status !== 'removed' && <div onClick={() => { if (window.confirm(`Retirer ${gl.name || gl.phone} ?`)) removeGuardian(gl.link_id); }} style={{ width: 26, height: 26, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 12, color: '#EF4444' }} /></div>}
+          {gl.is_guardian_link && gl.link_id && gl.status !== 'removed' && (
+            <div onClick={() => { if (window.confirm(`Retirer ${gl.name || gl.phone} ?`)) removeGuardian(gl.link_id); }} style={{ width: 26, height: 26, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 12, color: '#EF4444' }} /></div>
+          )}
         </div>
       </div>
     </div>
