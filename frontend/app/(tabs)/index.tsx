@@ -861,28 +861,28 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
                 <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numero de telephone</div>
                 <div style={{ position: 'relative' } as any}>
                   <i className="ri-phone-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
-                  <input
-                    value={linkPhone}
-                    onChange={(e: any) => setLinkPhone(e.target.value)}
-                    placeholder="06 12 34 56 78"
-                    type="tel"
-                    style={{ width: '100%', padding: '15px 16px 15px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any}
-                  />
+                  <input value={linkPhone} onChange={(e: any) => setLinkPhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" style={{ width: '100%', padding: '15px 16px 15px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
                 </div>
               </div>
 
-              {/* Relationship field */}
+              {/* Relationship dropdown */}
               <div style={{ marginBottom: 28 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Lien de parente (optionnel)</div>
-                <div style={{ position: 'relative' } as any}>
-                  <i className="ri-heart-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
-                  <input
-                    value={linkRelationship}
-                    onChange={(e: any) => setLinkRelationship(e.target.value)}
-                    placeholder="Ex: Fils, Fille, Voisin..."
-                    style={{ width: '100%', padding: '15px 16px 15px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 15, fontWeight: 500, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any}
-                  />
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Votre lien avec le beneficiaire</div>
+                {/* Professional group */}
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(16,185,129,0.7)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6, paddingLeft: 4 }}>Professionnel</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 } as any}>
+                  {['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé'].map(r => (
+                    <div key={r} onClick={() => setLinkRelationship(r)} style={{ padding: '8px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: linkRelationship === r ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.05)', border: `1px solid ${linkRelationship === r ? 'rgba(16,185,129,0.5)' : 'rgba(255,255,255,0.1)'}`, color: linkRelationship === r ? '#10B981' : 'rgba(255,255,255,0.6)', transition: 'all 0.15s' } as any}>{r}</div>
+                  ))}
                 </div>
+                {/* Personal group */}
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6, paddingLeft: 4 }}>Personnel / Familial</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 } as any}>
+                  {['Mère', 'Père', 'Fils', 'Fille', 'Conjoint(e)', 'Frère', 'Sœur', 'Voisin(e)', 'Autre'].map(r => (
+                    <div key={r} onClick={() => setLinkRelationship(r)} style={{ padding: '8px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: linkRelationship === r ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${linkRelationship === r ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.1)'}`, color: linkRelationship === r ? '#FFF' : 'rgba(255,255,255,0.5)', transition: 'all 0.15s' } as any}>{r}</div>
+                  ))}
+                </div>
+                {linkRelationship && <div style={{ marginTop: 10, fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Selectionne : <span style={{ fontWeight: 700, color: ['Auxiliaire de vie','Aide soignant(e)','Aide à domicile','Professionnel de santé'].includes(linkRelationship) ? '#10B981' : 'rgba(255,255,255,0.7)' }}>{linkRelationship}</span>{['Auxiliaire de vie','Aide soignant(e)','Aide à domicile','Professionnel de santé'].includes(linkRelationship) ? ' → Les alertes remonteront dans l\'espace SAAD' : ''}</div>}
               </div>
 
               {/* Success/error message */}
