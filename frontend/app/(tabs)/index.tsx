@@ -1683,8 +1683,8 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
               return d.getMonth() === now2.getMonth() && d.getFullYear() === now2.getFullYear();
             });
             const currentMonthAmount = currentMonthValidated.reduce((s: number, p: any) => s + (p.commission || 0), 0);
-            // Total depuis toujours — TOUTES les souscriptions de la SAAD
-            const allTimeValidated = prescriptions.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+            // Total depuis toujours — souscriptions validées uniquement
+            const allTimeValidated = validatedP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
 
             const convRate = prescriptions.length > 0 ? Math.round((validatedP.length / prescriptions.length) * 100) : 0;
             const nextM = new Date(); nextM.setMonth(nextM.getMonth() + 1);
