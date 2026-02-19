@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
-import AlertDetailWebInline from '../src/components/AlertDetailWebInline';
 
 const BG   = 'https://customer-assets.emergentagent.com/job_19f6c899-022d-4e6d-bcf0-8571d24b1fb2/artifacts/xjd4c8ks_ChatGPT%20Image%2019%20f%C3%A9vr.%202026%2C%2017_54_27.png';
 const BG_GREEN = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
