@@ -777,21 +777,40 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
-            <div onClick={() => setShowPrescModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', marginBottom: 10 } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.prescription_structure || user.structure_name || 'Structure'}</span></div>
+            {/* Pilule statut — inactive si SAAD a désactivé */}
+            {prescSpaceDeactivated ? (
+              <div onClick={() => window.alert(`Votre espace prescripteur a été temporairement désactivé par ${saadLink?.company_name || 'votre structure SAAD'}. Contactez votre administrateur pour le réactiver.`)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', cursor: 'pointer', marginBottom: 10 } as any}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' } as any} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#EF4444' }}>Espace désactivé par {saadLink?.company_name || 'votre SAAD'}</span>
+                <i className="ri-information-line" style={{ fontSize: 14, color: '#EF4444' }} />
+              </div>
+            ) : (
+              <div onClick={() => setShowPrescModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', marginBottom: 10 } as any}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.prescription_structure || user.structure_name || 'Structure'}</span>
+              </div>
+            )}
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescription</div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1, marginBottom: 4 }}>+{displayedPresc.reduce((s: number, p: any) => s + (p.commission || 25), 0)}EUR</div>
+            <div style={{ fontSize: 36, fontWeight: 900, color: prescSpaceDeactivated ? 'rgba(255,255,255,0.4)' : '#FFF', letterSpacing: -1, marginBottom: 4 }}>+{displayedPresc.reduce((s: number, p: any) => s + (p.commission || 25), 0)}EUR</div>
             <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 10 } as any}>
               <div onClick={() => setPrescTab('pending')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'pending' ? '#FFF' : 'transparent', color: prescTab === 'pending' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>En cours ({pending.length})</div>
               <div onClick={() => setPrescTab('validated')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'validated' ? '#FFF' : 'transparent', color: prescTab === 'validated' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>Validees ({validated.length})</div>
             </div>
           </div>
-          {/* Nouvelle prescription button */}
-          <div onClick={() => setShowForm(true)} data-testid="new-prescription-btn" style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 14, transition: 'all 0.2s' } as any}
-            onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}>
-            <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
-            <span style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Nouvelle prescription</span>
-          </div>
+          {/* Nouvelle prescription button — désactivé si SAAD a révoqué */}
+          {prescSpaceDeactivated ? (
+            <div onClick={() => window.alert(`Votre espace prescripteur est désactivé. Contactez ${saadLink?.company_name || 'votre SAAD'} pour le réactiver.`)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'not-allowed', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 14 } as any}>
+              <i className="ri-forbid-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+              <span style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>Nouvelle prescription (désactivée)</span>
+            </div>
+          ) : (
+            <div onClick={() => setShowForm(true)} data-testid="new-prescription-btn" style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 14, transition: 'all 0.2s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}>
+              <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Nouvelle prescription</span>
+            </div>
+          )}
           {/* Rewards card */}
           <div onClick={() => { apiFetch("/api/rewards/history", {}, token).then((d2: any) => { setRewardsData(d2); setShowRewardsPage(true); }).catch(() => {}); }} style={{ borderRadius: 20, overflow: "hidden", position: "relative", padding: "18px", marginBottom: 14, cursor: "pointer" } as any} data-glass-card>
             <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/s2281oc6_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_16_35.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
