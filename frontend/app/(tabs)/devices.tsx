@@ -800,7 +800,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               </div>
             )}
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescription</div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: prescSpaceDeactivated ? 'rgba(255,255,255,0.4)' : '#FFF', letterSpacing: -1, marginBottom: 4 }}>+{displayedPresc.reduce((s: number, p: any) => s + (p.commission || 25), 0)}EUR</div>
+            <div style={{ fontSize: 36, fontWeight: 900, color: prescSpaceDeactivated ? 'rgba(255,255,255,0.4)' : '#FFF', letterSpacing: -1, marginBottom: 2 }}>+{currentMonthAmount}EUR</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>Validés ce mois · {allTimeAmount} EUR au total</div>
             <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 10 } as any}>
               <div onClick={() => setPrescTab('pending')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'pending' ? '#FFF' : 'transparent', color: prescTab === 'pending' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>En cours ({pending.length})</div>
               <div onClick={() => setPrescTab('validated')} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: prescTab === 'validated' ? '#FFF' : 'transparent', color: prescTab === 'validated' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700 } as any}>Validees ({validated.length})</div>
