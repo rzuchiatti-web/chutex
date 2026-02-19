@@ -700,6 +700,7 @@ export default function AlertsScreen() {
           {filtered.length > 0 ? filtered.map((alert: any) => {
             const isActive = alert.status === 'active';
             const hasIntervention = !!(alert.intervention?.id);
+            const hasAssignedIntervenant = !!(alert.intervener_info || alert.care_provider || alert.intervention?.assigned_to);
             const alertTypeLabel = alert.alert_type === 'sos' ? 'SOS' : alert.alert_type === 'fall' ? 'Chute detectee' : alert.alert_type === 'health_anomaly' ? 'Anomalie de sante' : alert.alert_type || '-';
             return (
               <div key={alert.id} data-testid={`alert-card-${alert.id}`} style={{ borderRadius: 20, position: 'relative', padding: '18px 16px', marginBottom: 12, minHeight: 100, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', transition: 'transform 0.15s' } as any}>
