@@ -921,7 +921,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
 
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
-  const BG_GUARD = 'https://customer-assets.emergentagent.com/job_19f6c899-022d-4e6d-bcf0-8571d24b1fb2/artifacts/dp8js6l3_ChatGPT%20Image%2019%20f%C3%A9vr.%202026%2C%2018_05_37.png';
+  const BG_GUARD = 'https://customer-assets.emergentagent.com/job_19f6c899-022d-4e6d-bcf0-8571d24b1fb2/artifacts/bqz6vdxk_ChatGPT%20Image%2019%20f%C3%A9vr.%202026%2C%2019_01_04.png';
   const BG_RED_G = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
   if (Platform.OS === 'web') {
