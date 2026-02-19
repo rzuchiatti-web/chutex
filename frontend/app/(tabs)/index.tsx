@@ -431,7 +431,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                         <div onClick={() => { if (!isPro) setInviteGuardRelationship(PROS_G[0]); }} style={{ flex: 1, padding: '14px 12px', borderRadius: 16, cursor: 'pointer', background: isPro ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)', border: `2px solid ${isPro ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`, textAlign: 'center', transition: 'all 0.2s', opacity: isPerso ? 0.5 : 1 } as any}>
                           <i className="ri-briefcase-line" style={{ fontSize: 22, color: '#FFF', display: 'block', marginBottom: 6 }} />
                           <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Professionnel</div>
-                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Auxil., coach…</div>
+                          <div style={{ fontSize: 10, color: 'rgba(0,0,0,0.4)', marginTop: 3 }}>Auxil., coach…</div>
                           {isPro && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: '#FFF' }}>✓ {inviteGuardRelationship}</div>}
                         </div>
                         <div onClick={() => { if (!isPerso) setInviteGuardRelationship(PERSO_G[0]); }} style={{ flex: 1, padding: '14px 12px', borderRadius: 16, cursor: 'pointer', background: isPerso ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)', border: `2px solid ${isPerso ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`, textAlign: 'center', transition: 'all 0.2s', opacity: isPro ? 0.5 : 1 } as any}>
@@ -1055,7 +1055,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           ))}
           {/* Beneficiary cards — enrichies */}
           {bens.map((b: any) => (
-            <div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+            <div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(0,0,0,0.08)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
               {/* Header de la carte */}
               <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
                 <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{b.name?.charAt(0)}</span></div>
@@ -1063,7 +1063,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
                   <div style={{ fontSize: 17, fontWeight: 800, color: '#111', marginBottom: 2 }}>{b.name}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' } as any}>
                     {b.date_of_birth && !isNaN(new Date(b.date_of_birth).getTime()) && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{Math.floor((Date.now() - new Date(b.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans</span>}
-                    {b.subscription_type && <><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>·</span><span style={{ fontSize: 10, color: '#F59E0B', fontWeight: 600 }}>{b.subscription_type}</span></>}
+                    {b.subscription_type && <><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>·</span><span style={{ fontSize: 10, color: '#D97706', fontWeight: 600 }}>{b.subscription_type}</span></>}
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 } as any}>
@@ -1077,7 +1077,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
               </div>
               {/* Vitaux — 4 stats compactes */}
               {b.latest_vitals && (
-                <div style={{ display: 'flex', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '10px 16px 12px', gap: 6 } as any}>
+                <div style={{ display: 'flex', borderTop: '1px solid rgba(0,0,0,0.06)', padding: '10px 16px 12px', gap: 6 } as any}>
                   {[
                     { val: b.latest_vitals.heart_rate, unit: 'bpm', color: '#EF4444', dot: '#EF4444' },
                     { val: b.latest_vitals.spo2, unit: '%', color: '#60A5FA', dot: '#3B82F6' },
