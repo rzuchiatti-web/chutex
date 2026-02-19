@@ -834,6 +834,34 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
             </div>
           </div>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10 }}>Mes beneficiaires</div>
+          {/* SAAD affiliation card */}
+          {saadLink && (
+            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', marginBottom: 10, backdropFilter: 'blur(12px)' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-4-line" style={{ fontSize: 18, color: '#10B981' }} /></div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{saadLink.company_name}</div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#10B981', background: 'rgba(16,185,129,0.15)', padding: '2px 7px', borderRadius: 99, letterSpacing: 0.5, textTransform: 'uppercase' }}>Rattache</div>
+                  </div>
+                  {saadLink.company_address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{saadLink.company_address}</div>}
+                </div>
+              </div>
+            </div>
+          )}
+          {/* SAAD pending invitations */}
+          {saadInvitations.map((inv: any) => (
+            <div key={inv.id} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', marginBottom: 10 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-building-4-line" style={{ fontSize: 18, color: '#F59E0B' }} /></div>
+                <div><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{inv.company_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Souhaite vous rattacher comme gardien professionnel</div></div>
+              </div>
+              <div style={{ display: 'flex', gap: 8 } as any}>
+                <div onClick={async () => { try { await apiFetch(`/api/guardian/saad-invitations/${inv.id}/accept`, { method: 'POST' }, token); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
+                <div onClick={async () => { try { await apiFetch(`/api/guardian/saad-invitations/${inv.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Refuser</div>
+              </div>
+            </div>
+          ))}
           {bens.map((b: any) => (<div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })} style={{ padding: '16px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 10, cursor: 'pointer' } as any}><div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}><div style={{ width: 50, height: 50, borderRadius: 16, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{b.name?.charAt(0)}</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{b.name}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{b.latest_vitals ? `${b.latest_vitals.heart_rate || '--'} bpm` : 'Pas de donnees'}</div>{b.active_alerts > 0 && <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 11, fontWeight: 700, color: '#EF4444' }}>{b.active_alerts} alerte(s)</span></div>}</div><i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.25)' }} /></div></div>))}
           {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 10 }}>Aucun beneficiaire</div></div>}
           <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}><i className="ri-heart-line" style={{ fontSize: 16, color: '#FFF' }} /><span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span></div>
