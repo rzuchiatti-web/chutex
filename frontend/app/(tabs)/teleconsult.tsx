@@ -442,11 +442,22 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const [activating, setActivating] = useState(false);
   const [showCareModal, setShowCareModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [saadLink, setSaadLink] = useState<any>(null);
 
   const fetchIvs = async () => {
-    try { setIvs(await apiFetch('/api/interventions', {}, token)); } catch {} finally { setLoading(false); setRefreshing(false); }
+    try {
+      const [ivsData, sl] = await Promise.all([
+        apiFetch('/api/interventions', {}, token).catch(() => []),
+        apiFetch('/api/guardian/saad-link', {}, token).catch(() => null),
+      ]);
+      setIvs(Array.isArray(ivsData) ? ivsData : []);
+      setSaadLink(sl);
+    } catch {} finally { setLoading(false); setRefreshing(false); }
   };
   useEffect(() => { fetchIvs(); const t = setInterval(fetchIvs, 15000); return () => clearInterval(t); }, []);
+
+  // Is intervenant space deactivated by SAAD?
+  const ivSpaceDeactivated = saadLink && saadLink.intervenant_active === false;
 
   const activateCare = async () => {
     if (!ivCode.trim()) { setCareError('Entrez un code intervenant'); return; }
