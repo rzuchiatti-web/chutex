@@ -1400,14 +1400,12 @@ function CompanyInterventionsTab({ token }: { token: string }) {
           </div>
           {/* INTERVENANT — enriched from detail API */}
           {selectedIv.assigned_name && (() => {
-            const detailIv = ivDetail?.intervention || ivDetail;
-            const recipients = detailIv?.recipients || selectedIv.recipients || [];
-            const assignedR = recipients.find((r: any) => r.id === selectedIv.assigned_to) || {};
-            const ivPhone = assignedR.phone || selectedIv.intervener_phone || '';
-            const ivEmail = assignedR.email || selectedIv.intervener_email || '';
-            const ivProfession = assignedR.profession || '';
-            const ivStructure = assignedR.structure_name || selectedIv.intervenant_structure || selectedIv.structure_name || '';
-            const ivAddress = assignedR.address || '';
+            const p = ivDetail?.intervenant || {};
+            const ivPhone = p.phone || '';
+            const ivEmail = p.email || '';
+            const ivProfession = p.profession || '';
+            const ivStructure = p.structure_name || selectedIv.intervenant_structure || selectedIv.structure_name || '';
+            const ivAddress = p.address || '';
             return (<div onClick={() => setShowIntervenantPopup(true)} style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer' } as any}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Fiche intervenant</div><div style={{ display: 'flex', gap: 6 } as any}>{isCare && <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}<i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} /></div></div><div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}><div style={{ width: 44, height: 44, borderRadius: 999, background: isCare ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{selectedIv.assigned_name.charAt(0)}</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{selectedIv.assigned_name}</div>{ivProfession && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{ivProfession}</div>}{ivStructure && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{ivStructure}</div>}<div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{isDone ? 'Terminee' : 'En cours'}{selectedIv.distance_km ? ` · ${selectedIv.distance_km} km` : ''}{ivDur ? ` · ${ivDur >= 60 ? `${Math.floor(ivDur/60)}h${ivDur%60>0?String(ivDur%60).padStart(2,'0'):''}` : `${ivDur} min`}` : ''}</div></div></div></div>);
           })()}
           {/* SUIVRE */}
