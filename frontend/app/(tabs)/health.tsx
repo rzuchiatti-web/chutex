@@ -263,9 +263,9 @@ function CompanyAgences({ token }: { token: string }) {
   const allMembers = Array.from(mergedMap.values()).filter((m: any) => m.status !== 'removed');
   const pendingGuardians = allMembers.filter((m: any) => m.status === 'pending').length;
 
-  // Guardian card component (shared)
+  // Guardian card component (shared) - clickable opens detail
   const GuardianCard = ({ gl }: { gl: any }) => (
-    <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, backdropFilter: 'blur(8px)' } as any}>
+    <div onClick={() => gl.id && openMemberDetail(gl)} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, backdropFilter: 'blur(8px)', cursor: gl.id ? 'pointer' : 'default' } as any}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
         <div style={{ width: 46, height: 46, borderRadius: 999, background: gl.status === 'accepted' || gl.status === 'member' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: gl.status === 'accepted' || gl.status === 'member' ? '1px solid rgba(16,185,129,0.3)' : 'none' } as any}>
           {gl.id ? <span style={{ fontSize: 18, fontWeight: 800, color: (gl.status === 'accepted' || gl.status === 'member') ? '#10B981' : '#FFF' }}>{gl.name?.charAt(0)}</span> : <i className="ri-user-unfollow-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.35)' }} />}
