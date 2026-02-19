@@ -50,6 +50,8 @@ class AlertCreate(BaseModel):
     severity: str = "medium"
     message: str = ""
     device_type: str = "bracelet"
+    vital_data: dict = None
+    threshold_data: dict = None
 
 
 class PrescriptionCreate(BaseModel):
