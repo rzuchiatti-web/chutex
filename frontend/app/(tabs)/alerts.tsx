@@ -741,10 +741,10 @@ export default function AlertsScreen() {
                       const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if (thumb) thumb.style.transition = ''; }, 300); bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); };
                       bar.addEventListener('touchmove', onMove, { passive: false }); bar.addEventListener('touchend', onUp);
                     }}>
-                    <div data-thumb style={{ position: 'absolute', top: 3, left: 3, width: 42, height: 42, borderRadius: 999, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', willChange: 'transform', touchAction: 'none' } as any}>
-                      <i className="ri-heart-line" style={{ fontSize: 18, color: '#FFF' }} />
+                    <div data-thumb style={{ position: 'absolute', top: 3, left: 3, width: 42, height: 42, borderRadius: 999, background: iAmAssignedAlert ? '#FFF' : 'rgba(255,255,255,0.15)', border: iAmAssignedAlert ? 'none' : '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', willChange: 'transform', touchAction: 'none', boxShadow: iAmAssignedAlert ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
+                      <i className={iAmAssignedAlert ? 'ri-navigation-line' : 'ri-heart-line'} style={{ fontSize: 18, color: iAmAssignedAlert ? '#111' : '#FFF' }} />
                     </div>
-                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 700, pointerEvents: 'none', paddingLeft: 30 } as any}>Suivre l'intervention</div>
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 700, pointerEvents: 'none', paddingLeft: 30 } as any}>{iAmAssignedAlert ? 'Lancer la navigation' : 'Suivre l\'intervention'}</div>
                   </div>
                 )}
                 {/* Intervenir — guardian only, no assigned intervenant */}
