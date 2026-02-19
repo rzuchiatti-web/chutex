@@ -541,8 +541,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#9C27B0" /></View>;
 
   /* ─── INACTIF: écran plein avec fond violet + slide ─── */
-  if (!user?.is_intervention_provider && Platform.OS === 'web') {
-    return (
+  if (!user?.is_intervention_provider && Platform.OS === 'web') {    return (
       <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', zIndex: 5 } as any}>
         <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} />
