@@ -187,6 +187,69 @@ async def get_my_alerts(user=Depends(get_current_user), limit: int = 10):
     return alerts
 
 
+# ==================== SAAD INVITATIONS FOR GUARDIAN ====================
+@router.get("/guardian/saad-invitations")
+async def get_saad_invitations(user=Depends(get_current_user)):
+    """Get pending SAAD invitations for the current guardian"""
+    invitations = await db.saad_guardian_links.find(
+        {"guardian_id": user['id'], "status": "pending"}, {"_id": 0}
+    ).sort("created_at", -1).to_list(20)
+    return invitations
+
+
+@router.post("/guardian/saad-invitations/{inv_id}/accept")
+async def accept_saad_invitation(inv_id: str, user=Depends(get_current_user)):
+    """Guardian accepts a SAAD invitation to be linked"""
+    inv = await db.saad_guardian_links.find_one(
+        {"id": inv_id, "guardian_id": user['id'], "status": "pending"}, {"_id": 0}
+    )
+    if not inv:
+        raise HTTPException(status_code=404, detail="Invitation non trouvee")
+    # Remove existing SAAD link if any
+    await db.saad_guardian_links.update_many(
+        {"guardian_id": user['id'], "status": "accepted"},
+        {"$set": {"status": "removed"}}
+    )
+    await db.saad_guardian_links.update_one({"id": inv_id}, {"$set": {"status": "accepted"}})
+    await db.users.update_one({"id": user['id']}, {"$set": {
+        "saad_company_id": inv['company_id'],
+        "saad_company_name": inv['company_name'],
+    }})
+    return {"status": "accepted", "message": f"Vous etes maintenant rattache a {inv['company_name']}."}
+
+
+@router.post("/guardian/saad-invitations/{inv_id}/reject")
+async def reject_saad_invitation(inv_id: str, user=Depends(get_current_user)):
+    """Guardian rejects a SAAD invitation"""
+    await db.saad_guardian_links.update_one(
+        {"id": inv_id, "guardian_id": user['id']}, {"$set": {"status": "rejected"}}
+    )
+    return {"status": "rejected"}
+
+
+@router.get("/guardian/saad-link")
+async def get_saad_link(user=Depends(get_current_user)):
+    """Get the guardian's current SAAD link info"""
+    if not user.get('saad_company_id'):
+        return None
+    company = await db.users.find_one(
+        {"id": user['saad_company_id']}, {"_id": 0, "password_hash": 0}
+    )
+    link = await db.saad_guardian_links.find_one(
+        {"guardian_id": user['id'], "status": "accepted"}, {"_id": 0}
+    )
+    if not company:
+        return None
+    return {
+        "company_id": user['saad_company_id'],
+        "company_name": user.get('saad_company_name', company.get('structure_name', company.get('name', ''))),
+        "company_address": company.get('address', ''),
+        "company_siret": company.get('siret', ''),
+        "link_id": link['id'] if link else None,
+        "linked_since": link['created_at'] if link else None,
+    }
+
+
 @router.get("/guardian/invitations")
 async def get_guardian_invitations(user=Depends(get_current_user)):
     """Get pending invitations for the current guardian"""
