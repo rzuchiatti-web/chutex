@@ -1056,6 +1056,62 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
 
       <PillButton label={t('add_beneficiary')} icon="heart-outline" onPress={() => setShowAddBenPopup(true)} testID="add-beneficiary-btn" variant="warm" />
 
+      {/* ─── MODAL AJOUTER BENEFICIAIRE (natif) ─── */}
+      {Platform.OS !== 'web' && showAddBenPopup && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end', zIndex: 9999 }}>
+          <TouchableOpacity style={{ flex: 1 }} onPress={() => { setShowAddBenPopup(false); setLinkMessage(''); setLinkPhone(''); setLinkRelationship(''); }} />
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 28, paddingBottom: 48 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: '#111827' }}>Inviter par telephone</Text>
+              <TouchableOpacity onPress={() => { setShowAddBenPopup(false); setLinkMessage(''); setLinkPhone(''); setLinkRelationship(''); }}>
+                <Icon name="close" size={22} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+            <Text style={{ fontSize: 13, color: '#6B7280', marginBottom: 20, lineHeight: 20 }}>Entrez le numero de telephone de votre proche. S'il a un compte, il recevra une notification pour accepter.</Text>
+            <Text style={{ fontSize: 10, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Numero de telephone</Text>
+            <TextInput
+              value={linkPhone}
+              onChangeText={setLinkPhone}
+              placeholder="06 12 34 56 78"
+              keyboardType="phone-pad"
+              style={{ borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 12, padding: 14, fontSize: 16, fontWeight: '600', color: '#111827', marginBottom: 14 }}
+            />
+            <Text style={{ fontSize: 10, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Lien de parente (optionnel)</Text>
+            <TextInput
+              value={linkRelationship}
+              onChangeText={setLinkRelationship}
+              placeholder="Ex: Fils, Fille, Voisin..."
+              style={{ borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 12, padding: 14, fontSize: 15, color: '#111827', marginBottom: 20 }}
+            />
+            {linkMessage !== '' && (
+              <View style={{ padding: 14, borderRadius: 12, marginBottom: 14, backgroundColor: linkMessage.startsWith('Erreur') ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)' }}>
+                <Text style={{ fontSize: 13, color: linkMessage.startsWith('Erreur') ? '#EF4444' : '#10B981' }}>{linkMessage}</Text>
+              </View>
+            )}
+            <TouchableOpacity
+              style={{ backgroundColor: linkPhone.trim() ? '#111827' : '#E5E7EB', borderRadius: 999, paddingVertical: 16, alignItems: 'center' }}
+              disabled={!linkPhone.trim() || linkingBen}
+              onPress={async () => {
+                if (!linkPhone.trim() || linkingBen) return;
+                setLinkingBen(true); setLinkMessage('');
+                try {
+                  const res = await apiFetch('/api/guardian/link-with-phone', { method: 'POST', body: JSON.stringify({ phone: linkPhone.trim(), relationship: linkRelationship.trim() }) }, token);
+                  setLinkMessage(res.message || 'Demande envoyee !');
+                  if (res.status === 'pending' || res.status === 'already_linked') {
+                    fetchData();
+                    setTimeout(() => { setShowAddBenPopup(false); setLinkPhone(''); setLinkRelationship(''); setLinkMessage(''); }, 2000);
+                  }
+                } catch (e: any) { setLinkMessage(`Erreur : ${e.message}`); } finally { setLinkingBen(false); }
+              }}
+            >
+              <Text style={{ color: linkPhone.trim() ? '#FFF' : '#9CA3AF', fontSize: 15, fontWeight: '700' }}>
+                {linkingBen ? 'Envoi...' : "Envoyer l'invitation"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
       {/* Help system */}
       <ContextualTip id="guardian-welcome" icon="people-outline" text="Bienvenue dans votre espace gardien ! Suivez la sante de vos proches en temps reel." color="#111827" />
       <MiniTuto id="guardian-intro" triggerLabel="Guide du gardien" steps={[
