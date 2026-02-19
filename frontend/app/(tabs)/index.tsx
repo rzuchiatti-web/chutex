@@ -1573,7 +1573,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
               ))}
             </div>
             {/* Bouton Gérer */}
-            <div onClick={() => router.push('/company-agency' as any)} style={{ padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+            <div onClick={() => router.push('/(tabs)/health' as any)} style={{ padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
               <i className="ri-settings-3-line" style={{ fontSize: 14 }} />Gérer la structure
               <i className="ri-arrow-right-s-line" style={{ fontSize: 14 }} />
             </div>
