@@ -759,6 +759,10 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSwitching(false); }
   };
 
+  const [showAddBenPopup, setShowAddBenPopup] = useState(false);
+  const [linkCode, setLinkCode] = useState('');
+  const [linkingBen, setLinkingBen] = useState(false);
+
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
   const BG_GUARD = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
