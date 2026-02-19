@@ -497,7 +497,6 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
 
   const activeIvs = ivs.filter(iv => ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status));
   const doneIvs = ivs.filter(iv => ['completed', 'cancelled'].includes(iv.status));
-  const [ivTab, setIvTab] = useState<'active'|'done'>('active');
   const displayedIvs = ivTab === 'active' ? activeIvs : doneIvs;
   /* ─── ESPACE DÉSACTIVÉ PAR LA SAAD — écran plein (après déclaration des constantes) ─── */
   if (ivSpaceDeactivated && user?.is_intervention_provider && Platform.OS === 'web') {
