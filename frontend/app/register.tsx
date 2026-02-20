@@ -69,20 +69,7 @@ export default function RegisterScreen() {
 
   if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Web uniquement</Text></View>;
 
-  const GI = ({ label, ...props }: any) => (
-    <div style={{ marginBottom: 14 } as any}>
-      <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>{label}</div>
-      <input {...props} style={{ width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', ...(props.style || {}) } as any}
-        onFocus={(e: any) => { e.target.style.borderColor = 'rgba(255,255,255,0.25)'; }}
-        onBlur={(e: any) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }} />
-    </div>
-  );
-  const Chip = ({ label, selected, onClick }: any) => (
-    <div onClick={onClick} style={{ padding: '10px 16px', borderRadius: 999, background: selected ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${selected ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 13, fontWeight: selected ? 700 : 500, color: selected ? '#FFF' : 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', gap: 8 } as any}>
-      {selected && <i className="ri-check-line" style={{ fontSize: 14 }} />}{label}
-    </div>
-  );
-  const RadioCard = ({ icon, label, desc, selected, onClick }: any) => (
+  const inputStyle = { width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
     <div onClick={onClick} style={{ padding: '16px 18px', borderRadius: 18, background: selected ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${selected ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
       <div style={{ width: 44, height: 44, borderRadius: 14, background: selected ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
         <i className={icon} style={{ fontSize: 20, color: selected ? '#FFF' : 'rgba(255,255,255,0.25)' }} />
