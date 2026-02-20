@@ -261,6 +261,42 @@ export default function HealthDetailScreen() {
           );
         })()}
 
+        {/* AI Analysis for this section */}
+        {report?.ai && (
+          <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', padding: '16px 18px', marginBottom: 14 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+              <i className="ri-brain-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.6)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Analyse IA · {sec.title}</span>
+            </div>
+            {report.ai.correlations && report.ai.correlations.filter((_: any, i: number) => i < 2).map((c: string, i: number) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                <i className="ri-links-line" style={{ fontSize: 12, color: 'rgba(167,139,250,0.4)', marginTop: 2 }} />
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>{c}</span>
+              </div>
+            ))}
+            {report.ai.whats_good && report.ai.whats_good.length > 0 && (
+              <div style={{ marginTop: 8 } as any}>
+                {report.ai.whats_good.slice(0, 1).map((g: string, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '4px 0' } as any}>
+                    <i className="ri-checkbox-circle-line" style={{ fontSize: 12, color: '#10B981', marginTop: 2 }} />
+                    <span style={{ fontSize: 12, color: 'rgba(16,185,129,0.6)', lineHeight: 1.5 }}>{g}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {report.ai.watch_out && report.ai.watch_out.length > 0 && (
+              <div style={{ marginTop: 4 } as any}>
+                {report.ai.watch_out.slice(0, 1).map((w: string, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '4px 0' } as any}>
+                    <i className="ri-error-warning-line" style={{ fontSize: 12, color: '#F59E0B', marginTop: 2 }} />
+                    <span style={{ fontSize: 12, color: 'rgba(245,158,11,0.6)', lineHeight: 1.5 }}>{w}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Metrics list */}
         {sec.metrics.map((m) => {
           const val = getValue(m.key);
