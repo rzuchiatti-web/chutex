@@ -756,37 +756,122 @@ export default function HealthScreen() {
             </div>
           )}
 
-          {/* ═══ 1. HERO SCORE ═══ */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '20px', borderRadius: 24, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14 } as any}>
-            <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 } as any}>
-              <svg width="90" height="90" style={{ transform: 'rotate(-90deg)' }}><circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" /><circle cx="45" cy="45" r="38" fill="none" stroke={statusColor} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${(score / 100) * 239} 239`} style={{ transition: 'stroke-dasharray 1s' }} /></svg>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{score}</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>/100</div></div>
-            </div>
-            <div style={{ flex: 1 } as any}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: `${statusColor}20`, border: `1px solid ${statusColor}40`, marginBottom: 6 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: statusColor } as any} /><span style={{ fontSize: 12, fontWeight: 700, color: statusColor }}>{status}</span></div>
-              <div style={{ fontSize: 14, color: '#FFF', fontWeight: 600, lineHeight: 1.4 }}>{ai.hero_line || 'Analyse en cours...'}</div>
-              <div onClick={() => setShowScoreDetail(!showScoreDetail)} style={{ marginTop: 8, fontSize: 11, color: 'rgba(79,195,247,0.7)', cursor: 'pointer', fontWeight: 600 } as any}><i className="ri-information-line" style={{ marginRight: 4 }} />Pourquoi ce score ?</div>
-            </div>
-          </div>
-          {showScoreDetail && (
-            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 14 } as any}>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 } as any}>
-                {Object.values(subs).map((s: any) => (
-                  <div key={s.label} style={{ padding: '6px 12px', borderRadius: 999, background: `${s.color}15`, border: `1px solid ${s.color}30`, display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                    <i className={s.icon} style={{ fontSize: 12, color: s.color }} /><span style={{ fontSize: 11, fontWeight: 700, color: s.color }}>{s.label} {s.score}</span>
-                  </div>
-                ))}
+          {/* ═══ 1. HERO SCORE (hidden during analysis phase) ═══ */}
+          {!analysisPhase && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '20px', borderRadius: 24, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14 } as any}>
+                <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 } as any}>
+                  <svg width="90" height="90" style={{ transform: 'rotate(-90deg)' }}><circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" /><circle cx="45" cy="45" r="38" fill="none" stroke={statusColor} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${(score / 100) * 239} 239`} style={{ transition: 'stroke-dasharray 1s' }} /></svg>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}><div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{score}</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>/100</div></div>
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: `${statusColor}20`, border: `1px solid ${statusColor}40`, marginBottom: 6 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: statusColor } as any} /><span style={{ fontSize: 12, fontWeight: 700, color: statusColor }}>{status}</span></div>
+                  <div style={{ fontSize: 14, color: '#FFF', fontWeight: 600, lineHeight: 1.4 }}>{ai.hero_line || ''}</div>
+                  <div onClick={() => setShowScoreDetail(!showScoreDetail)} style={{ marginTop: 8, fontSize: 11, color: 'rgba(79,195,247,0.7)', cursor: 'pointer', fontWeight: 600 } as any}><i className="ri-information-line" style={{ marginRight: 4 }} />Pourquoi ce score ?</div>
+                </div>
               </div>
-              {ai.score_explain_up && <div style={{ fontSize: 12, color: 'rgba(16,185,129,0.7)', marginBottom: 4 } as any}><i className="ri-arrow-up-line" style={{ marginRight: 4 }} />{ai.score_explain_up}</div>}
-              {ai.score_explain_down && <div style={{ fontSize: 12, color: 'rgba(245,158,11,0.7)' } as any}><i className="ri-arrow-down-line" style={{ marginRight: 4 }} />{ai.score_explain_down}</div>}
-            </div>
+              {showScoreDetail && (
+                <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 } as any}>
+                    {Object.values(subs).map((s: any) => (
+                      <div key={s.label} style={{ padding: '6px 12px', borderRadius: 999, background: `${s.color}15`, border: `1px solid ${s.color}30`, display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                        <i className={s.icon} style={{ fontSize: 12, color: s.color }} /><span style={{ fontSize: 11, fontWeight: 700, color: s.color }}>{s.label} {s.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {ai.score_explain_up && <div style={{ fontSize: 12, color: 'rgba(16,185,129,0.7)', marginBottom: 4 } as any}><i className="ri-arrow-up-line" style={{ marginRight: 4 }} />{ai.score_explain_up}</div>}
+                  {ai.score_explain_down && <div style={{ fontSize: 12, color: 'rgba(245,158,11,0.7)' } as any}><i className="ri-arrow-down-line" style={{ marginRight: 4 }} />{ai.score_explain_down}</div>}
+                </div>
+              )}
+            </>
           )}
 
           {/* ═══ 2. PRIORITE DU JOUR ═══ */}
-          <div style={{ padding: '16px 18px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(14,116,144,0.15), rgba(34,211,238,0.08))', border: '1px solid rgba(34,211,238,0.2)', marginBottom: 14, display: 'flex', alignItems: 'flex-start', gap: 14 } as any}>
-            <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(34,211,238,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 } as any}><i className="ri-lightbulb-line" style={{ fontSize: 18, color: '#22D3EE' }} /></div>
-            <div><div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(34,211,238,0.6)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Priorite du jour</div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', lineHeight: 1.5 }}>{ai.priority || ''}</div>{ai.priority_why && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>{ai.priority_why}</div>}</div>
-          </div>
+          {analysisPhase ? (
+            /* During analysis: provisional priority */
+            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: 14 } as any}>
+              <div style={{ padding: '18px 20px' } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Priorite du jour</div>
+                  <span style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', fontSize: 9, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase' }}>en apprentissage</span>
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 12, lineHeight: 1.5 }}>Nous commencons a identifier vos habitudes. Voici une priorite provisoire basee sur vos premieres mesures.</div>
+                <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 10 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', lineHeight: 1.5, marginBottom: 6 }}>
+                    {analysisPhase.day <= 3 ? 'Pensez a faire une pesee chaque matin pour ameliorer la precision de l\'analyse.' : `Objectif du jour : atteindre ${analysisPhase.day <= 5 ? '5 000' : '6 000'} pas pour enrichir votre profil d'activite.`}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Base sur : premieres donnees collectees · Jour {analysisPhase.day}/7</div>
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.5)', fontStyle: 'italic' }}>Le score sante IA complet sera disponible apres 7 jours d'analyse.</div>
+              </div>
+            </div>
+          ) : (
+            /* After analysis: full IA priority */
+            <div style={{ borderRadius: 22, background: 'linear-gradient(135deg, rgba(14,116,144,0.12), rgba(34,211,238,0.06))', border: '1px solid rgba(34,211,238,0.15)', overflow: 'hidden', marginBottom: 14 } as any}>
+              <div style={{ padding: '18px 20px' } as any}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Priorite du jour</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF', lineHeight: 1.5, marginBottom: 8 }}>{ai.priority || ''}</div>
+                {ai.priority_why && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 14 }}>Base sur : {ai.priority_why}</div>}
+                <div onClick={() => setShowDayPlanPopup(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
+                  <i className="ri-calendar-check-line" style={{ fontSize: 15 }} />Voir mon plan du jour
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══ DAY PLAN POPUP (glass) ═══ */}
+          {showDayPlanPopup && (
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+              <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                  <div onClick={() => setShowDayPlanPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                </div>
+                <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg, rgba(34,211,238,0.2), rgba(14,116,144,0.15))', border: '1px solid rgba(34,211,238,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+                    <i className="ri-calendar-check-line" style={{ fontSize: 28, color: '#22D3EE' }} />
+                  </div>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>Plan du jour</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Programme personnalise base sur vos donnees</div>
+                </div>
+
+                {/* Priority detail */}
+                <div style={{ padding: '16px 18px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(14,116,144,0.12), rgba(34,211,238,0.06))', border: '1px solid rgba(34,211,238,0.15)', marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(34,211,238,0.6)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Priorite</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', lineHeight: 1.5, marginBottom: 6 }}>{ai.priority || ''}</div>
+                  {ai.priority_why && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Base sur : {ai.priority_why}</div>}
+                </div>
+
+                {/* Plan metrics */}
+                {plan.map((p: any) => (
+                  <div key={p.key} style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 10 } as any}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                        <div style={{ width: 34, height: 34, borderRadius: 10, background: `${p.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={p.icon} style={{ fontSize: 16, color: p.color }} /></div>
+                        <div><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{p.label}</div><div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{p.value} <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{p.unit}</span></div></div>
+                      </div>
+                      <span style={{ padding: '4px 10px', borderRadius: 999, background: p.status === 'atteint' ? 'rgba(16,185,129,0.12)' : p.status === 'priorite' ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.04)', fontSize: 10, fontWeight: 700, color: p.status === 'atteint' ? '#10B981' : p.status === 'priorite' ? '#F59E0B' : 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>{p.status}</span>
+                    </div>
+                    {p.progress != null && <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 8 } as any}><div style={{ height: 4, borderRadius: 2, width: `${p.progress}%`, background: p.color } as any} /></div>}
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{p.detail}</div>
+                  </div>
+                ))}
+
+                {/* Secondary recs */}
+                {ai.secondary_recs && ai.secondary_recs.length > 0 && (
+                  <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 12 } as any}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Autres conseils</div>
+                    {ai.secondary_recs.map((r: string, i: number) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                        <i className="ri-arrow-right-line" style={{ fontSize: 11, color: '#22D3EE', marginTop: 2 }} /><span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{r}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div onClick={() => setShowDayPlanPopup(false)} style={{ padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 6 } as any}>Fermer</div>
+              </div>
+            </div>
+          )}
 
           {/* ═══ 3. PLAN DU JOUR ═══ */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Plan du jour</div>
