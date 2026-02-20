@@ -111,20 +111,19 @@ export default function RegisterScreen() {
     return { ...f, [k]: arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v] };
   });
 
-  const BEN_STEPS = 6;
+  const BEN_STEPS = 5;
   const GUARD_STEPS = 4;
   const totalSteps = role === 'beneficiary' ? BEN_STEPS : GUARD_STEPS;
 
   const canNext = () => {
     if (step === 0) return !!role;
     if (step === 1) return form.phone.trim().length >= 6 && form.password.length >= 6 && form.password === form.confirmPassword;
-    if (step === 2) return true; // RGPD page — just read
+    if (step === 2) return true;
     if (step === 3 && role === 'beneficiary') return form.name.trim() && form.firstName.trim() && form.gender && form.dob_day && form.dob_month && form.dob_year && form.height_cm && form.weight_kg;
     if (step === 3 && role === 'guardian') return form.name.trim() && form.firstName.trim() && form.pro_type;
     if (step === 4 && role === 'beneficiary') return !!form.blood_type && form.medical_conditions.length > 0 && form.allergies.length > 0 && !!form.pacemaker && !!form.stents && !!form.thyroid;
     if (step === 4 && role === 'guardian') return form.acceptTerms;
     if (step === 5 && role === 'beneficiary') return !!form.had_surgery && form.family_history.length > 0;
-    if (step === 6 && role === 'beneficiary') return form.acceptTerms;
     return true;
   };
 
