@@ -100,7 +100,7 @@ export default function RegisterScreen() {
     allergies: [] as string[], medical_conditions: [] as string[], other_condition: '',
     doctor_name: '', doctor_phone: '', social_security: '',
     devices: '',
-    had_surgery: '', surgery_zone: '', surgery_date: '',
+    had_surgery: '', surgeries: [] as { zone: string; date: string }[],
     family_history: [] as string[],
     pro_type: '', structure: '',
     acceptTerms: false,
