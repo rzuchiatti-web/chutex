@@ -217,6 +217,52 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   useEffect(() => { requestNotificationPermission(); }, []);
   useEffect(() => { if (reminders.length > 0) { const cleanup = startReminderChecker(reminders); return cleanup; } }, [reminders]);
 
+  // Check for due reminders on load
+  useEffect(() => {
+    if (reminders.length === 0 || Platform.OS !== 'web') return;
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const nowTime = `${hh}:${mm}`;
+    const dayNames = ['dim','lun','mar','mer','jeu','ven','sam'];
+    const today = dayNames[now.getDay()];
+    const due = reminders.find((r: any) => r.active && !r.completed && r.time === nowTime && (!r.days?.length || r.days.includes(today)));
+    if (due && !reminderNotif) setReminderNotif(due);
+  }, [reminders]);
+
+  const getNextReminderTime = (rem: any) => {
+    if (!rem.time || !rem.active) return '';
+    const now = new Date();
+    const [rh, rm] = rem.time.split(':').map(Number);
+    const target = new Date(now); target.setHours(rh, rm, 0, 0);
+    if (target <= now) target.setDate(target.getDate() + 1);
+    const diff = target.getTime() - now.getTime();
+    const hours = Math.floor(diff / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    return hours > 0 ? `${hours}h ${mins}min` : `${mins}min`;
+  };
+
+  const reminderMeta: Record<string, { label: string; img: string; question: string }> = {
+    hydration: { label: 'Hydratation', img: REMINDER_IMAGES.hydration, question: 'Avez-vous bien pense a vous hydrater ?' },
+    medication: { label: 'Traitement', img: REMINDER_IMAGES.medication, question: 'Avez-vous bien pense a prendre votre traitement ?' },
+    alarm: { label: 'Alarmes', img: REMINDER_IMAGES.alarm, question: 'Avez-vous bien pense a votre rappel ?' },
+  };
+
+  const saveReminder = async () => {
+    try {
+      if (editReminder?.id) {
+        await apiFetch(`/api/reminders/${editReminder.id}`, { method: 'PUT', body: JSON.stringify(remForm) }, token);
+      } else {
+        await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify(remForm) }, token);
+      }
+      setShowReminderCRUD(false); setEditReminder(null); fetchData();
+    } catch {}
+  };
+
+  const deleteReminder = async (id: string) => {
+    try { await apiFetch(`/api/reminders/${id}`, { method: 'DELETE' }, token); fetchData(); } catch {}
+  };
+
   const handleSOS = async () => {
     setSosLoading(true);
     try {
