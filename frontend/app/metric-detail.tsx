@@ -220,6 +220,50 @@ export default function MetricDetailScreen() {
           </div>
         )}
 
+          {/* ═══ SEUILS D'ALERTE ═══ */}
+          <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', padding: '16px 18px', marginBottom: 14 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                <i className="ri-alarm-warning-line" style={{ fontSize: 16, color: '#F59E0B' }} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>Seuils d'alerte</span>
+              </div>
+              {!thresholdEdit && (
+                <div onClick={() => setThresholdEdit(true)} style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>
+                  {threshold?.min_val != null || threshold?.max_val != null ? 'Modifier' : 'Configurer'}
+                </div>
+              )}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 12, lineHeight: 1.5 }}>Vos gardiens seront alertes si cette donnee depasse les seuils definis.</div>
+            {!thresholdEdit ? (
+              threshold?.min_val != null || threshold?.max_val != null ? (
+                <div style={{ display: 'flex', gap: 10 } as any}>
+                  {threshold.min_val != null && <div style={{ flex: 1, padding: '12px', borderRadius: 14, background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.12)', textAlign: 'center' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>Seuil bas</div><div style={{ fontSize: 20, fontWeight: 900, color: '#38BDF8' }}>{threshold.min_val} <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span></div></div>}
+                  {threshold.max_val != null && <div style={{ flex: 1, padding: '12px', borderRadius: 14, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', textAlign: 'center' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>Seuil haut</div><div style={{ fontSize: 20, fontWeight: 900, color: '#EF4444' }}>{threshold.max_val} <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span></div></div>}
+                </div>
+              ) : <div style={{ textAlign: 'center', padding: '10px 0', fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>Aucun seuil configure</div>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', gap: 10, marginBottom: 12 } as any}>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(56,189,248,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Seuil bas</div>
+                    <input type="number" step="0.1" placeholder="Min" value={thMin} onChange={(e: any) => setThMin(e.target.value)} style={{ width: '100%', padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(56,189,248,0.2)', color: '#FFF', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(239,68,68,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Seuil haut</div>
+                    <input type="number" step="0.1" placeholder="Max" value={thMax} onChange={(e: any) => setThMax(e.target.value)} style={{ width: '100%', padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(239,68,68,0.2)', color: '#FFF', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                  </div>
+                </div>
+                {thSaved && <div style={{ padding: '8px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', textAlign: 'center', fontSize: 12, fontWeight: 700, color: '#10B981', marginBottom: 8 } as any}>Seuils sauvegardes !</div>}
+                <div style={{ display: 'flex', gap: 8 } as any}>
+                  <div onClick={async () => { setThSaving(true); try { await apiFetch('/api/health/thresholds', { method: 'POST', body: JSON.stringify({ metric_id: key, min_val: thMin ? parseFloat(thMin) : null, max_val: thMax ? parseFloat(thMax) : null }) }, token); setThreshold({ metric_id: key, min_val: thMin ? parseFloat(thMin) : null, max_val: thMax ? parseFloat(thMax) : null }); setThSaved(true); setTimeout(() => { setThSaved(false); setThresholdEdit(false); }, 1500); } catch {} finally { setThSaving(false); } }} style={{ flex: 1, padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF', opacity: thSaving ? 0.6 : 1 } as any}>{thSaving ? '...' : 'Sauvegarder'}</div>
+                  {threshold?.min_val != null && <div onClick={async () => { try { await apiFetch(`/api/health/thresholds/${key}`, { method: 'DELETE' }, token); setThreshold(null); setThMin(''); setThMax(''); setThresholdEdit(false); } catch {} }} style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.12)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#EF4444' } as any}>Supprimer</div>}
+                  <div onClick={() => setThresholdEdit(false)} style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
+                </div>
+              </div>
+            )}
+          </div>
+
+
       </div>
     </div>
   );
