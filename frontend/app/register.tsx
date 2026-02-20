@@ -310,9 +310,8 @@ export default function RegisterScreen() {
                 </select>
               </div>
             </div>
+            <GI label="Adresse" placeholder="12 rue de la Paix, 75002 Paris" value={form.address} onChange={(e: any) => u('address', e.target.value)} />
           </>)}
-
-          {/* ═══ BENEFICIARY STEP 3: Medical ═══ */}
           {step === 4 && role === 'beneficiary' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Dossier medical</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Ces informations sont confidentielles et aident a personnaliser votre suivi</div>
