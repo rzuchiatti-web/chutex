@@ -429,21 +429,9 @@ export default function RegisterScreen() {
                 <Chip key={f} label={f} selected={form.family_history.includes(f)} onClick={() => { if (f === 'Aucun') u('family_history', ['Aucun']); else toggleArr('family_history', f); }} />
               ))}
             </div>
-          </>)}
 
-          {/* ═══ BENEFICIARY STEP 5: Devices + CGU ═══ */}
-          {step === 6 && role === 'beneficiary' && (<>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Vos appareils</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Quels appareils allez-vous utiliser ?</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 } as any}>
-              {[
-                { v: 'bracelet', l: 'Bracelet Elio', d: 'Suivi cardiaque, sommeil, activite', ic: 'ri-pulse-line' },
-                { v: 'balance', l: 'Balance Vita', d: 'Poids et composition corporelle', ic: 'ri-scales-3-line' },
-                { v: 'both', l: 'Les deux', d: 'Suivi complet bracelet + balance', ic: 'ri-heart-pulse-line' },
-                { v: 'later', l: 'Plus tard', d: 'Je configurerai mes appareils apres', ic: 'ri-time-line' },
-              ].map(d => <RadioCard key={d.v} icon={d.ic} label={d.l} desc={d.d} selected={form.devices === d.v} onClick={() => u('devices', d.v)} />)}
-            </div>
-            <div onClick={() => u('acceptTerms', !form.acceptTerms)} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}>
+            {/* CGU */}
+            <div onClick={() => u('acceptTerms', !form.acceptTerms)} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', marginTop: 20 } as any}>
               <div style={{ width: 22, height: 22, borderRadius: 6, background: form.acceptTerms ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.acceptTerms ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
                 {form.acceptTerms && <i className="ri-check-line" style={{ fontSize: 14, color: '#FFF' }} />}
               </div>
@@ -451,7 +439,7 @@ export default function RegisterScreen() {
             </div>
           </>)}
 
-          {/* ═══ GUARDIAN STEP 2: Infos perso + pro ═══ */}
+          {/* ═══ GUARDIAN STEP 3: Infos perso + pro ═══ */}
           {step === 3 && role === 'guardian' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Informations personnelles</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Votre profil de gardien ou professionnel</div>
