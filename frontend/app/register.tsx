@@ -233,8 +233,8 @@ export default function RegisterScreen() {
             {form.password && form.confirmPassword && form.password !== form.confirmPassword && <div style={{ fontSize: 12, color: '#F87171', marginTop: -8, marginBottom: 8 }}>Les mots de passe ne correspondent pas</div>}
           </>)}
 
-          {/* ═══ STEP 2: RGPD / Securite (both roles) ═══ */}
-          {step === 2 && (<>
+          {/* ═══ STEP 1: RGPD / Securite (both roles) ═══ */}
+          {step === 1 && (<>
             <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
               <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
                 <i className="ri-shield-check-line" style={{ fontSize: 36, color: '#10B981' }} />
