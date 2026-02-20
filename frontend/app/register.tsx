@@ -102,7 +102,7 @@ export default function RegisterScreen() {
     devices: '',
     had_surgery: '', surgeries: [] as { zone: string; date: string }[],
     family_history: [] as string[],
-    pro_type: '', structure: '',
+    pro_type: '', structure: '', how_found: '', alert_sms: false, alert_email: false,
     acceptTerms: false,
   });
   const u = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
