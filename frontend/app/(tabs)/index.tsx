@@ -458,6 +458,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </GC>
           </div>
 
+          {/* ── Teleconsultation ── */}
+          <DoctorCard onPress={() => router.push('/(tabs)/teleconsult')} />
+
           {/* ── Guardians ── */}
           <GC testId="guardians-section">
             <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Mes gardiens</div>
