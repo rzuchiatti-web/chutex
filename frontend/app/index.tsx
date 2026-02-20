@@ -177,7 +177,43 @@ export default function AuthScreen() {
               <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>Face ID / Biometrie</span>
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: 20, fontSize: 12, color: 'rgba(255,255,255,0.25)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
+            <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); }} style={{ textAlign: 'center', marginTop: 20, fontSize: 12, color: 'rgba(255,255,255,0.25)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
+
+            {/* Forgot password popup */}
+            {showForgot && (
+              <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <div style={{ width: '100%', maxWidth: 380, padding: '32px 28px', boxSizing: 'border-box' } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
+                    <div onClick={() => setShowForgot(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                  </div>
+                  <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                    <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+                      <i className="ri-lock-unlock-line" style={{ fontSize: 28, color: '#F59E0B' }} />
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Mot de passe oublie</div>
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>Entrez votre numero de telephone pour recevoir un lien de reinitialisation par SMS.</div>
+                  </div>
+                  <div style={{ marginBottom: 16 } as any}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>Telephone</div>
+                    <div style={{ display: 'flex', gap: 8 } as any}>
+                      <div style={{ padding: '13px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 } as any}>
+                        <span style={{ fontSize: 16 }}>{selectedPfx.flag}</span>
+                        <span style={{ fontSize: 13, color: '#FFF', fontWeight: 600 }}>{prefix}</span>
+                      </div>
+                      <input type="tel" placeholder="06 12 34 56 78" value={forgotPhone} onChange={(e: any) => setForgotPhone(e.target.value)}
+                        style={{ flex: 1, padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                    </div>
+                  </div>
+                  {forgotMsg && (
+                    <div style={{ padding: '12px 16px', borderRadius: 14, background: forgotMsg.includes('envoye') ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${forgotMsg.includes('envoye') ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}`, marginBottom: 14, fontSize: 13, color: forgotMsg.includes('envoye') ? '#10B981' : '#F87171' } as any}>{forgotMsg}</div>
+                  )}
+                  <div onClick={() => {
+                    if (!forgotPhone.trim()) return setForgotMsg('Veuillez entrer votre numero de telephone.');
+                    setForgotMsg('Un SMS de reinitialisation a ete envoye a votre numero.');
+                  }} style={{ padding: '16px', borderRadius: 999, background: forgotPhone.trim() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotPhone.trim() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: forgotPhone.trim() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotPhone.trim() ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>Envoyer le lien</div>
+                </div>
+              </div>
+            )}
 
             <div style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'rgba(255,255,255,0.35)' } as any}>
               Pas encore de compte ?{' '}
