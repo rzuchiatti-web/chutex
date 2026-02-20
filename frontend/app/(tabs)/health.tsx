@@ -1034,8 +1034,8 @@ export default function HealthScreen() {
         </div>
 
         {/* ═══ CTA FLOTTANT + FLOW NOUVELLE PESEE ═══ */}
-        <div style={{ position: 'absolute', bottom: 70, left: 20, right: 20, zIndex: 10 } as any}>
-          <div data-testid="new-weighing-cta" onClick={() => setWeighingStep(1)} style={{ padding: '16px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.12))', border: '1px solid rgba(167,139,250,0.3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' } as any}>
+        <div style={{ position: 'absolute', bottom: 70, left: 20, right: 20, zIndex: 8, pointerEvents: 'none' } as any}>
+          <div data-testid="new-weighing-cta" onClick={() => setWeighingStep(1)} style={{ pointerEvents: 'auto', padding: '16px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.12))', border: '1px solid rgba(167,139,250,0.3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' } as any}>
             <i className="ri-scales-3-line" style={{ fontSize: 18, color: '#A78BFA' }} /><span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Nouvelle pesee</span>
           </div>
         </div>
