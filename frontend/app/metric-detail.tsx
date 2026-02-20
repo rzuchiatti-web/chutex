@@ -14,6 +14,9 @@ export default function MetricDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState('30j');
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [calFrom, setCalFrom] = useState('');
+  const [calTo, setCalTo] = useState('');
 
   useEffect(() => {
     (async () => {
