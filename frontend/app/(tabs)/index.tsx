@@ -203,16 +203,18 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [dd, rem, guards, greqs] = await Promise.all([
+      const [dd, rem, guards, greqs, hs] = await Promise.all([
         apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
         apiFetch('/api/reminders', {}, token).catch(() => []),
         apiFetch('/api/guardians/my', {}, token).catch(() => []),
         apiFetch('/api/beneficiary/guardian-requests', {}, token).catch(() => []),
+        apiFetch('/api/health/summary', {}, token).catch(() => null),
       ]);
       setDashData(dd);
       setReminders(rem);
       setGuardians(Array.isArray(guards) ? guards : []);
       setGuardianRequests(Array.isArray(greqs) ? greqs : []);
+      if (hs) setHealthSummary(hs);
       try {
         const aa = await apiFetch('/api/alerts/active-with-interventions', {}, token);
         setActiveAlerts(Array.isArray(aa) ? aa : []);
