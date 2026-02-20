@@ -759,6 +759,124 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           )}
 
+          {/* ── GUARDIAN ACTIVATION POPUP ── */}
+          {showGuardianActivation && (
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10001, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(4,14,26,0.7)', overflowY: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, padding: '32px 24px', boxSizing: 'border-box' } as any}>
+                {/* Close */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
+                  <div data-testid="close-guardian-activation" onClick={() => { setShowGuardianActivation(false); setActiveTab('beneficiary'); }} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
+                  </div>
+                </div>
+
+                {guardianActivationStep === 0 ? (
+                  /* Step 0: Presentation */
+                  <>
+                    <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+                      <div style={{ width: 72, height: 72, borderRadius: 20, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', border: '1px solid rgba(167,139,250,0.2)' } as any}>
+                        <i className="ri-shield-user-line" style={{ fontSize: 32, color: '#A78BFA' }} />
+                      </div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Devenez Aidant</div>
+                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>Activez votre espace aidant pour veiller sur vos proches</div>
+                    </div>
+
+                    {/* Features list */}
+                    {[
+                      { icon: 'ri-eye-line', color: '#22D3EE', title: 'Suivi en temps reel', desc: 'Consultez les donnees de sante et la localisation de vos proches' },
+                      { icon: 'ri-alarm-warning-line', color: '#EF4444', title: 'Alertes instantanees', desc: 'Recevez les alertes SOS, chutes et anomalies par SMS et email' },
+                      { icon: 'ri-heart-pulse-line', color: '#10B981', title: 'Rapports de sante', desc: 'Acces aux rapports detailles et recommandations du Coach IA' },
+                      { icon: 'ri-route-line', color: '#F59E0B', title: 'Interventions coordonnees', desc: 'Participez a la chaine de secours en cas d\'alerte' },
+                    ].map((f, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '12px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                        <div style={{ width: 38, height: 38, borderRadius: 12, background: `${f.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                          <i className={f.icon} style={{ fontSize: 18, color: f.color }} />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>{f.title}</div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>{f.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+
+                    <div data-testid="guardian-activation-next" onClick={() => setGuardianActivationStep(1)} style={{ marginTop: 24, padding: '14px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.1))', border: '1px solid rgba(167,139,250,0.25)', fontSize: 14, fontWeight: 700, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'transform 0.2s' } as any}
+                      onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                      onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                      <span>Continuer</span>
+                      <i className="ri-arrow-right-line" style={{ fontSize: 16 }} />
+                    </div>
+                  </>
+                ) : (
+                  /* Step 1: Alert configuration + activation */
+                  <>
+                    <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Configurer vos alertes</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Choisissez comment recevoir les notifications d'alerte de vos proches</div>
+                    </div>
+
+                    {/* SMS Toggle */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 10 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                          <i className="ri-message-2-line" style={{ fontSize: 18, color: '#10B981' }} />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alertes SMS</div>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Recevoir les urgences par SMS</div>
+                        </div>
+                      </div>
+                      <div data-testid="toggle-sms" onClick={() => setAlertSms(!alertSms)} style={{ width: 48, height: 26, borderRadius: 13, background: alertSms ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)', border: `1px solid ${alertSms ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.15)'}`, cursor: 'pointer', position: 'relative', transition: 'all 0.2s' } as any}>
+                        <div style={{ width: 20, height: 20, borderRadius: 10, background: alertSms ? '#10B981' : 'rgba(255,255,255,0.4)', position: 'absolute', top: 2, left: alertSms ? 24 : 2, transition: 'left 0.2s' } as any} />
+                      </div>
+                    </div>
+
+                    {/* Email Toggle */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 24 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(56,189,248,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                          <i className="ri-mail-line" style={{ fontSize: 18, color: '#38BDF8' }} />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alertes Email</div>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Recevoir les rapports par email</div>
+                        </div>
+                      </div>
+                      <div data-testid="toggle-email" onClick={() => setAlertEmail(!alertEmail)} style={{ width: 48, height: 26, borderRadius: 13, background: alertEmail ? 'rgba(56,189,248,0.3)' : 'rgba(255,255,255,0.1)', border: `1px solid ${alertEmail ? 'rgba(56,189,248,0.4)' : 'rgba(255,255,255,0.15)'}`, cursor: 'pointer', position: 'relative', transition: 'all 0.2s' } as any}>
+                        <div style={{ width: 20, height: 20, borderRadius: 10, background: alertEmail ? '#38BDF8' : 'rgba(255,255,255,0.4)', position: 'absolute', top: 2, left: alertEmail ? 24 : 2, transition: 'left 0.2s' } as any} />
+                      </div>
+                    </div>
+
+                    {/* Activate Button (slide-style) */}
+                    <div data-testid="activate-guardian-btn" onClick={activateGuardianMode} style={{
+                      padding: '16px', borderRadius: 14, textAlign: 'center', cursor: activatingGuardian ? 'wait' : 'pointer',
+                      background: 'linear-gradient(135deg, rgba(167,139,250,0.25), rgba(139,92,246,0.15))',
+                      border: '1px solid rgba(167,139,250,0.3)',
+                      boxShadow: '0 4px 20px rgba(139,92,246,0.2)',
+                      fontSize: 15, fontWeight: 800, color: '#FFF',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                    } as any}
+                      onMouseEnter={(e: any) => { if (!activatingGuardian) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(139,92,246,0.35)'; } }}
+                      onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 20px rgba(139,92,246,0.2)'; }}>
+                      {activatingGuardian ? (
+                        <span>Activation en cours...</span>
+                      ) : (
+                        <>
+                          <i className="ri-shield-check-line" style={{ fontSize: 18 }} />
+                          <span>Activer l'espace aidant</span>
+                        </>
+                      )}
+                    </div>
+
+                    <div onClick={() => setGuardianActivationStep(0)} style={{ marginTop: 12, padding: '10px', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.3)' } as any}>
+                      <i className="ri-arrow-left-line" style={{ marginRight: 4 }} />Retour
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     );
