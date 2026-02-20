@@ -243,16 +243,19 @@ export default function RegisterScreen() {
             </div>
 
             {[
-              { icon: 'ri-eu-line', label: 'Conforme RGPD', color: '#10B981' },
-              { icon: 'ri-server-line', label: 'Serveurs HDS France · Classe 6', color: '#38BDF8' },
-              { icon: 'ri-lock-line', label: 'Chiffrement de bout en bout', color: '#A78BFA' },
-              { icon: 'ri-eye-off-line', label: 'Aucun partage sans votre accord', color: '#F59E0B' },
+              { icon: 'ri-server-line', label: 'Serveurs HDS en France · Classe 6', color: '#38BDF8', sub: 'Vos donnees sont stockees en France dans des serveurs certifies Hebergeur de Donnees de Sante de Classe 6, le plus haut niveau de securite.' },
+              { icon: 'ri-eu-line', label: 'Conforme RGPD', color: '#10B981', sub: '' },
+              { icon: 'ri-lock-line', label: 'Chiffrement de bout en bout', color: '#A78BFA', sub: '' },
+              { icon: 'ri-eye-off-line', label: 'Aucun partage sans votre accord', color: '#F59E0B', sub: '' },
             ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8 } as any}>
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '16px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8 } as any}>
                 <div style={{ width: 40, height: 40, borderRadius: 12, background: `${item.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                   <i className={item.icon} style={{ fontSize: 20, color: item.color }} />
                 </div>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{item.label}</span>
+                <div>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{item.label}</span>
+                  {item.sub && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5, marginTop: 4 }}>{item.sub}</div>}
+                </div>
               </div>
             ))}
 
