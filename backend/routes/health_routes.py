@@ -62,6 +62,12 @@ async def get_threshold(metric_id: str, user=Depends(get_current_user)):
     return t or {"metric_id": metric_id, "min_val": None, "max_val": None, "goal": None}
 
 
+@router.delete("/health/thresholds/{metric_id}")
+async def delete_threshold(metric_id: str, user=Depends(get_current_user)):
+    await db.thresholds.delete_one({"user_id": user['id'], "metric_id": metric_id})
+    return {"status": "deleted"}
+
+
 @router.get("/health/sleep")
 async def get_sleep_data(user=Depends(get_current_user)):
     """Get sleep hypnogram data - real bracelet data first, then simulated"""
