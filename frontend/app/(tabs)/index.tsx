@@ -288,8 +288,33 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       if (user.has_guardian_space) {
         await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'guardian' }) }, token);
         await refreshUser();
-      } else { router.push('/activate-guardian' as any); }
+      } else { setShowGuardianActivation(true); setGuardianActivationStep(0); }
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSwitching(false); }
+  };
+
+  const handleTabSwitch = (tab: 'beneficiary' | 'guardian') => {
+    if (tab === 'guardian') {
+      if (user.has_guardian_space) {
+        switchToGuardian();
+      } else {
+        setShowGuardianActivation(true);
+        setGuardianActivationStep(0);
+      }
+    }
+    setActiveTab(tab);
+  };
+
+  const activateGuardianMode = async () => {
+    setActivatingGuardian(true);
+    try {
+      await apiFetch('/api/auth/activate-guardian', { method: 'POST', body: JSON.stringify({
+        guardian_type: 'particular', alert_sms: alertSms, alert_email: alertEmail,
+      }) }, token);
+      await refreshUser();
+      setShowGuardianActivation(false);
+      setActiveTab('beneficiary');
+      Alert.alert('Espace aidant active', 'Vous pouvez maintenant basculer vers votre espace aidant.');
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
   };
 
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#040E1A' }}><ActivityIndicator size="large" color="#4FC3F7" /></View>;
