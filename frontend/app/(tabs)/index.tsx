@@ -164,8 +164,9 @@ function LanguageFlagButton() {
 /* ═══════════════════════════════════════════════════════ */
 function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, lang, setLang, flags: langFlags } = useI18n();
   const [dashData, setDashData] = useState<any>(null);
+  const [langOpen, setLangOpen] = useState(false);
   const [guardians, setGuardians] = useState<any[]>([]);
   const [guardianRequests, setGuardianRequests] = useState<any[]>([]);
   const [reminders, setReminders] = useState<any[]>([]);
