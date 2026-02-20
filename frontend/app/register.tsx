@@ -132,7 +132,7 @@ export default function RegisterScreen() {
       await apiFetch('/api/auth/register', { method: 'POST', body: JSON.stringify({
         email: ph, password: form.password,
         name: `${form.firstName} ${form.name}`.trim(), phone: ph,
-        date_of_birth: form.date_of_birth, gender: form.gender,
+        date_of_birth: form.dob_year && form.dob_month && form.dob_day ? `${form.dob_year}-${form.dob_month.padStart(2,'0')}-${form.dob_day.padStart(2,'0')}` : '', gender: form.gender,
         height_cm: form.height_cm ? parseFloat(form.height_cm) : null,
         weight_kg: form.weight_kg ? parseFloat(form.weight_kg) : null,
         blood_type: form.blood_type, allergies: form.allergies.join(', '),
