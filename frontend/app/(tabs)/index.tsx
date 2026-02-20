@@ -402,11 +402,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Quick action buttons ── */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 } as any}>
-            <div onClick={() => router.push('/scale-detail' as any)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(167,139,250,0.15), rgba(139,92,246,0.08))', border: '1px solid rgba(167,139,250,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+            <div onClick={() => router.push({ pathname: '/(tabs)/health', params: { openWeighing: '1' } } as any)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(167,139,250,0.15), rgba(139,92,246,0.08))', border: '1px solid rgba(167,139,250,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
               <i className="ri-scales-3-line" style={{ fontSize: 16, color: '#A78BFA' }} /><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Nouvelle pesee</span>
             </div>
-            <div onClick={() => router.push('/ecg' as any)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(167,139,250,0.15), rgba(139,92,246,0.08))', border: '1px solid rgba(167,139,250,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-              <i className="ri-pulse-line" style={{ fontSize: 16, color: '#A78BFA' }} /><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Lancer un ECG</span>
+            <div onClick={() => router.push('/ecg' as any)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(249,115,22,0.15), rgba(234,88,12,0.08))', border: '1px solid rgba(249,115,22,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+              <i className="ri-pulse-line" style={{ fontSize: 16, color: '#F97316' }} /><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Lancer un ECG</span>
             </div>
           </div>
 
