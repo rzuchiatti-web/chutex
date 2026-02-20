@@ -255,8 +255,8 @@ async def get_daily_report(user=Depends(get_current_user)):
                 analysis_phase = {"day": day, "total": 7, "message": messages.get(day, "Analyse en cours"), "progress_pct": round((day / 7) * 100)}
         except:
             pass
-    # For demo: simulate day 5 if no device
-    if not first_device:
+    # Demo fallback: always show analysis phase for demo
+    if analysis_phase is None:
         analysis_phase = {"day": 5, "total": 7, "message": "Correlation des donnees", "progress_pct": 71}
 
     return {
