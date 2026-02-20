@@ -933,12 +933,13 @@ export default function HealthScreen() {
                   </svg>
                 </div>
                 {/* Sleep phases + stats */}
-                <div style={{ padding: '10px 16px 14px', display: 'flex', gap: 8 } as any}>
+                <div style={{ padding: '10px 16px 0', display: 'flex', gap: 8 } as any}>
                   {[
                     { l: 'Profond', v: `${Math.floor(deep / 60)}h${String(deep % 60).padStart(2, '0')}`, pct: Math.round(deep / total * 100), c: '#2D5F8A' },
                     { l: 'Leger', v: `${Math.floor(light / 60)}h${String(light % 60).padStart(2, '0')}`, pct: Math.round(light / total * 100), c: '#4A90D9' },
                     { l: 'REM', v: `${Math.floor(rem / 60)}h${String(rem % 60).padStart(2, '0')}`, pct: Math.round(rem / total * 100), c: '#7CB3E8' },
                     { l: 'Qualite', v: `${slQ}%`, c: slQ >= 80 ? '#10B981' : '#F59E0B' },
+                    { l: 'Interruptions', v: `${inter}`, c: inter <= 2 ? '#10B981' : '#F59E0B' },
                   ].map((s, i) => (
                     <div key={i} style={{ flex: 1, textAlign: 'center' } as any}>
                       <div style={{ width: 10, height: 10, borderRadius: 3, background: s.c, margin: '0 auto 4px' } as any} />
@@ -946,6 +947,27 @@ export default function HealthScreen() {
                       <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{s.l}{s.pct ? ` ${s.pct}%` : ''}</div>
                     </div>
                   ))}
+                </div>
+                {/* Movement bar */}
+                <div style={{ padding: '8px 16px 0' } as any}>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginBottom: 4 }}>Mouvements</div>
+                  <svg width="100%" viewBox="0 0 580 16" style={{ display: 'block' }}>
+                    {Array.from({ length: 64 }).map((_, i) => {
+                      const h = Math.random() > 0.6 ? 3 + Math.random() * 10 : 1;
+                      return <rect key={i} x={i * 9} y={8 - h / 2} width={2} height={h} rx="1" fill="rgba(255,255,255,0.25)" />;
+                    })}
+                    <line x1="0" y1="8" x2="580" y2="8" stroke="rgba(255,255,255,0.06)" />
+                  </svg>
+                </div>
+                {/* Apnea risk estimation */}
+                <div style={{ padding: '10px 16px 14px' } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 } as any}>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Estimation risque apnee</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modere' : 'Eleve'}</span>
+                  </div>
+                  <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                    <div style={{ height: 6, borderRadius: 3, width: `${apneaRisk}%`, background: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? 'linear-gradient(90deg, #10B981, #F59E0B)' : 'linear-gradient(90deg, #F59E0B, #EF4444)', transition: 'width 1s' } as any} />
+                  </div>
                 </div>
               </div>
             );
