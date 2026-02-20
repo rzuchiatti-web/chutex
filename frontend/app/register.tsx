@@ -290,6 +290,7 @@ export default function RegisterScreen() {
           {step === 3 && role === 'beneficiary' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Dossier medical</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Ces informations sont confidentielles et aident a personnaliser votre suivi</div>
+            <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.5)', marginBottom: 16, marginTop: -16 }}>Tous les champs sont obligatoires. Selectionnez "Aucune" si non concerne.</div>
 
             {/* Groupe sanguin — dropdown */}
             <div style={{ marginBottom: 18 } as any}>
