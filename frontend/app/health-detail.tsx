@@ -156,6 +156,111 @@ export default function HealthDetailScreen() {
           )}
         </div>
 
+        {/* Sleep section: Hypnogram hero + apnea risk */}
+        {metricId === 'sleep' && d.sleep_duration_min && (() => {
+          const slD = d.sleep_duration_min || 443;
+          const slQ = d.sleep_quality || 82;
+          const deep = d.deep_sleep_min || 130;
+          const light = d.light_sleep_min || 245;
+          const rem = d.rem_sleep_min || 68;
+          const inter = d.sleep_interruptions || 2;
+          const total = deep + light + rem;
+          const apneaRisk = Math.min(100, Math.max(5, inter * 12 + (slQ < 70 ? 20 : 0)));
+          const phases: number[] = [];
+          for (let i = 0; i < 48; i++) {
+            const t = i / 48;
+            if (t < 0.03 || t > 0.97) phases.push(0);
+            else if (t < 0.08) phases.push(2);
+            else if (t < 0.18) phases.push(3);
+            else if (t < 0.22) phases.push(2);
+            else if (t < 0.28) phases.push(1);
+            else if (t < 0.32) phases.push(0);
+            else if (t < 0.42) phases.push(3);
+            else if (t < 0.50) phases.push(2);
+            else if (t < 0.58) phases.push(1);
+            else if (t < 0.65) phases.push(2);
+            else if (t < 0.72) phases.push(3);
+            else if (t < 0.80) phases.push(2);
+            else if (t < 0.88) phases.push(1);
+            else if (t < 0.93) phases.push(2);
+            else phases.push(0);
+          }
+          const pColors = ['rgba(255,255,255,0.5)', '#7CB3E8', '#4A90D9', '#2D5F8A'];
+          const pY = [12, 60, 110, 155];
+          return (
+            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 14, overflow: 'hidden' } as any}>
+              <div style={{ padding: '16px 16px 8px' } as any}>
+                <svg width="100%" viewBox="0 0 700 180" style={{ display: 'block' }}>
+                  <text x="0" y="16" fill="rgba(255,255,255,0.25)" fontSize="9">Eveil</text>
+                  <text x="0" y="64" fill="rgba(255,255,255,0.25)" fontSize="9">REM</text>
+                  <text x="0" y="114" fill="rgba(255,255,255,0.25)" fontSize="9">Leger</text>
+                  <text x="0" y="159" fill="rgba(255,255,255,0.25)" fontSize="9">Profond</text>
+                  {[12, 60, 110, 155].map(y => <line key={y} x1="55" y1={y} x2="690" y2={y} stroke="rgba(255,255,255,0.03)" />)}
+                  {phases.map((p, i) => {
+                    const x = 55 + (i / phases.length) * 635;
+                    const w = 635 / phases.length + 1;
+                    const y = pY[p];
+                    const ny = i < phases.length - 1 ? pY[phases[i + 1]] : y;
+                    return <g key={i}>
+                      <rect x={x} y={Math.min(y, ny)} width={w} height={Math.abs(ny - y) || 3} fill={pColors[p]} opacity="0.35" />
+                      <rect x={x} y={y - 1.5} width={w} height={3} fill={pColors[p]} />
+                    </g>;
+                  })}
+                  <text x="55" y="175" fill="rgba(255,255,255,0.3)" fontSize="9" fontWeight="700">22:30</text>
+                  <text x="210" y="175" fill="rgba(255,255,255,0.2)" fontSize="9">0h</text>
+                  <text x="370" y="175" fill="rgba(255,255,255,0.2)" fontSize="9">2h</text>
+                  <text x="530" y="175" fill="rgba(255,255,255,0.2)" fontSize="9">4h</text>
+                  <text x="660" y="175" fill="rgba(255,255,255,0.3)" fontSize="9" fontWeight="700">6:30</text>
+                </svg>
+              </div>
+              {/* Movement */}
+              <div style={{ padding: '4px 16px 8px' } as any}>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginBottom: 3 }}>Mouvements</div>
+                <svg width="100%" viewBox="0 0 635 14" style={{ display: 'block' }}>
+                  {Array.from({ length: 80 }).map((_, i) => { const h = Math.random() > 0.55 ? 2 + Math.random() * 9 : 1; return <rect key={i} x={i * 7.9} y={7 - h / 2} width={1.5} height={h} rx="0.5" fill="rgba(255,255,255,0.3)" />; })}
+                  <line x1="0" y1="7" x2="635" y2="7" stroke="rgba(255,255,255,0.04)" />
+                </svg>
+              </div>
+              {/* Phases legend */}
+              <div style={{ padding: '8px 16px', display: 'flex', flexDirection: 'column', gap: 6 } as any}>
+                {[
+                  { l: 'Eveil', v: `${Math.floor((slD - total) / 60)}h${String(Math.max(0, (slD - total) % 60)).padStart(2, '0')}m`, c: 'rgba(255,255,255,0.5)' },
+                  { l: 'REM', v: `${Math.floor(rem / 60)}h${String(rem % 60).padStart(2, '0')}m`, pct: `${Math.round(rem / total * 100)}%`, c: '#7CB3E8' },
+                  { l: 'Leger', v: `${Math.floor(light / 60)}h${String(light % 60).padStart(2, '0')}m`, pct: `${Math.round(light / total * 100)}%`, c: '#4A90D9' },
+                  { l: 'Profond', v: `${Math.floor(deep / 60)}h${String(deep % 60).padStart(2, '0')}m`, pct: `${Math.round(deep / total * 100)}%`, c: '#2D5F8A' },
+                ].map((s, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                    <div style={{ width: 28, height: 14, borderRadius: 4, background: s.c, flexShrink: 0 } as any} />
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF', flex: 1 }}>{s.l}</span>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{s.v}</span>
+                    {s.pct && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{s.pct}</span>}
+                  </div>
+                ))}
+              </div>
+              {/* Score + Interruptions + Apnea */}
+              <div style={{ padding: '10px 16px 14px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', gap: 8 } as any}>
+                <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: slQ >= 80 ? '#10B981' : '#F59E0B' }}>{slQ}%</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>Qualite</div>
+                </div>
+                <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: inter <= 2 ? '#10B981' : '#F59E0B' }}>{inter}</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>Interruptions</div>
+                </div>
+                <div style={{ flex: 2, padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.03)' } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 } as any}>
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>Risque apnee</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modere' : 'Eleve'}</span>
+                  </div>
+                  <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                    <div style={{ height: 6, borderRadius: 3, width: `${apneaRisk}%`, background: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? 'linear-gradient(90deg, #10B981, #F59E0B)' : 'linear-gradient(90deg, #F59E0B, #EF4444)' } as any} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Metrics list */}
         {sec.metrics.map((m) => {
           const val = getValue(m.key);
