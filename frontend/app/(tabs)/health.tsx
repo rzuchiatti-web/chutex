@@ -868,15 +868,96 @@ export default function HealthScreen() {
             </div>
           )}
 
-          {/* ═══ 3. HEALTH SECTIONS — 6 thematic cards ═══ */}
+          {/* ═══ 3. SLEEP CARD — Full width with hypnogram ═══ */}
+          {(() => {
+            const slD = d.sleep_duration_min || 443;
+            const slQ = d.sleep_quality || 82;
+            const deep = d.deep_sleep_min || 130;
+            const light = d.light_sleep_min || 245;
+            const rem = d.rem_sleep_min || 68;
+            const inter = d.sleep_interruptions || 2;
+            const total = deep + light + rem;
+            const apneaRisk = Math.min(100, Math.max(5, inter * 12 + (slQ < 70 ? 20 : 0)));
+            // Generate hypnogram phases (simulated 8h = ~32 blocks of 15min)
+            const phases: number[] = [];
+            for (let i = 0; i < 32; i++) {
+              const t = i / 32;
+              if (t < 0.05 || t > 0.95) phases.push(0); // awake
+              else if (t < 0.15) phases.push(3); // deep early
+              else if (t < 0.25) phases.push(2); // light
+              else if (t < 0.35) phases.push(1); // REM
+              else if (t < 0.45) phases.push(2 + Math.floor(Math.random() * 2)); // light/deep
+              else if (t < 0.55) phases.push(2); // light
+              else if (t < 0.65) phases.push(1); // REM
+              else if (t < 0.75) phases.push(2); // light
+              else if (t < 0.85) phases.push(1 + Math.floor(Math.random() * 2)); // REM/light
+              else phases.push(2); // light
+            }
+            const phaseColors = ['rgba(255,255,255,0.4)', '#7CB3E8', '#4A90D9', '#2D5F8A'];
+            const phaseH = [15, 55, 100, 140]; // y positions for awake, REM, light, deep
+            return (
+              <div data-testid="sleep-card" onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: 'sleep' } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', cursor: 'pointer', marginBottom: 14, transition: 'transform 0.2s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                {/* Hypnogram SVG */}
+                <div style={{ padding: '16px 16px 0' } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Sommeil</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{Math.floor(slD / 60)}h{String(slD % 60).padStart(2, '0')}</div>
+                  </div>
+                  <svg width="100%" viewBox="0 0 640 160" style={{ display: 'block' }}>
+                    {/* Y-axis labels */}
+                    <text x="0" y="18" fill="rgba(255,255,255,0.2)" fontSize="9">Eveil</text>
+                    <text x="0" y="58" fill="rgba(255,255,255,0.2)" fontSize="9">REM</text>
+                    <text x="0" y="103" fill="rgba(255,255,255,0.2)" fontSize="9">Leger</text>
+                    <text x="0" y="143" fill="rgba(255,255,255,0.2)" fontSize="9">Profond</text>
+                    {/* Grid lines */}
+                    {[15, 55, 100, 140].map(y => <line key={y} x1="50" y1={y} x2="630" y2={y} stroke="rgba(255,255,255,0.04)" />)}
+                    {/* Hypnogram area */}
+                    {phases.map((p, i) => {
+                      const x = 50 + (i / phases.length) * 580;
+                      const w = 580 / phases.length;
+                      const y = phaseH[p];
+                      const nextY = i < phases.length - 1 ? phaseH[phases[i + 1]] : y;
+                      return <g key={i}>
+                        <rect x={x} y={Math.min(y, nextY)} width={w + 1} height={Math.abs(nextY - y) || 4} fill={phaseColors[p]} opacity="0.4" />
+                        <rect x={x} y={y - 2} width={w + 1} height={4} fill={phaseColors[p]} />
+                      </g>;
+                    })}
+                    {/* X-axis */}
+                    <text x="50" y="156" fill="rgba(255,255,255,0.25)" fontSize="9" fontWeight="700">22:30</text>
+                    <text x="195" y="156" fill="rgba(255,255,255,0.2)" fontSize="9">0h</text>
+                    <text x="340" y="156" fill="rgba(255,255,255,0.2)" fontSize="9">2h</text>
+                    <text x="485" y="156" fill="rgba(255,255,255,0.2)" fontSize="9">4h</text>
+                    <text x="600" y="156" fill="rgba(255,255,255,0.25)" fontSize="9" fontWeight="700">6:30</text>
+                  </svg>
+                </div>
+                {/* Sleep phases + stats */}
+                <div style={{ padding: '10px 16px 14px', display: 'flex', gap: 8 } as any}>
+                  {[
+                    { l: 'Profond', v: `${Math.floor(deep / 60)}h${String(deep % 60).padStart(2, '0')}`, pct: Math.round(deep / total * 100), c: '#2D5F8A' },
+                    { l: 'Leger', v: `${Math.floor(light / 60)}h${String(light % 60).padStart(2, '0')}`, pct: Math.round(light / total * 100), c: '#4A90D9' },
+                    { l: 'REM', v: `${Math.floor(rem / 60)}h${String(rem % 60).padStart(2, '0')}`, pct: Math.round(rem / total * 100), c: '#7CB3E8' },
+                    { l: 'Qualite', v: `${slQ}%`, c: slQ >= 80 ? '#10B981' : '#F59E0B' },
+                  ].map((s, i) => (
+                    <div key={i} style={{ flex: 1, textAlign: 'center' } as any}>
+                      <div style={{ width: 10, height: 10, borderRadius: 3, background: s.c, margin: '0 auto 4px' } as any} />
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{s.v}</div>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{s.l}{s.pct ? ` ${s.pct}%` : ''}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* ═══ 4. HEALTH SECTIONS — 4 thematic cards ═══ */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
             {[
               { id: 'cardio', label: 'Sante cardiaque', sub: 'Coeur, circulation, rythme', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/8x2d3bbk_hearth%20red%20app%20healthbeat%20Chutex.png', color: '#EF4444' },
               { id: 'metabolism', label: 'Sante metabolique', sub: 'Glycemie, IMC, graisse viscerale', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png', color: '#F59E0B' },
-              { id: 'sleep', label: 'Sommeil & Recuperation', sub: 'Cycles, stress, HRV', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png', color: '#A78BFA' },
-              { id: 'activity', label: 'Sante physique', sub: 'Pas, depense, VO2 max', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png', color: '#10B981' },
-              { id: 'hydration', label: 'Hydratation', sub: 'Eau corporelle, equilibre', img: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/7s8stuxi_hydratation.png', color: '#38BDF8' },
-              { id: 'composition', label: 'Composition corporelle', sub: 'Poids, muscle, graisse, segmentaire', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/3yq7hxyr_composition%281%29.png', color: '#F97316' },
+              { id: 'activity', label: 'Sante physique', sub: 'Pas, depense, stress, VO2 max', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png', color: '#10B981' },
+              { id: 'composition', label: 'Composition corporelle', sub: 'Poids, muscle, graisse, hydratation', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/3yq7hxyr_composition%281%29.png', color: '#F97316' },
             ].map((sec) => (
               <div key={sec.id} data-testid={`health-section-${sec.id}`} onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: sec.id } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-3px)'; }}
