@@ -360,65 +360,64 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             )}
           </div>
 
-          {/* ── Connected Devices — Guardian-style enriched cards ── */}
+          {/* ── Connected Devices — Enriched cards with battery gradient ── */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Appareils connectes</div>
           {[
-            { name: 'Bracelet Elio', icon: 'ri-pulse-line', img: HEALTH_IMAGES.heart, battery: br.battery, connected: br.connected, color: '#22D3EE', accentBg: 'linear-gradient(135deg, #0E7490, #22D3EE)', route: '/bracelet-connect',
+            { name: 'Bracelet Elio', icon: 'ri-heart-pulse-line', battery: br.battery, connected: br.connected, color: '#22D3EE', gradient: 'linear-gradient(135deg, #0E7490, #22D3EE)', batteryGrad: 'linear-gradient(90deg, #0E7490, #22D3EE)', route: '/bracelet-connect',
               vitals: [
-                { val: br.heart_rate, unit: 'bpm', color: '#EF4444', dot: '#EF4444' },
-                { val: `${br.spo2}%`, unit: 'SpO2', color: '#38BDF8', dot: '#38BDF8' },
-                { val: br.steps, unit: 'pas', color: '#10B981', dot: '#10B981' },
-                { val: `${br.temperature}°`, unit: 'C', color: '#F59E0B', dot: '#F59E0B' },
+                { val: br.heart_rate, unit: 'bpm', color: '#EF4444' },
+                { val: `${br.spo2}%`, unit: 'SpO2', color: '#38BDF8' },
+                { val: br.steps, unit: 'pas', color: '#10B981' },
+                { val: `${br.temperature}°C`, unit: 'temp', color: '#F59E0B' },
               ]},
-            { name: 'Balance Lefu', icon: 'ri-scales-3-line', img: HEALTH_IMAGES.physical, battery: sc.battery, connected: sc.connected, color: '#A78BFA', accentBg: 'linear-gradient(135deg, #6D28D9, #A78BFA)', route: '/scale-detail',
+            { name: 'Balance Lefu', icon: 'ri-scales-3-line', battery: sc.battery, connected: sc.connected, color: '#A78BFA', gradient: 'linear-gradient(135deg, #6D28D9, #A78BFA)', batteryGrad: 'linear-gradient(90deg, #6D28D9, #A78BFA)', route: '/scale-detail',
               vitals: [
-                { val: `${sc.weight}`, unit: 'kg', color: '#A78BFA', dot: '#A78BFA' },
-                { val: sc.bmi, unit: 'IMC', color: '#38BDF8', dot: '#38BDF8' },
-                { val: `${sc.body_fat}%`, unit: 'graisse', color: '#F59E0B', dot: '#F59E0B' },
-                { val: `${sc.muscle_mass}%`, unit: 'muscle', color: '#10B981', dot: '#10B981' },
+                { val: `${sc.weight}`, unit: 'kg', color: '#A78BFA' },
+                { val: sc.bmi, unit: 'IMC', color: '#38BDF8' },
+                { val: `${sc.body_fat}%`, unit: 'graisse', color: '#F59E0B' },
+                { val: `${sc.muscle_mass}%`, unit: 'muscle', color: '#10B981' },
               ]},
-            { name: 'Gilet CareWatch', icon: 'ri-shield-check-line', img: HEALTH_IMAGES.sleep, battery: vs.battery, connected: vs.connected, color: '#10B981', accentBg: 'linear-gradient(135deg, #047857, #10B981)', route: '/vest-connect',
+            { name: 'Gilet CareWatch', icon: 'ri-shield-check-line', battery: vs.battery, connected: vs.connected, color: '#10B981', gradient: 'linear-gradient(135deg, #047857, #10B981)', batteryGrad: 'linear-gradient(90deg, #047857, #10B981)', route: '/vest-connect',
               vitals: [
-                { val: `${vs.posture_score}%`, unit: 'posture', color: '#10B981', dot: '#10B981' },
-                { val: `${vs.chest_temp}°`, unit: 'C', color: '#F59E0B', dot: '#F59E0B' },
-                { val: vs.fall_detected ? '!' : '0', unit: 'chute', color: vs.fall_detected ? '#EF4444' : '#10B981', dot: vs.fall_detected ? '#EF4444' : '#10B981' },
-                { val: `${vs.wearing_hours_today}h`, unit: 'port', color: '#38BDF8', dot: '#38BDF8' },
+                { val: `${vs.posture_score}%`, unit: 'posture', color: '#10B981' },
+                { val: `${vs.chest_temp}°C`, unit: 'thorax', color: '#F59E0B' },
+                { val: vs.fall_detected ? '!' : '0', unit: 'chute', color: vs.fall_detected ? '#EF4444' : '#10B981' },
+                { val: `${vs.wearing_hours_today}h`, unit: 'port', color: '#38BDF8' },
               ]},
           ].map((d, i) => (
-            <div key={i} data-testid={`device-card-${i}`} onClick={() => router.push(d.route as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 0.2s' } as any}
+            <div key={i} data-testid={`device-card-${i}`} onClick={() => router.push(d.route as any)} style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', transition: 'transform 0.2s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
               {/* Header */}
-              <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                <div style={{ width: 52, height: 52, borderRadius: 16, background: d.accentBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)', boxShadow: `0 4px 16px ${d.color}30` } as any}>
-                  <img src={d.img} alt="" style={{ width: 36, height: 36, objectFit: 'contain' } as any} />
+              <div style={{ padding: '16px 18px 14px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                <div style={{ width: 50, height: 50, borderRadius: 15, background: d.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 6px 20px ${d.color}35` } as any}>
+                  <i className={d.icon} style={{ fontSize: 24, color: '#FFF' }} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{d.name}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>{d.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
                     <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : 'rgba(255,255,255,0.2)' } as any} />
                     <span style={{ fontSize: 10, color: d.connected ? '#10B981' : 'rgba(255,255,255,0.3)', fontWeight: 600 }}>{d.connected ? 'Connecte' : 'Deconnecte'}</span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 } as any}>
-                  {/* Battery bar */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                    <div style={{ width: 40, height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' } as any}>
-                      <div style={{ height: 8, borderRadius: 4, width: `${d.battery}%`, background: d.battery > 50 ? '#10B981' : d.battery > 20 ? '#F59E0B' : '#EF4444', transition: 'width 0.5s' } as any} />
-                    </div>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: d.battery > 50 ? '#10B981' : d.battery > 20 ? '#F59E0B' : '#EF4444' }}>{d.battery}%</span>
-                  </div>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} />
-                </div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.25)' }} />
               </div>
               {/* Vitals row */}
-              <div style={{ display: 'flex', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px 12px', gap: 6 } as any}>
+              <div style={{ display: 'flex', padding: '0 18px 14px', gap: 6 } as any}>
                 {d.vitals.map((v: any, j: number) => (
-                  <div key={j} style={{ flex: 1, padding: '6px 4px', borderRadius: 10, background: `${v.dot}12`, textAlign: 'center' } as any}>
-                    <div style={{ fontSize: 14, fontWeight: 900, color: v.color, lineHeight: 1 }}>{v.val}</div>
-                    <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{v.unit}</div>
+                  <div key={j} style={{ flex: 1, padding: '8px 4px', borderRadius: 12, background: `${v.color}10`, textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: v.color, lineHeight: 1 }}>{v.val}</div>
+                    <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 3 }}>{v.unit}</div>
                   </div>
                 ))}
+              </div>
+              {/* Battery bar gradient at bottom */}
+              <div style={{ padding: '8px 18px 12px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                <i className="ri-battery-2-charge-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} />
+                <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                  <div style={{ height: 6, borderRadius: 3, width: `${d.battery}%`, background: d.batteryGrad, transition: 'width 0.8s ease', boxShadow: `0 0 8px ${d.color}40` } as any} />
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: d.battery > 50 ? d.color : d.battery > 20 ? '#F59E0B' : '#EF4444', minWidth: 30, textAlign: 'right' }}>{d.battery}%</span>
               </div>
             </div>
           ))}
