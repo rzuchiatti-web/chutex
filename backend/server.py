@@ -44,6 +44,7 @@ api_router.include_router(bracelet_router)
 api_router.include_router(carewatch_router)
 api_router.include_router(company_router)
 api_router.include_router(push_router)
+api_router.include_router(health_report_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
