@@ -289,6 +289,78 @@ async def get_metric_history(key: str, user=Depends(get_current_user)):
     }
 
 
+@router.get("/health/summary")
+async def get_health_summary(user=Depends(get_current_user)):
+    """Lightweight endpoint: AI health summary sentence + recommendation"""
+    uid = user['id']
+    # Check cache (1h TTL)
+    cached = await db.health_summary_cache.find_one({"user_id": uid}, {"_id": 0})
+    if cached:
+        try:
+            cached_at = datetime.fromisoformat(cached["generated_at"].replace("Z", "+00:00"))
+            if (datetime.now(timezone.utc) - cached_at).total_seconds() < 3600:
+                return cached
+        except:
+            pass
+
+    d = gen_data()
+    si = compute_subscores(d)
+
+    # Try LLM for a quick summary
+    summary_sentence = ""
+    recommendation = ""
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if api_key:
+        try:
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
+            prompt = f"""Tu es un coach sante bienveillant. Genere une phrase de resume COURTE (max 15 mots) et UNE recommandation concrete pour aujourd'hui.
+Score global: {si['score']}/100 ({si['status']}). FC {d['heart_rate']}bpm, SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}, Stress {d['stress_level']}/100, Recup {d['recovery_score']}/100, Sommeil qualite {d['sleep_quality']}%, {d['steps']} pas.
+Reponds UNIQUEMENT en JSON: {{"summary": "phrase courte", "recommendation": "une action concrete"}}"""
+            chat = LlmChat(api_key=api_key, session_id=f"sum-{uuid.uuid4().hex[:8]}",
+                           system_message="Coach sante. JSON uniquement.").with_model("openai", "gpt-4.1-mini")
+            r = await chat.send_message(UserMessage(text=prompt))
+            import json
+            c = r.strip()
+            if c.startswith("```"): c = c.split("\n", 1)[1] if "\n" in c else c[3:]
+            if c.endswith("```"): c = c[:-3]
+            parsed = json.loads(c.strip())
+            summary_sentence = parsed.get("summary", "")
+            recommendation = parsed.get("recommendation", "")
+        except Exception as e:
+            print(f"Summary AI err: {e}")
+
+    if not summary_sentence:
+        if si["score"] >= 85:
+            summary_sentence = "Excellente forme aujourd'hui, continuez ainsi !"
+        elif si["score"] >= 70:
+            summary_sentence = "Bonne journee en vue, quelques ajustements possibles."
+        elif si["score"] >= 55:
+            summary_sentence = "Journee stable, restez attentif a votre corps."
+        else:
+            summary_sentence = "Prenez soin de vous aujourd'hui, repos conseille."
+    if not recommendation:
+        recommendation = "Pensez a marcher 30 minutes et a bien vous hydrater."
+
+    result = {
+        "user_id": uid,
+        "summary": summary_sentence,
+        "recommendation": recommendation,
+        "score": si["score"],
+        "status": si["status"],
+        "status_color": si["status_color"],
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+    # Cache it
+    await db.health_summary_cache.update_one(
+        {"user_id": uid}, {"$set": result}, upsert=True
+    )
+
+    # Remove user_id from response
+    result.pop("user_id", None)
+    return result
+
+
 @router.get("/health/daily-report")
 async def get_daily_report(user=Depends(get_current_user)):
     uid = user['id']
