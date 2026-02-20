@@ -48,15 +48,6 @@ export default function AuthScreen() {
   }
 
   if (Platform.OS === 'web') {
-    const GlassInput = ({ label, ...props }: any) => (
-      <div style={{ marginBottom: 16 } as any}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>{label}</div>
-        <input {...props} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontWeight: 500, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s', ...(props.style || {}) } as any}
-          onFocus={(e: any) => { e.target.style.borderColor = 'rgba(255,255,255,0.25)'; }}
-          onBlur={(e: any) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }} />
-      </div>
-    );
-
     return (
       <div data-testid="login-screen" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
         <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
@@ -76,17 +67,21 @@ export default function AuthScreen() {
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>Accedez a votre espace sante securise</div>
             </div>
 
-            {/* Error */}
             {error && <div data-testid="login-error" style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 16, fontSize: 13, color: '#F87171' } as any}>{error}</div>}
 
-            {/* Form */}
             <form onSubmit={handleSubmit} data-testid="login-form">
-              <GlassInput label="Email" name="email" type="email" autoComplete="email" data-testid="login-email-input" placeholder="votre@email.com" value={email} onChange={(e: any) => setEmail(e.target.value)} />
-              <GlassInput label="Mot de passe" name="password" type="password" autoComplete="current-password" data-testid="login-password-input" placeholder="Votre mot de passe" value={password} onChange={(e: any) => setPassword(e.target.value)} />
+              <div style={{ marginBottom: 16 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>Email</div>
+                <input name="email" type="email" autoComplete="email" data-testid="login-email-input" placeholder="votre@email.com" value={email} onChange={(e: any) => setEmail(e.target.value)}
+                  style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontWeight: 500, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+              </div>
+              <div style={{ marginBottom: 16 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>Mot de passe</div>
+                <input name="password" type="password" autoComplete="current-password" data-testid="login-password-input" placeholder="Votre mot de passe" value={password} onChange={(e: any) => setPassword(e.target.value)}
+                  style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontWeight: 500, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+              </div>
 
-              <button type="submit" disabled={submitting} data-testid="login-form-submit-button" style={{ width: '100%', padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.6 : 1, marginTop: 8, transition: 'background 0.2s' } as any}
-                onMouseEnter={(e: any) => { if (!submitting) e.target.style.background = 'rgba(255,255,255,0.18)'; }}
-                onMouseLeave={(e: any) => { e.target.style.background = 'rgba(255,255,255,0.1)'; }}>
+              <button type="submit" disabled={submitting} data-testid="login-form-submit-button" style={{ width: '100%', padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.6 : 1, marginTop: 8 } as any}>
                 {submitting ? 'Connexion...' : 'Se connecter'}
               </button>
             </form>
