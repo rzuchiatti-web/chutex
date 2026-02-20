@@ -494,6 +494,25 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
                   </div>
                 ))}
 
+                {/* Surgeries */}
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 8, marginTop: 4 }}>Operations chirurgicales</div>
+                {medForm.surgeries.map((s: any, idx: number) => (
+                  <div key={idx} style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8 } as any}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>Operation {idx + 1}</span>
+                      <div onClick={() => setMedForm({ ...medForm, surgeries: medForm.surgeries.filter((_: any, i: number) => i !== idx) })} style={{ cursor: 'pointer', fontSize: 11, color: '#EF4444', fontWeight: 700 } as any}>Supprimer</div>
+                    </div>
+                    <input placeholder="Zone operee (ex: genou droit)" value={s.zone} onChange={(e: any) => { const arr = [...medForm.surgeries]; arr[idx] = { ...arr[idx], zone: e.target.value }; setMedForm({ ...medForm, surgeries: arr }); }}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', marginBottom: 6 } as any} />
+                    <input placeholder="Date (ex: Mars 2022)" value={s.date} onChange={(e: any) => { const arr = [...medForm.surgeries]; arr[idx] = { ...arr[idx], date: e.target.value }; setMedForm({ ...medForm, surgeries: arr }); }}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                  </div>
+                ))}
+                <div onClick={() => setMedForm({ ...medForm, surgeries: [...medForm.surgeries, { zone: '', date: '' }] })} style={{ padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 14 } as any}>
+                  <i className="ri-add-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Ajouter une operation</span>
+                </div>
+
                 {/* Save */}
                 {medSaved && <div style={{ padding: '10px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 } as any}><i className="ri-checkbox-circle-line" style={{ fontSize: 16, color: '#10B981' }} /><span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Sauvegarde !</span></div>}
                 <div onClick={async () => {
