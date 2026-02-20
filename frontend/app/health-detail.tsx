@@ -1,196 +1,196 @@
-import { Icon, MCIcon } from '../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, Image, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
-import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
 
-const HEALTH_IMAGES: Record<string, string> = {
-  heart_rate: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/u3ch46l8_hearth%20red%20app%20healthbeat%20Chutex.png',
-  spo2: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/v87wurbk_blood%20red%20app%20health%20Chutex.png',
-  blood_pressure: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/v87wurbk_blood%20red%20app%20health%20Chutex.png',
-  temperature: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/h37k6apj_physical%20health%20analys%20app%20health%20Chutex.png',
-  steps: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/h37k6apj_physical%20health%20analys%20app%20health%20Chutex.png',
-  sleep: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/tide9bdl_Moon%20sleep%20analys%20app%20health%20Chutex.png',
+const SECTIONS: Record<string, { title: string; color: string; img: string; metrics: { key: string; label: string; unit: string; explain: string }[] }> = {
+  cardio: {
+    title: 'Sante cardiaque', color: '#EF4444',
+    img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/8x2d3bbk_hearth%20red%20app%20healthbeat%20Chutex.png',
+    metrics: [
+      { key: 'heart_rate', label: 'Frequence cardiaque', unit: 'bpm', explain: 'Le nombre de battements par minute au repos. Un pouls entre 60 et 80 bpm est considere comme sain.' },
+      { key: 'hrv', label: 'Variabilite cardiaque (HRV)', unit: 'ms', explain: 'Mesure la variation entre les battements. Un HRV eleve indique une bonne capacite d\'adaptation au stress.' },
+      { key: 'bp_display', label: 'Tension arterielle', unit: 'mmHg', explain: 'Pression du sang dans les arteres. Une tension normale est autour de 120/80 mmHg.' },
+      { key: 'spo2', label: 'Saturation en oxygene (SpO2)', unit: '%', explain: 'Taux d\'oxygene dans le sang. Au-dessus de 95% est normal.' },
+      { key: 'vo2_max', label: 'VO2 Max', unit: 'ml/kg/min', explain: 'Capacite maximale d\'utilisation de l\'oxygene a l\'effort. Plus elle est elevee, meilleure est votre condition cardio.' },
+      { key: 'temperature', label: 'Temperature corporelle', unit: '°C', explain: 'La temperature normale est entre 36.5 et 37.5°C. Des variations peuvent indiquer une inflammation ou une infection.' },
+    ],
+  },
+  metabolism: {
+    title: 'Sante metabolique', color: '#F59E0B',
+    img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png',
+    metrics: [
+      { key: 'glycemia', label: 'Glycemie', unit: 'g/L', explain: 'Taux de sucre dans le sang. A jeun, une glycemie normale est entre 0.7 et 1.1 g/L.' },
+      { key: 'bmi', label: 'Indice de masse corporelle (IMC)', unit: '', explain: 'Rapport poids/taille. Normal entre 18.5 et 25. Au-dessus de 25 : surpoids.' },
+      { key: 'visceral_fat', label: 'Graisse viscerale', unit: '', explain: 'Graisse autour des organes internes. Un indice inferieur a 10 est sain.' },
+      { key: 'waist_hip_ratio', label: 'Ratio taille-hanche', unit: '', explain: 'Indicateur de repartition des graisses. Inferieur a 0.90 (homme) ou 0.85 (femme) est ideal.' },
+      { key: 'body_age', label: 'Age corporel', unit: 'ans', explain: 'Age biologique estime par la balance, base sur votre composition corporelle.' },
+      { key: 'body_type', label: 'Type corporel', unit: '', explain: 'Classification de votre morphologie basee sur le rapport graisse/muscle.' },
+      { key: 'obesity_degree', label: 'Degre d\'obesite', unit: '', explain: 'Evaluation du niveau d\'adiposite par rapport aux normes de sante.' },
+      { key: 'recommended_calories', label: 'Apport calorique recommande', unit: 'kcal', explain: 'Nombre de calories a consommer par jour pour maintenir votre poids actuel.' },
+      { key: 'ideal_weight', label: 'Poids ideal', unit: 'kg', explain: 'Poids optimal calcule selon votre taille et votre morphologie.' },
+      { key: 'weight_control', label: 'Controle du poids', unit: 'kg', explain: 'Ecart entre votre poids actuel et votre poids de reference. Negatif = a perdre, positif = a prendre.' },
+    ],
+  },
+  sleep: {
+    title: 'Sommeil & Recuperation', color: '#A78BFA',
+    img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png',
+    metrics: [
+      { key: 'sleep_duration', label: 'Duree du sommeil', unit: '', explain: 'Temps total de sommeil. 7 a 9 heures sont recommandees pour un adulte.' },
+      { key: 'sleep_quality', label: 'Qualite du sommeil', unit: '%', explain: 'Score base sur la duree, les cycles et les interruptions. Au-dessus de 80% est bon.' },
+      { key: 'deep_sleep_min', label: 'Sommeil profond', unit: 'min', explain: 'Phase de recuperation physique. Idealement 1h30 a 2h par nuit.' },
+      { key: 'light_sleep_min', label: 'Sommeil leger', unit: 'min', explain: 'Phase de transition. Represente normalement 50-60% du sommeil total.' },
+      { key: 'rem_sleep_min', label: 'Sommeil paradoxal (REM)', unit: 'min', explain: 'Phase des reves, essentielle pour la memoire et la regulation emotionnelle.' },
+      { key: 'sleep_interruptions', label: 'Interruptions', unit: '', explain: 'Nombre de reveils pendant la nuit. Moins de 3 est normal.' },
+      { key: 'stress_level', label: 'Niveau de stress', unit: '/100', explain: 'Mesure par le bracelet via le HRV. En dessous de 40 est un bon niveau.' },
+      { key: 'recovery_score', label: 'Score de recuperation', unit: '/100', explain: 'Capacite de votre corps a recuperer. Au-dessus de 70 est favorable.' },
+    ],
+  },
+  activity: {
+    title: 'Sante physique & Activite', color: '#10B981',
+    img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png',
+    metrics: [
+      { key: 'steps', label: 'Nombre de pas', unit: 'pas', explain: 'Objectif recommande : 6000 a 10000 pas par jour pour maintenir une bonne sante.' },
+      { key: 'calories', label: 'Depense energetique', unit: 'kcal', explain: 'Calories brulees par l\'activite physique aujourd\'hui.' },
+      { key: 'distance_km', label: 'Distance parcourue', unit: 'km', explain: 'Distance totale estimee a partir du nombre de pas.' },
+      { key: 'vo2_max', label: 'VO2 Max', unit: 'ml/kg/min', explain: 'Capacite aerobique maximale. Un bon indicateur de forme physique globale.' },
+      { key: 'basal_metabolism', label: 'Metabolisme de base (BMR)', unit: 'kcal', explain: 'Energie depensee au repos pour maintenir les fonctions vitales.' },
+      { key: 'recommended_calories', label: 'Apport calorique recommande', unit: 'kcal', explain: 'Calories a consommer en fonction de votre activite et de vos objectifs.' },
+    ],
+  },
+  hydration: {
+    title: 'Hydratation & Equilibre', color: '#38BDF8',
+    img: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/7s8stuxi_hydratation.png',
+    metrics: [
+      { key: 'water_pct', label: 'Taux d\'hydratation', unit: '%', explain: 'Pourcentage d\'eau dans le corps. Normal entre 50% et 65% selon l\'age et le sexe.' },
+      { key: 'total_body_water_kg', label: 'Eau corporelle totale', unit: 'kg', explain: 'Masse totale d\'eau dans votre organisme.' },
+      { key: 'intracellular_water_kg', label: 'Eau intracellulaire', unit: 'kg', explain: 'Eau contenue a l\'interieur des cellules. Environ 60% de l\'eau totale.' },
+      { key: 'extracellular_water_kg', label: 'Eau extracellulaire', unit: 'kg', explain: 'Eau dans le sang, la lymphe et les espaces intercellulaires.' },
+    ],
+  },
+  composition: {
+    title: 'Composition corporelle', color: '#F97316',
+    img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/3yq7hxyr_composition%281%29.png',
+    metrics: [
+      { key: 'weight', label: 'Poids', unit: 'kg', explain: 'Votre poids total. A interpreter avec la composition corporelle.' },
+      { key: 'body_fat_pct', label: 'Pourcentage de graisse', unit: '%', explain: 'Part de graisse dans le corps. Normal : 15-25% homme, 20-30% femme.' },
+      { key: 'fat_mass_kg', label: 'Masse grasse', unit: 'kg', explain: 'Poids total de la graisse corporelle.' },
+      { key: 'muscle_pct', label: 'Pourcentage musculaire', unit: '%', explain: 'Part de muscle dans le corps. Plus il est eleve, meilleur est le metabolisme.' },
+      { key: 'muscle_mass_kg', label: 'Masse musculaire', unit: 'kg', explain: 'Poids total des muscles.' },
+      { key: 'protein_pct', label: 'Taux de proteine', unit: '%', explain: 'Pourcentage de proteines. Important pour la reparation musculaire.' },
+      { key: 'skeletal_muscle_pct', label: 'Muscle squelettique', unit: '%', explain: 'Muscles attaches aux os, responsables du mouvement.' },
+      { key: 'skeletal_muscle_quality', label: 'Qualite musculaire', unit: '/100', explain: 'Indice de qualite des fibres musculaires squelettiques.' },
+      { key: 'bone_mass_kg', label: 'Masse osseuse', unit: 'kg', explain: 'Poids des mineraux osseux. Important pour prevenir l\'osteoporose.' },
+      { key: 'minerals_kg', label: 'Mineraux', unit: 'kg', explain: 'Masse totale de mineraux dans le corps.' },
+      { key: 'subcutaneous_fat_pct', label: 'Graisse sous-cutanee', unit: '%', explain: 'Graisse situee juste sous la peau.' },
+      { key: 'trunk_fat_kg', label: 'Graisse du tronc', unit: 'kg', explain: 'Graisse accumulee dans la region abdominale.' },
+      { key: 'left_arm_fat_pct', label: 'Graisse bras gauche', unit: '%', explain: 'Repartition de la graisse dans le bras gauche.' },
+      { key: 'right_arm_fat_pct', label: 'Graisse bras droit', unit: '%', explain: 'Repartition de la graisse dans le bras droit.' },
+      { key: 'left_arm_muscle_pct', label: 'Muscle bras gauche', unit: '%', explain: 'Masse musculaire du bras gauche.' },
+      { key: 'right_arm_muscle_pct', label: 'Muscle bras droit', unit: '%', explain: 'Masse musculaire du bras droit.' },
+      { key: 'left_leg_fat_pct', label: 'Graisse jambe gauche', unit: '%', explain: 'Repartition de la graisse dans la jambe gauche.' },
+      { key: 'right_leg_fat_pct', label: 'Graisse jambe droite', unit: '%', explain: 'Repartition de la graisse dans la jambe droite.' },
+      { key: 'left_leg_muscle_kg', label: 'Muscle jambe gauche', unit: 'kg', explain: 'Masse musculaire de la jambe gauche.' },
+      { key: 'right_leg_muscle_kg', label: 'Muscle jambe droite', unit: 'kg', explain: 'Masse musculaire de la jambe droite.' },
+    ],
+  },
 };
 
-const DEFAULT_THRESHOLDS: Record<string, any> = {
-  heart_rate: { min: 60, max: 100, unit: 'bpm', title: 'Pouls', absMin: 20, absMax: 200, color: '#E53935' },
-  spo2: { min: 95, max: 100, unit: '%', title: 'SpO2', absMin: 70, absMax: 100, color: '#1E88E5' },
-  blood_pressure: { min: 90, max: 140, unit: 'mmHg', title: 'Tension', absMin: 60, absMax: 200, color: '#7B1FA2' },
-  temperature: { min: 36.5, max: 37.5, unit: '°C', title: 'Temperature', absMin: 34, absMax: 42, color: '#F57C00' },
-  steps: { min: 2000, max: 10000, unit: 'pas', title: 'Pas', absMin: 0, absMax: 20000, color: '#43A047' },
-  sleep: { min: 7, max: 9, unit: 'h', title: 'Sommeil', absMin: 0, absMax: 14, color: '#5C6BC0' },
-};
-
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
-const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
-);
-
-function SimpleChart({ data, color, width }: { data: number[]; color: string; width: number }) {
-  if (Platform.OS !== 'web' || data.length < 2) return null;
-  const h = 140; const min = Math.min(...data); const max = Math.max(...data); const range = max - min || 1;
-  const pts = data.map((v, i) => `${(i / (data.length - 1)) * (width - 40) + 20},${h - 15 - ((v - min) / range) * (h - 40)}`).join(' ');
-  const areaPath = `${pts.split(' ').map((p, i) => `${i === 0 ? 'M' : 'L'}${p}`).join(' ')} L${width - 20},${h - 10} L20,${h - 10} Z`;
-  return (
-    <div style={{ width, height: h }} dangerouslySetInnerHTML={{ __html: `
-      <svg width="${width}" height="${h}" viewBox="0 0 ${width} ${h}">
-        <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.2"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
-        <path d="${areaPath}" fill="url(#g)"/>
-        <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        ${data.map((v, i) => { const x = (i / (data.length - 1)) * (width - 40) + 20; const y = h - 15 - ((v - min) / range) * (h - 40); return `<circle cx="${x}" cy="${y}" r="4" fill="${color}" stroke="white" stroke-width="2"/>`; }).join('')}
-      </svg>` }} />
-  );
-}
+const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
 
 export default function HealthDetailScreen() {
-  const { colors } = useTheme();
   const { metricId } = useLocalSearchParams<{ metricId: string }>();
   const { token } = useAuth();
   const router = useRouter();
+  const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [currentVal, setCurrentVal] = useState<number>(0);
-  const [history, setHistory] = useState<number[]>([]);
-  const [period, setPeriod] = useState('7');
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [thresholds, setThresholds] = useState<any>(null);
-  const [aiRec, setAiRec] = useState('');
-  const screenW = Dimensions.get('window').width - 72;
+  const [expanded, setExpanded] = useState<string | null>(null);
 
-  const cfg = DEFAULT_THRESHOLDS[metricId || 'heart_rate'] || DEFAULT_THRESHOLDS.heart_rate;
-  const img = HEALTH_IMAGES[metricId || 'heart_rate'];
-  const seuilMin = thresholds?.min_val ?? cfg.min;
-  const seuilMax = thresholds?.max_val ?? cfg.max;
-  const isNormal = currentVal >= seuilMin && currentVal <= seuilMax;
+  useEffect(() => {
+    (async () => {
+      try { setReport(await apiFetch('/api/health/daily-report', {}, token)); } catch {} finally { setLoading(false); }
+    })();
+  }, [token]);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const [bracelet, latest, thresh] = await Promise.all([
-        apiFetch('/api/bracelet/status', {}, token).catch(() => null),
-        apiFetch('/api/devices/latest', {}, token).catch(() => ({})),
-        apiFetch(`/api/health/thresholds/${metricId}`, {}, token).catch(() => null),
-      ]);
-      let val = 0;
-      if (metricId === 'heart_rate') val = bracelet?.heart_rate || latest?.heart_rate || 0;
-      else if (metricId === 'spo2') val = bracelet?.spo2 || latest?.spo2 || 0;
-      else if (metricId === 'temperature') val = bracelet?.temperature || latest?.temperature || 0;
-      else if (metricId === 'steps') val = bracelet?.steps || latest?.steps || 0;
-      else if (metricId === 'blood_pressure') val = bracelet?.systolic || latest?.blood_pressure_systolic || 0;
-      setCurrentVal(val);
-      if (thresh) setThresholds(thresh);
-      const base = val || (cfg.min + cfg.max) / 2;
-      setHistory(Array.from({ length: parseInt(period) }, () => Math.round((base + (Math.random() - 0.5) * (cfg.max - cfg.min) * 0.6) * 10) / 10));
-      // AI rec
-      const status = val >= (thresh?.min_val || cfg.min) && val <= (thresh?.max_val || cfg.max) ? 'normal' : 'anormal';
-      const recs: Record<string, string> = {
-        heart_rate: status === 'normal' ? 'Votre rythme cardiaque est stable et dans la norme. Continuez a maintenir une activite physique reguliere et un sommeil de qualite.' : 'Votre pouls est en dehors des seuils normaux. Reposez-vous et consultez votre medecin si cela persiste.',
-        spo2: status === 'normal' ? 'Votre saturation en oxygene est excellente. Vos poumons fonctionnent bien.' : 'Votre SpO2 est basse. Aérez votre piece et consultez un medecin rapidement.',
-        temperature: status === 'normal' ? 'Votre temperature corporelle est normale. Aucune action requise.' : 'Votre temperature est anormale. Surveillez son evolution et consultez si cela dure plus de 24h.',
-        steps: status === 'normal' ? 'Bravo ! Vous atteignez vos objectifs de marche quotidiens. Continuez ainsi !' : 'Vous marchez moins que recommande. Essayez de faire une petite promenade de 15 minutes.',
-      };
-      setAiRec(recs[metricId || 'heart_rate'] || 'Donnees en cours d\'analyse.');
-    } catch {} finally { setLoading(false); }
-  }, [token, metricId, period]);
+  const sec = SECTIONS[metricId || ''] || SECTIONS.cardio;
+  const d = report?.data || {};
+  const subs = report?.subscores || {};
+  const subScore = subs[metricId || '']?.score;
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  const getValue = (key: string) => {
+    if (key === 'bp_display') return `${d.blood_pressure?.systolic || '--'}/${d.blood_pressure?.diastolic || '--'}`;
+    if (key === 'sleep_duration') { const m = d.sleep_duration_min || 0; return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}min`; }
+    const v = d[key];
+    if (v === undefined || v === null) return '--';
+    if (typeof v === 'number') return v % 1 === 0 ? v.toLocaleString() : v.toFixed(1);
+    return String(v);
+  };
 
-  const minVal = history.length > 0 ? Math.min(...history) : 0;
-  const maxVal = history.length > 0 ? Math.max(...history) : 0;
-  const avgVal = history.length > 0 ? Math.round((history.reduce((a, b) => a + b, 0) / history.length) * 10) / 10 : 0;
+  if (Platform.OS !== 'web') {
+    return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Page disponible sur le web</Text></View>;
+  }
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></SafeAreaView>;
+  if (loading) return (
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0f1a' } as any}>
+      <div style={{ textAlign: 'center' } as any}><i className="ri-loader-4-line" style={{ fontSize: 32, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginTop: 10 }}>Chargement...</div></div>
+    </div>
+  );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#111827" /></TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#111827', textAlign: 'center', marginRight: 36 }}>{cfg.title}</Text>
-      </View>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
+      <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
-        {/* Big 3D Image - overlapped by card */}
-        <View style={{ alignItems: 'center', marginBottom: -60, zIndex: 1 }}>
-          <Image source={{ uri: img }} style={{ width: 220, height: 220, resizeMode: 'contain' }} />
-        </View>
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-        {/* Value + Chart card - overlapping image */}
-        <GlassCard style={{ paddingTop: 70, zIndex: 2 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <Text style={{ fontSize: 38, fontWeight: '900', color: '#111827' }}>{currentVal || '--'}<Text style={{ fontSize: 14, color: '#6B7280' }}> {cfg.unit}</Text></Text>
-            <View style={{ backgroundColor: isNormal ? '#C8E6C9' : '#FFCDD2', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 8 }}>
-              <Text style={{ fontSize: 11, fontWeight: '800', color: isNormal ? '#2E7D32' : '#C62828' }}>{isNormal ? 'BONNE SANTE' : 'ATTENTION'}</Text>
-            </View>
-          </View>
+        {/* Back */}
+        <div onClick={() => router.back()} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', marginBottom: 20 } as any}>
+          <i className="ri-arrow-left-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Retour</span>
+        </div>
 
-          {/* Date picker inline on chart */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <View style={{ flexDirection: 'row', gap: 6 }}>
-              {[{ k: '7', l: '7J' }, { k: '14', l: '14J' }, { k: '30', l: '30J' }].map(p => (
-                <TouchableOpacity key={p.k} style={[{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 9999, borderWidth: 1.5, borderColor: period === p.k ? '#000' : 'rgba(0,0,0,0.08)' }, period === p.k && { backgroundColor: '#FFFFFF' }]} onPress={() => setPeriod(p.k)}>
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: period === p.k ? '#FFF' : '#888' }}>{p.l}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            {Platform.OS === 'web' && (
-              <div><input type="date" value={selectedDate} onChange={(e: any) => setSelectedDate(e.target.value)} max={new Date().toISOString().split('T')[0]}
-                style={{ fontSize: 12, padding: '6px 10px', borderRadius: 10, border: '1px solid rgba(0,0,0,0.08)', background: 'transparent', fontFamily: 'system-ui', cursor: 'pointer', color: '#6B7280' }} /></div>
-            )}
-          </View>
+        {/* Hero */}
+        <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+          <img src={sec.img} alt="" style={{ width: 100, height: 100, objectFit: 'contain', margin: '0 auto 14px', display: 'block', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))' } as any} />
+          <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF' }}>{sec.title}</div>
+          {subScore != null && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 16px', borderRadius: 999, background: `${sec.color}15`, border: `1px solid ${sec.color}30`, marginTop: 10 } as any}>
+              <span style={{ width: 6, height: 6, borderRadius: 3, background: subScore >= 80 ? '#10B981' : subScore >= 60 ? '#F59E0B' : '#EF4444' } as any} />
+              <span style={{ fontSize: 13, fontWeight: 800, color: subScore >= 80 ? '#10B981' : subScore >= 60 ? '#F59E0B' : '#EF4444' }}>{subScore}/100</span>
+            </div>
+          )}
+        </div>
 
-          {history.length > 1 && <SimpleChart data={history} color={cfg.color} width={screenW} />}
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-            {history.map((_, i) => { const d = new Date(); d.setDate(d.getDate() - (history.length - 1 - i)); return <Text key={i} style={{ fontSize: 8, color: '#9CA3AF' }}>{d.getDate()}/{d.getMonth() + 1}</Text>; })}
-          </View>
-        </GlassCard>
+        {/* Metrics list */}
+        {sec.metrics.map((m) => {
+          const val = getValue(m.key);
+          const isExpanded = expanded === m.key;
+          return (
+            <div key={m.key} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: `1px solid ${isExpanded ? `${sec.color}30` : 'rgba(255,255,255,0.06)'}`, marginBottom: 8, overflow: 'hidden', transition: 'border-color 0.2s' } as any}>
+              <div onClick={() => setExpanded(isExpanded ? null : m.key)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', cursor: 'pointer' } as any}>
+                <div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginBottom: 4 }}>{m.label}</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{val} <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span></div>
+                </div>
+                <i className={isExpanded ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 20, color: 'rgba(255,255,255,0.25)' }} />
+              </div>
+              {isExpanded && (
+                <div style={{ padding: '0 18px 16px', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+                  <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', marginTop: 10 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
+                      <i className="ri-information-line" style={{ fontSize: 14, color: sec.color }} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: sec.color, textTransform: 'uppercase', letterSpacing: 0.5 }}>Comprendre</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>{m.explain}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
 
-        {/* Min / Avg / Max */}
-        <GlassCard style={{ flexDirection: 'row', padding: 14 }}>
-          {[{ label: 'Plus bas', val: minVal }, { label: 'Moyenne', val: avgVal }, { label: 'Plus haut', val: maxVal }].map((s, i) => (
-            <View key={i} style={{ flex: 1, alignItems: 'center', borderRightWidth: i < 2 ? 1 : 0, borderRightColor: 'rgba(0,0,0,0.06)' }}>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#111827' }}>{s.val}</Text>
-              <Text style={{ fontSize: 10, color: '#6B7280' }}>{s.label}</Text>
-            </View>
-          ))}
-        </GlassCard>
-
-        {/* AI Recommendation */}
-        <GlassCard>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <Icon name="sparkles" size={18} color="#111827" />
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#111827' }}>Analyse IA</Text>
-          </View>
-          <Text style={{ fontSize: 13, color: '#555', lineHeight: 20 }}>{aiRec}</Text>
-        </GlassCard>
-
-        {/* Thresholds */}
-        <GlassCard>
-          <View style={{ alignItems: 'center', marginBottom: 6 }}>
-            <Image source={{ uri: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/kjf5ae40_exclamation.png' }} style={{ width: 28, height: 28, resizeMode: 'contain' }} />
-          </View>
-          <Text style={{ fontSize: 14, fontWeight: '900', color: '#111827', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Seuils d'alertes</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16, marginBottom: 10 }}>
-            <View style={{ alignItems: 'center' }}>
-              <View style={{ paddingHorizontal: 14, paddingVertical: 6, borderRadius: 8, borderWidth: 1.5, borderColor: '#1E88E5' }}>
-                <Text style={{ fontSize: 15, fontWeight: '800', color: '#1E88E5' }}>{seuilMin}{cfg.unit}</Text>
-              </View>
-              <Text style={{ fontSize: 10, color: '#1E88E5', marginTop: 3 }}>Seuil bas</Text>
-            </View>
-            <View style={{ alignItems: 'center' }}>
-              <View style={{ paddingHorizontal: 14, paddingVertical: 6, borderRadius: 8, borderWidth: 1.5, borderColor: '#E53935' }}>
-                <Text style={{ fontSize: 15, fontWeight: '800', color: '#E53935' }}>{seuilMax}{cfg.unit}</Text>
-              </View>
-              <Text style={{ fontSize: 10, color: '#E53935', marginTop: 3 }}>Seuil haut</Text>
-            </View>
-          </View>
-          <TouchableOpacity style={{ backgroundColor: '#FFFFFF', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }} onPress={() => router.push({ pathname: '/edit-thresholds', params: { metricId: metricId || 'heart_rate' } })}>
-            <Text style={{ color: '#111827', fontSize: 13, fontWeight: '800', textTransform: 'uppercase' }}>MODIFIER LES SEUILS</Text>
-          </TouchableOpacity>
-        </GlassCard>
-      </ScrollView>
-    </SafeAreaView>
+      </div>
+    </div>
   );
 }
