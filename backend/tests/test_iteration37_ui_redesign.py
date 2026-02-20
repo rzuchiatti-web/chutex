@@ -178,7 +178,7 @@ class TestMetricHistory:
             "password": "demo123"
         })
         if response.status_code == 200:
-            return response.json()["access_token"]
+            return response.json()["token"]
         pytest.skip("Authentication failed")
     
     def test_heart_rate_history(self, auth_token):
@@ -273,7 +273,7 @@ class TestDeviceEndpoints:
             "password": "demo123"
         })
         if response.status_code == 200:
-            return response.json()["access_token"]
+            return response.json()["token"]
         pytest.skip("Authentication failed")
     
     def test_dashboard_summary(self, auth_token):
