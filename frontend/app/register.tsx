@@ -431,6 +431,20 @@ export default function RegisterScreen() {
               ))}
             </div>
 
+
+            {/* Comment connu Chutex */}
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 8, marginTop: 16 }}>Comment avez-vous connu Chutex ?</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 14 } as any}>
+              {['Professionnel de sante', 'SAAD / Structure', 'Famille / Proche', 'Recherche internet', 'Reseaux sociaux', 'Autre'].map(h => (
+                <div key={h} onClick={() => u('how_found', h)} style={{ padding: '12px 14px', borderRadius: 14, background: form.how_found === h ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.how_found === h ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <div style={{ width: 18, height: 18, borderRadius: 9, background: form.how_found === h ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.how_found === h ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    {form.how_found === h && <div style={{ width: 8, height: 8, borderRadius: 4, background: '#FFF' } as any} />}
+                  </div>
+                  <span style={{ fontSize: 12, color: form.how_found === h ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{h}</span>
+                </div>
+              ))}
+            </div>
+
             {/* CGU */}
             <div onClick={() => u('acceptTerms', !form.acceptTerms)} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', marginTop: 20 } as any}>
               <div style={{ width: 22, height: 22, borderRadius: 6, background: form.acceptTerms ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.acceptTerms ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
