@@ -24,7 +24,7 @@ export function DoctorCard({ onPress }: { onPress: () => void }) {
 
         {/* Doctor image */}
         <img src={DOCTOR_IMG} alt="" style={{
-          position: 'absolute', right: -8, bottom: 0, height: '105%', width: 'auto',
+          position: 'absolute', right: -30, bottom: 0, height: '105%', width: 'auto',
           objectFit: 'contain', pointerEvents: 'none', zIndex: 2,
         } as any} />
 
