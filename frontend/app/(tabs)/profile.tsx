@@ -42,6 +42,45 @@ const LANGUAGES = [
   { code: 'IT', label: 'Italiano', color: '#009246' },
 ];
 
+function ProfileMenuItem({ icon, label, onPress, danger, testID }: any) {
+  if (Platform.OS === 'web') {
+    return (
+      <div data-testid={testID} onClick={onPress} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}>
+        <div style={{ width: 38, height: 38, borderRadius: 12, background: danger ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.06)', border: `1px solid ${danger ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+          <i className={danger ? 'ri-logout-box-r-line' : icon} style={{ fontSize: 16, color: danger ? '#EF4444' : 'rgba(255,255,255,0.6)' }} />
+        </div>
+        <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: danger ? '#EF4444' : '#FFF' }}>{label}</span>
+        <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }} />
+      </div>
+    );
+  }
+  const { TouchableOpacity, Text, View: V } = require('react-native');
+  const { Ionicons } = require('@expo/vector-icons');
+  return (
+    <TouchableOpacity testID={testID} onPress={onPress} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
+      <V style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: danger ? '#FEE2E2' : '#F3F4F6', justifyContent: 'center', alignItems: 'center', marginRight: 14 }}>
+        <Ionicons name={icon} size={18} color={danger ? '#EF4444' : '#6B7280'} />
+      </V>
+      <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: danger ? '#EF4444' : '#111' }}>{label}</Text>
+      <Ionicons name="chevron-forward" size={16} color="#D1D5DB" />
+    </TouchableOpacity>
+  );
+}
+
+function ProfileGlassPopup({ visible, onClose, children }: any) {
+  if (!visible) return null;
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+      <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+          <div onClick={onClose} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function ProfileScreen() {
   const { user, token, logout, refreshUser } = useAuth();
   const { colors } = useTheme();
