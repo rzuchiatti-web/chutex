@@ -234,7 +234,44 @@ export default function RegisterScreen() {
             {form.password && form.confirmPassword && form.password !== form.confirmPassword && <div style={{ fontSize: 12, color: '#F87171', marginTop: -8, marginBottom: 8 }}>Les mots de passe ne correspondent pas</div>}
           </>)}
 
-          {/* ═══ BENEFICIARY STEP 2: Infos perso ═══ */}
+          {/* ═══ STEP 2: RGPD / Securite (both roles) ═══ */}
+          {step === 2 && (<>
+            <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+              <div style={{ width: 64, height: 64, borderRadius: 18, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}>
+                <i className="ri-shield-check-line" style={{ fontSize: 32, color: '#10B981' }} />
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Vos donnees sont protegees</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>La securite de vos informations de sante est notre priorite absolue.</div>
+            </div>
+
+            {[
+              { icon: 'ri-eu-line', title: 'Conforme RGPD', text: 'Toutes vos donnees sont traitees en conformite avec le Reglement General sur la Protection des Donnees (RGPD). Vous gardez le controle total sur vos informations personnelles et medicales.' },
+              { icon: 'ri-server-line', title: 'Hebergement HDS en France', text: 'Vos donnees de sante sont stockees sur des serveurs certifies Hebergeur de Donnees de Sante (HDS) de Classe 6, situes en France. C\'est le plus haut niveau de certification pour l\'hebergement de donnees de sante.' },
+              { icon: 'ri-lock-line', title: 'Chiffrement de bout en bout', text: 'Toutes les communications entre votre appareil et nos serveurs sont chiffrees. Vos donnees sont egalement chiffrees au repos sur nos serveurs.' },
+              { icon: 'ri-eye-off-line', title: 'Acces strictement controle', text: 'Seuls vous et les professionnels de sante que vous autorisez peuvent acceder a vos donnees. Aucune donnee n\'est partagee a des tiers sans votre consentement explicite.' },
+            ].map((item, i) => (
+              <div key={i} style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8, display: 'flex', alignItems: 'flex-start', gap: 12 } as any}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16,185,129,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 } as any}>
+                  <i className={item.icon} style={{ fontSize: 18, color: '#10B981' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{item.title}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>{item.text}</div>
+                </div>
+              </div>
+            ))}
+
+            <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.12)', marginTop: 8 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } as any}>
+                <i className="ri-mail-line" style={{ fontSize: 16, color: '#38BDF8' }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Une question ?</span>
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>Pour toute question relative a la securite et a la confidentialite de vos donnees, contactez notre delegue a la protection des donnees :</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#38BDF8', marginTop: 6 }}>rgpd@chutex-innovation.com</div>
+            </div>
+          </>)}
+
+          {/* ═══ BENEFICIARY STEP 3: Infos perso ═══ */}
           {step === 3 && role === 'beneficiary' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Informations personnelles</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Pour personnaliser votre suivi sante</div>
