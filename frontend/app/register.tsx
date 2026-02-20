@@ -323,8 +323,47 @@ export default function RegisterScreen() {
             </div>
           </>)}
 
-          {/* ═══ BENEFICIARY STEP 4: Devices + CGU ═══ */}
+          {/* ═══ BENEFICIARY STEP 4: Antecedents ═══ */}
           {step === 4 && role === 'beneficiary' && (<>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Antecedents</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Informations complementaires pour votre suivi</div>
+
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Avez-vous deja ete opere ?</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
+              {[{ v: 'oui', l: 'Oui' }, { v: 'non', l: 'Non' }].map(t => (
+                <div key={t.v} onClick={() => u('had_surgery', t.v)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.had_surgery === t.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.had_surgery === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.had_surgery === t.v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>
+                  {t.l}
+                </div>
+              ))}
+            </div>
+            {form.had_surgery === 'oui' && (<>
+              <GI label="Zone operee" placeholder="Ex: Genou droit, hanche gauche, coeur..." value={form.surgery_zone} onChange={(e: any) => u('surgery_zone', e.target.value)} />
+              <div style={{ marginBottom: 14 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Date approximative</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 8 } as any}>
+                  <select value={form.surgery_date?.split('-')?.[1] || ''} onChange={(e: any) => u('surgery_date', `${form.surgery_date?.split('-')?.[0] || '2024'}-${e.target.value}`)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
+                    <option value="" style={{ background: '#0a0f1a' }}>Mois</option>
+                    {['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'].map((m, i) => <option key={i} value={String(i + 1).padStart(2, '0')} style={{ background: '#0a0f1a' }}>{m}</option>)}
+                  </select>
+                  <select value={form.surgery_date?.split('-')?.[0] || ''} onChange={(e: any) => u('surgery_date', `${e.target.value}-${form.surgery_date?.split('-')?.[1] || '01'}`)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
+                    <option value="" style={{ background: '#0a0f1a' }}>Annee</option>
+                    {Array.from({ length: 50 }, (_, i) => 2026 - i).map(y => <option key={y} value={String(y)} style={{ background: '#0a0f1a' }}>{y}</option>)}
+                  </select>
+                </div>
+              </div>
+            </>)}
+
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10, marginTop: 16 }}>Antecedents familiaux</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginBottom: 10 }}>Des membres de votre famille ont-ils ete touches par :</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
+              {['Diabete', 'Hypertension', 'Maladie cardiaque', 'AVC', 'Cancer', 'Alzheimer', 'Parkinson', 'Osteoporose', 'Thyroide', 'Aucun'].map(f => (
+                <Chip key={f} label={f} selected={form.family_history.includes(f)} onClick={() => { if (f === 'Aucun') u('family_history', ['Aucun']); else toggleArr('family_history', f); }} />
+              ))}
+            </div>
+          </>)}
+
+          {/* ═══ BENEFICIARY STEP 5: Devices + CGU ═══ */}
+          {step === 5 && role === 'beneficiary' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Vos appareils</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Quels appareils allez-vous utiliser ?</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 } as any}>
