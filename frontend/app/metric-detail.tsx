@@ -110,12 +110,33 @@ export default function MetricDetailScreen() {
           {stats.trend != null && <div style={{ fontSize: 13, fontWeight: 700, color: stats.trend <= 0 ? '#10B981' : '#F59E0B', marginTop: 4 }}>{stats.trend > 0 ? '+' : ''}{stats.trend} sur 30j</div>}
         </div>
 
-        {/* Range selector */}
+        {/* Range selector + Calendar */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 14 } as any}>
           {['7j', '30j', '90j'].map(r => (
-            <div key={r} onClick={() => { setRange(r); setSelectedDay(null); }} style={{ padding: '8px 18px', borderRadius: 999, background: range === r ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${range === r ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 700, color: range === r ? '#FFF' : 'rgba(255,255,255,0.3)' } as any}>{r}</div>
+            <div key={r} onClick={() => { setRange(r); setSelectedDay(null); setShowCalendar(false); }} style={{ padding: '8px 18px', borderRadius: 999, background: range === r ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${range === r ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 700, color: range === r ? '#FFF' : 'rgba(255,255,255,0.3)' } as any}>{r}</div>
           ))}
+          <div onClick={() => setShowCalendar(!showCalendar)} style={{ padding: '8px 14px', borderRadius: 999, background: range === 'custom' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${range === 'custom' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 } as any}>
+            <i className="ri-calendar-line" style={{ fontSize: 13, color: range === 'custom' ? '#FFF' : 'rgba(255,255,255,0.3)' }} />
+            <span style={{ fontSize: 12, fontWeight: 700, color: range === 'custom' ? '#FFF' : 'rgba(255,255,255,0.3)' }}>Periode</span>
+          </div>
         </div>
+        {/* Calendar picker */}
+        {showCalendar && (
+          <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 14 } as any}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF', marginBottom: 10 }}>Selectionner une periode</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>Du</div>
+                <input type="date" value={calFrom} onChange={(e: any) => setCalFrom(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', colorScheme: 'dark' } as any} />
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>Au</div>
+                <input type="date" value={calTo} onChange={(e: any) => setCalTo(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', colorScheme: 'dark' } as any} />
+              </div>
+            </div>
+            <div onClick={() => { if (calFrom && calTo) { setRange('custom'); setSelectedDay(null); setShowCalendar(false); } }} style={{ padding: '10px', borderRadius: 999, background: calFrom && calTo ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', cursor: calFrom && calTo ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 13, fontWeight: 700, color: calFrom && calTo ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>Appliquer</div>
+          </div>
+        )}
 
         {/* Graph */}
         <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', padding: '16px', marginBottom: 14, overflow: 'hidden' } as any}>
