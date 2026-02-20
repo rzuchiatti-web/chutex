@@ -171,12 +171,6 @@ export default function AuthScreen() {
               </button>
             </form>
 
-            {/* Biometric / Face ID */}
-            <div onClick={handleBiometric} style={{ marginTop: 14, padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}>
-              <i className="ri-fingerprint-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)' }} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>Face ID / Biometrie</span>
-            </div>
-
             <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); }} style={{ textAlign: 'center', marginTop: 20, fontSize: 12, color: 'rgba(255,255,255,0.25)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
 
             {/* Forgot password popup */}
