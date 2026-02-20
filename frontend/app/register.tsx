@@ -101,7 +101,7 @@ export default function RegisterScreen() {
     doctor_name: '', doctor_phone: '', social_security: '',
     devices: '',
     had_surgery: '', surgeries: [] as { zone: string; date: string }[],
-    family_history: [] as string[],
+    family_history: [] as string[], how_found: '',
     pro_type: '', structure: '', how_found: '', alert_sms: false, alert_email: false,
     acceptTerms: false,
   });
