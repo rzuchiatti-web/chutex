@@ -31,8 +31,10 @@ export default function MetricDetailScreen() {
   const history = data?.history || [];
   const stats = data?.stats || {};
   const color = m.color || '#A78BFA';
-  const ranges = { '7j': 7, '30j': 30, '90j': 90 } as any;
-  const sliced = history.slice(-(ranges[range] || 30));
+  const ranges = { '7j': 7, '30j': 30, '90j': 90, 'custom': 0 } as any;
+  const sliced = range === 'custom' && calFrom && calTo
+    ? history.filter((h: any) => h.date >= calFrom && h.date <= calTo)
+    : history.slice(-(ranges[range] || 30));
   const vals = sliced.map((h: any) => h.value);
   const mn = vals.length ? Math.min(...vals) : 0;
   const mx = vals.length ? Math.max(...vals) : 1;
