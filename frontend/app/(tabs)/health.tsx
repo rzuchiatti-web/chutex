@@ -634,7 +634,6 @@ export default function HealthScreen() {
   useEffect(() => { fetchData(); }, [fetchData]);
   useEffect(() => { fetchDashData(); }, [fetchDashData]);
 
-  // Admin sees Clients page, Company sees Agences
   const effectiveRole = user?.active_role || user?.role;
   if (effectiveRole === 'admin' && token) {
     return <AdminClients token={token} />;
@@ -643,12 +642,286 @@ export default function HealthScreen() {
     return <CompanyAgences token={token} />;
   }
 
-const BG_HEALTH = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/f6mxkxnu_ChatGPT%20Image%2019%20f%C3%A9vr.%202026%2C%2017_54_27.png';
+  const BG_DARK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
 
-  const br = dashData?.bracelet || { heart_rate: 72, spo2: 97, steps: 3842, blood_pressure: { systolic: 125, diastolic: 78 }, temperature: 36.6, battery: 78, connected: true, calories: 154, distance_km: 2.7, heart_rate_history: [{ hour: '08h', value: 68 }, { hour: '10h', value: 74 }, { hour: '12h', value: 82 }, { hour: '14h', value: 76 }, { hour: '16h', value: 71 }, { hour: '18h', value: 78 }, { hour: '20h', value: 72 }] };
-  const sc = dashData?.scale || { weight: 72.4, bmi: 24.1, body_fat: 22.3, muscle_mass: 33.8, water_pct: 55.2, bone_mass: 3.1, visceral_fat: 9, metabolic_age: 63, battery: 92, connected: true, weight_history: [{ date: '13 fev', value: 72.8 }, { date: '14 fev', value: 72.6 }, { date: '15 fev', value: 72.3 }, { date: '16 fev', value: 72.5 }, { date: '17 fev', value: 72.2 }, { date: '18 fev', value: 72.4 }, { date: '19 fev', value: 72.4 }] };
-  const vs = dashData?.vest || { fall_detected: false, posture_score: 87, chest_temp: 36.7, battery: 65, connected: true, wearing_hours_today: 6.2, alerts_today: 0, impact_events_today: 0 };
-  const sl = dashData?.sleep || { duration: '7h 23min', quality: 82, deep: '2h 10min', light: '4h 05min', rem: '1h 08min', bedtime: '22:45', wakeup: '06:08' };
+  // Fetch daily health report with AI
+  const [report, setReport] = useState<any>(null);
+  const [reportLoading, setReportLoading] = useState(true);
+  const fetchReport = useCallback(async () => {
+    try {
+      const r = await apiFetch('/api/health/daily-report', {}, token);
+      setReport(r);
+    } catch {} finally { setReportLoading(false); }
+  }, [token]);
+  useEffect(() => { fetchReport(); }, [fetchReport]);
+
+  const d = report?.data || {};
+  const ai = report?.ai || {};
+  const sparks = report?.sparklines || {};
+  const score = report?.score ?? 0;
+  const status = report?.status || 'Chargement...';
+  const statusColor = report?.status_color || 'rgba(255,255,255,0.3)';
+  const userName = user?.name?.split(' ')[0] || 'vous';
+
+  /* Mini sparkline SVG */
+  const Spark = ({ data, color }: { data: number[]; color: string }) => {
+    if (!data || data.length < 2) return null;
+    const min = Math.min(...data); const max = Math.max(...data); const range = max - min || 1;
+    const w = 80; const h = 24;
+    const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h}`).join(' ');
+    return <svg width={w} height={h} style={{ display: 'block' }}><polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+  };
+
+  /* Trend arrow */
+  const Trend = ({ current, prev, inverse }: { current: number; prev: number; inverse?: boolean }) => {
+    const diff = current - prev;
+    const better = inverse ? diff < 0 : diff > 0;
+    const same = Math.abs(diff) < 0.1;
+    if (same) return <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>= stable</span>;
+    return <span style={{ fontSize: 10, fontWeight: 700, color: better ? '#10B981' : '#F59E0B' }}>{better ? '↗' : '↘'} {Math.abs(diff).toFixed(1)}</span>;
+  };
+
+  /* ─── WEB: Coach Sante Intelligent ─── */
+  if (Platform.OS === 'web' && effectiveRole === 'beneficiary') {
+    if (reportLoading) return (
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0f1a' } as any}>
+        <div style={{ textAlign: 'center' } as any}>
+          <i className="ri-heart-pulse-line" style={{ fontSize: 40, color: 'rgba(255,255,255,0.15)', display: 'block', marginBottom: 12 }} />
+          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>Analyse en cours...</div>
+        </div>
+      </div>
+    );
+    return (
+      <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
+        <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+
+          {/* ── 1. Message du jour ── */}
+          <div style={{ marginBottom: 24 } as any}>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 4 }}>Bonjour {userName},</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', lineHeight: 1.3 }}>{ai.summary || 'Vos constantes sont dans les normes.'}</div>
+          </div>
+
+          {/* ── 2. Score Vitalite ── */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '20px', borderRadius: 24, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 16 } as any}>
+            {/* Circle score */}
+            <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 } as any}>
+              <svg width="90" height="90" style={{ transform: 'rotate(-90deg)' }}>
+                <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                <circle cx="45" cy="45" r="38" fill="none" stroke={statusColor} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${(score / 100) * 239} 239`} style={{ transition: 'stroke-dasharray 1s ease' }} />
+              </svg>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}>
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{score}</div>
+                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>/100</div>
+              </div>
+            </div>
+            <div style={{ flex: 1 } as any}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: `${statusColor}20`, border: `1px solid ${statusColor}40`, marginBottom: 8 } as any}>
+                <span style={{ width: 6, height: 6, borderRadius: 3, background: statusColor } as any} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: statusColor }}>{status}</span>
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Score base sur vos constantes cardiaques, composition corporelle, sommeil et activite.</div>
+            </div>
+          </div>
+
+          {/* ── 3. Conseil prioritaire du jour ── */}
+          {ai.primary_recommendation && (
+            <div style={{ padding: '16px 18px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(14,116,144,0.15), rgba(34,211,238,0.08))', border: '1px solid rgba(34,211,238,0.2)', marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 14 } as any}>
+              <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(34,211,238,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 } as any}>
+                <i className="ri-lightbulb-line" style={{ fontSize: 18, color: '#22D3EE' }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(34,211,238,0.6)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Conseil du jour</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF', lineHeight: 1.5 }}>{ai.primary_recommendation}</div>
+              </div>
+            </div>
+          )}
+
+          {/* ── 4. Correlations IA ── */}
+          {ai.correlations && ai.correlations.length > 0 && (
+            <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 16 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                <i className="ri-brain-line" style={{ fontSize: 16, color: '#A78BFA' }} />
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.6)', textTransform: 'uppercase', letterSpacing: 1 }}>Analyse IA</span>
+              </div>
+              {ai.correlations.map((c: string, i: number) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                  <i className="ri-links-line" style={{ fontSize: 14, color: 'rgba(167,139,250,0.5)', marginTop: 2, flexShrink: 0 }} />
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{c}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── 5. Indicateurs par theme sante ── */}
+
+          {/* COEUR & CIRCULATION */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(239,68,68,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8, marginTop: 4, display: 'flex', alignItems: 'center', gap: 8 } as any}>
+            <i className="ri-heart-pulse-line" style={{ fontSize: 12 }} />Coeur & Circulation
+            <div style={{ flex: 1, height: 1, background: 'rgba(239,68,68,0.12)' } as any} />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 } as any}>
+            {[
+              { label: 'Frequence cardiaque', value: d.heart_rate || 72, unit: 'bpm', color: '#EF4444', explain: d.heart_rate >= 60 && d.heart_rate <= 80 ? 'Rythme sain au repos' : 'A surveiller', spark: sparks.heart_rate, route: '/health-detail', params: { metricId: 'heart_rate' } },
+              { label: 'Saturation O2', value: d.spo2 || 97, unit: '%', color: '#38BDF8', explain: (d.spo2 || 97) >= 95 ? 'Oxygenation normale' : 'Oxygenation a surveiller', spark: sparks.heart_rate, route: '/health-detail', params: { metricId: 'spo2' } },
+              { label: 'Tension', value: `${d.blood_pressure?.systolic || 125}/${d.blood_pressure?.diastolic || 78}`, unit: 'mmHg', color: '#A78BFA', explain: (d.blood_pressure?.systolic || 125) <= 130 ? 'Tension normale' : 'Tension a surveiller', route: '/health-detail', params: { metricId: 'blood_pressure' } },
+              { label: 'Temperature', value: d.temperature || 36.6, unit: '°C', color: '#F59E0B', explain: 'Stable', route: '/health-detail', params: { metricId: 'temperature' } },
+            ].map((m, i) => (
+              <div key={i} data-testid={`health-card-${i}`} onClick={() => router.push({ pathname: m.route as any, params: m.params })} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', transition: 'transform 0.2s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>{m.label}</div>
+                  {m.spark && <Spark data={m.spark} color={m.color} />}
+                </div>
+                <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>{m.value}<span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.3)', marginLeft: 4 }}>{m.unit}</span></div>
+                <div style={{ fontSize: 11, color: m.explain.includes('surveiller') ? '#F59E0B' : 'rgba(16,185,129,0.7)', fontWeight: 600 }}>{m.explain}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* CORPS & COMPOSITION */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 } as any}>
+            <i className="ri-body-scan-line" style={{ fontSize: 12 }} />Corps & Composition
+            <div style={{ flex: 1, height: 1, background: 'rgba(167,139,250,0.12)' } as any} />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 } as any}>
+            {[
+              { label: 'Poids', value: d.weight || 72.4, unit: 'kg', color: '#A78BFA', prev: d.weight_prev, spark: sparks.weight, explain: '' },
+              { label: 'IMC', value: d.bmi || 24.1, unit: '', color: '#38BDF8', explain: (d.bmi || 24.1) < 25 ? 'Normal' : 'Surpoids' },
+              { label: 'Masse grasse', value: d.body_fat || 22.3, unit: '%', color: '#F59E0B', prev: d.body_fat_prev, spark: sparks.body_fat, explain: '' },
+              { label: 'Masse musculaire', value: d.muscle_mass || 33.8, unit: '%', color: '#10B981', prev: d.muscle_mass_prev, spark: sparks.muscle_mass, explain: '' },
+              { label: 'Hydratation', value: d.water_pct || 55.2, unit: '%', color: '#38BDF8', spark: sparks.water_pct, explain: (d.water_pct || 55) >= 55 ? 'Bien hydrate' : 'Hydratation basse' },
+              { label: 'Age metabolique', value: d.metabolic_age || 63, unit: 'ans', color: '#A78BFA', explain: '' },
+            ].map((m, i) => (
+              <div key={i} onClick={() => router.push('/scale-detail' as any)} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', transition: 'transform 0.2s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>{m.label}</div>
+                  {m.spark && <Spark data={m.spark} color={m.color} />}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
+                  <span style={{ fontSize: 26, fontWeight: 900, color: '#FFF' }}>{m.value}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>{m.unit}</span>
+                  {m.prev && <Trend current={m.value as number} prev={m.prev as number} inverse={m.label === 'Masse grasse'} />}
+                </div>
+                {m.explain && <div style={{ fontSize: 11, color: m.explain.includes('basse') || m.explain.includes('Surpoids') ? '#F59E0B' : 'rgba(16,185,129,0.7)', fontWeight: 600, marginTop: 4 }}>{m.explain}</div>}
+              </div>
+            ))}
+          </div>
+
+          {/* CTA Nouvelle pesee */}
+          <div data-testid="new-weighing-btn" onClick={() => router.push('/scale-detail' as any)} style={{ padding: '16px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(167,139,250,0.15), rgba(139,92,246,0.08))', border: '1px solid rgba(167,139,250,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 16 } as any}>
+            <i className="ri-scales-3-line" style={{ fontSize: 18, color: '#A78BFA' }} />
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Nouvelle pesee</span>
+          </div>
+
+          {/* SOMMEIL & RECUPERATION */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(124,92,255,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 } as any}>
+            <i className="ri-moon-line" style={{ fontSize: 12 }} />Sommeil & Recuperation
+            <div style={{ flex: 1, height: 1, background: 'rgba(124,92,255,0.12)' } as any} />
+          </div>
+          <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 10 } as any}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as any}>
+              <div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, marginBottom: 2 }}>Duree</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{Math.floor((d.sleep_duration_min || 443) / 60)}h {String((d.sleep_duration_min || 443) % 60).padStart(2, '0')}min</div>
+              </div>
+              <div style={{ textAlign: 'right' } as any}>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, marginBottom: 2 }}>Qualite</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#A78BFA' }}>{d.sleep_quality || 82}%</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 3, height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 10 } as any}>
+              <div style={{ flex: d.deep_sleep_min || 130, background: '#6D28D9', borderRadius: '4px 0 0 4px' } as any} />
+              <div style={{ flex: d.light_sleep_min || 245, background: '#A78BFA' } as any} />
+              <div style={{ flex: d.rem_sleep_min || 68, background: '#C4B5FD', borderRadius: '0 4px 4px 0' } as any} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
+              {[
+                { l: 'Profond', v: `${Math.floor((d.deep_sleep_min || 130) / 60)}h${String((d.deep_sleep_min || 130) % 60).padStart(2, '0')}`, c: '#6D28D9' },
+                { l: 'Leger', v: `${Math.floor((d.light_sleep_min || 245) / 60)}h${String((d.light_sleep_min || 245) % 60).padStart(2, '0')}`, c: '#A78BFA' },
+                { l: 'REM', v: `${Math.floor((d.rem_sleep_min || 68) / 60)}h${String((d.rem_sleep_min || 68) % 60).padStart(2, '0')}`, c: '#C4B5FD' },
+              ].map((s, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: s.c } as any} /><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{s.l}</span><span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>{s.v}</span></div>
+              ))}
+            </div>
+          </div>
+
+          {/* Stress & Recuperation */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 } as any}>
+            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, marginBottom: 8 }}>Stress</div>
+              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF' }}>{d.stress_level || 35}<span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>/100</span></div>
+              <div style={{ fontSize: 11, color: (d.stress_level || 35) <= 40 ? 'rgba(16,185,129,0.7)' : '#F59E0B', fontWeight: 600, marginTop: 4 }}>{(d.stress_level || 35) <= 40 ? 'Detendu' : 'Un peu eleve'}</div>
+              {sparks.stress_level && <div style={{ marginTop: 6 } as any}><Spark data={sparks.stress_level} color="#F59E0B" /></div>}
+            </div>
+            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, marginBottom: 8 }}>Recuperation</div>
+              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF' }}>{d.recovery_score || 85}<span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>/100</span></div>
+              <div style={{ fontSize: 11, color: (d.recovery_score || 85) >= 70 ? 'rgba(16,185,129,0.7)' : '#F59E0B', fontWeight: 600, marginTop: 4 }}>{(d.recovery_score || 85) >= 70 ? 'Bonne recuperation' : 'Repos recommande'}</div>
+            </div>
+          </div>
+
+          {/* ACTIVITE & VITALITE */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(16,185,129,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 } as any}>
+            <i className="ri-footprint-line" style={{ fontSize: 12 }} />Activite & Vitalite
+            <div style={{ flex: 1, height: 1, background: 'rgba(16,185,129,0.12)' } as any} />
+          </div>
+          <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 16 } as any}>
+            <div style={{ display: 'flex', gap: 16 } as any}>
+              {[
+                { val: (d.steps || 3842).toLocaleString(), label: 'Pas', color: '#10B981', pct: Math.min(100, ((d.steps || 3842) / 8000) * 100) },
+                { val: d.calories || 154, label: 'Kcal', color: '#F59E0B', pct: Math.min(100, ((d.calories || 154) / 400) * 100) },
+                { val: d.distance_km || 2.7, label: 'Km', color: '#38BDF8', pct: Math.min(100, ((d.distance_km || 2.7) / 5) * 100) },
+              ].map((s, i) => (
+                <div key={i} style={{ flex: 1, textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 8 }}>{s.label}</div>
+                  <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                    <div style={{ height: 4, borderRadius: 2, width: `${s.pct}%`, background: s.color, transition: 'width 1s', boxShadow: `0 0 6px ${s.color}40` } as any} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            {sparks.steps && <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 } as any}><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>7 jours</span><Spark data={sparks.steps} color="#10B981" /></div>}
+          </div>
+
+          {/* ── 6. Recommandations secondaires ── */}
+          {ai.secondary_recommendations && ai.secondary_recommendations.length > 0 && (
+            <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 16 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Autres conseils</div>
+              {ai.secondary_recommendations.map((r: string, i: number) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                  <div style={{ width: 22, height: 22, borderRadius: 6, background: 'rgba(34,211,238,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
+                    <i className="ri-arrow-right-line" style={{ fontSize: 11, color: '#22D3EE' }} />
+                  </div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{r}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Quick actions */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
+            {[
+              { label: 'ECG', icon: 'ri-pulse-line', route: '/ecg', color: '#EF4444' },
+              { label: 'Seuils d\'alerte', icon: 'ri-alarm-warning-line', route: '/edit-thresholds', color: '#F59E0B' },
+            ].map((a, i) => (
+              <div key={i} onClick={() => router.push(a.route as any)} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer' } as any}>
+                <i className={a.icon} style={{ fontSize: 16, color: a.color }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{a.label}</span>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </div>
+    );
+  }
 
   const simVitals = vitals || { heart_rate: br.heart_rate, spo2: br.spo2, systolic: br.blood_pressure?.systolic || 125, diastolic: br.blood_pressure?.diastolic || 78, temperature: br.temperature, steps: br.steps };
 
