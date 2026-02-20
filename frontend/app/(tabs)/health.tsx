@@ -665,6 +665,8 @@ export default function HealthScreen() {
   const plan = report?.daily_plan || [];
   const weighings = report?.weighings || [];
   const humanMapImg = report?.human_map_img || '';
+  const analysisPhase = report?.analysis_phase || null;
+  const PROGRESS_BG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/jai7cybu_background_progressbar.jpg';
 
   const Spark = ({ data, color }: { data: number[]; color: string }) => {
     if (!data || data.length < 2) return null;
