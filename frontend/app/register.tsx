@@ -310,6 +310,15 @@ export default function RegisterScreen() {
             </div>
 
             <GI label="Numero de securite sociale (optionnel)" placeholder="1 85 12 75 123 456 78" value={form.social_security} onChange={(e: any) => u('social_security', e.target.value)} />
+
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10, marginTop: 8 }}>Avez-vous ete diagnostique d'un probleme de thyroide ?</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
+              {[{ v: 'oui', l: 'Oui' }, { v: 'non', l: 'Non' }].map(t => (
+                <div key={t.v} onClick={() => u('thyroid', t.v)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.thyroid === t.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.thyroid === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.thyroid === t.v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>
+                  {t.l}
+                </div>
+              ))}
+            </div>
           </>)}
 
           {/* ═══ BENEFICIARY STEP 4: Devices + CGU ═══ */}
