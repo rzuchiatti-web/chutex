@@ -370,7 +370,7 @@ async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_cur
         message_key = 'inactivity_alert'
 
     try:
-        base_url = os.environ.get("APP_URL", "https://saad-mgmt.preview.emergentagent.com")
+        base_url = os.environ.get("APP_URL", "https://health-hub-226.preview.emergentagent.com")
         twiml = VoiceResponse()
         twiml.play(f"{base_url}/api/elevenlabs/audio/{message_key}")
         gather = Gather(input='speech', language='fr-FR', timeout=10, speech_timeout=5,
@@ -415,7 +415,7 @@ async def twilio_call_guardian(request: Request, user=Depends(get_current_user))
     alert_msg = alert.get('message', 'une alerte') if alert else 'une alerte'
 
     try:
-        base_url = os.environ.get("APP_URL", "https://saad-mgmt.preview.emergentagent.com")
+        base_url = os.environ.get("APP_URL", "https://health-hub-226.preview.emergentagent.com")
         # Generate dynamic guardian message with ElevenLabs
         guardian_audio_key = f"guardian_call_{alert_id}_{guardian_id}"
         guardian_text = (
@@ -469,7 +469,7 @@ async def twilio_call_guardian(request: Request, user=Depends(get_current_user))
 @router.get("/twilio/twiml/beneficiary")
 async def twiml_beneficiary(request: Request):
     """TwiML for beneficiary call - speech recognition, no DTMF"""
-    base_url = os.environ.get("APP_URL", "https://saad-mgmt.preview.emergentagent.com")
+    base_url = os.environ.get("APP_URL", "https://health-hub-226.preview.emergentagent.com")
     resp = VoiceResponse()
     resp.play(f"{base_url}/api/elevenlabs/audio/fall_detected")
     gather = Gather(input='speech', language='fr-FR', timeout=10, speech_timeout=5,
@@ -572,7 +572,7 @@ async def twilio_speech_response(request: Request):
         }}
     )
 
-    base_url = os.environ.get("APP_URL", "https://saad-mgmt.preview.emergentagent.com")
+    base_url = os.environ.get("APP_URL", "https://health-hub-226.preview.emergentagent.com")
     resp_twiml = VoiceResponse()
     if confirmed_ok:
         resp_twiml.play(f"{base_url}/api/elevenlabs/audio/confirmed_ok")
@@ -648,7 +648,7 @@ async def twilio_guardian_speech_response(request: Request):
         {"$set": {"response": speech_result, "answered": True, "guardian_will_intervene": will_intervene}}
     )
 
-    base_url = os.environ.get("APP_URL", "https://saad-mgmt.preview.emergentagent.com")
+    base_url = os.environ.get("APP_URL", "https://health-hub-226.preview.emergentagent.com")
     resp_twiml = VoiceResponse()
     if will_intervene:
         resp_twiml.play(f"{base_url}/api/elevenlabs/audio/guardian_followup")
@@ -812,7 +812,7 @@ async def auto_escalation_protocol(alert: dict):
         await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "ai_calling", "escalation_id": esc['id']}})
 
         # Build base URL for audio
-        base_url = os.environ.get("APP_URL", "https://saad-mgmt.preview.emergentagent.com")
+        base_url = os.environ.get("APP_URL", "https://health-hub-226.preview.emergentagent.com")
 
         # STEP 1: Call beneficiary with ElevenLabs voice + speech recognition
         ben_phone = norm_phone(ben.get('phone', ''))
