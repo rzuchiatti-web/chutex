@@ -94,8 +94,8 @@ export default function RegisterScreen() {
   const [showPrefix, setShowPrefix] = useState(false);
   const [form, setForm] = useState({
     phone: '', prefix: '+33', password: '', confirmPassword: '',
-    name: '', firstName: '', date_of_birth: '', gender: '',
-    height_cm: '', weight_kg: '', blood_type: '',
+    name: '', firstName: '', dob_day: '', dob_month: '', dob_year: '', gender: '',
+    height_cm: '', weight_kg: '', blood_type: '', thyroid: '',
     allergies: [] as string[], medical_conditions: [] as string[],
     doctor_name: '', doctor_phone: '', social_security: '',
     devices: '',
