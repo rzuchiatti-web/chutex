@@ -930,12 +930,144 @@ export default function HealthScreen() {
 
         </div>
 
-        {/* ═══ 7. CTA FLOTTANT NOUVELLE PESEE ═══ */}
+        {/* ═══ CTA FLOTTANT + FLOW NOUVELLE PESEE ═══ */}
         <div style={{ position: 'absolute', bottom: 70, left: 20, right: 20, zIndex: 10 } as any}>
-          <div data-testid="new-weighing-cta" onClick={() => router.push('/scale-detail' as any)} style={{ padding: '16px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.12))', border: '1px solid rgba(167,139,250,0.3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' } as any}>
+          <div data-testid="new-weighing-cta" onClick={() => setWeighingStep(1)} style={{ padding: '16px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.12))', border: '1px solid rgba(167,139,250,0.3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' } as any}>
             <i className="ri-scales-3-line" style={{ fontSize: 18, color: '#A78BFA' }} /><span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Nouvelle pesee</span>
           </div>
         </div>
+
+        {/* WEIGHING FLOW POPUP */}
+        {weighingStep > 0 && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+            <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+              {/* Close */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                <div onClick={() => setWeighingStep(0)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+              </div>
+
+              {/* STEP 1: Preparation */}
+              {weighingStep === 1 && (
+                <div style={{ textAlign: 'center' } as any}>
+                  <div style={{ width: 72, height: 72, borderRadius: 20, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.15))', border: '1px solid rgba(167,139,250,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
+                    <i className="ri-scales-3-line" style={{ fontSize: 34, color: '#A78BFA' }} />
+                  </div>
+                  <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Nouvelle pesee</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 28 }}>Preparez-vous pour une mesure precise</div>
+
+                  {[
+                    { icon: 'ri-layout-bottom-line', text: 'Placez la balance sur un sol plat et dur' },
+                    { icon: 'ri-footprint-line', text: 'Pieds nus et secs, bien centres sur la balance' },
+                    { icon: 'ri-t-shirt-line', text: 'Vetements legers, idealement le matin a jeun' },
+                    { icon: 'ri-user-line', text: 'Tenez-vous droit, bras le long du corps, immobile' },
+                  ].map((s, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8, textAlign: 'left' } as any}>
+                      <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(167,139,250,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={s.icon} style={{ fontSize: 18, color: '#A78BFA' }} /></div>
+                      <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{s.text}</span>
+                    </div>
+                  ))}
+
+                  <div onClick={() => setWeighingStep(2)} style={{ marginTop: 20, padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF' } as any}>Je suis pret</div>
+                </div>
+              )}
+
+              {/* STEP 2: Connection */}
+              {weighingStep === 2 && (
+                <div style={{ textAlign: 'center' } as any}>
+                  <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(56,189,248,0.15)', border: '1px solid rgba(56,189,248,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
+                    <i className="ri-bluetooth-line" style={{ fontSize: 34, color: '#38BDF8' }} />
+                  </div>
+                  <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Connexion a la balance</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 28 }}>Recherche de votre balance Vita en cours...</div>
+
+                  {/* Simulated scanning animation */}
+                  <div style={{ padding: '24px', borderRadius: 22, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 20 } as any}>
+                    <div style={{ width: 60, height: 60, borderRadius: 999, border: '3px solid rgba(56,189,248,0.3)', borderTopColor: '#38BDF8', margin: '0 auto 14px', animation: 'spin 1s linear infinite' } as any} />
+                    <style dangerouslySetInnerHTML={{ __html: '@keyframes spin { to { transform: rotate(360deg); } }' }} />
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Recherche en cours</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Allumez votre balance Vita</div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8 } as any}>
+                    <div onClick={() => setWeighingStep(1)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Retour</div>
+                    <div onClick={() => { setWeighingStep(3); setTimeout(() => setWeighingStep(4), 4000); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(56,189,248,0.15)', border: '1px solid rgba(56,189,248,0.25)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#38BDF8' } as any}>Simuler la connexion</div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: Measuring */}
+              {weighingStep === 3 && (
+                <div style={{ textAlign: 'center' } as any}>
+                  <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
+                    <i className="ri-pulse-line" style={{ fontSize: 34, color: '#10B981' }} />
+                  </div>
+                  <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Mesure en cours</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 28 }}>Restez immobile sur la balance</div>
+
+                  <div style={{ padding: '30px', borderRadius: 22, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 20 } as any}>
+                    {[
+                      { label: 'Poids', done: true },
+                      { label: 'Composition corporelle', done: false },
+                      { label: 'Analyse IA', done: false },
+                    ].map((s, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                        <div style={{ width: 28, height: 28, borderRadius: 999, background: s.done ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                          {s.done ? <i className="ri-check-line" style={{ fontSize: 14, color: '#10B981' }} /> : <div style={{ width: 12, height: 12, borderRadius: 999, border: '2px solid rgba(255,255,255,0.15)', borderTopColor: '#A78BFA', animation: 'spin 0.8s linear infinite' } as any} />}
+                        </div>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: s.done ? '#FFF' : 'rgba(255,255,255,0.3)' }}>{s.label}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>Ne bougez pas...</div>
+                </div>
+              )}
+
+              {/* STEP 4: Result */}
+              {weighingStep === 4 && (() => {
+                const w = d.weight || 72.4;
+                const diff = w - (d.weight_prev || 72.8);
+                return (
+                  <div style={{ textAlign: 'center' } as any}>
+                    <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
+                      <i className="ri-check-double-line" style={{ fontSize: 34, color: '#10B981' }} />
+                    </div>
+                    <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Pesee terminee</div>
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>Voici vos resultats</div>
+
+                    {/* Big weight */}
+                    <div style={{ fontSize: 56, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>{w}<span style={{ fontSize: 22, color: 'rgba(255,255,255,0.3)' }}> kg</span></div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: diff <= 0 ? '#10B981' : '#F59E0B', marginBottom: 24 }}>{diff > 0 ? '+' : ''}{diff.toFixed(1)} kg vs precedent</div>
+
+                    {/* Key metrics */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 } as any}>
+                      {[
+                        { label: 'Graisse', value: `${d.body_fat_pct || 22.3}%`, color: '#F59E0B' },
+                        { label: 'Muscle', value: `${d.muscle_pct || 33.8}%`, color: '#10B981' },
+                        { label: 'Hydratation', value: `${d.water_pct || 55.2}%`, color: '#38BDF8' },
+                        { label: 'Metabolisme', value: `${d.basal_metabolism || 1550} kcal`, color: '#A78BFA' },
+                      ].map((m, i) => (
+                        <div key={i} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>{m.label}</div>
+                          <div style={{ fontSize: 18, fontWeight: 900, color: m.color }}>{m.value}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* AI feedback */}
+                    <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'left', marginBottom: 20 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}><i className="ri-brain-line" style={{ fontSize: 14, color: '#A78BFA' }} /><span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.6)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Analyse IA rapide</span></div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{diff <= 0 ? 'Bonne tendance ! Votre poids est stable ou en baisse, ce qui indique un bon equilibre entre alimentation et activite.' : 'Legere hausse de poids. Verifiez votre hydratation et votre alimentation des derniers jours. Ce peut etre une variation normale.'}</div>
+                    </div>
+
+                    <div onClick={() => { setWeighingStep(0); router.push({ pathname: '/health-detail' as any, params: { metricId: 'composition' } }); }} style={{ padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 8 } as any}>Voir l'analyse complete</div>
+                    <div onClick={() => setWeighingStep(0)} style={{ padding: '14px', borderRadius: 999, cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Retour a Sante</div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
