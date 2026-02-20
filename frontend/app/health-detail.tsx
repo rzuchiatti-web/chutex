@@ -36,15 +36,7 @@ const SECTIONS: Record<string, { title: string; color: string; img: string; metr
   sleep: {
     title: 'Sommeil', color: '#A78BFA',
     img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png',
-    metrics: [
-      { key: 'sleep_duration', label: 'Duree du sommeil', unit: '', explain: 'Temps total de sommeil. 7 a 9 heures sont recommandees pour un adulte.' },
-      { key: 'sleep_quality', label: 'Qualite du sommeil', unit: '%', explain: 'Score base sur la duree, les cycles et les interruptions. Au-dessus de 80% est bon.' },
-      { key: 'deep_sleep_min', label: 'Sommeil profond', unit: 'min', explain: 'Phase de recuperation physique. Idealement 1h30 a 2h par nuit.' },
-      { key: 'light_sleep_min', label: 'Sommeil leger', unit: 'min', explain: 'Phase de transition. Represente normalement 50-60% du sommeil total.' },
-      { key: 'rem_sleep_min', label: 'Sommeil paradoxal (REM)', unit: 'min', explain: 'Phase des reves, essentielle pour la memoire et la regulation emotionnelle.' },
-      { key: 'sleep_interruptions', label: 'Interruptions', unit: '', explain: 'Nombre de reveils pendant la nuit. Moins de 3 est normal.' },
-      { key: 'recovery_score', label: 'Score de recuperation', unit: '/100', explain: 'Capacite de votre corps a recuperer. Au-dessus de 70 est favorable.' },
-    ],
+    metrics: [],
   },
   activity: {
     title: 'Sante physique & Activite', color: '#10B981',
