@@ -397,6 +397,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 <div style={{ flex: 1, height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}><div style={{ height: 5, borderRadius: 3, width: `${d.battery}%`, background: d.batteryGrad } as any} /></div>
                 <span style={{ fontSize: 9, fontWeight: 700, color: d.color }}>{d.battery}%</span>
               </div>
+              {d.actionLabel && (
+                <div onClick={(e: any) => { e.stopPropagation(); router.push(d.actionRoute as any); }} style={{ margin: '0 16px 12px', padding: '10px', borderRadius: 999, background: `${d.actionColor}18`, border: `1px solid ${d.actionColor}30`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+                  <i className={d.actionIcon} style={{ fontSize: 14, color: d.actionColor }} /><span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{d.actionLabel}</span>
+                </div>
+              )}
             </div>
           ))}
 
