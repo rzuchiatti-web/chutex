@@ -97,14 +97,6 @@ export default function AuthScreen() {
     } catch (err: any) { setError(err.message || 'Erreur de connexion'); } finally { setSubmitting(false); }
   };
 
-  const handleBiometric = () => {
-    if (typeof window !== 'undefined' && (window as any).PublicKeyCredential) {
-      setError('Authentification biometrique non configuree. Connectez-vous d\'abord avec votre telephone.');
-    } else {
-      setError('Authentification biometrique non disponible sur ce navigateur.');
-    }
-  };
-
   if (loading || user || !ready) {
     if (Platform.OS === 'web') return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: '#0A0A0A' } as any}><div style={{ width: 28, height: 28, border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#FFF', borderRadius: '50%', animation: 'spin 0.7s linear infinite' } as any} /></div>;
     const { View, ActivityIndicator } = require('react-native');
