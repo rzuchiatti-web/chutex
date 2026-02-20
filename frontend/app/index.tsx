@@ -67,6 +67,9 @@ export default function AuthScreen() {
   const [prefix, setPrefix] = useState('+33');
   const [password, setPassword] = useState('');
   const [showPrefix, setShowPrefix] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotPhone, setForgotPhone] = useState('');
+  const [forgotMsg, setForgotMsg] = useState('');
 
   useEffect(() => {
     AsyncStorage.getItem('chutex_onboarding_done').then(val => {
