@@ -277,27 +277,27 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
 
           {/* Menu items — dark glass card */}
           <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
-            <MenuItem testID="edit-profile-btn" icon="ri-user-settings-line" label={t('modify_profile')} onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
-            <MenuItem icon="ri-lock-line" label={t('security')} onPress={() => setShowPwChange(true)} />
+            <ProfileMenuItem testID="edit-profile-btn" icon="ri-user-settings-line" label={t('modify_profile')} onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
+            <ProfileMenuItem icon="ri-lock-line" label={t('security')} onPress={() => setShowPwChange(true)} />
             {effectiveRole !== 'prescriber_company' && effectiveRole !== 'admin' && effectiveRole !== 'teleassistance' && (
-              <MenuItem testID="switch-role-btn" icon="ri-swap-line" label={otherRole === 'gardien' ? t('my_guardian_space') : t('my_beneficiary_space')} onPress={async () => {
+              <ProfileMenuItem testID="switch-role-btn" icon="ri-swap-line" label={otherRole === 'gardien' ? t('my_guardian_space') : t('my_beneficiary_space')} onPress={async () => {
                 if (hasOther) {
                   try { await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: otherRole === 'gardien' ? 'guardian' : 'beneficiary' }) }, token); await refreshUser(); } catch (e: any) { Alert.alert('Erreur', e.message); }
                 } else { router.push(otherRole === 'gardien' ? '/activate-guardian' : '/activate-beneficiary' as any); }
               }} />
             )}
-            <MenuItem icon="ri-translate-2" label={`${t('language')} (${lang})`} onPress={() => setShowLangPicker(true)} />
-            <MenuItem testID="notif-prefs-btn" icon="ri-notification-3-line" label="Notifications" onPress={() => { setShowNotifPrefs(true); fetchNotifPrefs(); }} />
-            <MenuItem icon="ri-fingerprint-line" label="Face ID / Biometrie" onPress={() => Alert.alert('Face ID / Biometrie', 'L\'authentification biometrique est disponible sur l\'application mobile (iOS / Android).\n\nUne fois activee, vous pourrez vous connecter directement avec Face ID ou votre empreinte digitale sans retaper votre mot de passe.\n\nPour l\'activer :\n1. Installez l\'app via TestFlight\n2. Connectez-vous une premiere fois\n3. Activez Face ID dans ce menu')} />
-            {effectiveRole === 'beneficiary' && <MenuItem icon="ri-heart-pulse-line" label="Dossier medical" onPress={() => { setMedForm({ blood_type: user.blood_type || '', conditions: user.medical_conditions ? user.medical_conditions.split(', ') : [], allergies: user.allergies ? user.allergies.split(', ') : [], pacemaker: user.pacemaker || '', stents: user.stents || '', thyroid: user.thyroid || '', other_condition: '' }); setShowMedical(true); setMedSaved(false); }} />}
+            <ProfileMenuItem icon="ri-translate-2" label={`${t('language')} (${lang})`} onPress={() => setShowLangPicker(true)} />
+            <ProfileMenuItem testID="notif-prefs-btn" icon="ri-notification-3-line" label="Notifications" onPress={() => { setShowNotifPrefs(true); fetchNotifPrefs(); }} />
+            <ProfileMenuItem icon="ri-fingerprint-line" label="Face ID / Biometrie" onPress={() => Alert.alert('Face ID / Biometrie', 'L\'authentification biometrique est disponible sur l\'application mobile (iOS / Android).\n\nUne fois activee, vous pourrez vous connecter directement avec Face ID ou votre empreinte digitale sans retaper votre mot de passe.\n\nPour l\'activer :\n1. Installez l\'app via TestFlight\n2. Connectez-vous une premiere fois\n3. Activez Face ID dans ce menu')} />
+            {effectiveRole === 'beneficiary' && <ProfileMenuItem icon="ri-heart-pulse-line" label="Dossier medical" onPress={() => { setMedForm({ blood_type: user.blood_type || '', conditions: user.medical_conditions ? user.medical_conditions.split(', ') : [], allergies: user.allergies ? user.allergies.split(', ') : [], pacemaker: user.pacemaker || '', stents: user.stents || '', thyroid: user.thyroid || '', other_condition: '' }); setShowMedical(true); setMedSaved(false); }} />}
           </div>
 
           {/* Second card */}
           <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
-            <MenuItem icon="ri-file-text-line" label={t('terms')} onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
-            <MenuItem icon="ri-question-line" label="Centre d'aide" onPress={() => setShowHelp(true)} />
-            <MenuItem icon="ri-mail-line" label={t('support')} onPress={() => setShowContact(true)} />
-            <MenuItem icon="ri-information-line" label={`${t('about')} - Chutex v3.0`} onPress={() => Alert.alert('CHUTEX', 'Version 3.0\nChutex Innovation SAS')} />
+            <ProfileMenuItem icon="ri-file-text-line" label={t('terms')} onPress={() => Alert.alert('CGU', 'Les conditions generales seront disponibles prochainement.')} />
+            <ProfileMenuItem icon="ri-question-line" label="Centre d'aide" onPress={() => setShowHelp(true)} />
+            <ProfileMenuItem icon="ri-mail-line" label={t('support')} onPress={() => setShowContact(true)} />
+            <ProfileMenuItem icon="ri-information-line" label={`${t('about')} - Chutex v3.0`} onPress={() => Alert.alert('CHUTEX', 'Version 3.0\nChutex Innovation SAS')} />
           </div>
 
           {/* Logout */}
@@ -310,7 +310,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
           <div style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 16 }}>Chutex Innovation SAS - v3.0</div>
 
           {/* GLASS POPUPS */}
-          <GlassPopup visible={editMode} onClose={() => setEditMode(false)}>
+          <ProfileGlassPopup visible={editMode} onClose={() => setEditMode(false)}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>{t('modify_profile')}</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>{user.name}</div>
             {[{ val: editName, set: setEditName, label: 'Nom complet', icon: 'ri-user-line' }, { val: editPhone, set: setEditPhone, label: 'Telephone', icon: 'ri-phone-line' }, { val: editAddress, set: setEditAddress, label: 'Adresse', icon: 'ri-map-pin-line' }].map((f, i) => (
@@ -323,9 +323,9 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
               <div onClick={() => setEditMode(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
               <div onClick={saveProfile} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : 'Enregistrer'}</div>
             </div>
-          </GlassPopup>
+          </ProfileGlassPopup>
 
-          <GlassPopup visible={showPwChange} onClose={() => setShowPwChange(false)}>
+          <ProfileGlassPopup visible={showPwChange} onClose={() => setShowPwChange(false)}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>{t('security')}</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Mot de passe</div>
             {[{ val: oldPw, set: setOldPw, label: 'Mot de passe actuel' }, { val: newPw, set: setNewPw, label: 'Nouveau mot de passe' }].map((f, i) => (
@@ -338,9 +338,9 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
               <div onClick={() => setShowPwChange(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
               <div onClick={changePassword} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>Confirmer</div>
             </div>
-          </GlassPopup>
+          </ProfileGlassPopup>
 
-          <GlassPopup visible={showContact} onClose={() => setShowContact(false)}>
+          <ProfileGlassPopup visible={showContact} onClose={() => setShowContact(false)}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>{t('support')}</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Assistance</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>contact@chutex-innovation.com</div>
@@ -358,9 +358,9 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
               <div onClick={() => setShowContact(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
               <div onClick={sendContactForm} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{sendingContact ? '...' : 'Envoyer'}</div>
             </div>
-          </GlassPopup>
+          </ProfileGlassPopup>
 
-          <GlassPopup visible={showNotifPrefs} onClose={() => setShowNotifPrefs(false)}>
+          <ProfileGlassPopup visible={showNotifPrefs} onClose={() => setShowNotifPrefs(false)}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>Notifications</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Preferences</div>
             {notifPrefs ? ['sos_alerts','fall_detection','health_thresholds','low_battery'].map((key, i, arr) => (
@@ -374,7 +374,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
                 {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}
               </div>
             )) : <div style={{ textAlign: 'center', padding: '30px 0' } as any}><i className="ri-loader-4-line" style={{ fontSize: 24, color: 'rgba(255,255,255,0.3)' }} /></div>}
-          </GlassPopup>
+          </ProfileGlassPopup>
 
           {/* CARE SUBSCRIPTION DETAIL POPUP */}
           {showCareDetail && (
@@ -537,9 +537,9 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
           </View>
         </GlassCard>
         <GlassCard>
-          <MenuItem icon="person-outline" label={t('modify_profile')} onPress={() => setEditMode(true)} />
-          <MenuItem icon="lock-closed-outline" label={t('security')} onPress={() => setShowPwChange(true)} />
-          <MenuItem icon="notifications-outline" label="Notifications" onPress={() => { setShowNotifPrefs(true); fetchNotifPrefs(); }} />
+          <ProfileMenuItem icon="person-outline" label={t('modify_profile')} onPress={() => setEditMode(true)} />
+          <ProfileMenuItem icon="lock-closed-outline" label={t('security')} onPress={() => setShowPwChange(true)} />
+          <ProfileMenuItem icon="notifications-outline" label="Notifications" onPress={() => { setShowNotifPrefs(true); fetchNotifPrefs(); }} />
         </GlassCard>
         <TouchableOpacity style={{ backgroundColor: '#EF4444', borderRadius: 9999, paddingVertical: 16, alignItems: 'center', marginTop: 8 }} onPress={logout}>
           <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>{t('logout')}</Text>
