@@ -6,6 +6,37 @@ import { useAuth } from '../src/context/AuthContext';
 
 const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
 
+const INPUT_STYLE = { width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
+
+function GI({ label, ...props }: any) {
+  return (
+    <div style={{ marginBottom: 14 } as any}>
+      <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>{label}</div>
+      <input {...props} style={{ ...INPUT_STYLE, ...(props.style || {}) }} />
+    </div>
+  );
+}
+
+function Chip({ label, selected, onClick }: any) {
+  return (
+    <div onClick={onClick} style={{ padding: '10px 16px', borderRadius: 999, background: selected ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${selected ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 13, fontWeight: selected ? 700 : 500, color: selected ? '#FFF' : 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+      {selected && <i className="ri-check-line" style={{ fontSize: 14 }} />}{label}
+    </div>
+  );
+}
+
+function RadioCard({ icon, label, desc, selected, onClick }: any) {
+  return (
+    <div onClick={onClick} style={{ padding: '16px 18px', borderRadius: 18, background: selected ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${selected ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+      <div style={{ width: 44, height: 44, borderRadius: 14, background: selected ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+        <i className={icon} style={{ fontSize: 20, color: selected ? '#FFF' : 'rgba(255,255,255,0.25)' }} />
+      </div>
+      <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: selected ? '#FFF' : 'rgba(255,255,255,0.4)' }}>{label}</div>{desc && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{desc}</div>}</div>
+      {selected && <i className="ri-check-line" style={{ fontSize: 18, color: '#10B981' }} />}
+    </div>
+  );
+}
+
 export default function RegisterScreen() {
   const router = useRouter();
   const { login } = useAuth();
