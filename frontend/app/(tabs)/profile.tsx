@@ -70,6 +70,10 @@ export default function ProfileScreen() {
   const [notifPrefs, setNotifPrefs] = useState<any>(null);
   const [savingNotif, setSavingNotif] = useState(false);
   const [showCareDetail, setShowCareDetail] = useState(false);
+  const [showMedical, setShowMedical] = useState(false);
+  const [medForm, setMedForm] = useState({ blood_type: '', conditions: [] as string[], allergies: [] as string[], pacemaker: '', stents: '', thyroid: '', other_condition: '' });
+  const [medSaving, setMedSaving] = useState(false);
+  const [medSaved, setMedSaved] = useState(false);
   const [subData, setSubData] = useState<any>(null);
 
   const fetchNotifPrefs = useCallback(async () => {
