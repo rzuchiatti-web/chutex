@@ -229,23 +229,47 @@ export default function HealthDetailScreen() {
                   </div>
                 ))}
               </div>
-              {/* Score + Interruptions + Apnea */}
-              <div style={{ padding: '10px 16px 14px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', gap: 8 } as any}>
-                <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: slQ >= 80 ? '#10B981' : '#F59E0B' }}>{slQ}%</div>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>Qualite</div>
-                </div>
-                <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: inter <= 2 ? '#10B981' : '#F59E0B' }}>{inter}</div>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>Interruptions</div>
-                </div>
-                <div style={{ flex: 2, padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.03)' } as any}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 } as any}>
-                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>Risque apnee</span>
-                    <span style={{ fontSize: 9, fontWeight: 700, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modere' : 'Eleve'}</span>
+              {/* Quality + Interruptions in one card + Apnea bar below */}
+              <div style={{ padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+                {/* Unified quality + interruptions */}
+                <div style={{ display: 'flex', gap: 16, marginBottom: 16 } as any}>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: slQ >= 80 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className="ri-star-line" style={{ fontSize: 20, color: slQ >= 80 ? '#10B981' : '#F59E0B' }} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{slQ}%</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Qualite du sommeil</div>
+                    </div>
                   </div>
-                  <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-                    <div style={{ height: 6, borderRadius: 3, width: `${apneaRisk}%`, background: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? 'linear-gradient(90deg, #10B981, #F59E0B)' : 'linear-gradient(90deg, #F59E0B, #EF4444)' } as any} />
+                  <div style={{ width: 1, background: 'rgba(255,255,255,0.06)' } as any} />
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: inter <= 2 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className="ri-alarm-line" style={{ fontSize: 20, color: inter <= 2 ? '#10B981' : '#F59E0B' }} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{inter}</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Interruptions</div>
+                    </div>
+                  </div>
+                </div>
+                {/* Apnea risk bar */}
+                <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                      <i className="ri-lungs-line" style={{ fontSize: 16, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }} />
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Estimation risque d'apnee du sommeil</span>
+                    </div>
+                    <span style={{ padding: '4px 12px', borderRadius: 999, background: apneaRisk < 30 ? 'rgba(16,185,129,0.12)' : apneaRisk < 60 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)', fontSize: 11, fontWeight: 700, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modere' : 'Eleve'}</span>
+                  </div>
+                  <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative' } as any}>
+                    <div style={{ position: 'absolute', inset: 0, borderRadius: 5, background: 'linear-gradient(90deg, #10B981 0%, #10B981 30%, #F59E0B 50%, #EF4444 80%, #DC2626 100%)', opacity: 0.15 } as any} />
+                    <div style={{ height: 10, borderRadius: 5, width: `${apneaRisk}%`, background: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? 'linear-gradient(90deg, #10B981, #F59E0B)' : 'linear-gradient(90deg, #F59E0B, #EF4444)', transition: 'width 1s ease', boxShadow: `0 0 12px ${apneaRisk < 30 ? 'rgba(16,185,129,0.4)' : apneaRisk < 60 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'}` } as any} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 } as any}>
+                    <span style={{ fontSize: 9, color: 'rgba(16,185,129,0.5)' }}>Faible</span>
+                    <span style={{ fontSize: 9, color: 'rgba(245,158,11,0.5)' }}>Modere</span>
+                    <span style={{ fontSize: 9, color: 'rgba(239,68,68,0.5)' }}>Eleve</span>
                   </div>
                 </div>
               </div>
