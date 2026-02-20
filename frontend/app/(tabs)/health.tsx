@@ -786,38 +786,62 @@ export default function HealthScreen() {
             </>
           )}
 
-          {/* ═══ 2. PRIORITE DU JOUR ═══ */}
-          {analysisPhase ? (
-            /* During analysis: provisional priority */
-            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: 14 } as any}>
+          {/* ═══ 2. PRIORITE + PLAN DU JOUR (unified) ═══ */}
+          <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: 14 } as any}>
+            {analysisPhase ? (
+              /* ── During analysis: provisional ── */
               <div style={{ padding: '18px 20px' } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Priorite du jour</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>Priorite du jour</div>
                   <span style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', fontSize: 9, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase' }}>en apprentissage</span>
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 12, lineHeight: 1.5 }}>Nous commencons a identifier vos habitudes. Voici une priorite provisoire basee sur vos premieres mesures.</div>
-                <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 14, lineHeight: 1.5 }}>Nous commencons a identifier vos habitudes. Voici une priorite provisoire basee sur vos premieres mesures.</div>
+                <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 14 } as any}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', lineHeight: 1.5, marginBottom: 6 }}>
                     {analysisPhase.day <= 3 ? 'Pensez a faire une pesee chaque matin pour ameliorer la precision de l\'analyse.' : `Objectif du jour : atteindre ${analysisPhase.day <= 5 ? '5 000' : '6 000'} pas pour enrichir votre profil d'activite.`}
                   </div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Base sur : premieres donnees collectees · Jour {analysisPhase.day}/7</div>
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.5)', fontStyle: 'italic' }}>Le score sante IA complet sera disponible apres 7 jours d'analyse.</div>
+                {/* Provisional plan metrics */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
+                  {plan.map((p: any) => (
+                    <div key={p.key} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}><i className={p.icon} style={{ fontSize: 14, color: p.color }} /><span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{p.status}</span></div>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{p.value} <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{p.unit}</span></div>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{p.label}</div>
+                      {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', marginTop: 6, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${p.progress}%`, background: p.color } as any} /></div>}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.5)', fontStyle: 'italic', marginTop: 12 }}>Le score sante IA complet sera disponible apres 7 jours d'analyse.</div>
               </div>
-            </div>
-          ) : (
-            /* After analysis: full IA priority */
-            <div style={{ borderRadius: 22, background: 'linear-gradient(135deg, rgba(14,116,144,0.12), rgba(34,211,238,0.06))', border: '1px solid rgba(34,211,238,0.15)', overflow: 'hidden', marginBottom: 14 } as any}>
+            ) : (
+              /* ── After analysis: full IA ── */
               <div style={{ padding: '18px 20px' } as any}>
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Priorite du jour</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF', lineHeight: 1.5, marginBottom: 8 }}>{ai.priority || ''}</div>
-                {ai.priority_why && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 14 }}>Base sur : {ai.priority_why}</div>}
-                <div onClick={() => setShowDayPlanPopup(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Priorite du jour</div>
+                {/* Priority message */}
+                <div style={{ padding: '14px 16px', borderRadius: 16, background: 'linear-gradient(135deg, rgba(14,116,144,0.1), rgba(34,211,238,0.04))', border: '1px solid rgba(34,211,238,0.12)', marginBottom: 14 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', lineHeight: 1.5, marginBottom: 6 }}>{ai.priority || ''}</div>
+                  {ai.priority_why && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Base sur : {ai.priority_why}</div>}
+                </div>
+                {/* Plan metrics grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 } as any}>
+                  {plan.map((p: any) => (
+                    <div key={p.key} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}><i className={p.icon} style={{ fontSize: 14, color: p.color }} /><span style={{ fontSize: 9, fontWeight: 700, color: p.status === 'atteint' ? '#10B981' : p.status === 'priorite' ? '#F59E0B' : 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{p.status}</span></div>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{p.value} <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{p.unit}</span></div>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{p.label}</div>
+                      {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', marginTop: 6, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${p.progress}%`, background: p.color } as any} /></div>}
+                    </div>
+                  ))}
+                </div>
+                {/* CTA */}
+                <div onClick={() => setShowDayPlanPopup(true)} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
                   <i className="ri-calendar-check-line" style={{ fontSize: 15 }} />Voir mon plan du jour
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* ═══ DAY PLAN POPUP (glass) ═══ */}
           {showDayPlanPopup && (
@@ -830,18 +854,16 @@ export default function HealthScreen() {
                   <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg, rgba(34,211,238,0.2), rgba(14,116,144,0.15))', border: '1px solid rgba(34,211,238,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
                     <i className="ri-calendar-check-line" style={{ fontSize: 28, color: '#22D3EE' }} />
                   </div>
-                  <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>Plan du jour</div>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>Mon plan du jour</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Programme personnalise base sur vos donnees</div>
                 </div>
-
-                {/* Priority detail */}
+                {/* Priority */}
                 <div style={{ padding: '16px 18px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(14,116,144,0.12), rgba(34,211,238,0.06))', border: '1px solid rgba(34,211,238,0.15)', marginBottom: 12 } as any}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(34,211,238,0.6)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Priorite</div>
                   <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', lineHeight: 1.5, marginBottom: 6 }}>{ai.priority || ''}</div>
                   {ai.priority_why && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Base sur : {ai.priority_why}</div>}
                 </div>
-
-                {/* Plan metrics */}
+                {/* Metrics detail */}
                 {plan.map((p: any) => (
                   <div key={p.key} style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 10 } as any}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
@@ -855,8 +877,6 @@ export default function HealthScreen() {
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{p.detail}</div>
                   </div>
                 ))}
-
-                {/* Secondary recs */}
                 {ai.secondary_recs && ai.secondary_recs.length > 0 && (
                   <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 12 } as any}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Autres conseils</div>
@@ -867,34 +887,8 @@ export default function HealthScreen() {
                     ))}
                   </div>
                 )}
-
-                <div onClick={() => setShowDayPlanPopup(false)} style={{ padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 6 } as any}>Fermer</div>
+                <div onClick={() => setShowDayPlanPopup(false)} style={{ padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>Fermer</div>
               </div>
-            </div>
-          )}
-
-          {/* ═══ 3. PLAN DU JOUR ═══ */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Plan du jour</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 } as any}>
-            {plan.map((p: any) => (
-              <div key={p.key} onClick={() => setShowPlanDetail(showPlanDetail?.key === p.key ? null : p)} style={{ padding: '14px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', transition: 'transform 0.2s' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 } as any}>
-                  <i className={p.icon} style={{ fontSize: 16, color: p.color }} />
-                  <span style={{ fontSize: 9, fontWeight: 700, color: p.status === 'atteint' ? '#10B981' : p.status === 'priorite' ? '#F59E0B' : 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>{p.status}</span>
-                </div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{p.value} <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{p.unit}</span></div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{p.label}</div>
-                {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', marginTop: 8, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${p.progress}%`, background: p.color, transition: 'width 1s' } as any} /></div>}
-              </div>
-            ))}
-          </div>
-          {/* Plan detail popup */}
-          {showPlanDetail && (
-            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 14, marginTop: -8 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}><i className={showPlanDetail.icon} style={{ fontSize: 16, color: showPlanDetail.color }} /><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{showPlanDetail.label}</span></div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>{showPlanDetail.detail}</div>
             </div>
           )}
 
