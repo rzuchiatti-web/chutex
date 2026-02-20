@@ -202,7 +202,7 @@ export default function RegisterScreen() {
             </div>
           </>)}
 
-          {/* ═══ STEP 1: Phone + Password (both roles) ═══ */}
+          {/* ═══ STEP 1: RGPD (both roles) ═══ */}
           {step === 1 && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Creez votre compte</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Vos identifiants de connexion</div>
