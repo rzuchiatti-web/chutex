@@ -40,20 +40,18 @@ function RadioCard({ icon, label, desc, selected, onClick }: any) {
 export default function RegisterScreen() {
   const router = useRouter();
   const { login } = useAuth();
-  const [role, setRole] = useState(''); // '' = choose, 'beneficiary', 'guardian'
-  const [step, setStep] = useState(0); // 0 = role select
+  const [role, setRole] = useState('');
+  const [step, setStep] = useState(0);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showPrefix, setShowPrefix] = useState(false);
   const [form, setForm] = useState({
-    email: '', password: '', confirmPassword: '',
-    name: '', firstName: '', phone: '', date_of_birth: '', gender: '',
-    // Beneficiary medical
+    phone: '', prefix: '+33', password: '', confirmPassword: '',
+    name: '', firstName: '', date_of_birth: '', gender: '',
     height_cm: '', weight_kg: '', blood_type: '',
     allergies: [] as string[], medical_conditions: [] as string[],
-    medications: '', emergency_contact_name: '', emergency_contact_phone: '',
     doctor_name: '', doctor_phone: '', social_security: '',
     devices: '',
-    // Guardian professional
     pro_type: '', structure: '',
     acceptTerms: false,
   });
