@@ -21,6 +21,7 @@ from routes.bracelet_routes import router as bracelet_router
 from routes.carewatch_routes import router as carewatch_router
 from routes.company_routes import router as company_router
 from routes.push_routes import router as push_router
+from routes.health_report_routes import router as health_report_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
