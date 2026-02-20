@@ -5,6 +5,20 @@ import { apiFetch } from '../src/services/api';
 import { useAuth } from '../src/context/AuthContext';
 
 const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
+const PREFIXES = [
+  { code: '+33', flag: '\u{1F1EB}\u{1F1F7}', label: 'France' },
+  { code: '+32', flag: '\u{1F1E7}\u{1F1EA}', label: 'Belgique' },
+  { code: '+41', flag: '\u{1F1E8}\u{1F1ED}', label: 'Suisse' },
+  { code: '+352', flag: '\u{1F1F1}\u{1F1FA}', label: 'Luxembourg' },
+  { code: '+1', flag: '\u{1F1FA}\u{1F1F8}', label: 'USA' },
+  { code: '+44', flag: '\u{1F1EC}\u{1F1E7}', label: 'UK' },
+  { code: '+49', flag: '\u{1F1E9}\u{1F1EA}', label: 'Allemagne' },
+  { code: '+39', flag: '\u{1F1EE}\u{1F1F9}', label: 'Italie' },
+  { code: '+34', flag: '\u{1F1EA}\u{1F1F8}', label: 'Espagne' },
+  { code: '+212', flag: '\u{1F1F2}\u{1F1E6}', label: 'Maroc' },
+  { code: '+216', flag: '\u{1F1F9}\u{1F1F3}', label: 'Tunisie' },
+  { code: '+213', flag: '\u{1F1E9}\u{1F1FF}', label: 'Algerie' },
+];
 
 const INPUT_STYLE = { width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
 
