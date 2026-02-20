@@ -651,6 +651,7 @@ export default function HealthScreen() {
   const [showZonePreview, setShowZonePreview] = useState<any>(null);
   const [showAnalysisInfo, setShowAnalysisInfo] = useState(false);
   const [showDayPlanPopup, setShowDayPlanPopup] = useState(false);
+  const [weighingStep, setWeighingStep] = useState(0); // 0=closed, 1=prep, 2=connect, 3=measuring, 4=result
   const fetchReport = useCallback(async () => {
     try { setReport(await apiFetch('/api/health/daily-report', {}, token)); } catch {} finally { setReportLoading(false); }
   }, [token]);
