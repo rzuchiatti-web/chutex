@@ -344,24 +344,81 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* ── Header ── */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-              <div style={{ width: 50, height: 50, borderRadius: 16, background: 'linear-gradient(135deg, #0E7490, #22D3EE)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(34,211,238,0.4)', boxShadow: '0 4px 20px rgba(14,116,144,0.4)' } as any}>
-                {user.avatar_url ? <img src={user.avatar_url} style={{ width: 50, height: 50, borderRadius: 16, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+          {/* ── NEW HEADER: AI Summary + Tabs + Lang ── */}
+          <div data-testid="dashboard-header" style={{ marginBottom: 16 } as any}>
+            {/* Top row: avatar, name, lang, notif */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ width: 46, height: 46, borderRadius: 14, background: 'linear-gradient(135deg, #0E7490, #22D3EE)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(34,211,238,0.4)', boxShadow: '0 4px 16px rgba(14,116,144,0.35)', flexShrink: 0 } as any}>
+                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 46, height: 46, borderRadius: 14, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+                </div>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>{user.name}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(79,195,247,0.6)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>Mon espace sante</div>
+                </div>
               </div>
-              <div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>{user.name}</div>
-                <div style={{ fontSize: 11, color: 'rgba(79,195,247,0.7)', fontWeight: 600, letterSpacing: 0.5 }}>Espace Bien-etre</div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
+                <LanguageFlagButton />
+                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                  <i className="ri-notification-3-line" style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)' }} />
+                  {(guardianRequests.length > 0 || activeAlerts.length > 0) && <div style={{ position: 'absolute', top: -3, right: -3, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(4,14,26,0.8)' } as any} />}
+                </div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-              {user.has_guardian_space && (
-                <div data-testid="switch-to-guardian" onClick={switchToGuardian} style={{ padding: '8px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)' } as any}><i className="ri-shield-user-line" style={{ marginRight: 5 }} />{t('guardian')}</div>
-              )}
-              <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
-                <i className="ri-notification-3-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)' }} />
-                {(guardianRequests.length > 0 || activeAlerts.length > 0) && <div style={{ position: 'absolute', top: -3, right: -3, width: 10, height: 10, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(4,14,26,0.8)' } as any} />}
+
+            {/* AI Health Summary */}
+            <div data-testid="ai-health-summary" style={{ padding: '14px 16px', borderRadius: 16, background: 'linear-gradient(135deg, rgba(14,116,144,0.12), rgba(34,211,238,0.06))', border: '1px solid rgba(34,211,238,0.15)', marginBottom: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 } as any}>
+                <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(34,211,238,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
+                  <i className="ri-sparkling-2-fill" style={{ fontSize: 16, color: '#22D3EE' }} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  {healthSummary ? (
+                    <>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', lineHeight: 1.4, marginBottom: 4 }}>{healthSummary.summary}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.4 }}>{healthSummary.recommendation}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 } as any}>
+                        <div style={{ padding: '3px 10px', borderRadius: 99, background: `${healthSummary.status_color}20`, border: `1px solid ${healthSummary.status_color}30` } as any}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: healthSummary.status_color }}>{healthSummary.score}/100 · {healthSummary.status}</span>
+                        </div>
+                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>Coach IA</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Analyse en cours...</div>
+                      <div style={{ width: 120, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                        <div style={{ width: '60%', height: 6, borderRadius: 3, background: 'linear-gradient(90deg, #0E7490, #22D3EE)', animation: 'pulse 1.5s ease-in-out infinite' } as any} />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Segmented Control Tabs: Bénéficiaire / Aidant */}
+            <div data-testid="role-tabs" style={{ display: 'flex', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: 3, gap: 3, marginBottom: 4 } as any}>
+              <div data-testid="tab-beneficiary" onClick={() => handleTabSwitch('beneficiary')} style={{
+                flex: 1, padding: '10px 0', borderRadius: 11, textAlign: 'center', cursor: 'pointer', transition: 'all 0.25s ease',
+                background: activeTab === 'beneficiary' ? 'linear-gradient(135deg, rgba(14,116,144,0.25), rgba(34,211,238,0.12))' : 'transparent',
+                border: activeTab === 'beneficiary' ? '1px solid rgba(34,211,238,0.2)' : '1px solid transparent',
+                boxShadow: activeTab === 'beneficiary' ? '0 2px 12px rgba(14,116,144,0.2)' : 'none',
+              } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                  <i className="ri-heart-pulse-line" style={{ fontSize: 14, color: activeTab === 'beneficiary' ? '#22D3EE' : 'rgba(255,255,255,0.3)' }} />
+                  <span style={{ fontSize: 12, fontWeight: activeTab === 'beneficiary' ? 800 : 500, color: activeTab === 'beneficiary' ? '#FFF' : 'rgba(255,255,255,0.35)', letterSpacing: 0.2 }}>Beneficiaire</span>
+                </div>
+              </div>
+              <div data-testid="tab-guardian" onClick={() => handleTabSwitch('guardian')} style={{
+                flex: 1, padding: '10px 0', borderRadius: 11, textAlign: 'center', cursor: 'pointer', transition: 'all 0.25s ease',
+                background: activeTab === 'guardian' ? 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.08))' : 'transparent',
+                border: activeTab === 'guardian' ? '1px solid rgba(167,139,250,0.2)' : '1px solid transparent',
+              } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                  <i className="ri-shield-user-line" style={{ fontSize: 14, color: activeTab === 'guardian' ? '#A78BFA' : 'rgba(255,255,255,0.3)' }} />
+                  <span style={{ fontSize: 12, fontWeight: activeTab === 'guardian' ? 800 : 500, color: activeTab === 'guardian' ? '#FFF' : 'rgba(255,255,255,0.35)', letterSpacing: 0.2 }}>Aidant</span>
+                  {!user.has_guardian_space && <div style={{ width: 6, height: 6, borderRadius: 3, background: '#F59E0B', marginLeft: 2 } as any} />}
+                </div>
               </div>
             </div>
           </div>
