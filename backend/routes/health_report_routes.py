@@ -234,10 +234,36 @@ async def get_daily_report(user=Depends(get_current_user)):
         dt = (datetime.now(timezone.utc) - timedelta(days=i * 3 + random.randint(0, 2))).isoformat()
         weighings.append({"date": dt, "weight": wt, "body_fat_pct": bf, "water_pct": wp, "score": sc_val, "status": st})
 
+    # Analysis phase (7-day onboarding)
+    first_device = await db.devices.find_one({"user_id": uid}, {"_id": 0}, sort=[("created_at", 1)])
+    analysis_phase = None
+    if first_device and first_device.get("created_at"):
+        try:
+            created = datetime.fromisoformat(first_device["created_at"].replace("Z", "+00:00"))
+            days_since = (datetime.now(timezone.utc) - created).days
+            if days_since < 7:
+                day = days_since + 1
+                messages = {
+                    1: "Debut de l'analyse",
+                    2: "Collecte des premieres tendances",
+                    3: "Ajustement de votre profil",
+                    4: "Analyse des habitudes",
+                    5: "Correlation des donnees",
+                    6: "Finalisation du profil",
+                    7: "Preparation du Score Sante IA",
+                }
+                analysis_phase = {"day": day, "total": 7, "message": messages.get(day, "Analyse en cours"), "progress_pct": round((day / 7) * 100)}
+        except:
+            pass
+    # For demo: simulate day 5 if no device
+    if not first_device:
+        analysis_phase = {"day": 5, "total": 7, "message": "Correlation des donnees", "progress_pct": 71}
+
     return {
         "score": si["score"], "status": si["status"], "status_color": si["status_color"],
         "subscores": si["subscores"], "lifts": si["lifts"], "limits": si["limits"],
         "data": d, "ai": ai, "daily_plan": plan, "sparklines": sparks,
         "weighings": weighings, "human_map_img": HUMAN_MAP_IMG,
+        "analysis_phase": analysis_phase,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
