@@ -192,26 +192,6 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
   /* ─── WEB: Full-page profile with dark background ─── */
   if (Platform.OS === 'web') {
     const BG_DARK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
-          </div>
-          <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: danger ? '#EF4444' : '#FFF' }}>{label}</span>
-          <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }} />
-        </div>
-      );
-    }
-    return (
-      <TouchableOpacity testID={testID} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }} onPress={onPress}>
-        <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: danger ? 'rgba(239,68,68,0.08)' : 'rgba(0,0,0,0.08)', justifyContent: 'center', alignItems: 'center' }}>
-          <Icon name={icon} size={18} color={danger ? '#EF4444' : '#111827'} />
-        </View>
-        <Text style={{ flex: 1, fontSize: 15, fontWeight: '600', color: danger ? '#EF4444' : '#111827' }}>{label}</Text>
-        <Icon name="chevron-forward" size={16} color="#9CA3AF" />
-      </TouchableOpacity>
-    );
-  };
-
-  /* ─── WEB: Full-page profile with dark background ─── */
-  if (Platform.OS === 'web') {
-    const BG_DARK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
 
     return (
       <div data-testid="profile-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
