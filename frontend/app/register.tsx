@@ -110,7 +110,7 @@ export default function RegisterScreen() {
     return { ...f, [k]: arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v] };
   });
 
-  const BEN_STEPS = 4;
+  const BEN_STEPS = 5;
   const GUARD_STEPS = 3;
   const totalSteps = role === 'beneficiary' ? BEN_STEPS : GUARD_STEPS;
 
@@ -121,7 +121,8 @@ export default function RegisterScreen() {
     if (step === 2 && role === 'guardian') return form.name.trim() && form.firstName.trim() && form.pro_type;
     if (step === 3 && role === 'beneficiary') return true;
     if (step === 3 && role === 'guardian') return form.acceptTerms;
-    if (step === 4 && role === 'beneficiary') return form.acceptTerms;
+    if (step === 4 && role === 'beneficiary') return true;
+    if (step === 5 && role === 'beneficiary') return form.acceptTerms;
     return true;
   };
 
