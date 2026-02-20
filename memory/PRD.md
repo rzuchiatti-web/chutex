@@ -1,48 +1,38 @@
-# CARE WATCH - PRD
+# CARE WATCH — PRD
 
-## Original Problem Statement
-CARE WATCH — AI tele-assistance platform for elderly care with multi-role support.
+## Application
+Plateforme de tele-assistance IA pour le suivi sante des personnes agees.
 
 ## Architecture
 - Frontend: Expo/React Native (Web + iOS)
 - Backend: FastAPI + MongoDB
-- AI: GPT-4.1-mini via Emergent LLM Key
-- Integrations: Lefu Scale BLE, Expo EAS, ElevenLabs TTS
+- AI: GPT-4.1-mini via Emergent LLM Key (74 metriques)
+- Devices: Bracelet Elio + Balance Vita (simules)
 
-## Implemented (Session Feb 20, 2026)
+## Session Feb 20, 2026 — Complete
 
-### Page Santé — Coach Intelligent IA (COMPLETE)
-- Backend `/api/health/daily-report` : **74 métriques** (bracelet + balance) avec analyse IA GPT-4.1-mini
-- Score Vitalité /100 + statut du jour
-- Synthèse IA personnalisée en langage humain (motivant, bienveillant)
-- Corrélations IA entre données (sommeil↔stress, activité↔cardio, poids↔composition)
-- Conseil prioritaire du jour + recommandations secondaires
-- Indicateurs groupés par thème : Coeur, Corps, Sommeil, Activité, Stress
-- Chaque carte = valeur + tendance + sparkline + phrase explicative
-- CTA "Nouvelle pesée"
-- Données : VO2max, HRV, glycémie, âge corporel, type corporel, ratio taille-hanche, apport calorique recommandé, données segmentaires (bras/jambes), etc.
+### Pages Auth
+- **Connexion** : fond BG_DARK glass, champs glass, bouton pill
+- **Inscription** : 2 parcours (Beneficiaire 4 etapes + Gardien 3 etapes), dossier medical complet
 
-### Dashboard Bénéficiaire (COMPLETE)
-- Fond BG_DARK, cartes appareils avec images SVG + barres batterie gradient
-- Section Rappels avec popup CRUD glass style
-- Section Gardiens avec bouton blanc
+### Dashboard Beneficiaire
+- Fond BG_DARK, cartes appareils SVG + batterie gradient
+- Section Rappels (3 types, popup CRUD glass)
+- Section Gardiens + bouton blanc
 
-## En Cours / Phase 2
-- P0: Flow "Nouvelle pesée" multi-étapes en popup
-- P0: Pages détail par indicateur (template cohérent)
-- P1: Carte score santé sur le dashboard bénéficiaire
-- P1: Données segmentaires (bras/jambes) dans la page santé
-- P1: Type corporel avec grille visuelle
-- P2: États UI (pas de données, sync, erreur...)
-- P2: Deploy backend permanent
+### Page Sante — Coach IA Intelligent
+- Bloc analyse 7 jours (onboarding)
+- Score IA /100 + sous-scores (Cardio, Sommeil, Activite, Metabolisme, Hydratation)
+- Objectifs journaliers (4 metriques IA)
+- Carte sommeil hypnogramme + mouvements + apnee
+- 4 sections sante (Cardiaque, Metabolique, Physique, Composition)
+- Correlations IA "Comprendre mon corps"
+- Dernieres pesees
+- CTA flottant "Nouvelle pesee" (4 etapes)
 
-## Backlog
-- BLE J-Style bracelet (P3)
-- Shopify integration (P3)
-- Offline mode intervenants (P4)
+### Pages Detail
+- 6 pages thematiques avec analyse IA
+- Page metric-detail avec 8 types graphiques sur-mesure + calendrier
+- Page rapport pesee (30+ donnees balance)
 
-## Credentials
-| Role | Email | Password |
-|------|-------|----------|
-| Beneficiary | robert.martin@email.fr | demo123 |
-| Guardian | claire.martin@email.fr | demo123 |
+## Tests : 100% Backend (16/16) + 100% Frontend
