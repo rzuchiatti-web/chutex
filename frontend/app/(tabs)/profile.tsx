@@ -250,6 +250,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
             )}
             <MenuItem icon="ri-translate-2" label={`${t('language')} (${lang})`} onPress={() => setShowLangPicker(true)} />
             <MenuItem testID="notif-prefs-btn" icon="ri-notification-3-line" label="Notifications" onPress={() => { setShowNotifPrefs(true); fetchNotifPrefs(); }} />
+            <MenuItem icon="ri-fingerprint-line" label="Face ID / Biometrie" onPress={() => Alert.alert('Face ID / Biometrie', 'L\'authentification biometrique est disponible sur l\'application mobile (iOS / Android).\n\nUne fois activee, vous pourrez vous connecter directement avec Face ID ou votre empreinte digitale sans retaper votre mot de passe.\n\nPour l\'activer :\n1. Installez l\'app via TestFlight\n2. Connectez-vous une premiere fois\n3. Activez Face ID dans ce menu')} />
           </div>
 
           {/* Second card */}
