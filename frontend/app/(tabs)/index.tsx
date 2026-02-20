@@ -180,6 +180,10 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [inviteGuardRelationship, setInviteGuardRelationship] = useState('');
   const [inviteGuardMsg, setInviteGuardMsg] = useState('');
   const [inviteGuardLoading, setInviteGuardLoading] = useState(false);
+  const [editReminder, setEditReminder] = useState<any>(null);
+  const [showReminderCRUD, setShowReminderCRUD] = useState(false);
+  const [reminderNotif, setReminderNotif] = useState<any>(null);
+  const [remForm, setRemForm] = useState({ title: '', time: '08:00', reminder_type: 'hydration', notes: '', days: ['lun','mar','mer','jeu','ven','sam','dim'] });
   const sosPulse = useRef(new Animated.Value(1)).current;
   const { refreshUser } = useAuth();
 
