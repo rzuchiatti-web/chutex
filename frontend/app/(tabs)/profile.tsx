@@ -279,8 +279,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
             )}
             <ProfileMenuItem icon="ri-translate-2" label={`${t('language')} (${lang})`} onPress={() => setShowLangPicker(true)} />
             <ProfileMenuItem testID="notif-prefs-btn" icon="ri-notification-3-line" label="Notifications" onPress={() => { setShowNotifPrefs(true); fetchNotifPrefs(); }} />
-            <ProfileMenuItem icon="ri-fingerprint-line" label="Face ID / Biometrie" onPress={() => Alert.alert('Face ID / Biometrie', 'L\'authentification biometrique est disponible sur l\'application mobile (iOS / Android).\n\nUne fois activee, vous pourrez vous connecter directement avec Face ID ou votre empreinte digitale sans retaper votre mot de passe.\n\nPour l\'activer :\n1. Installez l\'app via TestFlight\n2. Connectez-vous une premiere fois\n3. Activez Face ID dans ce menu')} />
-            {effectiveRole === 'beneficiary' && <ProfileMenuItem icon="ri-heart-pulse-line" label="Dossier medical" onPress={() => { setMedForm({ blood_type: user.blood_type || '', conditions: user.medical_conditions ? user.medical_conditions.split(', ') : [], allergies: user.allergies ? user.allergies.split(', ') : [], pacemaker: user.pacemaker || '', stents: user.stents || '', thyroid: user.thyroid || '', other_condition: '' }); setShowMedical(true); setMedSaved(false); }} />}
+            <ProfileMenuItem icon="ri-fingerprint-line" label="Face ID / Biometrie" onPress={() => setShowFaceId(true)} />
           </div>
 
           {/* Second card */}
