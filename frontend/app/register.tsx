@@ -359,6 +359,7 @@ export default function RegisterScreen() {
           {step === 4 && role === 'beneficiary' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Antecedents</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Informations complementaires pour votre suivi</div>
+            <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.5)', marginBottom: 16, marginTop: -16 }}>Tous les champs sont obligatoires. Repondez a chaque question.</div>
 
             <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Avez-vous deja ete opere ?</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
