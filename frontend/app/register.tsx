@@ -291,37 +291,67 @@ export default function RegisterScreen() {
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Dossier medical</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Ces informations sont confidentielles et aident a personnaliser votre suivi</div>
 
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Groupe sanguin</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 18 } as any}>
-              {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Je ne sais pas'].map(bt => (
-                <Chip key={bt} label={bt} selected={form.blood_type === bt} onClick={() => u('blood_type', bt)} />
-              ))}
+            {/* Groupe sanguin — dropdown */}
+            <div style={{ marginBottom: 18 } as any}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Groupe sanguin</div>
+              <select value={form.blood_type} onChange={(e: any) => u('blood_type', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
+                <option value="" style={{ background: '#0a0f1a' }}>Selectionner</option>
+                {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Je ne sais pas'].map(bt => <option key={bt} value={bt} style={{ background: '#0a0f1a' }}>{bt}</option>)}
+              </select>
             </div>
 
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Pathologies / Antecedents</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 18 } as any}>
+            {/* Pathologies — grid cards */}
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Pathologies / Antecedents medicaux</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 8 } as any}>
               {['Diabete', 'Hypertension', 'Cholesterol', 'Arthrose', 'Insuffisance cardiaque', 'AVC', 'Asthme', 'Osteoporose', 'Parkinson', 'Alzheimer', 'Depression', 'Aucune'].map(c => (
-                <Chip key={c} label={c} selected={form.medical_conditions.includes(c)} onClick={() => { if (c === 'Aucune') u('medical_conditions', ['Aucune']); else toggleArr('medical_conditions', c); }} />
+                <div key={c} onClick={() => { if (c === 'Aucune') u('medical_conditions', ['Aucune']); else { const arr = form.medical_conditions.filter(x => x !== 'Aucune'); toggleArr('medical_conditions', c); } }} style={{ padding: '12px 14px', borderRadius: 14, background: form.medical_conditions.includes(c) ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.medical_conditions.includes(c) ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                  <div style={{ width: 20, height: 20, borderRadius: 6, background: form.medical_conditions.includes(c) ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.medical_conditions.includes(c) ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    {form.medical_conditions.includes(c) && <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />}
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: form.medical_conditions.includes(c) ? 700 : 500, color: form.medical_conditions.includes(c) ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{c}</span>
+                </div>
+              ))}
+            </div>
+            <GI label="Autre pathologie (optionnel)" placeholder="Precisez..." value={form.other_condition} onChange={(e: any) => u('other_condition', e.target.value)} />
+
+            {/* Allergies */}
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Allergies</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 18 } as any}>
+              {['Penicilline', 'Aspirine', 'Latex', 'Arachides', 'Gluten', 'Lactose', 'Iode', 'Aucune'].map(a => (
+                <div key={a} onClick={() => { if (a === 'Aucune') u('allergies', ['Aucune']); else toggleArr('allergies', a); }} style={{ padding: '12px 14px', borderRadius: 14, background: form.allergies.includes(a) ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.allergies.includes(a) ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                  <div style={{ width: 20, height: 20, borderRadius: 6, background: form.allergies.includes(a) ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.allergies.includes(a) ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    {form.allergies.includes(a) && <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />}
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: form.allergies.includes(a) ? 700 : 500, color: form.allergies.includes(a) ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{a}</span>
+                </div>
               ))}
             </div>
 
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Allergies</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 18 } as any}>
-              {['Penicilline', 'Aspirine', 'Latex', 'Arachides', 'Gluten', 'Lactose', 'Iode', 'Aucune'].map(a => (
-                <Chip key={a} label={a} selected={form.allergies.includes(a)} onClick={() => { if (a === 'Aucune') u('allergies', ['Aucune']); else toggleArr('allergies', a); }} />
+            {/* Pacemaker */}
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Portez-vous un pacemaker ?</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 18 } as any}>
+              {[{ v: 'oui', l: 'Oui' }, { v: 'non', l: 'Non' }].map(t => (
+                <div key={t.v} onClick={() => u('pacemaker', t.v)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.pacemaker === t.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.pacemaker === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.pacemaker === t.v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>{t.l}</div>
+              ))}
+            </div>
+
+            {/* Stents */}
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Avez-vous des stents ?</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 18 } as any}>
+              {[{ v: 'oui', l: 'Oui' }, { v: 'non', l: 'Non' }].map(t => (
+                <div key={t.v} onClick={() => u('stents', t.v)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.stents === t.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.stents === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.stents === t.v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>{t.l}</div>
+              ))}
+            </div>
+
+            {/* Thyroide */}
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Avez-vous ete diagnostique d'un probleme de thyroide ?</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 18 } as any}>
+              {[{ v: 'oui', l: 'Oui' }, { v: 'non', l: 'Non' }].map(t => (
+                <div key={t.v} onClick={() => u('thyroid', t.v)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.thyroid === t.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.thyroid === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.thyroid === t.v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>{t.l}</div>
               ))}
             </div>
 
             <GI label="Numero de securite sociale (optionnel)" placeholder="1 85 12 75 123 456 78" value={form.social_security} onChange={(e: any) => u('social_security', e.target.value)} />
-
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10, marginTop: 8 }}>Avez-vous ete diagnostique d'un probleme de thyroide ?</div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-              {[{ v: 'oui', l: 'Oui' }, { v: 'non', l: 'Non' }].map(t => (
-                <div key={t.v} onClick={() => u('thyroid', t.v)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.thyroid === t.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.thyroid === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.thyroid === t.v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>
-                  {t.l}
-                </div>
-              ))}
-            </div>
           </>)}
 
           {/* ═══ BENEFICIARY STEP 4: Antecedents ═══ */}
