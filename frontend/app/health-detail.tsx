@@ -168,7 +168,7 @@ export default function HealthDetailScreen() {
           const isExpanded = expanded === m.key;
           return (
             <div key={m.key} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: `1px solid ${isExpanded ? `${sec.color}30` : 'rgba(255,255,255,0.06)'}`, marginBottom: 8, overflow: 'hidden', transition: 'border-color 0.2s' } as any}>
-              <div onClick={() => setExpanded(isExpanded ? null : m.key)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', cursor: 'pointer' } as any}>
+              <div onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: m.key === 'bp_display' ? 'heart_rate' : m.key } })} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', cursor: 'pointer' } as any}>
                 <div>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginBottom: 4 }}>{m.label}</div>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{val} <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span></div>
