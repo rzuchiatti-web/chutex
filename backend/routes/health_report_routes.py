@@ -315,17 +315,47 @@ async def get_daily_report(user=Depends(get_current_user)):
         ("recovery_score", d["recovery_score"], 8), ("hrv", d["hrv"], 5)]:
         sparks[key] = [round(base + random.uniform(-var, var), 1) for _ in range(7)]
 
-    # Simulated last weighings
+    # Simulated last weighings with FULL balance data
     weighings = []
+    from datetime import timedelta
     for i in range(5):
         wt = round(d["weight"] + random.uniform(-0.5, 0.5), 1)
         bf = round(d["body_fat_pct"] + random.uniform(-0.3, 0.3), 1)
+        mp = round(d["muscle_pct"] + random.uniform(-0.2, 0.2), 1)
         wp = round(d["water_pct"] + random.uniform(-0.3, 0.3), 1)
         sc_val = random.randint(75, 95)
         st = "Bonne" if sc_val >= 80 else "A surveiller"
-        from datetime import timedelta
         dt = (datetime.now(timezone.utc) - timedelta(days=i * 3 + random.randint(0, 2))).isoformat()
-        weighings.append({"date": dt, "weight": wt, "body_fat_pct": bf, "water_pct": wp, "score": sc_val, "status": st})
+        weighings.append({
+            "id": f"w-{i}", "date": dt, "weight": wt, "score": sc_val, "status": st,
+            "bmi": round(wt / (1.73 ** 2), 1),
+            "body_fat_pct": bf, "fat_mass_kg": round(bf * wt / 100, 1),
+            "muscle_pct": mp, "muscle_mass_kg": round(mp * wt / 100, 1),
+            "water_pct": wp, "total_body_water_kg": round(wp * wt / 100, 1),
+            "bone_mass_kg": round(3.0 + random.uniform(-0.1, 0.1), 1),
+            "visceral_fat": random.choice([8, 9, 9, 10]),
+            "subcutaneous_fat_pct": round(bf - random.uniform(3, 5), 1),
+            "trunk_fat_kg": round(bf * 0.4 * wt / 100, 1),
+            "protein_pct": round(16 + random.random() * 2, 1),
+            "skeletal_muscle_pct": round(mp - 5 + random.random(), 1),
+            "skeletal_muscle_quality": random.randint(85, 100),
+            "basal_metabolism": random.randint(1480, 1620),
+            "recommended_calories": random.randint(1850, 2150),
+            "body_age": random.randint(60, 66),
+            "body_type": random.choice(["Standard", "Musculaire standard"]),
+            "waist_hip_ratio": round(0.82 + random.random() * 0.06, 2),
+            "minerals_kg": round(3.8 + random.uniform(-0.1, 0.1), 1),
+            "intracellular_water_kg": round(wp * 0.6 * wt / 100, 1),
+            "extracellular_water_kg": round(wp * 0.4 * wt / 100, 1),
+            "left_arm_fat_pct": round(20 + random.random() * 4, 1),
+            "right_arm_fat_pct": round(20 + random.random() * 4, 1),
+            "left_arm_muscle_pct": round(32 + random.random() * 3, 1),
+            "right_arm_muscle_pct": round(32 + random.random() * 3, 1),
+            "left_leg_fat_pct": round(24 + random.random() * 4, 1),
+            "right_leg_fat_pct": round(24 + random.random() * 4, 1),
+            "left_leg_muscle_kg": round(8 + random.random(), 1),
+            "right_leg_muscle_kg": round(8 + random.random(), 1),
+        })
 
     # Analysis phase (7-day onboarding)
     first_device = await db.devices.find_one({"user_id": uid}, {"_id": 0}, sort=[("created_at", 1)])
