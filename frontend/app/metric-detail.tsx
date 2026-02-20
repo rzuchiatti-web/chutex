@@ -17,10 +17,23 @@ export default function MetricDetailScreen() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [calFrom, setCalFrom] = useState('');
   const [calTo, setCalTo] = useState('');
+  const [threshold, setThreshold] = useState<any>(null);
+  const [thresholdEdit, setThresholdEdit] = useState(false);
+  const [thMin, setThMin] = useState('');
+  const [thMax, setThMax] = useState('');
+  const [thSaving, setThSaving] = useState(false);
+  const [thSaved, setThSaved] = useState(false);
 
   useEffect(() => {
     (async () => {
-      try { setData(await apiFetch(`/api/health/metric-history/${key}`, {}, token)); } catch {} finally { setLoading(false); }
+      try {
+        const [d, th] = await Promise.all([
+          apiFetch(`/api/health/metric-history/${key}`, {}, token),
+          apiFetch(`/api/health/thresholds/${key}`, {}, token).catch(() => null),
+        ]);
+        setData(d);
+        if (th) { setThreshold(th); setThMin(th.min_val != null ? String(th.min_val) : ''); setThMax(th.max_val != null ? String(th.max_val) : ''); }
+      } catch {} finally { setLoading(false); }
     })();
   }, [key, token]);
 
