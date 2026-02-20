@@ -67,10 +67,10 @@ export default function RegisterScreen() {
 
   const canNext = () => {
     if (step === 0) return !!role;
-    if (step === 1) return form.email.includes('@') && form.password.length >= 6 && form.password === form.confirmPassword;
+    if (step === 1) return form.phone.trim().length >= 6 && form.password.length >= 6 && form.password === form.confirmPassword;
     if (step === 2 && role === 'beneficiary') return form.name.trim() && form.firstName.trim() && form.gender;
     if (step === 2 && role === 'guardian') return form.name.trim() && form.firstName.trim() && form.pro_type;
-    if (step === 3 && role === 'beneficiary') return form.blood_type || form.medical_conditions.length > 0 || true; // medical is optional
+    if (step === 3 && role === 'beneficiary') return true;
     if (step === 3 && role === 'guardian') return form.acceptTerms;
     if (step === 4 && role === 'beneficiary') return form.acceptTerms;
     return true;
@@ -79,19 +79,20 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     setSubmitting(true); setError('');
     try {
+      let ph = form.phone.trim().replace(/\s/g, '');
+      if (ph.startsWith('0') && ph.length >= 9) ph = form.prefix + ph.substring(1);
+      else if (!ph.startsWith('+')) ph = form.prefix + ph;
       await apiFetch('/api/auth/register', { method: 'POST', body: JSON.stringify({
-        email: form.email.trim().toLowerCase(), password: form.password,
-        name: `${form.firstName} ${form.name}`.trim(), phone: form.phone,
+        email: ph, password: form.password,
+        name: `${form.firstName} ${form.name}`.trim(), phone: ph,
         date_of_birth: form.date_of_birth, gender: form.gender,
         height_cm: form.height_cm ? parseFloat(form.height_cm) : null,
         weight_kg: form.weight_kg ? parseFloat(form.weight_kg) : null,
         blood_type: form.blood_type, allergies: form.allergies.join(', '),
         medical_conditions: form.medical_conditions.join(', '),
-        emergency_contact_name: form.emergency_contact_name,
-        emergency_contact_phone: form.emergency_contact_phone,
         role: role,
       }) });
-      await login(form.email.trim().toLowerCase(), form.password);
+      await login(ph, form.password);
       router.replace('/(tabs)');
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
   };
