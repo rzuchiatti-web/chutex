@@ -485,34 +485,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           </GC>
 
-          {/* ── Rappels Section — Horizontal cards ── */}
-          <GC testId="reminders-section">
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Mes rappels</div>
-            {[
-              { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8' },
-              { type: 'medication', label: 'Traitement', img: REMINDER_IMAGES.medication, color: '#F59E0B' },
-              { type: 'alarm', label: 'Alarmes', img: REMINDER_IMAGES.alarm, color: '#EF4444' },
-            ].map((cat) => {
-              const catRems = reminders.filter((r: any) => r.reminder_type === cat.type);
-              const activeCount = catRems.filter((r: any) => r.active).length;
-              const nextTime = activeCount > 0 ? getNextReminderTime(catRems.find((r: any) => r.active)) : '';
-              return (
-                <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8, cursor: 'pointer', transition: 'background 0.2s' } as any}
-                  onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
-                  onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}>
-                  <img src={cat.img} alt={cat.label} style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{cat.label}</div>
-                    <div style={{ fontSize: 11, color: activeCount > 0 ? cat.color : 'rgba(255,255,255,0.25)', fontWeight: 600 }}>
-                      {activeCount > 0 ? `${activeCount} rappel${activeCount > 1 ? 's' : ''} actif${activeCount > 1 ? 's' : ''}${nextTime ? ` · dans ${nextTime}` : ''}` : 'Non configure'}
-                    </div>
-                  </div>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.2)' }} />
-                </div>
-              );
-            })}
-          </GC>
-
           {/* ── REMINDER CRUD POPUP — Intuitive direct-edit style ── */}
           {showReminderCRUD && editReminder && (() => {
             const popupType = editReminder._type || editReminder.reminder_type || 'hydration';
