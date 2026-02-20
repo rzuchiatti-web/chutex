@@ -123,7 +123,7 @@ export default function RegisterScreen() {
     if (step === 3 && role === 'guardian') return form.name.trim() && form.firstName.trim() && form.pro_type;
     if (step === 4 && role === 'beneficiary') return !!form.blood_type && form.medical_conditions.length > 0 && form.allergies.length > 0 && !!form.pacemaker && !!form.stents && !!form.thyroid;
     if (step === 4 && role === 'guardian') return form.acceptTerms;
-    if (step === 5 && role === 'beneficiary') return !!form.had_surgery && form.family_history.length > 0;
+    if (step === 5 && role === 'beneficiary') return !!form.had_surgery && form.family_history.length > 0 && form.acceptTerms;
     return true;
   };
 
