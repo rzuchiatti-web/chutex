@@ -149,14 +149,9 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
   const hasOther = (effectiveRole === 'prescriber_company' || effectiveRole === 'admin' || effectiveRole === 'teleassistance') ? false
     : isBen ? user.has_guardian_space : (user.has_beneficiary_space || user.role === 'beneficiary');
 
-  const MenuItem = ({ icon, label, onPress, danger, testID }: any) => {
-    if (Platform.OS === 'web') {
-      return (
-        <div data-testid={testID} onClick={onPress} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}
-          onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
-          onMouseLeave={(e: any) => { e.currentTarget.style.background = 'transparent'; }}>
-          <div style={{ width: 38, height: 38, borderRadius: 12, background: danger ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.06)', border: `1px solid ${danger ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-            <i className={danger ? 'ri-logout-box-r-line' : icon} style={{ fontSize: 16, color: danger ? '#EF4444' : 'rgba(255,255,255,0.6)' }} />
+  /* ─── WEB: Full-page profile with dark background ─── */
+  if (Platform.OS === 'web') {
+    const BG_DARK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
           </div>
           <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: danger ? '#EF4444' : '#FFF' }}>{label}</span>
           <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }} />
