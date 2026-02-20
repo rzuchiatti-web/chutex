@@ -346,7 +346,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
           {/* ── NEW HEADER: AI Summary + Tabs + Lang ── */}
-          <div data-testid="dashboard-header" style={{ marginBottom: 16, display: 'block' } as any}>
+          <div data-testid="dashboard-header" style={{ marginBottom: 16, display: 'block', width: '100%', minHeight: 10, position: 'relative', zIndex: 50 } as any}>
             {/* Top row: avatar, name, lang, notif */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
