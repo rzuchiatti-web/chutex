@@ -378,6 +378,28 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             )}
           </div>
 
+          {/* ── Dispositifs connectes (after SOS) ── */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Appareils connectes</div>
+          {[
+            { name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE', batteryGrad: 'linear-gradient(90deg, #0E7490, #22D3EE)', route: '/bracelet-connect', desc: 'Suivi cardiaque, SpO2, temperature' },
+            { name: 'Balance Lefu', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, color: '#A78BFA', batteryGrad: 'linear-gradient(90deg, #6D28D9, #A78BFA)', route: '/scale-detail', desc: 'Poids et composition corporelle' },
+            { name: 'Gilet Elder S-AIRBAG', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, color: '#10B981', batteryGrad: 'linear-gradient(90deg, #047857, #10B981)', route: '/vest-connect', desc: 'Protection anti-chute par airbag' },
+          ].map((d, i) => (
+            <div key={i} data-testid={`device-card-${i}`} onClick={() => router.push(d.route as any)} style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', transition: 'transform 0.2s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+              <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 5 } as any}><img src={d.img} alt={d.name} style={{ width: 38, height: 38, objectFit: 'contain' } as any} /></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{d.name}</div><div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}><span style={{ width: 5, height: 5, borderRadius: 3, background: d.connected ? '#10B981' : 'rgba(255,255,255,0.2)' } as any} /><span style={{ fontSize: 10, color: d.connected ? '#10B981' : 'rgba(255,255,255,0.3)' }}>{d.connected ? 'Connecte' : 'Deconnecte'}</span></div></div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }} />
+              </div>
+              <div style={{ padding: '6px 16px 10px', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                <div style={{ flex: 1, height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}><div style={{ height: 5, borderRadius: 3, width: `${d.battery}%`, background: d.batteryGrad } as any} /></div>
+                <span style={{ fontSize: 9, fontWeight: 700, color: d.color }}>{d.battery}%</span>
+              </div>
+            </div>
+          ))}
+
           {/* ── Alert banner (only if alerts) ── */}
           {activeAlerts.length > 0 && (
             <div data-testid="alert-banner" onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
