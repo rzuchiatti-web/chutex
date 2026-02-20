@@ -360,56 +360,29 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             )}
           </div>
 
-          {/* ── Connected Devices — Enriched cards with battery gradient ── */}
+          {/* ── Connected Devices — with real product images ── */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Appareils connectes</div>
           {[
-            { name: 'Bracelet Elio', icon: 'ri-heart-pulse-line', battery: br.battery, connected: br.connected, color: '#22D3EE', gradient: 'linear-gradient(135deg, #0E7490, #22D3EE)', batteryGrad: 'linear-gradient(90deg, #0E7490, #22D3EE)', route: '/bracelet-connect',
-              vitals: [
-                { val: br.heart_rate, unit: 'bpm', color: '#EF4444' },
-                { val: `${br.spo2}%`, unit: 'SpO2', color: '#38BDF8' },
-                { val: br.steps, unit: 'pas', color: '#10B981' },
-                { val: `${br.temperature}°C`, unit: 'temp', color: '#F59E0B' },
-              ]},
-            { name: 'Balance Lefu', icon: 'ri-scales-3-line', battery: sc.battery, connected: sc.connected, color: '#A78BFA', gradient: 'linear-gradient(135deg, #6D28D9, #A78BFA)', batteryGrad: 'linear-gradient(90deg, #6D28D9, #A78BFA)', route: '/scale-detail',
-              vitals: [
-                { val: `${sc.weight}`, unit: 'kg', color: '#A78BFA' },
-                { val: sc.bmi, unit: 'IMC', color: '#38BDF8' },
-                { val: `${sc.body_fat}%`, unit: 'graisse', color: '#F59E0B' },
-                { val: `${sc.muscle_mass}%`, unit: 'muscle', color: '#10B981' },
-              ]},
-            { name: 'Gilet CareWatch', icon: 'ri-shield-check-line', battery: vs.battery, connected: vs.connected, color: '#10B981', gradient: 'linear-gradient(135deg, #047857, #10B981)', batteryGrad: 'linear-gradient(90deg, #047857, #10B981)', route: '/vest-connect',
-              vitals: [
-                { val: `${vs.posture_score}%`, unit: 'posture', color: '#10B981' },
-                { val: `${vs.chest_temp}°C`, unit: 'thorax', color: '#F59E0B' },
-                { val: vs.fall_detected ? '!' : '0', unit: 'chute', color: vs.fall_detected ? '#EF4444' : '#10B981' },
-                { val: `${vs.wearing_hours_today}h`, unit: 'port', color: '#38BDF8' },
-              ]},
+            { name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE', batteryGrad: 'linear-gradient(90deg, #0E7490, #22D3EE)', route: '/bracelet-connect', desc: 'Suivi cardiaque, SpO2, temperature' },
+            { name: 'Balance Lefu', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, color: '#A78BFA', batteryGrad: 'linear-gradient(90deg, #6D28D9, #A78BFA)', route: '/scale-detail', desc: 'Poids et composition corporelle' },
+            { name: 'Gilet Elder S-AIRBAG', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, color: '#10B981', batteryGrad: 'linear-gradient(90deg, #047857, #10B981)', route: '/vest-connect', desc: 'Protection anti-chute par airbag' },
           ].map((d, i) => (
             <div key={i} data-testid={`device-card-${i}`} onClick={() => router.push(d.route as any)} style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', transition: 'transform 0.2s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-              {/* Header */}
-              <div style={{ padding: '16px 18px 14px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                <div style={{ width: 50, height: 50, borderRadius: 15, background: d.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 6px 20px ${d.color}35` } as any}>
-                  <i className={d.icon} style={{ fontSize: 24, color: '#FFF' }} />
+              <div style={{ padding: '16px 18px 12px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 6 } as any}>
+                  <img src={d.img} alt={d.name} style={{ width: 44, height: 44, objectFit: 'contain' } as any} />
                 </div>
                 <div style={{ flex: 1 } as any}>
                   <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>{d.name}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>{d.desc}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
                     <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : 'rgba(255,255,255,0.2)' } as any} />
                     <span style={{ fontSize: 10, color: d.connected ? '#10B981' : 'rgba(255,255,255,0.3)', fontWeight: 600 }}>{d.connected ? 'Connecte' : 'Deconnecte'}</span>
                   </div>
                 </div>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.25)' }} />
-              </div>
-              {/* Vitals row */}
-              <div style={{ display: 'flex', padding: '0 18px 14px', gap: 6 } as any}>
-                {d.vitals.map((v: any, j: number) => (
-                  <div key={j} style={{ flex: 1, padding: '8px 4px', borderRadius: 12, background: `${v.color}10`, textAlign: 'center' } as any}>
-                    <div style={{ fontSize: 15, fontWeight: 900, color: v.color, lineHeight: 1 }}>{v.val}</div>
-                    <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 3 }}>{v.unit}</div>
-                  </div>
-                ))}
               </div>
               {/* Battery bar gradient at bottom */}
               <div style={{ padding: '8px 18px 12px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
