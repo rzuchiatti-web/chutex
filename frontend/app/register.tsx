@@ -259,20 +259,6 @@ export default function RegisterScreen() {
               ))}
             </div>
 
-            <GI label="Traitements en cours" placeholder="Ex: Doliprane, Metformine..." value={form.medications} onChange={(e: any) => u('medications', e.target.value)} />
-
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10, marginTop: 8 }}>Contact d'urgence</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
-              <GI label="Nom" placeholder="Marie Dupont" value={form.emergency_contact_name} onChange={(e: any) => u('emergency_contact_name', e.target.value)} />
-              <GI label="Telephone" type="tel" placeholder="06 98 76 54 32" value={form.emergency_contact_phone} onChange={(e: any) => u('emergency_contact_phone', e.target.value)} />
-            </div>
-
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10, marginTop: 8 }}>Medecin traitant</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
-              <GI label="Nom du medecin" placeholder="Dr. Martin" value={form.doctor_name} onChange={(e: any) => u('doctor_name', e.target.value)} />
-              <GI label="Telephone" type="tel" placeholder="01 23 45 67 89" value={form.doctor_phone} onChange={(e: any) => u('doctor_phone', e.target.value)} />
-            </div>
-
             <GI label="Numero de securite sociale (optionnel)" placeholder="1 85 12 75 123 456 78" value={form.social_security} onChange={(e: any) => u('social_security', e.target.value)} />
           </>)}
 
