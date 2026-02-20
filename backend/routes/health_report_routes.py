@@ -196,6 +196,99 @@ def _fb():
     }
 
 
+@router.get("/health/metric-history/{key}")
+async def get_metric_history(key: str, user=Depends(get_current_user)):
+    """30 days of simulated history for a specific metric + AI analysis"""
+    import math
+    from datetime import timedelta
+    now = datetime.now(timezone.utc)
+    days = 30
+    history = []
+
+    generators = {
+        "heart_rate": lambda i: 68 + int(6 * math.sin(i / 7 * math.pi)) + random.randint(-3, 3),
+        "hrv": lambda i: 42 + int(5 * math.sin(i / 10 * math.pi)) + random.randint(-3, 3),
+        "spo2": lambda i: random.choice([96, 97, 97, 98, 98, 99]),
+        "bp_systolic": lambda i: 122 + int(4 * math.sin(i / 8 * math.pi)) + random.randint(-3, 3),
+        "bp_diastolic": lambda i: 76 + int(3 * math.sin(i / 8 * math.pi)) + random.randint(-2, 2),
+        "temperature": lambda i: round(36.5 + 0.3 * math.sin(i / 5 * math.pi) + random.uniform(-0.1, 0.1), 1),
+        "vo2_max": lambda i: round(29 + 0.5 * i / days + random.uniform(-0.5, 0.5), 1),
+        "glycemia": lambda i: round(0.98 + 0.08 * math.sin(i / 6 * math.pi) + random.uniform(-0.03, 0.03), 2),
+        "stress_level": lambda i: max(10, min(80, 35 + int(10 * math.sin(i / 5 * math.pi)) + random.randint(-5, 5))),
+        "recovery_score": lambda i: max(50, min(100, 80 + int(8 * math.sin(i / 6 * math.pi)) + random.randint(-4, 4))),
+        "steps": lambda i: max(500, 4000 + int(2000 * math.sin(i / 4 * math.pi)) + random.randint(-500, 500)),
+        "calories": lambda i: max(50, 160 + int(60 * math.sin(i / 4 * math.pi)) + random.randint(-20, 20)),
+        "distance_km": lambda i: round(max(0.3, 2.8 + 1.2 * math.sin(i / 4 * math.pi) + random.uniform(-0.3, 0.3)), 1),
+        "weight": lambda i: round(72.8 - 0.015 * i + random.uniform(-0.2, 0.2), 1),
+        "body_fat_pct": lambda i: round(22.8 - 0.02 * i + random.uniform(-0.2, 0.2), 1),
+        "muscle_pct": lambda i: round(33.2 + 0.015 * i + random.uniform(-0.15, 0.15), 1),
+        "water_pct": lambda i: round(54.8 + 0.5 * math.sin(i / 7 * math.pi) + random.uniform(-0.2, 0.2), 1),
+        "visceral_fat": lambda i: random.choice([8, 9, 9, 9, 10]),
+        "bone_mass_kg": lambda i: round(3.05 + random.uniform(-0.05, 0.05), 2),
+        "sleep_quality": lambda i: max(50, min(100, 80 + int(8 * math.sin(i / 5 * math.pi)) + random.randint(-5, 5))),
+        "sleep_duration_min": lambda i: max(300, min(540, 440 + int(30 * math.sin(i / 6 * math.pi)) + random.randint(-15, 15))),
+        "deep_sleep_min": lambda i: max(60, min(180, 130 + int(20 * math.sin(i / 5 * math.pi)) + random.randint(-10, 10))),
+        "light_sleep_min": lambda i: max(150, min(300, 240 + int(20 * math.sin(i / 7 * math.pi)) + random.randint(-10, 10))),
+        "rem_sleep_min": lambda i: max(30, min(100, 65 + int(15 * math.sin(i / 6 * math.pi)) + random.randint(-5, 5))),
+        "sleep_interruptions": lambda i: random.choice([1, 1, 2, 2, 3, 3, 4]),
+        "basal_metabolism": lambda i: random.randint(1480, 1620),
+        "recommended_calories": lambda i: random.randint(1850, 2150),
+        "bmi": lambda i: round(24.2 - 0.01 * i + random.uniform(-0.1, 0.1), 1),
+    }
+
+    # Fallback
+    gen = generators.get(key, lambda i: round(50 + 10 * math.sin(i / 5 * math.pi) + random.uniform(-2, 2), 1))
+
+    for i in range(days):
+        dt = now - timedelta(days=days - 1 - i)
+        val = gen(i)
+        # For sleep, add phases
+        entry = {"date": dt.strftime("%Y-%m-%d"), "value": val}
+        if key == "sleep_duration_min":
+            deep = max(60, min(180, 130 + random.randint(-15, 15)))
+            light = max(150, min(300, 240 + random.randint(-15, 15)))
+            rem = max(30, min(100, 65 + random.randint(-8, 8)))
+            entry["deep"] = deep
+            entry["light"] = light
+            entry["rem"] = rem
+        if key in ("bp_systolic", "heart_rate") and key == "heart_rate":
+            # Add intraday for ECG-like
+            entry["intraday"] = [68 + int(10 * math.sin(h / 3)) + random.randint(-2, 2) for h in range(24)]
+        history.append(entry)
+
+    vals = [h["value"] for h in history]
+    avg = round(sum(vals) / len(vals), 1) if vals else 0
+    mn, mx = (min(vals), max(vals)) if vals else (0, 0)
+    trend = round(vals[-1] - vals[0], 1) if len(vals) >= 2 else 0
+
+    # Metric meta
+    meta = {
+        "heart_rate": {"title": "Frequence cardiaque", "unit": "bpm", "graph_type": "ecg", "normal_min": 60, "normal_max": 80, "color": "#EF4444", "explain": "Le pouls au repos mesure le nombre de battements par minute. Un rythme entre 60 et 80 bpm est considere comme sain pour un adulte. Une frequence plus basse peut indiquer une bonne condition physique. Une frequence elevee au repos peut etre liee au stress, a la deshydratation ou a un manque de sommeil."},
+        "hrv": {"title": "Variabilite cardiaque", "unit": "ms", "graph_type": "scatter", "normal_min": 30, "normal_max": 60, "color": "#A78BFA", "explain": "La variabilite de frequence cardiaque (HRV) mesure l'intervalle entre chaque battement. Plus elle est elevee, meilleure est votre capacite d'adaptation au stress. C'est un marqueur cle de recuperation et de sante globale."},
+        "spo2": {"title": "Saturation en oxygene", "unit": "%", "graph_type": "area_threshold", "normal_min": 95, "normal_max": 100, "color": "#38BDF8", "explain": "Le SpO2 mesure le pourcentage d'hemoglobine saturee en oxygene dans le sang. Au-dessus de 95% est normal. En dessous de 92% necessite une attention medicale."},
+        "stress_level": {"title": "Niveau de stress", "unit": "/100", "graph_type": "area_gradient", "normal_min": 0, "normal_max": 40, "color": "#F59E0B", "explain": "Score de stress mesure par le bracelet via l'analyse du HRV. En dessous de 40 indique un etat detendu. Au-dessus de 60, votre corps est en tension et la recuperation est compromise."},
+        "recovery_score": {"title": "Score de recuperation", "unit": "/100", "graph_type": "area_gradient", "normal_min": 70, "normal_max": 100, "color": "#10B981", "explain": "Capacite de votre corps a recuperer apres l'effort et le stress quotidien. Au-dessus de 70 est favorable. Ce score est influence par le sommeil, le stress et l'activite physique."},
+        "steps": {"title": "Nombre de pas", "unit": "pas", "graph_type": "bars", "normal_min": 4000, "normal_max": 10000, "color": "#10B981", "explain": "L'objectif recommande est de 6000 a 10000 pas par jour. La marche reguliere ameliore la sante cardiovasculaire, le metabolisme et reduit le stress."},
+        "calories": {"title": "Depense energetique", "unit": "kcal", "graph_type": "bars", "normal_min": 100, "normal_max": 400, "color": "#F59E0B", "explain": "Calories brulees par l'activite physique. Ce chiffre s'ajoute au metabolisme de base pour calculer votre depense totale."},
+        "weight": {"title": "Poids", "unit": "kg", "graph_type": "smooth_curve", "color": "#A78BFA", "explain": "Votre poids est une donnee globale. Il est important de le croiser avec la composition corporelle (graisse, muscle, eau) pour comprendre les variations. Le poids seul ne reflète pas votre sante."},
+        "body_fat_pct": {"title": "Pourcentage de graisse", "unit": "%", "graph_type": "smooth_curve", "color": "#F59E0B", "explain": "Part de graisse dans votre corps. Normal : 15-25% pour un homme, 20-30% pour une femme. Au-dela, le risque cardiovasculaire et metabolique augmente."},
+        "muscle_pct": {"title": "Masse musculaire", "unit": "%", "graph_type": "smooth_curve", "color": "#10B981", "explain": "La masse musculaire est essentielle pour le metabolisme, l'equilibre et la mobilite. Un pourcentage eleve indique un bon etat physique general."},
+        "water_pct": {"title": "Taux d'hydratation", "unit": "%", "graph_type": "bars_threshold", "normal_min": 50, "normal_max": 65, "color": "#38BDF8", "explain": "Pourcentage d'eau dans votre corps. Normal entre 50 et 65%. L'hydratation impacte l'energie, la recuperation, la concentration et la sante renale."},
+        "sleep_quality": {"title": "Qualite du sommeil", "unit": "%", "graph_type": "area_gradient", "normal_min": 75, "normal_max": 100, "color": "#A78BFA", "explain": "Score base sur la duree, les cycles de sommeil et les interruptions. Au-dessus de 80% indique un sommeil reparateur."},
+        "sleep_duration_min": {"title": "Duree du sommeil", "unit": "min", "graph_type": "hypnogram", "color": "#6D28D9", "explain": "Duree totale du sommeil. 7 a 9 heures sont recommandees. Le sommeil est compose de phases profondes (recuperation physique), legeres et paradoxales (REM, memoire et emotions)."},
+        "temperature": {"title": "Temperature corporelle", "unit": "°C", "graph_type": "smooth_curve", "normal_min": 36.3, "normal_max": 37.5, "color": "#F59E0B", "explain": "La temperature corporelle varie naturellement au cours de la journee. Une augmentation peut indiquer une inflammation, une infection ou un effort physique intense."},
+        "glycemia": {"title": "Glycemie", "unit": "g/L", "graph_type": "smooth_curve", "normal_min": 0.7, "normal_max": 1.1, "color": "#F59E0B", "explain": "Taux de glucose dans le sang. A jeun, une glycemie entre 0.7 et 1.1 g/L est normale. Au-dessus de 1.26 a jeun peut indiquer un diabete."},
+        "bmi": {"title": "Indice de masse corporelle", "unit": "", "graph_type": "smooth_curve", "color": "#38BDF8", "explain": "Rapport poids/taille. Normal entre 18.5 et 25. Au-dessus de 25 : surpoids. L'IMC est un indicateur general, a croiser avec la composition corporelle."},
+    }
+
+    m = meta.get(key, {"title": key.replace("_", " ").title(), "unit": "", "graph_type": "smooth_curve", "color": "#A78BFA", "explain": "Donnee de sante mesuree par vos appareils connectes."})
+
+    return {
+        "key": key, "meta": m, "history": history,
+        "stats": {"avg": avg, "min": mn, "max": mx, "trend": trend, "count": len(vals)},
+    }
+
+
 @router.get("/health/daily-report")
 async def get_daily_report(user=Depends(get_current_user)):
     uid = user['id']
