@@ -237,7 +237,6 @@ export default function RegisterScreen() {
               <GI label="Prenom" placeholder="Jean" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
               <GI label="Nom" placeholder="Dupont" value={form.name} onChange={(e: any) => u('name', e.target.value)} />
             </div>
-            <GI label="Date de naissance" type="hidden" value="" onChange={() => {}} style={{ display: 'none' }} />
             <div style={{ marginBottom: 14 } as any}>
               <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Date de naissance</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr', gap: 8 } as any}>
