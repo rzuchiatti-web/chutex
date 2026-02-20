@@ -914,7 +914,7 @@ export default function HealthScreen() {
           {weighings.length > 0 && (<>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Dernieres pesees</div>
             {weighings.slice(0, 3).map((w: any, i: number) => (
-              <div key={i} onClick={() => router.push('/scale-detail' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8, cursor: 'pointer' } as any}>
+              <div key={i} onClick={() => router.push({ pathname: '/weighing-report' as any, params: { id: w.id } })} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8, cursor: 'pointer' } as any}>
                 <div style={{ flex: 1 } as any}>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{w.weight} kg</div>
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{new Date(w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>
