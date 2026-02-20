@@ -237,7 +237,24 @@ export default function RegisterScreen() {
               <GI label="Prenom" placeholder="Jean" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
               <GI label="Nom" placeholder="Dupont" value={form.name} onChange={(e: any) => u('name', e.target.value)} />
             </div>
-            <GI label="Date de naissance" type="date" value={form.date_of_birth} onChange={(e: any) => u('date_of_birth', e.target.value)} style={{ colorScheme: 'dark' }} />
+            <GI label="Date de naissance" type="hidden" value="" onChange={() => {}} style={{ display: 'none' }} />
+            <div style={{ marginBottom: 14 } as any}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Date de naissance</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr', gap: 8 } as any}>
+                <select value={form.dob_day} onChange={(e: any) => u('dob_day', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
+                  <option value="" style={{ background: '#0a0f1a' }}>Jour</option>
+                  {Array.from({ length: 31 }, (_, i) => i + 1).map(d => <option key={d} value={String(d)} style={{ background: '#0a0f1a' }}>{d}</option>)}
+                </select>
+                <select value={form.dob_month} onChange={(e: any) => u('dob_month', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
+                  <option value="" style={{ background: '#0a0f1a' }}>Mois</option>
+                  {['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'].map((m, i) => <option key={i} value={String(i + 1)} style={{ background: '#0a0f1a' }}>{m}</option>)}
+                </select>
+                <select value={form.dob_year} onChange={(e: any) => u('dob_year', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
+                  <option value="" style={{ background: '#0a0f1a' }}>Annee</option>
+                  {Array.from({ length: 100 }, (_, i) => 2026 - i).map(y => <option key={y} value={String(y)} style={{ background: '#0a0f1a' }}>{y}</option>)}
+                </select>
+              </div>
+            </div>
             <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Sexe</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
               {[{ v: 'male', l: 'Homme', ic: 'ri-men-line' }, { v: 'female', l: 'Femme', ic: 'ri-women-line' }].map(g => (
