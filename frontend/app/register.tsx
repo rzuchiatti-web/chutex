@@ -235,7 +235,7 @@ export default function RegisterScreen() {
           </>)}
 
           {/* ═══ BENEFICIARY STEP 2: Infos perso ═══ */}
-          {step === 2 && role === 'beneficiary' && (<>
+          {step === 3 && role === 'beneficiary' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Informations personnelles</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Pour personnaliser votre suivi sante</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
@@ -288,7 +288,7 @@ export default function RegisterScreen() {
           </>)}
 
           {/* ═══ BENEFICIARY STEP 3: Medical ═══ */}
-          {step === 3 && role === 'beneficiary' && (<>
+          {step === 4 && role === 'beneficiary' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Dossier medical</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Ces informations sont confidentielles et aident a personnaliser votre suivi</div>
             <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.5)', marginBottom: 16, marginTop: -16 }}>Tous les champs sont obligatoires. Selectionnez "Aucune" si non concerne.</div>
@@ -357,7 +357,7 @@ export default function RegisterScreen() {
           </>)}
 
           {/* ═══ BENEFICIARY STEP 4: Antecedents ═══ */}
-          {step === 4 && role === 'beneficiary' && (<>
+          {step === 5 && role === 'beneficiary' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Antecedents</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Informations complementaires pour votre suivi</div>
             <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.5)', marginBottom: 16, marginTop: -16 }}>Tous les champs sont obligatoires. Repondez a chaque question.</div>
@@ -407,7 +407,7 @@ export default function RegisterScreen() {
           </>)}
 
           {/* ═══ BENEFICIARY STEP 5: Devices + CGU ═══ */}
-          {step === 5 && role === 'beneficiary' && (<>
+          {step === 6 && role === 'beneficiary' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Vos appareils</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Quels appareils allez-vous utiliser ?</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 } as any}>
@@ -427,7 +427,7 @@ export default function RegisterScreen() {
           </>)}
 
           {/* ═══ GUARDIAN STEP 2: Infos perso + pro ═══ */}
-          {step === 2 && role === 'guardian' && (<>
+          {step === 3 && role === 'guardian' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Informations personnelles</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Votre profil de gardien ou professionnel</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
@@ -453,7 +453,7 @@ export default function RegisterScreen() {
           </>)}
 
           {/* ═══ GUARDIAN STEP 3: CGU ═══ */}
-          {step === 3 && role === 'guardian' && (<>
+          {step === 4 && role === 'guardian' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Finalisation</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Derniere etape avant de commencer</div>
 
