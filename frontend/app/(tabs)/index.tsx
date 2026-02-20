@@ -180,6 +180,13 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [inviteGuardRelationship, setInviteGuardRelationship] = useState('');
   const [inviteGuardMsg, setInviteGuardMsg] = useState('');
   const [inviteGuardLoading, setInviteGuardLoading] = useState(false);
+  const [healthSummary, setHealthSummary] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'beneficiary' | 'guardian'>('beneficiary');
+  const [showGuardianActivation, setShowGuardianActivation] = useState(false);
+  const [guardianActivationStep, setGuardianActivationStep] = useState(0);
+  const [alertSms, setAlertSms] = useState(true);
+  const [alertEmail, setAlertEmail] = useState(true);
+  const [activatingGuardian, setActivatingGuardian] = useState(false);
   const [editReminder, setEditReminder] = useState<any>(null);
   const [showReminderCRUD, setShowReminderCRUD] = useState(false);
   const [reminderNotif, setReminderNotif] = useState<any>(null);
