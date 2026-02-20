@@ -351,7 +351,7 @@ export default function RegisterScreen() {
               ))}
             </div>
 
-            <GI label="Numero de securite sociale (optionnel)" placeholder="1 85 12 75 123 456 78" value={form.social_security} onChange={(e: any) => u('social_security', e.target.value)} />
+            <GI label="" type="hidden" value="" onChange={() => {}} style={{ display: 'none' }} />
           </>)}
 
           {/* ═══ BENEFICIARY STEP 4: Antecedents ═══ */}
