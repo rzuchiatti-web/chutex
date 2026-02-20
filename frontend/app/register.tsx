@@ -100,16 +100,6 @@ export default function RegisterScreen() {
 
   if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Web uniquement</Text></View>;
 
-  const inputStyle = { width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
-    <div onClick={onClick} style={{ padding: '16px 18px', borderRadius: 18, background: selected ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${selected ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-      <div style={{ width: 44, height: 44, borderRadius: 14, background: selected ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-        <i className={icon} style={{ fontSize: 20, color: selected ? '#FFF' : 'rgba(255,255,255,0.25)' }} />
-      </div>
-      <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: selected ? '#FFF' : 'rgba(255,255,255,0.4)' }}>{label}</div>{desc && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{desc}</div>}</div>
-      {selected && <i className="ri-check-line" style={{ fontSize: 18, color: '#10B981' }} />}
-    </div>
-  );
-
   return (
     <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
       <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
