@@ -358,39 +358,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </GC>
           )}
 
-          {/* ── Alert banner — BG_RED style like guardian ── */}
-          <div data-testid="alert-banner" onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-            <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'absolute', inset: 0, background: activeAlerts.length > 0 ? 'rgba(0,0,0,0.25)' : 'rgba(0,80,60,0.6)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
-              <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
-              <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} en cours` : 'Aucune alerte'}</div></div>
-            </div>
-            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 6 } as any}>
-              {activeAlerts.length > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div> : <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>OK</span></div>}
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
-            </div>
-          </div>
-
-          {/* ── Vitals row — 4 metrics ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 16 } as any}>
-            {[
-              { val: br.heart_rate, unit: '', label: 'BPM', icon: 'ri-heart-pulse-line', color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
-              { val: `${br.spo2}%`, unit: '', label: 'SpO2', icon: 'ri-drop-line', color: '#38BDF8', bg: 'rgba(56,189,248,0.12)' },
-              { val: `${br.blood_pressure?.systolic || 125}`, unit: `/${br.blood_pressure?.diastolic || 78}`, label: 'Tension', icon: 'ri-pulse-line', color: '#A78BFA', bg: 'rgba(167,139,250,0.12)' },
-              { val: `${br.temperature}`, unit: 'C', label: 'Temp.', icon: 'ri-temp-hot-line', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
-            ].map((v, i) => (
-              <div key={i} data-testid={`vital-${i}`} onClick={() => router.push('/(tabs)/health')} style={{ padding: '14px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', textAlign: 'center', cursor: 'pointer' } as any}>
-                <div style={{ width: 32, height: 32, borderRadius: 10, background: v.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px' } as any}>
-                  <i className={v.icon} style={{ fontSize: 16, color: v.color }} />
-                </div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{v.val}<span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>{v.unit}</span></div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{v.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* ── SOS Button ── */}
+          {/* ── SOS Button (top) ── */}
           <div data-testid="sos-button" onClick={handleSOS} style={{
             padding: '18px', borderRadius: 18, textAlign: 'center', cursor: 'pointer', marginBottom: 16,
             background: 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(185,28,28,0.1))',
@@ -410,103 +378,62 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             )}
           </div>
 
-          {/* ── Connected Devices — with real product images ── */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Appareils connectes</div>
-          {[
-            { name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE', batteryGrad: 'linear-gradient(90deg, #0E7490, #22D3EE)', route: '/bracelet-connect', desc: 'Suivi cardiaque, SpO2, temperature' },
-            { name: 'Balance Lefu', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, color: '#A78BFA', batteryGrad: 'linear-gradient(90deg, #6D28D9, #A78BFA)', route: '/scale-detail', desc: 'Poids et composition corporelle' },
-            { name: 'Gilet Elder S-AIRBAG', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, color: '#10B981', batteryGrad: 'linear-gradient(90deg, #047857, #10B981)', route: '/vest-connect', desc: 'Protection anti-chute par airbag' },
-          ].map((d, i) => (
-            <div key={i} data-testid={`device-card-${i}`} onClick={() => router.push(d.route as any)} style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', transition: 'transform 0.2s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-              <div style={{ padding: '16px 18px 12px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 6 } as any}>
-                  <img src={d.img} alt={d.name} style={{ width: 44, height: 44, objectFit: 'contain' } as any} />
-                </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>{d.name}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>{d.desc}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
-                    <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : 'rgba(255,255,255,0.2)' } as any} />
-                    <span style={{ fontSize: 10, color: d.connected ? '#10B981' : 'rgba(255,255,255,0.3)', fontWeight: 600 }}>{d.connected ? 'Connecte' : 'Deconnecte'}</span>
-                  </div>
-                </div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.25)' }} />
+          {/* ── Alert banner (only if alerts) ── */}
+          {activeAlerts.length > 0 && (
+            <div data-testid="alert-banner" onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+              <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+              <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
+                <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
+                <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length} en cours</div></div>
               </div>
-              {/* Battery bar gradient at bottom */}
-              <div style={{ padding: '8px 18px 12px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                <i className="ri-battery-2-charge-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} />
-                <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-                  <div style={{ height: 6, borderRadius: 3, width: `${d.battery}%`, background: d.batteryGrad, transition: 'width 0.8s ease', boxShadow: `0 0 8px ${d.color}40` } as any} />
-                </div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: d.battery > 50 ? d.color : d.battery > 20 ? '#F59E0B' : '#EF4444', minWidth: 30, textAlign: 'right' }}>{d.battery}%</span>
+              <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
               </div>
             </div>
-          ))}
+          )}
 
-          {/* ── Activity + Sleep row ── */}
+          {/* ── Vitals row — 4 metrics ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 16 } as any}>
+            {[
+              { val: br.heart_rate, unit: '', label: 'BPM', icon: 'ri-heart-pulse-line', color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
+              { val: `${br.spo2}%`, unit: '', label: 'SpO2', icon: 'ri-drop-line', color: '#38BDF8', bg: 'rgba(56,189,248,0.12)' },
+              { val: `${br.blood_pressure?.systolic || 125}`, unit: `/${br.blood_pressure?.diastolic || 78}`, label: 'Tension', icon: 'ri-pulse-line', color: '#A78BFA', bg: 'rgba(167,139,250,0.12)' },
+              { val: `${br.temperature}`, unit: 'C', label: 'Temp.', icon: 'ri-temp-hot-line', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
+            ].map((v, i) => (
+              <div key={i} data-testid={`vital-${i}`} onClick={() => router.push('/(tabs)/health')} style={{ padding: '14px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center', cursor: 'pointer' } as any}>
+                <div style={{ width: 32, height: 32, borderRadius: 10, background: v.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px' } as any}>
+                  <i className={v.icon} style={{ fontSize: 16, color: v.color }} />
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{v.val}<span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>{v.unit}</span></div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{v.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Activity + Sleep ── */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 } as any}>
-            {/* Activity */}
             <GC testId="activity-card" onClick={() => router.push('/(tabs)/health')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
-                <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className="ri-footprint-line" style={{ fontSize: 14, color: '#10B981' }} />
-                </div>
+                <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-footprint-line" style={{ fontSize: 14, color: '#10B981' }} /></div>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Activite</span>
               </div>
               <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>{br.steps?.toLocaleString()}</div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 10 }}>pas aujourd'hui</div>
-              <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 8 } as any}>
-                <div style={{ height: 4, borderRadius: 2, width: `${Math.min(100, (br.steps / 8000) * 100)}%`, background: 'linear-gradient(90deg, #10B981, #22D3EE)', boxShadow: '0 0 8px rgba(16,185,129,0.4)' } as any} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{br.calories} kcal</span>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{br.distance_km} km</span>
-              </div>
+              <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 8 } as any}><div style={{ height: 4, borderRadius: 2, width: `${Math.min(100, (br.steps / 8000) * 100)}%`, background: 'linear-gradient(90deg, #10B981, #22D3EE)', boxShadow: '0 0 8px rgba(16,185,129,0.4)' } as any} /></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' } as any}><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{br.calories} kcal</span><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{br.distance_km} km</span></div>
             </GC>
-
-            {/* Sleep */}
             <GC testId="sleep-card" onClick={() => router.push('/sleep' as any)}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
-                <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className="ri-moon-line" style={{ fontSize: 14, color: '#A78BFA' }} />
-                </div>
+                <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-moon-line" style={{ fontSize: 14, color: '#A78BFA' }} /></div>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Sommeil</span>
               </div>
               <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>{sl.duration}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 10 } as any}>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Qualite</span>
-                <span style={{ fontSize: 12, fontWeight: 800, color: '#A78BFA' }}>{sl.quality}%</span>
-              </div>
-              <div style={{ display: 'flex', gap: 3, height: 6, borderRadius: 3, overflow: 'hidden' } as any}>
-                <div style={{ flex: 30, background: '#6D28D9', borderRadius: '3px 0 0 3px' } as any} />
-                <div style={{ flex: 55, background: '#A78BFA' } as any} />
-                <div style={{ flex: 15, background: '#C4B5FD', borderRadius: '0 3px 3px 0' } as any} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 } as any}>
-                {[{ l: 'Prof.', c: '#6D28D9' }, { l: 'Leger', c: '#A78BFA' }, { l: 'REM', c: '#C4B5FD' }].map((s, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 3 } as any}><span style={{ width: 5, height: 5, borderRadius: '50%', background: s.c } as any} /><span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)' }}>{s.l}</span></div>
-                ))}
-              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 10 } as any}><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Qualite</span><span style={{ fontSize: 12, fontWeight: 800, color: '#A78BFA' }}>{sl.quality}%</span></div>
+              <div style={{ display: 'flex', gap: 3, height: 6, borderRadius: 3, overflow: 'hidden' } as any}><div style={{ flex: 30, background: '#6D28D9', borderRadius: '3px 0 0 3px' } as any} /><div style={{ flex: 55, background: '#A78BFA' } as any} /><div style={{ flex: 15, background: '#C4B5FD', borderRadius: '0 3px 3px 0' } as any} /></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 } as any}>{[{ l: 'Prof.', c: '#6D28D9' }, { l: 'Leger', c: '#A78BFA' }, { l: 'REM', c: '#C4B5FD' }].map((s, i) => (<div key={i} style={{ display: 'flex', alignItems: 'center', gap: 3 } as any}><span style={{ width: 5, height: 5, borderRadius: '50%', background: s.c } as any} /><span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)' }}>{s.l}</span></div>))}</div>
             </GC>
-          </div>
-
-          {/* ── Quick Actions ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 16 } as any}>
-            {[
-              { icon: 'ri-pulse-line', label: 'ECG', route: '/ecg', color: '#EF4444' },
-              { icon: 'ri-focus-3-line', label: 'Zones', route: '/geofencing', color: '#38BDF8' },
-              { icon: 'ri-time-line', label: 'Rappels', route: '/reminders', color: '#F59E0B' },
-              { icon: 'ri-stethoscope-line', label: 'Teleconsult', route: '/(tabs)/teleconsult', color: '#10B981' },
-            ].map((a, i) => (
-              <div key={i} data-testid={`quick-action-${i}`} onClick={() => router.push(a.route as any)} style={{ padding: '14px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center', cursor: 'pointer', transition: 'background 0.2s' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}>
-                <i className={a.icon} style={{ fontSize: 18, color: a.color, display: 'block', marginBottom: 6 }} />
-                <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.45)' }}>{a.label}</div>
-              </div>
-            ))}
           </div>
 
           {/* ── Guardians ── */}
