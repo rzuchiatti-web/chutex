@@ -290,7 +290,6 @@ export default function RegisterScreen() {
               <GI label="Prenom" placeholder="Claire" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
               <GI label="Nom" placeholder="Martin" value={form.name} onChange={(e: any) => u('name', e.target.value)} />
             </div>
-            <GI label="Telephone" type="tel" placeholder="06 12 34 56 78" value={form.phone} onChange={(e: any) => u('phone', e.target.value)} />
 
             <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10, marginTop: 8 }}>Votre profil</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 } as any}>
