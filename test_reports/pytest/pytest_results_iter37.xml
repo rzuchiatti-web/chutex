@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="13" failures="2" skipped="0" tests="16" time="2.391" timestamp="2026-02-20T17:06:16.323560+00:00" hostname="agent-env-0c502775-2a75-40a6-b869-f46acd06d7ff"><testcase classname="backend.tests.test_iteration37_ui_redesign.TestAuthEndpoints" name="test_login_beneficiary_success" time="0.540"><failure message="AssertionError: No access_token in response&#10;assert 'access_token' in {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTE0NDJjYmQtMTlkYS00ZDBmLTgwODgtMjdmZWYxNmVkYWE0Iiwicm9sZSI6ImJlbmVmaWNpYXJ5IiwiZXhwIjoxNzcxODY2Mzc2fQ.wJpAHZ_EjPeKwk-ajOqkhx_IGi4AVk9iIiqUHwq6xjg', 'user': {'active_role': 'beneficiary', 'address': '14 rue de la Republique, 42400 Saint-Chamond', 'allergies': 'Pénicilline', 'beneficiaries': [], ...}}">backend/tests/test_iteration37_ui_redesign.py:22: in test_login_beneficiary_success
+    assert "access_token" in data, "No access_token in response"
+E   AssertionError: No access_token in response
+E   assert 'access_token' in {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTE0NDJjYmQtMTlkYS00ZDBmLTgwODgtMjdmZWYxNmVkYWE0Iiwicm9sZSI6ImJlbmVmaWNpYXJ5IiwiZXhwIjoxNzcxODY2Mzc2fQ.wJpAHZ_EjPeKwk-ajOqkhx_IGi4AVk9iIiqUHwq6xjg', 'user': {'active_role': 'beneficiary', 'address': '14 rue de la Republique, 42400 Saint-Chamond', 'allergies': 'Pénicilline', 'beneficiaries': [], ...}}</failure></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestAuthEndpoints" name="test_login_guardian_success" time="0.383"><failure message="AssertionError: assert 'access_token' in {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDRmMGE2NjgtZTM2Ni00MjVjLWEwM2YtMDM0NGNjNmMzMTkxIiwicm9sZSI6Imd1YXJkaWFuIiwiZXhwIjoxNzcxODY2Mzc3fQ.QpoA2xnjIHwXY8xR-_L9annwAh3DWn61Tm8wBhJmv2A', 'user': {'active_role': 'guardian', 'address': '14 rue de la Republique, Saint-Chamond', 'agency_id': '48fcb64c-d32e-4758-a1f4-94ccdc3a9237', 'allergies': '', ...}}">backend/tests/test_iteration37_ui_redesign.py:37: in test_login_guardian_success
+    assert "access_token" in data
+E   AssertionError: assert 'access_token' in {'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDRmMGE2NjgtZTM2Ni00MjVjLWEwM2YtMDM0NGNjNmMzMTkxIiwicm9sZSI6Imd1YXJkaWFuIiwiZXhwIjoxNzcxODY2Mzc3fQ.QpoA2xnjIHwXY8xR-_L9annwAh3DWn61Tm8wBhJmv2A', 'user': {'active_role': 'guardian', 'address': '14 rue de la Republique, Saint-Chamond', 'agency_id': '48fcb64c-d32e-4758-a1f4-94ccdc3a9237', 'allergies': '', ...}}</failure></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestAuthEndpoints" name="test_login_invalid_credentials" time="0.189" /><testcase classname="backend.tests.test_iteration37_ui_redesign.TestHealthDailyReport" name="test_daily_report_returns_score" time="0.390"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:61: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestHealthDailyReport" name="test_daily_report_contains_ai_analysis" time="0.000"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:61: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestHealthDailyReport" name="test_daily_report_contains_daily_plan" time="0.000"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:61: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestHealthDailyReport" name="test_daily_report_contains_weighings" time="0.000"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:61: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestHealthDailyReport" name="test_daily_report_subscores" time="0.000"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:61: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestHealthDailyReport" name="test_daily_report_analysis_phase" time="0.000"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:61: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestMetricHistory" name="test_heart_rate_history" time="0.408"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:181: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestMetricHistory" name="test_sleep_duration_history_hypnogram" time="0.000"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:181: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestMetricHistory" name="test_weight_history" time="0.000"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:181: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestMetricHistory" name="test_steps_history_bars" time="0.000"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:181: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestMetricHistory" name="test_stress_history_area_gradient" time="0.000"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:181: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestDeviceEndpoints" name="test_dashboard_summary" time="0.348"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:276: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="backend.tests.test_iteration37_ui_redesign.TestDeviceEndpoints" name="test_devices_latest" time="0.000"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">backend/tests/test_iteration37_ui_redesign.py:276: in auth_token
+    return response.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase></testsuite></testsuites>
