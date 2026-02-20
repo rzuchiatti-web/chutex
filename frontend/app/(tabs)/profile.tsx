@@ -421,6 +421,33 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
             </div>
           )}
 
+          {/* Face ID Popup */}
+          {showFaceId && Platform.OS === 'web' && (
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <div style={{ width: '100%', maxWidth: 380, padding: '32px 28px', boxSizing: 'border-box' } as any}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
+                  <div onClick={() => setShowFaceId(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                </div>
+                <div style={{ textAlign: 'center' } as any}>
+                  <div style={{ width: 64, height: 64, borderRadius: 18, background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}>
+                    <i className="ri-fingerprint-line" style={{ fontSize: 32, color: '#A78BFA' }} />
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Face ID / Biometrie</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6, marginBottom: 20 }}>L'authentification biometrique est disponible sur l'application mobile iOS et Android.</div>
+                  <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'left', marginBottom: 16 } as any}>
+                    {['Installez l\'app via TestFlight', 'Connectez-vous une premiere fois', 'Activez Face ID dans ce menu'].map((s, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                        <div style={{ width: 24, height: 24, borderRadius: 999, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 12, fontWeight: 800, color: '#A78BFA' }}>{i + 1}</span></div>
+                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div onClick={() => setShowFaceId(false)} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>Compris</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Medical Record Popup */}
           {showMedical && Platform.OS === 'web' && (
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
