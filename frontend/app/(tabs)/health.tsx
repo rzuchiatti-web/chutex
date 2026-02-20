@@ -867,33 +867,37 @@ export default function HealthScreen() {
             </div>
           )}
 
-          {/* ═══ 4. HUMAN MAP ═══ */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Explorer mon corps</div>
-          <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 14 } as any}>
-            {humanMapImg && <img src={humanMapImg} alt="Body map" style={{ width: '100%', height: 280, objectFit: 'cover', objectPosition: 'center top', display: 'block' } as any} />}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '14px 16px' } as any}>
-              {bodyZones.map(z => (
-                <div key={z.id} onClick={() => setShowZonePreview(showZonePreview?.id === z.id ? null : z)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 999, background: showZonePreview?.id === z.id ? `${z.color}20` : 'rgba(255,255,255,0.04)', border: `1px solid ${showZonePreview?.id === z.id ? `${z.color}40` : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', transition: 'all 0.2s' } as any}>
-                  <i className={z.icon} style={{ fontSize: 13, color: z.color }} /><span style={{ fontSize: 11, fontWeight: 600, color: showZonePreview?.id === z.id ? '#FFF' : 'rgba(255,255,255,0.4)' }}>{z.label}</span>
+          {/* ═══ 3. HEALTH SECTIONS — 6 thematic cards ═══ */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
+            {[
+              { id: 'cardio', label: 'Sante cardiaque', sub: 'Coeur, circulation, rythme', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/8x2d3bbk_hearth%20red%20app%20healthbeat%20Chutex.png', color: '#EF4444' },
+              { id: 'metabolism', label: 'Sante metabolique', sub: 'Glycemie, IMC, graisse viscerale', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png', color: '#F59E0B' },
+              { id: 'sleep', label: 'Sommeil & Recuperation', sub: 'Cycles, stress, HRV', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png', color: '#A78BFA' },
+              { id: 'activity', label: 'Sante physique', sub: 'Pas, depense, VO2 max', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png', color: '#10B981' },
+              { id: 'hydration', label: 'Hydratation', sub: 'Eau corporelle, equilibre', img: REMINDER_IMAGES.hydration, color: '#38BDF8' },
+              { id: 'composition', label: 'Composition corporelle', sub: 'Poids, muscle, graisse, segmentaire', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/3yq7hxyr_composition%281%29.png', color: '#F97316' },
+            ].map((sec) => (
+              <div key={sec.id} data-testid={`health-section-${sec.id}`} onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: sec.id } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-3px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                <div style={{ height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${sec.color}08` } as any}>
+                  <img src={sec.img} alt={sec.label} style={{ height: 72, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' } as any} />
                 </div>
-              ))}
-            </div>
+                <div style={{ padding: '12px 14px' } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>{sec.label}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', lineHeight: 1.4 }}>{sec.sub}</div>
+                  {subs[sec.id] && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 999, background: `${sec.color}12`, marginTop: 8 } as any}>
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: subs[sec.id].score >= 80 ? '#10B981' : subs[sec.id].score >= 60 ? '#F59E0B' : '#EF4444' } as any} />
+                      <span style={{ fontSize: 9, fontWeight: 700, color: subs[sec.id].score >= 80 ? '#10B981' : subs[sec.id].score >= 60 ? '#F59E0B' : '#EF4444' }}>{subs[sec.id].score}/100</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-          {/* Zone preview popup */}
-          {showZonePreview && (
-            <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: `1px solid ${showZonePreview.color}25`, marginBottom: 14, marginTop: -8 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${showZonePreview.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={showZonePreview.icon} style={{ fontSize: 18, color: showZonePreview.color }} /></div>
-                <div><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{showZonePreview.label}</div>
-                {subs[showZonePreview.id] && <div style={{ fontSize: 11, color: showZonePreview.color, fontWeight: 700 }}>Score: {subs[showZonePreview.id].score}/100</div>}</div>
-              </div>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
-                {showZonePreview.metrics.map((m: string, i: number) => <span key={i} style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{m}</span>)}
-              </div>
-            </div>
-          )}
 
-          {/* ═══ 5. COMPRENDRE MON CORPS (IA) ═══ */}
+          {/* ═══ 4. COMPRENDRE MON CORPS (IA) ═══ */}
           {ai.correlations && ai.correlations.length > 0 && (
             <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 14 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}><i className="ri-brain-line" style={{ fontSize: 14, color: '#A78BFA' }} /><span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.6)', textTransform: 'uppercase', letterSpacing: 1 }}>Comprendre mon corps</span></div>
@@ -905,14 +909,14 @@ export default function HealthScreen() {
             </div>
           )}
 
-          {/* ═══ 6. DERNIERES PESEES ═══ */}
+          {/* ═══ 5. DERNIERES PESEES ═══ */}
           {weighings.length > 0 && (<>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Dernieres pesees</div>
             {weighings.slice(0, 3).map((w: any, i: number) => (
               <div key={i} onClick={() => router.push('/scale-detail' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8, cursor: 'pointer' } as any}>
                 <div style={{ flex: 1 } as any}>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{w.weight} kg</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{new Date(w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · Graisse {w.body_fat_pct}% · Eau {w.water_pct}%</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{new Date(w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>
                 </div>
                 <span style={{ padding: '4px 10px', borderRadius: 999, background: w.status === 'Bonne' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', fontSize: 10, fontWeight: 700, color: w.status === 'Bonne' ? '#10B981' : '#F59E0B' }}>{w.status}</span>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }} />
@@ -920,20 +924,8 @@ export default function HealthScreen() {
             ))}
           </>)}
 
-          {/* Recommandations secondaires */}
-          {ai.secondary_recs && ai.secondary_recs.length > 0 && (
-            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 14, marginTop: 6 } as any}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Autres conseils</div>
-              {ai.secondary_recs.map((r: string, i: number) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
-                  <i className="ri-arrow-right-line" style={{ fontSize: 11, color: '#22D3EE', marginTop: 2 }} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{r}</div>
-                </div>
-              ))}
-            </div>
-          )}
-
           {/* Motivation */}
-          {ai.motivation && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 13, color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>{ai.motivation}</div>}
+          {ai.motivation && <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>{ai.motivation}</div>}
 
         </div>
 
