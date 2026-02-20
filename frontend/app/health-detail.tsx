@@ -34,7 +34,7 @@ const SECTIONS: Record<string, { title: string; color: string; img: string; metr
     ],
   },
   sleep: {
-    title: 'Sommeil & Recuperation', color: '#A78BFA',
+    title: 'Sommeil', color: '#A78BFA',
     img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png',
     metrics: [
       { key: 'sleep_duration', label: 'Duree du sommeil', unit: '', explain: 'Temps total de sommeil. 7 a 9 heures sont recommandees pour un adulte.' },
@@ -43,7 +43,6 @@ const SECTIONS: Record<string, { title: string; color: string; img: string; metr
       { key: 'light_sleep_min', label: 'Sommeil leger', unit: 'min', explain: 'Phase de transition. Represente normalement 50-60% du sommeil total.' },
       { key: 'rem_sleep_min', label: 'Sommeil paradoxal (REM)', unit: 'min', explain: 'Phase des reves, essentielle pour la memoire et la regulation emotionnelle.' },
       { key: 'sleep_interruptions', label: 'Interruptions', unit: '', explain: 'Nombre de reveils pendant la nuit. Moins de 3 est normal.' },
-      { key: 'stress_level', label: 'Niveau de stress', unit: '/100', explain: 'Mesure par le bracelet via le HRV. En dessous de 40 est un bon niveau.' },
       { key: 'recovery_score', label: 'Score de recuperation', unit: '/100', explain: 'Capacite de votre corps a recuperer. Au-dessus de 70 est favorable.' },
     ],
   },
@@ -55,18 +54,9 @@ const SECTIONS: Record<string, { title: string; color: string; img: string; metr
       { key: 'calories', label: 'Depense energetique', unit: 'kcal', explain: 'Calories brulees par l\'activite physique aujourd\'hui.' },
       { key: 'distance_km', label: 'Distance parcourue', unit: 'km', explain: 'Distance totale estimee a partir du nombre de pas.' },
       { key: 'vo2_max', label: 'VO2 Max', unit: 'ml/kg/min', explain: 'Capacite aerobique maximale. Un bon indicateur de forme physique globale.' },
+      { key: 'stress_level', label: 'Niveau de stress', unit: '/100', explain: 'Mesure par le bracelet via le HRV. En dessous de 40 est un bon niveau.' },
       { key: 'basal_metabolism', label: 'Metabolisme de base (BMR)', unit: 'kcal', explain: 'Energie depensee au repos pour maintenir les fonctions vitales.' },
       { key: 'recommended_calories', label: 'Apport calorique recommande', unit: 'kcal', explain: 'Calories a consommer en fonction de votre activite et de vos objectifs.' },
-    ],
-  },
-  hydration: {
-    title: 'Hydratation & Equilibre', color: '#38BDF8',
-    img: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/7s8stuxi_hydratation.png',
-    metrics: [
-      { key: 'water_pct', label: 'Taux d\'hydratation', unit: '%', explain: 'Pourcentage d\'eau dans le corps. Normal entre 50% et 65% selon l\'age et le sexe.' },
-      { key: 'total_body_water_kg', label: 'Eau corporelle totale', unit: 'kg', explain: 'Masse totale d\'eau dans votre organisme.' },
-      { key: 'intracellular_water_kg', label: 'Eau intracellulaire', unit: 'kg', explain: 'Eau contenue a l\'interieur des cellules. Environ 60% de l\'eau totale.' },
-      { key: 'extracellular_water_kg', label: 'Eau extracellulaire', unit: 'kg', explain: 'Eau dans le sang, la lymphe et les espaces intercellulaires.' },
     ],
   },
   composition: {
@@ -83,6 +73,10 @@ const SECTIONS: Record<string, { title: string; color: string; img: string; metr
       { key: 'skeletal_muscle_quality', label: 'Qualite musculaire', unit: '/100', explain: 'Indice de qualite des fibres musculaires squelettiques.' },
       { key: 'bone_mass_kg', label: 'Masse osseuse', unit: 'kg', explain: 'Poids des mineraux osseux. Important pour prevenir l\'osteoporose.' },
       { key: 'minerals_kg', label: 'Mineraux', unit: 'kg', explain: 'Masse totale de mineraux dans le corps.' },
+      { key: 'water_pct', label: 'Taux d\'hydratation', unit: '%', explain: 'Pourcentage d\'eau dans le corps. Normal entre 50% et 65%.' },
+      { key: 'total_body_water_kg', label: 'Eau corporelle totale', unit: 'kg', explain: 'Masse totale d\'eau dans votre organisme.' },
+      { key: 'intracellular_water_kg', label: 'Eau intracellulaire', unit: 'kg', explain: 'Eau contenue a l\'interieur des cellules.' },
+      { key: 'extracellular_water_kg', label: 'Eau extracellulaire', unit: 'kg', explain: 'Eau dans le sang, la lymphe et les espaces intercellulaires.' },
       { key: 'subcutaneous_fat_pct', label: 'Graisse sous-cutanee', unit: '%', explain: 'Graisse situee juste sous la peau.' },
       { key: 'trunk_fat_kg', label: 'Graisse du tronc', unit: 'kg', explain: 'Graisse accumulee dans la region abdominale.' },
       { key: 'left_arm_fat_pct', label: 'Graisse bras gauche', unit: '%', explain: 'Repartition de la graisse dans le bras gauche.' },
