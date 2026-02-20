@@ -19,12 +19,12 @@ class TestAuthEndpoints:
         })
         assert response.status_code == 200, f"Login failed: {response.text}"
         data = response.json()
-        assert "access_token" in data, "No access_token in response"
+        assert "token" in data, "No token in response"
         assert "user" in data, "No user object in response"
         assert data["user"]["email"] == "robert.martin@email.fr"
-        assert data["user"]["role"] in ["beneficiary", "guardian"]
+        assert data["user"]["active_role"] in ["beneficiary", "guardian"]
         print(f"PASS: Beneficiary login successful - user: {data['user']['name']}")
-        return data["access_token"]
+        return data["token"]
     
     def test_login_guardian_success(self):
         """Test guardian login with valid credentials"""
@@ -34,7 +34,7 @@ class TestAuthEndpoints:
         })
         assert response.status_code == 200, f"Guardian login failed: {response.text}"
         data = response.json()
-        assert "access_token" in data
+        assert "token" in data
         assert data["user"]["email"] == "claire.martin@email.fr"
         print(f"PASS: Guardian login successful - user: {data['user']['name']}")
     
@@ -58,7 +58,7 @@ class TestHealthDailyReport:
             "password": "demo123"
         })
         if response.status_code == 200:
-            return response.json()["access_token"]
+            return response.json()["token"]
         pytest.skip("Authentication failed")
     
     def test_daily_report_returns_score(self, auth_token):
