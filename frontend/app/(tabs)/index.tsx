@@ -461,16 +461,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Guardians ── */}
           <GC testId="guardians-section">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                <i className="ri-shield-user-line" style={{ fontSize: 14, color: 'rgba(79,195,247,0.5)' }} />
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1, textTransform: 'uppercase' }}>Mes gardiens ({guardians.length})</span>
-              </div>
-              <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 8, background: 'rgba(79,195,247,0.08)', border: '1px solid rgba(79,195,247,0.15)', cursor: 'pointer' } as any}>
-                <i className="ri-add-line" style={{ fontSize: 12, color: '#4FC3F7' }} />
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#4FC3F7' }}>Ajouter</span>
-              </div>
-            </div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Mes gardiens</div>
             {guardians.map((g: any, i: number) => (
               <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer' } as any}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(79,195,247,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 14, fontWeight: 800, color: '#4FC3F7' }}>{g.name?.charAt(0)}</span></div>
@@ -479,6 +470,13 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               </div>
             ))}
             {guardians.length === 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
+            {/* Full-width add button */}
+            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 14, background: 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(244,114,182,0.1))', border: '1px solid rgba(239,68,68,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.2s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(244,114,182,0.15))'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(244,114,182,0.1))'; }}>
+              <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#F87171' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Ajouter un gardien</span>
+            </div>
           </GC>
 
           {/* ── POPUP AJOUTER UN GARDIEN ── */}
