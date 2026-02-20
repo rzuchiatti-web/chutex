@@ -440,45 +440,47 @@ export default function RegisterScreen() {
             </div>
           </>)}
 
-          {/* ═══ GUARDIAN STEP 3: Infos perso + pro ═══ */}
+          {/* ═══ GUARDIAN STEP 3: Infos + Alertes + CGU ═══ */}
           {step === 3 && role === 'guardian' && (<>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Informations personnelles</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Votre profil de gardien ou professionnel</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Vos informations</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Pour personnaliser votre espace gardien</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
               <GI label="Prenom" placeholder="Claire" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
               <GI label="Nom" placeholder="Martin" value={form.name} onChange={(e: any) => u('name', e.target.value)} />
             </div>
+            <GI label="Adresse" placeholder="12 rue de la Paix, 75002 Paris" value={form.address} onChange={(e: any) => u('address', e.target.value)} />
 
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10, marginTop: 8 }}>Votre profil</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 } as any}>
-              {[
-                { v: 'family', l: 'Membre de la famille', d: 'Conjoint, enfant, petit-enfant...', ic: 'ri-heart-line' },
-                { v: 'aide_soignant', l: 'Aide-soignant(e)', d: 'Professionnel de soins', ic: 'ri-nurse-line' },
-                { v: 'infirmier', l: 'Infirmier(e)', d: 'Infirmier(e) liberal(e) ou hospitalier(e)', ic: 'ri-stethoscope-line' },
-                { v: 'auxiliaire', l: 'Auxiliaire de vie', d: 'Aide a domicile', ic: 'ri-hand-heart-line' },
-                { v: 'medecin', l: 'Medecin', d: 'Medecin generaliste ou specialiste', ic: 'ri-heart-pulse-line' },
-                { v: 'other', l: 'Autre professionnel', d: 'Coach, kine, ergotherapeute...', ic: 'ri-user-line' },
-              ].map(p => <RadioCard key={p.v} icon={p.ic} label={p.l} desc={p.d} selected={form.pro_type === p.v} onClick={() => u('pro_type', p.v)} />)}
+            {/* How found Chutex */}
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 8, marginTop: 8 }}>Comment avez-vous connu Chutex ?</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 18 } as any}>
+              {['Professionnel de sante', 'SAAD / Structure', 'Famille / Proche', 'Recherche internet', 'Reseaux sociaux', 'Autre'].map(h => (
+                <div key={h} onClick={() => u('how_found', h)} style={{ padding: '12px 14px', borderRadius: 14, background: form.how_found === h ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.how_found === h ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <div style={{ width: 18, height: 18, borderRadius: 9, background: form.how_found === h ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.how_found === h ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    {form.how_found === h && <div style={{ width: 8, height: 8, borderRadius: 4, background: '#FFF' } as any} />}
+                  </div>
+                  <span style={{ fontSize: 12, color: form.how_found === h ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{h}</span>
+                </div>
+              ))}
             </div>
 
-            {form.pro_type && form.pro_type !== 'family' && (
-              <GI label="Structure / Employeur" placeholder="Nom de l'etablissement ou SAAD" value={form.structure} onChange={(e: any) => u('structure', e.target.value)} />
-            )}
-          </>)}
-
-          {/* ═══ GUARDIAN STEP 3: CGU ═══ */}
-          {step === 4 && role === 'guardian' && (<>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Finalisation</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Derniere etape avant de commencer</div>
-
-            <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 16 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
-                <i className="ri-shield-check-line" style={{ fontSize: 18, color: '#10B981' }} />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Espace Gardien</span>
+            {/* Alert preferences */}
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 10 }}>Recevoir les alertes par :</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 18 } as any}>
+              <div onClick={() => u('alert_sms', !form.alert_sms)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 14, background: form.alert_sms ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.alert_sms ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer' } as any}>
+                <div style={{ width: 22, height: 22, borderRadius: 6, background: form.alert_sms ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.alert_sms ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  {form.alert_sms && <i className="ri-check-line" style={{ fontSize: 14, color: '#FFF' }} />}
+                </div>
+                <div><div style={{ fontSize: 14, fontWeight: 600, color: form.alert_sms ? '#FFF' : 'rgba(255,255,255,0.4)' }}>SMS</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Recevez un SMS pour chaque alerte critique</div></div>
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>En tant que gardien, vous pourrez suivre la sante de vos beneficiaires, recevoir des alertes en temps reel et etre notifie en cas d'urgence.</div>
+              <div onClick={() => u('alert_email', !form.alert_email)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 14, background: form.alert_email ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.alert_email ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer' } as any}>
+                <div style={{ width: 22, height: 22, borderRadius: 6, background: form.alert_email ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.alert_email ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  {form.alert_email && <i className="ri-check-line" style={{ fontSize: 14, color: '#FFF' }} />}
+                </div>
+                <div><div style={{ fontSize: 14, fontWeight: 600, color: form.alert_email ? '#FFF' : 'rgba(255,255,255,0.4)' }}>Email</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Recevez un email pour les rapports et alertes</div></div>
+              </div>
             </div>
 
+            {/* CGU */}
             <div onClick={() => u('acceptTerms', !form.acceptTerms)} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}>
               <div style={{ width: 22, height: 22, borderRadius: 6, background: form.acceptTerms ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.acceptTerms ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
                 {form.acceptTerms && <i className="ri-check-line" style={{ fontSize: 14, color: '#FFF' }} />}
