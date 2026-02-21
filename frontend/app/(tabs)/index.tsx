@@ -188,6 +188,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [alertSms, setAlertSms] = useState(true);
   const [alertEmail, setAlertEmail] = useState(true);
   const [activatingGuardian, setActivatingGuardian] = useState(false);
+  const [activeProgram, setActiveProgram] = useState<any>(null);
+  const [programCatalog, setProgramCatalog] = useState<any[]>([]);
   const [editReminder, setEditReminder] = useState<any>(null);
   const [showReminderCRUD, setShowReminderCRUD] = useState(false);
   const [reminderNotif, setReminderNotif] = useState<any>(null);
