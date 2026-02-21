@@ -856,6 +856,78 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           )}
 
+          {/* ── DAILY CHECK-IN POPUP ── */}
+          {showCheckin && activeProgram?.active && (
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10002, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(4,14,26,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, padding: '28px 24px', boxSizing: 'border-box' } as any}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 } as any}>
+                  <div data-testid="close-checkin" onClick={() => setShowCheckin(false)} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
+                  </div>
+                </div>
+                {!checkinFeedback ? (
+                  <>
+                    <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                      <div style={{ fontSize: 28, marginBottom: 8 }}>
+                        {activeProgram.program?.icon ? <i className={activeProgram.program.icon} style={{ fontSize: 36, color: activeProgram.program.color }} /> : null}
+                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Jour {activeProgram.current_day}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{activeProgram.today_tasks?.focus}</div>
+                    </div>
+                    {/* Mood selector */}
+                    <div style={{ marginBottom: 20 } as any}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 10, textAlign: 'center' }}>Comment te sens-tu ?</div>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: 8 } as any}>
+                        {[1, 2, 3, 4, 5].map(m => (
+                          <div key={m} data-testid={`mood-${m}`} onClick={() => setCheckinMood(m)} style={{
+                            width: 48, height: 48, borderRadius: 14, cursor: 'pointer',
+                            background: checkinMood === m ? `${['#EF4444','#F59E0B','#A78BFA','#22D3EE','#10B981'][m-1]}20` : 'rgba(255,255,255,0.03)',
+                            border: `2px solid ${checkinMood === m ? ['#EF4444','#F59E0B','#A78BFA','#22D3EE','#10B981'][m-1] : 'rgba(255,255,255,0.06)'}`,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, transition: 'all 0.2s',
+                          } as any}>
+                            {['😔','😐','🙂','😊','😄'][m-1]}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Note */}
+                    <div style={{ marginBottom: 20 } as any}>
+                      <input data-testid="checkin-note" value={checkinNote} onChange={(e: any) => setCheckinNote(e.target.value)} placeholder="Une note sur ta journee... (optionnel)"
+                        style={{ width: '100%', padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                    </div>
+                    {/* Submit */}
+                    <div data-testid="submit-checkin" onClick={async () => {
+                      if (checkinSending) return;
+                      setCheckinSending(true);
+                      try {
+                        const res = await apiFetch('/api/programs/checkin', { method: 'POST', body: JSON.stringify({ mood: checkinMood, note: checkinNote }) }, token);
+                        setCheckinFeedback(res.feedback || 'Bravo !');
+                        fetchData();
+                      } catch {} finally { setCheckinSending(false); }
+                    }} style={{
+                      padding: '14px', borderRadius: 14, textAlign: 'center', cursor: 'pointer',
+                      background: `linear-gradient(135deg, ${activeProgram.program?.color || '#22D3EE'}40, ${activeProgram.program?.color || '#22D3EE'}20)`,
+                      border: `1px solid ${activeProgram.program?.color || '#22D3EE'}30`,
+                      fontSize: 14, fontWeight: 700, color: '#FFF',
+                    } as any}>
+                      {checkinSending ? 'Envoi...' : 'Valider mon check-in'}
+                    </div>
+                  </>
+                ) : (
+                  /* Feedback after check-in */
+                  <div style={{ textAlign: 'center', padding: '20px 0' } as any}>
+                    <div style={{ fontSize: 48, marginBottom: 16 }}>🎉</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 12 }}>Check-in valide !</div>
+                    <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 20, padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                      "{checkinFeedback}"
+                    </div>
+                    <div onClick={() => { setShowCheckin(false); setCheckinFeedback(''); setCheckinNote(''); setCheckinMood(3); }} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>Fermer</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* ── FLOATING CHAT BUTTON ── */}
           <div data-testid="chat-fab" onClick={() => router.push('/chat' as any)} style={{
             position: 'fixed', bottom: 80, right: 20, width: 56, height: 56, borderRadius: 18, zIndex: 999,
