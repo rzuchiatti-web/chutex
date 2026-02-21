@@ -628,6 +628,10 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   </div>
                 )}
               </div>
+              {/* Link to full programs page */}
+              <div onClick={() => router.push('/programs' as any)} style={{ marginTop: 10, padding: '10px', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: activeProgram.program.color, opacity: 0.7 } as any}>
+                Voir mon programme complet <i className="ri-arrow-right-s-line" />
+              </div>
             ) : (
               /* No active program - show catalog */
               <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 } as any}>
