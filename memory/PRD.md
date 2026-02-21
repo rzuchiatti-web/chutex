@@ -1,103 +1,82 @@
 # CARE WATCH / Chutex - Product Requirements Document
 
 ## Original Problem Statement
-Full-stack health monitoring platform (React Native Expo + FastAPI + MongoDB) for elderly care. Features include:
-- Phone-based login/registration with role-specific multi-step onboarding
-- Beneficiary & Guardian dashboards with customizable backgrounds and KPIs
-- "Coach Santé Intelligent" - AI Health Coach analyzing 74+ health metrics from smart bracelet/scale
-- Alert management, device monitoring, reminders system
-- Multi-role architecture: Beneficiary, Guardian, Intervenant, Teleassistance, Admin, SAAD
+Full-stack health monitoring and prevention platform for elderly care. The app aims to be a **personalized prevention coach** that helps users improve their health through actionable programs, AI-powered guidance, and tracked results.
+
+## Vision
+Transform from a data dashboard into a **meaningful health companion** where users know exactly what to do, see real results, and stay engaged long-term through personalized programs and AI coaching.
 
 ## Architecture
-- **Frontend**: React Native (Expo) with web support, file-based routing (expo-router)
-- **Backend**: FastAPI, Python
+- **Frontend**: React Native (Expo) with web support, file-based routing
+- **Backend**: FastAPI, Python  
 - **Database**: MongoDB (vitallink_db)
 - **AI**: OpenAI GPT-4.1-mini via Emergent LLM Key
-- **Key**: EMERGENT_LLM_KEY for AI health analysis
-
-## Core Files
-- `frontend/app/(tabs)/index.tsx` - Main dashboard (Beneficiary + Guardian)
-- `frontend/app/(tabs)/health.tsx` - Health Coach page
-- `frontend/app/register.tsx` - Multi-step registration
-- `frontend/app/login.tsx` - Phone-based login
-- `frontend/app/metric-detail.tsx` - Metric detail with custom charts
-- `frontend/app/health-detail.tsx` - Thematic health sections
-- `frontend/app/(tabs)/profile.tsx` - Profile page
-- `frontend/src/components/PastelMistBackground.tsx` - Global styles/background
-- `backend/routes/health_report_routes.py` - AI health analysis + summary endpoints
-- `backend/routes/health_routes.py` - Health metrics, thresholds
-- `backend/routes/auth_routes.py` - Auth, role switching, guardian activation
 
 ## What's Been Implemented
 
 ### Session 1 (Previous)
-- Complete Coach Santé Intelligent (LLM analysis of 74+ metrics)
+- Coach Sante Intelligent (LLM analysis of 74+ metrics)
 - Login/Registration overhaul (phone-based, glassmorphism, medical questionnaire)
-- Beneficiary dashboard & reminders refactor
-- Alert thresholds management
+- Beneficiary dashboard & reminders, Alert thresholds
 - Profile page medical editor
-- "Comment avez-vous connu Chutex?" in registration
 
-### Session 2 (Current - Feb 20, 2026)
-- **NEW: Dashboard Header Redesign** (P0 - COMPLETED ✅)
-  - AI-generated health summary card with score badge (via new `/api/health/summary` endpoint)
-  - Language selector (FR/EN/DE/ES/IT) - pure web implementation
-  - Segmented control tabs: Bénéficiaire / Aidant
-  - Guardian activation popup (2 steps: features presentation + SMS/Email alert config)
-  - Fixed CSS display:none bug in PastelMistBackground.tsx
-- **NEW: `/api/health/summary` endpoint** - Lightweight LLM-powered health summary with 1-hour cache
+### Session 2 (Current - Feb 20-21, 2026)
+- **Dashboard Header Redesign** - AI summary, language picker, segmented tabs, guardian activation popup
+- **Chat IA Sante** - Full conversational AI coach with personalized health context
+- **Programmes de Prevention** - "21 jours pour mieux dormir" + 2 more programs with daily tasks, check-ins, AI feedback
+- **Floating Chat Button** - Accessible from dashboard
+- **Bug Fix** - Dossier medical surgeries crash
+
+## Key Files
+- `backend/routes/chat_routes.py` - Chat AI (message, history, clear)
+- `backend/routes/program_routes.py` - Programs (catalog, start, active, checkin, stop)
+- `backend/routes/health_report_routes.py` - Health summary + daily report
+- `frontend/app/chat.tsx` - Chat page
+- `frontend/app/(tabs)/index.tsx` - Dashboard (programs section + chat FAB)
 
 ## Key API Endpoints
-- `POST /api/auth/login` - Phone/email login
-- `POST /api/auth/register` - Multi-step registration
-- `POST /api/auth/switch-role` - Switch between beneficiary/guardian
-- `POST /api/auth/activate-guardian` - Activate guardian space
-- `GET /api/health/summary` - AI health summary (NEW)
-- `GET /api/health/daily-report` - Full daily health report with AI
-- `GET /api/health/metric-history/{key}` - 30-day metric history
+- `POST /api/chat/message` - Send message, get AI response with health context
+- `GET /api/chat/history` - Chat history
+- `GET /api/programs/catalog` - Available programs
+- `POST /api/programs/start/{id}` - Start program
+- `GET /api/programs/active` - Active program + today's tasks
+- `POST /api/programs/checkin` - Daily check-in with AI feedback
+- `GET /api/health/summary` - AI health summary (1h cache)
 
-## DB Schema (Key Collections)
-- **users**: Expanded with medical fields, guardian_type, alert_sms, alert_email
-- **thresholds**: user_id, metric_key, low/high threshold
-- **health_summary_cache**: user_id, summary, recommendation, score, status, generated_at (1h TTL)
+## DB Collections
+- `chat_messages` - user_id, session_id, role, content, created_at
+- `programs` - Seeded catalog (sleep 21d, tension 14d, activity 30d)
+- `program_enrollments` - user_id, program_id, current_day, streak, status
+- `program_checkins` - enrollment_id, mood, note, tasks_done, date
+- `health_summary_cache` - user_id, summary, score, status (1h TTL)
 
 ## Test Credentials
 | Role | Email | Password | Phone |
 |---|---|---|---|
 | Beneficiary | robert.martin@email.fr | demo123 | +33651245918 |
-| Guardian | claire.martin@email.fr | demo123 | +33630686585 |
-| Intervenant | ludivine.moutio@care.fr | demo123 | |
-| Teleassistance | plateau@chutex.fr | demo123 | |
-| Admin | admin@chutex.fr | demo123 | |
 
 ## Prioritized Backlog
+### P0 (Next)
+- Check-in matinal intégré au programme actif
+- Bilans hebdomadaires automatiques
+- Page dédiée programmes (vue détaillée + historique)
 
-### P0 (Completed)
-- ✅ Dashboard header redesign
-
-### P1 (Next)
-- Device connection tutorial on beneficiary dashboard
-- Lefu Scale BLE data parsing fix
+### P1
+- Catalogue de programmes enrichi (tensions, activité physique)
+- Système de streaks/badges visuels
+- Bilan de fin de programme (avant/après)
 
 ### P2
-- App-wide design/data coherence check
-- Network Request Failed on native app (permanent backend URL)
-- Native build & BLE integration for J-Style bracelet
+- Tutoriel connexion appareils
+- Lefu Scale BLE fix
+- Cohérence design globale
 
 ### P3
-- Shopify integration (blocked on user)
-- Offline mode for intervenants
-- Deploy backend to permanent host
+- Déploiement backend permanent
+- Build natif J-Style
+- Shopify, mode hors-ligne
 
 ## Known Issues
-- Lefu Scale live data parsing incorrect (only weight works)
-- Native app "Network Request Failed" (preview URL expires)
-- SMS for forgot password is MOCKED
-- Metro cache often needs clearing for UI changes
-
-## Critical Dev Notes
-- **LANGUAGE**: All user communication must be in French
-- **CSS BUG**: `PastelMistBackground.tsx` line 470 had a CSS rule `[data-testid*="header"] { display: none !important }` that was hiding custom header elements. Fixed by removing the data-testid selector.
-- **COMPONENT SCOPE**: Never define React components inside render functions (causes focus-loss bug)
-- **METRO CACHE**: Always clear cache after significant changes: `rm -rf .metro-cache && supervisorctl restart expo`
-- **React Native Web**: `display: 'block'` in style objects gets converted to `display: 'none'` by RN Web. Don't use non-RN display values.
+- Metro cache needs clearing after significant changes
+- SMS mocked for forgot password
+- Lefu Scale live data parsing incorrect
