@@ -594,7 +594,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <div data-testid="programs-section" style={{ marginBottom: 16 } as any}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Mon programme</div>
             {activeProgram?.active ? (
-              /* Active program card */
+              <>
+              {/* Active program card */}
               <div data-testid="active-program-card" style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: `1px solid ${activeProgram.program.color}25`, padding: '18px', marginBottom: 10, cursor: 'pointer' } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 } as any}>
                   <div style={{ width: 44, height: 44, borderRadius: 14, background: `${activeProgram.program.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
@@ -629,9 +630,10 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 )}
               </div>
               {/* Link to full programs page */}
-              <div onClick={() => router.push('/programs' as any)} style={{ marginTop: 10, padding: '10px', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: activeProgram.program.color, opacity: 0.7 } as any}>
+              <div data-testid="voir-programme-complet" onClick={() => router.push('/programs' as any)} style={{ marginTop: 10, padding: '10px', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: activeProgram.program.color, opacity: 0.7 } as any}>
                 Voir mon programme complet <i className="ri-arrow-right-s-line" />
               </div>
+              </>
             ) : (
               /* No active program - show catalog */
               <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 } as any}>
