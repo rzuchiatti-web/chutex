@@ -342,6 +342,82 @@ async def stop_program(user=Depends(get_current_user)):
     return {"status": "stopped"}
 
 
+@router.get("/programs/completion-report/{enrollment_id}")
+async def get_completion_report(enrollment_id: str, user=Depends(get_current_user)):
+    """Generate a comprehensive before/after completion report"""
+    enrollment = await db.program_enrollments.find_one(
+        {"id": enrollment_id, "user_id": user['id']}, {"_id": 0}
+    )
+    if not enrollment:
+        raise HTTPException(status_code=404, detail="Inscription non trouvee")
+
+    program = await db.programs.find_one({"id": enrollment["program_id"]}, {"_id": 0})
+    if not program:
+        raise HTTPException(status_code=404, detail="Programme non trouve")
+
+    # Get all checkins for this enrollment
+    checkins = await db.program_checkins.find(
+        {"enrollment_id": enrollment_id}, {"_id": 0}
+    ).sort("date", 1).to_list(100)
+
+    total_days = program.get("duration_days", 21)
+    completed_days = len(checkins)
+    moods = [c.get("mood", 3) for c in checkins if c.get("mood")]
+    avg_mood = round(sum(moods) / len(moods), 1) if moods else 0
+    best_mood = max(moods) if moods else 0
+    streak = enrollment.get("streak", completed_days)
+
+    # Mood evolution (first half vs second half)
+    mid = len(moods) // 2
+    first_half_mood = round(sum(moods[:mid]) / max(len(moods[:mid]), 1), 1) if moods else 0
+    second_half_mood = round(sum(moods[mid:]) / max(len(moods[mid:]), 1), 1) if moods else 0
+
+    # Generate AI completion report
+    ai_report = None
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if api_key:
+        try:
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
+            import json
+            prompt = f"""L'utilisateur a termine le programme "{program.get('title', '')}".
+Stats: {completed_days}/{total_days} jours completes, humeur moyenne {avg_mood}/5 (debut {first_half_mood}/5 -> fin {second_half_mood}/5), meilleur streak {streak} jours.
+Notes des check-ins: {'; '.join(c.get('note', '') for c in checkins[-5:] if c.get('note'))}.
+Genere un bilan de fin de programme en JSON:
+{{"title": "titre celebratoire", "summary": "3-4 phrases de bilan personnalise avec les resultats concrets", "achievements": ["realisation 1", "realisation 2", "realisation 3"], "before_after": {{"mood": {{"before": {first_half_mood}, "after": {second_half_mood}}}, "regularity": {{"before": "debut", "after": "{completed_days} jours"}}}}, "next_steps": ["conseil 1 pour continuer", "conseil 2"], "celebration": "phrase de celebration motivante"}}"""
+            chat = LlmChat(api_key=api_key, session_id=f"cr-{uuid.uuid4().hex[:6]}",
+                           system_message="Coach sante bienveillant. JSON uniquement.").with_model("openai", "gpt-4.1-mini")
+            r = (await chat.send_message(UserMessage(text=prompt))).strip()
+            if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
+            if r.endswith("```"): r = r[:-3]
+            ai_report = json.loads(r.strip())
+        except Exception as e:
+            print(f"Completion report AI err: {e}")
+
+    if not ai_report:
+        ai_report = {
+            "title": "Programme termine !",
+            "summary": f"Tu as complete {completed_days} jours sur {total_days}. Ta regularite est impressionnante !",
+            "achievements": ["Programme suivi avec regularite", f"Humeur moyenne de {avg_mood}/5", f"Streak de {streak} jours"],
+            "before_after": {"mood": {"before": first_half_mood, "after": second_half_mood}, "regularity": {"before": "debut", "after": f"{completed_days} jours"}},
+            "next_steps": ["Continue tes bonnes habitudes", "Lance un nouveau programme"],
+            "celebration": "Bravo, tu as fait un travail remarquable !",
+        }
+
+    return {
+        "enrollment": enrollment,
+        "program": {"id": program["id"], "title": program["title"], "icon": program["icon"], "color": program["color"], "duration_days": total_days},
+        "stats": {
+            "completed_days": completed_days, "total_days": total_days,
+            "completion_pct": round((completed_days / total_days) * 100),
+            "avg_mood": avg_mood, "best_mood": best_mood, "streak": streak,
+            "first_half_mood": first_half_mood, "second_half_mood": second_half_mood,
+        },
+        "report": ai_report,
+        "checkins": checkins,
+    }
+
+
+
 BADGE_DEFS = [
     {"id": "streak-3", "title": "3 jours", "icon": "ri-fire-line", "color": "#F59E0B", "condition": "streak >= 3", "description": "3 jours consecutifs"},
     {"id": "streak-7", "title": "1 semaine", "icon": "ri-fire-fill", "color": "#EF4444", "condition": "streak >= 7", "description": "7 jours consecutifs"},
