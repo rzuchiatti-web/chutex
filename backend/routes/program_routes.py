@@ -294,3 +294,119 @@ async def stop_program(user=Depends(get_current_user)):
     if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Aucun programme actif")
     return {"status": "stopped"}
+
+
+BADGE_DEFS = [
+    {"id": "streak-3", "title": "3 jours", "icon": "ri-fire-line", "color": "#F59E0B", "condition": "streak >= 3", "description": "3 jours consecutifs"},
+    {"id": "streak-7", "title": "1 semaine", "icon": "ri-fire-fill", "color": "#EF4444", "condition": "streak >= 7", "description": "7 jours consecutifs"},
+    {"id": "streak-14", "title": "2 semaines", "icon": "ri-medal-line", "color": "#A78BFA", "condition": "streak >= 14", "description": "14 jours consecutifs"},
+    {"id": "streak-21", "title": "Programme complet", "icon": "ri-trophy-line", "color": "#22D3EE", "condition": "streak >= 21", "description": "Programme termine !"},
+    {"id": "first-checkin", "title": "Premier pas", "icon": "ri-footprint-line", "color": "#10B981", "condition": "total_checkins >= 1", "description": "Premier check-in"},
+    {"id": "mood-5", "title": "Jour parfait", "icon": "ri-emotion-happy-line", "color": "#F59E0B", "condition": "had_mood_5", "description": "Humeur 5/5 atteinte"},
+]
+
+
+@router.get("/programs/badges")
+async def get_badges(user=Depends(get_current_user)):
+    """Get earned badges"""
+    uid = user['id']
+    checkins = await db.program_checkins.find({"user_id": uid}, {"_id": 0}).to_list(500)
+    enrollments = await db.program_enrollments.find({"user_id": uid}, {"_id": 0}).to_list(50)
+
+    total_checkins = len(checkins)
+    max_streak = max((e.get("streak", 0) for e in enrollments), default=0)
+    had_mood_5 = any(c.get("mood") == 5 for c in checkins)
+    completed = any(e.get("status") == "completed" for e in enrollments)
+
+    earned = []
+    for b in BADGE_DEFS:
+        cond = b["condition"]
+        unlocked = False
+        if "streak >= 21" in cond: unlocked = max_streak >= 21 or completed
+        elif "streak >= 14" in cond: unlocked = max_streak >= 14
+        elif "streak >= 7" in cond: unlocked = max_streak >= 7
+        elif "streak >= 3" in cond: unlocked = max_streak >= 3
+        elif "total_checkins >= 1" in cond: unlocked = total_checkins >= 1
+        elif "had_mood_5" in cond: unlocked = had_mood_5
+        earned.append({**{k: v for k, v in b.items() if k != "condition"}, "unlocked": unlocked})
+
+    return {"badges": earned, "stats": {"total_checkins": total_checkins, "max_streak": max_streak, "programs_completed": sum(1 for e in enrollments if e.get("status") == "completed")}}
+
+
+@router.get("/programs/weekly-report")
+async def get_weekly_report(user=Depends(get_current_user)):
+    """Generate AI-powered weekly health report"""
+    uid = user['id']
+    now = datetime.now(timezone.utc)
+    week_ago = now - timedelta(days=7)
+    two_weeks_ago = now - timedelta(days=14)
+
+    # Get this week's and last week's check-ins
+    this_week = await db.program_checkins.find(
+        {"user_id": uid, "created_at": {"$gte": week_ago.isoformat()}}, {"_id": 0}
+    ).to_list(50)
+    last_week = await db.program_checkins.find(
+        {"user_id": uid, "created_at": {"$gte": two_weeks_ago.isoformat(), "$lt": week_ago.isoformat()}}, {"_id": 0}
+    ).to_list(50)
+
+    # Stats
+    this_moods = [c.get("mood", 3) for c in this_week if c.get("mood")]
+    last_moods = [c.get("mood", 3) for c in last_week if c.get("mood")]
+    avg_mood_this = round(sum(this_moods) / len(this_moods), 1) if this_moods else 0
+    avg_mood_last = round(sum(last_moods) / len(last_moods), 1) if last_moods else 0
+    checkins_this = len(this_week)
+    checkins_last = len(last_week)
+
+    # Active program info
+    enrollment = await db.program_enrollments.find_one({"user_id": uid, "status": "active"}, {"_id": 0})
+    program_info = ""
+    if enrollment:
+        program = await db.programs.find_one({"id": enrollment["program_id"]}, {"_id": 0})
+        if program:
+            program_info = f"Programme actif: {program['title']}, jour {enrollment.get('current_day', 1)}/{program['duration_days']}."
+
+    # Health summary
+    summary = await db.health_summary_cache.find_one({"user_id": uid}, {"_id": 0})
+    health_info = f"Score sante: {summary.get('score', '?')}/100." if summary else ""
+
+    # Generate AI report
+    ai_report = None
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if api_key:
+        try:
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
+            prompt = f"""Genere un bilan hebdomadaire de sante en JSON.
+Donnees: {checkins_this} check-ins cette semaine (vs {checkins_last} la semaine derniere). Humeur moyenne: {avg_mood_this}/5 (vs {avg_mood_last}/5). {program_info} {health_info}
+JSON: {{"title": "titre court du bilan", "summary": "2-3 phrases de bilan personnalise", "wins": ["victoire 1", "victoire 2"], "improvements": ["point a ameliorer"], "next_week_goal": "objectif concret pour la semaine prochaine", "motivation": "phrase motivante courte"}}"""
+            chat = LlmChat(api_key=api_key, session_id=f"wr-{uuid.uuid4().hex[:6]}",
+                           system_message="Coach sante. JSON uniquement. Tutoie l'utilisateur.").with_model("openai", "gpt-4.1-mini")
+            import json
+            r = (await chat.send_message(UserMessage(text=prompt))).strip()
+            if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
+            if r.endswith("```"): r = r[:-3]
+            ai_report = json.loads(r.strip())
+        except Exception as e:
+            print(f"Weekly report AI err: {e}")
+
+    if not ai_report:
+        ai_report = {
+            "title": "Bilan de la semaine",
+            "summary": f"Tu as fait {checkins_this} check-ins cette semaine. Continue comme ca !",
+            "wins": ["Tu es regulier dans tes check-ins"],
+            "improvements": ["Essaie de maintenir une humeur positive"],
+            "next_week_goal": "Faire au moins 5 check-ins la semaine prochaine",
+            "motivation": "Chaque jour compte !",
+        }
+
+    return {
+        "report": ai_report,
+        "stats": {
+            "checkins_this_week": checkins_this,
+            "checkins_last_week": checkins_last,
+            "avg_mood_this_week": avg_mood_this,
+            "avg_mood_last_week": avg_mood_last,
+            "mood_trend": "up" if avg_mood_this > avg_mood_last else "down" if avg_mood_this < avg_mood_last else "stable",
+        },
+        "generated_at": now.isoformat(),
+    }
+
