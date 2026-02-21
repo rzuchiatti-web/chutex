@@ -22,6 +22,8 @@ from routes.carewatch_routes import router as carewatch_router
 from routes.company_routes import router as company_router
 from routes.push_routes import router as push_router
 from routes.health_report_routes import router as health_report_router
+from routes.chat_routes import router as chat_router
+from routes.program_routes import router as program_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -45,6 +47,8 @@ api_router.include_router(carewatch_router)
 api_router.include_router(company_router)
 api_router.include_router(push_router)
 api_router.include_router(health_report_router)
+api_router.include_router(chat_router)
+api_router.include_router(program_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
