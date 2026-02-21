@@ -218,6 +218,15 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       setGuardians(Array.isArray(guards) ? guards : []);
       setGuardianRequests(Array.isArray(greqs) ? greqs : []);
       if (hs) setHealthSummary(hs);
+      // Fetch programs
+      try {
+        const [prog, cat] = await Promise.all([
+          apiFetch('/api/programs/active', {}, token).catch(() => null),
+          apiFetch('/api/programs/catalog', {}, token).catch(() => null),
+        ]);
+        if (prog) setActiveProgram(prog);
+        if (cat?.programs) setProgramCatalog(cat.programs);
+      } catch {}
       try {
         const aa = await apiFetch('/api/alerts/active-with-interventions', {}, token);
         setActiveAlerts(Array.isArray(aa) ? aa : []);
