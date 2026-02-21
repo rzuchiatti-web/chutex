@@ -496,7 +496,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
 
                 {/* Surgeries */}
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 8, marginTop: 4 }}>Operations chirurgicales</div>
-                {medForm.surgeries.map((s: any, idx: number) => (
+                {(medForm.surgeries || []).map((s: any, idx: number) => (
                   <div key={idx} style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8 } as any}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
                       <span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>Operation {idx + 1}</span>
