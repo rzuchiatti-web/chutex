@@ -229,7 +229,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           apiFetch('/api/programs/active', {}, token).catch(() => null),
           apiFetch('/api/programs/catalog', {}, token).catch(() => null),
         ]);
-        if (prog) setActiveProgram(prog);
+        if (prog) {
+          setActiveProgram(prog);
+          // Auto-show check-in if active program and no checkin today
+          if (prog.active && !prog.today_checkin) setShowCheckin(true);
+        }
         if (cat?.programs) setProgramCatalog(cat.programs);
       } catch {}
       try {
