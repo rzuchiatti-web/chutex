@@ -1,0 +1,296 @@
+from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime, timezone, timedelta
+import os, uuid
+
+from database import db
+from auth import get_current_user
+
+router = APIRouter()
+
+# ─── Seed programs on import ───
+SEED_PROGRAMS = [
+    {
+        "id": "prog-sleep-21",
+        "title": "21 jours pour mieux dormir",
+        "subtitle": "Ameliorez votre sommeil en 3 semaines",
+        "icon": "ri-moon-line",
+        "color": "#A78BFA",
+        "duration_days": 21,
+        "category": "sommeil",
+        "difficulty": "facile",
+        "description": "Un programme progressif en 3 phases pour transformer vos nuits. Semaine 1 : installer les bonnes habitudes. Semaine 2 : optimiser votre environnement. Semaine 3 : consolider et personnaliser.",
+        "phases": [
+            {"name": "Habitudes", "days": [1, 7], "description": "Mettre en place les rituels du soir"},
+            {"name": "Environnement", "days": [8, 14], "description": "Optimiser votre chambre et vos conditions de sommeil"},
+            {"name": "Consolidation", "days": [15, 21], "description": "Personnaliser et ancrer les acquis"},
+        ],
+        "daily_tasks_template": {
+            "1": {"focus": "Fixer une heure de coucher reguliere", "tasks": ["Choisis ton heure de coucher ideale", "Mets un rappel 30min avant", "Note l'heure a laquelle tu t'es couche"], "tip": "La regularite est la cle n°1 du bon sommeil."},
+            "2": {"focus": "Eliminer les ecrans le soir", "tasks": ["Pas d'ecran 1h avant le coucher", "Remplace par de la lecture ou musique douce", "Note comment tu te sens"], "tip": "La lumiere bleue bloque la melatonine."},
+            "3": {"focus": "Creer un rituel du soir", "tasks": ["Tisane ou eau tiede 1h avant", "5 minutes de respiration profonde", "Prepare tes affaires pour demain"], "tip": "Le cerveau aime les routines pour s'endormir."},
+            "4": {"focus": "Reduire la cafeine", "tasks": ["Pas de cafe apres 14h", "Remplace par du the vert ou de l'eau", "Observe l'impact sur ton endormissement"], "tip": "La cafeine reste active 6-8h dans le corps."},
+            "5": {"focus": "Bouger en journee", "tasks": ["30 minutes de marche aujourd'hui", "Pas de sport intense apres 18h", "Etirements doux le soir"], "tip": "L'activite physique ameliore la qualite du sommeil profond."},
+            "6": {"focus": "Gerer le stress du soir", "tasks": ["Ecris 3 choses positives de ta journee", "5 min de coherence cardiaque", "Evite les sujets stressants apres 20h"], "tip": "Le stress est l'ennemi n°1 de l'endormissement."},
+            "7": {"focus": "Bilan de la semaine 1", "tasks": ["Compare ton sommeil jour 1 vs aujourd'hui", "Note ce qui a le mieux marche", "Felicite-toi pour cette premiere semaine !"], "tip": "Tu as deja pose les fondations."},
+            "8": {"focus": "Temperature de la chambre", "tasks": ["Regle ta chambre a 18-19°C", "Aere 10 min avant de dormir", "Utilise une couette adaptee"], "tip": "Le corps a besoin de se refroidir pour s'endormir."},
+            "9": {"focus": "Obscurite totale", "tasks": ["Installe des rideaux occultants", "Cache les veilleuses et LEDs", "Teste un masque de sommeil"], "tip": "Meme une petite lumiere perturbe la melatonine."},
+            "10": {"focus": "Reduire le bruit", "tasks": ["Identifie les sources de bruit", "Teste des bouchons d'oreilles", "Essaie un bruit blanc ou bruit de pluie"], "tip": "Le silence ou un bruit constant favorise le sommeil profond."},
+            "11": {"focus": "Literie et confort", "tasks": ["Verifie l'age de ton matelas", "Teste une position differente", "Assure-toi que ton oreiller soutient ta nuque"], "tip": "Un bon matelas change tout."},
+            "12": {"focus": "Alimentation du soir", "tasks": ["Dine leger 2-3h avant le coucher", "Evite l'alcool ce soir", "Privilegiee les aliments riches en tryptophane"], "tip": "Banane, noix, lait tiede : des allies sommeil."},
+            "13": {"focus": "Deconnexion mentale", "tasks": ["Ecris tes pensees dans un carnet", "Pratique le body scan (relaxation progressive)", "Visualise un lieu paisible"], "tip": "Vider l'esprit avant de dormir."},
+            "14": {"focus": "Bilan de la semaine 2", "tasks": ["Compare semaine 1 et semaine 2", "Note les ameliorations de ton environnement", "Prepare-toi pour la phase finale !"], "tip": "Ton environnement est maintenant optimise."},
+            "15": {"focus": "Personnaliser ton rituel", "tasks": ["Combine les 3 meilleures habitudes des 2 semaines", "Cree TON rituel personnalise", "Chronometre-le (ideal: 20-30 min)"], "tip": "Le meilleur rituel est celui qui TE convient."},
+            "16": {"focus": "Siestes strategiques", "tasks": ["Si fatigue : sieste de 20min max avant 15h", "Pas de sieste longue", "Note ton energie de l'apres-midi"], "tip": "Une micro-sieste boost sans impacter la nuit."},
+            "17": {"focus": "Exposition a la lumiere", "tasks": ["15 min de lumiere naturelle le matin", "Evite les lunettes de soleil tot le matin", "Baisse les lumieres progressivement le soir"], "tip": "La lumiere du matin recale ton horloge biologique."},
+            "18": {"focus": "Gestion des reveils nocturnes", "tasks": ["Si reveil : pas de telephone", "Respiration 4-7-8 (inspire 4s, retiens 7s, expire 8s)", "Si 20min sans dormir : leve-toi, lis, puis recouche-toi"], "tip": "Ne force jamais le sommeil."},
+            "19": {"focus": "Reguler le week-end", "tasks": ["Meme heure de coucher ce week-end", "Maximum 1h de grasse matinee", "Maintiens ton rituel"], "tip": "Le jet-lag social detruit tes progres en semaine."},
+            "20": {"focus": "Preparer l'apres-programme", "tasks": ["Liste tes 5 habitudes cles a garder", "Planifie ta routine post-programme", "Fixe-toi un objectif sommeil pour le mois prochain"], "tip": "L'objectif est que ca devienne automatique."},
+            "21": {"focus": "Celebration et bilan final !", "tasks": ["Compare tes donnees jour 1 vs jour 21", "Felicite-toi : 21 jours de discipline !", "Partage tes resultats avec ton gardien"], "tip": "Tu as cree de nouvelles habitudes durables. Bravo !"},
+        },
+    },
+    {
+        "id": "prog-tension-14",
+        "title": "14 jours pour stabiliser sa tension",
+        "subtitle": "Prenez le controle de votre tension arterielle",
+        "icon": "ri-heart-pulse-line",
+        "color": "#EF4444",
+        "duration_days": 14,
+        "category": "cardiovasculaire",
+        "difficulty": "moyen",
+        "description": "Un programme de 2 semaines pour comprendre et ameliorer votre tension arterielle par l'alimentation, l'activite et la gestion du stress.",
+        "phases": [
+            {"name": "Comprendre", "days": [1, 7], "description": "Mesurer, comprendre et ajuster l'alimentation"},
+            {"name": "Agir", "days": [8, 14], "description": "Activite physique adaptee et gestion du stress"},
+        ],
+        "daily_tasks_template": {},
+    },
+    {
+        "id": "prog-activity-30",
+        "title": "30 jours pour bouger plus",
+        "subtitle": "Retrouvez le plaisir de l'activite physique",
+        "icon": "ri-footprint-line",
+        "color": "#10B981",
+        "duration_days": 30,
+        "category": "activite",
+        "difficulty": "progressif",
+        "description": "Un mois pour integrer l'activite physique a votre quotidien, a votre rythme. Pas de performance, juste du mouvement et du bien-etre.",
+        "phases": [
+            {"name": "Decouverte", "days": [1, 10], "description": "Reprendre doucement avec la marche"},
+            {"name": "Progression", "days": [11, 20], "description": "Augmenter et varier les activites"},
+            {"name": "Autonomie", "days": [21, 30], "description": "Trouver votre routine personnelle"},
+        ],
+        "daily_tasks_template": {},
+    },
+]
+
+
+@router.on_event("startup")
+async def seed_programs():
+    for p in SEED_PROGRAMS:
+        existing = await db.programs.find_one({"id": p["id"]})
+        if not existing:
+            await db.programs.insert_one(p)
+
+
+@router.get("/programs/catalog")
+async def get_program_catalog(user=Depends(get_current_user)):
+    """Get available programs"""
+    programs = await db.programs.find({}, {"_id": 0, "daily_tasks_template": 0}).to_list(20)
+    # Check if user has active enrollment
+    active = await db.program_enrollments.find_one(
+        {"user_id": user['id'], "status": "active"}, {"_id": 0}
+    )
+    return {"programs": programs, "active_enrollment": active}
+
+
+@router.post("/programs/start/{program_id}")
+async def start_program(program_id: str, user=Depends(get_current_user)):
+    """Start a program"""
+    program = await db.programs.find_one({"id": program_id}, {"_id": 0})
+    if not program:
+        raise HTTPException(status_code=404, detail="Programme non trouve")
+
+    # Check no active program
+    active = await db.program_enrollments.find_one(
+        {"user_id": user['id'], "status": "active"}
+    )
+    if active:
+        raise HTTPException(status_code=400, detail="Vous avez deja un programme actif. Terminez-le d'abord.")
+
+    enrollment_id = str(uuid.uuid4())
+    enrollment = {
+        "id": enrollment_id,
+        "user_id": user['id'],
+        "program_id": program_id,
+        "status": "active",
+        "current_day": 1,
+        "started_at": datetime.now(timezone.utc).isoformat(),
+        "streak": 0,
+        "completed_days": [],
+        "checkins": [],
+    }
+    await db.program_enrollments.insert_one(enrollment)
+    enrollment.pop("_id", None)
+    return {"status": "started", "enrollment": enrollment}
+
+
+@router.get("/programs/active")
+async def get_active_program(user=Depends(get_current_user)):
+    """Get active program with today's tasks"""
+    enrollment = await db.program_enrollments.find_one(
+        {"user_id": user['id'], "status": "active"}, {"_id": 0}
+    )
+    if not enrollment:
+        return {"active": False}
+
+    program = await db.programs.find_one({"id": enrollment["program_id"]}, {"_id": 0})
+    if not program:
+        return {"active": False}
+
+    # Calculate current day based on start date
+    try:
+        started = datetime.fromisoformat(enrollment["started_at"].replace("Z", "+00:00"))
+        days_since = (datetime.now(timezone.utc) - started).days + 1
+        current_day = min(days_since, program["duration_days"])
+    except:
+        current_day = enrollment.get("current_day", 1)
+
+    # Update current day
+    if current_day != enrollment.get("current_day"):
+        await db.program_enrollments.update_one(
+            {"id": enrollment["id"]}, {"$set": {"current_day": current_day}}
+        )
+
+    # Check if program is completed
+    if current_day > program["duration_days"]:
+        await db.program_enrollments.update_one(
+            {"id": enrollment["id"]}, {"$set": {"status": "completed", "completed_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"active": False, "just_completed": True, "program_title": program["title"]}
+
+    # Get today's tasks
+    day_key = str(current_day)
+    tasks_template = program.get("daily_tasks_template", {})
+    today_tasks = tasks_template.get(day_key, None)
+
+    # If no specific tasks for this day, generate with AI
+    if not today_tasks:
+        today_tasks = {
+            "focus": f"Jour {current_day} - Continue tes efforts",
+            "tasks": ["Applique les habitudes apprises", "Note tes observations", "Felicite-toi pour ta regularite"],
+            "tip": "La constance est la cle du succes.",
+        }
+
+    # Get today's check-in if done
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today_checkin = await db.program_checkins.find_one(
+        {"enrollment_id": enrollment["id"], "date": today_str}, {"_id": 0}
+    )
+
+    # Calculate streak
+    completed_days = enrollment.get("completed_days", [])
+    streak = len(completed_days)
+
+    # Current phase
+    current_phase = None
+    for phase in program.get("phases", []):
+        if phase["days"][0] <= current_day <= phase["days"][1]:
+            current_phase = phase
+            break
+
+    return {
+        "active": True,
+        "enrollment_id": enrollment["id"],
+        "program": {
+            "id": program["id"],
+            "title": program["title"],
+            "icon": program["icon"],
+            "color": program["color"],
+            "duration_days": program["duration_days"],
+            "phases": program.get("phases", []),
+        },
+        "current_day": current_day,
+        "current_phase": current_phase,
+        "today_tasks": today_tasks,
+        "today_checkin": today_checkin,
+        "streak": streak,
+        "progress_pct": round((current_day / program["duration_days"]) * 100),
+        "started_at": enrollment["started_at"],
+    }
+
+
+@router.post("/programs/checkin")
+async def program_checkin(data: dict, user=Depends(get_current_user)):
+    """Submit daily check-in for active program"""
+    enrollment = await db.program_enrollments.find_one(
+        {"user_id": user['id'], "status": "active"}, {"_id": 0}
+    )
+    if not enrollment:
+        raise HTTPException(status_code=404, detail="Aucun programme actif")
+
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # Check if already checked in today
+    existing = await db.program_checkins.find_one(
+        {"enrollment_id": enrollment["id"], "date": today_str}
+    )
+    if existing:
+        # Update existing
+        await db.program_checkins.update_one(
+            {"enrollment_id": enrollment["id"], "date": today_str},
+            {"$set": {"mood": data.get("mood", 3), "note": data.get("note", ""), "tasks_done": data.get("tasks_done", []), "sleep_quality": data.get("sleep_quality"), "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return {"status": "updated"}
+
+    checkin = {
+        "id": str(uuid.uuid4()),
+        "enrollment_id": enrollment["id"],
+        "user_id": user['id'],
+        "date": today_str,
+        "day": enrollment.get("current_day", 1),
+        "mood": data.get("mood", 3),
+        "note": data.get("note", ""),
+        "tasks_done": data.get("tasks_done", []),
+        "sleep_quality": data.get("sleep_quality"),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.program_checkins.insert_one(checkin)
+
+    # Update streak
+    await db.program_enrollments.update_one(
+        {"id": enrollment["id"]},
+        {"$addToSet": {"completed_days": today_str}, "$inc": {"streak": 1}}
+    )
+
+    # Generate AI feedback
+    feedback = ""
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if api_key:
+        try:
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
+            program = await db.programs.find_one({"id": enrollment["program_id"]}, {"_id": 0})
+            prompt = f"""L'utilisateur fait son check-in du jour {enrollment.get('current_day', 1)} du programme "{program.get('title', '')}".
+Humeur: {data.get('mood', 3)}/5. Note: {data.get('note', 'aucune')}. Taches completees: {data.get('tasks_done', [])}.
+Genere UNE phrase d'encouragement personnalisee et courte (max 20 mots). Tutoie l'utilisateur."""
+            chat = LlmChat(api_key=api_key, session_id=f"fb-{uuid.uuid4().hex[:6]}",
+                           system_message="Coach bienveillant. 1 phrase courte.").with_model("openai", "gpt-4.1-mini")
+            feedback = (await chat.send_message(UserMessage(text=prompt))).strip()
+        except Exception as e:
+            print(f"Checkin AI error: {e}")
+
+    if not feedback:
+        feedback = "Bravo pour ta regularite ! Continue comme ca."
+
+    return {"status": "created", "feedback": feedback}
+
+
+@router.post("/programs/stop")
+async def stop_program(user=Depends(get_current_user)):
+    """Stop/abandon active program"""
+    result = await db.program_enrollments.update_one(
+        {"user_id": user['id'], "status": "active"},
+        {"$set": {"status": "abandoned", "stopped_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Aucun programme actif")
+    return {"status": "stopped"}

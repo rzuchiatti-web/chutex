@@ -1,0 +1,148 @@
+from fastapi import APIRouter, Depends
+from datetime import datetime, timezone
+import os, uuid
+
+from database import db
+from auth import get_current_user
+
+router = APIRouter()
+
+
+async def build_health_context(user):
+    """Build a rich health context string for the AI from user data"""
+    uid = user['id']
+    parts = []
+
+    # User profile
+    parts.append(f"Utilisateur: {user.get('name', 'Inconnu')}, {user.get('gender', '')}, ne(e) le {user.get('date_of_birth', 'inconnu')}.")
+    if user.get('height_cm'): parts.append(f"Taille: {user['height_cm']}cm.")
+    if user.get('weight_kg'): parts.append(f"Poids: {user['weight_kg']}kg.")
+    if user.get('medical_conditions'): parts.append(f"Pathologies: {user['medical_conditions']}.")
+    if user.get('allergies'): parts.append(f"Allergies: {user['allergies']}.")
+
+    # Latest health summary
+    summary = await db.health_summary_cache.find_one({"user_id": uid}, {"_id": 0})
+    if summary:
+        parts.append(f"Score sante: {summary.get('score', '?')}/100 ({summary.get('status', '?')}). Resume: {summary.get('summary', '')}. Recommandation: {summary.get('recommendation', '')}.")
+
+    # Active program
+    enrollment = await db.program_enrollments.find_one(
+        {"user_id": uid, "status": "active"}, {"_id": 0}
+    )
+    if enrollment:
+        program = await db.programs.find_one({"id": enrollment["program_id"]}, {"_id": 0})
+        if program:
+            day = enrollment.get("current_day", 1)
+            parts.append(f"Programme actif: '{program.get('title', '')}' - Jour {day}/{program.get('duration_days', 21)}.")
+            # Last check-in
+            last_checkin = await db.program_checkins.find_one(
+                {"enrollment_id": enrollment["id"]}, {"_id": 0}, sort=[("date", -1)]
+            )
+            if last_checkin:
+                parts.append(f"Dernier check-in: humeur {last_checkin.get('mood', '?')}/5, note: {last_checkin.get('note', 'aucune')}.")
+
+    # Recent thresholds/alerts
+    alerts = await db.alerts.find(
+        {"user_id": uid, "status": {"$in": ["active", "acknowledged"]}}, {"_id": 0}
+    ).sort("created_at", -1).to_list(3)
+    if alerts:
+        parts.append(f"Alertes recentes: {', '.join(a.get('message', '') for a in alerts)}.")
+
+    return " ".join(parts)
+
+
+@router.post("/chat/message")
+async def send_chat_message(data: dict, user=Depends(get_current_user)):
+    """Send a message to the AI health coach and get a personalized response"""
+    user_message = data.get("message", "").strip()
+    if not user_message:
+        return {"error": "Message vide"}
+
+    uid = user['id']
+    session_id = data.get("session_id", f"chat-{uid}")
+
+    # Save user message
+    msg_id = str(uuid.uuid4())
+    await db.chat_messages.insert_one({
+        "id": msg_id, "user_id": uid, "session_id": session_id,
+        "role": "user", "content": user_message,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+
+    # Build health context
+    health_ctx = await build_health_context(user)
+
+    # Get recent chat history for context (last 10 messages)
+    recent = await db.chat_messages.find(
+        {"user_id": uid, "session_id": session_id}, {"_id": 0}
+    ).sort("created_at", -1).to_list(10)
+    recent.reverse()
+    history_str = "\n".join(f"{'Patient' if m['role'] == 'user' else 'Coach'}: {m['content']}" for m in recent[-8:])
+
+    # Call LLM
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    ai_response = ""
+    if api_key:
+        try:
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
+            system = f"""Tu es le Coach Sante IA de Chutex Care Watch. Tu es bienveillant, tu tutoies l'utilisateur, tu es concret et motivant.
+
+DONNEES SANTE DE L'UTILISATEUR:
+{health_ctx}
+
+REGLES:
+- Reponds toujours en francais, de facon claire et concise (max 3-4 phrases sauf si la question demande plus)
+- Base tes reponses sur les DONNEES REELLES de l'utilisateur ci-dessus
+- Donne des conseils CONCRETS et ACTIONNABLES
+- Si l'utilisateur te parle de symptomes graves, recommande de consulter un medecin
+- Sois encourageant, mets en valeur les progres
+- Si tu n'as pas assez de donnees, dis-le honnetement
+- Tu peux utiliser des emojis avec parcimonie"""
+
+            chat = LlmChat(
+                api_key=api_key,
+                session_id=f"cx-{uuid.uuid4().hex[:8]}",
+                system_message=system
+            ).with_model("openai", "gpt-4.1-mini")
+
+            prompt = f"Historique recent:\n{history_str}\n\nNouveau message du patient: {user_message}"
+            r = await chat.send_message(UserMessage(text=prompt))
+            ai_response = r.strip()
+        except Exception as e:
+            print(f"Chat AI error: {e}")
+
+    if not ai_response:
+        ai_response = "Je suis desole, je n'ai pas pu traiter ta question. Peux-tu reformuler ?"
+
+    # Save AI response
+    resp_id = str(uuid.uuid4())
+    await db.chat_messages.insert_one({
+        "id": resp_id, "user_id": uid, "session_id": session_id,
+        "role": "assistant", "content": ai_response,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+
+    return {
+        "id": resp_id,
+        "content": ai_response,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@router.get("/chat/history")
+async def get_chat_history(user=Depends(get_current_user)):
+    """Get chat message history"""
+    uid = user['id']
+    session_id = f"chat-{uid}"
+    messages = await db.chat_messages.find(
+        {"user_id": uid, "session_id": session_id}, {"_id": 0}
+    ).sort("created_at", 1).to_list(100)
+    return messages
+
+
+@router.delete("/chat/clear")
+async def clear_chat(user=Depends(get_current_user)):
+    """Clear chat history"""
+    uid = user['id']
+    await db.chat_messages.delete_many({"user_id": uid})
+    return {"status": "cleared"}
