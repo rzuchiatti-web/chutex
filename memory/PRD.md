@@ -1,74 +1,37 @@
-# CARE WATCH / Chutex - Product Requirements Document
+# CARE WATCH / Chutex - PRD
 
 ## Vision
-Application de **prévention santé personnalisée** pour les seniors. L'app transforme les données de santé en actions concrètes via des programmes guidés, un coach IA conversationnel, et un suivi motivant avec bilans et badges.
+App de **prévention santé personnalisée** pour seniors. Programmes guidés, coach IA, suivi motivant.
 
 ## Architecture
-- **Frontend**: React Native (Expo) + Web, file-based routing
-- **Backend**: FastAPI, Python
-- **Database**: MongoDB (vitallink_db)
-- **AI**: OpenAI GPT-4.1-mini via Emergent LLM Key
+React Native (Expo) + FastAPI + MongoDB + GPT-4.1-mini (Emergent LLM Key)
 
-## Implemented Features
+## Implemented Features (Feb 20-21, 2026)
 
-### Core Platform
-- Phone-based login/registration with role-based multi-step onboarding
-- Beneficiary & Guardian dashboards with role switching
-- Coach Santé Intelligent (74+ health metrics analysis)
-- Alert management, device monitoring, reminders system
+### Core: Login/registration phone-based, dashboards multi-rôle, Coach Santé 74+ métriques
+### Header: Résumé IA, langue, onglets Bénéficiaire/Aidant, activation gardien
+### Chat IA: Coach conversationnel personnalisé (contexte santé complet), bouton flottant
+### Programmes:
+- 3 programmes complets: Sommeil 21j (21 tâches), Tension 14j (14 tâches), Activité 30j (30 tâches)
+- Check-in matinal popup automatique (humeur 1-5, notes, feedback IA)
+- Bilans hebdomadaires IA (comparaison semaine vs semaine)
+- Streaks & 6 badges (3j, 7j, 14j, 21j, premier check-in, jour parfait)
+- Bilan de fin de programme IA (avant/après, réalisations, prochaines étapes)
+- Page dédiée /programs (détails, phases, badges, bilan, stats)
+### Tutoriel connexion appareils (banner quand non connectés)
+### Bug fixes: Dossier médical (surgeries), CSS display:none header
 
-### Dashboard Header (Feb 20)
-- AI-generated health summary card with score badge
-- Language selector (FR/EN/DE/ES/IT)
-- Segmented tabs Bénéficiaire/Aidant with guardian activation popup
+## Key Endpoints
+POST /api/chat/message | GET /api/chat/history | DELETE /api/chat/clear
+GET /api/programs/catalog | POST /api/programs/start/{id} | GET /api/programs/active
+POST /api/programs/checkin | GET /api/programs/badges | GET /api/programs/weekly-report
+GET /api/programs/completion-report/{id} | POST /api/programs/stop
+GET /api/health/summary | GET /api/health/daily-report
 
-### Chat IA Santé (Feb 21)
-- Conversational AI coach with full health context (score, pathologies, program, alerts)
-- Accessible via floating button on dashboard
-- Chat history, quick action suggestions
+## Credentials
+robert.martin@email.fr / demo123 / +33651245918
 
-### Programmes de Prévention (Feb 21)
-- 3 programs: "21 jours pour mieux dormir" (21 daily tasks), "14j tension", "30j activité"
-- **Check-in matinal** auto-popup when active program has no checkin today
-- Mood selector (1-5), notes, AI-generated feedback after each check-in
-- **Bilans hebdomadaires** IA with this-week vs last-week comparisons
-- **Streaks & badges** system (6 badges: streak milestones, first checkin, perfect mood)
-- **Dedicated /programs page** with phases, tasks, badges grid, weekly report, stats
-
-## Key API Endpoints
-- `POST /api/chat/message` - Chat with health context
-- `GET /api/programs/catalog` - Available programs
-- `POST /api/programs/start/{id}` - Start program
-- `GET /api/programs/active` - Active program + today's tasks + checkin status
-- `POST /api/programs/checkin` - Daily check-in with AI feedback
-- `GET /api/programs/badges` - Earned badges + stats
-- `GET /api/programs/weekly-report` - AI weekly bilan
-- `GET /api/health/summary` - AI health summary (1h cache)
-
-## Test Credentials
-| Role | Email | Password | Phone |
-|---|---|---|---|
-| Beneficiary | robert.martin@email.fr | demo123 | +33651245918 |
-
-## Prioritized Backlog
-
-### P1 (Next)
-- Enrichir contenu programmes tension et activité (tâches quotidiennes détaillées)
-- Bilan de fin de programme (avant/après avec visualisation)
-- Notifications push pour les rappels de check-in
-
-### P2
-- Tutoriel connexion appareils
-- Lefu Scale BLE fix
-- Cohérence design globale de l'app
-
-### P3
-- Déploiement backend permanent
-- Build natif J-Style
-- Shopify, mode hors-ligne
-
-## Known Issues
-- Metro cache needs clearing after significant changes
-- SMS mocked for forgot password
-- Lefu Scale live data parsing incorrect
-- ngrok tunnel connection intermittent
+## Backlog
+P1: Notifications push rappels check-in, partage social badges
+P2: Lefu Scale BLE fix, déploiement permanent
+P3: Shopify, mode hors-ligne, build natif J-Style
