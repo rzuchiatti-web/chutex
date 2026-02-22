@@ -181,8 +181,8 @@ async def start_program(program_id: str, user=Depends(get_current_user)):
 
 
 @router.get("/programs/active")
-async def get_active_program(user=Depends(get_current_user)):
-    """Get active program with today's tasks"""
+async def get_active_program(user=Depends(get_current_user), day: int = 0):
+    """Get active program with today's tasks. Use ?day=X to simulate a specific day."""
     enrollment = await db.program_enrollments.find_one(
         {"user_id": user['id'], "status": "active"}, {"_id": 0}
     )
@@ -193,13 +193,16 @@ async def get_active_program(user=Depends(get_current_user)):
     if not program:
         return {"active": False}
 
-    # Calculate current day based on start date
-    try:
-        started = datetime.fromisoformat(enrollment["started_at"].replace("Z", "+00:00"))
-        days_since = (datetime.now(timezone.utc) - started).days + 1
-        current_day = min(days_since, program["duration_days"])
-    except:
-        current_day = enrollment.get("current_day", 1)
+    # Calculate current day - allow override for simulation
+    if day > 0:
+        current_day = min(day, program["duration_days"])
+    else:
+        try:
+            started = datetime.fromisoformat(enrollment["started_at"].replace("Z", "+00:00"))
+            days_since = (datetime.now(timezone.utc) - started).days + 1
+            current_day = min(days_since, program["duration_days"])
+        except:
+            current_day = enrollment.get("current_day", 1)
 
     # Update current day
     if current_day != enrollment.get("current_day"):
