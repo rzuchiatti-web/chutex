@@ -661,12 +661,13 @@ export default function HealthScreen() {
   }, [token]);
   useEffect(() => { fetchReport(); }, [fetchReport]);
   useEffect(() => {
+    const dayParam = simDay > 0 ? `?day=${simDay}` : '';
     Promise.all([
-      apiFetch('/api/programs/active', {}, token).catch(() => null),
+      apiFetch(`/api/programs/active${dayParam}`, {}, token).catch(() => null),
       apiFetch('/api/programs/catalog', {}, token).catch(() => null),
       apiFetch('/api/programs/team/active', {}, token).catch(() => null),
     ]).then(([p, c, t]) => { if (p) setHealthProgData(p); if (c?.programs) setHealthProgCatalog(c.programs); if (t) setHealthTeamData(t); });
-  }, [token]);
+  }, [token, simDay]);
 
   const d = report?.data || {};
   const ai = report?.ai || {};
