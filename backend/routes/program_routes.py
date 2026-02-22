@@ -532,3 +532,185 @@ JSON: {{"title": "titre court du bilan", "summary": "2-3 phrases de bilan person
         "generated_at": now.isoformat(),
     }
 
+
+# ═══════════════════════════════════════
+#  PARTAGE BILAN + PROGRAMMES EN EQUIPE
+# ═══════════════════════════════════════
+
+@router.post("/programs/share-report")
+async def share_weekly_report(user=Depends(get_current_user)):
+    """Generate a shareable link for weekly health report"""
+    uid = user['id']
+    share_id = uuid.uuid4().hex[:12]
+    # Get fresh weekly report data
+    now = datetime.now(timezone.utc)
+    week_ago = now - timedelta(days=7)
+    checkins = await db.program_checkins.find(
+        {"user_id": uid, "created_at": {"$gte": week_ago.isoformat()}}, {"_id": 0}
+    ).to_list(50)
+    moods = [c.get("mood", 3) for c in checkins if c.get("mood")]
+    avg_mood = round(sum(moods) / len(moods), 1) if moods else 0
+    enrollment = await db.program_enrollments.find_one({"user_id": uid, "status": "active"}, {"_id": 0})
+    program_title = ""
+    if enrollment:
+        prog = await db.programs.find_one({"id": enrollment["program_id"]}, {"_id": 0})
+        if prog: program_title = prog.get("title", "")
+    summary = await db.health_summary_cache.find_one({"user_id": uid}, {"_id": 0})
+
+    share_doc = {
+        "id": share_id, "user_id": uid, "user_name": user.get("name", "Utilisateur"),
+        "created_at": now.isoformat(), "expires_at": (now + timedelta(days=7)).isoformat(),
+        "data": {
+            "score": summary.get("score") if summary else None,
+            "status": summary.get("status") if summary else None,
+            "checkins_count": len(checkins), "avg_mood": avg_mood,
+            "program_title": program_title,
+            "current_day": enrollment.get("current_day") if enrollment else None,
+        }
+    }
+    await db.shared_reports.insert_one(share_doc)
+    return {"share_id": share_id, "share_url": f"/shared-report/{share_id}"}
+
+
+@router.get("/programs/shared-report/{share_id}")
+async def get_shared_report(share_id: str):
+    """Public endpoint - get shared report (no auth required)"""
+    report = await db.shared_reports.find_one({"id": share_id}, {"_id": 0})
+    if not report:
+        raise HTTPException(status_code=404, detail="Rapport non trouve ou expire")
+    # Check expiry
+    try:
+        expires = datetime.fromisoformat(report["expires_at"].replace("Z", "+00:00"))
+        if datetime.now(timezone.utc) > expires:
+            raise HTTPException(status_code=410, detail="Ce rapport a expire")
+    except (KeyError, ValueError):
+        pass
+    return report
+
+
+@router.post("/programs/team/create")
+async def create_team_program(data: dict, user=Depends(get_current_user)):
+    """Create a team program and get invite code"""
+    if user.get("role") != "beneficiary" and user.get("active_role") != "beneficiary":
+        raise HTTPException(status_code=403, detail="Seuls les beneficiaires peuvent creer un programme en equipe")
+
+    program_id = data.get("program_id")
+    start_date = data.get("start_date")  # ISO date string "2026-02-25"
+    if not program_id or not start_date:
+        raise HTTPException(status_code=400, detail="program_id et start_date requis")
+
+    program = await db.programs.find_one({"id": program_id}, {"_id": 0})
+    if not program:
+        raise HTTPException(status_code=404, detail="Programme non trouve")
+
+    invite_code = uuid.uuid4().hex[:8].upper()
+    team = {
+        "id": str(uuid.uuid4()),
+        "invite_code": invite_code,
+        "program_id": program_id,
+        "start_date": start_date,
+        "created_by": user['id'],
+        "members": [{"user_id": user['id'], "name": user.get("name", ""), "joined_at": datetime.now(timezone.utc).isoformat(), "enrollment_id": None}],
+        "status": "waiting",  # waiting, active, completed
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.team_programs.insert_one(team)
+    return {"team_id": team["id"], "invite_code": invite_code, "program": {"title": program["title"], "duration_days": program["duration_days"]}, "start_date": start_date}
+
+
+@router.post("/programs/team/join")
+async def join_team_program(data: dict, user=Depends(get_current_user)):
+    """Join a team program with invite code"""
+    if user.get("role") != "beneficiary" and user.get("active_role") != "beneficiary":
+        raise HTTPException(status_code=403, detail="Seuls les beneficiaires peuvent rejoindre un programme en equipe")
+
+    invite_code = data.get("invite_code", "").strip().upper()
+    if not invite_code:
+        raise HTTPException(status_code=400, detail="Code d'invitation requis")
+
+    team = await db.team_programs.find_one({"invite_code": invite_code}, {"_id": 0})
+    if not team:
+        raise HTTPException(status_code=404, detail="Code d'invitation invalide")
+    if team.get("status") == "completed":
+        raise HTTPException(status_code=400, detail="Ce programme est deja termine")
+
+    # Check if already member
+    member_ids = [m["user_id"] for m in team.get("members", [])]
+    if user['id'] in member_ids:
+        raise HTTPException(status_code=400, detail="Tu fais deja partie de cette equipe")
+    if len(member_ids) >= 5:
+        raise HTTPException(status_code=400, detail="L'equipe est complete (5 max)")
+
+    await db.team_programs.update_one(
+        {"id": team["id"]},
+        {"$push": {"members": {"user_id": user['id'], "name": user.get("name", ""), "joined_at": datetime.now(timezone.utc).isoformat(), "enrollment_id": None}}}
+    )
+
+    program = await db.programs.find_one({"id": team["program_id"]}, {"_id": 0})
+    creator = next((m for m in team["members"] if m["user_id"] == team["created_by"]), None)
+    return {
+        "status": "joined", "team_id": team["id"],
+        "program": {"title": program["title"] if program else "Programme", "duration_days": program["duration_days"] if program else 0},
+        "start_date": team["start_date"],
+        "creator_name": creator["name"] if creator else "Quelqu'un",
+        "members_count": len(member_ids) + 1,
+    }
+
+
+@router.get("/programs/team/active")
+async def get_active_team(user=Depends(get_current_user)):
+    """Get active team program with all members progress"""
+    team = await db.team_programs.find_one(
+        {"members.user_id": user['id'], "status": {"$in": ["waiting", "active"]}}, {"_id": 0}
+    )
+    if not team:
+        return {"has_team": False}
+
+    program = await db.programs.find_one({"id": team["program_id"]}, {"_id": 0})
+
+    # Calculate day based on start_date
+    try:
+        start = datetime.fromisoformat(team["start_date"])
+        days_since = (datetime.now(timezone.utc) - start).days + 1
+        if days_since < 1:
+            # Program hasn't started yet
+            days_until = abs(days_since) + 1
+            return {
+                "has_team": True, "status": "waiting",
+                "team_id": team["id"], "invite_code": team["invite_code"],
+                "program": {"title": program["title"] if program else "", "icon": program.get("icon", ""), "color": program.get("color", "#A78BFA"), "duration_days": program.get("duration_days", 21)} if program else {},
+                "start_date": team["start_date"], "days_until_start": days_until,
+                "members": [{"name": m["name"], "user_id": m["user_id"]} for m in team.get("members", [])],
+            }
+        current_day = min(days_since, program["duration_days"] if program else 30)
+    except:
+        current_day = 1
+
+    # Activate if still waiting
+    if team.get("status") == "waiting":
+        await db.team_programs.update_one({"id": team["id"]}, {"$set": {"status": "active"}})
+
+    # Get each member's progress
+    members_progress = []
+    for m in team.get("members", []):
+        # Count their checkins
+        checkins = await db.program_checkins.find(
+            {"user_id": m["user_id"]}, {"_id": 0}
+        ).to_list(100)
+        recent_moods = [c.get("mood", 3) for c in checkins[-7:] if c.get("mood")]
+        members_progress.append({
+            "name": m["name"], "user_id": m["user_id"],
+            "checkins_count": len(checkins),
+            "avg_mood": round(sum(recent_moods) / len(recent_moods), 1) if recent_moods else 0,
+            "is_me": m["user_id"] == user['id'],
+        })
+
+    return {
+        "has_team": True, "status": "active",
+        "team_id": team["id"], "invite_code": team["invite_code"],
+        "program": {"title": program["title"] if program else "", "icon": program.get("icon", ""), "color": program.get("color", "#A78BFA"), "duration_days": program.get("duration_days", 21)} if program else {},
+        "start_date": team["start_date"], "current_day": current_day,
+        "progress_pct": round((current_day / (program["duration_days"] if program else 21)) * 100),
+        "members": members_progress,
+    }
+
