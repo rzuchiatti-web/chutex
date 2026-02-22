@@ -25,14 +25,18 @@ export default function ProgramsScreen() {
 
   const loadData = async () => {
     try {
-      const [prog, bdg, wr] = await Promise.all([
+      const [prog, bdg, wr, tm, cat] = await Promise.all([
         apiFetch('/api/programs/active', {}, token).catch(() => null),
         apiFetch('/api/programs/badges', {}, token).catch(() => null),
         apiFetch('/api/programs/weekly-report', {}, token).catch(() => null),
+        apiFetch('/api/programs/team/active', {}, token).catch(() => null),
+        apiFetch('/api/programs/catalog', {}, token).catch(() => null),
       ]);
       if (prog) setActiveProgram(prog);
       if (bdg) setBadges(bdg);
       if (wr) setWeeklyReport(wr);
+      if (tm) setTeamData(tm);
+      if (cat?.programs) setCatalog(cat.programs);
     } catch {} finally { setLoading(false); }
   };
 
