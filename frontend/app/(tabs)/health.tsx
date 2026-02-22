@@ -659,6 +659,13 @@ export default function HealthScreen() {
     try { setReport(await apiFetch('/api/health/daily-report', {}, token)); } catch {} finally { setReportLoading(false); }
   }, [token]);
   useEffect(() => { fetchReport(); }, [fetchReport]);
+  useEffect(() => {
+    Promise.all([
+      apiFetch('/api/programs/active', {}, token).catch(() => null),
+      apiFetch('/api/programs/catalog', {}, token).catch(() => null),
+      apiFetch('/api/programs/team/active', {}, token).catch(() => null),
+    ]).then(([p, c, t]) => { if (p) setHealthProgData(p); if (c?.programs) setHealthProgCatalog(c.programs); if (t) setHealthTeamData(t); });
+  }, [token]);
 
   const d = report?.data || {};
   const ai = report?.ai || {};
