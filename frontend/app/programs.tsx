@@ -195,6 +195,151 @@ export default function ProgramsScreen() {
             </div>
           </div>
         )}
+
+        {/* ── Share bilan button ── */}
+        {weeklyReport?.report && (
+          <div style={{ marginBottom: 16 } as any}>
+            {shareMsg && <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', marginBottom: 10, fontSize: 12, color: '#10B981', textAlign: 'center' } as any}>{shareMsg}</div>}
+            <div data-testid="share-bilan-btn" onClick={async () => {
+              try {
+                const res = await apiFetch('/api/programs/share-report', { method: 'POST' }, token);
+                const url = window.location.origin + res.share_url;
+                if (navigator.clipboard) { await navigator.clipboard.writeText(url); setShareMsg('Lien copie ! Valide 7 jours.'); }
+                else setShareMsg(`Lien: ${url}`);
+                setTimeout(() => setShareMsg(''), 5000);
+              } catch { setShareMsg('Erreur lors du partage'); }
+            }} style={{ padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}>
+              <i className="ri-share-forward-line" style={{ fontSize: 18, color: '#22D3EE' }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Partager mon bilan</span>
+            </div>
+          </div>
+        )}
+
+        {/* ── TEAM PROGRAMS ── */}
+        <div style={{ marginBottom: 20 } as any}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Programme en equipe</div>
+
+          {/* Active team */}
+          {teamData?.has_team ? (
+            <div style={{ padding: '18px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(167,139,250,0.2)', marginBottom: 10 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-team-line" style={{ fontSize: 20, color: '#A78BFA' }} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{teamData.program?.title}</div>
+                  <div style={{ fontSize: 11, color: '#A78BFA', fontWeight: 600 }}>
+                    {teamData.status === 'waiting' ? `Debut dans ${teamData.days_until_start}j` : `Jour ${teamData.current_day}/${teamData.program?.duration_days}`}
+                  </div>
+                </div>
+              </div>
+              {/* Invite code */}
+              <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.15)', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                <div><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code d'invitation</div><div style={{ fontSize: 18, fontWeight: 900, color: '#A78BFA', letterSpacing: 2 }}>{teamData.invite_code}</div></div>
+                <div onClick={() => { navigator.clipboard?.writeText(teamData.invite_code); }} style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.08)', cursor: 'pointer', fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)' } as any}>Copier</div>
+              </div>
+              {/* Members */}
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>Membres ({teamData.members?.length || 0})</div>
+              {(teamData.members || []).map((m: any, i: number) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                  <div style={{ width: 32, height: 32, borderRadius: 10, background: m.is_me ? 'rgba(34,211,238,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: m.is_me ? '#22D3EE' : 'rgba(255,255,255,0.4)' }}>{m.name?.charAt(0)}</span>
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{m.name} {m.is_me ? '(toi)' : ''}</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{m.checkins_count} check-ins · Humeur {m.avg_mood}/5</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* No team - create or join */
+            <div style={{ display: 'flex', gap: 10 } as any}>
+              <div data-testid="create-team-btn" onClick={() => setShowTeamCreate(true)} style={{ flex: 1, padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', textAlign: 'center' } as any}>
+                <i className="ri-add-circle-line" style={{ fontSize: 24, color: '#A78BFA', display: 'block', marginBottom: 8 }} />
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Creer une equipe</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Invite un ami beneficiaire</div>
+              </div>
+              <div data-testid="join-team-btn" onClick={() => setShowTeamJoin(true)} style={{ flex: 1, padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', textAlign: 'center' } as any}>
+                <i className="ri-user-add-line" style={{ fontSize: 24, color: '#22D3EE', display: 'block', marginBottom: 8 }} />
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Rejoindre</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Avec un code d'invitation</div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── CREATE TEAM POPUP ── */}
+        {showTeamCreate && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(4,14,26,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, padding: '28px 24px' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
+                <div onClick={() => { setShowTeamCreate(false); setTeamMsg(''); }} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} /></div>
+              </div>
+              <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                <i className="ri-team-line" style={{ fontSize: 36, color: '#A78BFA', display: 'block', marginBottom: 12 }} />
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Creer un programme en equipe</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Choisis un programme et une date de debut</div>
+              </div>
+              {/* Program selector */}
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 8 }}>Programme</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 } as any}>
+                {catalog.map((p: any) => (
+                  <div key={p.id} onClick={() => setTeamProgId(p.id)} style={{ padding: '12px 14px', borderRadius: 14, background: teamProgId === p.id ? `${p.color}15` : 'rgba(255,255,255,0.03)', border: `1px solid ${teamProgId === p.id ? `${p.color}30` : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                    <i className={p.icon} style={{ fontSize: 18, color: teamProgId === p.id ? p.color : 'rgba(255,255,255,0.3)' }} />
+                    <span style={{ fontSize: 13, fontWeight: teamProgId === p.id ? 700 : 500, color: teamProgId === p.id ? '#FFF' : 'rgba(255,255,255,0.4)' }}>{p.title}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Date picker */}
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 8 }}>Date de debut</div>
+              <input type="date" value={teamStartDate} onChange={(e: any) => setTeamStartDate(e.target.value)}
+                style={{ width: '100%', padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', colorScheme: 'dark', marginBottom: 16 } as any} />
+              {teamMsg && <div style={{ padding: '10px', borderRadius: 10, background: teamMsg.includes('Erreur') ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', border: `1px solid ${teamMsg.includes('Erreur') ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}`, marginBottom: 12, fontSize: 12, color: '#FFF', textAlign: 'center' } as any}>{teamMsg}</div>}
+              <div data-testid="create-team-submit" onClick={async () => {
+                if (!teamProgId || !teamStartDate) { setTeamMsg('Choisis un programme et une date'); return; }
+                try {
+                  const res = await apiFetch('/api/programs/team/create', { method: 'POST', body: JSON.stringify({ program_id: teamProgId, start_date: teamStartDate }) }, token);
+                  setTeamMsg(`Equipe creee ! Code: ${res.invite_code}. Partage ce code.`);
+                  loadData();
+                  setTimeout(() => { setShowTeamCreate(false); setTeamMsg(''); }, 3000);
+                } catch (e: any) { setTeamMsg(`Erreur: ${e.message}`); }
+              }} style={{ padding: '14px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.1))', border: '1px solid rgba(167,139,250,0.3)', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>
+                Creer l'equipe
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── JOIN TEAM POPUP ── */}
+        {showTeamJoin && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(4,14,26,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, padding: '28px 24px' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
+                <div onClick={() => { setShowTeamJoin(false); setTeamMsg(''); }} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} /></div>
+              </div>
+              <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                <i className="ri-user-add-line" style={{ fontSize: 36, color: '#22D3EE', display: 'block', marginBottom: 12 }} />
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Rejoindre une equipe</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Entre le code d'invitation de ton ami</div>
+              </div>
+              <input data-testid="join-code-input" value={teamInviteCode} onChange={(e: any) => setTeamInviteCode(e.target.value.toUpperCase())} placeholder="CODE"
+                style={{ width: '100%', padding: '16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 22, fontWeight: 900, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', textAlign: 'center', letterSpacing: 4, marginBottom: 16 } as any} />
+              {teamMsg && <div style={{ padding: '10px', borderRadius: 10, background: teamMsg.includes('Erreur') ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', border: `1px solid ${teamMsg.includes('Erreur') ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}`, marginBottom: 12, fontSize: 12, color: '#FFF', textAlign: 'center' } as any}>{teamMsg}</div>}
+              <div data-testid="join-team-submit" onClick={async () => {
+                if (!teamInviteCode.trim()) return;
+                try {
+                  const res = await apiFetch('/api/programs/team/join', { method: 'POST', body: JSON.stringify({ invite_code: teamInviteCode.trim() }) }, token);
+                  setTeamMsg(`Tu as rejoint l'equipe de ${res.creator_name} ! Programme: ${res.program.title}`);
+                  loadData();
+                  setTimeout(() => { setShowTeamJoin(false); setTeamMsg(''); setTeamInviteCode(''); }, 3000);
+                } catch (e: any) { setTeamMsg(`Erreur: ${e.message}`); }
+              }} style={{ padding: '14px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', background: 'linear-gradient(135deg, rgba(34,211,238,0.2), rgba(14,116,144,0.1))', border: '1px solid rgba(34,211,238,0.3)', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>
+                Rejoindre
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
