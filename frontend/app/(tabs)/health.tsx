@@ -655,6 +655,7 @@ export default function HealthScreen() {
   const [healthProgData, setHealthProgData] = useState<any>(null);
   const [healthProgCatalog, setHealthProgCatalog] = useState<any[]>([]);
   const [healthTeamData, setHealthTeamData] = useState<any>(null);
+  const [simDay, setSimDay] = useState(0);
   const fetchReport = useCallback(async () => {
     try { setReport(await apiFetch('/api/health/daily-report', {}, token)); } catch {} finally { setReportLoading(false); }
   }, [token]);
