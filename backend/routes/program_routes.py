@@ -142,11 +142,82 @@ async def seed_programs():
 async def get_program_catalog(user=Depends(get_current_user)):
     """Get available programs"""
     programs = await db.programs.find({}, {"_id": 0, "daily_tasks_template": 0}).to_list(20)
-    # Check if user has active enrollment
     active = await db.program_enrollments.find_one(
         {"user_id": user['id'], "status": "active"}, {"_id": 0}
     )
     return {"programs": programs, "active_enrollment": active}
+
+
+@router.get("/programs/detail/{program_id}")
+async def get_program_detail(program_id: str):
+    """Get full program details for presentation screen (no auth)"""
+    program = await db.programs.find_one({"id": program_id}, {"_id": 0, "daily_tasks_template": 0})
+    if not program:
+        raise HTTPException(status_code=404, detail="Programme non trouve")
+    return program
+
+
+@router.get("/programs/daily-feedback")
+async def get_daily_feedback(user=Depends(get_current_user)):
+    """Generate AI feedback based on bracelet/scale data for active program"""
+    uid = user['id']
+    enrollment = await db.program_enrollments.find_one({"user_id": uid, "status": "active"}, {"_id": 0})
+    if not enrollment:
+        return {"has_feedback": False}
+
+    program = await db.programs.find_one({"id": enrollment["program_id"]}, {"_id": 0})
+    if not program:
+        return {"has_feedback": False}
+
+    # Get bracelet data
+    bracelet = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
+    sleep_data = await db.device_readings.find_one(
+        {"user_id": uid, "device_type": "bracelet", "data.sleep": {"$exists": True}},
+        {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    # Get health summary
+    summary = await db.health_summary_cache.find_one({"user_id": uid}, {"_id": 0})
+
+    # Build context
+    ctx_parts = [f"Programme: {program.get('title','')}, Jour {enrollment.get('current_day', 1)}/{program.get('duration_days', 21)}."]
+    if summary:
+        ctx_parts.append(f"Score sante: {summary.get('score', '?')}/100.")
+    if bracelet:
+        hr = bracelet.get("last_heart_rate", 0)
+        if hr: ctx_parts.append(f"FC repos: {hr}bpm.")
+        steps = bracelet.get("last_steps", 0)
+        if steps: ctx_parts.append(f"Pas: {steps}.")
+    if sleep_data and sleep_data.get("data", {}).get("sleep"):
+        sl = sleep_data["data"]["sleep"]
+        ctx_parts.append(f"Sommeil: duree {sl.get('sleep_duration', 0)}h, qualite {sl.get('sleep_quality', 0)}%, profond {sl.get('deep_minutes', 0)}min.")
+
+    # Onboarding context
+    onb = enrollment.get("onboarding", {})
+    if onb.get("goal"): ctx_parts.append(f"Objectif: {onb['goal']}.")
+    if onb.get("wake_time"): ctx_parts.append(f"Reveil cible: {onb['wake_time']}.")
+
+    ctx = " ".join(ctx_parts)
+    feedback = ""
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if api_key:
+        try:
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
+            prompt = f"""Coach sommeil bienveillant. Donnees: {ctx}
+Genere un feedback quotidien en JSON: {{"message": "2-3 phrases personnalisees sur la nuit et l'etat du jour, en tutoyant", "mood_indicator": "good/neutral/warning", "tip": "1 conseil concret court"}}"""
+            chat = LlmChat(api_key=api_key, session_id=f"fb-{uuid.uuid4().hex[:6]}",
+                           system_message="Coach sommeil. JSON uniquement.").with_model("openai", "gpt-4.1-mini")
+            import json
+            r = (await chat.send_message(UserMessage(text=prompt))).strip()
+            if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
+            if r.endswith("```"): r = r[:-3]
+            feedback = json.loads(r.strip())
+        except Exception as e:
+            print(f"Daily feedback AI err: {e}")
+
+    if not feedback:
+        feedback = {"message": "Continue tes efforts, chaque jour compte pour ameliorer ton sommeil.", "mood_indicator": "neutral", "tip": "Garde un horaire de reveil regulier."}
+
+    return {"has_feedback": True, "feedback": feedback}
 
 
 @router.post("/programs/start/{program_id}")
