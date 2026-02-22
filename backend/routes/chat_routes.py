@@ -97,7 +97,8 @@ REGLES:
 - Si l'utilisateur te parle de symptomes graves, recommande de consulter un medecin
 - Sois encourageant, mets en valeur les progres
 - Si tu n'as pas assez de donnees, dis-le honnetement
-- Tu peux utiliser des emojis avec parcimonie"""
+- Tu peux utiliser des emojis avec parcimonie
+- IMPORTANT: Ne dis PAS bonjour si l'historique montre que la conversation est deja en cours. Lis l'historique et reponds directement a la question sans re-saluer."""
 
             chat = LlmChat(
                 api_key=api_key,
