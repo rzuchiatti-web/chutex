@@ -11,7 +11,15 @@ export default function ProgramsScreen() {
   const [badges, setBadges] = useState<any>(null);
   const [weeklyReport, setWeeklyReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [checkins, setCheckins] = useState<any[]>([]);
+  const [teamData, setTeamData] = useState<any>(null);
+  const [showTeamCreate, setShowTeamCreate] = useState(false);
+  const [showTeamJoin, setShowTeamJoin] = useState(false);
+  const [teamProgId, setTeamProgId] = useState('');
+  const [teamStartDate, setTeamStartDate] = useState('');
+  const [teamInviteCode, setTeamInviteCode] = useState('');
+  const [teamMsg, setTeamMsg] = useState('');
+  const [shareMsg, setShareMsg] = useState('');
+  const [catalog, setCatalog] = useState<any[]>([]);
 
   useEffect(() => { loadData(); }, []);
 
