@@ -150,13 +150,12 @@ async def get_program_catalog(user=Depends(get_current_user)):
 
 
 @router.post("/programs/start/{program_id}")
-async def start_program(program_id: str, user=Depends(get_current_user)):
-    """Start a program"""
+async def start_program(program_id: str, data: dict = {}, user=Depends(get_current_user)):
+    """Start a program with optional onboarding data"""
     program = await db.programs.find_one({"id": program_id}, {"_id": 0})
     if not program:
         raise HTTPException(status_code=404, detail="Programme non trouve")
 
-    # Check no active program
     active = await db.program_enrollments.find_one(
         {"user_id": user['id'], "status": "active"}
     )
@@ -174,6 +173,8 @@ async def start_program(program_id: str, user=Depends(get_current_user)):
         "streak": 0,
         "completed_days": [],
         "checkins": [],
+        "mode": data.get("mode", "solo"),
+        "onboarding": data.get("onboarding", {}),
     }
     await db.program_enrollments.insert_one(enrollment)
     enrollment.pop("_id", None)
