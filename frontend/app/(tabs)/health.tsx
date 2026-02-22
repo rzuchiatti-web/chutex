@@ -651,7 +651,10 @@ export default function HealthScreen() {
   const [showZonePreview, setShowZonePreview] = useState<any>(null);
   const [showAnalysisInfo, setShowAnalysisInfo] = useState(false);
   const [showDayPlanPopup, setShowDayPlanPopup] = useState(false);
-  const [weighingStep, setWeighingStep] = useState(0); // 0=closed, 1=prep, 2=connect, 3=measuring, 4=result
+  const [weighingStep, setWeighingStep] = useState(0);
+  const [healthProgData, setHealthProgData] = useState<any>(null);
+  const [healthProgCatalog, setHealthProgCatalog] = useState<any[]>([]);
+  const [healthTeamData, setHealthTeamData] = useState<any>(null);
   const fetchReport = useCallback(async () => {
     try { setReport(await apiFetch('/api/health/daily-report', {}, token)); } catch {} finally { setReportLoading(false); }
   }, [token]);
