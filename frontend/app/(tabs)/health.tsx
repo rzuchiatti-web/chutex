@@ -856,7 +856,7 @@ export default function HealthScreen() {
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Choisis un programme pour commencer ta transformation sante</div>
               <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 } as any}>
                 {healthProgCatalog.map((p: any) => (
-                  <div key={p.id} data-testid={`health-prog-${p.id}`} onClick={async () => { try { await apiFetch(`/api/programs/start/${p.id}`, { method: 'POST' }, token); window.location.reload(); } catch {} }} style={{ minWidth: 155, padding: '16px', borderRadius: 18, background: `${p.color}08`, border: `1px solid ${p.color}18`, cursor: 'pointer', flexShrink: 0, transition: 'transform 0.2s' } as any}
+                  <div key={p.id} data-testid={`health-prog-${p.id}`} onClick={() => router.push({ pathname: '/program-detail', params: { id: p.id } } as any)} style={{ minWidth: 155, padding: '16px', borderRadius: 18, background: `${p.color}08`, border: `1px solid ${p.color}18`, cursor: 'pointer', flexShrink: 0, transition: 'transform 0.2s' } as any}
                     onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
                     onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
                     <div style={{ width: 36, height: 36, borderRadius: 10, background: `${p.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 } as any}><i className={p.icon} style={{ fontSize: 18, color: p.color }} /></div>
