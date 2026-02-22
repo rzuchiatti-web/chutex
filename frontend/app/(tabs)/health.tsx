@@ -787,6 +787,84 @@ export default function HealthScreen() {
             </>
           )}
 
+          {/* ═══ PROGRAMME ACTIF / CATALOGUE ═══ */}
+          {(() => {
+            const [progData, setProgData] = useState<any>(null);
+            const [progCatalog, setProgCatalog] = useState<any[]>([]);
+            const [teamData2, setTeamData2] = useState<any>(null);
+            useEffect(() => {
+              Promise.all([
+                apiFetch('/api/programs/active', {}, token).catch(() => null),
+                apiFetch('/api/programs/catalog', {}, token).catch(() => null),
+                apiFetch('/api/programs/team/active', {}, token).catch(() => null),
+              ]).then(([p, c, t]) => { if (p) setProgData(p); if (c?.programs) setProgCatalog(c.programs); if (t) setTeamData2(t); });
+            }, []);
+
+            if (progData?.active) {
+              const pg = progData.program;
+              return (
+                <div data-testid="health-active-program" onClick={() => router.push('/programs' as any)} style={{ borderRadius: 22, background: `${pg.color}08`, border: `1px solid ${pg.color}20`, padding: '18px', marginBottom: 14, cursor: 'pointer', transition: 'transform 0.2s' } as any}
+                  onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: `${pg.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={pg.icon} style={{ fontSize: 22, color: pg.color }} /></div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: pg.color, textTransform: 'uppercase', letterSpacing: 0.5 }}>Programme en cours</div>
+                      <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{pg.title}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' } as any}>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: pg.color }}>{progData.progress_pct}%</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>J{progData.current_day}/{pg.duration_days}</div>
+                    </div>
+                  </div>
+                  <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 12 } as any}><div style={{ height: 6, borderRadius: 3, width: `${progData.progress_pct}%`, background: `linear-gradient(90deg, ${pg.color}80, ${pg.color})` } as any} /></div>
+                  {progData.today_tasks && (
+                    <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' } as any}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Mission du jour</div>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{progData.today_tasks.focus}</div>
+                      {progData.today_tasks.tasks?.slice(0, 2).map((t: string, i: number) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 } as any}>
+                          <div style={{ width: 14, height: 14, borderRadius: 4, border: '1.5px solid rgba(255,255,255,0.12)', flexShrink: 0 } as any} />
+                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{t}</span>
+                        </div>
+                      ))}
+                      {(progData.today_tasks.tasks?.length || 0) > 2 && <div style={{ fontSize: 10, color: pg.color, marginTop: 4 }}>+{progData.today_tasks.tasks.length - 2} autres taches</div>}
+                    </div>
+                  )}
+                  {/* Team indicator */}
+                  {teamData2?.has_team && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, padding: '6px 10px', borderRadius: 10, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.15)' } as any}>
+                      <i className="ri-team-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                      <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>En equipe · {teamData2.members?.length} membres</span>
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            // No active program → show catalog
+            if (progCatalog.length > 0) {
+              return (
+                <div style={{ marginBottom: 14 } as any}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Programmes de prevention</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Choisis un programme pour commencer ta transformation sante</div>
+                  <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 } as any}>
+                    {progCatalog.map((p: any) => (
+                      <div key={p.id} data-testid={`health-prog-${p.id}`} onClick={async () => { try { await apiFetch(`/api/programs/start/${p.id}`, { method: 'POST' }, token); window.location.reload(); } catch {} }} style={{ minWidth: 155, padding: '16px', borderRadius: 18, background: `${p.color}08`, border: `1px solid ${p.color}18`, cursor: 'pointer', flexShrink: 0, transition: 'transform 0.2s' } as any}
+                        onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                        onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
+                        <div style={{ width: 36, height: 36, borderRadius: 10, background: `${p.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 } as any}><i className={p.icon} style={{ fontSize: 18, color: p.color }} /></div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 3, lineHeight: 1.3 }}>{p.title}</div>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{p.duration_days} jours</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
+
           {/* ═══ 2. OBJECTIFS JOURNALIERS (unified) ═══ */}
           <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: 14 } as any}>
             <div style={{ padding: '18px 20px' } as any}>
