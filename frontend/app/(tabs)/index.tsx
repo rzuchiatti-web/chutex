@@ -220,13 +220,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [dd, rem, guards, greqs, hs, aa] = await Promise.all([
+      const [dd, rem, guards, greqs, hs] = await Promise.all([
         apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
         apiFetch('/api/reminders', {}, token).catch(() => []),
         apiFetch('/api/guardians/my', {}, token).catch(() => []),
         apiFetch('/api/beneficiary/guardian-requests', {}, token).catch(() => []),
         apiFetch('/api/health/summary', {}, token).catch(() => null),
-        apiFetch('/api/alerts/active-with-interventions', {}, token).catch(() => []),
       ]);
       setDashData(dd);
       setReminders(rem);
@@ -234,9 +233,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       setGuardianRequests(Array.isArray(greqs) ? greqs : []);
       if (hs) setHealthSummary(hs);
       if (report?.weighings) setWeighings(report.weighings);
-      setActiveAlerts(Array.isArray(aa) ? aa : []);
-      if (typeof window !== 'undefined') (window as any).__debugAlerts = aa;
-      // Fetch programs
       try {
         const [prog, cat] = await Promise.all([
           apiFetch('/api/programs/active', {}, token).catch(() => null),
@@ -249,6 +245,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         if (cat?.programs) setProgramCatalog(cat.programs);
       } catch {}
     } catch {} finally { setLoading(false); setRefreshing(false); }
+    // Fetch alerts separately to ensure it always runs
+    try {
+      const aa = await apiFetch('/api/alerts/active-with-interventions', {}, token);
+      setActiveAlerts(Array.isArray(aa) ? aa : []);
+    } catch { setActiveAlerts([]); }
   }, [token]);
 
   useEffect(() => { fetchData(); const iv = setInterval(fetchData, 30000); return () => clearInterval(iv); }, [fetchData]);
