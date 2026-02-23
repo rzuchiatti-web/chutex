@@ -362,9 +362,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   );
 
   /* ─── WEB: Redesigned beneficiary dashboard ─── */
-  // Morning briefing effect — simulated typewriter
+  // Morning briefing effect — runs once on mount
+  const briefingStarted = useRef(false);
   useEffect(() => {
-    if (!showMorningBriefing) return;
+    if (!showMorningBriefing || briefingStarted.current) return;
+    briefingStarted.current = true;
     const name = user?.name?.split(' ')[0] || '';
     const summary = healthSummary?.summary || 'Votre etat de sante general est stable.';
     const reco = healthSummary?.recommendation || 'Maintenez vos habitudes actuelles.';
@@ -377,15 +379,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     ];
     setBriefingObjectives(objectives);
     let i = 0;
-    setBriefingText('');
-    setBriefingStep(0);
-    setBriefingDone(false);
     const iv = setInterval(() => {
       if (i <= fullText.length) { setBriefingText(fullText.slice(0, i)); i++; }
-      else { clearInterval(iv); setBriefingStep(1); setTimeout(() => { setBriefingStep(2); setTimeout(() => { setBriefingStep(3); setTimeout(() => { setBriefingStep(4); setBriefingDone(true); }, 600); }, 600); }, 600); }
+      else { clearInterval(iv); setBriefingStep(1); setTimeout(() => setBriefingStep(2), 600); setTimeout(() => setBriefingStep(3), 1200); setTimeout(() => { setBriefingStep(4); setBriefingDone(true); }, 1800); }
     }, 25);
     return () => clearInterval(iv);
-  }, [showMorningBriefing, user]);
+  }, [showMorningBriefing]);
 
   if (Platform.OS === 'web') {
     const VIDEO_BG_BRIEF = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/ufilgqml_banner_mobile_chat_ia_bakcground.mp4';
