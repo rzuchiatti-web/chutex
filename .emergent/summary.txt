@@ -1,190 +1,177 @@
 <analysis>**original_problem_statement:**
-The initial project, CARE WATCH, aimed to overhaul the beneficiary linking system from a code-based method to a phone number invitation. This primary goal quickly expanded to include:
-- A comprehensive management hub for SAADs (home care service providers) to manage agencies and members.
-- A complete redesign of the Beneficiary and Guardian dashboards, including a customizable background and integrated KPIs.
-- The creation of a sophisticated, multi-layered Santé (Health) page, designed as an AI Health Coach. This page uses an LLM to analyze over 74 health metrics from a smart bracelet and scale to provide personalized scores, insights, and recommendations.
-- A complete overhaul of the login and registration flows, shifting to phone-number-based authentication and introducing a role-specific, multi-step onboarding process with a detailed medical questionnaire for beneficiaries.
-- The creation of multiple detailed pages for health metrics, thematic health sections, and weigh-in reports, all with custom charting and data visualization.
-- A user-configurable system for setting alert thresholds on specific health metrics.
+The project's primary objective has evolved significantly into creating CARE WATCH, a sophisticated preventative health application. The central goal is to transform the app from a simple data dashboard into a guided, engaging, and personalized health and longevity transformation engine.
+
+This is to be achieved by building a comprehensive Programs system. These programs (e.g., 21-Day Deep Sleep, 14-Day Cardio Fit) should be the core of the user experience, providing daily missions, AI-powered coaching based on data from a connected bracelet and scale, and measurable progress tracking.
+
+The system must support solo, duo, and group participation to foster social motivation and retention. The user experience should be structured around the active program, with the main Health page dedicated to the day's mission, AI feedback, and progress. The project also includes building a fully contextual, personalized AI Health Chat assistant.
 
 **User's preferred language**: French. The next agent MUST respond in French only.
 
 **what currently exists?**
-The application is a full-stack platform using React (with Expo for native), FastAPI, and MongoDB. A significant portion of the work in this session was dedicated to building the Coach Santé Intelligent feature. This involved creating new backend endpoints to process ~74 health metrics with an LLM, and developing a suite of new frontend pages: a main health page (), thematic detail pages (), metric-specific pages with custom charts (), and a full weigh-in report page ().
+The application is a full-stack platform (React/Expo, FastAPI, MongoDB). A significant amount of work has been done to pivot the app towards the new Programs centric vision.
 
-The login and registration systems have been completely rewritten to be phone-number based and role-specific, featuring a multi-step glassmorphism UI. The Beneficiary dashboard () has been significantly refactored with a new layout and complex popups for managing reminders.
+-   **Core Program Architecture**: A robust backend system for health programs is in place. This includes models and endpoints for defining multi-day programs (with daily missions), tracking user progress, handling program onboarding, and managing team/group programs. Six programs are now available in the database, including a detailed 21-day sleep program.
+-   **AI Health Chat**: A new AI chat feature has been implemented and integrated as a main tab in the navbar. It has a glassmorphism UI, maintains conversational context within a session, and uses a typewriter effect for responses.
+-   **Redesigned Pages**: The main dashboard header has been redesigned with an AI health summary and role-switching tabs. The AI Chat page was built from scratch. A new generic program presentation/onboarding page () has been created.
+-   **Health Page v1.5**: The main  page has been modified to show the user's active program at the top, and a catalogue of available programs if none are active.
+-   **Bug Fixes**: A critical bug preventing access to the Dossier Médical in the profile has been resolved. Issues with the new AI Chat (context loss, UI) and program navigation have been partially addressed.
 
 **Last working item**:
-The agent was working on a multi-part user request. The user asked to add the Comment avez-vous connu Chutex ? question to the beneficiary registration flow and then to completely redesign the main dashboard header. The agent successfully implemented the first part.
+The agent was implementing a massive, detailed product brief from the user to make Programs the central engine of the app. The last actions were creating the backend infrastructure for this and adding a new  page for program presentation and onboarding.
 
-- **Last item agent was working**: Adding the How did you hear about Chutex? question to the beneficiary registration flow in .
-- **Status**: IN PROGRESS (The registration update is complete, but the main task of the header redesign is pending and is the next action item).
-- **Agent Testing Done**: N
-- **Which testing method agent to use?**: Frontend testing agent. The upcoming header redesign is a major UI/UX change involving role switching and new popups.
-- **User Testing Done**: N
+-   **Last item agent was working**: Implementing the detailed Programs feature based on user's comprehensive product briefs (messages #523 & #558). The agent just finished adding 3 new programs, creating the  page, and linking the program catalogue on the Health page to it.
+-   **Status**: IN PROGRESS
+-   **Agent Testing Done**: N (The latest changes were not tested).
+-   **Which testing method agent to use?**: Frontend testing agent. The Programs feature is a major overhaul of the user experience with multiple new screens and complex logic that needs thorough validation.
+-   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: Lefu Scale BLE Data Parsing is Incorrect (P1)**
-  - **Description**: Recurring hardware integration bug. Live data from the Lefu smart scale is not parsed correctly, only weight works.
-  - **Next debug checklist**: Implement the native iOS module using the official Lefu SDK (). The scaffolding file  already exists.
-  - **Status**: NOT STARTED
-  - **Is recurring issue?**: Y
-  - **Should Test frontend/backend/both after fix?**: Frontend (Native iOS)
+-   **Issue 1: AI Chat Usability Bugs (P0)**
+    -   **Description**: The user reported several issues with the AI Chat: it doesn't maintain conversation context perfectly (re-introduces itself), needs UI improvements for the empty state (centered input, title, default messages), and the typewriter effect needs validation.
+    -   **Attempted fixes**: The agent updated the backend to accept conversation history and added a  hook to the frontend.
+    -   **Next debug checklist**:
+        1.  In , verify the  array is correctly passed to the  endpoint on every new message.
+        2.  Test a multi-turn conversation to confirm the AI no longer says Bonjour repeatedly.
+        3.  Modify the JSX in  to conditionally render a different layout when the  array is empty, featuring a title, descriptive text, and a centered input bar.
+    -   **Status**: IN PROGRESS
+    -   **Is recurring issue?**: N
+    -   **Should Test frontend/backend/both after fix?**: Both
 
-- **Issue 2: Network Request Failed on Native App (P2)**
-  - **Description**: Recurring critical blocker. The TestFlight app is built with a temporary preview backend URL that becomes invalid after the session ends.
-  - **Next debug checklist**: Investigate methods for provisioning a permanent backend URL for production mobile builds.
-  - **Status**: BLOCKED
-  - **Is recurring issue?**: Y
-  - **Should Test frontend/backend/both after fix?**: Both
+-   **Issue 2: Program Card on Dashboard is Not Clickable (P1)**
+    -   **Description**: The user reported that clicking the active program card on the main beneficiary dashboard () does nothing. It should navigate to the detailed program view on the Santé page.
+    -   **Attempted fixes**: The agent wrapped the card in a  component pointing to  (), which is the program management page, not the Santé page ().
+    -   **Next debug checklist**:
+        1.  In , find the MON PROGRAMME card.
+        2.  Change the   from  to . This will take the user to the main health page where the active program is displayed in detail.
+    -   **Status**: IN PROGRESS
+    -   **Is recurring issue?**: N
+    -   **Should Test frontend/backend/both after fix?**: Frontend
 
 **In progress Task List**:
-- **Task 1: Redesign the Main Dashboard Header (P0)**
-  - **Description**: The user wants a new header for the main dashboard () with several new features:
-    1.  An AI-generated global health summary sentence.
-    2.  A language selector.
-    3.  Segmented control tabs to switch between the Beneficiary and Guardian views.
-    4.  A new popup flow for a beneficiary to activate their guardian mode if they don't have one, which should present the mode's features and allow them to configure SMS/Email alert notifications.
-  - **Where to resume**: Start modifying  to implement the new header UI and logic.
-  - **What will be achieved**: A more dynamic and functional dashboard header that allows role-switching and provides an AI summary at a glance.
-  - **Status**: NOT STARTED
-  - **Should Test frontend/backend/both after fix?**: Frontend
+-   **Task 1: Complete Programs as the Core Engine Implementation (P0)**
+    -   **Description**: This is the main ongoing task. The goal is to fully implement the user's detailed vision for the Programs feature (from messages #523 and #558), transforming the Health page into a dynamic hub for the active program.
+    -   **Where to resume**: The  page. It currently shows a basic summary. It needs to be overhauled to display the full, detailed daily view as specified in the user's brief.
+    -   **What will be achieved**: The app's core user journey will be centered around a guided, interactive health program, fulfilling the user's primary strategic objective. This involves implementing:
+        1.  **Detailed Daily View**: The Health page must show the Mission of the Day, AI Feedback, Progress, Observed Benefits, and Social Block.
+        2.  **Full Onboarding Flow**: The  page needs to be expanded into a multi-step onboarding process (mode selection, date, goals).
+        3.  **Bilan Screens**: Create dedicated views/pages for the J7, J14, and J21 (final) reports.
+        4.  **Dynamic AI**: Ensure the daily AI feedback () is truly dynamic and reflects the user's latest data.
+    -   **Status**: IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?**: Both
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks**:
-    -   **P1: Implement Device Connection Tutorial**: The user requested removing the device selection step from registration and replacing it with a tutorial on the beneficiary dashboard. This needs to be created.
-    -   **P2: Final App-wide Coherence Check**: A full review of all roles and pages is needed to ensure design and data consistency after all the recent changes.
-
+    -   **P1: Social Sharing for Health Reports & Badges**: Implement the frontend UI for sharing health reports and program completion badges. The backend endpoint  exists but is unused.
+    -   **P2: Implement Team Program UI**: The backend for group programs exists. The UI on the  page is very basic and needs to be built out to show team progress and interactions.
+    -   **P3: Implement Device Connection Tutorial**: Create a tutorial on the beneficiary dashboard for connecting devices, as previously requested.
 -   **Future Tasks**:
-    -   **P1**: Deploy Backend to a Permanent Host.
-    -   **P2**: Native Build and BLE Integration for J-Style bracelet.
-    -   **P3**: Shopify Integration (Blocked on user).
-    -   **P4**: Offline Mode for intervenants.
+    -   Deploy Backend to a Permanent Host.
+    -   Native Build and BLE Integration for J-Style bracelet and Lefu Scale.
+    -   Shopify Integration.
+    -   Offline Mode for intervenants.
 
 **Completed work in this session**
-- **Coach Santé Intelligent Feature (Major Feature)**:
-  - Created a new backend endpoint () using an LLM to analyze ~74 health metrics and generate personalized scores, insights, and daily plans.
-  - Completely redesigned the Health page () to display this information, including a 7-day initial analysis period, AI priorities, an interactive Human Map, and thematic health sections.
-  - Created thematic health detail pages () for different body systems.
-  - Created a generic metric detail page () with custom charts (ECG, hypnogram, bar, area) based on data type, and a calendar for date range selection.
-  - Implemented a detailed weigh-in report page ().
-  - Implemented a full, multi-step New Weigh-in flow within a popup.
-- **Login/Registration Overhaul (Major Feature)**:
-  - Rewrote the login () and registration () pages to use phone-number authentication and a glassmorphism UI.
-  - Created a multi-step, role-based registration flow (Beneficiary vs. Guardian), including a dedicated RGPD/Security page.
-  - The beneficiary flow now includes a comprehensive 5-step medical questionnaire (personal info, medical history, family history, surgeries, lifestyle).
-- **Beneficiary Dashboard & Reminders Refactor**:
-  - Reorganized the beneficiary dashboard layout () multiple times based on user feedback.
-  - Completely redesigned and refactored the Reminders management popup to use an inline, per-reminder editing state, fixing a critical bug that caused all reminders to be saved with the wrong type.
-- **Alert Thresholds Management**:
-  - Implemented a UI section on each metric detail page () for users to create, update, and delete alert thresholds, supported by a new  endpoint.
-- **Profile Page Enhancements**:
-  - Added a Dossier Médical editor in the profile page () for beneficiaries to update their medical information.
-  - Added a popup to explain how to activate Face ID/Biometrics.
-- **Critical Bug Fixes**:
-  - Fixed a recurring bug causing popups and inputs to lose focus on key press (, , ) by moving component definitions out of the render function to the module scope.
+-   Redesigned the main dashboard header with an AI summary, language switcher, and role-switching tabs.
+-   Fixed a critical bug in the Dossier Médical on the  page.
+-   Architected and implemented a comprehensive Programs system, including backend models/endpoints, a program catalogue, a presentation page (), and enrichment of the sleep program with a 21-day plan.
+-   Created and then redesigned a new AI Chat feature, moving it to the main navbar and adding conversational context, a typewriter effect, and a glassmorphism UI.
+-   Refactored the  page to display the active program.
+-   Implemented a simulation feature () for testing multi-day programs.
+-   Added five new health programs to the database.
 
 **Earlier issues found/mentioned but not fixed**
--   None.
+-   **Lefu Scale BLE Data Parsing is Incorrect**: A recurring hardware integration bug from a previous session.
+-   **Network Request Failed on Native App**: A recurring build issue from a previous session due to temporary backend URLs.
 
 **Known issue recurrence from previous fork**
-- **Metro Bundler Cache**: This was a persistent obstacle. The agent frequently had to instruct the user to perform a hard refresh or use an incognito window, and often had to clear the Metro cache ([22:07:51] Starting project at /app/frontend) to make UI changes visible.
+-   **Metro Bundler Cache**: This was a major obstacle throughout the session, frequently serving stale UI code and requiring repeated cache clears ([21:10:50] Starting project at /app/frontend) and restarts to debug frontend changes.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **LLM Integration**: Use of an LLM via  to generate human-readable health analyses and recommendations from ~74 numerical data points.
-- **Complex Multi-Step Forms**: The  page is a prime example of a complex, conditional, multi-step form with role-based logic and dynamic validation.
-- **Component Scope & State Management**: A critical bug was fixed related to defining components inside a parent's render function, which caused focus loss on state changes. The solution was to move component definitions to the module scope. This is a crucial pattern to follow.
-- **Advanced Charting & SVG**: The  page uses  to render different types of charts (ECG-like, hypnogram, bar, area gradient) based on the metric's data type.
-- **Dynamic UI Rendering**: The  page conditionally renders UI blocks based on a 7-day analysis period. The  dashboard conditionally renders the alert card.
+-   **Strategic Pivot**: The project's focus shifted from a data dashboard to a guided Programs experience, driving all recent development.
+-   **Feature Simulation for Testing**: The  query parameter on the  endpoint is a critical tool for developing and testing the multi-day program experience.
+-   **Conversational AI with Context**: The chat backend () was enhanced to accept a  of messages to provide contextual responses.
+-   **Complex CSS Debugging**: The agent successfully diagnosed an invisible UI element caused by a global CSS rule () and fixed it by modifying the selector.
+-   **Streamed UI (Typewriter Effect)**: A custom  hook was created in React to display AI responses word-by-word, enhancing user experience.
 
 **key DB schema**
-- **users**: The model was significantly expanded to include all new registration fields: , , , , , ,  (list),  (list),  (list of objects with  and Fri Feb 20 22:07:52 UTC 2026),  (list), , , , , , , .
-- **thresholds**: New collection to store , , , and .
+-   **programs**: New collection storing program definitions, including , , , , and  (array of objects for each day's task).
+-   **user_programs**: New collection linking  to , storing , , , , and .
+-   **teams**: New collection for group programs, linking  and an array of .
+-   **chat_history**: A collection to store chat conversations for each user.
 
 **All files of reference**
--    (Beneficiary Dashboard - target for next task)
--    (Health Coach Page)
--    (Multi-step Registration)
--    (Login Page)
--    (Metric Detail Chart Page)
--    (Thematic Health Page)
--    (Profile Page)
--    (LLM analysis endpoint)
+-    (Target for major refactor)
+-    (Target for implementing full onboarding)
+-    (Needs UI fixes for empty state)
+-    (Needs program card link fix)
+-    (Core backend logic for programs)
+-   User prompt #523 & #558 (The definitive product requirements for the Programs feature)
 
 **Areas that need refactoring**:
--    and  have become extremely large and complex. They manage multiple states, popups, and conditional rendering logic within single files. They should be broken down into smaller, more manageable components to improve maintainability.
+-    is over 1200 lines and extremely complex. It must be refactored to cleanly implement the new detailed daily program view. Breaking it into smaller components (e.g., , , ) is essential.
 
 **key api endpoints**
--   **Health & AI (New)**:
-    -   
-    -   
-    -   
-    -   
-    -   
-    -   
--   **Auth (Modified)**:
-    -    (handles a vastly expanded form)
-    -    (now uses phone number)
-    -   
+-   : Get the user's active program. Supports  for simulation.
+-   : Get details for a specific program.
+-   : Start a program for a user.
+-   : Save a user's answers to program onboarding questions.
+-   : Send a message to the AI chat, including conversation history.
+-   : Generate a sharable link for a health report.
+-   : Create a team for a group program.
 
 **Critical Info for New Agent**
--   **LANGUAGE IS FRENCH**: All user communication must be in French.
--   **METRO CACHE**: Always assume UI discrepancies are cache-related first. Instruct the user to hard refresh (Ctrl+Shift+R) or use an incognito window.
--   **COMPONENT SCOPE BUG**: Do not define components inside the render function of another component. This was the source of a major, recurring focus-loss bug. Define helper components at the module level.
--   **USER IS UX/UI FOCUSED**: The user provides very detailed, long prompts about UX/UI. Read them carefully and implement the visual and interaction design exactly as requested.
--   **NEXT TASK**: The immediate next task is the dashboard header redesign in , as described in the In progress Task List.
+-   **USER'S STRATEGIC GOAL**: The user's primary focus is to make **Programs** the core engine of the app. All work should prioritize fulfilling the detailed product briefs in messages #523 and #558.
+-   **NEXT TASK IS UI-HEAVY**: The immediate next step is to overhaul the  page to build the rich, interactive daily program UI.
+-   **SIMULATION IS YOUR BEST FRIEND**: Use the  query parameter on the  endpoint extensively to test and demonstrate the full 21-day program flow without manual database changes.
+-   **METRO CACHE IS THE ENEMY**: Assume any unexpected frontend behavior is a caching issue. Be prepared to run [21:10:52] Starting project at /app/frontend and perform hard refreshes (Ctrl+Shift+R) frequently.
 
 **documents and test reports created in this job**
+-    (Updated)
+-   
+-   
 -   
 -   
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User**: Asks to add alert threshold management at the bottom of all detailed metric pages.
-2.  **User**: Requests to add the 4 main health cards (pulse, spo2, etc.) to the Health page.
-3.  **User**: **(PENDING TASK)** Requests a new header for the dashboard with an AI sentence, language switcher, and role-switching tabs (Beneficiary/Guardian), plus a guardian activation flow.
-4.  **User**: Clarifies that the How did you hear about Chutex? question should also be in the beneficiary registration.
-5.  **User**: Asks how to fork on mobile.
-6.  **User**: Requests an AI-generated health phrase in the dashboard header, language choice, and tabs to switch between beneficiary/guardian spaces.
-7.  **User**: Specifies that How did you know Chutex? should be added to the beneficiary registration.
-8.  **User**: Provides details for the guardian activation flow: a presentation page for the guardian mode and a slide button to activate it, including alert notification choices.
-9.  **User**: Asks How do I fork on mobile?
-10. **User**: Provides more detail on the dashboard header, asking for an AI global health phrase, language selection, and tabs for switching between beneficiary and guardian spaces. If no guardian account exists, it should prompt for the necessary information.
+1.  **User**: Asks to implement social sharing for health reports and group programs for friends/family. (Partially implemented)
+2.  **User**: Clarifies that group programs are only between beneficiaries and can have a set start date. (Implemented)
+3.  **User**: Provides a massive, detailed product brief for making Programs the core of the app. (In Progress)
+4.  **User**: Confirms the agent's plan to build out the Programs feature based on the brief.
+5.  **User**: Expresses confusion over the current simple program UI and asks for the detailed program content to be provided. (Agent proposed to build the UI structure first).
+6.  **User**: Agrees with the agent's plan.
+7.  **User**: Provides a second, extremely detailed prompt specifically for the 21-Day Deep Sleep program, outlining every screen, mission, and logic. (In Progress)
+8.  **User**: Agrees to the agent's implementation plan and asks for a way to simulate/navigate through the program days to visualize it. (Implemented via )
+9.  **User**: Asks the agent to implement the next steps of the Program feature (onboarding, bilans, etc.). (In Progress)
+10. **User**: Confirms to proceed with the implementation.
 
 **Project Health Check:**
 -   **Broken**:
-    -   Lefu Scale Live Data (pre-existing)
-    -   Native App Backend Connectivity (pre-existing)
+    -   Lefu Scale Live Data (pre-existing hardware integration issue).
+    -   Native App Backend Connectivity (pre-existing build configuration issue).
 -   **Mocked**:
-    -   SMS for forgot password is simulated with a confirmation message.
+    -   SMS for forgot password is simulated.
 
 **3rd Party Integrations**
--   **OpenAI GPT-4o**: Used via Emergent LLM Key for all health analysis in .
--   **Twilio**: Required for SMS but currently mocked.
+-   **OpenAI GPT-4o**: Used via Emergent LLM Key for the AI Health Summary, the AI Chat, and AI program feedback.
 -   **Expo (EAS Build)**: For native app builds.
--   **Lefu Smart Scale**: Hardware integration (buggy).
--   **ElevenLabs**: Text-to-speech.
--   **Remix Icon**: CDN for icons.
--   **Leaflet**: For maps.
--   **OSRM API**: For route calculation.
+-   **Hardware**: Lefu Smart Scale (buggy), J-Style bracelet.
 
 **Testing status**
--   **Testing agent used after significant changes**: YES, the testing agent was used successfully to validate UI/UX changes and the registration flow, achieving 100% success.
--   **Troubleshoot agent used after agent stuck in loop**: NO.
+-   **Testing agent used after significant changes**: YES, the testing agent was used multiple times and successfully validated major features like the header redesign and the initial program implementation. It also automatically fixed a JSX bug.
+-   **Troubleshoot agent used after agent stuck in loop**: NO
 -   **Test files created**: None.
 -   **Known regressions**: None.
 
 **Credentials to test flow:**
-| Role | Email | Mot de passe | Notes |
-|---|---|---|---|
-| **Beneficiary** |  |  | Can also use phone number once registered. |
-| **Guardian / Prescripteur** |  |  | Can also use phone number once registered. |
-| **Intervenant Care** |  |  | |
-| **Téléassistance** |  |  | |
-| **Admin** |  |  | |
-| **Prescriber Company (SAAD)** |  |  | |
+| Role | Phone | Mot de passe |
+|---|---|---|
+| **Beneficiary** |  |  |
+| **Guardian / Prescripteur** |  |  |
+| **Admin** |  |  |
 
 **What agent forgot to execute**
-- The main task of redesigning the dashboard header () is pending. The agent only completed a small prerequisite for it before the session ended.</analysis>
+- The agent has not fully implemented the user's detailed product brief for the Programs feature (messages #523 & #558). Key UI components like the detailed daily mission view on the health page, the multi-step onboarding flow, and the weekly/final report screens are still missing.
+- The UI for sharing health reports and managing team programs is either non-existent or very basic, despite the backend endpoints being created.</analysis>
