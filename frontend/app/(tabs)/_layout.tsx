@@ -60,7 +60,7 @@ export default function TabLayout() {
   };
 
   // Inject CSS to fix tab bar glass on web
-  if (isWebBen && Platform.OS === 'web' && typeof document !== 'undefined') {
+  if ((isWebBen || (Platform.OS === 'web' && (isG || isTA))) && typeof document !== 'undefined') {
     const existing = document.getElementById('navbar-glass-fix');
     if (!existing) {
       const s = document.createElement('style');
