@@ -507,7 +507,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── 4. PROGRAMME EN COURS (si actif, avant Nora) ── */}
           {activeProgram?.active && (
-            <div data-testid="active-program-card" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: `1px solid ${activeProgram.program.color}25`, padding: '16px 18px', marginBottom: 16, cursor: 'pointer', transition: 'transform 0.2s' } as any}
+            <div data-testid="active-program-card" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: `1px solid ${activeProgram.program.color}25`, padding: '16px 18px', marginBottom: 16, cursor: 'pointer', transition: 'transform 0.2s', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}
               onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
               onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
               <div style={{ marginBottom: 10 } as any}>
