@@ -451,13 +451,13 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
                   {[
-                    { code: 'fr', flag: '\u{1F1EB}\u{1F1F7}', name: 'Francais' },
-                    { code: 'en', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' },
-                    { code: 'es', flag: '\u{1F1EA}\u{1F1F8}', name: 'Espanol' },
-                    { code: 'de', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutsch' },
-                    { code: 'it', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italiano' },
-                    { code: 'pt', flag: '\u{1F1F5}\u{1F1F9}', name: 'Portugues' },
-                    { code: 'nl', flag: '\u{1F1F3}\u{1F1F1}', name: 'Nederlands' },
+                    { code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', name: 'Francais' },
+                    { code: 'EN', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' },
+                    { code: 'DE', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutsch' },
+                    { code: 'ES', flag: '\u{1F1EA}\u{1F1F8}', name: 'Espanol' },
+                    { code: 'IT', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italiano' },
+                    { code: 'PT', flag: '\u{1F1F5}\u{1F1F9}', name: 'Portugues' },
+                    { code: 'NL', flag: '\u{1F1F3}\u{1F1F1}', name: 'Nederlands' },
                   ].map(l => (
                     <div key={l.code} onClick={() => { setLang(l.code); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 18px', borderRadius: 18, cursor: 'pointer', background: lang === l.code ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)', border: lang === l.code ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(255,255,255,0.05)', transition: 'all 0.2s' } as any}>
                       <span style={{ fontSize: 32, lineHeight: 1 }}>{l.flag}</span>
