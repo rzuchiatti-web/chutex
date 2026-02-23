@@ -513,7 +513,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Programmes de prevention ── */}
           <div data-testid="programs-section" style={{ marginBottom: 16 } as any}>
-          {/* ── BRACELET ELIO ── */}
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Mon programme</div>
           {(() => {
             const d = { name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', color: '#22D3EE' };
             const lastSync = br.last_sync ? new Date(br.last_sync).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '--';
