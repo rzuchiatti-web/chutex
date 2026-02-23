@@ -477,7 +477,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Selectionnez votre langue</div>
                 </div>
                 {/* Horizontal scroll flags */}
-                <div style={{ display: 'flex', gap: 10, overflowX: 'auto', padding: '8px 0 16px', justifyContent: 'center', scrollbarWidth: 'none' } as any}>
+                <div style={{ display: 'flex', gap: 10, overflowX: 'auto', padding: '8px 4px 16px', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as any}>
                   {[
                     { code: 'fr', flag: '\u{1F1EB}\u{1F1F7}', name: 'Francais' },
                     { code: 'en', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' },
