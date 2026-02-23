@@ -1361,9 +1361,23 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
         <img src={BG_GUARD} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.08)', zIndex: 1 } as any} />
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
+          {/* Header — same style as beneficiary */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}><div style={{ width: 46, height: 46, borderRadius: 999, background: 'rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(0,0,0,0.12)' } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span></div><div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{user.name}</div><span style={{ fontSize: 11, color: 'rgba(0,0,0,0.5)' }}>{t('guardian')}{user.is_prescriber ? ' | Prescripteur' : ''}</span></div></div>
-            <div style={{ display: 'flex', gap: 8 } as any}><div onClick={switchToBeneficiary} style={{ padding: '7px 14px', borderRadius: 999, background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.12)', cursor: 'pointer', fontSize: 11, fontWeight: 600, color: '#111' } as any}>{t('beneficiary')}</div><div onClick={() => setShowNotifsG(!showNotifsG)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}><i className="ri-notification-3-line" style={{ fontSize: 18, color: '#111' }} />{(invitations.length > 0 || activeAlertsG.length > 0) && <div style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, background: '#EF4444' } as any} />}</div></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+              <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 46, height: 46, borderRadius: 14, background: 'linear-gradient(135deg, #A78BFA, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(167,139,250,0.4)', cursor: 'pointer', flexShrink: 0 } as any}>
+                <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>
+              </div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 2 }}>{user.name}</div>
+                <div style={{ fontSize: 10, color: 'rgba(167,139,250,0.8)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>Espace Gardien{user.is_prescriber ? ' | Prescripteur' : ''}</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
+              <div onClick={() => setShowNotifsG(!showNotifsG)} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                <i className="ri-notification-3-line" style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)' }} />
+                {(invitations.length > 0 || activeAlertsG.length > 0) && <div style={{ position: 'absolute', top: -3, right: -3, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(4,14,26,0.8)' } as any} />}
+              </div>
+            </div>
           </div>
           {/* SAAD affiliation card — AU DESSUS de la carte alerte */}
           {saadLink && (
