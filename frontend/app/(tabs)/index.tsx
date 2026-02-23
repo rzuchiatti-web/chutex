@@ -399,7 +399,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             {/* Objectives — slide in one by one */}
             {briefingStep >= 1 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 } as any}>
-                {briefingObjectives.map((obj, i) => (
+                {OBJECTIVES.map((obj, i) => (
                   <div key={i} style={{
                     padding: '12px 16px', borderRadius: 14,
                     background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
@@ -410,9 +410,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     display: 'flex', alignItems: 'center', gap: 10,
                   } as any}>
                     <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                      <i className={['ri-footprint-line', 'ri-drop-line', 'ri-moon-line', 'ri-heart-pulse-line'][i]} style={{ fontSize: 14, color: ['#10B981', '#38BDF8', '#A78BFA', '#EF4444'][i] }} />
+                      <i className={obj.icon} style={{ fontSize: 14, color: obj.color }} />
                     </div>
-                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>{obj}</span>
+                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>{obj.text}</span>
                   </div>
                 ))}
               </div>
