@@ -16,7 +16,7 @@ const StethIcon = ({ size = 22, color = '#FFF' }: { size?: number; color?: strin
 export default function TabLayout() {
   const { user, loading } = useAuth();
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0b0f16' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
   if (!user) return null;
 
   const r = user.active_role || user.role;
