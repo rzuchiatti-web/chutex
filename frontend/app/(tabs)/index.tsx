@@ -364,11 +364,13 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   /* ─── WEB: Redesigned beneficiary dashboard ─── */
   // Morning briefing effect — simulated typewriter
   useEffect(() => {
-    if (!showMorningBriefing || !healthSummary) return;
+    if (!showMorningBriefing) return;
     const name = user?.name?.split(' ')[0] || '';
-    const fullText = `Bonjour ${name},\n${healthSummary.summary || 'Votre etat de sante est stable.'} ${healthSummary.recommendation || ''}`;
+    const summary = healthSummary?.summary || 'Votre etat de sante general est stable.';
+    const reco = healthSummary?.recommendation || 'Maintenez vos habitudes actuelles.';
+    const fullText = `Bonjour ${name},\n${summary} ${reco}`;
     const objectives = [
-      `Activite : atteindre ${Math.round(3500 + Math.random() * 4000)} pas aujourd'hui`,
+      `Activite : atteindre ${Math.round(5000 + Math.random() * 3000)} pas aujourd'hui`,
       `Hydratation : boire au moins 1.5L d'eau`,
       `Sommeil : coucher avant 23h pour optimiser la recuperation`,
       `Tension : surveiller la pression arterielle ce matin`,
@@ -377,12 +379,13 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     let i = 0;
     setBriefingText('');
     setBriefingStep(0);
+    setBriefingDone(false);
     const iv = setInterval(() => {
       if (i <= fullText.length) { setBriefingText(fullText.slice(0, i)); i++; }
       else { clearInterval(iv); setBriefingStep(1); setTimeout(() => { setBriefingStep(2); setTimeout(() => { setBriefingStep(3); setTimeout(() => { setBriefingStep(4); setBriefingDone(true); }, 600); }, 600); }, 600); }
     }, 25);
     return () => clearInterval(iv);
-  }, [showMorningBriefing, healthSummary]);
+  }, [showMorningBriefing, user]);
 
   if (Platform.OS === 'web') {
     const VIDEO_BG_BRIEF = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/ufilgqml_banner_mobile_chat_ia_bakcground.mp4';
