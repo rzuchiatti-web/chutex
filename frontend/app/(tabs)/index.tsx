@@ -526,7 +526,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             const d = { name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', color: '#22D3EE' };
             const lastSync = br.last_sync ? new Date(br.last_sync).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '--';
             return (
-              <div data-testid="device-bracelet" style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden' } as any}>
+              <div data-testid="device-bracelet" onClick={() => router.push('/bracelet-connect' as any)} style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' } as any} onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
                 {/* Header */}
                 <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
                   <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 5 } as any}><img src={d.img} alt="" style={{ width: 38, height: 38, objectFit: 'contain' } as any} /></div>
@@ -585,7 +585,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             const d = { name: 'Balance Lefu', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', color: '#A78BFA' };
             const lastSync = sc.last_sync ? new Date(sc.last_sync).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '--';
             return (
-              <div data-testid="device-scale" style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden' } as any}>
+              <div data-testid="device-scale" onClick={() => router.push('/scale-detail' as any)} style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' } as any} onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
                 {/* Header */}
                 <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
                   <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 5 } as any}><img src={d.img} alt="" style={{ width: 38, height: 38, objectFit: 'contain' } as any} /></div>
@@ -650,7 +650,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             const d = { name: 'Gilet Elder S-AIRBAG', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', color: '#10B981' };
             const lastSync = vs.last_sync ? new Date(vs.last_sync).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '--';
             return (
-              <div data-testid="device-vest" style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden' } as any}>
+              <div data-testid="device-vest" onClick={() => router.push('/vest-connect' as any)} style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' } as any} onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
                 {/* Header */}
                 <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
                   <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 5 } as any}><img src={d.img} alt="" style={{ width: 38, height: 38, objectFit: 'contain' } as any} /></div>
