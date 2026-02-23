@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { apiFetch } from '../../services/api';
-import { useI18n } from '../../context/I18nContext'; from '../../services/api';
+import { useI18n } from '../../context/I18nContext';
 import { useAuth } from '../../context/AuthContext';
 
 interface Props { br: any; sc: any; vs: any; onStartWeighing?: () => void; weighings?: any[]; onRefresh?: () => void; }
