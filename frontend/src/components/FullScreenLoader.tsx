@@ -10,9 +10,16 @@ export default function FullScreenLoader() {
     <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', flexDirection: 'column', background: '#000' } as any}>
       <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src="https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/c2ilm5te_background_loader.mp4" />
       <div style={{ position: 'absolute', bottom: 48, left: 0, right: 0, textAlign: 'center', zIndex: 2 } as any}>
-        <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.5)', fontFamily: "'Inter', system-ui, sans-serif" }}>Chargement en cours<span style={{ display: 'inline-block', width: 20, textAlign: 'left' }} className="loading-dots">...</span></span>
+        <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.5)', fontFamily: "'Inter', system-ui, sans-serif" }}>
+          Chargement en cours
+          <span style={{ display: 'inline-flex', width: 18, justifyContent: 'flex-start', marginLeft: 2 } as any}>
+            <span style={{ animation: 'ldot 1.4s infinite', animationDelay: '0s' }}>.</span>
+            <span style={{ animation: 'ldot 1.4s infinite', animationDelay: '0.2s' }}>.</span>
+            <span style={{ animation: 'ldot 1.4s infinite', animationDelay: '0.4s' }}>.</span>
+          </span>
+        </span>
       </div>
-      <style dangerouslySetInnerHTML={{ __html: `.loading-dots{animation:dots 1.4s steps(4,end) infinite}@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}` }} />
+      <style dangerouslySetInnerHTML={{ __html: '@keyframes ldot{0%,80%,100%{opacity:0.2}40%{opacity:1}}' }} />
     </div>
   );
 }
