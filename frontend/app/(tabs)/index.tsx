@@ -229,6 +229,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       setGuardians(Array.isArray(guards) ? guards : []);
       setGuardianRequests(Array.isArray(greqs) ? greqs : []);
       if (hs) setHealthSummary(hs);
+      if (report?.weighings) setWeighings(report.weighings);
       // Fetch programs
       try {
         const [prog, cat] = await Promise.all([
