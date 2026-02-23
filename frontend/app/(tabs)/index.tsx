@@ -496,11 +496,17 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── 1. ALERTES ── */}
           <AlertBanner activeAlerts={activeAlerts} />
 
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+
           {/* ── 2. VITALS ── */}
           <VitalsRow br={br} />
 
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+
           {/* ── 3. ACTIVITE + SOMMEIL ── */}
           <ActivitySleep br={br} sl={sl} />
+
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
           {/* ── 4. PROGRAMME EN COURS (si actif, avant Nora) ── */}
           {activeProgram?.active && (
