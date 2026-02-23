@@ -28,18 +28,18 @@ export default function TabLayout() {
 
   // Single unified tab bar style — NO position absolute, just styled inline
   const tabStyle = isWebBen ? {
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'transparent',
     borderTopWidth: 0,
     height: 64,
     paddingBottom: 0,
     paddingHorizontal: 16,
     elevation: 0,
     shadowColor: 'transparent',
-    borderTopColor: 'rgba(255,255,255,0.08)',
+    borderTopColor: 'transparent',
     ...(Platform.OS === 'web' ? {
       backdropFilter: 'blur(24px) saturate(140%)',
       WebkitBackdropFilter: 'blur(24px) saturate(140%)',
-      borderTop: '1px solid rgba(255,255,255,0.08)',
+      background: 'transparent',
     } as any : {}),
   } : {
     backgroundColor: 'transparent',
@@ -69,7 +69,7 @@ export default function TabLayout() {
     if (!existing) {
       const s = document.createElement('style');
       s.id = 'navbar-glass-fix';
-      s.textContent = `[role="tablist"]{background:rgba(10,15,26,0.85)!important;backdrop-filter:blur(24px) saturate(140%)!important;-webkit-backdrop-filter:blur(24px) saturate(140%)!important;border-top:1px solid rgba(255,255,255,0.08)!important;}`;
+      s.textContent = `[role="tablist"]{background:transparent!important;backdrop-filter:blur(24px) saturate(140%)!important;-webkit-backdrop-filter:blur(24px) saturate(140%)!important;border-top:1px solid rgba(255,255,255,0.06)!important;}[role="tablist"]>div{background:transparent!important;}`;
       document.head.appendChild(s);
     }
   }
