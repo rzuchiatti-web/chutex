@@ -148,24 +148,7 @@ export default function HealthScreen() {
           {/* 1. Hero Score */}
           {!analysisPhase && <HeroScore score={score} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} />}
 
-          {/* 2. Programme Actif / Catalogue */}
-          {healthProgData?.active ? (
-            <ProgramDailyView token={token!} onStop={() => setHealthProgData(null)} />
-          ) : healthProgCatalog.length > 0 ? (
-            <div style={{ marginBottom: 14 } as any}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Programmes de prevention</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Choisis un programme pour commencer ta transformation sante</div>
-              <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 } as any}>
-                {healthProgCatalog.map((p: any) => (
-                  <div key={p.id} data-testid={`health-prog-${p.id}`} onClick={() => router.push({ pathname: '/program-detail', params: { id: p.id } } as any)} style={{ minWidth: 155, padding: '16px', borderRadius: 18, background: `${p.color}08`, border: `1px solid ${p.color}18`, cursor: 'pointer', flexShrink: 0 } as any}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: `${p.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 } as any}><i className={p.icon} style={{ fontSize: 18, color: p.color }} /></div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>{p.title}</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{p.duration_days} jours</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
+          {/* 2. Daily Objectives (no program here — moved to Programmes tab) */}
 
           {/* 3. Daily Objectives */}
           <DailyObjectives plan={plan} ai={ai} analysisPhase={analysisPhase} showPopup={showDayPlanPopup} setShowPopup={setShowDayPlanPopup} />
