@@ -129,11 +129,7 @@ export default function HealthScreen() {
 
   /* ─── WEB BENEFICIARY VIEW ─── */
   if (Platform.OS === 'web' && effectiveRole === 'beneficiary') {
-    if (reportLoading) return (
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0f1a' } as any}>
-        <div style={{ textAlign: 'center' } as any}><i className="ri-heart-pulse-line" style={{ fontSize: 40, color: 'rgba(255,255,255,0.15)', display: 'block', marginBottom: 12 }} /><div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>Analyse IA en cours...</div></div>
-      </div>
-    );
+    if (reportLoading) return <FullScreenLoader />;
 
     return (
       <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
