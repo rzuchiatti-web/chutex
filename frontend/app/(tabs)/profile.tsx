@@ -91,6 +91,14 @@ export default function ProfileScreen() {
   const [editName, setEditName] = useState(user?.name || '');
   const [editPhone, setEditPhone] = useState(user?.phone || '');
   const [editAddress, setEditAddress] = useState(user?.address || '');
+  const [editEmail, setEditEmail] = useState(user?.email || '');
+  const [editDob, setEditDob] = useState(user?.date_of_birth || '');
+  const [editGender, setEditGender] = useState(user?.gender || '');
+  const [editHeight, setEditHeight] = useState(user?.height_cm || '');
+  const [editWeight, setEditWeight] = useState(user?.weight_kg || '');
+  const [editEmergencyName, setEditEmergencyName] = useState(user?.emergency_contact_name || '');
+  const [editEmergencyPhone, setEditEmergencyPhone] = useState(user?.emergency_contact_phone || '');
+  const [editDoctor, setEditDoctor] = useState(user?.doctor_name || '');
   const [saving, setSaving] = useState(false);
   const [showPwChange, setShowPwChange] = useState(false);
   const [oldPw, setOldPw] = useState('');
