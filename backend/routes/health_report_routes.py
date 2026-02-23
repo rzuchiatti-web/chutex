@@ -154,7 +154,7 @@ async def gen_ai(d, si):
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
         sh, sm = d["sleep_duration_min"] // 60, d["sleep_duration_min"] % 60
-        prompt = f"""Coach sante bienveillant. Analyse et reponds UNIQUEMENT en JSON (pas de markdown).
+        prompt = f"""Medecin specialiste. Analyse et reponds UNIQUEMENT en JSON (pas de markdown).
 
 DONNEES: Score {si['score']}/100 ({si['status']}). Sous-scores: Cardio {si['subscores']['cardio']['score']}, Sommeil {si['subscores']['sleep']['score']}, Activite {si['subscores']['activity']['score']}, Metabolisme {si['subscores']['metabolism']['score']}, Hydratation {si['subscores']['hydration']['score']}.
 FC {d['heart_rate']}bpm (HRV {d['hrv']}ms), SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}, VO2max {d['vo2_max']}, Stress {d['stress_level']}/100, Recup {d['recovery_score']}/100.
@@ -163,13 +163,13 @@ Sommeil {sh}h{sm:02d} (qualite {d['sleep_quality']}%, {d['sleep_interruptions']}
 Graisse {d['body_fat_pct']}% (hier {d['body_fat_prev']}%), Muscle {d['muscle_pct']}% (hier {d['muscle_prev']}%), Eau {d['water_pct']}%, Visc {d['visceral_fat']}, Ratio TH {d['waist_hip_ratio']}.
 Apport reco {d['recommended_calories']}kcal, Metabolisme basal {d['basal_metabolism']}kcal.
 
-CONSIGNES: Tutoiement, bienveillant, motivant, personnalise. Mets en avant la progression. Explique les LIENS entre donnees.
+CONSIGNES: Vouvoiement. Ton medical, professionnel et factuel. Pas d'emoji. Pas d'encouragement excessif. Analyse rigoureuse des correlations entre les donnees. Mettez en evidence les points d'attention medicaux.
 
 JSON:
-{{"hero_line": "1 phrase resume ultra courte pour le hero (max 12 mots)", "priority": "1 action prioritaire concrete pour aujourd'hui", "priority_why": "pourquoi c'est la priorite en 1 phrase", "correlations": ["insight 1 liant 2+ donnees", "insight 2", "insight 3"], "whats_good": ["point positif 1", "point positif 2"], "watch_out": ["attention 1"], "secondary_recs": ["conseil 2", "conseil 3", "conseil 4"], "motivation": "1 phrase motivante courte", "score_explain_up": "ce qui tire le score vers le haut", "score_explain_down": "ce qui limite le score"}}"""
+{{"hero_line": "1 phrase factuelle resume (max 12 mots, pas d'emoji)", "priority": "1 recommandation medicale prioritaire concrete", "priority_why": "justification medicale en 1 phrase", "correlations": ["correlation medicale 1 entre 2+ donnees", "correlation 2", "correlation 3"], "whats_good": ["indicateur positif 1", "indicateur positif 2"], "watch_out": ["point de vigilance medical"], "secondary_recs": ["recommandation 2", "recommandation 3", "recommandation 4"], "motivation": "1 phrase sobre de conclusion medicale", "score_explain_up": "facteurs positifs du score", "score_explain_down": "facteurs limitants du score"}}"""
 
         chat = LlmChat(api_key=api_key, session_id=f"h-{uuid.uuid4().hex[:8]}",
-                       system_message="Coach sante. JSON uniquement.").with_model("openai", "gpt-4.1-mini")
+                       system_message="Medecin. JSON uniquement. Pas d'emoji. Ton professionnel.").with_model("openai", "gpt-4.1-mini")
         r = await chat.send_message(UserMessage(text=prompt))
         import json
         c = r.strip()
@@ -313,11 +313,11 @@ async def get_health_summary(user=Depends(get_current_user)):
     if api_key:
         try:
             from emergentintegrations.llm.chat import LlmChat, UserMessage
-            prompt = f"""Tu es un coach sante bienveillant. Genere une phrase de resume COURTE (max 15 mots) et UNE recommandation concrete pour aujourd'hui.
+            prompt = f"""Medecin. Genere une phrase de resume COURTE (max 15 mots, pas d'emoji) et UNE recommandation medicale concrete.
 Score global: {si['score']}/100 ({si['status']}). FC {d['heart_rate']}bpm, SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}, Stress {d['stress_level']}/100, Recup {d['recovery_score']}/100, Sommeil qualite {d['sleep_quality']}%, {d['steps']} pas.
-Reponds UNIQUEMENT en JSON: {{"summary": "phrase courte", "recommendation": "une action concrete"}}"""
+Reponds UNIQUEMENT en JSON: {{"summary": "phrase medicale factuelle courte", "recommendation": "une recommandation medicale concrete"}}"""
             chat = LlmChat(api_key=api_key, session_id=f"sum-{uuid.uuid4().hex[:8]}",
-                           system_message="Coach sante. JSON uniquement.").with_model("openai", "gpt-4.1-mini")
+                           system_message="Medecin. JSON uniquement. Pas d'emoji.").with_model("openai", "gpt-4.1-mini")
             r = await chat.send_message(UserMessage(text=prompt))
             import json
             c = r.strip()
