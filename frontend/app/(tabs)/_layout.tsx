@@ -17,6 +17,18 @@ export default function TabLayout() {
   const isAdmin = r === 'admin';
   const isCompany = r === 'prescriber_company';
 
+  const AIChatIcon = ({ color, focused }: { color: string; focused?: boolean }) => (
+    <View style={{
+      width: 52, height: 52, borderRadius: 26, marginTop: -18,
+      backgroundColor: focused ? '#A78BFA' : 'rgba(167,139,250,0.2)',
+      borderWidth: 2, borderColor: focused ? '#A78BFA' : 'rgba(167,139,250,0.4)',
+      justifyContent: 'center', alignItems: 'center',
+      ...(Platform.OS === 'web' ? { boxShadow: focused ? '0 4px 20px rgba(167,139,250,0.5)' : '0 2px 12px rgba(167,139,250,0.25)' } as any : {}),
+    }}>
+      <Icon name="chatbubble-ellipses" size={24} color={focused ? '#FFF' : 'rgba(255,255,255,0.85)'} />
+    </View>
+  );
+
   return (
     <Tabs key={r} sceneContainerStyle={{ backgroundColor: 'transparent' }} screenOptions={{
       headerShown: false,
@@ -34,8 +46,8 @@ export default function TabLayout() {
     }}>
       <Tabs.Screen name="index" options={{ tabBarIcon: ({ color, size }) => <Icon name={(isAdmin || isCompany) ? 'stats-chart-outline' : 'tab-home'} size={size} color={color} /> }} />
       <Tabs.Screen name="health" options={{ tabBarIcon: ({ color, size }) => isAdmin ? <Icon name="people-outline" size={size} color={color} /> : isCompany ? <Icon name="business-outline" size={size} color={color} /> : <MCIcon name="heart-pulse" size={size} color={color} />, href: (!isBen && !isAdmin && !isCompany) ? null : undefined }} />
-      <Tabs.Screen name="alerts" options={{ tabBarIcon: ({ color, size }) => <Icon name={isAdmin ? 'warning-outline' : isCompany ? 'people-outline' : 'notifications-outline'} size={size} color={color} /> }} />
-      <Tabs.Screen name="chat" options={{ tabBarIcon: ({ color, size }) => <Icon name="chatbubble-ellipses-outline" size={size} color={color} />, href: (!isBen) ? null : undefined }} />
+      <Tabs.Screen name="chat" options={{ tabBarIcon: ({ color, focused }) => isBen ? <AIChatIcon color={color} focused={focused} /> : <Icon name="chatbubble-ellipses-outline" size={22} color={color} />, href: (!isBen) ? null : undefined }} />
+      <Tabs.Screen name="alerts" options={{ tabBarIcon: ({ color, size }) => <Icon name={isAdmin ? 'warning-outline' : isCompany ? 'people-outline' : 'notifications-outline'} size={size} color={color} />, href: isBen ? null : undefined }} />
       <Tabs.Screen name="teleconsult" options={{ tabBarIcon: ({ color, size }) => (isAdmin || isCompany) ? <Icon name="medkit-outline" size={size} color={color} /> : isG ? <Icon name="tab-intervention" size={size} color={color} /> : <Icon name={isTA ? 'headset-outline' : 'videocam-outline'} size={size} color={color} /> }} />
       <Tabs.Screen name="devices" options={{ tabBarIcon: ({ color, size }) => isAdmin ? <Icon name="document-text-outline" size={size} color={color} /> : isCompany ? <Icon name="document-text-outline" size={size} color={color} /> : isG ? <Icon name="tab-subscription" size={size} color={color} /> : isTA ? <Icon name="people-outline" size={size} color={color} /> : <MCIcon name="bluetooth-connect" size={size} color={color} /> }} />
       <Tabs.Screen name="profile" options={{ tabBarIcon: ({ color, size }) => <Icon name="person-outline" size={size} color={color} /> }} />
