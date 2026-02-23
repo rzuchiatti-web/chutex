@@ -1116,17 +1116,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           )}
 
           {/* ── FLOATING CHAT BUTTON ── */}
-          <div data-testid="chat-fab" onClick={() => router.push('/chat' as any)} style={{
-            position: 'fixed', bottom: 80, right: 20, width: 56, height: 56, borderRadius: 18, zIndex: 999,
-            background: 'linear-gradient(135deg, #0E7490, #22D3EE)', boxShadow: '0 6px 24px rgba(14,116,144,0.4)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-          } as any}
-            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(14,116,144,0.5)'; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 6px 24px rgba(14,116,144,0.4)'; }}>
-            <i className="ri-sparkling-2-fill" style={{ fontSize: 24, color: '#FFF' }} />
-          </div>
-
           {/* ── GUARDIAN ACTIVATION POPUP ── */}
           {showGuardianActivation && (
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10001, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(4,14,26,0.7)', overflowY: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
