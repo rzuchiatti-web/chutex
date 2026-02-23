@@ -468,15 +468,16 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           )}
 
-          {/* ── Language GLASS POPUP ── */}
+          {/* ── Language GLASS POPUP — horizontal scroll picker ── */}
           {langOpen && (
-            <div onClick={() => setLangOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '90%', maxWidth: 340, padding: '28px', borderRadius: 24, background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
-                <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Langue</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Choisissez votre langue</div>
+            <div onClick={() => setLangOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '92%', maxWidth: 380, padding: '28px 20px', borderRadius: 28, background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 24px 48px rgba(0,0,0,0.4)' } as any}>
+                <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Langue</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Selectionnez votre langue</div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
+                {/* Horizontal scroll flags */}
+                <div style={{ display: 'flex', gap: 10, overflowX: 'auto', padding: '8px 0 16px', justifyContent: 'center', scrollbarWidth: 'none' } as any}>
                   {[
                     { code: 'fr', flag: '\u{1F1EB}\u{1F1F7}', name: 'Francais' },
                     { code: 'en', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' },
@@ -486,10 +487,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     { code: 'pt', flag: '\u{1F1F5}\u{1F1F9}', name: 'Portugues' },
                     { code: 'ar', flag: '\u{1F1F8}\u{1F1E6}', name: 'العربية' },
                   ].map(l => (
-                    <div key={l.code} onClick={() => { setLang(l.code); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderRadius: 14, cursor: 'pointer', background: lang === l.code ? 'rgba(255,255,255,0.08)' : 'transparent', border: lang === l.code ? '1px solid rgba(255,255,255,0.12)' : '1px solid transparent', transition: 'all 0.2s' } as any}>
-                      <span style={{ fontSize: 24 }}>{l.flag}</span>
-                      <span style={{ fontSize: 14, fontWeight: lang === l.code ? 700 : 500, color: lang === l.code ? '#FFF' : 'rgba(255,255,255,0.5)' }}>{l.name}</span>
-                      {lang === l.code && <i className="ri-check-line" style={{ marginLeft: 'auto', fontSize: 16, color: '#22D3EE' }} />}
+                    <div key={l.code} onClick={() => { setLang(l.code); setLangOpen(false); }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', flexShrink: 0, padding: '10px 8px', borderRadius: 16, background: lang === l.code ? 'rgba(255,255,255,0.1)' : 'transparent', border: lang === l.code ? '1px solid rgba(255,255,255,0.15)' : '1px solid transparent', minWidth: 62, transition: 'all 0.2s' } as any}>
+                      <span style={{ fontSize: 32, lineHeight: 1 }}>{l.flag}</span>
+                      <span style={{ fontSize: 10, fontWeight: lang === l.code ? 700 : 500, color: lang === l.code ? '#FFF' : 'rgba(255,255,255,0.4)', textAlign: 'center' }}>{l.name}</span>
                     </div>
                   ))}
                 </div>
