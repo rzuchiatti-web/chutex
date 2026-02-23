@@ -93,8 +93,22 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
         "created_at": datetime.now(timezone.utc).isoformat()
     })
 
-    # Build health context
-    health_ctx = await build_health_context(user)
+    # Build health context — for guardian, include beneficiary data
+    role = user.get('active_role') or user.get('role', 'beneficiary')
+    is_guardian = role == 'guardian'
+    health_ctx = ""
+    if is_guardian:
+        # Get guardian's beneficiaries
+        ben_links = await db.guardian_beneficiaries.find({"guardian_id": uid}, {"_id": 0}).to_list(10)
+        ben_contexts = []
+        for link in ben_links:
+            ben = await db.users.find_one({"id": link.get("beneficiary_id")}, {"_id": 0})
+            if ben:
+                ctx = await build_health_context(user, for_guardian=True, beneficiary_data=ben)
+                ben_contexts.append(ctx)
+        health_ctx = "\n---\n".join(ben_contexts) if ben_contexts else "Aucun beneficiaire rattache."
+    else:
+        health_ctx = await build_health_context(user)
 
     # Get recent chat history for context (last 10 messages)
     recent = await db.chat_messages.find(
