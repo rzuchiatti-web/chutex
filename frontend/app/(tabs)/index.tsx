@@ -507,6 +507,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <div data-testid="active-program-card" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: `1px solid ${activeProgram.program.color}25`, padding: '16px 18px', marginBottom: 16, cursor: 'pointer', transition: 'transform 0.2s' } as any}
               onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
               onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
+              <div style={{ marginBottom: 10 } as any}>
+                <span style={{ display: 'inline-flex', padding: '4px 10px', borderRadius: 999, background: `${activeProgram.program.color}15`, border: `1px solid ${activeProgram.program.color}25`, fontSize: 9, fontWeight: 700, color: activeProgram.program.color, textTransform: 'uppercase', letterSpacing: 0.5 }}>Programme en cours</span>
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
                 <div style={{ width: 40, height: 40, borderRadius: 12, background: `${activeProgram.program.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                   <i className={activeProgram.program.icon} style={{ fontSize: 20, color: activeProgram.program.color }} />
