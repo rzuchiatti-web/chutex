@@ -514,8 +514,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── Programmes de prevention ── */}
           <div data-testid="programs-section" style={{ marginBottom: 16 } as any}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Mon programme</div>
-          {(() => {
-            const d = { name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', color: '#22D3EE' };
+            {activeProgram?.active ? (
             const lastSync = br.last_sync ? new Date(br.last_sync).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '--';
             return (
               <div data-testid="device-bracelet" onClick={() => router.push('/bracelet-connect' as any)} style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' } as any} onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
