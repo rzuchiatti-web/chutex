@@ -40,11 +40,6 @@ export default function TabLayout() {
     bottom: 0,
     left: 0,
     right: 0,
-    ...(Platform.OS === 'web' ? {
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      background: 'transparent',
-    } as any : {}),
   } : {
     backgroundColor: 'transparent',
     borderTopWidth: 0,
@@ -73,7 +68,7 @@ export default function TabLayout() {
     if (!existing) {
       const s = document.createElement('style');
       s.id = 'navbar-glass-fix';
-      s.textContent = `[role="tablist"],[role="tablist"] *{background:transparent!important;background-color:transparent!important;}[role="tablist"]{backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important;border-top:1px solid rgba(255,255,255,0.06)!important;}`;
+      s.textContent = `[role="tablist"]{background:transparent!important;background-color:transparent!important;border-top:none!important;}[role="tablist"]>div{background:transparent!important;background-color:transparent!important;}`;
       document.head.appendChild(s);
     }
     // Force parent transparent via JS
