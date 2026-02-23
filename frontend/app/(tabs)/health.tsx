@@ -153,6 +153,26 @@ export default function HealthScreen() {
           {/* 3. Daily Objectives */}
           <DailyObjectives plan={plan} ai={ai} analysisPhase={analysisPhase} showPopup={showDayPlanPopup} setShowPopup={setShowDayPlanPopup} />
 
+          {/* 3b. Action cards: Pesée + ECG */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
+            <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '16px', borderRadius: 18, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, transition: 'transform 0.2s' } as any}
+              onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-2px)'}
+              onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <i className="ri-scales-3-line" style={{ fontSize: 20, color: '#A78BFA' }} />
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Nouvelle pesee</div>
+            </div>
+            <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '16px', borderRadius: 18, background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.15)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, transition: 'transform 0.2s' } as any}
+              onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-2px)'}
+              onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(249,115,22,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <i className="ri-pulse-line" style={{ fontSize: 20, color: '#F97316' }} />
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Realiser un ECG</div>
+            </div>
+          </div>
+
           {/* 4. Vitals Row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>
             {[
