@@ -1,4 +1,5 @@
 import { Icon, MCIcon } from '../src/components/WebIcon';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, Dimensions, TextInput, Alert, Linking, Modal } from 'react-native';
@@ -52,7 +53,7 @@ export default function CompanyInterventionDetail() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSubmitting(false); }
   };
 
-  if (loading) return <View style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></View>;
+  if (loading) return <FullScreenLoader />;
   if (!data?.intervention) return <View style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#6B7280' }}>Intervention non trouvee</Text></View>;
 
   const iv = data.intervention;

@@ -1,4 +1,5 @@
 import { Icon } from '../../src/components/WebIcon';
+import FullScreenLoader from '../../src/components/FullScreenLoader';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, ScrollView } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
@@ -737,7 +738,7 @@ export default function AlertsScreen() {
     );
   }
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' }}><ActivityIndicator size="large" color="#111" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   /* ── Web list page ── */
   if (Platform.OS === 'web' && (r === 'guardian' || r === 'beneficiary' || r === 'prescriber_company' || r === 'admin' || r === 'teleassistance')) {

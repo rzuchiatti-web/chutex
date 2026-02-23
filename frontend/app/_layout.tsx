@@ -1,4 +1,5 @@
 import React from 'react';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';

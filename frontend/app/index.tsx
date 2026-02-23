@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';

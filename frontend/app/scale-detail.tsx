@@ -1,4 +1,5 @@
 import { Icon, MCIcon } from '../src/components/WebIcon';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl, Dimensions, Alert, Modal } from 'react-native';
@@ -143,7 +144,7 @@ export default function ScaleDetailScreen() {
     setLiveMeasurement(null);
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}><ActivityIndicator size="large" color="#111827" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   const days = parseInt(period);
   const filtered = history.slice(0, days);

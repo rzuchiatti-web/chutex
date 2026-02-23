@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 import { View, Text, ActivityIndicator, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';

@@ -1,4 +1,5 @@
 import { Icon, MCIcon } from '../../src/components/WebIcon';
+import FullScreenLoader from '../../src/components/FullScreenLoader';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Alert, Modal, RefreshControl, Platform } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -55,7 +56,7 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' }}><ActivityIndicator size="large" color="#111" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   /* ─── SUCCESS PAGE ─── */
   if (submitted && callInfo && Platform.OS === 'web') {
@@ -251,7 +252,7 @@ function TeleassistanceDashboard({ token }: { token: string }) {
     CARE_DISPATCHED: 'Care dispatche', RESOLVED: 'Resolu', FAILED: 'Echoue',
   }[st] || st);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   const BG_TA = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
   const BG_RED_TA = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
@@ -472,7 +473,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
   const BG_HEADER = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
   const LOGO_URL = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#9C27B0" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   const activateCare = async () => {
     if (!ivCode.trim()) { setCareError('Entrez un code intervenant'); return; }
@@ -1017,7 +1018,7 @@ function AdminIntervenants({ token }: { token: string }) {
     setShowModal(true);
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   const BG_ADM_IV = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
   if (Platform.OS === 'web') {
@@ -1249,7 +1250,7 @@ function CompanyPrescriptions({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#111827" /></View>;
+  if (loading) return <FullScreenLoader />;
   if (!data) return null;
 
   const allPrescs = data.prescriptions || [];
@@ -1394,7 +1395,7 @@ function CompanyInterventionsTab({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); const t = setInterval(fetchData, 10000); return () => clearInterval(t); }, [fetchData]);
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   const activeIvs = interventions.filter((iv: any) => ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status));
   const doneIvs = interventions.filter((iv: any) => iv.status === 'completed');
@@ -1679,7 +1680,7 @@ function CompanyIntervenants({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color="#111827" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   const filtered = search.trim()
     ? intervenants.filter((iv: any) => iv.name?.toLowerCase().includes(search.toLowerCase()) || iv.email?.toLowerCase().includes(search.toLowerCase()))

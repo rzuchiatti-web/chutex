@@ -1,4 +1,5 @@
 import { Icon, MCIcon } from '../src/components/WebIcon';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

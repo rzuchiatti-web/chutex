@@ -58,7 +58,7 @@ function CompanyAgences({ token }: { token: string }) {
   }, [token]);
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   // Simplified company view - full implementation preserved from original
   return (

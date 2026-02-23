@@ -1,4 +1,5 @@
 import { Icon, MCIcon } from '../src/components/WebIcon';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl } from 'react-native';
@@ -53,7 +54,7 @@ export default function AdminPrescriptionDetail() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}><ActivityIndicator size="large" color="#111827" /></View>;
+  if (loading) return <FullScreenLoader />;
   if (!data?.prescription) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}><Text style={{ color: '#6B7280' }}>Prescription non trouvee</Text></View>;
 
   const p = data.prescription;

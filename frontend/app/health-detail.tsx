@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';

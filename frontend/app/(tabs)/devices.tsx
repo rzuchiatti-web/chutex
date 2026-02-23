@@ -1,4 +1,5 @@
 import { Icon, MCIcon } from '../../src/components/WebIcon';
+import FullScreenLoader from '../../src/components/FullScreenLoader';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
@@ -73,7 +74,7 @@ function DeviceManagement({ token }: { token: string }) {
     : 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg';
   const getDeviceLink = (type: string) => type === 'bracelet' ? 'https://chutex-innovation.com/bracelet-elio' : type === 'scale' ? 'https://chutex-innovation.com/balance-vita' : 'https://chutex-innovation.com/gilet-elder';
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   /* ─── WEB: Full-page black satin design ─── */
   if (Platform.OS === 'web') {
@@ -461,7 +462,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const [slideActivatedP, setSlideActivatedP] = useState(false);
   const [prescError, setPrescError] = useState('');
 
-  if (loading) return <View style={d.center}><ActivityIndicator size="large" color="#D4845A" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   /* ─── EXPLAINER: Programme recompenses (early return) ─── */
   if (showRewardsExplainer && Platform.OS === 'web') {
@@ -1203,7 +1204,7 @@ function SubscribersList({ token }: { token: string }) {
   const [subs, setSubs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => { (async () => { try { setSubs(await apiFetch('/api/teleassistance/subscribers', {}, token)); } catch {} finally { setLoading(false); } })(); }, []);
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
   const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
   if (Platform.OS === 'web') {
     return (
@@ -1297,7 +1298,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
     setShowModal(true);
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   const BG_ADM = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
   if (Platform.OS === 'web') {
@@ -1495,7 +1496,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   const [searchPresc, setSearchPresc] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; });
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
 
   const BG_ORANGE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
   const BG_GREEN_P = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';

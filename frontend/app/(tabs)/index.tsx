@@ -1350,7 +1350,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
   const [linkingBen, setLinkingBen] = useState(false);
   const [linkMessage, setLinkMessage] = useState('');
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
   const BG_GUARD = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
   const BG_RED_G = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
@@ -1947,7 +1947,7 @@ function TeleassistanceHome({ token, user }: { token: string; user: any }) {
 
   useEffect(() => { fetchData(); const iv = setInterval(fetchData, 5000); return () => clearInterval(iv); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
   const active = alerts.filter((a: any) => a.status === 'active');
   const BG_DASH = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
   const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
@@ -2133,7 +2133,7 @@ function AdminHome({ token, user }: { token: string; user: any }) {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
   const BG_DASH = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
   const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
@@ -2267,7 +2267,7 @@ function CompanyHome({ token, user }: { token: string; user: any }) {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+  if (loading) return <FullScreenLoader />;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
   const activeIvs = interventions.filter((iv: any) => ['in_progress', 'en_route', 'pending_acceptance'].includes(iv.status));
   const BG_DASH = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
