@@ -1411,7 +1411,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
               <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
             </div>
           </div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10, color: 'rgba(0,0,0,0.4)' }}>Mes beneficiaires</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10 }}>Mes beneficiaires</div>
 
           {/* POPUP FICHE SAAD */}
           {showSaadPopup && saadLink && (
