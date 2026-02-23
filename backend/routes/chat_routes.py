@@ -115,7 +115,7 @@ REGLES STRICTES:
             print(f"Chat AI error: {e}")
 
     if not ai_response:
-        ai_response = "Je suis desole, je n'ai pas pu traiter ta question. Peux-tu reformuler ?"
+        ai_response = "Je n'ai pas pu traiter votre question. Pourriez-vous reformuler ?"
 
     # Save AI response
     resp_id = str(uuid.uuid4())
