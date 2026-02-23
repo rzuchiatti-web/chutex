@@ -58,7 +58,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
     <>
       <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Appareils connectes</div>
       {devices.map((d) => (
-        <div key={d.id} data-testid={`device-card-${d.id}`} onClick={() => setSelected(d.id)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, cursor: 'pointer', transition: 'transform 0.2s' } as any}
+        <div key={d.id} data-testid={`device-card-${d.id}`} onClick={() => setSelected(d.id)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8, cursor: 'pointer', transition: 'transform 0.2s', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}
           onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-1px)'}
           onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
           <img src={d.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
