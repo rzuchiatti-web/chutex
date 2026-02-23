@@ -175,6 +175,8 @@ export default function HealthScreen() {
             </div>
           </div>
 
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+
           {/* 4. Vitals Row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>
             {[
