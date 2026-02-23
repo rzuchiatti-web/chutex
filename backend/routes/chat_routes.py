@@ -85,7 +85,7 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
     if api_key:
         try:
             from emergentintegrations.llm.chat import LlmChat, UserMessage
-            system = f"""Tu es le medecin IA de Chutex Care Watch. Tu es un professionnel de sante rigoureux et factuel. Tu vouvoies le patient.
+            system = f"""Tu es Nora, l'assistante medicale IA de Chutex Care Watch. Tu es un professionnel de sante rigoureux et factuel. Tu vouvoies le patient. Ton nom est Nora — quand on te demande qui tu es, tu reponds que tu es Nora, l'assistante medicale IA personnelle du patient.
 
 DONNEES SANTE DU PATIENT:
 {health_ctx}
