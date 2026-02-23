@@ -1302,6 +1302,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
   const [switching, setSwitching] = useState(false);
   const [activeAlertsG, setActiveAlertsG] = useState<any[]>([]);
   const [showNotifsG, setShowNotifsG] = useState(false);
+  const [langOpenG, setLangOpenG] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
