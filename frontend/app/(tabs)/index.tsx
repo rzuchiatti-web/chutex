@@ -355,7 +355,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
   };
 
-  if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#040E1A' }}><ActivityIndicator size="large" color="#4FC3F7" /></View>;
+  if (loading) return Platform.OS === 'web' ? <FullScreenLoader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#040E1A' }}><ActivityIndicator size="large" color="#4FC3F7" /></View>;
 
   const br = dashData?.bracelet || { heart_rate: 72, spo2: 97, steps: 3842, blood_pressure: { systolic: 125, diastolic: 78 }, temperature: 36.6, battery: 78, connected: true, calories: 154, distance_km: 2.7, heart_rate_history: [] };
   const sc = dashData?.scale || { weight: 72.4, bmi: 24.1, body_fat: 22.3, muscle_mass: 33.8, water_pct: 55.2, battery: 92, connected: true };
