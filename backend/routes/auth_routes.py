@@ -83,7 +83,7 @@ async def update_profile(data: dict, user=Depends(get_current_user)):
                 'height_cm', 'weight_kg', 'blood_type', 'allergies', 'medical_conditions',
                 'emergency_contact_name', 'emergency_contact_phone', 'doctor_name',
                 'pacemaker', 'stents', 'thyroid', 'other_condition', 'surgeries']:
-        if key in data and data[key]:
+        if key in data:
             update[key] = data[key]
     # Handle boolean fields - never delete data, just toggle status
     if 'is_intervention_provider' in data:
