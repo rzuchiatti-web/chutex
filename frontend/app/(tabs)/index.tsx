@@ -390,36 +390,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               </div>
             </div>
 
-            {/* AI Health Summary */}
-            <div data-testid="ai-health-summary" style={{ padding: '14px 16px', borderRadius: 16, background: 'linear-gradient(135deg, rgba(14,116,144,0.12), rgba(34,211,238,0.06))', border: '1px solid rgba(34,211,238,0.15)', marginBottom: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 } as any}>
-                <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(34,211,238,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
-                  <i className="ri-sparkling-2-fill" style={{ fontSize: 16, color: '#22D3EE' }} />
-                </div>
-                <div style={{ flex: 1 } as any}>
-                  {healthSummary ? (
-                    <>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', lineHeight: 1.4, marginBottom: 4 }}>{healthSummary.summary}</div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.4 }}>{healthSummary.recommendation}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 } as any}>
-                        <div style={{ padding: '3px 10px', borderRadius: 99, background: `${healthSummary.status_color}20`, border: `1px solid ${healthSummary.status_color}30` } as any}>
-                          <span style={{ fontSize: 10, fontWeight: 700, color: healthSummary.status_color }}>{healthSummary.score}/100 · {healthSummary.status}</span>
-                        </div>
-                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>Coach IA</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Analyse en cours...</div>
-                      <div style={{ width: 120, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-                        <div style={{ width: '60%', height: 6, borderRadius: 3, background: 'linear-gradient(90deg, #0E7490, #22D3EE)', animation: 'pulse 1.5s ease-in-out infinite' } as any} />
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
             {/* Segmented Control: Beneficiaire / Gardien — pill style */}
             <div data-testid="role-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', padding: 3, gap: 2 } as any}>
               <div data-testid="tab-beneficiary" onClick={() => handleTabSwitch('beneficiary')} style={{
