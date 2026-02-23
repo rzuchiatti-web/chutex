@@ -360,22 +360,29 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   /* ─── WEB: Redesigned beneficiary dashboard ─── */
   // Morning briefing effect — runs once on mount
-  const briefingStarted = useRef(false);
+  const briefingRef = useRef(false);
+  const [briefingText, setBriefingText] = useState('');
+  const [briefingStep, setBriefingStep] = useState(0);
   useEffect(() => {
-    if (!showMorningBriefing || briefingStarted.current) return;
-    briefingStarted.current = true;
+    if (briefingRef.current) return;
+    briefingRef.current = true;
     const name = user?.name?.split(' ')[0] || '';
-    const fullText = `Bonjour ${name},\nVotre etat de sante general est stable. Maintenez vos habitudes actuelles.`;
-    let i = 0;
-    const iv = setInterval(() => {
-      if (i <= fullText.length) { setBriefingText(fullText.slice(0, i)); i++; }
-      else { clearInterval(iv); setTimeout(() => setBriefingStep(1), 200); setTimeout(() => setBriefingStep(2), 800); setTimeout(() => setBriefingStep(3), 1400); setTimeout(() => { setBriefingStep(4); setBriefingDone(true); }, 2000); }
+    const txt = `Bonjour ${name},\nVotre etat de sante est stable. Maintenez vos habitudes.`;
+    let idx = 0;
+    const t = setInterval(() => {
+      if (idx <= txt.length) { setBriefingText(txt.slice(0, idx)); idx++; }
+      else { clearInterval(t); setTimeout(() => setBriefingStep(1), 300); setTimeout(() => setBriefingStep(2), 900); setTimeout(() => setBriefingStep(3), 1500); setTimeout(() => { setBriefingStep(4); setBriefingDone(true); }, 2100); }
     }, 30);
-    return () => clearInterval(iv);
-  }, [showMorningBriefing]);
+  }, []);
 
   if (Platform.OS === 'web') {
     const VIDEO_BG_BRIEF = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/ufilgqml_banner_mobile_chat_ia_bakcground.mp4';
+    const OBJECTIVES = [
+      { icon: 'ri-footprint-line', color: '#10B981', text: 'Activite : atteindre 6500 pas' },
+      { icon: 'ri-drop-line', color: '#38BDF8', text: 'Hydratation : boire 1.5L d\'eau' },
+      { icon: 'ri-moon-line', color: '#A78BFA', text: 'Sommeil : coucher avant 23h' },
+      { icon: 'ri-heart-pulse-line', color: '#EF4444', text: 'Tension : controle ce matin' },
+    ];
 
     if (showMorningBriefing) {
       return (
