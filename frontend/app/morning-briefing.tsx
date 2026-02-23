@@ -18,38 +18,62 @@ export default function MorningBriefingScreen() {
     const name = user?.name?.split(' ')[0] || '';
 
     Promise.all([
-      apiFetch('/api/health/summary', {}, token).catch(() => null),
+      apiFetch('/api/health/daily-report', {}, token).catch(() => null),
       apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
-    ]).then(([hs, dash]) => {
-      const summary = hs?.summary || 'Vos constantes sont stables.';
-      const reco = hs?.recommendation || '';
-      const fullText = `Bonjour ${name},\n${summary}${reco ? ' ' + reco : ''}`;
-
+    ]).then(([report, dash]) => {
+      const d = report?.data || {};
+      const ai = report?.ai || {};
       const br = dash?.bracelet || {};
       const sc = dash?.scale || {};
-      const steps = br.steps || 3800;
-      const targetSteps = steps < 4000 ? 6000 : steps < 6000 ? 8000 : 10000;
-      const water = sc.water_pct || 55;
-      const targetWater = water < 50 ? '2L' : water < 55 ? '1.8L' : '1.5L';
-      const bp = br.blood_pressure || {};
-      const sys = bp.systolic || 125;
-      const sleepQ = br.sleep_quality || 82;
+
+      // Build a medical briefing from real data
+      const hr = br.heart_rate || d.heart_rate || 72;
+      const spo2 = br.spo2 || d.spo2 || 97;
+      const sys = br.blood_pressure?.systolic || d.blood_pressure?.systolic || 125;
+      const dia = br.blood_pressure?.diastolic || d.blood_pressure?.diastolic || 78;
+      const temp = br.temperature || d.temperature || 36.6;
+      const weight = sc.weight || d.weight || 72.4;
+      const sleepQ = d.sleep_quality || 82;
+      const sleepMin = d.sleep_duration_min || 443;
+      const sleepH = Math.floor(sleepMin / 60);
+      const sleepM = sleepMin % 60;
+      const stress = d.stress_level || 35;
+      const score = report?.score || 96;
+
+      // Personalized briefing text based on actual data
+      const lines = [`Bonjour ${name},`];
+      if (score >= 90) lines.push(`Score sante ${score}/100.`);
+      else if (score >= 70) lines.push(`Score sante ${score}/100, des points a surveiller.`);
+      else lines.push(`Score sante ${score}/100, attention requise.`);
+
+      if (sys > 130) lines.push(`Tension ${sys}/${dia} mmHg : elevee, consultez si persistant.`);
+      else if (sys > 120) lines.push(`Tension ${sys}/${dia} mmHg : legerement au-dessus de la normale.`);
+
+      if (sleepQ < 70) lines.push(`Sommeil ${sleepH}h${String(sleepM).padStart(2,'0')} (qualite ${sleepQ}%) : insuffisant.`);
+      else if (sleepQ >= 85) lines.push(`Bonne nuit de ${sleepH}h${String(sleepM).padStart(2,'0')}, qualite ${sleepQ}%.`);
+
+      if (stress > 60) lines.push(`Niveau de stress eleve (${stress}/100).`);
+
+      const fullText = lines.join('\n');
+
+      // Objectives = what to DO today, no comparisons
+      const targetSteps = score >= 90 ? 8000 : score >= 70 ? 6000 : 4000;
+      const targetWater = weight > 80 ? '2L' : weight > 60 ? '1.5L' : '1.2L';
       const bedtime = sleepQ < 70 ? '22h00' : sleepQ < 85 ? '22h30' : '23h00';
 
       setObjectives([
-        { icon: 'ri-footprint-line', color: '#10B981', label: 'Activite', value: `${targetSteps.toLocaleString()} pas`, detail: `Hier ${steps.toLocaleString()} pas. +${(targetSteps - steps).toLocaleString()} pour l'objectif.`, pct: Math.min(100, Math.round((steps / targetSteps) * 100)) },
-        { icon: 'ri-drop-line', color: '#38BDF8', label: 'Hydratation', value: targetWater, detail: `Taux hydrique : ${water}%. ${water < 55 ? 'Sous le seuil optimal.' : 'Niveau correct.'}`, pct: Math.min(100, Math.round((water / 60) * 100)) },
-        { icon: 'ri-moon-line', color: '#A78BFA', label: 'Sommeil', value: `Coucher ${bedtime}`, detail: `Qualite : ${sleepQ}%. ${sleepQ < 80 ? 'A ameliorer.' : 'Stabiliser.'}`, pct: sleepQ },
-        { icon: 'ri-heart-pulse-line', color: '#EF4444', label: 'Tension', value: `${sys}/${bp.diastolic || 78}`, detail: `${sys > 130 ? 'Au-dessus de la normale.' : sys > 120 ? 'Legerement elevee.' : 'Dans les normes.'}`, pct: Math.min(100, Math.max(0, 100 - Math.abs(120 - sys) * 2)) },
+        { icon: 'ri-footprint-line', color: '#10B981', label: 'Activite', value: `${targetSteps.toLocaleString()} pas`, detail: 'Marche rapide 30 min ou equivalent' },
+        { icon: 'ri-drop-line', color: '#38BDF8', label: 'Hydratation', value: targetWater, detail: 'Repartir regulierement dans la journee' },
+        { icon: 'ri-moon-line', color: '#A78BFA', label: 'Sommeil', value: `Coucher avant ${bedtime}`, detail: 'Ecrans eteints 30 min avant' },
+        { icon: 'ri-heart-pulse-line', color: '#EF4444', label: 'Tension', value: 'Mesure ce matin', detail: `Dernier releve : ${sys}/${dia} mmHg` },
       ]);
 
       // Typewriter
-      let i = 0;
+      let idx = 0;
       const iv = setInterval(() => {
-        if (i <= fullText.length) { setText(fullText.slice(0, i)); i++; }
+        if (idx <= fullText.length) { setText(fullText.slice(0, idx)); idx++; }
         else {
           clearInterval(iv);
-          // Objectives appear one by one with delay
           setTimeout(() => { setVisibleObjs(1); smoothScroll(); }, 500);
           setTimeout(() => { setVisibleObjs(2); smoothScroll(); }, 1200);
           setTimeout(() => { setVisibleObjs(3); smoothScroll(); }, 1900);
@@ -64,8 +88,8 @@ export default function MorningBriefingScreen() {
   };
 
   const goToDashboard = () => {
-    // Use window.location for reliable navigation in static export
     if (typeof window !== 'undefined') {
+      sessionStorage.setItem('briefing_seen', '1');
       window.location.href = '/';
     }
   };
@@ -79,34 +103,22 @@ export default function MorningBriefingScreen() {
       <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src={VIDEO} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.25) 30%, rgba(0,0,0,0.8) 100%)', zIndex: 1 } as any} />
 
-      {/* Scrollable content — NO flex-end, natural flow top-down */}
       <div ref={scrollRef as any} style={{ flex: 1, position: 'relative', zIndex: 5, overflowY: 'auto', padding: '0 24px', WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' } as any}>
+        <div style={{ height: '35vh', flexShrink: 0 } as any} />
 
-        {/* Spacer to push text to ~40% of screen */}
-        <div style={{ height: '38vh', flexShrink: 0 } as any} />
-
-        {/* AI message — centered */}
         <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
           <div style={{ fontSize: 15, fontWeight: 600, color: '#FFF', lineHeight: 1.55, whiteSpace: 'pre-wrap', maxWidth: 300, margin: '0 auto' }}>
             {text}<span style={{ opacity: done ? 0 : 1, transition: 'opacity 0.3s', color: 'rgba(255,255,255,0.3)' }}>|</span>
           </div>
         </div>
 
-        {/* Objectives title */}
         {visibleObjs >= 1 && (
-          <div style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10, opacity: 1, transition: 'opacity 0.5s' }}>Vos objectifs du jour</div>
+          <div style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Vos objectifs du jour</div>
         )}
 
-        {/* Objectives — each appears independently */}
         {objectives.slice(0, visibleObjs).map((o, i) => (
-          <div key={i} style={{
-            padding: '14px 16px', borderRadius: 16, marginBottom: 8,
-            background: 'rgba(255,255,255,0.06)',
-            backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            animation: 'slideUp 0.45s cubic-bezier(.22,.61,.36,1) forwards',
-          } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 } as any}>
+          <div key={i} style={{ padding: '14px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)', animation: 'slideUp 0.45s cubic-bezier(.22,.61,.36,1) forwards' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 } as any}>
               <div style={{ width: 32, height: 32, borderRadius: 10, background: `${o.color}15`, border: `1px solid ${o.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                 <i className={o.icon} style={{ fontSize: 16, color: o.color }} />
               </div>
@@ -115,114 +127,68 @@ export default function MorningBriefingScreen() {
                 <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{o.value}</div>
               </div>
             </div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 8 }}>{o.detail}</div>
-            <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-              <div style={{ height: 3, borderRadius: 2, width: `${o.pct}%`, background: o.color, transition: 'width 1s ease 0.3s' } as any} />
-            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4, paddingLeft: 44 }}>{o.detail}</div>
           </div>
         ))}
-
-        {/* Bottom padding */}
-        <div style={{ height: 30 } as any} />
+        <div style={{ height: 20 } as any} />
       </div>
 
-      {/* Bottom CTA — slide to unlock */}
+      {/* Slide to unlock */}
       <div style={{ position: 'relative', zIndex: 10, padding: '8px 24px 28px', flexShrink: 0 } as any}>
         {done ? (
-          <div data-testid="briefing-slide" style={{
-            position: 'relative', height: 56, borderRadius: 999, overflow: 'hidden',
-            background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255,255,255,0.15)',
-            animation: 'fadeIn 0.5s ease',
-          } as any}>
-            {/* Track fill */}
-            <div id="slide-fill" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '56px', background: 'rgba(255,255,255,0.06)', borderRadius: 999, transition: 'none' } as any} />
-            {/* Label */}
+          <div data-testid="briefing-slide" style={{ position: 'relative', height: 56, borderRadius: 999, overflow: 'hidden', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)', animation: 'fadeIn 0.5s ease' } as any}>
+            <div id="slide-fill" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '56px', background: 'rgba(255,255,255,0.06)', borderRadius: 999 } as any} />
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' } as any}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.45)', userSelect: 'none' }}>Glisser pour continuer</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.4)', userSelect: 'none' }}>Glisser pour continuer</span>
             </div>
-            {/* Draggable thumb */}
-            <div id="slide-thumb" 
+            <div id="slide-thumb"
               onMouseDown={(e: any) => {
+                e.preventDefault();
                 const track = e.currentTarget.parentElement;
                 const fill = document.getElementById('slide-fill');
                 const thumb = e.currentTarget;
-                const trackRect = track.getBoundingClientRect();
-                const maxX = trackRect.width - 56;
-                const startX = e.clientX;
-                const onMove = (ev: any) => {
-                  const dx = Math.max(0, Math.min(maxX, ev.clientX - startX));
+                const rect = track.getBoundingClientRect();
+                const max = rect.width - 56;
+                const sx = e.clientX;
+                const move = (ev: any) => {
+                  const dx = Math.max(0, Math.min(max, ev.clientX - sx));
                   thumb.style.transform = `translateX(${dx}px)`;
                   if (fill) fill.style.width = `${56 + dx}px`;
-                  if (dx >= maxX * 0.85) {
-                    document.removeEventListener('mousemove', onMove);
-                    document.removeEventListener('mouseup', onUp);
-                    thumb.style.transform = `translateX(${maxX}px)`;
-                    if (fill) fill.style.width = '100%';
-                    setTimeout(() => { window.location.href = '/'; }, 200);
-                  }
+                  if (dx >= max * 0.8) { end(); thumb.style.transform = `translateX(${max}px)`; if (fill) fill.style.width = '100%'; setTimeout(goToDashboard, 200); }
                 };
-                const onUp = () => {
-                  document.removeEventListener('mousemove', onMove);
-                  document.removeEventListener('mouseup', onUp);
-                  thumb.style.transition = 'transform 0.3s ease';
-                  thumb.style.transform = 'translateX(0)';
-                  if (fill) { fill.style.transition = 'width 0.3s ease'; fill.style.width = '56px'; }
-                  setTimeout(() => { thumb.style.transition = 'none'; if (fill) fill.style.transition = 'none'; }, 300);
-                };
-                document.addEventListener('mousemove', onMove);
-                document.addEventListener('mouseup', onUp);
+                const end = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+                const up = () => { end(); thumb.style.transition = 'transform 0.3s'; thumb.style.transform = 'translateX(0)'; if (fill) { fill.style.transition = 'width 0.3s'; fill.style.width = '56px'; } setTimeout(() => { thumb.style.transition = ''; if (fill) fill.style.transition = ''; }, 300); };
+                document.addEventListener('mousemove', move);
+                document.addEventListener('mouseup', up);
               }}
               onTouchStart={(e: any) => {
                 const track = e.currentTarget.parentElement;
                 const fill = document.getElementById('slide-fill');
                 const thumb = e.currentTarget;
-                const trackRect = track.getBoundingClientRect();
-                const maxX = trackRect.width - 56;
-                const startX = e.touches[0].clientX;
-                const onMove = (ev: any) => {
-                  const dx = Math.max(0, Math.min(maxX, ev.touches[0].clientX - startX));
+                const rect = track.getBoundingClientRect();
+                const max = rect.width - 56;
+                const sx = e.touches[0].clientX;
+                const move = (ev: any) => {
+                  const dx = Math.max(0, Math.min(max, ev.touches[0].clientX - sx));
                   thumb.style.transform = `translateX(${dx}px)`;
                   if (fill) fill.style.width = `${56 + dx}px`;
-                  if (dx >= maxX * 0.85) {
-                    document.removeEventListener('touchmove', onMove);
-                    document.removeEventListener('touchend', onUp);
-                    thumb.style.transform = `translateX(${maxX}px)`;
-                    if (fill) fill.style.width = '100%';
-                    setTimeout(() => { window.location.href = '/'; }, 200);
-                  }
+                  if (dx >= max * 0.8) { end(); thumb.style.transform = `translateX(${max}px)`; if (fill) fill.style.width = '100%'; setTimeout(goToDashboard, 200); }
                 };
-                const onUp = () => {
-                  document.removeEventListener('touchmove', onMove);
-                  document.removeEventListener('touchend', onUp);
-                  thumb.style.transition = 'transform 0.3s ease';
-                  thumb.style.transform = 'translateX(0)';
-                  if (fill) { fill.style.transition = 'width 0.3s ease'; fill.style.width = '56px'; }
-                  setTimeout(() => { thumb.style.transition = 'none'; if (fill) fill.style.transition = 'none'; }, 300);
-                };
-                document.addEventListener('touchmove', onMove, { passive: true });
-                document.addEventListener('touchend', onUp);
+                const end = () => { document.removeEventListener('touchmove', move); document.removeEventListener('touchend', up); };
+                const up = () => { end(); thumb.style.transition = 'transform 0.3s'; thumb.style.transform = 'translateX(0)'; if (fill) { fill.style.transition = 'width 0.3s'; fill.style.width = '56px'; } setTimeout(() => { thumb.style.transition = ''; if (fill) fill.style.transition = ''; }, 300); };
+                document.addEventListener('touchmove', move, { passive: true });
+                document.addEventListener('touchend', up);
               }}
-              style={{
-                position: 'absolute', top: 4, left: 4, width: 48, height: 48, borderRadius: '50%',
-                background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'grab', zIndex: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-                touchAction: 'none', userSelect: 'none',
-              } as any}>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 24, color: '#111' }} />
+              style={{ position: 'absolute', top: 4, left: 4, width: 48, height: 48, borderRadius: '50%', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'grab', zIndex: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.3)', touchAction: 'none', userSelect: 'none' } as any}>
+              <i className="ri-arrow-right-double-line" style={{ fontSize: 22, color: '#111' }} />
             </div>
           </div>
         ) : (
-          <div style={{ padding: '14px', textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.12)' } as any}>
-            Analyse en cours...
-          </div>
+          <div style={{ padding: '14px', textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.12)' } as any}>Analyse en cours...</div>
         )}
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-      ` }} />
+      <style dangerouslySetInnerHTML={{ __html: '@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}' }} />
     </div>
   );
 }
