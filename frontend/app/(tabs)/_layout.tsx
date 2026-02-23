@@ -69,9 +69,21 @@ export default function TabLayout() {
     if (!existing) {
       const s = document.createElement('style');
       s.id = 'navbar-glass-fix';
-      s.textContent = `[role="tablist"],[role="tablist"] *,[role="tablist"]+*,[role="tablist"]~*{background:transparent!important;background-color:transparent!important;}div:has(>[role="tablist"]){background:transparent!important;background-color:transparent!important;}[role="tablist"]{backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important;border-top:1px solid rgba(255,255,255,0.06)!important;}`;
+      s.textContent = `[role="tablist"],[role="tablist"] *{background:transparent!important;background-color:transparent!important;}[role="tablist"]{backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important;border-top:1px solid rgba(255,255,255,0.06)!important;}`;
       document.head.appendChild(s);
     }
+    // Force parent transparent via JS
+    requestAnimationFrame(() => {
+      const tl = document.querySelector('[role="tablist"]');
+      if (tl) {
+        let p = tl.parentElement;
+        while (p && p !== document.body) {
+          (p as HTMLElement).style.backgroundColor = 'transparent';
+          (p as HTMLElement).style.background = 'transparent';
+          p = p.parentElement;
+        }
+      }
+    });
   }
 
   return (
