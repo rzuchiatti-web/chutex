@@ -379,21 +379,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-                {/* Web-only Language Picker */}
-                <div style={{ position: 'relative', zIndex: 9999 } as any}>
-                  <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 34, height: 34, borderRadius: 10, background: (langFlags.find((f: any) => f.code === lang) || langFlags[0])?.color || '#002395', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '2px solid rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 900, color: '#FFF' } as any}>
-                    {lang}
-                  </div>
-                  {langOpen && (
-                    <div style={{ position: 'absolute', top: 40, right: 0, background: 'rgba(15,23,42,0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 14, padding: 6, minWidth: 120, zIndex: 99999, border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' } as any}>
-                      {langFlags.map((f: any) => (
-                        <div key={f.code} onClick={() => { setLang(f.code); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, cursor: 'pointer', background: lang === f.code ? 'rgba(255,255,255,0.08)' : 'transparent' } as any}>
-                          <div style={{ width: 22, height: 22, borderRadius: 6, background: f.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 800, color: '#FFF' } as any}>{f.code}</div>
-                          <span style={{ fontSize: 12, fontWeight: lang === f.code ? 700 : 500, color: lang === f.code ? '#FFF' : 'rgba(255,255,255,0.5)' }}>{f.code}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                {/* Language flag */}
+                <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, lineHeight: 1 } as any}>
+                  {lang === 'fr' ? '\u{1F1EB}\u{1F1F7}' : lang === 'en' ? '\u{1F1EC}\u{1F1E7}' : lang === 'es' ? '\u{1F1EA}\u{1F1F8}' : lang === 'de' ? '\u{1F1E9}\u{1F1EA}' : lang === 'it' ? '\u{1F1EE}\u{1F1F9}' : lang === 'pt' ? '\u{1F1F5}\u{1F1F9}' : lang === 'ar' ? '\u{1F1F8}\u{1F1E6}' : '\u{1F30D}'}
                 </div>
                 <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
                   <i className="ri-notification-3-line" style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)' }} />
