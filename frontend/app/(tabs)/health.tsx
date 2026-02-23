@@ -193,23 +193,17 @@ export default function HealthScreen() {
             ))}
           </div>
 
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+
           {/* 5. Sleep Card */}
           <SleepCard d={d} />
+
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
           {/* 6. Health Sections */}
           <HealthSections d={d} subs={subs} />
 
-          {/* 7. AI Correlations */}
-          {ai.correlations && ai.correlations.length > 0 && (
-            <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 14 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}><i className="ri-brain-line" style={{ fontSize: 14, color: '#A78BFA' }} /><span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.6)', textTransform: 'uppercase', letterSpacing: 1 }}>Comprendre mon corps</span></div>
-              {ai.correlations.map((c: string, i: number) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
-                  <i className="ri-links-line" style={{ fontSize: 13, color: 'rgba(167,139,250,0.4)', marginTop: 2 }} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>{c}</div>
-                </div>
-              ))}
-            </div>
-          )}
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
           {/* 8. Recent Weighings */}
           {weighings.length > 0 && (<>
