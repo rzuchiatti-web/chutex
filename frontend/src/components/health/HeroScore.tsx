@@ -52,7 +52,6 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
                 { label: 'SpO2', value: `${d.spo2 || 97}%`, color: '#38BDF8', icon: 'ri-drop-line' },
                 { label: 'Tension', value: `${d.blood_pressure?.systolic || 125}/${d.blood_pressure?.diastolic || 78}`, color: '#A78BFA', icon: 'ri-pulse-line' },
                 { label: 'HRV', value: `${d.hrv || 48} ms`, color: '#22D3EE', icon: 'ri-rhythm-line' },
-                { label: 'Stress', value: `${d.stress_level || 35}/100`, color: '#F59E0B', icon: 'ri-mental-health-line' },
                 { label: 'Recuperation', value: `${d.recovery_score || 78}/100`, color: '#10B981', icon: 'ri-battery-charge-line' },
                 { label: 'VO2max', value: `${d.vo2_max || 32}`, color: '#F97316', icon: 'ri-run-line' },
                 { label: 'Temperature', value: `${d.temperature || 36.6}C`, color: '#F59E0B', icon: 'ri-temp-hot-line' },
