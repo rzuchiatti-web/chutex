@@ -47,7 +47,6 @@ const SECTIONS: Record<string, { title: string; color: string; img: string; metr
       { key: 'calories', label: 'Depense energetique', unit: 'kcal', explain: 'Calories brulees par l\'activite physique aujourd\'hui.' },
       { key: 'distance_km', label: 'Distance parcourue', unit: 'km', explain: 'Distance totale estimee a partir du nombre de pas.' },
       { key: 'vo2_max', label: 'VO2 Max', unit: 'ml/kg/min', explain: 'Capacite aerobique maximale. Un bon indicateur de forme physique globale.' },
-      { key: 'stress_level', label: 'Niveau de stress', unit: '/100', explain: 'Mesure par le bracelet via le HRV. En dessous de 40 est un bon niveau.' },
       { key: 'basal_metabolism', label: 'Metabolisme de base (BMR)', unit: 'kcal', explain: 'Energie depensee au repos pour maintenir les fonctions vitales.' },
       { key: 'recommended_calories', label: 'Apport calorique recommande', unit: 'kcal', explain: 'Calories a consommer en fonction de votre activite et de vos objectifs.' },
     ],
