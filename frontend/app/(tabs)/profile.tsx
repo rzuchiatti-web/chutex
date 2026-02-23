@@ -118,7 +118,16 @@ export default function ProfileScreen() {
   const [savingNotif, setSavingNotif] = useState(false);
   const [showCareDetail, setShowCareDetail] = useState(false);
   const [showMedical, setShowMedical] = useState(false);
-  const [medForm, setMedForm] = useState({ blood_type: '', conditions: [] as string[], allergies: [] as string[], pacemaker: '', stents: '', thyroid: '', other_condition: '', surgeries: [] as { zone: string; date: string }[] });
+  const [medForm, setMedForm] = useState({
+    blood_type: user?.blood_type || '',
+    conditions: (user?.medical_conditions ? (Array.isArray(user.medical_conditions) ? user.medical_conditions : user.medical_conditions.split(',').map((s: string) => s.trim()).filter(Boolean)) : []) as string[],
+    allergies: (user?.allergies ? (Array.isArray(user.allergies) ? user.allergies : user.allergies.split(',').map((s: string) => s.trim()).filter(Boolean)) : []) as string[],
+    pacemaker: user?.pacemaker || '',
+    stents: user?.stents || '',
+    thyroid: user?.thyroid || '',
+    other_condition: user?.other_condition || '',
+    surgeries: (user?.surgeries || []) as { zone: string; date: string }[],
+  });
   const [medSaving, setMedSaving] = useState(false);
   const [medSaved, setMedSaved] = useState(false);
   const [showFaceId, setShowFaceId] = useState(false);
