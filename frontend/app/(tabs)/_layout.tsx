@@ -18,43 +18,10 @@ export default function TabLayout() {
   const isCompany = r === 'prescriber_company';
   const isWebBen = Platform.OS === 'web' && isBen;
 
-  // Active pill: dark circle with white icon — matching reference screenshot
+  // Active pill: dark circle with white icon
   const ActivePill = ({ children }: any) => (
     <div style={{ width: 46, height: 46, borderRadius: '50%', background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 18px rgba(2,6,23,0.22), inset 0 1px 0 rgba(255,255,255,0.88)', border: '1px solid rgba(255,255,255,0.95)' } as any}>{children}</div>
   );
-
-  // Central IA button — gradient pink/lavender with sparkles + "IA" tag
-  const AIChatIcon = ({ focused }: { color: string; focused?: boolean }) => {
-    if (Platform.OS !== 'web') {
-      return (
-        <View style={{ width: 50, height: 50, borderRadius: 25, marginTop: -10, backgroundColor: 'rgba(220,200,240,0.5)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.8)', justifyContent: 'center', alignItems: 'center' }}>
-          <MCIcon name="creation" size={24} color="#333" />
-        </View>
-      );
-    }
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: -6 } as any}>
-        <div style={{
-          width: 52, height: 52, borderRadius: '50%', position: 'relative',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'radial-gradient(65% 65% at 30% 25%, rgba(255,255,255,0.85), transparent 70%), linear-gradient(145deg, rgba(255,216,234,0.95), rgba(215,228,255,0.95))',
-          border: focused ? '1.5px solid rgba(255,255,255,0.92)' : '1px solid rgba(255,255,255,0.88)',
-          boxShadow: focused
-            ? '0 12px 20px rgba(15,23,42,0.16), inset 0 1px 0 rgba(255,255,255,0.95), 0 0 0 3px rgba(255,255,255,0.18)'
-            : '0 8px 16px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.95)',
-          transition: 'all 0.24s cubic-bezier(.22,.61,.36,1)',
-          transform: focused ? 'translateY(-2px) scale(1.04)' : 'none',
-        } as any}>
-          {/* Outer ring */}
-          <div style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.96)', opacity: 0.8, pointerEvents: 'none' } as any} />
-          {/* Glow */}
-          <div style={{ position: 'absolute', inset: -8, borderRadius: '50%', background: 'radial-gradient(circle, rgba(220,210,245,0.25), transparent 70%)', filter: 'blur(6px)', pointerEvents: 'none', zIndex: -1 } as any} />
-          <i className="ri-sparkling-2-line" style={{ fontSize: 26, color: '#1e2330', lineHeight: 1 }} />
-        </div>
-        <span style={{ marginTop: -4, fontSize: 8, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#273244', background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(15,23,42,0.10)', borderRadius: 999, padding: '1.5px 5px', lineHeight: 1, zIndex: 2 } as any}>IA</span>
-      </div>
-    );
-  };
 
   return (
     <Tabs key={r} sceneContainerStyle={{ backgroundColor: 'transparent' }} screenOptions={{
