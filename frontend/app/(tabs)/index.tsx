@@ -4,6 +4,7 @@ import VitalsRow from '../../src/components/dashboard/VitalsRow';
 import ActivitySleep from '../../src/components/dashboard/ActivitySleep';
 import CopilotCard from '../../src/components/dashboard/CopilotCard';
 import DeviceCards from '../../src/components/dashboard/DeviceCards';
+import WeighingFlow from '../../src/components/dashboard/WeighingFlow';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Animated, Platform, Image, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ContextualTip, OnboardingChecklist, HelpBubble, MiniTuto, PageExplainer } from '../../src/components/HelpSystem';
