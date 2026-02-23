@@ -73,16 +73,9 @@ export default function ChatIAScreen() {
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', ...(hasMessages ? {} : { justifyContent: 'flex-end' }) } as any}>
         {!hasMessages && !loading && (
           <div style={{ padding: '0 24px 24px' } as any}>
-            <div style={{ marginBottom: 24 } as any}>
+            <div>
               <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1.2, marginBottom: 6 }}>Bonjour {firstName},</div>
               <div style={{ fontSize: 20, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.3 }}>Comment puis-je vous aider aujourd'hui ?</div>
-            </div>
-            <div style={{ alignSelf: 'flex-end', display: 'flex', justifyContent: 'flex-end' } as any}>
-              <div onClick={() => sendMessage("J'ai besoin de savoir quelle action mettre en place pour augmenter ma longevite des maintenant !")} style={{ padding: '14px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer', maxWidth: '75%' } as any}
-                onMouseEnter={(e: any) => e.currentTarget.style.background='rgba(255,255,255,0.2)'}
-                onMouseLeave={(e: any) => e.currentTarget.style.background='rgba(255,255,255,0.12)'}>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>J'ai besoin de savoir quelle action mettre en place pour augmenter ma longevite des maintenant !</div>
-              </div>
             </div>
           </div>
         )}
