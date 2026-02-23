@@ -457,7 +457,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     { code: 'de', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutsch' },
                     { code: 'it', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italiano' },
                     { code: 'pt', flag: '\u{1F1F5}\u{1F1F9}', name: 'Portugues' },
-                    { code: 'ar', flag: '\u{1F1F8}\u{1F1E6}', name: '\u0627\u0644\u0639\u0631\u0628\u064A\u0629' },
+                    { code: 'nl', flag: '\u{1F1F3}\u{1F1F1}', name: 'Nederlands' },
                   ].map(l => (
                     <div key={l.code} onClick={() => { setLang(l.code); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 18px', borderRadius: 18, cursor: 'pointer', background: lang === l.code ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)', border: lang === l.code ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(255,255,255,0.05)', transition: 'all 0.2s' } as any}>
                       <span style={{ fontSize: 32, lineHeight: 1 }}>{l.flag}</span>
