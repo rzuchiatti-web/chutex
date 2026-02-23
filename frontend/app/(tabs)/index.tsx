@@ -183,15 +183,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [inviteGuardLoading, setInviteGuardLoading] = useState(false);
   const [healthSummary, setHealthSummary] = useState<any>(null);
   const [showMorningBriefing, setShowMorningBriefing] = useState(true);
-  const [briefingText, setBriefingText] = useState('');
-  const [briefingObjectives] = useState(() => [
-    `Activite : atteindre 6500 pas aujourd'hui`,
-    `Hydratation : boire au moins 1.5L d'eau`,
-    `Sommeil : coucher avant 23h pour optimiser la recuperation`,
-    `Tension : surveiller la pression arterielle ce matin`,
-  ]);
   const [briefingDone, setBriefingDone] = useState(false);
-  const [briefingStep, setBriefingStep] = useState(0);
   const [activeTab, setActiveTab] = useState<'beneficiary' | 'guardian'>('beneficiary');
   const [showGuardianActivation, setShowGuardianActivation] = useState(false);
   const [guardianActivationStep, setGuardianActivationStep] = useState(0);
