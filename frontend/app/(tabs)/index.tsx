@@ -189,6 +189,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [inviteGuardLoading, setInviteGuardLoading] = useState(false);
   const [healthSummary, setHealthSummary] = useState<any>(null);
   const [weighings, setWeighings] = useState<any[]>([]);
+  const [showWeighing, setShowWeighing] = useState(false);
   const [activeTab, setActiveTab] = useState<'beneficiary' | 'guardian'>('beneficiary');
   const [showGuardianActivation, setShowGuardianActivation] = useState(false);
   const [guardianActivationStep, setGuardianActivationStep] = useState(0);
