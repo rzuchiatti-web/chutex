@@ -1,3 +1,8 @@
+import AlertBanner from '../../src/components/dashboard/AlertBanner';
+import VitalsRow from '../../src/components/dashboard/VitalsRow';
+import ActivitySleep from '../../src/components/dashboard/ActivitySleep';
+import CopilotCard from '../../src/components/dashboard/CopilotCard';
+import DeviceCards from '../../src/components/dashboard/DeviceCards';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Animated, Platform, Image, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
