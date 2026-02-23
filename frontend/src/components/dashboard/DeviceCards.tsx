@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { apiFetch } from '../../services/api';
+import { useI18n } from '../../context/I18nContext'; from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 interface Props { br: any; sc: any; vs: any; onStartWeighing?: () => void; weighings?: any[]; onRefresh?: () => void; }
@@ -13,6 +14,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
   const [removing, setRemoving] = useState(false);
   const router = useRouter();
   const { token } = useAuth();
+  const { t } = useI18n();
 
   const devices = [
     { id: 'bracelet', name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE' },
@@ -56,7 +58,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
 
   return (
     <>
-      <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Appareils connectes</div>
+      <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>{t('devices_connected')}</div>
       {devices.map((d) => (
         <div key={d.id} data-testid={`device-card-${d.id}`} onClick={() => setSelected(d.id)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8, cursor: 'pointer', transition: 'transform 0.2s', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}
           onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-1px)'}

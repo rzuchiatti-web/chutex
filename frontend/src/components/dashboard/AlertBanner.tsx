@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
+import { useI18n } from '../../context/I18nContext'; from 'expo-router';
 
 interface Props { activeAlerts: any[]; }
 
@@ -8,6 +9,7 @@ const BG_GREEN = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-46
 
 export default function AlertBanner({ activeAlerts }: Props) {
   const router = useRouter();
+  const { t } = useI18n();
   const hasAlerts = activeAlerts.length > 0;
 
   return (
@@ -18,7 +20,7 @@ export default function AlertBanner({ activeAlerts }: Props) {
         <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{hasAlerts ? `${activeAlerts.length} en cours` : 'Aucune alerte en cours'}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{hasAlerts ? `${activeAlerts.length} en cours` : t('no_alert')}</div>
         </div>
       </div>
       <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 6 } as any}>

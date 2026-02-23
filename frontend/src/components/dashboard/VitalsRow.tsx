@@ -1,10 +1,12 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
+import { useI18n } from '../../context/I18nContext'; from 'expo-router';
 
 interface Props { br: any; }
 
 export default function VitalsRow({ br }: Props) {
   const router = useRouter();
+  const { t } = useI18n();
   const vitals = [
     { val: br.heart_rate, unit: '', label: 'BPM', icon: 'ri-heart-pulse-line', color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
     { val: `${br.spo2}%`, unit: '', label: 'SpO2', icon: 'ri-drop-line', color: '#38BDF8', bg: 'rgba(56,189,248,0.12)' },
