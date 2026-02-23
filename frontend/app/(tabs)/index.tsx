@@ -182,8 +182,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [inviteGuardMsg, setInviteGuardMsg] = useState('');
   const [inviteGuardLoading, setInviteGuardLoading] = useState(false);
   const [healthSummary, setHealthSummary] = useState<any>(null);
-  const [showMorningBriefing, setShowMorningBriefing] = useState(true);
-  const [briefingDone, setBriefingDone] = useState(false);
   const [activeTab, setActiveTab] = useState<'beneficiary' | 'guardian'>('beneficiary');
   const [showGuardianActivation, setShowGuardianActivation] = useState(false);
   const [guardianActivationStep, setGuardianActivationStep] = useState(0);
@@ -360,84 +358,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   /* ─── WEB: Redesigned beneficiary dashboard ─── */
   // Morning briefing effect — runs once on mount
-  const briefingRef = useRef(false);
-  const [briefingText, setBriefingText] = useState('');
-  const [briefingStep, setBriefingStep] = useState(0);
-  useEffect(() => {
-    if (briefingRef.current) return;
-    briefingRef.current = true;
-    const name = user?.name?.split(' ')[0] || '';
-    const txt = `Bonjour ${name},\nVotre etat de sante est stable. Maintenez vos habitudes.`;
-    let idx = 0;
-    const t = setInterval(() => {
-      if (idx <= txt.length) { setBriefingText(txt.slice(0, idx)); idx++; }
-      else { clearInterval(t); setTimeout(() => setBriefingStep(1), 300); setTimeout(() => setBriefingStep(2), 900); setTimeout(() => setBriefingStep(3), 1500); setTimeout(() => { setBriefingStep(4); setBriefingDone(true); }, 2100); }
-    }, 30);
-  }, []);
-
   if (Platform.OS === 'web') {
-    const VIDEO_BG_BRIEF = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/ufilgqml_banner_mobile_chat_ia_bakcground.mp4';
-    const OBJECTIVES = [
-      { icon: 'ri-footprint-line', color: '#10B981', text: 'Activite : atteindre 6500 pas' },
-      { icon: 'ri-drop-line', color: '#38BDF8', text: 'Hydratation : boire 1.5L d\'eau' },
-      { icon: 'ri-moon-line', color: '#A78BFA', text: 'Sommeil : coucher avant 23h' },
-      { icon: 'ri-heart-pulse-line', color: '#EF4444', text: 'Tension : controle ce matin' },
-    ];
-
-    if (showMorningBriefing) {
-      return (
-        <div data-testid="morning-briefing" style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", background: '#000' } as any}>
-          <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src={VIDEO_BG_BRIEF} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.75) 100%)', zIndex: 1 } as any} />
-
-          <div style={{ flex: 1, position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 24px 0' } as any}>
-            {/* Typewriter text */}
-            <div style={{ marginBottom: 20 } as any}>
-              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', lineHeight: 1.3, whiteSpace: 'pre-wrap' }}>{briefingText}<span style={{ opacity: !briefingDone ? 1 : 0, transition: 'opacity 0.3s' }}>|</span></div>
-            </div>
-
-            {/* Objectives — slide in one by one */}
-            {briefingStep >= 1 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 } as any}>
-                {OBJECTIVES.map((obj, i) => (
-                  <div key={i} style={{
-                    padding: '12px 16px', borderRadius: 14,
-                    background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    opacity: briefingStep > i ? 1 : 0,
-                    transform: briefingStep > i ? 'translateY(0)' : 'translateY(16px)',
-                    transition: `all 0.5s cubic-bezier(.22,.61,.36,1) ${i * 0.05}s`,
-                    display: 'flex', alignItems: 'center', gap: 10,
-                  } as any}>
-                    <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                      <i className={obj.icon} style={{ fontSize: 14, color: obj.color }} />
-                    </div>
-                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>{obj.text}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Slide to continue — only when done */}
-          <div style={{ position: 'relative', zIndex: 10, padding: '0 24px 32px' } as any}>
-            {briefingDone ? (
-              <div onClick={() => setShowMorningBriefing(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 6px 6px 6px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer' } as any}>
-                <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 22, color: '#111' }} />
-                </div>
-                <span style={{ flex: 1, textAlign: 'center', fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.7)', paddingRight: 16 }}>Glisser pour continuer</span>
-              </div>
-            ) : (
-              <div style={{ padding: '16px', textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.2)' } as any}>
-                <i className="ri-loader-4-line" style={{ marginRight: 6 }} />Analyse en cours...
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
         <img src={BG_VIDEO} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
