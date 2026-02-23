@@ -53,9 +53,13 @@ export default function TabLayout() {
     if (!isWebBen) return null;
     return (
       <div style={{
-        width: 44, height: 44, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: focused ? 'rgba(255,255,255,0.12)' : 'transparent',
-        transition: 'all 0.2s ease',
+        width: 46, height: 46, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: focused ? 'rgba(255,255,255,0.1)' : 'transparent',
+        border: focused ? '1px solid rgba(255,255,255,0.15)' : '1px solid transparent',
+        backdropFilter: focused ? 'blur(12px)' : 'none',
+        WebkitBackdropFilter: focused ? 'blur(12px)' : 'none',
+        boxShadow: focused ? '0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1)' : 'none',
+        transition: 'all 0.25s cubic-bezier(.22,.61,.36,1)',
       } as any}>
         {svgIcon || <i className={icon} style={{ fontSize: 22, color: focused ? '#FFF' : 'rgba(255,255,255,0.35)', transition: 'color 0.2s' }} />}
       </div>
