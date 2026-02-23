@@ -63,6 +63,17 @@ export default function TabLayout() {
     );
   };
 
+  // Inject CSS to fix tab bar glass on web
+  if (isWebBen && Platform.OS === 'web' && typeof document !== 'undefined') {
+    const existing = document.getElementById('navbar-glass-fix');
+    if (!existing) {
+      const s = document.createElement('style');
+      s.id = 'navbar-glass-fix';
+      s.textContent = `[role="tablist"]{background:rgba(10,15,26,0.85)!important;backdrop-filter:blur(24px) saturate(140%)!important;-webkit-backdrop-filter:blur(24px) saturate(140%)!important;border-top:1px solid rgba(255,255,255,0.08)!important;}`;
+      document.head.appendChild(s);
+    }
+  }
+
   return (
     <Tabs key={r} sceneContainerStyle={{ backgroundColor: 'transparent' }} screenOptions={{
       headerShown: false,
