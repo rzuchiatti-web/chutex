@@ -28,7 +28,8 @@ export default function TabLayout() {
   const isWebBen = Platform.OS === 'web' && isBen;
 
   // Single unified tab bar style — NO position absolute, just styled inline
-  const tabStyle = isWebBen ? {
+  const isWebAny = Platform.OS === 'web' && (isBen || isG || isTA);
+  const tabStyle = isWebAny ? {
     backgroundColor: 'transparent',
     borderTopWidth: 0,
     height: 64,
