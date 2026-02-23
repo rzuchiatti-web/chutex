@@ -1289,8 +1289,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 /* ═══════════════════════════════════════════════════════ */
 function GuardianHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
-  const { t } = useI18n();
-  const { refreshUser } = useAuth();
+  const { t, lang, setLang } = useI18n();  const { refreshUser } = useAuth();
   const [bens, setBens] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
   const [invitations, setInvitations] = useState<any[]>([]);
