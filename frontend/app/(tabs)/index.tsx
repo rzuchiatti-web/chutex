@@ -387,15 +387,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   {user.avatar_url ? <img src={user.avatar_url} style={{ width: 46, height: 46, borderRadius: 14, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
                 </div>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 4 }}>{user.name}</div>
-                  <div data-testid="role-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', padding: 2, gap: 2 } as any}>
-                    <div data-testid="tab-beneficiary" onClick={() => handleTabSwitch('beneficiary')} style={{ padding: '5px 12px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease', background: activeTab === 'beneficiary' ? '#FFF' : 'transparent', boxShadow: activeTab === 'beneficiary' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: activeTab === 'beneficiary' ? '#111' : 'rgba(255,255,255,0.5)' }}>Beneficiaire</span>
-                    </div>
-                    <div data-testid="tab-guardian" onClick={() => handleTabSwitch('guardian')} style={{ padding: '5px 12px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease', background: activeTab === 'guardian' ? '#FFF' : 'transparent', boxShadow: activeTab === 'guardian' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: activeTab === 'guardian' ? '#111' : 'rgba(255,255,255,0.5)' }}>Gardien</span>
-                    </div>
-                  </div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 2 }}>{user.name}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(79,195,247,0.6)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>Espace {activeTab === 'beneficiary' ? 'Beneficiaire' : 'Gardien'}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
