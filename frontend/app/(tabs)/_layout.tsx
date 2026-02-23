@@ -36,9 +36,13 @@ export default function TabLayout() {
     elevation: 0,
     shadowColor: 'transparent',
     borderTopColor: 'transparent',
+    position: 'absolute' as any,
+    bottom: 0,
+    left: 0,
+    right: 0,
     ...(Platform.OS === 'web' ? {
-      backdropFilter: 'blur(24px) saturate(140%)',
-      WebkitBackdropFilter: 'blur(24px) saturate(140%)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
       background: 'transparent',
     } as any : {}),
   } : {
