@@ -145,8 +145,10 @@ export default function HealthScreen() {
           {/* 0. Analysis Phase */}
           <AnalysisPhase analysisPhase={analysisPhase} showInfo={showAnalysisInfo} setShowInfo={setShowAnalysisInfo} progressBg={PROGRESS_BG} />
 
-          {/* 1. Hero Score */}
-          {!analysisPhase && <HeroScore score={score} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} />}
+          {/* 1. Hero BioAge */}
+          {!analysisPhase && <HeroScore bioAge={d.body_age || 63} realAge={68} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} />}
+
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
           {/* 2. Daily Objectives (no program here — moved to Programmes tab) */}
 
