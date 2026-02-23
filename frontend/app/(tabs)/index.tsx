@@ -496,18 +496,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               </div>
             </div>
           )}
-              {guardianRequests.map((req: any) => (
-                <div key={req.id} style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>{req.guardian_name} <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.4)' }}>souhaite devenir votre gardien</span></div>
-                  <div style={{ display: 'flex', gap: 8 } as any}>
-                    <div onClick={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/accept`, { method: 'POST' }, token); setShowNotifs(false); fetchData(); } catch {} }} style={{ flex: 1, padding: '8px', borderRadius: 10, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
-                    <div onClick={async () => { try { await apiFetch(`/api/beneficiary/guardian-requests/${req.id}/reject`, { method: 'POST' }, token); setShowNotifs(false); fetchData(); } catch {} }} style={{ flex: 1, padding: '8px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Refuser</div>
-                  </div>
-                </div>
-              ))}
-            </GC>
-          )}
-
           {/* ── SOS Button (top) ── */}
           <div data-testid="sos-button" onClick={handleSOS} style={{
             padding: '18px', borderRadius: 18, textAlign: 'center', cursor: 'pointer', marginBottom: 16,
