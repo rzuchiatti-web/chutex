@@ -1369,7 +1369,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
               </div>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 2 }}>{user.name}</div>
-                <div style={{ fontSize: 10, color: 'rgba(167,139,250,0.8)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>Espace Gardien{user.is_prescriber ? ' | Prescripteur' : ''}</div>
+                <div style={{ fontSize: 10, color: 'rgba(167,139,250,0.8)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>{t('space_guardian')}{user.is_prescriber ? ' | Prescripteur' : ''}</div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
