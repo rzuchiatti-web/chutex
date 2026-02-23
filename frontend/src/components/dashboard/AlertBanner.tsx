@@ -11,8 +11,8 @@ export default function AlertBanner({ activeAlerts }: Props) {
     <div data-testid="alert-banner" onClick={() => router.push('/(tabs)/alerts' as any)} style={{
       borderRadius: 20, padding: '16px 18px', marginBottom: 16, cursor: 'pointer',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      background: hasAlerts ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.08)',
-      border: `1px solid ${hasAlerts ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.1)'}`,
+      background: hasAlerts ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.08)',
+      border: `1px solid ${hasAlerts ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.1)'}`,
       backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
     } as any}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
