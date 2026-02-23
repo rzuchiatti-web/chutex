@@ -539,8 +539,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
 
-          {/* ── 7. ALERTES EN BAS (si pas d'alerte active) ── */}
-          {activeAlerts.length === 0 && <AlertBanner activeAlerts={activeAlerts} />}
+          {/* Les alertes sont affichées en haut du dashboard */}
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
