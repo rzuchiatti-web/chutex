@@ -290,15 +290,16 @@ export default function HealthScreen() {
               )}
 
               {weighingStep === 3 && (
-                <div style={{ textAlign: 'center' } as any}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Mesure en cours</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>Restez immobile et ne parlez pas</div>
-                  <div style={{ width: 200, height: 200, margin: '0 auto 24px', borderRadius: 24, overflow: 'hidden', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
-                    <video autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} src="https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/8h3820je_dna%281%29.webm" />
-                  </div>
-                  <div style={{ fontSize: 48, fontWeight: 900, color: '#A78BFA', marginBottom: 8 }}>10s</div>
-                  <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', maxWidth: 200, margin: '0 auto' } as any}>
-                    <div style={{ height: 4, borderRadius: 2, background: '#A78BFA', animation: 'fillBar 10s linear forwards' } as any} />
+                <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src="https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/8h3820je_dna%281%29.webm" />
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
+                  <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Mesure en cours</div>
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 32 }}>Restez immobile et ne parlez pas</div>
+                    <div style={{ fontSize: 64, fontWeight: 900, color: '#FFF', marginBottom: 16 }}>10s</div>
+                    <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', overflow: 'hidden', width: 200, margin: '0 auto' } as any}>
+                      <div style={{ height: 4, borderRadius: 2, background: '#FFF', animation: 'fillBar 10s linear forwards' } as any} />
+                    </div>
                   </div>
                   <style dangerouslySetInnerHTML={{ __html: '@keyframes fillBar{from{width:0%}to{width:100%}}' }} />
                 </div>
