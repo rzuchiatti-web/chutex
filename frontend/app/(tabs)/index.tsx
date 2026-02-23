@@ -521,30 +521,185 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Dispositifs connectes (after SOS) ── */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Appareils connectes</div>
-          {[
-            { name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE', batteryGrad: 'linear-gradient(90deg, #0E7490, #22D3EE)', route: '/bracelet-connect', desc: 'Suivi cardiaque, SpO2, temperature', actionLabel: 'Lancer un ECG', actionIcon: 'ri-pulse-line', actionColor: '#F97316', actionRoute: '/ecg' },
-            { name: 'Balance Lefu', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, color: '#A78BFA', batteryGrad: 'linear-gradient(90deg, #6D28D9, #A78BFA)', route: '/scale-detail', desc: 'Poids et composition corporelle', actionLabel: 'Nouvelle pesee', actionIcon: 'ri-scales-3-line', actionColor: '#A78BFA', actionRoute: '/(tabs)/health' },
-            { name: 'Gilet Elder S-AIRBAG', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, color: '#10B981', batteryGrad: 'linear-gradient(90deg, #047857, #10B981)', route: '/vest-connect', desc: 'Protection anti-chute par airbag' },
-          ].map((d, i) => (
-            <div key={i} data-testid={`device-card-${i}`} onClick={() => router.push(d.route as any)} style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', transition: 'transform 0.2s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-              <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 5 } as any}><img src={d.img} alt={d.name} style={{ width: 38, height: 38, objectFit: 'contain' } as any} /></div>
-                <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{d.name}</div><div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}><span style={{ width: 5, height: 5, borderRadius: 3, background: d.connected ? '#10B981' : 'rgba(255,255,255,0.2)' } as any} /><span style={{ fontSize: 10, color: d.connected ? '#10B981' : 'rgba(255,255,255,0.3)' }}>{d.connected ? 'Connecte' : 'Deconnecte'}</span></div></div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }} />
-              </div>
-              <div style={{ padding: '6px 16px 10px', display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                <div style={{ flex: 1, height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}><div style={{ height: 5, borderRadius: 3, width: `${d.battery}%`, background: d.batteryGrad } as any} /></div>
-                <span style={{ fontSize: 9, fontWeight: 700, color: d.color }}>{d.battery}%</span>
-              </div>
-              {d.actionLabel && (
-                <div onClick={(e: any) => { e.stopPropagation(); router.push(d.actionRoute as any); }} style={{ margin: '0 16px 12px', padding: '10px', borderRadius: 999, background: `${d.actionColor}18`, border: `1px solid ${d.actionColor}30`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-                  <i className={d.actionIcon} style={{ fontSize: 14, color: d.actionColor }} /><span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{d.actionLabel}</span>
+          {/* ── BRACELET ELIO ── */}
+          {(() => {
+            const d = { name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', color: '#22D3EE' };
+            const lastSync = br.last_sync ? new Date(br.last_sync).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '--';
+            return (
+              <div data-testid="device-bracelet" style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden' } as any}>
+                {/* Header */}
+                <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 5 } as any}><img src={d.img} alt="" style={{ width: 38, height: 38, objectFit: 'contain' } as any} /></div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{d.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
+                      <span style={{ width: 6, height: 6, borderRadius: 3, background: br.connected ? '#10B981' : '#EF4444' } as any} />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: br.connected ? '#10B981' : '#EF4444' }}>{br.connected ? 'Connecte' : 'Deconnecte'}</span>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' } as any}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: d.color }}>{br.battery}%</div>
+                    <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Batterie</div>
+                  </div>
                 </div>
-              )}
-            </div>
-          ))}
+                {/* Battery bar */}
+                <div style={{ padding: '0 16px 8px' } as any}><div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}><div style={{ height: 4, borderRadius: 2, width: `${br.battery}%`, background: `linear-gradient(90deg, #0E7490, ${d.color})` } as any} /></div></div>
+                {/* Vitals grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 1, background: 'rgba(255,255,255,0.03)', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
+                  {[
+                    { val: br.heart_rate, unit: 'bpm', label: 'FC', icon: 'ri-heart-pulse-line', color: '#EF4444' },
+                    { val: `${br.spo2}%`, unit: '', label: 'SpO2', icon: 'ri-drop-line', color: '#38BDF8' },
+                    { val: br.steps, unit: '', label: 'Pas', icon: 'ri-footprint-line', color: '#10B981' },
+                    { val: `${br.temperature}°`, unit: '', label: 'Temp', icon: 'ri-temp-hot-line', color: '#F59E0B' },
+                  ].map((v, i) => (
+                    <div key={i} style={{ padding: '10px 6px', textAlign: 'center', background: 'rgba(255,255,255,0.01)' } as any}>
+                      <i className={v.icon} style={{ fontSize: 13, color: v.color, display: 'block', marginBottom: 3 }} />
+                      <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{v.val}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)' }}>{v.unit}</span></div>
+                      <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', marginTop: 2 }}>{v.label}</div>
+                    </div>
+                  ))}
+                </div>
+                {/* Last sync */}
+                <div style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}><i className="ri-time-line" style={{ marginRight: 4 }} />Derniere synchro : {lastSync}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{br.blood_pressure?.systolic}/{br.blood_pressure?.diastolic} mmHg</div>
+                </div>
+                {/* Actions */}
+                <div style={{ padding: '4px 12px 12px', display: 'flex', gap: 6 } as any}>
+                  <div onClick={() => router.push('/ecg' as any)} style={{ flex: 1, padding: '10px', borderRadius: 14, background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                    <i className="ri-pulse-line" style={{ fontSize: 14, color: '#F97316' }} /><span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>ECG</span>
+                  </div>
+                  <div onClick={() => router.push('/bracelet-connect' as any)} style={{ flex: 1, padding: '10px', borderRadius: 14, background: `${d.color}10`, border: `1px solid ${d.color}25`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                    <i className="ri-refresh-line" style={{ fontSize: 14, color: d.color }} /><span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>Synchroniser</span>
+                  </div>
+                  <div onClick={(e: any) => { e.stopPropagation(); if (window.confirm('Dissocier le Bracelet Elio ?')) { /* TODO: API call */ } }} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className="ri-delete-bin-line" style={{ fontSize: 14, color: 'rgba(239,68,68,0.5)' }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* ── BALANCE LEFU ── */}
+          {(() => {
+            const d = { name: 'Balance Lefu', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', color: '#A78BFA' };
+            const lastSync = sc.last_sync ? new Date(sc.last_sync).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '--';
+            return (
+              <div data-testid="device-scale" style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden' } as any}>
+                {/* Header */}
+                <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 5 } as any}><img src={d.img} alt="" style={{ width: 38, height: 38, objectFit: 'contain' } as any} /></div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{d.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
+                      <span style={{ width: 6, height: 6, borderRadius: 3, background: sc.connected ? '#10B981' : '#EF4444' } as any} />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: sc.connected ? '#10B981' : '#EF4444' }}>{sc.connected ? 'Connecte' : 'Deconnecte'}</span>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' } as any}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: d.color }}>{sc.battery}%</div>
+                    <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Batterie</div>
+                  </div>
+                </div>
+                {/* Battery bar */}
+                <div style={{ padding: '0 16px 8px' } as any}><div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}><div style={{ height: 4, borderRadius: 2, width: `${sc.battery}%`, background: `linear-gradient(90deg, #6D28D9, ${d.color})` } as any} /></div></div>
+                {/* Weight big + composition */}
+                <div style={{ padding: '0 16px 10px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                  <div style={{ textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{sc.weight}<span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>kg</span></div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>IMC {sc.bmi}</div>
+                  </div>
+                  <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 } as any}>
+                    {[
+                      { val: `${sc.body_fat}%`, label: 'Graisse', color: '#F59E0B' },
+                      { val: `${sc.muscle_mass}%`, label: 'Muscle', color: '#10B981' },
+                      { val: `${sc.water_pct}%`, label: 'Eau', color: '#38BDF8' },
+                      { val: sc.visceral_fat, label: 'Visc.', color: '#EF4444' },
+                    ].map((v, i) => (
+                      <div key={i} style={{ padding: '6px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' } as any}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{v.val}</div>
+                        <div style={{ fontSize: 7, color: v.color, textTransform: 'uppercase', fontWeight: 700 }}>{v.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Extra info */}
+                <div style={{ padding: '6px 16px 8px', display: 'flex', gap: 12, borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}><i className="ri-body-scan-line" style={{ marginRight: 3, color: d.color }} />Os : {sc.bone_mass}kg</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}><i className="ri-calendar-line" style={{ marginRight: 3, color: d.color }} />Age metab. : {sc.metabolic_age} ans</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginLeft: 'auto' }}><i className="ri-time-line" style={{ marginRight: 3 }} />{lastSync}</div>
+                </div>
+                {/* Actions */}
+                <div style={{ padding: '4px 12px 12px', display: 'flex', gap: 6 } as any}>
+                  <div onClick={() => router.push('/scale-detail' as any)} style={{ flex: 1, padding: '10px', borderRadius: 14, background: `${d.color}10`, border: `1px solid ${d.color}25`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                    <i className="ri-scales-3-line" style={{ fontSize: 14, color: d.color }} /><span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>Nouvelle pesee</span>
+                  </div>
+                  <div onClick={() => router.push('/scale-detail' as any)} style={{ flex: 1, padding: '10px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                    <i className="ri-line-chart-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }} /><span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>Historique</span>
+                  </div>
+                  <div onClick={(e: any) => { e.stopPropagation(); if (window.confirm('Dissocier la Balance Lefu ?')) { /* TODO: API call */ } }} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className="ri-delete-bin-line" style={{ fontSize: 14, color: 'rgba(239,68,68,0.5)' }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* ── GILET ELDER S-AIRBAG ── */}
+          {(() => {
+            const d = { name: 'Gilet Elder S-AIRBAG', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', color: '#10B981' };
+            const lastSync = vs.last_sync ? new Date(vs.last_sync).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '--';
+            return (
+              <div data-testid="device-vest" style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden' } as any}>
+                {/* Header */}
+                <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 5 } as any}><img src={d.img} alt="" style={{ width: 38, height: 38, objectFit: 'contain' } as any} /></div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{d.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
+                      <span style={{ width: 6, height: 6, borderRadius: 3, background: vs.connected ? '#10B981' : '#EF4444' } as any} />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: vs.connected ? '#10B981' : '#EF4444' }}>{vs.connected ? 'Connecte' : 'Deconnecte'}</span>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' } as any}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: d.color }}>{vs.battery}%</div>
+                    <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Batterie</div>
+                  </div>
+                </div>
+                {/* Battery bar */}
+                <div style={{ padding: '0 16px 8px' } as any}><div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}><div style={{ height: 4, borderRadius: 2, width: `${vs.battery}%`, background: `linear-gradient(90deg, #047857, ${d.color})` } as any} /></div></div>
+                {/* Stats */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'rgba(255,255,255,0.03)', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
+                  {[
+                    { val: vs.fall_detected ? 'OUI' : 'Non', label: 'Chute detectee', icon: 'ri-alert-line', color: vs.fall_detected ? '#EF4444' : '#10B981' },
+                    { val: `${vs.posture_score}%`, label: 'Posture', icon: 'ri-body-scan-line', color: '#38BDF8' },
+                    { val: `${vs.wearing_hours_today}h`, label: 'Porte auj.', icon: 'ri-time-line', color: '#F59E0B' },
+                  ].map((v, i) => (
+                    <div key={i} style={{ padding: '10px 8px', textAlign: 'center' } as any}>
+                      <i className={v.icon} style={{ fontSize: 14, color: v.color, display: 'block', marginBottom: 3 }} />
+                      <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{v.val}</div>
+                      <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', marginTop: 2 }}>{v.label}</div>
+                    </div>
+                  ))}
+                </div>
+                {/* Extra */}
+                <div style={{ padding: '6px 16px 8px', display: 'flex', gap: 12 } as any}>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}><i className="ri-temp-hot-line" style={{ marginRight: 3, color: '#F59E0B' }} />Temp thorax : {vs.chest_temp}°C</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}><i className="ri-alarm-warning-line" style={{ marginRight: 3, color: '#EF4444' }} />Alertes : {vs.alerts_today}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginLeft: 'auto' }}><i className="ri-time-line" style={{ marginRight: 3 }} />{lastSync}</div>
+                </div>
+                {/* Actions */}
+                <div style={{ padding: '4px 12px 12px', display: 'flex', gap: 6 } as any}>
+                  <div onClick={() => router.push('/vest-connect' as any)} style={{ flex: 1, padding: '10px', borderRadius: 14, background: `${d.color}10`, border: `1px solid ${d.color}25`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                    <i className="ri-settings-3-line" style={{ fontSize: 14, color: d.color }} /><span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>Configurer</span>
+                  </div>
+                  <div onClick={(e: any) => { e.stopPropagation(); if (window.confirm('Dissocier le Gilet Elder S-AIRBAG ?')) { /* TODO: API call */ } }} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className="ri-delete-bin-line" style={{ fontSize: 14, color: 'rgba(239,68,68,0.5)' }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* ── Alert banner (only if alerts) ── */}
           {activeAlerts.length > 0 && (
