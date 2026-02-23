@@ -268,7 +268,7 @@ export default function BeneficiaryDetailScreen() {
           {[
             { label: 'Bracelet Elio', img: IMG_BRACELET, color: '#10B981', d: bracelet },
             { label: 'Balance Vita', img: IMG_SCALE, color: '#3B82F6', d: scale },
-            { label: 'Gilet Elder S-AIRBAG', img: IMG_VEST, color: '#A78BFA', d: vest },
+            { label: 'Elder', img: IMG_VEST, color: '#A78BFA', d: vest },
           ].map((dev, i) => (
             <div key={i}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>

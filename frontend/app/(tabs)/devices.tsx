@@ -64,7 +64,7 @@ function DeviceManagement({ token }: { token: string }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSyncingDevice(null); }
   };
 
-  const getDeviceName = (type: string) => type === 'bracelet' ? 'Bracelet Elio' : type === 'scale' ? 'Balance Vita' : 'Gilet Elder S-AIRBAG';
+  const getDeviceName = (type: string) => type === 'bracelet' ? 'Bracelet Elio' : type === 'scale' ? 'Balance Vita' : 'Elder';
   const getDeviceDesc = (type: string) => type === 'bracelet' ? 'Suivi cardiaque, SpO2, temperature et detection de chute en continu.' : type === 'scale' ? 'Poids et composition corporelle avec plus de 30 metriques de sante.' : 'Protection anti-chute par airbag. Se gonfle automatiquement en cas de chute.';
   const getDeviceImg = (type: string) => type === 'bracelet'
     ? 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg'
