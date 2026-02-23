@@ -8,17 +8,39 @@ from auth import get_current_user
 router = APIRouter()
 
 
-async def build_health_context(user):
+async def build_health_context(user, for_guardian=False, beneficiary_data=None):
     """Build a rich health context string for the AI from user data"""
-    uid = user['id']
+    target = beneficiary_data or user
+    uid = target['id']
     parts = []
 
     # User profile
-    parts.append(f"Utilisateur: {user.get('name', 'Inconnu')}, {user.get('gender', '')}, ne(e) le {user.get('date_of_birth', 'inconnu')}.")
-    if user.get('height_cm'): parts.append(f"Taille: {user['height_cm']}cm.")
-    if user.get('weight_kg'): parts.append(f"Poids: {user['weight_kg']}kg.")
-    if user.get('medical_conditions'): parts.append(f"Pathologies: {user['medical_conditions']}.")
-    if user.get('allergies'): parts.append(f"Allergies: {user['allergies']}.")
+    parts.append(f"Patient: {target.get('name', 'Inconnu')}, {target.get('gender', '')}, ne(e) le {target.get('date_of_birth', 'inconnu')}.")
+    if target.get('height_cm'): parts.append(f"Taille: {target['height_cm']}cm.")
+    if target.get('weight_kg'): parts.append(f"Poids: {target['weight_kg']}kg.")
+    if target.get('address'): parts.append(f"Adresse: {target['address']}.")
+
+    # Medical record
+    if target.get('blood_type'): parts.append(f"Groupe sanguin: {target['blood_type']}.")
+    if target.get('medical_conditions'): parts.append(f"Pathologies: {target['medical_conditions']}.")
+    if target.get('allergies'): parts.append(f"Allergies: {target['allergies']}.")
+    if target.get('pacemaker'): parts.append(f"Pacemaker: {target['pacemaker']}.")
+    if target.get('stents'): parts.append(f"Stents: {target['stents']}.")
+    if target.get('thyroid'): parts.append(f"Thyroide: {target['thyroid']}.")
+    if target.get('other_condition'): parts.append(f"Autre: {target['other_condition']}.")
+    if target.get('surgeries'): parts.append(f"Chirurgies: {target['surgeries']}.")
+    if target.get('doctor_name'): parts.append(f"Medecin traitant: {target['doctor_name']}.")
+    if target.get('emergency_contact_name'): parts.append(f"Contact urgence: {target['emergency_contact_name']} ({target.get('emergency_contact_phone', '')}).")
+
+    # Latest device data
+    dash = await db.dashboard_summary.find_one({"user_id": uid}, {"_id": 0})
+    if dash:
+        br = dash.get('bracelet', {})
+        sc = dash.get('scale', {})
+        if br:
+            parts.append(f"Bracelet: FC {br.get('heart_rate')}bpm, SpO2 {br.get('spo2')}%, Tension {br.get('blood_pressure',{}).get('systolic','?')}/{br.get('blood_pressure',{}).get('diastolic','?')}, Temp {br.get('temperature')}C, Pas {br.get('steps')}, Calories {br.get('calories')}kcal.")
+        if sc:
+            parts.append(f"Balance: Poids {sc.get('weight')}kg, IMC {sc.get('bmi')}, Graisse {sc.get('body_fat')}%, Muscle {sc.get('muscle_mass')}%, Eau {sc.get('water_pct')}%, Age metab {sc.get('metabolic_age')} ans.")
 
     # Latest health summary
     summary = await db.health_summary_cache.find_one({"user_id": uid}, {"_id": 0})
@@ -34,19 +56,21 @@ async def build_health_context(user):
         if program:
             day = enrollment.get("current_day", 1)
             parts.append(f"Programme actif: '{program.get('title', '')}' - Jour {day}/{program.get('duration_days', 21)}.")
-            # Last check-in
             last_checkin = await db.program_checkins.find_one(
                 {"enrollment_id": enrollment["id"]}, {"_id": 0}, sort=[("date", -1)]
             )
             if last_checkin:
                 parts.append(f"Dernier check-in: humeur {last_checkin.get('mood', '?')}/5, note: {last_checkin.get('note', 'aucune')}.")
 
-    # Recent thresholds/alerts
+    # Recent alerts
     alerts = await db.alerts.find(
         {"user_id": uid, "status": {"$in": ["active", "acknowledged"]}}, {"_id": 0}
     ).sort("created_at", -1).to_list(3)
     if alerts:
         parts.append(f"Alertes recentes: {', '.join(a.get('message', '') for a in alerts)}.")
+
+    if for_guardian:
+        parts.append(f"[CONTEXTE: L'utilisateur actuel est un gardien/aidant de {target.get('name', 'ce patient')}. Reponds aux questions du gardien sur la sante de son beneficiaire.]")
 
     return " ".join(parts)
 
