@@ -152,8 +152,24 @@ export default function HealthScreen() {
 
           {/* 2. Daily Objectives (no program here — moved to Programmes tab) */}
 
-          {/* 3. Daily Objectives */}
-          <DailyObjectives plan={plan} ai={ai} analysisPhase={analysisPhase} showPopup={showDayPlanPopup} setShowPopup={setShowDayPlanPopup} />
+          {/* 3. Daily Objectives — no card wrapper */}
+          <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Objectifs journaliers</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 } as any}>
+            {plan.map((p: any) => (
+              <div key={p.key} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}><i className={p.icon} style={{ fontSize: 14, color: p.color }} /><span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{p.status || p.label}</span></div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{p.value} <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{p.unit}</span></div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{p.label}</div>
+                {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', marginTop: 6, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${p.progress}%`, background: p.color } as any} /></div>}
+              </div>
+            ))}
+          </div>
+          {ai.priority && (
+            <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(34,211,238,0.06)', border: '1px solid rgba(34,211,238,0.1)', marginBottom: 14, display: 'flex', alignItems: 'flex-start', gap: 10 } as any}>
+              <i className="ri-focus-3-line" style={{ fontSize: 14, color: '#22D3EE', marginTop: 2, flexShrink: 0 }} />
+              <div><div style={{ fontSize: 9, fontWeight: 700, color: '#22D3EE', textTransform: 'uppercase', marginBottom: 2 }}>Priorite du jour</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{ai.priority}</div></div>
+            </div>
+          )}
 
           {/* 3b. Action cards: Pesée + ECG */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
