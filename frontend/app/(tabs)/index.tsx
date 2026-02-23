@@ -235,6 +235,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       if (hs) setHealthSummary(hs);
       if (report?.weighings) setWeighings(report.weighings);
       setActiveAlerts(Array.isArray(aa) ? aa : []);
+      if (typeof window !== 'undefined') (window as any).__debugAlerts = aa;
       // Fetch programs
       try {
         const [prog, cat] = await Promise.all([
