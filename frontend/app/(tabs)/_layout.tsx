@@ -69,7 +69,7 @@ export default function TabLayout() {
     if (!existing) {
       const s = document.createElement('style');
       s.id = 'navbar-glass-fix';
-      s.textContent = `[role="tablist"],[role="tablist"] *{background:transparent!important;background-color:transparent!important;}[role="tablist"]{backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important;border-top:1px solid rgba(255,255,255,0.06)!important;}`;
+      s.textContent = `[role="tablist"],[role="tablist"] *,[role="tablist"]+*,[role="tablist"]~*{background:transparent!important;background-color:transparent!important;}div:has(>[role="tablist"]){background:transparent!important;background-color:transparent!important;}[role="tablist"]{backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important;border-top:1px solid rgba(255,255,255,0.06)!important;}`;
       document.head.appendChild(s);
     }
   }
