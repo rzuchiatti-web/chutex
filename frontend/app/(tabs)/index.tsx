@@ -392,7 +392,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 </div>
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 2 }}>{user.name}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(79,195,247,0.6)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>Espace {activeTab === 'beneficiary' ? 'Beneficiaire' : 'Gardien'}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(79,195,247,0.6)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
