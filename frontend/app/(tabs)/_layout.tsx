@@ -108,7 +108,11 @@ export default function TabLayout() {
         href: (!isBen && !isAdmin && !isCompany) ? null : undefined,
       }} />
       <Tabs.Screen name="chat" options={{
-        tabBarIcon: ({ color, focused }) => isBen ? <AIChatIcon color={color} focused={focused} /> : <Icon name="chatbubble-ellipses-outline" size={22} color={color} />,
+        tabBarIcon: ({ color, size, focused }) => {
+          if (isWebBen && focused) return <ActivePill><i className="ri-rocket-2-line" style={{ fontSize: 22, color: '#FFF' }} /></ActivePill>;
+          if (isWebBen) return <i className="ri-rocket-2-line" style={{ fontSize: 24, color }} />;
+          return <Icon name="chatbubble-ellipses-outline" size={22} color={color} />;
+        },
         href: (!isBen) ? null : undefined,
       }} />
       <Tabs.Screen name="alerts" options={{
