@@ -511,7 +511,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
               onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
               <div style={{ marginBottom: 10 } as any}>
-                <span style={{ display: 'inline-flex', padding: '4px 10px', borderRadius: 999, background: `${activeProgram.program.color}15`, border: `1px solid ${activeProgram.program.color}25`, fontSize: 9, fontWeight: 700, color: activeProgram.program.color, textTransform: 'uppercase', letterSpacing: 0.5 }}>Programme en cours</span>
+                <span style={{ display: 'inline-flex', padding: '4px 10px', borderRadius: 999, background: `${activeProgram.program.color}15`, border: `1px solid ${activeProgram.program.color}25`, fontSize: 9, fontWeight: 700, color: activeProgram.program.color, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('program_running')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
                 <div style={{ width: 40, height: 40, borderRadius: 12, background: `${activeProgram.program.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
@@ -548,7 +548,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Rappels — directly on background ── */}
           <div data-testid="reminders-section" style={{ marginBottom: 16 } as any}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Mes rappels</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>{t('my_reminders')}</div>
             {[
               { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8' },
               { type: 'medication', label: 'Traitement', img: REMINDER_IMAGES.medication, color: '#F59E0B' },
