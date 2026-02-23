@@ -18,6 +18,8 @@ function TypewriterText({ text, speed = 18, onDone }: { text: string; speed?: nu
   return <>{displayed}<span style={{ opacity: displayed.length < text.length ? 1 : 0, transition: 'opacity 0.3s' } as any}>|</span></>;
 }
 
+import { useI18n } from '../src/context/I18nContext';
+
 export default function ChatIAScreen() {
   const { user, token } = useAuth();
   const router = useRouter();
@@ -54,7 +56,7 @@ export default function ChatIAScreen() {
   if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF' }}>Chat</Text></View>;
 
   const hasMessages = messages.length > 0;
-  const { t } = (await import('../src/context/I18nContext')).useI18n ? (await import('../src/context/I18nContext')).useI18n() : { t: (k: string) => k };
+  const { t } = useI18n();
   const firstName = user?.name?.split(' ')[0] || '';
   const VIDEO_BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/ufilgqml_banner_mobile_chat_ia_bakcground.mp4';
 
