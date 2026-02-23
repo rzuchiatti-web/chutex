@@ -1,8 +1,3 @@
-import AlertBanner from '../../src/components/dashboard/AlertBanner';
-import VitalsRow from '../../src/components/dashboard/VitalsRow';
-import ActivitySleep from '../../src/components/dashboard/ActivitySleep';
-import CopilotCard from '../../src/components/dashboard/CopilotCard';
-import DeviceCards from '../../src/components/dashboard/DeviceCards';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Animated, Platform, Image, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -496,25 +491,55 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             )}
           </div>
 
-          {/* ── 1. ALERTES (top) ── */}
-          <AlertBanner activeAlerts={activeAlerts} />
+          {/* ── COPILOT IA CARD ── */}
+          <div data-testid="copilot-ia-card" onClick={() => router.push('/chat-ia' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', height: 160, marginBottom: 16, cursor: 'pointer', transition: 'transform 0.2s' } as any} onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
+            <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src="https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/akdwga2r_background_card_ia.mp4" />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.15))', zIndex: 1 } as any} />
+            <div style={{ position: 'relative', zIndex: 2, padding: '22px 20px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' } as any}>
+              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6, letterSpacing: -0.3, lineHeight: 1.1 }}>Copilot IA</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, maxWidth: 220 }}>Pose tes questions et recois des conseils personnalises a partir de tes donnees.</div>
+            </div>
+          </div>
 
-          {/* ── 2. VITALS ── */}
-          <VitalsRow br={br} />
+          {/* ── Tutoriel connexion appareils ── */}
+          {!br.connected && !sc.connected && (
+            <div data-testid="device-tutorial" onClick={() => router.push('/bracelet-connect' as any)} style={{ padding: '16px 18px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(34,211,238,0.08), rgba(14,116,144,0.04))', border: '1px solid rgba(34,211,238,0.12)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(34,211,238,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <i className="ri-bluetooth-connect-line" style={{ fontSize: 22, color: '#22D3EE' }} />
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>Connecter vos appareils</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>Activez le Bluetooth et suivez le guide</div>
+              </div>
+            </div>
+          )}
 
-          {/* ── 3. ACTIVITE + SOMMEIL ── */}
-          <ActivitySleep br={br} sl={sl} />
-
-          {/* ── 4. COPILOT IA ── */}
-          <CopilotCard />
-
-          {/* ── 5. DISPOSITIFS ── */}
-          <DeviceCards br={br} sc={sc} vs={vs} />
-
-          {/* ── Programmes de prevention ── */}
-          <div data-testid="programs-section" style={{ marginBottom: 16 } as any}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Mon programme</div>
-            {activeProgram?.active ? (
+          {/* ── Dispositifs — simplified ── */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Appareils connectes</div>
+          {[
+            { name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE', grad: 'linear-gradient(90deg, #0E7490, #22D3EE)', route: '/bracelet-connect' },
+            { name: 'Balance Lefu', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, color: '#A78BFA', grad: 'linear-gradient(90deg, #6D28D9, #A78BFA)', route: '/scale-detail' },
+            { name: 'Gilet Elder S-AIRBAG', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, color: '#10B981', grad: 'linear-gradient(90deg, #047857, #10B981)', route: '/vest-connect' },
+          ].map((d, i) => (
+            <div key={i} data-testid={`device-simple-${i}`} onClick={() => router.push(d.route as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, cursor: 'pointer', transition: 'transform 0.2s' } as any}
+              onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-1px)'}
+              onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
+              <img src={d.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>{d.name}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
+                  <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : '#EF4444' } as any} />
+                  <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : '#EF4444' }}>{d.connected ? 'Connecte' : 'Deconnecte'}</span>
+                </div>
+                <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: 4, borderRadius: 2, width: `${d.battery}%`, background: d.grad } as any} /></div>
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 900, color: d.color, flexShrink: 0 }}>{d.battery}%</div>
+            </div>
+          ))}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Appareils connectes</div>
+          {/* ── BRACELET ELIO ── */}
+          {(() => {
+            const d = { name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', color: '#22D3EE' };
             const lastSync = br.last_sync ? new Date(br.last_sync).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '--';
             return (
               <div data-testid="device-bracelet" onClick={() => router.push('/bracelet-connect' as any)} style={{ borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' } as any} onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
@@ -692,14 +717,63 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             );
           })()}
 
-          {/* ── Alert banner ── */}
-          <AlertBanner activeAlerts={activeAlerts} />
+          {/* ── Alert banner (only if alerts) ── */}
+          {activeAlerts.length > 0 && (
+            <div data-testid="alert-banner" onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+              <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+              <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
+                <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
+                <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length} en cours</div></div>
+              </div>
+              <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
+              </div>
+            </div>
+          )}
 
-          {/* ── Vitals ── */}
-          <VitalsRow br={br} />
+          {/* ── Vitals row — 4 metrics ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 16 } as any}>
+            {[
+              { val: br.heart_rate, unit: '', label: 'BPM', icon: 'ri-heart-pulse-line', color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
+              { val: `${br.spo2}%`, unit: '', label: 'SpO2', icon: 'ri-drop-line', color: '#38BDF8', bg: 'rgba(56,189,248,0.12)' },
+              { val: `${br.blood_pressure?.systolic || 125}`, unit: `/${br.blood_pressure?.diastolic || 78}`, label: 'Tension', icon: 'ri-pulse-line', color: '#A78BFA', bg: 'rgba(167,139,250,0.12)' },
+              { val: `${br.temperature}`, unit: 'C', label: 'Temp.', icon: 'ri-temp-hot-line', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
+            ].map((v, i) => (
+              <div key={i} data-testid={`vital-${i}`} onClick={() => router.push('/(tabs)/health')} style={{ padding: '14px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center', cursor: 'pointer' } as any}>
+                <div style={{ width: 32, height: 32, borderRadius: 10, background: v.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px' } as any}>
+                  <i className={v.icon} style={{ fontSize: 16, color: v.color }} />
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{v.val}<span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>{v.unit}</span></div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{v.label}</div>
+              </div>
+            ))}
+          </div>
 
           {/* ── Activity + Sleep ── */}
-          <ActivitySleep br={br} sl={sl} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 } as any}>
+            <GC testId="activity-card" onClick={() => router.push('/(tabs)/health')}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-footprint-line" style={{ fontSize: 14, color: '#10B981' }} /></div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Activite</span>
+              </div>
+              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>{br.steps?.toLocaleString()}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 10 }}>pas aujourd'hui</div>
+              <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 8 } as any}><div style={{ height: 4, borderRadius: 2, width: `${Math.min(100, (br.steps / 8000) * 100)}%`, background: 'linear-gradient(90deg, #10B981, #22D3EE)', boxShadow: '0 0 8px rgba(16,185,129,0.4)' } as any} /></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' } as any}><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{br.calories} kcal</span><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{br.distance_km} km</span></div>
+            </GC>
+            <GC testId="sleep-card" onClick={() => router.push('/sleep' as any)}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-moon-line" style={{ fontSize: 14, color: '#A78BFA' }} /></div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Sommeil</span>
+              </div>
+              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>{sl.duration}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 10 } as any}><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Qualite</span><span style={{ fontSize: 12, fontWeight: 800, color: '#A78BFA' }}>{sl.quality}%</span></div>
+              <div style={{ display: 'flex', gap: 3, height: 6, borderRadius: 3, overflow: 'hidden' } as any}><div style={{ flex: 30, background: '#6D28D9', borderRadius: '3px 0 0 3px' } as any} /><div style={{ flex: 55, background: '#A78BFA' } as any} /><div style={{ flex: 15, background: '#C4B5FD', borderRadius: '0 3px 3px 0' } as any} /></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 } as any}>{[{ l: 'Prof.', c: '#6D28D9' }, { l: 'Leger', c: '#A78BFA' }, { l: 'REM', c: '#C4B5FD' }].map((s, i) => (<div key={i} style={{ display: 'flex', alignItems: 'center', gap: 3 } as any}><span style={{ width: 5, height: 5, borderRadius: '50%', background: s.c } as any} /><span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)' }}>{s.l}</span></div>))}</div>
+            </GC>
+          </div>
 
           {/* ── Programmes de prevention ── */}
           <div data-testid="programs-section" style={{ marginBottom: 16 } as any}>
