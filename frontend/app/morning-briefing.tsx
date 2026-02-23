@@ -22,16 +22,13 @@ export default function MorningBriefingScreen() {
       apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
     ]).then(([report, dash]) => {
       const d = report?.data || {};
-      const ai = report?.ai || {};
       const br = dash?.bracelet || {};
       const sc = dash?.scale || {};
 
-      // Build a medical briefing from real data
       const hr = br.heart_rate || d.heart_rate || 72;
       const spo2 = br.spo2 || d.spo2 || 97;
       const sys = br.blood_pressure?.systolic || d.blood_pressure?.systolic || 125;
       const dia = br.blood_pressure?.diastolic || d.blood_pressure?.diastolic || 78;
-      const temp = br.temperature || d.temperature || 36.6;
       const weight = sc.weight || d.weight || 72.4;
       const sleepQ = d.sleep_quality || 82;
       const sleepMin = d.sleep_duration_min || 443;
@@ -39,33 +36,46 @@ export default function MorningBriefingScreen() {
       const sleepM = sleepMin % 60;
       const stress = d.stress_level || 35;
       const score = report?.score || 96;
+      const recoCal = d.recommended_calories || 2050;
+      const recovery = d.recovery_score || 78;
 
-      // Personalized briefing text based on actual data
-      const lines = [`Bonjour ${name},`];
-      if (score >= 90) lines.push(`Score sante ${score}/100.`);
-      else if (score >= 70) lines.push(`Score sante ${score}/100, des points a surveiller.`);
-      else lines.push(`Score sante ${score}/100, attention requise.`);
+      // Personal, warm but medical text
+      let fullText = `Bonjour ${name},\n`;
+      if (score >= 90) {
+        fullText += `vous etes en pleine forme ce matin. `;
+        if (hr >= 55 && hr <= 75) fullText += `Votre frequence cardiaque de ${hr} bpm est excellente, `;
+        else fullText += `Frequence cardiaque a ${hr} bpm, `;
+        if (stress < 40) fullText += `un niveau de stress faible a ${stress}/100 et `;
+        else fullText += `stress modere a ${stress}/100, `;
+        fullText += `une saturation en oxygene optimale a ${spo2}%. `;
+        fullText += `Nuit de ${sleepH}h${String(sleepM).padStart(2,'0')} avec une qualite de ${sleepQ}%. `;
+        if (recovery > 75) fullText += `Recuperation solide.`;
+        else fullText += `Recuperation a consolider.`;
+      } else if (score >= 70) {
+        fullText += `votre etat general est correct avec quelques points d'attention. `;
+        fullText += `Frequence cardiaque ${hr} bpm, SpO2 ${spo2}%. `;
+        if (sys > 120) fullText += `Tension a ${sys}/${dia} mmHg, legerement elevee. `;
+        if (sleepQ < 80) fullText += `Qualite de sommeil a ameliorer (${sleepQ}%). `;
+        if (stress > 50) fullText += `Stress modere a ${stress}/100.`;
+      } else {
+        fullText += `certains indicateurs necessitent votre attention. `;
+        fullText += `FC ${hr} bpm, tension ${sys}/${dia}, SpO2 ${spo2}%. `;
+        if (sleepQ < 70) fullText += `Sommeil insuffisant (${sleepQ}%). `;
+        fullText += `Consultez votre medecin si ces valeurs persistent.`;
+      }
 
-      if (sys > 130) lines.push(`Tension ${sys}/${dia} mmHg : elevee, consultez si persistant.`);
-      else if (sys > 120) lines.push(`Tension ${sys}/${dia} mmHg : legerement au-dessus de la normale.`);
+      fullText += `\n\nVoici vos objectifs pour aujourd'hui :`;
 
-      if (sleepQ < 70) lines.push(`Sommeil ${sleepH}h${String(sleepM).padStart(2,'0')} (qualite ${sleepQ}%) : insuffisant.`);
-      else if (sleepQ >= 85) lines.push(`Bonne nuit de ${sleepH}h${String(sleepM).padStart(2,'0')}, qualite ${sleepQ}%.`);
-
-      if (stress > 60) lines.push(`Niveau de stress eleve (${stress}/100).`);
-
-      const fullText = lines.join('\n');
-
-      // Objectives = what to DO today, no comparisons
+      // Objectives — actionable daily targets
       const targetSteps = score >= 90 ? 8000 : score >= 70 ? 6000 : 4000;
       const targetWater = weight > 80 ? '2L' : weight > 60 ? '1.5L' : '1.2L';
       const bedtime = sleepQ < 70 ? '22h00' : sleepQ < 85 ? '22h30' : '23h00';
 
       setObjectives([
-        { icon: 'ri-footprint-line', color: '#10B981', label: 'Activite', value: `${targetSteps.toLocaleString()} pas`, detail: 'Marche rapide 30 min ou equivalent' },
-        { icon: 'ri-drop-line', color: '#38BDF8', label: 'Hydratation', value: targetWater, detail: 'Repartir regulierement dans la journee' },
-        { icon: 'ri-moon-line', color: '#A78BFA', label: 'Sommeil', value: `Coucher avant ${bedtime}`, detail: 'Ecrans eteints 30 min avant' },
-        { icon: 'ri-heart-pulse-line', color: '#EF4444', label: 'Tension', value: 'Mesure ce matin', detail: `Dernier releve : ${sys}/${dia} mmHg` },
+        { icon: 'ri-restaurant-line', color: '#F59E0B', label: 'Apport calorique', value: `${recoCal} kcal`, detail: 'Repartis en 3 repas equilibres' },
+        { icon: 'ri-drop-line', color: '#38BDF8', label: 'Hydratation', value: targetWater, detail: 'A repartir regulierement' },
+        { icon: 'ri-footprint-line', color: '#10B981', label: 'Activite physique', value: `${targetSteps.toLocaleString()} pas`, detail: '30 min de marche ou equivalent' },
+        { icon: 'ri-moon-line', color: '#A78BFA', label: 'Coucher recommande', value: bedtime, detail: 'Ecrans eteints 30 min avant' },
       ]);
 
       // Typewriter
