@@ -73,7 +73,9 @@ Application de santé préventive "CARE WATCH" centrée sur des programmes guid�
 - [x] Badges et streak
 - [x] Simulation des jours (J1→J21)
 - [x] Chat IA avec glassmorphism
-- [x] Navbar redessinée (alertes retirées, IA au centre)
+- [x] Navbar glassmorphism pill-shaped (5 onglets, IA central avec glow)
+- [x] Alertes retirées navbar (accessible depuis dashboard)
+- [x] Appareils retirés navbar (cartes sur dashboard avec status + actions)
 - [x] Dashboard multi-rôles
 - [x] Backend programmes complet
 
