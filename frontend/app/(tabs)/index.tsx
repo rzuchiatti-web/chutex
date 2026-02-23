@@ -488,8 +488,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           </div>
 
 
-          {/* ── 1. ALERTES EN HAUT (si alertes actives) ── */}
-          {activeAlerts.length > 0 && <AlertBanner activeAlerts={activeAlerts} />}
+          {/* ── 1. ALERTES EN HAUT (toujours visible) ── */}
+          <AlertBanner activeAlerts={activeAlerts} />
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
