@@ -202,10 +202,10 @@ async def get_daily_feedback(user=Depends(get_current_user)):
     if api_key:
         try:
             from emergentintegrations.llm.chat import LlmChat, UserMessage
-            prompt = f"""Coach sommeil bienveillant. Donnees: {ctx}
-Genere un feedback quotidien en JSON: {{"message": "2-3 phrases personnalisees sur la nuit et l'etat du jour, en tutoyant", "mood_indicator": "good/neutral/warning", "tip": "1 conseil concret court"}}"""
+            prompt = f"""Medecin specialiste du sommeil. Donnees: {ctx}
+Genere un feedback quotidien en JSON: {{"message": "2-3 phrases medicalement pertinentes sur la qualite du sommeil et l'etat physiologique du jour, en vouvoyant le patient", "mood_indicator": "good/neutral/warning", "tip": "1 recommandation medicale concrete et courte"}}"""
             chat = LlmChat(api_key=api_key, session_id=f"fb-{uuid.uuid4().hex[:6]}",
-                           system_message="Coach sommeil. JSON uniquement.").with_model("openai", "gpt-4.1-mini")
+                           system_message="Medecin du sommeil. JSON uniquement. Pas d'emoji. Ton professionnel.").with_model("openai", "gpt-4.1-mini")
             import json
             r = (await chat.send_message(UserMessage(text=prompt))).strip()
             if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
@@ -392,15 +392,15 @@ async def program_checkin(data: dict, user=Depends(get_current_user)):
             program = await db.programs.find_one({"id": enrollment["program_id"]}, {"_id": 0})
             prompt = f"""L'utilisateur fait son check-in du jour {enrollment.get('current_day', 1)} du programme "{program.get('title', '')}".
 Humeur: {data.get('mood', 3)}/5. Note: {data.get('note', 'aucune')}. Taches completees: {data.get('tasks_done', [])}.
-Genere UNE phrase d'encouragement personnalisee et courte (max 20 mots). Tutoie l'utilisateur."""
+Genere UNE phrase factuelle et medicalement pertinente (max 20 mots). Vouvoyez le patient. Pas d'emoji. Pas d'encouragement excessif."""
             chat = LlmChat(api_key=api_key, session_id=f"fb-{uuid.uuid4().hex[:6]}",
-                           system_message="Coach bienveillant. 1 phrase courte.").with_model("openai", "gpt-4.1-mini")
+                           system_message="Medecin. 1 phrase courte, professionnelle. Pas d'emoji.").with_model("openai", "gpt-4.1-mini")
             feedback = (await chat.send_message(UserMessage(text=prompt))).strip()
         except Exception as e:
             print(f"Checkin AI error: {e}")
 
     if not feedback:
-        feedback = "Bravo pour ta regularite ! Continue comme ca."
+        feedback = "Votre regularite est un facteur cle pour l'efficacite du programme."
 
     return {"status": "created", "feedback": feedback}
 
@@ -457,10 +457,10 @@ async def get_completion_report(enrollment_id: str, user=Depends(get_current_use
             prompt = f"""L'utilisateur a termine le programme "{program.get('title', '')}".
 Stats: {completed_days}/{total_days} jours completes, humeur moyenne {avg_mood}/5 (debut {first_half_mood}/5 -> fin {second_half_mood}/5), meilleur streak {streak} jours.
 Notes des check-ins: {'; '.join(c.get('note', '') for c in checkins[-5:] if c.get('note'))}.
-Genere un bilan de fin de programme en JSON:
-{{"title": "titre celebratoire", "summary": "3-4 phrases de bilan personnalise avec les resultats concrets", "achievements": ["realisation 1", "realisation 2", "realisation 3"], "before_after": {{"mood": {{"before": {first_half_mood}, "after": {second_half_mood}}}, "regularity": {{"before": "debut", "after": "{completed_days} jours"}}}}, "next_steps": ["conseil 1 pour continuer", "conseil 2"], "celebration": "phrase de celebration motivante"}}"""
+Genere un bilan medical de fin de programme en JSON. Ton professionnel, pas d'emoji, vouvoyez le patient:
+{{"title": "titre sobre et factuel", "summary": "3-4 phrases de bilan medical objectif avec les resultats mesurables", "achievements": ["resultat 1", "resultat 2", "resultat 3"], "before_after": {{"mood": {{"before": {first_half_mood}, "after": {second_half_mood}}}, "regularity": {{"before": "debut", "after": "{completed_days} jours"}}}}, "next_steps": ["recommandation medicale 1", "recommandation 2"], "celebration": "phrase de conclusion professionnelle"}}"""
             chat = LlmChat(api_key=api_key, session_id=f"cr-{uuid.uuid4().hex[:6]}",
-                           system_message="Coach sante bienveillant. JSON uniquement.").with_model("openai", "gpt-4.1-mini")
+                           system_message="Medecin. JSON uniquement. Pas d'emoji. Ton medical professionnel.").with_model("openai", "gpt-4.1-mini")
             r = (await chat.send_message(UserMessage(text=prompt))).strip()
             if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
             if r.endswith("```"): r = r[:-3]
@@ -475,7 +475,7 @@ Genere un bilan de fin de programme en JSON:
             "achievements": ["Programme suivi avec regularite", f"Humeur moyenne de {avg_mood}/5", f"Streak de {streak} jours"],
             "before_after": {"mood": {"before": first_half_mood, "after": second_half_mood}, "regularity": {"before": "debut", "after": f"{completed_days} jours"}},
             "next_steps": ["Continue tes bonnes habitudes", "Lance un nouveau programme"],
-            "celebration": "Bravo, tu as fait un travail remarquable !",
+            "celebration": "Programme termine. Les habitudes acquises constituent une base solide pour votre sante.",
         }
 
     return {
@@ -572,11 +572,11 @@ async def get_weekly_report(user=Depends(get_current_user)):
     if api_key:
         try:
             from emergentintegrations.llm.chat import LlmChat, UserMessage
-            prompt = f"""Genere un bilan hebdomadaire de sante en JSON.
+            prompt = f"""Genere un bilan hebdomadaire de sante en JSON. Ton medical, professionnel, pas d'emoji. Vouvoyez.
 Donnees: {checkins_this} check-ins cette semaine (vs {checkins_last} la semaine derniere). Humeur moyenne: {avg_mood_this}/5 (vs {avg_mood_last}/5). {program_info} {health_info}
-JSON: {{"title": "titre court du bilan", "summary": "2-3 phrases de bilan personnalise", "wins": ["victoire 1", "victoire 2"], "improvements": ["point a ameliorer"], "next_week_goal": "objectif concret pour la semaine prochaine", "motivation": "phrase motivante courte"}}"""
+JSON: {{"title": "titre factuel du bilan", "summary": "2-3 phrases d'analyse medicale objective", "wins": ["point positif mesurable 1", "point positif 2"], "improvements": ["axe d'amelioration medical"], "next_week_goal": "objectif concret et mesurable pour la semaine prochaine", "motivation": "rappel professionnel sobre"}}"""
             chat = LlmChat(api_key=api_key, session_id=f"wr-{uuid.uuid4().hex[:6]}",
-                           system_message="Coach sante. JSON uniquement. Tutoie l'utilisateur.").with_model("openai", "gpt-4.1-mini")
+                           system_message="Medecin. JSON uniquement. Pas d'emoji. Vouvoyez.").with_model("openai", "gpt-4.1-mini")
             import json
             r = (await chat.send_message(UserMessage(text=prompt))).strip()
             if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
