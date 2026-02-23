@@ -725,47 +725,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── Alert banner ── */}
           <AlertBanner activeAlerts={activeAlerts} />
 
-          {/* ── Vitals row — 4 metrics ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 16 } as any}>
-            {[
-              { val: br.heart_rate, unit: '', label: 'BPM', icon: 'ri-heart-pulse-line', color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
-              { val: `${br.spo2}%`, unit: '', label: 'SpO2', icon: 'ri-drop-line', color: '#38BDF8', bg: 'rgba(56,189,248,0.12)' },
-              { val: `${br.blood_pressure?.systolic || 125}`, unit: `/${br.blood_pressure?.diastolic || 78}`, label: 'Tension', icon: 'ri-pulse-line', color: '#A78BFA', bg: 'rgba(167,139,250,0.12)' },
-              { val: `${br.temperature}`, unit: 'C', label: 'Temp.', icon: 'ri-temp-hot-line', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
-            ].map((v, i) => (
-              <div key={i} data-testid={`vital-${i}`} onClick={() => router.push('/(tabs)/health')} style={{ padding: '14px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center', cursor: 'pointer' } as any}>
-                <div style={{ width: 32, height: 32, borderRadius: 10, background: v.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px' } as any}>
-                  <i className={v.icon} style={{ fontSize: 16, color: v.color }} />
-                </div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{v.val}<span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>{v.unit}</span></div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{v.label}</div>
-              </div>
-            ))}
-          </div>
+          {/* ── Vitals ── */}
+          <VitalsRow br={br} />
 
           {/* ── Activity + Sleep ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 } as any}>
-            <GC testId="activity-card" onClick={() => router.push('/(tabs)/health')}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
-                <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-footprint-line" style={{ fontSize: 14, color: '#10B981' }} /></div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Activite</span>
-              </div>
-              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>{br.steps?.toLocaleString()}</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 10 }}>pas aujourd'hui</div>
-              <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 8 } as any}><div style={{ height: 4, borderRadius: 2, width: `${Math.min(100, (br.steps / 8000) * 100)}%`, background: 'linear-gradient(90deg, #10B981, #22D3EE)', boxShadow: '0 0 8px rgba(16,185,129,0.4)' } as any} /></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' } as any}><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{br.calories} kcal</span><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{br.distance_km} km</span></div>
-            </GC>
-            <GC testId="sleep-card" onClick={() => router.push('/sleep' as any)}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
-                <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-moon-line" style={{ fontSize: 14, color: '#A78BFA' }} /></div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Sommeil</span>
-              </div>
-              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>{sl.duration}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 10 } as any}><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Qualite</span><span style={{ fontSize: 12, fontWeight: 800, color: '#A78BFA' }}>{sl.quality}%</span></div>
-              <div style={{ display: 'flex', gap: 3, height: 6, borderRadius: 3, overflow: 'hidden' } as any}><div style={{ flex: 30, background: '#6D28D9', borderRadius: '3px 0 0 3px' } as any} /><div style={{ flex: 55, background: '#A78BFA' } as any} /><div style={{ flex: 15, background: '#C4B5FD', borderRadius: '0 3px 3px 0' } as any} /></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 } as any}>{[{ l: 'Prof.', c: '#6D28D9' }, { l: 'Leger', c: '#A78BFA' }, { l: 'REM', c: '#C4B5FD' }].map((s, i) => (<div key={i} style={{ display: 'flex', alignItems: 'center', gap: 3 } as any}><span style={{ width: 5, height: 5, borderRadius: '50%', background: s.c } as any} /><span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)' }}>{s.l}</span></div>))}</div>
-            </GC>
-          </div>
+          <ActivitySleep br={br} sl={sl} />
 
           {/* ── Programmes de prevention ── */}
           <div data-testid="programs-section" style={{ marginBottom: 16 } as any}>
