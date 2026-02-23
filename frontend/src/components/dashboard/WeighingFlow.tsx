@@ -19,12 +19,12 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
           <div style={{ textAlign: 'center' } as any}>
             <div style={{ width: 72, height: 72, borderRadius: 20, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.15))', border: '1px solid rgba(167,139,250,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}><i className="ri-scales-3-line" style={{ fontSize: 34, color: '#A78BFA' }} /></div>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{t('weighing_title')}</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 28 }}>{t('weighing_subtitle')} — composition corporelle complete</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 28 }}>{t('weighing_subtitle')}</div>
             {[
-              { icon: 'ri-layout-bottom-line', text: '{t('weighing_step1')}' },
-              { icon: 'ri-footprint-line', text: '{t('weighing_step2')}' },
-              { icon: 'ri-hand-heart-line', text: '{t('weighing_step3')}' },
-              { icon: 'ri-timer-line', text: '{t('weighing_step4')}' },
+              { icon: 'ri-layout-bottom-line', text: t('weighing_step1') },
+              { icon: 'ri-footprint-line', text: t('weighing_step2') },
+              { icon: 'ri-hand-heart-line', text: t('weighing_step3') },
+              { icon: 'ri-timer-line', text: t('weighing_step4') },
             ].map((s, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8, textAlign: 'left' } as any}>
                 <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(167,139,250,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={s.icon} style={{ fontSize: 18, color: '#A78BFA' }} /></div>
