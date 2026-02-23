@@ -219,12 +219,22 @@ export default function HealthScreen() {
           </>)}
 
           {ai.motivation && <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>{ai.motivation}</div>}
-        </div>
 
-        {/* Floating CTA */}
-        <div style={{ position: 'absolute', bottom: 80, left: 20, right: 20, zIndex: 8, pointerEvents: 'none' } as any}>
-          <div data-testid="new-weighing-cta" onClick={() => setWeighingStep(1)} style={{ pointerEvents: 'auto', padding: '16px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.12))', border: '1px solid rgba(167,139,250,0.3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' } as any}>
-            <i className="ri-scales-3-line" style={{ fontSize: 18, color: '#A78BFA' }} /><span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Nouvelle pesee</span>
+          {/* DEV: Day simulator */}
+          <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)', marginBottom: 14 } as any}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Simulateur</div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
+              {[1,2,3,4,5,6,7,8,14,21].map(day => (
+                <div key={day} onClick={() => {
+                  const fakePhase = day <= 7 ? { day, total: 7, progress_pct: Math.round((day/7)*100), message: day <= 2 ? 'Collecte des premieres donnees' : day <= 5 ? 'Correlation des donnees' : 'Finalisation du profil' } : null;
+                  if (day <= 7) {
+                    setReport((prev: any) => ({ ...prev, analysis_phase: fakePhase }));
+                  } else {
+                    setReport((prev: any) => ({ ...prev, analysis_phase: null, score: prev?.score || 96 }));
+                  }
+                }} style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>J{day}</div>
+              ))}
+            </div>
           </div>
         </div>
 
