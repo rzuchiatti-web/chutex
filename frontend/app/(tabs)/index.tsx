@@ -398,7 +398,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
                 {/* Language flag */}
                 <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, lineHeight: 1 } as any}>
-                  {lang === 'fr' ? '\u{1F1EB}\u{1F1F7}' : lang === 'en' ? '\u{1F1EC}\u{1F1E7}' : lang === 'es' ? '\u{1F1EA}\u{1F1F8}' : lang === 'de' ? '\u{1F1E9}\u{1F1EA}' : lang === 'it' ? '\u{1F1EE}\u{1F1F9}' : lang === 'pt' ? '\u{1F1F5}\u{1F1F9}' : lang === 'ar' ? '\u{1F1F8}\u{1F1E6}' : '\u{1F30D}'}
+                  {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
                 </div>
                 <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
                   <i className="ri-notification-3-line" style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)' }} />
