@@ -513,10 +513,31 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── 3. ACTIVITE + SOMMEIL ── */}
           <ActivitySleep br={br} sl={sl} />
 
-          {/* ── 4. COPILOT IA ── */}
+          {/* ── 4. PROGRAMME EN COURS (si actif, avant Nora) ── */}
+          {activeProgram?.active && (
+            <div data-testid="active-program-card" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: `1px solid ${activeProgram.program.color}25`, padding: '16px 18px', marginBottom: 16, cursor: 'pointer', transition: 'transform 0.2s' } as any}
+              onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: `${activeProgram.program.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className={activeProgram.program.icon} style={{ fontSize: 20, color: activeProgram.program.color }} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{activeProgram.program.title}</div>
+                  <div style={{ fontSize: 10, color: activeProgram.program.color, fontWeight: 600 }}>Jour {activeProgram.current_day}/{activeProgram.program.duration_days}</div>
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: activeProgram.program.color }}>{activeProgram.progress_pct}%</div>
+              </div>
+              <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                <div style={{ height: 4, borderRadius: 2, width: `${activeProgram.progress_pct}%`, background: activeProgram.program.color, transition: 'width 0.5s' } as any} />
+              </div>
+            </div>
+          )}
+
+          {/* ── 5. NORA IA ── */}
           <CopilotCard />
 
-          {/* ── 5. DISPOSITIFS ── */}
+          {/* ── 6. DISPOSITIFS ── */}
           <DeviceCards br={br} sc={sc} vs={vs} />
 
           {/* ── Programmes de prevention ── */}
