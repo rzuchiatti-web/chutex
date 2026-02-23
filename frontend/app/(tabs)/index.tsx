@@ -380,15 +380,22 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── NEW HEADER: AI Summary + Tabs + Lang ── */}
           <div data-testid="dashboard-header" style={{ marginBottom: 16, width: '100%', position: 'relative', zIndex: 50 } as any}>
-            {/* Top row: avatar, name, lang, notif */}
+            {/* Top row: avatar (click→profil), name+tabs, lang, notif */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div style={{ width: 46, height: 46, borderRadius: 14, background: 'linear-gradient(135deg, #0E7490, #22D3EE)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(34,211,238,0.4)', boxShadow: '0 4px 16px rgba(14,116,144,0.35)', flexShrink: 0 } as any}>
+                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 46, height: 46, borderRadius: 14, background: 'linear-gradient(135deg, #0E7490, #22D3EE)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(34,211,238,0.4)', boxShadow: '0 4px 16px rgba(14,116,144,0.35)', flexShrink: 0, cursor: 'pointer' } as any}>
                   {user.avatar_url ? <img src={user.avatar_url} style={{ width: 46, height: 46, borderRadius: 14, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
                 </div>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>{user.name}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(79,195,247,0.6)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>Mon espace sante</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 4 }}>{user.name}</div>
+                  <div data-testid="role-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', padding: 2, gap: 2 } as any}>
+                    <div data-testid="tab-beneficiary" onClick={() => handleTabSwitch('beneficiary')} style={{ padding: '5px 12px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease', background: activeTab === 'beneficiary' ? '#FFF' : 'transparent', boxShadow: activeTab === 'beneficiary' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: activeTab === 'beneficiary' ? '#111' : 'rgba(255,255,255,0.5)' }}>Beneficiaire</span>
+                    </div>
+                    <div data-testid="tab-guardian" onClick={() => handleTabSwitch('guardian')} style={{ padding: '5px 12px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease', background: activeTab === 'guardian' ? '#FFF' : 'transparent', boxShadow: activeTab === 'guardian' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: activeTab === 'guardian' ? '#111' : 'rgba(255,255,255,0.5)' }}>Gardien</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
@@ -400,24 +407,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   <i className="ri-notification-3-line" style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)' }} />
                   {(guardianRequests.length > 0 || activeAlerts.length > 0) && <div style={{ position: 'absolute', top: -3, right: -3, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(4,14,26,0.8)' } as any} />}
                 </div>
-              </div>
-            </div>
-
-            {/* Segmented Control: Beneficiaire / Gardien — pill style */}
-            <div data-testid="role-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', padding: 3, gap: 2 } as any}>
-              <div data-testid="tab-beneficiary" onClick={() => handleTabSwitch('beneficiary')} style={{
-                padding: '9px 18px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease',
-                background: activeTab === 'beneficiary' ? '#FFF' : 'transparent',
-                boxShadow: activeTab === 'beneficiary' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
-              } as any}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: activeTab === 'beneficiary' ? '#111' : 'rgba(255,255,255,0.5)' }}>Beneficiaire</span>
-              </div>
-              <div data-testid="tab-guardian" onClick={() => handleTabSwitch('guardian')} style={{
-                padding: '9px 18px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease',
-                background: activeTab === 'guardian' ? '#FFF' : 'transparent',
-                boxShadow: activeTab === 'guardian' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
-              } as any}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: activeTab === 'guardian' ? '#111' : 'rgba(255,255,255,0.5)' }}>Gardien</span>
               </div>
             </div>
           </div>
