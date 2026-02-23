@@ -801,57 +801,9 @@ export default function HealthScreen() {
           )}
 
           {/* ═══ PROGRAMME ACTIF / CATALOGUE ═══ */}
-          {healthProgData?.active ? (() => {
-            const pg = healthProgData.program;
-            const tt = healthProgData.today_tasks || {};
-            const phase = healthProgData.current_phase;
-            const cd = healthProgData.current_day;
-            const dur = pg?.duration_days || 21;
-            return (
-              <div data-testid="health-active-program" style={{ marginBottom: 14 } as any}>
-                {/* Header + navigation */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                    <div style={{ width: 38, height: 38, borderRadius: 12, background: `${pg.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={pg.icon} style={{ fontSize: 18, color: pg.color }} /></div>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{pg.title}</div>
-                      <div style={{ fontSize: 10, color: pg.color, fontWeight: 600 }}>{phase?.name || `Phase ${Math.ceil(cd / 7)}`}</div>
-                    </div>
-                  </div>
-                  {/* Day navigation for simulation */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 } as any}>
-                    <div onClick={() => setSimDay(Math.max(1, (simDay || cd) - 1))} style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} /></div>
-                    <div style={{ padding: '4px 10px', borderRadius: 8, background: `${pg.color}20`, border: `1px solid ${pg.color}30`, fontSize: 13, fontWeight: 900, color: pg.color, minWidth: 50, textAlign: 'center' } as any}>J{cd}</div>
-                    <div onClick={() => setSimDay(Math.min(dur, (simDay || cd) + 1))} style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} /></div>
-                  </div>
-                </div>
-                {/* Progress bar */}
-                <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 14 } as any}><div style={{ height: 6, borderRadius: 3, width: `${healthProgData.progress_pct}%`, background: `linear-gradient(90deg, ${pg.color}80, ${pg.color})`, transition: 'width 0.3s' } as any} /></div>
-                {/* Mission du jour */}
-                <div onClick={() => router.push('/programs' as any)} style={{ padding: '16px', borderRadius: 18, background: tt.is_bilan ? `${pg.color}12` : 'rgba(255,255,255,0.04)', border: `1px solid ${tt.is_bilan ? `${pg.color}25` : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', transition: 'transform 0.2s' } as any}
-                  onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-1px)'}
-                  onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
-                  {tt.is_bilan && <div style={{ display: 'inline-flex', padding: '3px 10px', borderRadius: 99, background: `${pg.color}20`, border: `1px solid ${pg.color}30`, fontSize: 9, fontWeight: 700, color: pg.color, textTransform: 'uppercase', marginBottom: 8 } as any}>Bilan</div>}
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Mission du jour{tt.duration ? ` · ${tt.duration}` : ''}</div>
-                  <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>{tt.focus}</div>
-                  {tt.mission && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, marginBottom: 10 }}>{tt.mission}</div>}
-                  {tt.explain && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5, fontStyle: 'italic', marginBottom: 10, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.02)' } as any}><i className="ri-lightbulb-line" style={{ marginRight: 4, color: pg.color }} />{tt.explain}</div>}
-                  {tt.tasks && (
-                    <div style={{ marginTop: 4 } as any}>
-                      {tt.tasks.map((t: string, i: number) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 5 } as any}>
-                          <div style={{ width: 18, height: 18, borderRadius: 5, border: `2px solid ${pg.color}30`, flexShrink: 0, marginTop: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any} />
-                          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>{t}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {/* Sim indicator */}
-                {simDay > 0 && <div style={{ textAlign: 'center', marginTop: 8, fontSize: 10, color: 'rgba(245,158,11,0.6)' } as any}><i className="ri-eye-line" style={{ marginRight: 4 }} />Mode simulation · <span onClick={() => setSimDay(0)} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Retour au jour reel</span></div>}
-              </div>
-            );
-          })() : healthProgCatalog.length > 0 ? (
+          {healthProgData?.active ? (
+            <ProgramDailyView token={token!} onStop={() => { setHealthProgData(null); }} />
+          ) : healthProgCatalog.length > 0 ? (
             <div style={{ marginBottom: 14 } as any}>
               <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Programmes de prevention</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Choisis un programme pour commencer ta transformation sante</div>
