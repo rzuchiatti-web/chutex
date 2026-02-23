@@ -126,19 +126,91 @@ export default function MorningBriefingScreen() {
         <div style={{ height: 30 } as any} />
       </div>
 
-      {/* Bottom CTA — always visible */}
+      {/* Bottom CTA — slide to unlock */}
       <div style={{ position: 'relative', zIndex: 10, padding: '8px 24px 28px', flexShrink: 0 } as any}>
         {done ? (
-          <div data-testid="briefing-continue" onClick={goToDashboard} onTouchEnd={goToDashboard} style={{
-            display: 'flex', alignItems: 'center', gap: 10, padding: '6px', borderRadius: 999,
-            background: 'rgba(255,255,255,0.14)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
+          <div data-testid="briefing-slide" style={{
+            position: 'relative', height: 56, borderRadius: 999, overflow: 'hidden',
+            background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255,255,255,0.15)',
             animation: 'fadeIn 0.5s ease',
           } as any}>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+            {/* Track fill */}
+            <div id="slide-fill" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '56px', background: 'rgba(255,255,255,0.06)', borderRadius: 999, transition: 'none' } as any} />
+            {/* Label */}
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' } as any}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.45)', userSelect: 'none' }}>Glisser pour continuer</span>
+            </div>
+            {/* Draggable thumb */}
+            <div id="slide-thumb" 
+              onMouseDown={(e: any) => {
+                const track = e.currentTarget.parentElement;
+                const fill = document.getElementById('slide-fill');
+                const thumb = e.currentTarget;
+                const trackRect = track.getBoundingClientRect();
+                const maxX = trackRect.width - 56;
+                const startX = e.clientX;
+                const onMove = (ev: any) => {
+                  const dx = Math.max(0, Math.min(maxX, ev.clientX - startX));
+                  thumb.style.transform = `translateX(${dx}px)`;
+                  if (fill) fill.style.width = `${56 + dx}px`;
+                  if (dx >= maxX * 0.85) {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                    thumb.style.transform = `translateX(${maxX}px)`;
+                    if (fill) fill.style.width = '100%';
+                    setTimeout(() => { window.location.href = '/'; }, 200);
+                  }
+                };
+                const onUp = () => {
+                  document.removeEventListener('mousemove', onMove);
+                  document.removeEventListener('mouseup', onUp);
+                  thumb.style.transition = 'transform 0.3s ease';
+                  thumb.style.transform = 'translateX(0)';
+                  if (fill) { fill.style.transition = 'width 0.3s ease'; fill.style.width = '56px'; }
+                  setTimeout(() => { thumb.style.transition = 'none'; if (fill) fill.style.transition = 'none'; }, 300);
+                };
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+              }}
+              onTouchStart={(e: any) => {
+                const track = e.currentTarget.parentElement;
+                const fill = document.getElementById('slide-fill');
+                const thumb = e.currentTarget;
+                const trackRect = track.getBoundingClientRect();
+                const maxX = trackRect.width - 56;
+                const startX = e.touches[0].clientX;
+                const onMove = (ev: any) => {
+                  const dx = Math.max(0, Math.min(maxX, ev.touches[0].clientX - startX));
+                  thumb.style.transform = `translateX(${dx}px)`;
+                  if (fill) fill.style.width = `${56 + dx}px`;
+                  if (dx >= maxX * 0.85) {
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onUp);
+                    thumb.style.transform = `translateX(${maxX}px)`;
+                    if (fill) fill.style.width = '100%';
+                    setTimeout(() => { window.location.href = '/'; }, 200);
+                  }
+                };
+                const onUp = () => {
+                  document.removeEventListener('touchmove', onMove);
+                  document.removeEventListener('touchend', onUp);
+                  thumb.style.transition = 'transform 0.3s ease';
+                  thumb.style.transform = 'translateX(0)';
+                  if (fill) { fill.style.transition = 'width 0.3s ease'; fill.style.width = '56px'; }
+                  setTimeout(() => { thumb.style.transition = 'none'; if (fill) fill.style.transition = 'none'; }, 300);
+                };
+                document.addEventListener('touchmove', onMove, { passive: true });
+                document.addEventListener('touchend', onUp);
+              }}
+              style={{
+                position: 'absolute', top: 4, left: 4, width: 48, height: 48, borderRadius: '50%',
+                background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'grab', zIndex: 2, boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                touchAction: 'none', userSelect: 'none',
+              } as any}>
               <i className="ri-arrow-right-s-line" style={{ fontSize: 24, color: '#111' }} />
             </div>
-            <span style={{ flex: 1, textAlign: 'center', fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.7)', paddingRight: 20, userSelect: 'none' }}>Continuer</span>
           </div>
         ) : (
           <div style={{ padding: '14px', textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.12)' } as any}>
