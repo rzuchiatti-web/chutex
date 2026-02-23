@@ -182,6 +182,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [inviteGuardMsg, setInviteGuardMsg] = useState('');
   const [inviteGuardLoading, setInviteGuardLoading] = useState(false);
   const [healthSummary, setHealthSummary] = useState<any>(null);
+  const [showMorningBriefing, setShowMorningBriefing] = useState(true);
+  const [briefingText, setBriefingText] = useState('');
+  const [briefingObjectives, setBriefingObjectives] = useState<string[]>([]);
+  const [briefingDone, setBriefingDone] = useState(false);
+  const [briefingStep, setBriefingStep] = useState(0);
   const [activeTab, setActiveTab] = useState<'beneficiary' | 'guardian'>('beneficiary');
   const [showGuardianActivation, setShowGuardianActivation] = useState(false);
   const [guardianActivationStep, setGuardianActivationStep] = useState(0);
