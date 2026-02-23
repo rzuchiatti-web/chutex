@@ -472,8 +472,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── SOS Button (top) ── */}
           <div data-testid="sos-button" onClick={handleSOS} style={{
             padding: '18px', borderRadius: 18, textAlign: 'center', cursor: 'pointer', marginBottom: 16,
-            background: 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(185,28,28,0.1))',
-            border: '1px solid rgba(239,68,68,0.25)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            background: 'rgba(239,68,68,0.12)',
+            border: '1px solid rgba(239,68,68,0.2)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
             boxShadow: '0 0 30px rgba(239,68,68,0.15), inset 0 1px 0 rgba(255,255,255,0.05)',
           } as any}>
             {sosLoading ? <div style={{ color: '#FFF', fontSize: 14 }}>Envoi en cours...</div> : (
