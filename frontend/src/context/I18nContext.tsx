@@ -1,99 +1,171 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const TRANSLATIONS: Record<string, Record<string, string>> = {
+const T: Record<string, Record<string, string>> = {
   FR: {
-    home: 'Accueil', health: 'Sante', alerts: 'Alertes', devices: 'Appareils', profile: 'Profil',
+    home: 'Accueil', health: 'Sante', alerts: 'Alertes', devices: 'Appareils', profile: 'Profil', programs: 'Programmes',
     hello: 'Bonjour', online: 'En ligne', sos: 'SOS', sos_sub: "Appuyez en cas d'urgence",
     heart_health: 'Sante cardiaque', blood_health: 'Sante du sang', sleep_health: 'Sante du sommeil', physical_health: 'Sante physique',
-    guardians: 'GARDIENS', connected: 'CONNECTE', disconnected: 'Deconnecte',
-    good_health: 'BONNE SANTE', attention: 'ATTENTION',
+    guardians: 'Gardiens', connected: 'Connecte', disconnected: 'Deconnecte',
+    good_health: 'Bonne sante', attention: 'Attention',
     reminders: 'Mes rappels', hydration: 'Hydratation', treatments: 'Traitements', alarms: 'Alarmes quotidiennes',
-    time_remaining: 'Prochain dans', add_reminder: 'AJOUTER UN RAPPEL', delete: 'Supprimer', cancel: 'Annuler', confirm: 'Confirmer',
-    manage_reminders: 'GERER MES RAPPELS', physical_activity: 'Activite physique', daily_goal: 'OBJECTIF JOURNALIER',
-    modify_profile: 'Modifier mon profil', security: 'Securite (mot de passe)', language: 'Langue',
+    time_remaining: 'Prochain dans', add_reminder: 'Ajouter un rappel', delete: 'Supprimer', cancel: 'Annuler', confirm: 'Confirmer',
+    manage_reminders: 'Gerer mes rappels', physical_activity: 'Activite physique', daily_goal: 'Objectif journalier',
+    modify_profile: 'Modifier mon profil', medical_record: 'Dossier medical', security: 'Securite (mot de passe)', language: 'Langue',
     notifications: 'Notifications', terms: "Conditions generales d'utilisation", support: 'Assistance', about: 'A propos',
-    logout: 'SE DECONNECTER', beneficiary: 'Beneficiaire', guardian: 'Gardien',
+    logout: 'Se deconnecter', beneficiary: 'Beneficiaire', guardian: 'Gardien',
     my_guardian_space: 'Mon espace gardien', my_beneficiary_space: 'Mon espace beneficiaire',
     active_alerts: 'Actives', resolved_alerts: 'Resolues', no_active_alert: 'Aucune alerte active', all_good: 'Tout va bien !',
-    thresholds: "Seuils d'alertes", low_threshold: 'Seuil bas', high_threshold: 'Seuil haut', modify_thresholds: 'MODIFIER LES SEUILS',
-    confirm_thresholds: 'CONFIRMER LES NOUVEAUX SEUILS', ai_analysis: 'Analyse IA',
+    thresholds: "Seuils d'alertes", low_threshold: 'Seuil bas', high_threshold: 'Seuil haut', modify_thresholds: 'Modifier les seuils',
+    confirm_thresholds: 'Confirmer les nouveaux seuils', ai_analysis: 'Analyse IA',
     login: 'Connexion', register: 'Inscription', connect: 'Se connecter', email_or_phone: 'Email ou telephone', password: 'Mot de passe',
     steps: 'Pas', kcal: 'kcal', km: 'km', bpm: 'bpm',
-    pulse: 'Pouls', spo2: 'SpO2 du sang', temperature: 'Temperature', sleep: 'Sommeil',
-    add_beneficiary: 'AJOUTER UN BENEFICIAIRE', information: 'INFORMATION',
-    intervention_required: 'INTERVENTION REQUISE', i_intervene: "J'INTERVIENS",
-    accept: 'ACCEPTER', reject: 'REFUSER', guardian_request: 'DEMANDE DE GARDIEN',
+    pulse: 'Pouls', spo2: 'SpO2', temperature: 'Temperature', sleep: 'Sommeil', activity: 'Activite',
+    add_beneficiary: 'Ajouter un beneficiaire', information: 'Information',
+    intervention_required: 'Intervention requise', i_intervene: "J'interviens",
+    accept: 'Accepter', reject: 'Refuser', guardian_request: 'Demande de gardien',
+    loading: 'Chargement en cours', save: 'Enregistrer', close: 'Fermer', back: 'Retour',
+    new_weighing: 'Nouvelle pesee', ecg: 'Realiser un ECG', sync: 'Synchroniser', remove_device: 'Supprimer l\'appareil',
+    bio_age: 'Age biologique', understand_body: 'Comprendre mon corps', daily_objectives: 'Objectifs journaliers',
+    no_data: 'Aucune donnee', see_more: 'Voir plus', today: 'Aujourd\'hui',
   },
   EN: {
-    home: 'Home', health: 'Health', alerts: 'Alerts', devices: 'Devices', profile: 'Profile',
+    home: 'Home', health: 'Health', alerts: 'Alerts', devices: 'Devices', profile: 'Profile', programs: 'Programs',
     hello: 'Hello', online: 'Online', sos: 'SOS', sos_sub: 'Press in case of emergency',
     heart_health: 'Heart health', blood_health: 'Blood health', sleep_health: 'Sleep health', physical_health: 'Physical health',
-    guardians: 'GUARDIANS', connected: 'CONNECTED', disconnected: 'Disconnected',
-    good_health: 'GOOD HEALTH', attention: 'WARNING',
+    guardians: 'Guardians', connected: 'Connected', disconnected: 'Disconnected',
+    good_health: 'Good health', attention: 'Warning',
     reminders: 'My reminders', hydration: 'Hydration', treatments: 'Treatments', alarms: 'Daily alarms',
-    time_remaining: 'Next in', add_reminder: 'ADD REMINDER', delete: 'Delete', cancel: 'Cancel', confirm: 'Confirm',
-    manage_reminders: 'MANAGE REMINDERS', physical_activity: 'Physical activity', daily_goal: 'DAILY GOAL',
-    modify_profile: 'Edit my profile', security: 'Security (password)', language: 'Language',
+    time_remaining: 'Next in', add_reminder: 'Add reminder', delete: 'Delete', cancel: 'Cancel', confirm: 'Confirm',
+    manage_reminders: 'Manage reminders', physical_activity: 'Physical activity', daily_goal: 'Daily goal',
+    modify_profile: 'Edit my profile', medical_record: 'Medical record', security: 'Security (password)', language: 'Language',
     notifications: 'Notifications', terms: 'Terms of use', support: 'Support', about: 'About',
-    logout: 'SIGN OUT', beneficiary: 'Beneficiary', guardian: 'Guardian',
+    logout: 'Sign out', beneficiary: 'Beneficiary', guardian: 'Guardian',
     my_guardian_space: 'My guardian space', my_beneficiary_space: 'My beneficiary space',
     active_alerts: 'Active', resolved_alerts: 'Resolved', no_active_alert: 'No active alert', all_good: 'All good!',
-    thresholds: 'Alert thresholds', low_threshold: 'Low', high_threshold: 'High', modify_thresholds: 'MODIFY THRESHOLDS',
-    confirm_thresholds: 'CONFIRM NEW THRESHOLDS', ai_analysis: 'AI Analysis',
+    thresholds: 'Alert thresholds', low_threshold: 'Low', high_threshold: 'High', modify_thresholds: 'Modify thresholds',
+    confirm_thresholds: 'Confirm new thresholds', ai_analysis: 'AI Analysis',
     login: 'Login', register: 'Register', connect: 'Sign in', email_or_phone: 'Email or phone', password: 'Password',
     steps: 'Steps', kcal: 'kcal', km: 'km', bpm: 'bpm',
-    pulse: 'Heart rate', spo2: 'Blood SpO2', temperature: 'Temperature', sleep: 'Sleep',
-    add_beneficiary: 'ADD BENEFICIARY', information: 'INFORMATION',
-    intervention_required: 'INTERVENTION REQUIRED', i_intervene: 'I INTERVENE',
-    accept: 'ACCEPT', reject: 'REJECT', guardian_request: 'GUARDIAN REQUEST',
+    pulse: 'Heart rate', spo2: 'SpO2', temperature: 'Temperature', sleep: 'Sleep', activity: 'Activity',
+    add_beneficiary: 'Add beneficiary', information: 'Information',
+    intervention_required: 'Intervention required', i_intervene: 'I intervene',
+    accept: 'Accept', reject: 'Reject', guardian_request: 'Guardian request',
+    loading: 'Loading', save: 'Save', close: 'Close', back: 'Back',
+    new_weighing: 'New weighing', ecg: 'Perform ECG', sync: 'Synchronize', remove_device: 'Remove device',
+    bio_age: 'Biological age', understand_body: 'Understand my body', daily_objectives: 'Daily objectives',
+    no_data: 'No data', see_more: 'See more', today: 'Today',
   },
   DE: {
-    home: 'Startseite', health: 'Gesundheit', alerts: 'Alarme', devices: 'Gerate', profile: 'Profil',
+    home: 'Startseite', health: 'Gesundheit', alerts: 'Alarme', devices: 'Gerate', profile: 'Profil', programs: 'Programme',
     hello: 'Hallo', online: 'Online', sos: 'SOS', sos_sub: 'Bei Notfall drucken',
     heart_health: 'Herzgesundheit', blood_health: 'Blutgesundheit', sleep_health: 'Schlafgesundheit', physical_health: 'Korperliche Gesundheit',
-    guardians: 'BETREUER', good_health: 'GUTE GESUNDHEIT', attention: 'ACHTUNG',
+    guardians: 'Betreuer', connected: 'Verbunden', disconnected: 'Getrennt',
+    good_health: 'Gute Gesundheit', attention: 'Achtung',
     reminders: 'Erinnerungen', hydration: 'Hydratation', treatments: 'Behandlungen', alarms: 'Tagliche Alarme',
-    manage_reminders: 'ERINNERUNGEN VERWALTEN', physical_activity: 'Korperliche Aktivitat',
-    logout: 'ABMELDEN', beneficiary: 'Begunstiger', guardian: 'Betreuer',
-    login: 'Anmelden', register: 'Registrieren', connect: 'Einloggen',
-    pulse: 'Puls', temperature: 'Temperatur', sleep: 'Schlaf',
+    time_remaining: 'Nachste in', add_reminder: 'Erinnerung hinzufugen', delete: 'Loschen', cancel: 'Abbrechen', confirm: 'Bestatigen',
+    manage_reminders: 'Erinnerungen verwalten', physical_activity: 'Korperliche Aktivitat', daily_goal: 'Tagesziel',
+    modify_profile: 'Profil bearbeiten', medical_record: 'Krankenakte', security: 'Sicherheit (Passwort)', language: 'Sprache',
+    notifications: 'Benachrichtigungen', terms: 'Nutzungsbedingungen', support: 'Hilfe', about: 'Uber uns',
+    logout: 'Abmelden', beneficiary: 'Begunstiger', guardian: 'Betreuer',
+    my_guardian_space: 'Mein Betreuerbereich', my_beneficiary_space: 'Mein Begunstigterbereich',
+    active_alerts: 'Aktiv', resolved_alerts: 'Gelost', no_active_alert: 'Kein aktiver Alarm', all_good: 'Alles in Ordnung!',
+    login: 'Anmelden', register: 'Registrieren', connect: 'Einloggen', email_or_phone: 'Email oder Telefon', password: 'Passwort',
+    steps: 'Schritte', pulse: 'Puls', temperature: 'Temperatur', sleep: 'Schlaf', activity: 'Aktivitat',
+    add_beneficiary: 'Begunstiger hinzufugen', accept: 'Akzeptieren', reject: 'Ablehnen',
+    loading: 'Laden', save: 'Speichern', close: 'Schliessen', back: 'Zuruck',
+    new_weighing: 'Neue Wiegung', ecg: 'EKG durchfuhren', sync: 'Synchronisieren', remove_device: 'Gerat entfernen',
+    bio_age: 'Biologisches Alter', understand_body: 'Meinen Korper verstehen', daily_objectives: 'Tagesziele',
   },
   ES: {
-    home: 'Inicio', health: 'Salud', alerts: 'Alertas', devices: 'Dispositivos', profile: 'Perfil',
+    home: 'Inicio', health: 'Salud', alerts: 'Alertas', devices: 'Dispositivos', profile: 'Perfil', programs: 'Programas',
     hello: 'Hola', online: 'En linea', sos: 'SOS', sos_sub: 'Pulse en caso de emergencia',
     heart_health: 'Salud cardiaca', blood_health: 'Salud sanguinea', sleep_health: 'Salud del sueno', physical_health: 'Salud fisica',
-    guardians: 'GUARDIANES', good_health: 'BUENA SALUD', attention: 'ATENCION',
+    guardians: 'Guardianes', connected: 'Conectado', disconnected: 'Desconectado',
+    good_health: 'Buena salud', attention: 'Atencion',
     reminders: 'Recordatorios', hydration: 'Hidratacion', treatments: 'Tratamientos', alarms: 'Alarmas diarias',
-    manage_reminders: 'GESTIONAR RECORDATORIOS', physical_activity: 'Actividad fisica',
-    logout: 'CERRAR SESION', beneficiary: 'Beneficiario', guardian: 'Guardian',
-    login: 'Iniciar sesion', register: 'Registro', connect: 'Conectar',
-    pulse: 'Pulso', temperature: 'Temperatura', sleep: 'Sueno',
+    time_remaining: 'Siguiente en', add_reminder: 'Anadir recordatorio', delete: 'Eliminar', cancel: 'Cancelar', confirm: 'Confirmar',
+    manage_reminders: 'Gestionar recordatorios', physical_activity: 'Actividad fisica', daily_goal: 'Objetivo diario',
+    modify_profile: 'Editar mi perfil', medical_record: 'Historial medico', security: 'Seguridad (contrasena)', language: 'Idioma',
+    notifications: 'Notificaciones', terms: 'Terminos de uso', support: 'Soporte', about: 'Acerca de',
+    logout: 'Cerrar sesion', beneficiary: 'Beneficiario', guardian: 'Guardian',
+    my_guardian_space: 'Mi espacio guardian', my_beneficiary_space: 'Mi espacio beneficiario',
+    active_alerts: 'Activas', resolved_alerts: 'Resueltas', no_active_alert: 'Sin alerta activa', all_good: 'Todo bien!',
+    login: 'Iniciar sesion', register: 'Registro', connect: 'Conectar', email_or_phone: 'Email o telefono', password: 'Contrasena',
+    steps: 'Pasos', pulse: 'Pulso', temperature: 'Temperatura', sleep: 'Sueno', activity: 'Actividad',
+    add_beneficiary: 'Anadir beneficiario', accept: 'Aceptar', reject: 'Rechazar',
+    loading: 'Cargando', save: 'Guardar', close: 'Cerrar', back: 'Volver',
+    new_weighing: 'Nuevo pesaje', ecg: 'Realizar ECG', sync: 'Sincronizar', remove_device: 'Eliminar dispositivo',
+    bio_age: 'Edad biologica', understand_body: 'Entender mi cuerpo', daily_objectives: 'Objetivos diarios',
   },
   IT: {
-    home: 'Home', health: 'Salute', alerts: 'Avvisi', devices: 'Dispositivi', profile: 'Profilo',
+    home: 'Home', health: 'Salute', alerts: 'Avvisi', devices: 'Dispositivi', profile: 'Profilo', programs: 'Programmi',
     hello: 'Ciao', online: 'Online', sos: 'SOS', sos_sub: "Premere in caso d'emergenza",
     heart_health: 'Salute cardiaca', blood_health: 'Salute del sangue', sleep_health: 'Salute del sonno', physical_health: 'Salute fisica',
-    guardians: 'TUTORI', good_health: 'BUONA SALUTE', attention: 'ATTENZIONE',
+    guardians: 'Tutori', connected: 'Connesso', disconnected: 'Disconnesso',
+    good_health: 'Buona salute', attention: 'Attenzione',
     reminders: 'Promemoria', hydration: 'Idratazione', treatments: 'Trattamenti', alarms: 'Allarmi giornalieri',
-    manage_reminders: 'GESTISCI PROMEMORIA', physical_activity: 'Attivita fisica',
-    logout: 'DISCONNETTI', beneficiary: 'Beneficiario', guardian: 'Tutore',
-    login: 'Accesso', register: 'Registrazione', connect: 'Accedi',
-    pulse: 'Polso', temperature: 'Temperatura', sleep: 'Sonno',
+    time_remaining: 'Prossimo tra', add_reminder: 'Aggiungi promemoria', delete: 'Elimina', cancel: 'Annulla', confirm: 'Conferma',
+    manage_reminders: 'Gestisci promemoria', physical_activity: 'Attivita fisica', daily_goal: 'Obiettivo giornaliero',
+    modify_profile: 'Modifica profilo', medical_record: 'Cartella clinica', security: 'Sicurezza (password)', language: 'Lingua',
+    notifications: 'Notifiche', terms: 'Termini di utilizzo', support: 'Assistenza', about: 'Informazioni',
+    logout: 'Disconnetti', beneficiary: 'Beneficiario', guardian: 'Tutore',
+    my_guardian_space: 'Il mio spazio tutore', my_beneficiary_space: 'Il mio spazio beneficiario',
+    active_alerts: 'Attivi', resolved_alerts: 'Risolti', no_active_alert: 'Nessun avviso attivo', all_good: 'Tutto bene!',
+    login: 'Accesso', register: 'Registrazione', connect: 'Accedi', email_or_phone: 'Email o telefono', password: 'Password',
+    steps: 'Passi', pulse: 'Polso', temperature: 'Temperatura', sleep: 'Sonno', activity: 'Attivita',
+    add_beneficiary: 'Aggiungi beneficiario', accept: 'Accetta', reject: 'Rifiuta',
+    loading: 'Caricamento', save: 'Salva', close: 'Chiudi', back: 'Indietro',
+    new_weighing: 'Nuova pesata', ecg: 'Eseguire ECG', sync: 'Sincronizzare', remove_device: 'Rimuovi dispositivo',
+    bio_age: 'Eta biologica', understand_body: 'Capire il mio corpo', daily_objectives: 'Obiettivi giornalieri',
+  },
+  PT: {
+    home: 'Inicio', health: 'Saude', alerts: 'Alertas', devices: 'Dispositivos', profile: 'Perfil', programs: 'Programas',
+    hello: 'Ola', online: 'Online', sos: 'SOS', sos_sub: 'Pressione em caso de emergencia',
+    heart_health: 'Saude cardiaca', blood_health: 'Saude do sangue', sleep_health: 'Saude do sono', physical_health: 'Saude fisica',
+    guardians: 'Guardioes', connected: 'Conectado', disconnected: 'Desconectado',
+    good_health: 'Boa saude', attention: 'Atencao',
+    reminders: 'Lembretes', hydration: 'Hidratacao', treatments: 'Tratamentos', alarms: 'Alarmes diarios',
+    time_remaining: 'Proximo em', add_reminder: 'Adicionar lembrete', delete: 'Excluir', cancel: 'Cancelar', confirm: 'Confirmar',
+    manage_reminders: 'Gerenciar lembretes', physical_activity: 'Atividade fisica', daily_goal: 'Objetivo diario',
+    modify_profile: 'Editar meu perfil', medical_record: 'Prontuario medico', security: 'Seguranca (senha)', language: 'Idioma',
+    notifications: 'Notificacoes', terms: 'Termos de uso', support: 'Suporte', about: 'Sobre',
+    logout: 'Sair', beneficiary: 'Beneficiario', guardian: 'Guardiao',
+    my_guardian_space: 'Meu espaco guardiao', my_beneficiary_space: 'Meu espaco beneficiario',
+    active_alerts: 'Ativas', resolved_alerts: 'Resolvidas', no_active_alert: 'Nenhum alerta ativo', all_good: 'Tudo bem!',
+    login: 'Entrar', register: 'Cadastrar', connect: 'Conectar', email_or_phone: 'Email ou telefone', password: 'Senha',
+    steps: 'Passos', pulse: 'Pulso', temperature: 'Temperatura', sleep: 'Sono', activity: 'Atividade',
+    add_beneficiary: 'Adicionar beneficiario', accept: 'Aceitar', reject: 'Recusar',
+    loading: 'Carregando', save: 'Salvar', close: 'Fechar', back: 'Voltar',
+    new_weighing: 'Nova pesagem', ecg: 'Realizar ECG', sync: 'Sincronizar', remove_device: 'Remover dispositivo',
+    bio_age: 'Idade biologica', understand_body: 'Entender meu corpo', daily_objectives: 'Objetivos diarios',
+  },
+  NL: {
+    home: 'Home', health: 'Gezondheid', alerts: 'Waarschuwingen', devices: 'Apparaten', profile: 'Profiel', programs: 'Programma\'s',
+    hello: 'Hallo', online: 'Online', sos: 'SOS', sos_sub: 'Druk in geval van nood',
+    heart_health: 'Hartgezondheid', blood_health: 'Bloedgezondheid', sleep_health: 'Slaapgezondheid', physical_health: 'Lichamelijke gezondheid',
+    guardians: 'Begeleiders', connected: 'Verbonden', disconnected: 'Niet verbonden',
+    good_health: 'Goede gezondheid', attention: 'Let op',
+    reminders: 'Herinneringen', hydration: 'Hydratatie', treatments: 'Behandelingen', alarms: 'Dagelijkse alarmen',
+    time_remaining: 'Volgende over', add_reminder: 'Herinnering toevoegen', delete: 'Verwijderen', cancel: 'Annuleren', confirm: 'Bevestigen',
+    manage_reminders: 'Herinneringen beheren', physical_activity: 'Lichaamsbeweging', daily_goal: 'Dagelijks doel',
+    modify_profile: 'Profiel bewerken', medical_record: 'Medisch dossier', security: 'Beveiliging (wachtwoord)', language: 'Taal',
+    notifications: 'Meldingen', terms: 'Gebruiksvoorwaarden', support: 'Ondersteuning', about: 'Over',
+    logout: 'Uitloggen', beneficiary: 'Begunstigde', guardian: 'Begeleider',
+    my_guardian_space: 'Mijn begeleidersruimte', my_beneficiary_space: 'Mijn begunstigderuimte',
+    active_alerts: 'Actief', resolved_alerts: 'Opgelost', no_active_alert: 'Geen actieve waarschuwing', all_good: 'Alles goed!',
+    login: 'Inloggen', register: 'Registreren', connect: 'Aanmelden', email_or_phone: 'Email of telefoon', password: 'Wachtwoord',
+    steps: 'Stappen', pulse: 'Hartslag', temperature: 'Temperatuur', sleep: 'Slaap', activity: 'Activiteit',
+    add_beneficiary: 'Begunstigde toevoegen', accept: 'Accepteren', reject: 'Weigeren',
+    loading: 'Laden', save: 'Opslaan', close: 'Sluiten', back: 'Terug',
+    new_weighing: 'Nieuwe weging', ecg: 'ECG uitvoeren', sync: 'Synchroniseren', remove_device: 'Apparaat verwijderen',
+    bio_age: 'Biologische leeftijd', understand_body: 'Mijn lichaam begrijpen', daily_objectives: 'Dagelijkse doelen',
   },
 };
 
-interface I18nContextType {
-  lang: string;
-  setLang: (l: string) => void;
-  t: (key: string) => string;
-  flags: { code: string; color: string }[];
-}
+interface I18nContextType { lang: string; setLang: (l: string) => void; t: (key: string) => string; flags: { code: string; color: string }[]; }
 
-const I18nContext = createContext<I18nContextType>({
-  lang: 'FR', setLang: () => {}, t: (k) => k,
-  flags: [],
-});
+const I18nContext = createContext<I18nContextType>({ lang: 'FR', setLang: () => {}, t: (k) => k, flags: [] });
 
 export const useI18n = () => useContext(I18nContext);
 
@@ -103,23 +175,15 @@ const FLAGS = [
   { code: 'DE', color: '#000000' },
   { code: 'ES', color: '#AA151B' },
   { code: 'IT', color: '#009246' },
+  { code: 'PT', color: '#006600' },
+  { code: 'NL', color: '#FF6600' },
 ];
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
   const [lang, setLangState] = useState('FR');
-
-  useEffect(() => {
-    AsyncStorage.getItem('chutex_lang').then(l => { if (l && TRANSLATIONS[l]) setLangState(l); }).catch(() => {});
-  }, []);
-
-  const setLang = (l: string) => {
-    setLangState(l);
-    AsyncStorage.setItem('chutex_lang', l).catch(() => {});
-  };
-
-  const t = (key: string) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS['FR']?.[key] || key;
-
+  useEffect(() => { AsyncStorage.getItem('chutex_lang').then(l => { if (l && T[l]) setLangState(l); }).catch(() => {}); }, []);
+  const setLang = (l: string) => { setLangState(l); AsyncStorage.setItem('chutex_lang', l).catch(() => {}); };
+  const t = (key: string) => T[lang]?.[key] || T['FR']?.[key] || key;
   const value = useMemo(() => ({ lang, setLang, t, flags: FLAGS }), [lang]);
-
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 };
