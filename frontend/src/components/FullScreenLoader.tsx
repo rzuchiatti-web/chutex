@@ -1,5 +1,6 @@
 import React from 'react';
 import { Platform } from 'react-native';
+import { useI18n } from '../context/I18nContext';
 
 export default function FullScreenLoader() {
   if (Platform.OS !== 'web') {
