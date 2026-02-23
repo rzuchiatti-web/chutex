@@ -373,21 +373,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     if (!showMorningBriefing || briefingStarted.current) return;
     briefingStarted.current = true;
     const name = user?.name?.split(' ')[0] || '';
-    const summary = healthSummary?.summary || 'Votre etat de sante general est stable.';
-    const reco = healthSummary?.recommendation || 'Maintenez vos habitudes actuelles.';
-    const fullText = `Bonjour ${name},\n${summary} ${reco}`;
-    const objectives = [
-      `Activite : atteindre ${Math.round(5000 + Math.random() * 3000)} pas aujourd'hui`,
-      `Hydratation : boire au moins 1.5L d'eau`,
-      `Sommeil : coucher avant 23h pour optimiser la recuperation`,
-      `Tension : surveiller la pression arterielle ce matin`,
-    ];
-    setBriefingObjectives(objectives);
+    const fullText = `Bonjour ${name},\nVotre etat de sante general est stable. Maintenez vos habitudes actuelles.`;
     let i = 0;
     const iv = setInterval(() => {
       if (i <= fullText.length) { setBriefingText(fullText.slice(0, i)); i++; }
-      else { clearInterval(iv); setBriefingStep(1); setTimeout(() => setBriefingStep(2), 600); setTimeout(() => setBriefingStep(3), 1200); setTimeout(() => { setBriefingStep(4); setBriefingDone(true); }, 1800); }
-    }, 25);
+      else { clearInterval(iv); setTimeout(() => setBriefingStep(1), 200); setTimeout(() => setBriefingStep(2), 800); setTimeout(() => setBriefingStep(3), 1400); setTimeout(() => { setBriefingStep(4); setBriefingDone(true); }, 2000); }
+    }, 30);
     return () => clearInterval(iv);
   }, [showMorningBriefing]);
 
