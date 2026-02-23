@@ -85,6 +85,18 @@ async def remove_device(device_id: str, user=Depends(get_current_user)):
     return {"status": "removed"}
 
 
+@router.post("/devices/remove-by-type")
+async def remove_device_by_type(data: dict, user=Depends(get_current_user)):
+    uid = user["id"]
+    device_type = data.get("device_type", "")
+    await db.devices.update_many({"user_id": uid, "device_type": device_type}, {"$set": {"connected": False, "battery": 0, "removed": True}})
+    field_map = {"bracelet": "bracelet", "vest": "vest", "scale": "scale"}
+    field = field_map.get(device_type)
+    if field:
+        await db.dashboard_summary.update_one({"user_id": uid}, {"$set": {f"{field}.connected": False, f"{field}.battery": 0}}, upsert=True)
+    return {"status": "removed"}
+
+
 
 @router.get("/devices/latest")
 async def get_latest_readings(user=Depends(get_current_user)):
