@@ -79,7 +79,10 @@ async def get_me(user=Depends(get_current_user)):
 @router.put("/auth/update-profile")
 async def update_profile(data: dict, user=Depends(get_current_user)):
     update = {}
-    for key in ['name', 'phone', 'address', 'date_of_birth', 'gender', 'avatar_url']:
+    for key in ['name', 'phone', 'address', 'date_of_birth', 'gender', 'avatar_url', 'email',
+                'height_cm', 'weight_kg', 'blood_type', 'allergies', 'medical_conditions',
+                'emergency_contact_name', 'emergency_contact_phone', 'doctor_name',
+                'pacemaker', 'stents', 'thyroid', 'other_condition', 'surgeries']:
         if key in data and data[key]:
             update[key] = data[key]
     # Handle boolean fields - never delete data, just toggle status
