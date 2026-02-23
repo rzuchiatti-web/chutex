@@ -1500,7 +1500,7 @@ function GuardianHome({ token, user }: { token: string; user: any }) {
           ))}
           {/* Beneficiary cards — enrichies */}
           {bens.map((b: any) => (
-            <div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(0,0,0,0.08)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+            <div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
               {/* Header de la carte */}
               <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
                 <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{b.name?.charAt(0)}</span></div>
