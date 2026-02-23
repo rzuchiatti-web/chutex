@@ -278,13 +278,6 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
             <ProfileMenuItem testID="edit-profile-btn" icon="ri-user-settings-line" label={t('modify_profile')} onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
             {effectiveRole === 'beneficiary' && <ProfileMenuItem icon="ri-heart-pulse-line" label="Dossier medical" onPress={() => { setMedForm({ blood_type: user.blood_type || '', conditions: user.medical_conditions ? user.medical_conditions.split(', ') : [], allergies: user.allergies ? user.allergies.split(', ') : [], pacemaker: user.pacemaker || '', stents: user.stents || '', thyroid: user.thyroid || '', other_condition: '', surgeries: Array.isArray(user.surgeries) ? user.surgeries : [] }); setShowMedical(true); setMedSaved(false); }} />}
             <ProfileMenuItem icon="ri-lock-line" label={t('security')} onPress={() => setShowPwChange(true)} />
-            {effectiveRole !== 'prescriber_company' && effectiveRole !== 'admin' && effectiveRole !== 'teleassistance' && (
-              <ProfileMenuItem testID="switch-role-btn" icon="ri-swap-line" label={otherRole === 'gardien' ? t('my_guardian_space') : t('my_beneficiary_space')} onPress={async () => {
-                if (hasOther) {
-                  try { await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: otherRole === 'gardien' ? 'guardian' : 'beneficiary' }) }, token); await refreshUser(); } catch (e: any) { Alert.alert('Erreur', e.message); }
-                } else { router.push(otherRole === 'gardien' ? '/activate-guardian' : '/activate-beneficiary' as any); }
-              }} />
-            )}
             <ProfileMenuItem icon="ri-translate-2" label={`${t('language')} (${lang})`} onPress={() => setShowLangPicker(true)} />
             <ProfileMenuItem testID="notif-prefs-btn" icon="ri-notification-3-line" label="Notifications" onPress={() => { setShowNotifPrefs(true); fetchNotifPrefs(); }} />
             <ProfileMenuItem icon="ri-fingerprint-line" label="Face ID / Biometrie" onPress={() => setShowFaceId(true)} />
