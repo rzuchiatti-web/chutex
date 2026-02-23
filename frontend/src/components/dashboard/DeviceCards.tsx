@@ -22,10 +22,10 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
 
   const lastSync = (ts: string) => ts ? new Date(ts).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '--';
 
-  const removeDevice = async (deviceId: string) => {
+  const removeDevice = async (deviceType: string) => {
     setRemoving(true);
     try {
-      await apiFetch(`/api/devices/${deviceId}/remove`, { method: 'DELETE' }, token);
+      await apiFetch('/api/devices/remove-by-type', { method: 'POST', body: JSON.stringify({ device_type: deviceType }) }, token);
       setSelected(null);
       onRefresh?.();
     } catch {} finally { setRemoving(false); }
@@ -99,7 +99,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
                   <div onClick={() => { setSelected(null); router.push('/bracelet-connect' as any); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(34,211,238,0.1)', border: '1px solid rgba(34,211,238,0.2)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#22D3EE' } as any}><i className="ri-refresh-line" style={{ marginRight: 6 }} />Synchroniser</div>
                   <div onClick={() => { setSelected(null); router.push('/ecg' as any); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#F97316' } as any}><i className="ri-pulse-line" style={{ marginRight: 6 }} />ECG</div>
                 </div>
-                <div onClick={() => removeDevice(br.device_id || 'bracelet-elio')} style={{ padding: '12px', borderRadius: 999, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'rgba(239,68,68,0.5)' } as any}>{removing ? 'Suppression...' : 'Supprimer l\'appareil'}</div>
+                <div onClick={() => removeDevice('bracelet')} style={{ padding: '12px', borderRadius: 999, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'rgba(239,68,68,0.5)' } as any}>{removing ? 'Suppression...' : 'Supprimer l\'appareil'}</div>
               </>
             ) : (
               <div onClick={() => { setSelected(null); router.push('/bracelet-connect' as any); }} style={{ padding: '14px', borderRadius: 999, background: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#111' } as any}><i className="ri-bluetooth-connect-line" style={{ marginRight: 6 }} />Rechercher et associer</div>
@@ -128,7 +128,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
               <BatteryBar pct={vs.battery} />
             </div>
             {vs.connected ? (
-              <div onClick={() => removeDevice(vs.device_id || 'vest-elder')} style={{ padding: '12px', borderRadius: 999, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'rgba(239,68,68,0.5)' } as any}>{removing ? 'Suppression...' : 'Supprimer l\'appareil'}</div>
+              <div onClick={() => removeDevice('vest')} style={{ padding: '12px', borderRadius: 999, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'rgba(239,68,68,0.5)' } as any}>{removing ? 'Suppression...' : 'Supprimer l\'appareil'}</div>
             ) : (
               <div onClick={() => { setSelected(null); router.push('/vest-connect' as any); }} style={{ padding: '14px', borderRadius: 999, background: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#111' } as any}><i className="ri-bluetooth-connect-line" style={{ marginRight: 6 }} />Rechercher et associer</div>
             )}
