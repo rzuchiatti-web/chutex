@@ -118,10 +118,20 @@ export default function ProfileScreen() {
   const [savingNotif, setSavingNotif] = useState(false);
   const [showCareDetail, setShowCareDetail] = useState(false);
   const [showMedical, setShowMedical] = useState(false);
+  const parseMedList = (val: any): string[] => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    return val.split(',').map((s: string) => s.trim()).filter(Boolean);
+  };
+  const rawConditions = parseMedList(user?.medical_conditions);
+  const rawAllergies = parseMedList(user?.allergies);
+  const CONDITION_LIST = ['Diabete', 'Hypertension', 'Cholesterol', 'Arthrose', 'Insuffisance cardiaque', 'AVC', 'Asthme', 'Osteoporose', 'Parkinson', 'Alzheimer', 'Depression', 'Hemophilie', 'Epilepsie', 'Aucune'];
+  const ALLERGY_LIST = ['Penicilline', 'Aspirine', 'Latex', 'Iode', 'Pollen', 'Acariens', 'Gluten', 'Lactose', 'Aucune'];
+  const matchList = (raw: string[], list: string[]) => list.filter(item => raw.some(r => r.toLowerCase().includes(item.toLowerCase()) || item.toLowerCase().includes(r.toLowerCase())));
   const [medForm, setMedForm] = useState({
     blood_type: user?.blood_type || '',
-    conditions: (user?.medical_conditions ? (Array.isArray(user.medical_conditions) ? user.medical_conditions : user.medical_conditions.split(',').map((s: string) => s.trim()).filter(Boolean)) : []) as string[],
-    allergies: (user?.allergies ? (Array.isArray(user.allergies) ? user.allergies : user.allergies.split(',').map((s: string) => s.trim()).filter(Boolean)) : []) as string[],
+    conditions: matchList(rawConditions, CONDITION_LIST).length > 0 ? matchList(rawConditions, CONDITION_LIST) : rawConditions,
+    allergies: matchList(rawAllergies, ALLERGY_LIST).length > 0 ? matchList(rawAllergies, ALLERGY_LIST) : rawAllergies,
     pacemaker: user?.pacemaker || '',
     stents: user?.stents || '',
     thyroid: user?.thyroid || '',
