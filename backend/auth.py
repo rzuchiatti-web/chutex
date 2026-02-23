@@ -13,6 +13,7 @@ SAFE_FIELDS = [
     'is_intervention_provider', 'intervention_structure', 'intervention_radius_km', 'intervention_location',
     'has_guardian_space', 'has_beneficiary_space', 'avatar_url', 'subscription_type', 'has_subscription',
     'latitude', 'longitude', 'prescriber_company_id', 'agency_id',
+    'pacemaker', 'stents', 'thyroid', 'other_condition', 'surgeries',
 ]
 
 
