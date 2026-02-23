@@ -420,29 +420,21 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               </div>
             </div>
 
-            {/* Segmented Control Tabs: Bénéficiaire / Aidant */}
-            <div data-testid="role-tabs" style={{ display: 'flex', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: 3, gap: 3, marginBottom: 4 } as any}>
+            {/* Segmented Control: Beneficiaire / Gardien — pill style */}
+            <div data-testid="role-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', padding: 3, gap: 2 } as any}>
               <div data-testid="tab-beneficiary" onClick={() => handleTabSwitch('beneficiary')} style={{
-                flex: 1, padding: '10px 0', borderRadius: 11, textAlign: 'center', cursor: 'pointer', transition: 'all 0.25s ease',
-                background: activeTab === 'beneficiary' ? 'linear-gradient(135deg, rgba(14,116,144,0.25), rgba(34,211,238,0.12))' : 'transparent',
-                border: activeTab === 'beneficiary' ? '1px solid rgba(34,211,238,0.2)' : '1px solid transparent',
-                boxShadow: activeTab === 'beneficiary' ? '0 2px 12px rgba(14,116,144,0.2)' : 'none',
+                padding: '9px 18px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease',
+                background: activeTab === 'beneficiary' ? '#FFF' : 'transparent',
+                boxShadow: activeTab === 'beneficiary' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
               } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
-                  <i className="ri-heart-pulse-line" style={{ fontSize: 14, color: activeTab === 'beneficiary' ? '#22D3EE' : 'rgba(255,255,255,0.3)' }} />
-                  <span style={{ fontSize: 12, fontWeight: activeTab === 'beneficiary' ? 800 : 500, color: activeTab === 'beneficiary' ? '#FFF' : 'rgba(255,255,255,0.35)', letterSpacing: 0.2 }}>Beneficiaire</span>
-                </div>
+                <span style={{ fontSize: 12, fontWeight: 700, color: activeTab === 'beneficiary' ? '#111' : 'rgba(255,255,255,0.5)' }}>Beneficiaire</span>
               </div>
               <div data-testid="tab-guardian" onClick={() => handleTabSwitch('guardian')} style={{
-                flex: 1, padding: '10px 0', borderRadius: 11, textAlign: 'center', cursor: 'pointer', transition: 'all 0.25s ease',
-                background: activeTab === 'guardian' ? 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.08))' : 'transparent',
-                border: activeTab === 'guardian' ? '1px solid rgba(167,139,250,0.2)' : '1px solid transparent',
+                padding: '9px 18px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease',
+                background: activeTab === 'guardian' ? '#FFF' : 'transparent',
+                boxShadow: activeTab === 'guardian' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
               } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
-                  <i className="ri-shield-user-line" style={{ fontSize: 14, color: activeTab === 'guardian' ? '#A78BFA' : 'rgba(255,255,255,0.3)' }} />
-                  <span style={{ fontSize: 12, fontWeight: activeTab === 'guardian' ? 800 : 500, color: activeTab === 'guardian' ? '#FFF' : 'rgba(255,255,255,0.35)', letterSpacing: 0.2 }}>Aidant</span>
-                  {!user.has_guardian_space && <div style={{ width: 6, height: 6, borderRadius: 3, background: '#F59E0B', marginLeft: 2 } as any} />}
-                </div>
+                <span style={{ fontSize: 12, fontWeight: 700, color: activeTab === 'guardian' ? '#111' : 'rgba(255,255,255,0.5)' }}>Gardien</span>
               </div>
             </div>
           </div>
