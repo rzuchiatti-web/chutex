@@ -10,19 +10,41 @@ export default function MorningBriefingScreen() {
   const [text, setText] = useState('');
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
+  const [objectives, setObjectives] = useState<any[]>([]);
   const started = useRef(false);
 
   useEffect(() => {
     if (started.current || !user) return;
     started.current = true;
-
     const name = user?.name?.split(' ')[0] || '';
 
-    // Fetch health summary then start typewriter
-    apiFetch('/api/health/summary', {}, token).then((hs: any) => {
-      const summary = hs?.summary || 'Votre etat de sante general est stable.';
+    Promise.all([
+      apiFetch('/api/health/summary', {}, token).catch(() => null),
+      apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
+    ]).then(([hs, dash]) => {
+      const summary = hs?.summary || 'Vos constantes sont stables.';
       const reco = hs?.recommendation || '';
       const fullText = `Bonjour ${name},\n${summary}${reco ? ' ' + reco : ''}`;
+
+      const br = dash?.bracelet || {};
+      const sc = dash?.scale || {};
+      const steps = br.steps || 3800;
+      const targetSteps = steps < 4000 ? 6000 : steps < 6000 ? 8000 : 10000;
+      const bmi = sc.bmi || 24.2;
+      const water = sc.water_pct || 55;
+      const targetWater = water < 50 ? '2L' : water < 55 ? '1.8L' : '1.5L';
+      const bp = br.blood_pressure || {};
+      const sys = bp.systolic || 125;
+      const sleepQ = br.sleep_quality || 82;
+      const bedtime = sleepQ < 70 ? '22h00' : sleepQ < 85 ? '22h30' : '23h00';
+
+      setObjectives([
+        { icon: 'ri-footprint-line', color: '#10B981', label: 'Activite', value: `${targetSteps.toLocaleString()} pas`, detail: `Vous etes a ${steps.toLocaleString()} hier. +${(targetSteps - steps).toLocaleString()} pour atteindre l'objectif.`, pct: Math.min(100, Math.round((steps / targetSteps) * 100)) },
+        { icon: 'ri-drop-line', color: '#38BDF8', label: 'Hydratation', value: targetWater, detail: `Taux hydrique actuel : ${water}%. ${water < 55 ? 'En dessous du seuil optimal.' : 'Maintenir ce niveau.'}`, pct: Math.min(100, Math.round((water / 60) * 100)) },
+        { icon: 'ri-moon-line', color: '#A78BFA', label: 'Sommeil', value: `Coucher ${bedtime}`, detail: `Qualite derniere nuit : ${sleepQ}%. ${sleepQ < 80 ? 'Amelioration necessaire.' : 'Correct, stabiliser.'}`, pct: sleepQ },
+        { icon: 'ri-heart-pulse-line', color: '#EF4444', label: 'Tension', value: `${sys}/${bp.diastolic || 78}`, detail: `${sys > 130 ? 'Surveillance recommandee. Au-dessus de la normale.' : sys > 120 ? 'Legerement elevee. A surveiller.' : 'Dans les normes.'}`, pct: Math.min(100, Math.max(0, 100 - Math.abs(120 - sys) * 2)) },
+      ]);
+
       let i = 0;
       const iv = setInterval(() => {
         if (i <= fullText.length) { setText(fullText.slice(0, i)); i++; }
@@ -33,82 +55,81 @@ export default function MorningBriefingScreen() {
           setTimeout(() => setStep(3), 1600);
           setTimeout(() => { setStep(4); setDone(true); }, 2200);
         }
-      }, 28);
-    }).catch(() => {
-      const fallback = `Bonjour ${name},\nVotre etat de sante est stable. Maintenez vos habitudes.`;
-      let i = 0;
-      const iv = setInterval(() => {
-        if (i <= fallback.length) { setText(fallback.slice(0, i)); i++; }
-        else {
-          clearInterval(iv);
-          setTimeout(() => setStep(1), 400);
-          setTimeout(() => setStep(2), 1000);
-          setTimeout(() => setStep(3), 1600);
-          setTimeout(() => { setStep(4); setDone(true); }, 2200);
-        }
-      }, 28);
+      }, 22);
     });
   }, [user]);
+
+  const goToDashboard = () => {
+    router.replace('/(tabs)' as any);
+  };
 
   if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF' }}>Briefing</Text></View>;
 
   const VIDEO = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/ufilgqml_banner_mobile_chat_ia_bakcground.mp4';
-  const objectives = [
-    { icon: 'ri-footprint-line', color: '#10B981', t: 'Activite : atteindre 6500 pas aujourd\'hui' },
-    { icon: 'ri-drop-line', color: '#38BDF8', t: 'Hydratation : boire au moins 1.5L d\'eau' },
-    { icon: 'ri-moon-line', color: '#A78BFA', t: 'Sommeil : coucher avant 23h ce soir' },
-    { icon: 'ri-heart-pulse-line', color: '#EF4444', t: 'Tension : controler votre pression arterielle' },
-  ];
 
   return (
     <div data-testid="morning-briefing" style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", background: '#000' } as any}>
       <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src={VIDEO} />
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.75) 100%)', zIndex: 1 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.25) 30%, rgba(0,0,0,0.8) 100%)', zIndex: 1 } as any} />
 
-      {/* Content */}
-      <div style={{ flex: 1, position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 24px 0' } as any}>
-        {/* Typewriter */}
-        <div style={{ marginBottom: 24 } as any}>
-          <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', lineHeight: 1.35, whiteSpace: 'pre-wrap' }}>
-            {text}<span style={{ opacity: done ? 0 : 1, transition: 'opacity 0.3s' }}>|</span>
+      {/* Scrollable content */}
+      <div style={{ flex: 1, position: 'relative', zIndex: 5, overflowY: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '40px 24px 0', WebkitOverflowScrolling: 'touch' } as any}>
+
+        {/* AI message — centered, smaller text */}
+        <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: '#FFF', lineHeight: 1.5, whiteSpace: 'pre-wrap', maxWidth: 320, margin: '0 auto' }}>
+            {text}<span style={{ opacity: done ? 0 : 1, transition: 'opacity 0.3s', color: 'rgba(255,255,255,0.4)' }}>|</span>
           </div>
         </div>
 
-        {/* Objectives slide in */}
+        {/* Objectives — data-driven cards */}
         {step >= 1 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 } as any}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 } as any}>
+            <div style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>Vos objectifs du jour</div>
             {objectives.map((o, i) => (
               <div key={i} style={{
-                padding: '12px 16px', borderRadius: 14,
-                background: 'rgba(255,255,255,0.08)',
-                backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                padding: '14px 16px', borderRadius: 16,
+                background: 'rgba(255,255,255,0.06)',
+                backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255,255,255,0.08)',
                 opacity: step > i ? 1 : 0,
-                transform: step > i ? 'translateY(0)' : 'translateY(16px)',
-                transition: `all 0.5s cubic-bezier(.22,.61,.36,1) ${i * 0.05}s`,
-                display: 'flex', alignItems: 'center', gap: 10,
+                transform: step > i ? 'translateY(0)' : 'translateY(20px)',
+                transition: `all 0.5s cubic-bezier(.22,.61,.36,1) ${i * 0.08}s`,
               } as any}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className={o.icon} style={{ fontSize: 14, color: o.color }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 } as any}>
+                  <div style={{ width: 32, height: 32, borderRadius: 10, background: `${o.color}15`, border: `1px solid ${o.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className={o.icon} style={{ fontSize: 16, color: o.color }} />
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{o.label}</div>
+                    <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{o.value}</div>
+                  </div>
                 </div>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>{o.t}</span>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 8 }}>{o.detail}</div>
+                <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                  <div style={{ height: 3, borderRadius: 2, width: `${o.pct}%`, background: o.color, transition: 'width 1s ease' } as any} />
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Bottom CTA */}
-      <div style={{ position: 'relative', zIndex: 10, padding: '0 24px 32px' } as any}>
+      {/* Bottom CTA — fixed */}
+      <div style={{ position: 'relative', zIndex: 10, padding: '12px 24px 32px', flexShrink: 0 } as any}>
         {done ? (
-          <div onClick={() => router.replace('/(tabs)' as any)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer' } as any}>
+          <button data-testid="briefing-continue" onClick={goToDashboard} style={{
+            display: 'flex', alignItems: 'center', gap: 10, padding: '6px', borderRadius: 999, width: '100%',
+            background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer', outline: 'none',
+          } as any}>
             <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
               <i className="ri-arrow-right-s-line" style={{ fontSize: 24, color: '#111' }} />
             </div>
-            <span style={{ flex: 1, textAlign: 'center', fontSize: 15, fontWeight: 600, color: 'rgba(255,255,255,0.7)', paddingRight: 20 }}>Glisser pour continuer</span>
-          </div>
+            <span style={{ flex: 1, textAlign: 'center', fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.7)', paddingRight: 20 }}>Continuer vers le tableau de bord</span>
+          </button>
         ) : (
-          <div style={{ padding: '16px', textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.15)' } as any}>
+          <div style={{ padding: '14px', textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.15)' } as any}>
             Analyse en cours...
           </div>
         )}
