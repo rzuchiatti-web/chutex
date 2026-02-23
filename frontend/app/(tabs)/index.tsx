@@ -511,20 +511,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── 5. DISPOSITIFS ── */}
           <DeviceCards br={br} sc={sc} vs={vs} />
 
-          {/* ── 6. Programmes de prevention ── */}
-          {!br.connected && !sc.connected && (
-            <div data-testid="device-tutorial" onClick={() => router.push('/bracelet-connect' as any)} style={{ padding: '16px 18px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(34,211,238,0.08), rgba(14,116,144,0.04))', border: '1px solid rgba(34,211,238,0.12)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(34,211,238,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                <i className="ri-bluetooth-connect-line" style={{ fontSize: 22, color: '#22D3EE' }} />
-              </div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>Connecter vos appareils</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>Activez le Bluetooth et suivez le guide</div>
-              </div>
-            </div>
-          )}
-
-          {/* ── Dispositifs — simplified ── */}
+          {/* ── Programmes de prevention ── */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Appareils connectes</div>
           {[
             { name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE', grad: 'linear-gradient(90deg, #0E7490, #22D3EE)', route: '/bracelet-connect' },
