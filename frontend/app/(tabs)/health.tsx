@@ -1,6 +1,7 @@
 import { Icon, MCIcon } from '../../src/components/WebIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, TextInput, Alert, Modal } from 'react-native';
+import ProgramDailyView from '../../src/components/ProgramDailyView';
 
 const confirmAction = (title: string, message: string, onConfirm: () => void) => {
   if (Platform.OS === 'web') {
