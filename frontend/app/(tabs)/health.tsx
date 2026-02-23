@@ -293,11 +293,9 @@ export default function HealthScreen() {
                 <div style={{ textAlign: 'center' } as any}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Mesure en cours</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>Restez immobile et ne parlez pas</div>
-                  {/* ADN animation — same as onboarding slides */}
-                  <div style={{ width: 180, height: 180, margin: '0 auto 24px', borderRadius: '50%', overflow: 'hidden', position: 'relative' } as any}>
-                    <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', animation: 'spin 8s linear infinite' } as any} />
+                  <div style={{ width: 200, height: 200, margin: '0 auto 24px', borderRadius: 24, overflow: 'hidden', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                    <video autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} src="https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/8h3820je_dna%281%29.webm" />
                   </div>
-                  {/* Countdown */}
                   <div style={{ fontSize: 48, fontWeight: 900, color: '#A78BFA', marginBottom: 8 }}>10s</div>
                   <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', maxWidth: 200, margin: '0 auto' } as any}>
                     <div style={{ height: 4, borderRadius: 2, background: '#A78BFA', animation: 'fillBar 10s linear forwards' } as any} />
