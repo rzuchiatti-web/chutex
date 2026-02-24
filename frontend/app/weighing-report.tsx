@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 
-const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
+const BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
 
 const DATA_GROUPS = [
   { title: 'Composition globale', keys: [
@@ -71,7 +71,7 @@ export default function WeighingReportScreen() {
   }, [id, token]);
 
   if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Web uniquement</Text></View>;
-  if (loading) return <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0f1a' } as any}><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Chargement...</div></div>;
+  if (loading) return <FullScreenLoader />;
   if (!report) return <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0f1a' } as any}><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Pesee introuvable</div></div>;
 
   const w = report;
