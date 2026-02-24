@@ -136,12 +136,6 @@ export default function HealthDetailScreen() {
         <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
           <img src={sec.img} alt="" style={{ width: 100, height: 100, objectFit: 'contain', margin: '0 auto 14px', display: 'block', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))' } as any} />
           <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF' }}>{sec.title}</div>
-          {subScore != null && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 16px', borderRadius: 999, background: `${sec.color}15`, border: `1px solid ${sec.color}30`, marginTop: 10 } as any}>
-              <span style={{ width: 6, height: 6, borderRadius: 3, background: subScore >= 80 ? '#10B981' : subScore >= 60 ? '#F59E0B' : '#EF4444' } as any} />
-              <span style={{ fontSize: 13, fontWeight: 800, color: subScore >= 80 ? '#10B981' : subScore >= 60 ? '#F59E0B' : '#EF4444' }}>{subScore}/100</span>
-            </div>
-          )}
         </div>
 
         {/* Sleep section: Hypnogram hero + apnea risk */}
