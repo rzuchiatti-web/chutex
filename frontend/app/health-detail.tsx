@@ -131,11 +131,7 @@ export default function HealthDetailScreen() {
   const changeDate = (offset: number) => {
     const d = new Date(selectedDate);
     d.setDate(d.getDate() + offset);
-    console.log('[DATE] changeDate called, offset:', offset, 'new date:', d.toDateString());
-    if (d <= new Date()) {
-      console.log('[DATE] Calling setSelectedDate');
-      setSelectedDate(d);
-    }
+    if (d <= new Date()) setSelectedDate(d);
   };
   const isToday = selectedDate.toDateString() === new Date().toDateString();
   const dateLabel = isToday ? "Aujourd'hui" : selectedDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
