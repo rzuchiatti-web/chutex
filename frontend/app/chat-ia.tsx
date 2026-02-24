@@ -75,10 +75,18 @@ export default function ChatIAScreen() {
       <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src={VIDEO_BG} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.7) 100%)', zIndex: 1 } as any} />
 
-      {/* Back button */}
-      <div style={{ position: 'relative', zIndex: 10, padding: '16px 20px', flexShrink: 0 } as any}>
+      {/* Back button + clear button */}
+      <div style={{ position: 'relative', zIndex: 10, padding: '16px 20px', flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
         <div onClick={() => router.back()} data-testid="chat-back" style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
           <i className="ri-arrow-left-s-line" style={{ fontSize: 22, color: '#FFF' }} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+          {role === 'guardian' && <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.25)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: 0.5 }}>Espace Gardien</span></div>}
+          {hasMessages && (
+            <div data-testid="chat-clear" onClick={clearChat} style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: clearing ? 0.5 : 1 } as any}>
+              <i className="ri-delete-bin-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
+            </div>
+          )}
         </div>
       </div>
 
