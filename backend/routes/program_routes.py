@@ -75,7 +75,7 @@ SEED_PROGRAMS = [
             "10": {"focus": "Gestion du stress", "tasks": ["Identifie tes 3 sources de stress principales", "Pratique 10 min de relaxation", "Ecris dans un journal de gratitude"], "tip": "Le stress chronique maintient la tension elevee."},
             "11": {"focus": "Sommeil et tension", "tasks": ["Couche-toi avant 23h", "Pas d'ecran 1h avant", "Mesure ta tension au reveil"], "tip": "Un mauvais sommeil augmente la tension de 10%."},
             "12": {"focus": "Activite douce", "tasks": ["20 min de yoga ou tai-chi", "Etirements du matin (10 min)", "Marche apres le dejeuner"], "tip": "Les activites douces baissent le cortisol."},
-            "13": {"focus": "Poids et tension", "tasks": ["Pese-toi ce matin", "Note ton IMC", "Fixe un objectif realiste si besoin"], "tip": "Perdre 5kg peut baisser la tension de 5 mmHg."},
+            "13": {"focus": "Poids et tension", "tasks": ["Pese-toi aujourd'hui", "Note ton IMC", "Fixe un objectif realiste si besoin"], "tip": "Perdre 5kg peut baisser la tension de 5 mmHg."},
             "14": {"focus": "Bilan final !", "tasks": ["Compare toutes tes tensions jour 1 vs jour 14", "Liste tes 5 meilleures habitudes", "Planifie comment les maintenir"], "tip": "Bravo ! Tu as les cles pour controler ta tension."},
         },
     },
