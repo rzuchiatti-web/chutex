@@ -340,7 +340,7 @@ async def get_metric_history(key: str, period: str = "7j", user=Depends(get_curr
 
     return {
         "key": key, "meta": m, "history": history,
-        "stats": {"avg": avg, "min": mn, "max": mx, "trend": trend, "count": len(vals)},
+        "stats": {"avg": avg, "min": mn_val, "max": mx_val, "trend": trend, "count": len(vals)},
     }
 
 
