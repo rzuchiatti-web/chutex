@@ -23,6 +23,7 @@ CARE WATCH is a sophisticated preventative health application. The central goal 
 - Custom glassmorphism tab navbar
 - Full-screen video loader
 - **NEW: Complete metric-detail page redesign with chart/gauge dual mode**
+- **NEW: PDF health report export with period selection**
 
 ## Architecture
 
