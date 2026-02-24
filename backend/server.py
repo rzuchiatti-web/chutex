@@ -24,6 +24,7 @@ from routes.push_routes import router as push_router
 from routes.health_report_routes import router as health_report_router
 from routes.chat_routes import router as chat_router
 from routes.program_routes import router as program_router
+from routes.rgpd_routes import router as rgpd_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -49,9 +50,27 @@ api_router.include_router(push_router)
 api_router.include_router(health_report_router)
 api_router.include_router(chat_router)
 api_router.include_router(program_router)
+api_router.include_router(rgpd_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+
+# Security headers middleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 @app.on_event("startup")
