@@ -114,7 +114,7 @@ export default function AdminHome({ token, user }: { token: string; user: any })
       </div>
 
       {/* ══ CONTENT ══ */}
-      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px', WebkitOverflowScrolling: 'touch' } as any}>
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: mobile ? '12px' : '16px', WebkitOverflowScrolling: 'touch' } as any}>
 
         {/* ── DASHBOARD ── */}
         {tab === 'dashboard' && (<>
