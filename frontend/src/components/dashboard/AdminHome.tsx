@@ -9,6 +9,178 @@ const BG = BG_IMAGES.dashboard;
 const BG_RED = BG_IMAGES.red;
 const G: any = { borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 
+/* ── Full User Detail Popup (fetches all linked data) ── */
+function UserDetailPopup({ user: u, token, onClose, roleLabels, roleColors, G: Gstyle }: any) {
+  const [detail, setDetail] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch(`/api/backoffice/user/${u.id}`, {}, token)
+      .then(d => setDetail(d))
+      .catch(() => setDetail(null))
+      .finally(() => setLoading(false));
+  }, [u.id, token]);
+
+  const d = detail?.user || u;
+  const guards = detail?.guardians || [];
+  const bens = detail?.beneficiaries || [];
+  const devices = detail?.devices || [];
+  const alertsH = detail?.alerts || [];
+  const ivsH = detail?.interventions || [];
+  const sub = detail?.subscription;
+  const color = roleColors[d.role] || '#A78BFA';
+
+  const InfoRow = ({ icon, label, value }: any) => value ? (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+      <i className={icon} style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />
+      <div style={{ flex: 1 } as any}><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div><div style={{ fontSize: 12, color: '#FFF', fontWeight: 600 }}>{value}</div></div>
+    </div>
+  ) : null;
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', overflowY: 'auto' } as any}>
+      <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '32px 20px 120px', boxSizing: 'border-box' } as any}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 } as any}>
+          <div onClick={onClose} style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#FFF' }} /></div>
+        </div>
+
+        {loading ? <div style={{ textAlign: 'center', padding: 40, color: 'rgba(255,255,255,0.3)' }}>Chargement...</div> : (
+          <>
+            {/* Avatar + Name */}
+            <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+              <div style={{ width: 56, height: 56, borderRadius: 999, background: `${color}25`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8, border: `2px solid ${color}50` } as any}><span style={{ fontSize: 22, fontWeight: 800, color }}>{d.name?.charAt(0)}</span></div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{d.name}</div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 6 } as any}>
+                <span style={{ fontSize: 10, fontWeight: 700, color, padding: '2px 10px', borderRadius: 999, background: `${color}15` }}>{roleLabels[d.role] || d.role}</span>
+                {sub && <span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA', padding: '2px 10px', borderRadius: 999, background: 'rgba(167,139,250,0.12)' }}>Abonne {sub.subscription_type}</span>}
+              </div>
+            </div>
+
+            {/* Identity */}
+            <div style={{ ...Gstyle, padding: '12px 14px', marginBottom: 10 } as any}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Identite</div>
+              <InfoRow icon="ri-phone-line" label="Telephone" value={d.phone} />
+              <InfoRow icon="ri-mail-line" label="Email" value={d.email} />
+              <InfoRow icon="ri-map-pin-line" label="Adresse" value={d.address} />
+              <InfoRow icon="ri-calendar-line" label="Naissance" value={d.date_of_birth} />
+              <InfoRow icon="ri-user-line" label="Genre" value={d.gender} />
+              <InfoRow icon="ri-time-line" label="Inscription" value={d.created_at ? new Date(d.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null} />
+              <InfoRow icon="ri-id-card-line" label="ID" value={d.id} />
+            </div>
+
+            {/* Medical (beneficiary) */}
+            {d.role === 'beneficiary' && (
+              <div style={{ ...Gstyle, padding: '12px 14px', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Dossier medical</div>
+                <InfoRow icon="ri-drop-line" label="Groupe sanguin" value={d.blood_type} />
+                <InfoRow icon="ri-heart-pulse-line" label="Pathologies" value={d.medical_conditions} />
+                <InfoRow icon="ri-alert-line" label="Allergies" value={d.allergies} />
+                <InfoRow icon="ri-stethoscope-line" label="Medecin traitant" value={d.doctor_name} />
+                <InfoRow icon="ri-ruler-line" label="Taille" value={d.height_cm ? `${d.height_cm} cm` : null} />
+                <InfoRow icon="ri-scales-3-line" label="Poids" value={d.weight_kg ? `${d.weight_kg} kg` : null} />
+                <InfoRow icon="ri-phone-line" label="Contact urgence" value={d.emergency_contact_name ? `${d.emergency_contact_name} (${d.emergency_contact_phone})` : null} />
+              </div>
+            )}
+
+            {/* Guardian/Pro info */}
+            {(d.role === 'guardian' || d.role === 'prescriber_company') && (
+              <div style={{ ...Gstyle, padding: '12px 14px', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Informations {d.role === 'guardian' ? 'gardien' : 'structure'}</div>
+                <InfoRow icon="ri-shield-line" label="Type" value={d.guardian_type === 'professional' ? 'Professionnel' : d.guardian_type === 'particular' ? 'Particulier' : d.guardian_type} />
+                <InfoRow icon="ri-heart-line" label="Lien" value={d.relationship} />
+                <InfoRow icon="ri-stethoscope-line" label="Profession" value={d.profession} />
+                <InfoRow icon="ri-building-line" label="Structure" value={d.structure_name} />
+                <InfoRow icon="ri-barcode-line" label="SIRET" value={d.siret} />
+                <InfoRow icon="ri-run-line" label="Intervenant" value={d.is_intervention_provider ? `Oui (rayon ${d.intervention_radius_km} km)` : null} />
+                <InfoRow icon="ri-key-line" label="Code prescripteur" value={d.prescriber_code_used} />
+              </div>
+            )}
+
+            {/* Devices */}
+            {devices.length > 0 && (
+              <div style={{ ...Gstyle, padding: '12px 14px', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Appareils ({devices.length})</div>
+                {devices.map((dev: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                    <i className={dev.device_type === 'bracelet' ? 'ri-heart-pulse-line' : dev.device_type === 'scale' ? 'ri-scales-3-line' : 'ri-t-shirt-line'} style={{ fontSize: 14, color: dev.connected ? '#10B981' : 'rgba(255,255,255,0.2)' }} />
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{dev.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{dev.connected ? 'Connecte' : 'Deconnecte'} - Batterie {dev.battery}%</div></div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Linked Guardians */}
+            {guards.length > 0 && (
+              <div style={{ ...Gstyle, padding: '12px 14px', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Gardiens lies ({guards.length})</div>
+                {guards.map((g: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                    <div style={{ width: 28, height: 28, borderRadius: 999, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 10, fontWeight: 800, color: '#10B981' }}>{g.name?.charAt(0)}</span></div>
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{g.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{g.relationship || g.guardian_type} - {g.phone}</div></div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Linked Beneficiaries */}
+            {bens.length > 0 && (
+              <div style={{ ...Gstyle, padding: '12px 14px', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Beneficiaires lies ({bens.length})</div>
+                {bens.map((b: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                    <div style={{ width: 28, height: 28, borderRadius: 999, background: 'rgba(56,189,248,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 10, fontWeight: 800, color: '#38BDF8' }}>{b.name?.charAt(0)}</span></div>
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{b.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{b.phone} {b.has_subscription ? '- Abonne' : ''}</div></div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Alerts History */}
+            {alertsH.length > 0 && (
+              <div style={{ ...Gstyle, padding: '12px 14px', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Historique alertes ({alertsH.length})</div>
+                {alertsH.slice(0, 5).map((a: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                    <div style={{ width: 6, height: 6, borderRadius: 3, background: a.status === 'active' ? '#EF4444' : '#10B981', flexShrink: 0 } as any} />
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 11, color: '#FFF' }}>{a.type} - {a.message?.substring(0, 40)}</div><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>{new Date(a.created_at).toLocaleDateString('fr-FR')}</div></div>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: a.status === 'active' ? '#EF4444' : '#10B981' }}>{a.status}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Interventions */}
+            {ivsH.length > 0 && (
+              <div style={{ ...Gstyle, padding: '12px 14px', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Interventions ({ivsH.length})</div>
+                {ivsH.slice(0, 5).map((iv: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                    <i className="ri-map-pin-range-line" style={{ fontSize: 12, color: '#F59E0B' }} />
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 11, color: '#FFF' }}>{iv.status} - {iv.intervenant_name || 'Intervenant'}</div></div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Subscription detail */}
+            {sub && (
+              <div style={{ ...Gstyle, padding: '12px 14px', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Abonnement</div>
+                <InfoRow icon="ri-vip-crown-line" label="Type" value={sub.subscription_type} />
+                <InfoRow icon="ri-checkbox-circle-line" label="Statut" value={sub.status} />
+                <InfoRow icon="ri-store-line" label="Source" value={sub.source} />
+                <InfoRow icon="ri-time-line" label="Cree le" value={sub.created_at ? new Date(sub.created_at).toLocaleDateString('fr-FR') : null} />
+              </div>
+            )}
+
+            <div onClick={onClose} style={{ padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF', marginTop: 6 } as any}>Fermer</div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 type Tab = 'dashboard' | 'users' | 'alerts' | 'analytics' | 'settings';
 
 export default function AdminHome({ token, user }: { token: string; user: any }) {
