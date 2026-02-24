@@ -258,31 +258,31 @@ export default function RegisterScreen() {
 
           {/* ═══ STEP 1: RGPD / Securite (both roles) ═══ */}
           {step === 1 && (<>
-            <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-              <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
-                <i className="ri-shield-check-line" style={{ fontSize: 36, color: '#10B981' }} />
+            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '28px 22px' } as any}>
+              <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Protection de vos donnees</div>
+                <div style={{ width: 40, height: 1, background: 'rgba(255,255,255,0.15)', margin: '0 auto 12px' } as any} />
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>Vos informations de sante sont traitees avec le plus haut niveau de securite.</div>
               </div>
-              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>Vos donnees sont protegees</div>
+
+              {[
+                { title: 'Hebergement HDS Classe 6', desc: 'Donnees stockees en France sur des serveurs certifies Hebergeur de Donnees de Sante, le standard le plus eleve.' },
+                { title: 'Conformite RGPD', desc: 'Traitement conforme au Reglement General sur la Protection des Donnees. Vos droits sont garantis.' },
+                { title: 'Chiffrement de bout en bout', desc: 'Toutes les communications sont chiffrees. Personne ne peut acceder a vos donnees sans votre accord.' },
+                { title: 'Aucun partage non consenti', desc: 'Vos donnees ne sont jamais vendues ni partagees a des tiers sans votre consentement explicite.' },
+              ].map((item, i) => (
+                <div key={i} style={{ padding: '14px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{item.title}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>{item.desc}</div>
+                </div>
+              ))}
+
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0 16px' } as any} />
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', lineHeight: 1.6, textAlign: 'center' }}>
+                Contact DPO : contact@chutex-innovation.com<br />
+                Politique de confidentialite disponible dans votre profil.
+              </div>
             </div>
-
-            {[
-              { icon: 'ri-server-line', label: 'Serveurs HDS en France · Classe 6', color: '#38BDF8', sub: 'Vos donnees sont stockees en France dans des serveurs certifies Hebergeur de Donnees de Sante de Classe 6, le plus haut niveau de securite.' },
-              { icon: 'ri-eu-line', label: 'Conforme RGPD', color: '#10B981', sub: '' },
-              { icon: 'ri-lock-line', label: 'Chiffrement de bout en bout', color: '#A78BFA', sub: '' },
-              { icon: 'ri-eye-off-line', label: 'Aucun partage sans votre accord', color: '#F59E0B', sub: '' },
-            ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '16px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8 } as any}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: `${item.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className={item.icon} style={{ fontSize: 20, color: item.color }} />
-                </div>
-                <div>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{item.label}</span>
-                  {item.sub && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5, marginTop: 4 }}>{item.sub}</div>}
-                </div>
-              </div>
-            ))}
-
-            <div style={{ textAlign: 'center', marginTop: 20, fontSize: 12, color: 'rgba(255,255,255,0.25)', lineHeight: 1.6 }}>Une question ? <span style={{ color: '#38BDF8', fontWeight: 700 }}>rgpd@chutex-innovation.com</span></div>
           </>)}
 
           {/* ═══ BENEFICIARY STEP 3: Infos perso ═══ */}
