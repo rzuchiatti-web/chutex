@@ -20,12 +20,6 @@ const SLIDES = [
     title: "Construire un avenir ou la longevite, la vitalite et la sante sont portees par la prevention.",
     btnLabel: 'Commencer',
   },
-  { img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/diagnsotick_sante_connecte_chutex.svg?v=1769015947', pill: 'VISION 360°', title: 'Vision de sante complete.', subtitle: 'Tendances, signaux faibles, priorites et recommandations.' },
-  { img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/analyse_sante_connecte_glycemique_chutex_1.svg?v=1769087565', pill: 'GLYCEMIE', title: 'Estimation glycemique.', subtitle: "Estimation au quotidien — sans geste invasif.", imgSize: '140%' },
-  { img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/teleconsultation_medical_chutex_1.svg?v=1769087585', pill: '24/7', title: 'Teleconsultation 24/7.', subtitle: 'Acces continu a des medecins diplomes.', imgSize: '135%' },
-  { img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme.svg?v=1770109412', pill: 'BRACELET ELIO', title: 'Vivre en meilleure sante.', subtitle: 'Mesures essentielles, detection intelligente.' },
-  { img: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Balance_connecte_Vita_chutex.svg?v=1769005281', pill: 'ECOSYSTEME', title: "L'innovation au service de la sante.", subtitle: 'Trois dispositifs, un ecosysteme de sante.' },
-  { video: 'https://cdn.shopify.com/videos/c/o/v/9ece2e3b8dd449f2bfbe21695ff47dd8.webm', pill: 'CLINIC MODE', title: 'Experience clinique ultra premium.', subtitle: 'Interface futuriste, cockpit medical.', chips: ['Diagnostic', 'Prevention', 'Analyse', 'Suivi'], hud: true },
 ];
 
 export default function OnboardingScreen() {
