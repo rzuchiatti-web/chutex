@@ -186,7 +186,7 @@ export default function HealthScreen() {
               { val: `${d.blood_pressure?.systolic || 125}`, unit: `/${d.blood_pressure?.diastolic || 78}`, label: 'Tension', icon: 'ri-pulse-line', color: '#A78BFA', bg: 'rgba(167,139,250,0.12)', key: 'heart_rate' },
               { val: `${d.temperature || 36.6}`, unit: 'C', label: 'Temp.', icon: 'ri-temp-hot-line', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', key: 'temperature' },
             ].map((v, i) => (
-              <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '14px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center', cursor: 'pointer' } as any}>
+              <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '14px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', textAlign: 'center', cursor: 'pointer' } as any}>
                 <div style={{ width: 32, height: 32, borderRadius: 10, background: v.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px' } as any}><i className={v.icon} style={{ fontSize: 16, color: v.color }} /></div>
                 <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{v.val}<span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>{v.unit}</span></div>
                 <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{v.label}</div>
