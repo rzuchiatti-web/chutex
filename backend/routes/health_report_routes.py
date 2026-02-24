@@ -259,15 +259,15 @@ JSON:
 
 
 @router.get("/health/metric-history/{key}")
-async def get_metric_history(key: str, range: str = "7j", user=Depends(get_current_user)):
+async def get_metric_history(key: str, period: str = "7j", user=Depends(get_current_user)):
     """History for a specific metric with range support: 24h, 7j, 30j, 90j"""
     import math
     from datetime import timedelta
     now = datetime.now(timezone.utc)
 
     # Determine days and granularity
-    is_hourly = range == "24h"
-    days = {"24h": 1, "7j": 7, "30j": 30, "90j": 90}.get(range, 7)
+    is_hourly = period == "24h"
+    days = {"24h": 1, "7j": 7, "30j": 30, "90j": 90}.get(period, 7)
     points = 24 if is_hourly else days
     history = []
 
@@ -300,7 +300,7 @@ async def get_metric_history(key: str, range: str = "7j", user=Depends(get_curre
 
     gen = generators.get(key, lambda i: round(50 + 10 * math.sin(i / 5 * math.pi) + random.uniform(-2, 2), 1))
 
-    for i in range_val(points):
+    for i in builtins_range(points):
         if is_hourly:
             dt = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(hours=i)
             label = dt.strftime("%Hh")
