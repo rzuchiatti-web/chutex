@@ -112,7 +112,30 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
               ) : (
                 <div style={{ padding: '16px 18px' } as any}>
                   <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Heure</div>
-                  <input type="time" value={editingData?.time || ''} onChange={(e: any) => setEditReminder({ ...editReminder, _editingData: { ...editingData, time: e.target.value } })} style={{ width: '100%', padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 20, fontWeight: 800, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', marginBottom: 12, colorScheme: 'dark' } as any} />
+                  {/* Scroll wheel time picker */}
+                  {(() => {
+                    const t = (editingData?.time || '08:00').split(':');
+                    const hr = parseInt(t[0]) || 8;
+                    const mn = parseInt(t[1]) || 0;
+                    const setTime = (h: number, m: number) => setEditReminder({ ...editReminder, _editingData: { ...editingData, time: `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}` } });
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 12, background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '10px 16px', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                        {/* Hours */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 } as any}>
+                          <div onClick={() => setTime((hr + 1) % 24, mn)} style={{ cursor: 'pointer', padding: '4px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-up-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }} /></div>
+                          <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', width: 56, textAlign: 'center', lineHeight: 1.2 }}>{String(hr).padStart(2, '0')}</div>
+                          <div onClick={() => setTime((hr - 1 + 24) % 24, mn)} style={{ cursor: 'pointer', padding: '4px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-down-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }} /></div>
+                        </div>
+                        <span style={{ fontSize: 32, fontWeight: 900, color: 'rgba(255,255,255,0.3)' }}>:</span>
+                        {/* Minutes */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 } as any}>
+                          <div onClick={() => setTime(hr, (mn + 5) % 60)} style={{ cursor: 'pointer', padding: '4px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-up-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }} /></div>
+                          <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', width: 56, textAlign: 'center', lineHeight: 1.2 }}>{String(mn).padStart(2, '0')}</div>
+                          <div onClick={() => setTime(hr, (mn - 5 + 60) % 60)} style={{ cursor: 'pointer', padding: '4px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-down-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }} /></div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                   <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Notes</div>
                   <input value={editingData?.notes || ''} onChange={(e: any) => setEditReminder({ ...editReminder, _editingData: { ...editingData, notes: e.target.value } })} placeholder="Ex: 2 verres d'eau..." style={{ width: '100%', padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', marginBottom: 14 } as any} />
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>Frequence</div>
