@@ -74,11 +74,11 @@ function Chip({ label, selected, onClick }: any) {
 
 function RadioCard({ icon, label, desc, selected, onClick }: any) {
   return (
-    <div onClick={onClick} style={{ padding: '16px 18px', borderRadius: 18, background: selected ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${selected ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-      <div style={{ width: 44, height: 44, borderRadius: 14, background: selected ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-        <i className={icon} style={{ fontSize: 20, color: selected ? '#FFF' : 'rgba(255,255,255,0.25)' }} />
+    <div onClick={onClick} style={{ padding: '16px 18px', borderRadius: 16, background: selected ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.15)', border: `1px solid ${selected ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)'}`, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+      <div style={{ width: 44, height: 44, borderRadius: 14, background: selected ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+        <i className={icon} style={{ fontSize: 20, color: selected ? '#FFF' : 'rgba(255,255,255,0.35)' }} />
       </div>
-      <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: selected ? '#FFF' : 'rgba(255,255,255,0.4)' }}>{label}</div>{desc && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{desc}</div>}</div>
+      <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: selected ? '#FFF' : 'rgba(255,255,255,0.5)' }}>{label}</div>{desc && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{desc}</div>}</div>
       {selected && <i className="ri-check-line" style={{ fontSize: 18, color: '#10B981' }} />}
     </div>
   );
