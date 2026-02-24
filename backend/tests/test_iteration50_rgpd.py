@@ -20,10 +20,10 @@ class TestRGPDCompliance:
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
         
-        # Login as beneficiary
+        # Login as beneficiary (using email)
         login_response = self.session.post(
-            f"{BASE_URL}/api/auth/login-phone",
-            json={"phone": "651245918", "password": "demo123"}
+            f"{BASE_URL}/api/auth/login",
+            json={"email": "robert.martin@email.fr", "password": "demo123"}
         )
         if login_response.status_code == 200:
             data = login_response.json()
@@ -31,7 +31,7 @@ class TestRGPDCompliance:
             self.user = data.get("user")
             self.session.headers.update({"Authorization": f"Bearer {self.token}"})
         else:
-            pytest.skip(f"Login failed: {login_response.status_code}")
+            pytest.skip(f"Login failed: {login_response.status_code} - {login_response.text}")
 
     # ==================== SECURITY HEADERS TESTS ====================
     def test_security_headers_present(self):
