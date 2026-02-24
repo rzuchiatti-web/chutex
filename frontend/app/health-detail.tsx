@@ -201,63 +201,6 @@ export default function HealthDetailScreen() {
         {metricId === 'sleep' && d.sleep_duration_min && (() => {
           const { session: sleepSession, deepMin: nightDeepMin, lightMin: nightLightMin, remMin: nightRemMin, awakeMin: nightAwakeMin, totalSleep: nightTotalSleep, duration: nightDuration, quality: nightQuality, interruptions: nightInterruptions, apnea: nightApnea } = sleepNightData;
           const deepPct = nightTotalSleep > 0 ? Math.round(nightDeepMin / nightTotalSleep * 100) : 0;
-          // Build sleep session from date - different pattern per night
-          const buildSleepSession = () => {
-            // Use selectedDate as seed for deterministic but varied data
-            const dayOffset = Math.floor((new Date().getTime() - selectedDate.getTime()) / (1000 * 60 * 60 * 24));
-            const seed = (selectedDate.getDate() * 7 + selectedDate.getMonth() * 31) % 100;
-            const pseudoRandom = (n: number) => ((seed * 9301 + n * 49297 + 233280) % 233280) / 233280;
-
-            // Vary sleep parameters per night
-            const nightDeep = Math.max(60, deep + Math.round((pseudoRandom(1) - 0.5) * 40));
-            const nightLight = Math.max(100, light + Math.round((pseudoRandom(2) - 0.5) * 60));
-            const nightRem = Math.max(30, rem + Math.round((pseudoRandom(3) - 0.5) * 30));
-            const nightTotal = nightDeep + nightLight + nightRem;
-            const nightDuration = nightTotal + Math.round(pseudoRandom(4) * 15);
-
-            // Vary start time (22:00 - 23:30)
-            const startH = 22 + Math.floor(pseudoRandom(5) * 1.5);
-            const startM = Math.round(pseudoRandom(6) * 59);
-
-            const stages: number[] = [];
-            let minute = 0;
-            const awakeMins = Math.max(0, nightDuration - nightTotal);
-            // Fall asleep
-            for (let i = 0; i < Math.min(8, awakeMins); i++) { stages.push(0); minute++; }
-            // Sleep cycles
-            const cycles = Math.max(3, Math.round(nightTotal / 90));
-            const deepPerCycle = Math.round(nightDeep / cycles);
-            const lightPerCycle = Math.round(nightLight / cycles);
-            const remPerCycle = Math.round(nightRem / cycles);
-            for (let c = 0; c < cycles && minute < nightDuration; c++) {
-              for (let i = 0; i < lightPerCycle && minute < nightDuration; i++) { stages.push(2); minute++; }
-              const dDur = c < 2 ? deepPerCycle + 5 : Math.max(5, deepPerCycle - 5);
-              for (let i = 0; i < dDur && minute < nightDuration; i++) { stages.push(1); minute++; }
-              for (let i = 0; i < Math.round(lightPerCycle * 0.3) && minute < nightDuration; i++) { stages.push(2); minute++; }
-              const rDur = c < 2 ? Math.max(5, remPerCycle - 5) : remPerCycle + 5;
-              for (let i = 0; i < rDur && minute < nightDuration; i++) { stages.push(3); minute++; }
-              // Brief awakening between cycles
-              if (c < cycles - 1 && pseudoRandom(10 + c) > 0.4) {
-                const wakeDur = 1 + Math.round(pseudoRandom(20 + c) * 3);
-                for (let i = 0; i < wakeDur && minute < nightDuration; i++) { stages.push(0); minute++; }
-              }
-            }
-            // Wake up
-            for (let i = 0; i < 3 && minute < nightDuration; i++) { stages.push(0); minute++; }
-            return fromBraceletStages(stages, startH, startM);
-          };
-          const sleepSession = buildSleepSession();
-
-          // Compute stats for the selected night
-          const nightStages = sleepSession.points;
-          const nightDeepMin = nightStages.filter((p: any) => p.stage === 'deep').length;
-          const nightLightMin = nightStages.filter((p: any) => p.stage === 'light').length;
-          const nightRemMin = nightStages.filter((p: any) => p.stage === 'rem').length;
-          const nightAwakeMin = nightStages.filter((p: any) => p.stage === 'awake').length;
-          const nightTotalSleep = nightDeepMin + nightLightMin + nightRemMin;
-          const nightDuration = nightTotalSleep + nightAwakeMin;
-          const nightQuality = nightTotalSleep > 0 ? Math.min(100, Math.round((nightDeepMin * 2 + nightRemMin * 1.5 + nightLightMin * 0.8) / nightTotalSleep * 100)) : 0;
-          const nightInterruptions = nightStages.filter((p: any, i: number) => i > 0 && p.stage === 'awake' && nightStages[i - 1]?.stage !== 'awake').length;
           return (
             <>
             {/* Hypnogram card with blur — image overlaps into this card */}
