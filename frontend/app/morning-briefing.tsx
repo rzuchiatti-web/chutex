@@ -42,7 +42,7 @@ export default function MorningBriefingScreen() {
       // Personal, warm but medical text
       let fullText = `Bonjour ${name},\n`;
       if (score >= 90) {
-        fullText += `vous etes en pleine forme ce matin. `;
+        fullText += `vous etes en pleine forme aujourd'hui. `;
         if (hr >= 55 && hr <= 75) fullText += `Votre frequence cardiaque de ${hr} bpm est excellente, `;
         else fullText += `Frequence cardiaque a ${hr} bpm, `;
         if (stress < 40) fullText += `un niveau de stress faible a ${stress}/100 et `;
