@@ -26,18 +26,21 @@ export default function MetricDetailScreen() {
   const [thSaving, setThSaving] = useState(false);
   const [showExplain, setShowExplain] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const [d, th] = await Promise.all([
-          apiFetch(`/api/health/metric-history/${key}`, {}, token),
-          apiFetch(`/api/health/thresholds/${key}`, {}, token).catch(() => null),
-        ]);
-        setData(d);
-        if (th) { setThreshold(th); setThMin(th.min_val != null ? String(th.min_val) : ''); setThMax(th.max_val != null ? String(th.max_val) : ''); }
-      } catch {} finally { setLoading(false); }
-    })();
-  }, [key, token]);
+  const loadData = async (r: string) => {
+    setLoading(true);
+    try {
+      const [d, th] = await Promise.all([
+        apiFetch(`/api/health/metric-history/${key}?period=${r}`, {}, token),
+        apiFetch(`/api/health/thresholds/${key}`, {}, token).catch(() => null),
+      ]);
+      setData(d);
+      if (th) { setThreshold(th); setThMin(th.min_val != null ? String(th.min_val) : ''); setThMax(th.max_val != null ? String(th.max_val) : ''); }
+    } catch {} finally { setLoading(false); }
+  };
+
+  useEffect(() => { loadData(range); }, [key, token]);
+
+  const changeRange = (r: string) => { setRange(r); setSelectedDay(null); loadData(r); };
 
   if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF' }}>Web uniquement</Text></View>;
   if (loading) return <FullScreenLoader />;
