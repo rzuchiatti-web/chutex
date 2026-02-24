@@ -6,6 +6,7 @@ import AdminClients from '../../src/components/health/AdminClients';
 import AnalysisPhase from '../../src/components/health/AnalysisPhase';
 import HeroScore from '../../src/components/health/HeroScore';
 import DailyObjectives from '../../src/components/health/DailyObjectives';
+import WeighingFlow from '../../src/components/dashboard/WeighingFlow';
 import SleepCard from '../../src/components/health/SleepCard';
 import HealthSections from '../../src/components/health/HealthSections';
 
