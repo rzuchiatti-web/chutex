@@ -135,11 +135,18 @@ export default function HealthDetailScreen() {
           <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Retour</span>
         </div>
 
-        {/* Hero */}
-        <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-          <img src={sec.img} alt="" style={{ width: 100, height: 100, objectFit: 'contain', margin: '0 auto 14px', display: 'block', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))' } as any} />
-          <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF' }}>{sec.title}</div>
-        </div>
+        {/* Hero — sleep has special layout */}
+        {metricId === 'sleep' ? (
+          <div style={{ textAlign: 'center', marginBottom: 0, position: 'relative', zIndex: 2 } as any}>
+            <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 16 }}>{sec.title}</div>
+            <img src={sec.img} alt="" style={{ width: 140, height: 140, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.5))', position: 'relative', zIndex: 3, marginBottom: -30 } as any} />
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+            <img src={sec.img} alt="" style={{ width: 100, height: 100, objectFit: 'contain', margin: '0 auto 14px', display: 'block', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))' } as any} />
+            <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF' }}>{sec.title}</div>
+          </div>
+        )}
 
         {/* Sleep section: Hypnogram hero + apnea risk */}
         {metricId === 'sleep' && d.sleep_duration_min && (() => {
@@ -174,9 +181,18 @@ export default function HealthDetailScreen() {
           const pY = [12, 60, 110, 155];
           return (
             <>
-            {/* Hypnogram card with blur */}
-            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden' } as any}>
-              <div style={{ padding: '16px 16px 8px' } as any}>
+            {/* Hypnogram card with blur — image overlaps into this card */}
+            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden', position: 'relative', paddingTop: 36 } as any}>
+              {/* Duration header */}
+              <div style={{ padding: '0 16px 12px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' } as any}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Duree de sommeil</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1.1 }}>{Math.floor(slD / 60)}h {String(slD % 60).padStart(2, '0')}min</div>
+                </div>
+                <div style={{ padding: '4px 12px', borderRadius: 999, background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.2)' } as any}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: 0.5 }}>Analyse</span>
+                </div>
+              </div>
                 <svg width="100%" viewBox="0 0 700 180" style={{ display: 'block' }}>
                   <text x="0" y="16" fill="rgba(255,255,255,0.25)" fontSize="9">Eveil</text>
                   <text x="0" y="64" fill="rgba(255,255,255,0.25)" fontSize="9">REM</text>
