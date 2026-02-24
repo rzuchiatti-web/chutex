@@ -539,3 +539,240 @@ async def get_daily_report(user=Depends(get_current_user)):
         "analysis_phase": analysis_phase,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
+
+
+@router.get("/health/report/pdf")
+async def generate_health_report_pdf(period: str = "30j", user=Depends(get_current_user)):
+    """Generate a downloadable PDF health report"""
+    from fastapi.responses import StreamingResponse
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
+    from reportlab.lib.colors import HexColor, black, white
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+    import io
+
+    # Gather data
+    d = gen_data()
+    si = compute_subscores(d)
+    ai = await gen_ai(d, si)
+
+    days = {"7j": 7, "30j": 30, "90j": 90}.get(period, 30)
+    period_label = {"7j": "7 jours", "30j": "30 jours", "90j": "90 jours"}.get(period, "30 jours")
+    now = datetime.now(timezone.utc)
+    start_date = now - __import__('datetime').timedelta(days=days)
+
+    # Generate metric histories for the report
+    metrics_for_report = ["heart_rate", "spo2", "blood_pressure", "temperature", "steps", "weight", "sleep_quality", "stress_level"]
+    metric_data = {}
+    for mk in metrics_for_report:
+        gen_func = {
+            "heart_rate": lambda i: 68 + int(6 * math.sin(i / 7 * math.pi)) + random.randint(-3, 3),
+            "spo2": lambda i: random.choice([96, 97, 97, 98, 98, 99]),
+            "temperature": lambda i: round(36.5 + 0.3 * math.sin(i / 5 * math.pi) + random.uniform(-0.1, 0.1), 1),
+            "steps": lambda i: max(500, 4000 + int(2000 * math.sin(i / 4 * math.pi)) + random.randint(-500, 500)),
+            "weight": lambda i: round(72.8 - 0.015 * i + random.uniform(-0.2, 0.2), 1),
+            "sleep_quality": lambda i: max(50, min(100, 80 + int(8 * math.sin(i / 5 * math.pi)) + random.randint(-5, 5))),
+            "stress_level": lambda i: max(10, min(80, 35 + int(10 * math.sin(i / 5 * math.pi)) + random.randint(-5, 5))),
+        }.get(mk, lambda i: round(50 + 10 * math.sin(i / 5 * math.pi), 1))
+
+        vals = [gen_func(i) for i in range(days)]
+
+        if mk == "blood_pressure":
+            sys_vals = [122 + int(4 * math.sin(i / 8 * math.pi)) + random.randint(-3, 3) for i in range(days)]
+            dia_vals = [76 + int(3 * math.sin(i / 8 * math.pi)) + random.randint(-2, 2) for i in range(days)]
+            metric_data[mk] = {"avg": f"{round(sum(sys_vals)/len(sys_vals))}/{round(sum(dia_vals)/len(dia_vals))}", "min": f"{min(sys_vals)}/{min(dia_vals)}", "max": f"{max(sys_vals)}/{max(dia_vals)}", "last": f"{sys_vals[-1]}/{dia_vals[-1]}"}
+        else:
+            metric_data[mk] = {"avg": round(sum(vals) / len(vals), 1), "min": round(min(vals), 1), "max": round(max(vals), 1), "last": vals[-1]}
+
+    # Build PDF
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=20*mm, rightMargin=20*mm, topMargin=20*mm, bottomMargin=20*mm)
+
+    # Colors
+    DARK = HexColor("#1A1A1A")
+    GRAY = HexColor("#666666")
+    LIGHT_GRAY = HexColor("#999999")
+    BG_LIGHT = HexColor("#F5F5F5")
+    GREEN = HexColor("#2D7D46")
+    RED = HexColor("#C0392B")
+    ACCENT = HexColor("#333333")
+
+    styles = getSampleStyleSheet()
+    s_title = ParagraphStyle('Title2', parent=styles['Title'], fontSize=22, textColor=DARK, spaceAfter=2*mm, fontName='Helvetica-Bold')
+    s_subtitle = ParagraphStyle('Sub', parent=styles['Normal'], fontSize=10, textColor=LIGHT_GRAY, spaceAfter=6*mm)
+    s_section = ParagraphStyle('Sect', parent=styles['Heading2'], fontSize=13, textColor=DARK, spaceBefore=6*mm, spaceAfter=3*mm, fontName='Helvetica-Bold')
+    s_body = ParagraphStyle('Body2', parent=styles['Normal'], fontSize=10, textColor=GRAY, leading=15)
+    s_small = ParagraphStyle('Small2', parent=styles['Normal'], fontSize=8, textColor=LIGHT_GRAY, leading=11)
+    s_value = ParagraphStyle('Val', parent=styles['Normal'], fontSize=11, textColor=DARK, fontName='Helvetica-Bold')
+    s_center = ParagraphStyle('Ctr', parent=styles['Normal'], fontSize=10, textColor=GRAY, alignment=TA_CENTER)
+
+    elements = []
+
+    # Header
+    elements.append(Paragraph("RAPPORT DE SANTE", s_title))
+    elements.append(Paragraph(f"Patient : {user.get('name', 'Patient')}  |  Periode : {period_label}  |  Genere le {now.strftime('%d/%m/%Y a %Hh%M')}", s_subtitle))
+    elements.append(HRFlowable(width="100%", thickness=0.5, color=HexColor("#DDDDDD"), spaceAfter=4*mm))
+
+    # Score section
+    score = si["score"]
+    status = si["status"]
+    score_color = GREEN if score >= 70 else RED
+    elements.append(Paragraph("SCORE SANTE GLOBAL", s_section))
+
+    score_data = [
+        [Paragraph(f'<font size="28" color="{score_color.hexval()}">{score}</font><font size="10" color="#999999">/100</font>', ParagraphStyle('sc', alignment=TA_CENTER, leading=36)),
+         Paragraph(f'<font size="11" color="#333333"><b>{status}</b></font><br/><font size="9" color="#999999">Votre score de sante global est calcule a partir de vos constantes vitales, composition corporelle, activite physique et qualite du sommeil.</font>', s_body)]
+    ]
+    score_table = Table(score_data, colWidths=[35*mm, 135*mm])
+    score_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BACKGROUND', (0, 0), (0, 0), BG_LIGHT),
+        ('ROUNDEDCORNERS', [4, 4, 4, 4]),
+        ('BOX', (0, 0), (-1, -1), 0.5, HexColor("#EEEEEE")),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+    ]))
+    elements.append(score_table)
+    elements.append(Spacer(1, 4*mm))
+
+    # Sub-scores
+    subs = si.get("subscores", {})
+    if subs:
+        sub_header = [Paragraph('<b>Categorie</b>', s_small), Paragraph('<b>Score</b>', s_small), Paragraph('<b>Statut</b>', s_small)]
+        sub_rows = [sub_header]
+        for cat, info in subs.items():
+            cat_labels = {"cardio": "Cardiaque", "metabolic": "Metabolique", "activity": "Physique", "recovery": "Recuperation", "body": "Corporelle"}
+            sc = info.get("score", 0)
+            st = info.get("status", "")
+            sc_col = GREEN if sc >= 70 else HexColor("#E67E22") if sc >= 50 else RED
+            sub_rows.append([
+                Paragraph(cat_labels.get(cat, cat.title()), s_body),
+                Paragraph(f'<font color="{sc_col.hexval()}"><b>{sc}/100</b></font>', ParagraphStyle('x', fontSize=10, alignment=TA_CENTER)),
+                Paragraph(st, s_body),
+            ])
+        sub_table = Table(sub_rows, colWidths=[55*mm, 30*mm, 85*mm])
+        sub_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), BG_LIGHT),
+            ('GRID', (0, 0), (-1, -1), 0.3, HexColor("#EEEEEE")),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(sub_table)
+
+    elements.append(Spacer(1, 4*mm))
+    elements.append(HRFlowable(width="100%", thickness=0.5, color=HexColor("#EEEEEE"), spaceAfter=2*mm))
+
+    # Vitals table
+    elements.append(Paragraph("CONSTANTES VITALES", s_section))
+    vitals_header = [Paragraph('<b>Mesure</b>', s_small), Paragraph('<b>Derniere valeur</b>', s_small), Paragraph('<b>Moyenne</b>', s_small), Paragraph('<b>Min</b>', s_small), Paragraph('<b>Max</b>', s_small), Paragraph('<b>Plage normale</b>', s_small)]
+    vitals_rows = [vitals_header]
+
+    vital_info = [
+        ("Frequence cardiaque", "heart_rate", "bpm", "60-80"),
+        ("Saturation O2 (SpO2)", "spo2", "%", "95-100"),
+        ("Tension arterielle", "blood_pressure", "mmHg", "120/80"),
+        ("Temperature", "temperature", "°C", "36.3-37.5"),
+    ]
+    for label, mk, unit, normal in vital_info:
+        md = metric_data.get(mk, {})
+        vitals_rows.append([
+            Paragraph(label, s_body),
+            Paragraph(f'<b>{md.get("last", "--")}</b> {unit}', s_value),
+            Paragraph(f'{md.get("avg", "--")} {unit}', s_body),
+            Paragraph(f'{md.get("min", "--")}', s_body),
+            Paragraph(f'{md.get("max", "--")}', s_body),
+            Paragraph(normal, s_body),
+        ])
+
+    vt = Table(vitals_rows, colWidths=[38*mm, 32*mm, 28*mm, 22*mm, 22*mm, 28*mm])
+    vt.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), BG_LIGHT),
+        ('GRID', (0, 0), (-1, -1), 0.3, HexColor("#EEEEEE")),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+    ]))
+    elements.append(vt)
+    elements.append(Spacer(1, 4*mm))
+
+    # Activity & Body
+    elements.append(Paragraph("ACTIVITE & COMPOSITION CORPORELLE", s_section))
+    act_header = [Paragraph('<b>Mesure</b>', s_small), Paragraph('<b>Derniere</b>', s_small), Paragraph('<b>Moyenne</b>', s_small), Paragraph('<b>Min</b>', s_small), Paragraph('<b>Max</b>', s_small)]
+    act_rows = [act_header]
+    act_info = [
+        ("Pas quotidiens", "steps", "pas"),
+        ("Poids", "weight", "kg"),
+        ("Qualite du sommeil", "sleep_quality", "%"),
+        ("Niveau de stress", "stress_level", "/100"),
+    ]
+    for label, mk, unit in act_info:
+        md = metric_data.get(mk, {})
+        act_rows.append([
+            Paragraph(label, s_body),
+            Paragraph(f'<b>{md.get("last", "--")}</b> {unit}', s_value),
+            Paragraph(f'{md.get("avg", "--")} {unit}', s_body),
+            Paragraph(f'{md.get("min", "--")}', s_body),
+            Paragraph(f'{md.get("max", "--")}', s_body),
+        ])
+    at = Table(act_rows, colWidths=[45*mm, 35*mm, 32*mm, 29*mm, 29*mm])
+    at.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), BG_LIGHT),
+        ('GRID', (0, 0), (-1, -1), 0.3, HexColor("#EEEEEE")),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+    ]))
+    elements.append(at)
+    elements.append(Spacer(1, 4*mm))
+    elements.append(HRFlowable(width="100%", thickness=0.5, color=HexColor("#EEEEEE"), spaceAfter=2*mm))
+
+    # Nora AI Analysis
+    elements.append(Paragraph("ANALYSE NORA (IA MEDICALE)", s_section))
+    if ai.get("correlations"):
+        for c in ai["correlations"][:3]:
+            elements.append(Paragraph(f"• {c}", s_body))
+            elements.append(Spacer(1, 1.5*mm))
+
+    if ai.get("whats_good"):
+        elements.append(Spacer(1, 2*mm))
+        elements.append(Paragraph('<font color="#2D7D46"><b>Points forts :</b></font>', s_body))
+        for g in ai["whats_good"][:3]:
+            elements.append(Paragraph(f"  + {g}", s_body))
+
+    if ai.get("watch_out"):
+        elements.append(Spacer(1, 2*mm))
+        elements.append(Paragraph('<font color="#C0392B"><b>Points de vigilance :</b></font>', s_body))
+        for w in ai["watch_out"][:3]:
+            elements.append(Paragraph(f"  ! {w}", s_body))
+
+    if ai.get("motivation"):
+        elements.append(Spacer(1, 3*mm))
+        elements.append(Paragraph(f'<i>"{ai["motivation"]}"</i>', ParagraphStyle('mot', parent=s_body, textColor=ACCENT)))
+
+    # Disclaimer
+    elements.append(Spacer(1, 10*mm))
+    elements.append(HRFlowable(width="100%", thickness=0.3, color=HexColor("#DDDDDD"), spaceAfter=3*mm))
+    elements.append(Paragraph("AVERTISSEMENT : Ce rapport est genere automatiquement a des fins informatives. Il ne constitue pas un avis medical. Consultez toujours votre medecin pour toute decision de sante.", s_small))
+    elements.append(Paragraph(f"CARE WATCH par CHUTEX  |  Rapport genere le {now.strftime('%d/%m/%Y %H:%M')}  |  Confidentiel", s_small))
+
+    doc.build(elements)
+    buf.seek(0)
+
+    filename = f"rapport_sante_{user.get('name', 'patient').replace(' ', '_')}_{now.strftime('%Y%m%d')}.pdf"
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
