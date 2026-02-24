@@ -395,11 +395,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           </GC>
 
-          {/* ── REMINDER CRUD POPUP ── */}
-          {showReminderCRUD && editReminder && (() => {
-            const popupType = editReminder._type || 'hydration';
-            const meta = reminderMeta[popupType] || reminderMeta.hydration;
-            const typeRems = reminders.filter((r: any) => r.reminder_type === popupType);
+          <ReminderCRUDPopup show={showReminderCRUD} editReminder={editReminder} setEditReminder={setEditReminder} onClose={() => { setShowReminderCRUD(false); setEditReminder(null); }} reminders={reminders} reminderMeta={reminderMeta} token={token} fetchData={fetchData} deleteReminder={deleteReminder} />
+
+          <ReminderNotifPopup reminderNotif={reminderNotif} setReminderNotif={setReminderNotif} reminderMeta={reminderMeta} token={token} fetchData={fetchData} />
             const editingId = editReminder._editingId || null;
             const editingData = editReminder._editingData || null;
             return (
