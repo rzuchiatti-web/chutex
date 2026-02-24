@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'expo-router';
+import SleepHypnogram, { fromBraceletStages } from './SleepHypnogram';
 
 interface Props { d: any; }
 
@@ -14,22 +15,38 @@ export default function SleepCard({ d }: Props) {
   const total = deep + light + rem;
   const apneaRisk = Math.min(100, Math.max(5, inter * 12 + (slQ < 70 ? 20 : 0)));
 
-  const phases: number[] = [];
-  for (let i = 0; i < 32; i++) {
-    const t = i / 32;
-    if (t < 0.05 || t > 0.95) phases.push(0);
-    else if (t < 0.15) phases.push(3);
-    else if (t < 0.25) phases.push(2);
-    else if (t < 0.35) phases.push(1);
-    else if (t < 0.45) phases.push(2 + Math.floor(Math.random() * 2));
-    else if (t < 0.55) phases.push(2);
-    else if (t < 0.65) phases.push(1);
-    else if (t < 0.75) phases.push(2);
-    else if (t < 0.85) phases.push(1 + Math.floor(Math.random() * 2));
-    else phases.push(2);
-  }
-  const phaseColors = ['rgba(255,255,255,0.4)', '#7CB3E8', '#4A90D9', '#2D5F8A'];
-  const phaseH = [15, 55, 100, 140];
+  /* Build sleep session from bracelet data or simulate */
+  const sleepSession = useMemo(() => {
+    if (d.sleep_stages && Array.isArray(d.sleep_stages) && d.sleep_stages.length > 0) {
+      return fromBraceletStages(d.sleep_stages);
+    }
+    // Simulate realistic stages from duration data
+    const totalMin = deep + light + rem + Math.max(0, slD - total);
+    const stages: number[] = [];
+    let minute = 0;
+    const awakeMins = Math.max(0, slD - total);
+    // Fall asleep
+    for (let i = 0; i < Math.min(5, awakeMins); i++) { stages.push(0); minute++; }
+    // Sleep cycles (4-5)
+    const cycles = Math.max(3, Math.round(totalMin / 90));
+    const deepPerCycle = Math.round(deep / cycles);
+    const lightPerCycle = Math.round(light / cycles);
+    const remPerCycle = Math.round(rem / cycles);
+    for (let c = 0; c < cycles && minute < totalMin; c++) {
+      for (let i = 0; i < lightPerCycle && minute < totalMin; i++) { stages.push(2); minute++; }
+      const deepDur = c < 2 ? deepPerCycle + 5 : Math.max(5, deepPerCycle - 5);
+      for (let i = 0; i < deepDur && minute < totalMin; i++) { stages.push(1); minute++; }
+      for (let i = 0; i < Math.round(lightPerCycle * 0.4) && minute < totalMin; i++) { stages.push(2); minute++; }
+      const remDur = c < 2 ? Math.max(5, remPerCycle - 5) : remPerCycle + 5;
+      for (let i = 0; i < remDur && minute < totalMin; i++) { stages.push(3); minute++; }
+      if (c < cycles - 1 && Math.random() > 0.5) {
+        for (let i = 0; i < 2 && minute < totalMin; i++) { stages.push(0); minute++; }
+      }
+    }
+    // Wake up
+    for (let i = 0; i < Math.min(3, awakeMins) && minute < totalMin; i++) { stages.push(0); minute++; }
+    return fromBraceletStages(stages);
+  }, [d.sleep_stages, deep, light, rem, slD, total]);
 
   return (
     <div data-testid="sleep-card" onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: 'sleep' } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', overflow: 'hidden', cursor: 'pointer', marginBottom: 14 } as any}>
@@ -38,29 +55,13 @@ export default function SleepCard({ d }: Props) {
           <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Sommeil</div>
           <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{Math.floor(slD / 60)}h{String(slD % 60).padStart(2, '0')}</div>
         </div>
-        <svg width="100%" viewBox="0 0 640 160" style={{ display: 'block' }}>
-          <text x="0" y="18" fill="rgba(255,255,255,0.2)" fontSize="9">Eveil</text>
-          <text x="0" y="58" fill="rgba(255,255,255,0.2)" fontSize="9">REM</text>
-          <text x="0" y="103" fill="rgba(255,255,255,0.2)" fontSize="9">Leger</text>
-          <text x="0" y="143" fill="rgba(255,255,255,0.2)" fontSize="9">Profond</text>
-          {[15, 55, 100, 140].map(y => <line key={y} x1="50" y1={y} x2="630" y2={y} stroke="rgba(255,255,255,0.04)" />)}
-          {phases.map((p, i) => {
-            const x = 50 + (i / phases.length) * 580;
-            const w = 580 / phases.length;
-            const y = phaseH[p];
-            const nextY = i < phases.length - 1 ? phaseH[phases[i + 1]] : y;
-            return <g key={i}><rect x={x} y={Math.min(y, nextY)} width={w + 1} height={Math.abs(nextY - y) || 4} fill={phaseColors[p]} opacity="0.4" /><rect x={x} y={y - 2} width={w + 1} height={4} fill={phaseColors[p]} /></g>;
-          })}
-          <text x="50" y="156" fill="rgba(255,255,255,0.25)" fontSize="9" fontWeight="700">22:30</text>
-          <text x="340" y="156" fill="rgba(255,255,255,0.2)" fontSize="9">2h</text>
-          <text x="600" y="156" fill="rgba(255,255,255,0.25)" fontSize="9" fontWeight="700">6:30</text>
-        </svg>
+        <SleepHypnogram session={sleepSession} width={640} height={160} showLabels={true} compact={false} timeLabelCount={4} />
       </div>
       <div style={{ padding: '10px 16px 0', display: 'flex', gap: 8 } as any}>
         {[
-          { l: 'Profond', v: `${Math.floor(deep / 60)}h${String(deep % 60).padStart(2, '0')}`, pct: Math.round(deep / total * 100), c: '#2D5F8A' },
-          { l: 'Leger', v: `${Math.floor(light / 60)}h${String(light % 60).padStart(2, '0')}`, pct: Math.round(light / total * 100), c: '#4A90D9' },
-          { l: 'REM', v: `${Math.floor(rem / 60)}h${String(rem % 60).padStart(2, '0')}`, pct: Math.round(rem / total * 100), c: '#7CB3E8' },
+          { l: 'Profond', v: `${Math.floor(deep / 60)}h${String(deep % 60).padStart(2, '0')}`, pct: Math.round(deep / total * 100), c: '#3A4099' },
+          { l: 'Leger', v: `${Math.floor(light / 60)}h${String(light % 60).padStart(2, '0')}`, pct: Math.round(light / total * 100), c: '#6B7BD9' },
+          { l: 'REM', v: `${Math.floor(rem / 60)}h${String(rem % 60).padStart(2, '0')}`, pct: Math.round(rem / total * 100), c: '#A8B4F0' },
           { l: 'Qualite', v: `${slQ}%`, c: slQ >= 80 ? '#10B981' : '#F59E0B' },
           { l: 'Interruptions', v: `${inter}`, c: inter <= 2 ? '#10B981' : '#F59E0B' },
         ].map((s, i) => (
