@@ -580,7 +580,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             </div>
           )}
 
-          <HelpCenter visible={showHelp} onClose={() => setShowHelp(false)} />
+          <HelpCenter visible={showHelp} onClose={() => setShowHelp(false)} role={user?.active_role || user?.role} />
 
           {/* Language popup glass */}
           {showLangPicker && (
