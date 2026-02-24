@@ -182,12 +182,17 @@ export function HelpCenter({ visible, onClose, role }: { visible: boolean; onClo
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Assistance</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Centre d'aide</div>
           {/* Search */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 20 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
             <i className="ri-search-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
             <input value={search} onChange={(e: any) => setSearch(e.target.value)} placeholder="Rechercher..." style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: '#FFF', fontSize: 14, fontFamily: 'inherit' } as any} />
           </div>
+          {/* Role tabs */}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto' } as any}>
+            {tabs.map(tab => (
+              <div key={tab.id} onClick={() => { setActiveTab(tab.id); setExpanded(null); }} style={{ padding: '8px 14px', borderRadius: 10, background: activeTab === tab.id ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${activeTab === tab.id ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 12, fontWeight: activeTab === tab.id ? 800 : 500, color: activeTab === tab.id ? '#FFF' : 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', flexShrink: 0 } as any}>{tab.label}</div>
+            ))}
+          </div>
           {/* FAQ */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>Questions frequentes</div>
           {filtered.map((f, i) => (
             <div key={i} onClick={() => setExpanded(expanded === i ? null : i)} style={{ padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
