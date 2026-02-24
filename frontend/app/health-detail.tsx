@@ -263,11 +263,11 @@ export default function HealthDetailScreen() {
               {/* Quality + Interruptions */}
               <div style={{ padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', gap: 16 } as any}>
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                  <div style={{ width: 44, height: 44, borderRadius: 14, background: slQ >= 80 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-star-line" style={{ fontSize: 20, color: slQ >= 80 ? '#10B981' : '#F59E0B' }} />
+                  <div style={{ width: 44, height: 44, borderRadius: 14, background: nightQuality >= 80 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className="ri-star-line" style={{ fontSize: 20, color: nightQuality >= 80 ? '#10B981' : '#F59E0B' }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{slQ}%</div>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{nightQuality}%</div>
                     <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Qualite du sommeil</div>
                   </div>
                 </div>
