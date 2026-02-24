@@ -203,7 +203,7 @@ export default function HealthDetailScreen() {
           const { session: sleepSession, deepMin: nightDeepMin, lightMin: nightLightMin, remMin: nightRemMin, awakeMin: nightAwakeMin, totalSleep: nightTotalSleep, duration: nightDuration, quality: nightQuality, interruptions: nightInterruptions, apnea: nightApnea } = sleepNightData;
           const deepPct = nightTotalSleep > 0 ? Math.round(nightDeepMin / nightTotalSleep * 100) : 0;
           return (
-            <>
+            <div key={`sleep-${selectedDate.getTime()}`}>
             {/* Hypnogram card with blur — image overlaps into this card */}
             <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden', position: 'relative', paddingTop: 56 } as any}>
               {/* Duration header + date selector */}
