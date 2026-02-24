@@ -580,6 +580,38 @@ export default function AdminHome({ token, user }: { token: string; user: any })
                 </div>
               ))}
             </div>
+
+            {/* Abonnements CRUD */}
+            <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase' }}>Abonnements ({subscriptions.length})</div>
+                <div onClick={() => {
+                  const phone = prompt('Telephone du beneficiaire (ex: +33651245918)');
+                  const type = prompt('Type (care / essentiel)') || 'care';
+                  if (phone) apiFetch('/api/admin/subscriptions', { method: 'POST', body: JSON.stringify({ beneficiary_phone: phone, subscription_type: type, source: 'admin' }) }, token).then(() => { alert('Abonnement cree'); fetchAll(); }).catch((e: any) => alert(e.message));
+                }} style={{ padding: '6px 12px', borderRadius: 10, background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.2)', cursor: 'pointer', fontSize: 10, fontWeight: 700, color: '#A78BFA' } as any}>+ Creer</div>
+              </div>
+              {subscriptions.slice(0, 8).map((s: any, i: number) => (
+                <div key={s.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                  <i className="ri-vip-crown-line" style={{ fontSize: 14, color: s.status === 'active' ? '#A78BFA' : 'rgba(255,255,255,0.2)' }} />
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{s.beneficiary_phone}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{s.subscription_type} - {s.source} - {s.status}</div></div>
+                  <div onClick={() => { if (window.confirm('Supprimer cet abonnement ?')) apiFetch(`/api/admin/subscriptions/${s.id}`, { method: 'DELETE' }, token).then(() => fetchAll()); }} style={{ cursor: 'pointer' } as any}><i className="ri-delete-bin-line" style={{ fontSize: 12, color: 'rgba(239,68,68,0.5)' }} /></div>
+                </div>
+              ))}
+            </div>
+
+            {/* RGPD Requests Management */}
+            <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Demandes RGPD ({rgpdRequests.length})</div>
+              {rgpdRequests.length === 0 && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', textAlign: 'center', padding: 10 }}>Aucune demande</div>}
+              {rgpdRequests.slice(0, 10).map((r: any, i: number) => (
+                <div key={r.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                  <i className="ri-shield-check-line" style={{ fontSize: 14, color: r.status === 'pending' ? '#F59E0B' : '#10B981' }} />
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{r.user_name} - {r.right_label}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{r.user_email} - Ref: {r.id} - {r.created_at ? new Date(r.created_at).toLocaleDateString('fr-FR') : ''}</div>{r.message && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', fontStyle: 'italic', marginTop: 2 }}>{r.message}</div>}</div>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: r.status === 'pending' ? '#F59E0B' : '#10B981', padding: '2px 8px', borderRadius: 999, background: r.status === 'pending' ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)' }}>{r.status}</span>
+                </div>
+              ))}
+            </div>
           </>
         )}
 
