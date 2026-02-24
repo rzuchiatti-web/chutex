@@ -118,16 +118,16 @@ export default function AdminHome({ token, user }: { token: string; user: any })
 
         {/* ── DASHBOARD ── */}
         {tab === 'dashboard' && (<>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10, marginBottom: 16 } as any}>
+          <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: mobile ? 8 : 10, marginBottom: 14 } as any}>
             {[
               { v: users.length, l: 'Utilisateurs', i: 'ri-group-line', c: '#38BDF8' },
               { v: active.length, l: 'Alertes actives', i: 'ri-alarm-warning-line', c: active.length > 0 ? '#EF4444' : '#10B981' },
               { v: subs.filter((s: any) => s.status === 'active').length, l: 'Abonnes actifs', i: 'ri-vip-crown-line', c: '#A78BFA' },
               { v: ivs.length, l: 'Interventions', i: 'ri-map-pin-range-line', c: '#F59E0B' },
             ].map((k, i) => (
-              <div key={i} style={{ ...G, padding: '16px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: `${k.c}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={k.i} style={{ fontSize: 20, color: k.c }} /></div>
-                <div><div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{k.v}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{k.l}</div></div>
+              <div key={i} style={{ ...G, padding: mobile ? '12px' : '16px', display: 'flex', alignItems: 'center', gap: mobile ? 10 : 14 } as any}>
+                <div style={{ width: mobile ? 36 : 44, height: mobile ? 36 : 44, borderRadius: 12, background: `${k.c}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={k.i} style={{ fontSize: mobile ? 16 : 20, color: k.c }} /></div>
+                <div><div style={{ fontSize: mobile ? 20 : 26, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{k.v}</div><div style={{ fontSize: mobile ? 9 : 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{k.l}</div></div>
               </div>
             ))}
           </div>
