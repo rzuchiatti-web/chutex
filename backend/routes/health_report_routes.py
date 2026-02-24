@@ -196,6 +196,68 @@ def _fb():
     }
 
 
+
+@router.get("/health/section-analysis/{section}")
+async def get_section_analysis(section: str, user=Depends(get_current_user)):
+    """Get Nora AI analysis specific to a health section"""
+    uid = user['id']
+    bracelet = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
+    scale = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
+    d = gen_data()
+    if bracelet and bracelet.get("last_heart_rate", 0) > 0:
+        d["heart_rate"] = bracelet.get("last_heart_rate", d["heart_rate"])
+        d["spo2"] = bracelet.get("last_spo2", d["spo2"])
+        d["steps"] = bracelet.get("last_steps", d["steps"])
+    if scale and scale.get("weight", 0) > 0:
+        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct"]:
+            if k in scale: d[k] = scale[k]
+
+    section_data = {
+        "cardio": f"FC {d['heart_rate']}bpm, HRV {d['hrv']}ms, SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}mmHg, Temp {d['temperature']}°C.",
+        "metabolism": f"Glycemie {d['glycemia']}g/L, IMC {d['bmi']}, Graisse viscerale {d['visceral_fat']}, Metabolisme basal {d['basal_metabolism']}kcal, Ratio TH {d['waist_hip_ratio']}, Age corp {d['body_age']} ans, Poids ideal ~{d.get('ideal_weight', 70)}kg, Apport reco {d['recommended_calories']}kcal.",
+        "activity": f"{d['steps']} pas, {d['calories']}kcal depenses, VO2max {d['vo2_max']}ml/kg/min, Stress {d['stress_level']}/100, Recup {d['recovery_score']}/100, Distance ~{round(d['steps']*0.0007,1)}km.",
+        "composition": f"Poids {d['weight']}kg, Graisse {d['body_fat_pct']}%, Muscle {d['muscle_pct']}%, Eau {d['water_pct']}%, Os {d.get('bone_mass_kg',3.1)}kg, Proteine {d.get('protein_pct',16.5)}%, Muscle squelettique {d.get('skeletal_muscle_pct', d['muscle_pct']-5)}%, Graisse sous-cut {round(d['body_fat_pct']-4,1)}%, Graisse tronc {round(d['body_fat_pct']*0.4*d['weight']/100,1)}kg.",
+        "sleep": f"Duree {d['sleep_duration_min']}min, Qualite {d['sleep_quality']}%, Profond {d['deep_sleep_min']}min, Leger {d['light_sleep_min']}min, REM {d['rem_sleep_min']}min, Interruptions {d['sleep_interruptions']}.",
+    }
+    section_names = {"cardio": "Sante cardiaque", "metabolism": "Sante metabolique", "activity": "Sante physique", "composition": "Composition corporelle", "sleep": "Sommeil"}
+
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if not api_key:
+        fb = {
+            "cardio": {"correlations": ["Votre FC au repos et votre HRV indiquent un bon equilibre du systeme nerveux autonome", "La SpO2 stable confirme une bonne oxygenation tissulaire"], "whats_good": ["Rythme cardiaque au repos dans la norme", "Saturation en oxygene optimale"], "watch_out": ["Surveillez votre tension arterielle regulierement"]},
+            "metabolism": {"correlations": ["Votre IMC et votre graisse viscerale sont lies a votre risque metabolique", "Le metabolisme basal determine vos besoins caloriques quotidiens"], "whats_good": ["Glycemie dans les normes", "Age corporel inferieur a l'age reel"], "watch_out": ["Maintenez un apport calorique adapte a votre depense"]},
+            "activity": {"correlations": ["Votre niveau d'activite impacte directement votre score de recuperation", "Le VO2max est correle a votre endurance cardiovasculaire"], "whats_good": ["Depense energetique reguliere", "Score de recuperation satisfaisant"], "watch_out": ["Augmentez progressivement votre nombre de pas quotidien"]},
+            "composition": {"correlations": ["Le ratio graisse/muscle influence votre metabolisme de base", "L'hydratation impacte la precision des mesures de composition corporelle"], "whats_good": ["Masse musculaire dans les normes", "Hydratation correcte"], "watch_out": ["Surveillez l'evolution de la graisse viscerale"]},
+            "sleep": {"correlations": ["La qualite du sommeil profond influence votre recuperation physique", "Les interruptions de sommeil impactent votre HRV du lendemain"], "whats_good": ["Duree de sommeil suffisante", "Proportion de sommeil profond adequate"], "watch_out": ["Limitez les interruptions nocturnes"]},
+        }
+        return fb.get(section, fb["cardio"])
+
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        data_str = section_data.get(section, section_data["cardio"])
+        sec_name = section_names.get(section, "Sante")
+        prompt = f"""Medecin specialiste en {sec_name}. Analyse UNIQUEMENT les donnees de la section {sec_name} ci-dessous et reponds en JSON.
+
+DONNEES {sec_name.upper()}: {data_str}
+
+Analyse UNIQUEMENT ces donnees. Ne parle pas des autres sections. Sois precis et factuel.
+
+JSON:
+{{"correlations": ["correlation medicale 1 entre 2+ donnees de cette section", "correlation 2", "correlation 3"], "whats_good": ["point positif 1 specifique a cette section", "point positif 2"], "watch_out": ["point de vigilance 1 specifique", "point de vigilance 2"]}}"""
+
+        chat = LlmChat(api_key=api_key, session_id=f"sa-{uuid.uuid4().hex[:8]}",
+                       system_message="Medecin. JSON uniquement. Analyse une seule section. Pas d'emoji.").with_model("openai", "gpt-4.1-mini")
+        r = await chat.send_message(UserMessage(text=prompt))
+        import json
+        c = r.strip()
+        if c.startswith("```"): c = c.split("\n", 1)[1] if "\n" in c else c[3:]
+        if c.endswith("```"): c = c[:-3]
+        return json.loads(c.strip())
+    except Exception as e:
+        print(f"Section AI err: {e}")
+        return {"correlations": ["Analyse en cours..."], "whats_good": ["Donnees collectees"], "watch_out": ["Consultez regulierement"]}
+
+
 @router.get("/health/metric-history/{key}")
 async def get_metric_history(key: str, user=Depends(get_current_user)):
     """30 days of simulated history for a specific metric + AI analysis"""
