@@ -286,12 +286,12 @@ export default function MetricDetailScreen() {
             {!thEdit && <div onClick={() => setThEdit(true)} style={{ padding: '6px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>{threshold?.min_val != null ? 'Modifier' : 'Configurer'}</div>}
           </div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 12, lineHeight: 1.5 }}>Vos gardiens seront alertes si cette donnee depasse les seuils definis.</div>
-          {/* Nora recommendation for thresholds */}
-          {normalMin != null && !thEdit && (
+          {/* Nora threshold suggestion — 1st person, pre-filled */}
+          {normalMin != null && !thEdit && !(threshold?.min_val != null) && (
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 12px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 12 } as any}>
               <div style={{ width: 20, height: 20, borderRadius: 6, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}><span style={{ fontSize: 8, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>
-                Nora recommande : seuil bas <strong style={{ color: '#38BDF8' }}>{normalMin} {m.unit}</strong> et seuil haut <strong style={{ color: '#EF4444' }}>{normalMax} {m.unit}</strong> base sur vos donnees et la norme medicale.
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>
+                D'apres vos donnees, je vous suggere un seuil bas a <strong style={{ color: '#38BDF8' }}>{Math.round(normalMin * 0.9)} {m.unit}</strong> et un seuil haut a <strong style={{ color: '#EF4444' }}>{Math.round(normalMax * 1.15)} {m.unit}</strong>. Cliquez sur Configurer pour appliquer ou ajuster.
               </div>
             </div>
           )}
