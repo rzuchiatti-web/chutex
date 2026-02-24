@@ -168,9 +168,9 @@ export default function RegisterScreen() {
 
           {/* Back + Step */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 } as any}>
-            <div onClick={() => { if (step > 1) setStep(step - 1); else if (step === 1) setStep(0); else router.back(); }} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' } as any}>
-              <i className="ri-arrow-left-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{step === 0 ? 'Connexion' : 'Retour'}</span>
+            <div onClick={() => { if (step > 1) setStep(step - 1); else if (step === 1) setStep(0); else router.back(); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer' } as any}>
+              <i className="ri-arrow-left-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }} />
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{step === 0 ? 'Connexion' : 'Retour'}</span>
             </div>
             {step > 0 && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Etape {step}/{totalSteps}</span>}
           </div>
