@@ -12,6 +12,7 @@ import AdminHome from '../../src/components/dashboard/AdminHome';
 import CompanyHome from '../../src/components/dashboard/CompanyHome';
 import { Card, HeroCard, StatusBadge, PillButton, IconBtn, QuickAction, SectionHeader, LanguageFlagButton } from '../../src/components/dashboard/SharedUI';
 import { HEALTH_IMAGES, REMINDER_IMAGES, isDarkMode, CHX, webShadow, webGlass, BG_IMAGES } from '../../src/components/dashboard/constants';
+import { NotificationsPopup, LanguagePopup, ReminderCRUDPopup, ReminderNotifPopup, AddGuardianPopup, CheckinPopup, GuardianActivationPopup } from '../../src/components/dashboard/BeneficiaryPopups';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Animated, Platform, Image, TextInput } from 'react-native';
 import { ContextualTip, OnboardingChecklist, MiniTuto } from '../../src/components/HelpSystem';
 import { DoctorCard } from '../../src/components/DoctorCard';
