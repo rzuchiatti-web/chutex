@@ -300,15 +300,26 @@ async def get_metric_history(key: str, period: str = "7j", user=Depends(get_curr
 
     gen = generators.get(key, lambda i: round(50 + 10 * math.sin(i / 5 * math.pi) + random.uniform(-2, 2), 1))
 
+    # Special: blood_pressure generates systolic+diastolic pairs
+    is_bp = key == "blood_pressure"
+    gen_sys = generators.get("bp_systolic", gen)
+    gen_dia = generators.get("bp_diastolic", gen)
+
     import builtins
     for i in builtins.range(points):
         if is_hourly:
             dt = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(hours=i)
             label = dt.strftime("%Hh")
-            entry = {"date": dt.isoformat(), "label": label, "value": gen(i)}
         else:
             dt = now - timedelta(days=points - 1 - i)
-            entry = {"date": dt.strftime("%Y-%m-%d"), "label": dt.strftime("%d/%m"), "value": gen(i)}
+            label = dt.strftime("%d/%m")
+
+        if is_bp:
+            s = gen_sys(i)
+            d_val = gen_dia(i)
+            entry = {"date": dt.isoformat() if is_hourly else dt.strftime("%Y-%m-%d"), "label": label, "value": s, "systolic": s, "diastolic": d_val}
+        else:
+            entry = {"date": dt.isoformat() if is_hourly else dt.strftime("%Y-%m-%d"), "label": label, "value": gen(i)}
         history.append(entry)
 
     vals = [h["value"] for h in history]
