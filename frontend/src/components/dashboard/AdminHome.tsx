@@ -127,6 +127,31 @@ export default function AdminHome({ token, user }: { token: string; user: any })
           <div onClick={() => router.push('/backoffice')} data-testid="admin-backoffice-btn" style={{ padding: '14px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}><div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-settings-3-line" style={{ fontSize: 18, color: '#FFF' }} /></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Back-Office</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Gestion complete du systeme</div></div><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} /></div>
           {/* Active alerts */}
           {activeAlerts.map((a: any) => (<div key={a.id} onClick={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px', marginBottom: 10, cursor: 'pointer', minHeight: 70 } as any}><img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} /><div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} /><div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 12 } as any}><div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-alarm-warning-line" style={{ fontSize: 18, color: '#FFF' }} /></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{a.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{a.message}</div></div><div style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(239,68,68,0.25)' } as any}><span style={{ fontSize: 9, fontWeight: 600, color: '#FFF' }}>Active</span></div></div></div>))}
+          {/* SAAD Invitation */}
+          <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(124,92,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-mail-send-line" style={{ fontSize: 18, color: '#A78BFA' }} /></div>
+              <div><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Inviter un SAAD</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Envoyer un lien d'inscription</div></div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 } as any}>
+              <input data-testid="saad-invite-email" placeholder="Email du dirigeant SAAD" style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', width: '100%' } as any} id="saad-email" />
+              <input data-testid="saad-invite-name" placeholder="Nom du dirigeant" style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', width: '100%' } as any} id="saad-name" />
+              <input data-testid="saad-invite-structure" placeholder="Nom de la structure SAAD" style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', width: '100%' } as any} id="saad-structure" />
+            </div>
+            <div data-testid="saad-invite-btn" onClick={async () => {
+              const email = (document.getElementById('saad-email') as HTMLInputElement)?.value;
+              const name = (document.getElementById('saad-name') as HTMLInputElement)?.value;
+              const structure = (document.getElementById('saad-structure') as HTMLInputElement)?.value;
+              if (!email) return;
+              try {
+                const res = await apiFetch('/api/admin/saad-invitation', { method: 'POST', body: JSON.stringify({ email, name, structure_name: structure }) }, token);
+                alert(`Invitation envoyee a ${email} (Token: ${res.token})`);
+                (document.getElementById('saad-email') as HTMLInputElement).value = '';
+                (document.getElementById('saad-name') as HTMLInputElement).value = '';
+                (document.getElementById('saad-structure') as HTMLInputElement).value = '';
+              } catch (e: any) { alert('Erreur: ' + e.message); }
+            }} style={{ padding: '12px', borderRadius: 12, background: 'rgba(124,92,255,0.12)', border: '1px solid rgba(124,92,255,0.25)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#A78BFA' } as any}>Envoyer l'invitation</div>
+          </div>
           {/* Rewards */}
           <RewardsAdminCard token={token} />
           {/* Ranking */}
