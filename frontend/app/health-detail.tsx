@@ -117,11 +117,7 @@ export default function HealthDetailScreen() {
     return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Page disponible sur le web</Text></View>;
   }
 
-  if (loading) return (
-    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0f1a' } as any}>
-      <div style={{ textAlign: 'center' } as any}><i className="ri-loader-4-line" style={{ fontSize: 32, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginTop: 10 }}>Chargement...</div></div>
-    </div>
-  );
+  if (loading) return <FullScreenLoader />;
 
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
