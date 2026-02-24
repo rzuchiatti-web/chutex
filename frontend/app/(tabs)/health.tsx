@@ -87,6 +87,8 @@ export default function HealthScreen() {
   const [healthProgData, setHealthProgData] = useState<any>(null);
   const [healthProgCatalog, setHealthProgCatalog] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [pdfPeriod, setPdfPeriod] = useState('30j');
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
