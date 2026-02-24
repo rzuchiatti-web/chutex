@@ -114,7 +114,7 @@ export default function HealthScreen() {
   if (effectiveRole === 'admin' && token) return <AdminClients token={token} />;
   if (effectiveRole === 'prescriber_company' && token) return <CompanyAgences token={token} />;
 
-  const BG_DARK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
+  const BG_DARK = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
   const PROGRESS_BG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/jai7cybu_background_progressbar.jpg';
 
   const d = report?.data || {};
