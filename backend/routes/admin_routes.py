@@ -367,3 +367,51 @@ async def get_analytics():
         "interventions_by_month": ivs_by_month,
     }
 
+
+
+@router.post("/admin/saad-invitation")
+async def send_saad_invitation(data: dict, user=Depends(get_current_user)):
+    """Send SAAD registration invitation link"""
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    email = data.get("email", "").strip()
+    name = data.get("name", "").strip()
+    structure = data.get("structure_name", "").strip()
+    if not email:
+        raise HTTPException(status_code=400, detail="Email requis")
+
+    # Generate invitation token
+    import uuid as _uuid
+    invite_token = str(_uuid.uuid4())[:12].upper()
+    await db.saad_invitations.insert_one({
+        "id": str(_uuid.uuid4()), "email": email, "name": name,
+        "structure_name": structure, "token": invite_token,
+        "status": "pending", "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_by": user["id"],
+    })
+
+    # Send invitation email
+    from utils import send_email
+    subject = f"Invitation CARE WATCH - Espace SAAD"
+    link = f"https://care-watch-preview-1.preview.emergentagent.com/register?invite={invite_token}&role=prescriber_company"
+    html = f"""
+    <h2>Bienvenue sur CARE WATCH</h2>
+    <p>Bonjour {name or 'Madame, Monsieur'},</p>
+    <p>Vous etes invite(e) a rejoindre CARE WATCH en tant que dirigeant(e) de la structure <strong>{structure or 'votre SAAD'}</strong>.</p>
+    <p>Cliquez sur le lien ci-dessous pour creer votre compte :</p>
+    <p><a href="{link}" style="display:inline-block;padding:12px 28px;background:#7C5CFF;color:white;border-radius:8px;text-decoration:none;font-weight:bold;">Creer mon compte SAAD</a></p>
+    <p>Code d'invitation : <strong>{invite_token}</strong></p>
+    <p>Cordialement,<br>L'equipe CARE WATCH - Chutex Innovation</p>
+    """
+    await send_email(email, subject, html)
+
+    return {"status": "sent", "token": invite_token, "message": f"Invitation envoyee a {email}"}
+
+
+@router.get("/admin/saad-invitations")
+async def list_saad_invitations(user=Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    invitations = await db.saad_invitations.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return invitations
+
