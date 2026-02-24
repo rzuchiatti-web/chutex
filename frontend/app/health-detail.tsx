@@ -199,14 +199,8 @@ export default function HealthDetailScreen() {
 
         {/* Sleep section: Hypnogram hero + apnea risk */}
         {metricId === 'sleep' && d.sleep_duration_min && (() => {
-          const slD = d.sleep_duration_min || 443;
-          const slQ = d.sleep_quality || 82;
-          const deep = d.deep_sleep_min || 130;
-          const light = d.light_sleep_min || 245;
-          const rem = d.rem_sleep_min || 68;
-          const inter = d.sleep_interruptions || 2;
-          const total = deep + light + rem;
-          const apneaRisk = Math.min(100, Math.max(5, inter * 12 + (slQ < 70 ? 20 : 0)));
+          const { session: sleepSession, deepMin: nightDeepMin, lightMin: nightLightMin, remMin: nightRemMin, awakeMin: nightAwakeMin, totalSleep: nightTotalSleep, duration: nightDuration, quality: nightQuality, interruptions: nightInterruptions, apnea: nightApnea } = sleepNightData;
+          const deepPct = nightTotalSleep > 0 ? Math.round(nightDeepMin / nightTotalSleep * 100) : 0;
           // Build sleep session from date - different pattern per night
           const buildSleepSession = () => {
             // Use selectedDate as seed for deterministic but varied data
