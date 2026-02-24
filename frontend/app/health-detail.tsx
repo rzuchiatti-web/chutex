@@ -314,38 +314,38 @@ export default function HealthDetailScreen() {
 
         {/* Nora Analysis for this section */}
         {report?.ai && (
-          <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', paddingTop: metricId !== 'sleep' ? 56 : 16, marginBottom: 14, position: 'relative', zIndex: 1 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
-              <div style={{ width: 28, height: 28, borderRadius: 9, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 10, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
+          <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '20px', paddingTop: metricId !== 'sleep' ? 60 : 20, marginBottom: 16, position: 'relative', zIndex: 1 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 } as any}>
+              <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.2)', border: '1px solid rgba(167,139,250,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 14, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
               <div>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Nora</span>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 6 }}>{sec.title}</span>
+                <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>Nora</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{sec.title}</div>
               </div>
             </div>
-            {report.ai.correlations && report.ai.correlations.filter((_: any, i: number) => i < 2).map((c: string, i: number) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
-                <i className="ri-links-line" style={{ fontSize: 12, color: 'rgba(167,139,250,0.5)', marginTop: 2 }} />
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{c}</span>
+            {report.ai.correlations && report.ai.correlations.filter((_: any, i: number) => i < 3).map((c: string, i: number) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                <i className="ri-links-line" style={{ fontSize: 14, color: '#A78BFA', marginTop: 2, flexShrink: 0 }} />
+                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>{c}</span>
               </div>
             ))}
             {report.ai.whats_good && report.ai.whats_good.length > 0 && (
-              <div style={{ marginTop: 10 } as any}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(16,185,129,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Points forts</div>
-                {report.ai.whats_good.slice(0, 2).map((g: string, i: number) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '4px 0' } as any}>
-                    <i className="ri-checkbox-circle-line" style={{ fontSize: 12, color: '#10B981', marginTop: 2 }} />
-                    <span style={{ fontSize: 12, color: 'rgba(16,185,129,0.7)', lineHeight: 1.5 }}>{g}</span>
+              <div style={{ marginTop: 14, padding: '14px', borderRadius: 14, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)' } as any}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Points forts</div>
+                {report.ai.whats_good.slice(0, 3).map((g: string, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '5px 0' } as any}>
+                    <i className="ri-checkbox-circle-line" style={{ fontSize: 14, color: '#10B981', marginTop: 2, flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, color: '#FFF', lineHeight: 1.6, opacity: 0.8 }}>{g}</span>
                   </div>
                 ))}
               </div>
             )}
             {report.ai.watch_out && report.ai.watch_out.length > 0 && (
-              <div style={{ marginTop: 8 } as any}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(245,158,11,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>A surveiller</div>
-                {report.ai.watch_out.slice(0, 2).map((w: string, i: number) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '4px 0' } as any}>
-                    <i className="ri-error-warning-line" style={{ fontSize: 12, color: '#F59E0B', marginTop: 2 }} />
-                    <span style={{ fontSize: 12, color: 'rgba(245,158,11,0.7)', lineHeight: 1.5 }}>{w}</span>
+              <div style={{ marginTop: 10, padding: '14px', borderRadius: 14, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' } as any}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>A surveiller</div>
+                {report.ai.watch_out.slice(0, 3).map((w: string, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '5px 0' } as any}>
+                    <i className="ri-error-warning-line" style={{ fontSize: 14, color: '#F59E0B', marginTop: 2, flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, color: '#FFF', lineHeight: 1.6, opacity: 0.8 }}>{w}</span>
                   </div>
                 ))}
               </div>
@@ -358,7 +358,6 @@ export default function HealthDetailScreen() {
           const val = getValue(m.key);
           const numVal = parseFloat(String(val).replace(/[^0-9.]/g, ''));
           const isExpanded = expanded === m.key;
-          // Define normal/abnormal zones per metric
           const zones: Record<string, { low: number; normal: [number, number]; high: number; unit: string }> = {
             heart_rate: { low: 50, normal: [60, 100], high: 120, unit: 'bpm' },
             hrv: { low: 10, normal: [20, 80], high: 100, unit: 'ms' },
@@ -374,45 +373,57 @@ export default function HealthDetailScreen() {
           };
           const z = zones[m.key];
           const inNormal = z ? numVal >= z.normal[0] && numVal <= z.normal[1] : true;
-          const zoneLabel = z ? (numVal < z.normal[0] ? 'En dessous de la normale' : numVal > z.normal[1] ? 'Au dessus de la normale' : 'Zone normale') : null;
+          const zoneLabel = z ? (numVal < z.normal[0] ? 'En dessous' : numVal > z.normal[1] ? 'Au dessus' : 'Normal') : null;
           const zoneColor = z ? (inNormal ? '#10B981' : numVal < z.normal[0] ? '#38BDF8' : '#EF4444') : null;
+          const pctPos = z ? Math.max(0, Math.min(100, ((numVal - z.low) / (z.high - z.low)) * 100)) : 50;
+          const normalStart = z ? ((z.normal[0] - z.low) / (z.high - z.low)) * 100 : 0;
+          const normalWidth = z ? ((z.normal[1] - z.normal[0]) / (z.high - z.low)) * 100 : 100;
           return (
-            <div key={m.key} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: `1px solid ${isExpanded ? `${sec.color}30` : 'rgba(255,255,255,0.06)'}`, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 8, overflow: 'hidden', transition: 'border-color 0.2s' } as any}>
-              <div onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: m.key === 'bp_display' ? 'heart_rate' : m.key } })} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', cursor: 'pointer' } as any}>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginBottom: 4 }}>{m.label}</div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
-                    <span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{val}</span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span>
-                    {zoneLabel && <span style={{ fontSize: 9, fontWeight: 700, color: zoneColor, marginLeft: 'auto', padding: '2px 8px', borderRadius: 99, background: `${zoneColor}15` }}>{zoneLabel}</span>}
+            <div key={m.key} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, overflow: 'hidden' } as any}>
+              <div onClick={() => setExpanded(isExpanded ? null : m.key)} style={{ padding: '18px 20px', cursor: 'pointer' } as any}>
+                {/* Label + value row */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 15, color: '#FFF', fontWeight: 700 }}>{m.label}</div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
+                    <span style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{val}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>{m.unit}</span>
                   </div>
-                  {/* Zone bar */}
-                  {z && !isNaN(numVal) && (
-                    <div style={{ marginTop: 8 } as any}>
-                      <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' } as any}>
-                        {/* Normal zone highlight */}
-                        <div style={{ position: 'absolute', left: `${((z.normal[0] - z.low) / (z.high - z.low)) * 100}%`, width: `${((z.normal[1] - z.normal[0]) / (z.high - z.low)) * 100}%`, height: '100%', background: 'rgba(16,185,129,0.25)', borderRadius: 2 } as any} />
-                        {/* Current value marker */}
-                        <div style={{ position: 'absolute', left: `${Math.max(0, Math.min(100, ((numVal - z.low) / (z.high - z.low)) * 100))}%`, top: -2, width: 8, height: 8, borderRadius: 4, background: zoneColor || '#FFF', border: '2px solid rgba(0,0,0,0.3)', transform: 'translateX(-4px)' } as any} />
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 } as any}>
-                        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>{z.low}</span>
-                        <span style={{ fontSize: 8, color: 'rgba(16,185,129,0.4)' }}>{z.normal[0]}-{z.normal[1]} {z.unit}</span>
-                        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>{z.high}</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
-                <i className={isExpanded ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 20, color: 'rgba(255,255,255,0.25)', flexShrink: 0, marginLeft: 10 }} />
-              </div>
-              {isExpanded && (
-                <div style={{ padding: '0 18px 16px', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
-                  <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', marginTop: 10 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
-                      <i className="ri-information-line" style={{ fontSize: 14, color: sec.color }} />
-                      <span style={{ fontSize: 11, fontWeight: 700, color: sec.color, textTransform: 'uppercase', letterSpacing: 0.5 }}>Comprendre</span>
+                {/* Zone bar — big and visible */}
+                {z && !isNaN(numVal) && (
+                  <div>
+                    <div style={{ height: 12, borderRadius: 6, background: 'rgba(255,255,255,0.06)', position: 'relative', overflow: 'visible' } as any}>
+                      {/* Danger zones */}
+                      <div style={{ position: 'absolute', left: 0, width: `${normalStart}%`, height: '100%', borderRadius: '6px 0 0 6px', background: 'rgba(56,189,248,0.12)' } as any} />
+                      {/* Normal zone */}
+                      <div style={{ position: 'absolute', left: `${normalStart}%`, width: `${normalWidth}%`, height: '100%', background: 'rgba(16,185,129,0.25)', borderLeft: '1px solid rgba(16,185,129,0.4)', borderRight: '1px solid rgba(16,185,129,0.4)' } as any} />
+                      {/* High zone */}
+                      <div style={{ position: 'absolute', right: 0, width: `${100 - normalStart - normalWidth}%`, height: '100%', borderRadius: '0 6px 6px 0', background: 'rgba(239,68,68,0.12)' } as any} />
+                      {/* Current value marker */}
+                      <div style={{ position: 'absolute', left: `${pctPos}%`, top: -3, width: 14, height: 18, borderRadius: 7, background: zoneColor || '#FFF', border: '2.5px solid rgba(0,0,0,0.4)', transform: 'translateX(-7px)', boxShadow: `0 0 10px ${zoneColor}60` } as any} />
                     </div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>{m.explain}</div>
+                    {/* Labels under bar */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 } as any}>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{z.low} {z.unit}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                        <span style={{ width: 8, height: 8, borderRadius: 4, background: zoneColor } as any} />
+                        <span style={{ fontSize: 12, fontWeight: 700, color: zoneColor }}>{zoneLabel}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>({z.normal[0]}-{z.normal[1]})</span>
+                      </div>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{z.high} {z.unit}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {/* Expandable explanation */}
+              {isExpanded && (
+                <div style={{ padding: '0 20px 18px', borderTop: '1px solid rgba(255,255,255,0.06)' } as any}>
+                  <div style={{ padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginTop: 12 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
+                      <i className="ri-information-line" style={{ fontSize: 16, color: sec.color }} />
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Comprendre</span>
+                    </div>
+                    <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>{m.explain}</div>
                   </div>
                 </div>
               )}
