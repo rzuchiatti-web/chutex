@@ -150,11 +150,19 @@ export default function MetricDetailScreen() {
           </div>
         </div>
 
-        {/* Selected day detail */}
+        {/* Selected point detail */}
         {sel && (
           <div style={{ ...glass, padding: '14px 18px', marginBottom: 14, borderColor: `${color}30` } as any}>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>{new Date(sel.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
-            <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{sel.value} <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>{m.unit}</span></div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4 }}>{sel.label || new Date(sel.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
+              <span style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{sel.value}</span>
+              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>{m.unit}</span>
+              {normalMin != null && (
+                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: sel.value >= normalMin && sel.value <= normalMax ? '#10B981' : '#EF4444' }}>
+                  {sel.value >= normalMin && sel.value <= normalMax ? 'Dans la norme' : sel.value < normalMin ? 'Sous la norme' : 'Au dessus'}
+                </span>
+              )}
+            </div>
           </div>
         )}
 
