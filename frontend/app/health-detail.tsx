@@ -271,8 +271,6 @@ export default function HealthDetailScreen() {
 
             {/* Apnea risk — separate card with Nora analysis */}
             {(() => {
-              const nightApnea = Math.min(100, Math.max(5, nightInterruptions * 12 + (nightQuality < 70 ? 20 : 0)));
-              const deepPct = nightTotalSleep > 0 ? Math.round(nightDeepMin / nightTotalSleep * 100) : 0;
               return (
             <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
