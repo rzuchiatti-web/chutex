@@ -116,18 +116,14 @@ export default function AuthScreen() {
           <div style={{ width: '100%', maxWidth: 380 } as any}>
 
             <div style={{ textAlign: 'center', marginBottom: 32 } as any}>
-              <img src="https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429" alt="Chutex" style={{ height: 24, width: 'auto', marginBottom: 16 } as any} />
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 24 } as any}>
-                <span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} />
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 1.5 }}>CARE WATCH</span>
-              </div>
+              <img src="https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429" alt="Chutex" style={{ height: 56, width: 'auto', marginBottom: 28, display: 'block', margin: '0 auto 28px' } as any} />
               <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Connexion</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>Accedez a votre espace sante securise</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Accedez a votre espace sante securise</div>
             </div>
 
-            {error && <div data-testid="login-error" style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 16, fontSize: 13, color: '#F87171' } as any}>{error}</div>}
+            {error && <div data-testid="login-error" style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 16, fontSize: 13, color: '#FCA5A5', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>{error}</div>}
 
-            <form onSubmit={handleSubmit} data-testid="login-form">
+            <form onSubmit={handleSubmit} data-testid="login-form" style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '24px 20px' } as any}>
               {/* Phone with prefix */}
               <div style={{ marginBottom: 16 } as any}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>Telephone</div>
