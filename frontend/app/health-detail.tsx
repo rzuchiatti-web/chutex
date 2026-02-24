@@ -224,7 +224,7 @@ export default function HealthDetailScreen() {
               <div style={{ padding: '0 16px 12px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' } as any}>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Duree de sommeil</div>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1.1 }}>{Math.floor(slD / 60)}h {String(slD % 60).padStart(2, '0')}min</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1.1 }}>{Math.floor(nightDuration / 60)}h {String(nightDuration % 60).padStart(2, '0')}min</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
                   <div onClick={() => changeDate(-1)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} /></div>
