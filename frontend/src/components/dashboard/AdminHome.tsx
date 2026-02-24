@@ -131,7 +131,7 @@ export default function AdminHome({ token, user }: { token: string; user: any })
               </div>
             ))}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 } as any}>
+          <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: 12 } as any}>
             {/* Users by role */}
             <div style={{ ...G, padding: '16px' } as any}>
               <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Repartition par role</div>
