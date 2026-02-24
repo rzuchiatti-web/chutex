@@ -28,14 +28,24 @@ export default function ChatIAScreen() {
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [typingId, setTypingId] = useState<string | null>(null);
+  const [clearing, setClearing] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const role = user?.active_role || user?.role || 'beneficiary';
 
-  useEffect(() => { loadHistory(); }, []);
+  useEffect(() => { loadHistory(); }, [role]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, typingId]);
 
   const loadHistory = async () => {
+    setLoading(true);
     try { const h = await apiFetch('/api/chat/history', {}, token); setMessages(Array.isArray(h) ? h : []); }
     catch {} finally { setLoading(false); }
+  };
+
+  const clearChat = async () => {
+    if (clearing) return;
+    setClearing(true);
+    try { await apiFetch('/api/chat/clear', { method: 'DELETE' }, token); setMessages([]); }
+    catch {} finally { setClearing(false); }
   };
 
   const sendMessage = async (text?: string) => {
@@ -45,7 +55,7 @@ export default function ChatIAScreen() {
     setMessages(prev => [...prev, { id: 'temp-' + Date.now(), role: 'user', content: msg, created_at: new Date().toISOString() }]);
     setSending(true);
     try {
-      const res = await apiFetch('/api/chat/message', { method: 'POST', body: JSON.stringify({ message: msg, session_id: `chat-${user?.id}` }) }, token);
+      const res = await apiFetch('/api/chat/message', { method: 'POST', body: JSON.stringify({ message: msg, session_id: `chat-${user?.id}-${role}` }) }, token);
       setMessages(prev => [...prev.filter(m => !m.id?.startsWith('temp-')), { id: 'u-' + Date.now(), role: 'user', content: msg, created_at: new Date().toISOString() }, { id: res.id, role: 'assistant', content: res.content, created_at: res.created_at }]);
       setTypingId(res.id);
     } catch {
