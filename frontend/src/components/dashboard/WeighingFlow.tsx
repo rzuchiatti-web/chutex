@@ -45,7 +45,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
             <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 20 }}>{t('weighing_searching')}</div>
             <div style={{ width: 60, height: 60, borderRadius: 999, border: '3px solid rgba(56,189,248,0.3)', borderTopColor: '#38BDF8', margin: '0 auto 20px', animation: 'spin 1s linear infinite' } as any} />
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Activez le Bluetooth et montez sur la balance</div>
-            <div onClick={() => { setStep(3); setTimeout(() => setStep(4), 10000); }} style={{ marginTop: 24, padding: '14px', borderRadius: 999, background: 'rgba(56,189,248,0.15)', border: '1px solid rgba(56,189,248,0.25)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#38BDF8' } as any}>{t('weighing_simulate')}</div>
+            <div onClick={() => { setStep(3); setTimeout(() => setStep(4), 15000); }} style={{ marginTop: 24, padding: '14px', borderRadius: 999, background: 'rgba(56,189,248,0.15)', border: '1px solid rgba(56,189,248,0.25)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#38BDF8' } as any}>{t('weighing_simulate')}</div>
           </div>
         )}
 
