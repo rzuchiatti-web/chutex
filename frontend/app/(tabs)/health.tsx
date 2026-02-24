@@ -170,7 +170,7 @@ export default function HealthScreen() {
             {[
               { val: d.heart_rate || 72, unit: '', label: 'BPM', icon: 'ri-heart-pulse-line', color: '#EF4444', bg: 'rgba(239,68,68,0.12)', key: 'heart_rate' },
               { val: `${d.spo2 || 97}%`, unit: '', label: 'SpO2', icon: 'ri-drop-line', color: '#38BDF8', bg: 'rgba(56,189,248,0.12)', key: 'spo2' },
-              { val: `${d.blood_pressure?.systolic || 125}`, unit: `/${d.blood_pressure?.diastolic || 78}`, label: 'Tension', icon: 'ri-pulse-line', color: '#A78BFA', bg: 'rgba(167,139,250,0.12)', key: 'heart_rate' },
+              { val: `${d.blood_pressure?.systolic || 125}`, unit: `/${d.blood_pressure?.diastolic || 78}`, label: 'Tension', icon: 'ri-pulse-line', color: '#A78BFA', bg: 'rgba(167,139,250,0.12)', key: 'blood_pressure' },
               { val: `${d.temperature || 36.6}`, unit: 'C', label: 'Temp.', icon: 'ri-temp-hot-line', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', key: 'temperature' },
             ].map((v, i) => (
               <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '14px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', textAlign: 'center', cursor: 'pointer' } as any}>
