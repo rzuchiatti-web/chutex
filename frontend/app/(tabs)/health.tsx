@@ -160,29 +160,18 @@ export default function HealthScreen() {
               </div>
             ))}
           </div>
-          {ai.priority && (
-            <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(34,211,238,0.06)', border: '1px solid rgba(34,211,238,0.1)', marginBottom: 14, display: 'flex', alignItems: 'flex-start', gap: 10 } as any}>
-              <i className="ri-focus-3-line" style={{ fontSize: 14, color: '#22D3EE', marginTop: 2, flexShrink: 0 }} />
-              <div><div style={{ fontSize: 9, fontWeight: 700, color: '#22D3EE', textTransform: 'uppercase', marginBottom: 2 }}>Priorite du jour</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{ai.priority}</div></div>
-            </div>
-          )}
-
-          {/* 3b. Action cards: Pesée + ECG */}
+          {/* 3b. Action cards: Pesée + ECG — with device images */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
-            <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '16px', borderRadius: 18, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, transition: 'transform 0.2s' } as any}
-              onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-2px)'}
-              onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <i className="ri-scales-3-line" style={{ fontSize: 20, color: '#A78BFA' }} />
-              </div>
+            <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '16px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, transition: 'transform 0.15s, background 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.background='rgba(255,255,255,0.10)'; e.currentTarget.style.transform='translateY(-2px)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.transform=''; }}>
+              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg" alt="Balance" style={{ height: 52, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' } as any} />
               <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Nouvelle pesee</div>
             </div>
-            <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '16px', borderRadius: 18, background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.15)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, transition: 'transform 0.2s' } as any}
-              onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-2px)'}
-              onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(249,115,22,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <i className="ri-pulse-line" style={{ fontSize: 20, color: '#F97316' }} />
-              </div>
+            <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '16px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, transition: 'transform 0.15s, background 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.background='rgba(255,255,255,0.10)'; e.currentTarget.style.transform='translateY(-2px)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.transform=''; }}>
+              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="Bracelet" style={{ height: 52, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' } as any} />
               <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Realiser un ECG</div>
             </div>
           </div>
