@@ -291,7 +291,7 @@ export default function RegisterScreen() {
           {/* ═══ BENEFICIARY STEP 3: Infos perso ═══ */}
           {step === 3 && role === 'beneficiary' && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Informations personnelles</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Pour personnaliser votre suivi sante</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>Pour personnaliser votre suivi sante</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
               <GI label="Prenom" placeholder="Jean" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
               <GI label="Nom" placeholder="Dupont" value={form.name} onChange={(e: any) => u('name', e.target.value)} />
