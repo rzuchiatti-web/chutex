@@ -183,8 +183,8 @@ export default function AdminHome({ token, user }: { token: string; user: any })
 
         {/* ── DATA ── */}
         {tab === 'data' && (<>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' } as any}>
-            {([['subscriptions', 'Abonnements', subs.length], ['prescriptions', 'Prescriptions', prescs.length], ['saad', 'Invitations SAAD', invites.length], ['rgpd', 'Demandes RGPD', rgpd.length], ['emails', 'Emails envoyes', emails.length]] as any).map(([k, l, n]: any) => <Pill key={k} active={dataSub === k} onClick={() => setDataSub(k)} count={n}>{l}</Pill>)}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: mobile ? 'nowrap' : 'wrap', overflowX: mobile ? 'auto' : 'visible', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', paddingBottom: 2 } as any}>
+            {([['subscriptions', 'Abonnements', subs.length], ['prescriptions', 'Prescriptions', prescs.length], ['saad', 'Invitations SAAD', invites.length], ['rgpd', 'RGPD', rgpd.length], ['emails', 'Emails', emails.length]] as any).map(([k, l, n]: any) => <Pill key={k} active={dataSub === k} onClick={() => setDataSub(k)} count={n}>{l}</Pill>)}
           </div>
           {dataSub === 'subscriptions' && (<div style={{ ...G, overflow: 'hidden' } as any}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}><span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Abonnements ({subs.length})</span><div onClick={() => { const ph = prompt('Telephone beneficiaire'); if (ph) apiFetch('/api/admin/subscriptions', { method: 'POST', body: JSON.stringify({ beneficiary_phone: ph, subscription_type: 'care', source: 'admin' }) }, token).then(() => { alert('Cree'); load(); }).catch((e: any) => alert(e.message)); }} style={{ padding: '5px 12px', borderRadius: 8, background: 'rgba(16,185,129,0.1)', cursor: 'pointer', fontSize: 10, fontWeight: 700, color: '#10B981' } as any}>+ Creer</div></div>
