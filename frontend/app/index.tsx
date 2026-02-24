@@ -160,7 +160,7 @@ export default function AuthScreen() {
               </button>
             </form>
 
-            <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); }} style={{ textAlign: 'center', marginTop: 20, fontSize: 12, color: 'rgba(255,255,255,0.25)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
+            <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); }} style={{ textAlign: 'center', marginTop: 20, fontSize: 12, color: 'rgba(255,255,255,0.4)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
 
             {/* Forgot password popup */}
             {showForgot && (
