@@ -173,7 +173,9 @@ export default function HealthDetailScreen() {
           const pColors = ['rgba(255,255,255,0.5)', '#7CB3E8', '#4A90D9', '#2D5F8A'];
           const pY = [12, 60, 110, 155];
           return (
-            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 14, overflow: 'hidden' } as any}>
+            <>
+            {/* Hypnogram card with blur */}
+            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden' } as any}>
               <div style={{ padding: '16px 16px 8px' } as any}>
                 <svg width="100%" viewBox="0 0 700 180" style={{ display: 'block' }}>
                   <text x="0" y="16" fill="rgba(255,255,255,0.25)" fontSize="9">Eveil</text>
@@ -198,7 +200,6 @@ export default function HealthDetailScreen() {
                   <text x="660" y="175" fill="rgba(255,255,255,0.3)" fontSize="9" fontWeight="700">6:30</text>
                 </svg>
               </div>
-              {/* Movement */}
               <div style={{ padding: '4px 16px 8px' } as any}>
                 <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginBottom: 3 }}>Mouvements</div>
                 <svg width="100%" viewBox="0 0 635 14" style={{ display: 'block' }}>
@@ -206,7 +207,6 @@ export default function HealthDetailScreen() {
                   <line x1="0" y1="7" x2="635" y2="7" stroke="rgba(255,255,255,0.04)" />
                 </svg>
               </div>
-              {/* Phases legend */}
               <div style={{ padding: '8px 16px', display: 'flex', flexDirection: 'column', gap: 6 } as any}>
                 {[
                   { l: 'Eveil', v: `${Math.floor((slD - total) / 60)}h${String(Math.max(0, (slD - total) % 60)).padStart(2, '0')}m`, c: 'rgba(255,255,255,0.5)' },
@@ -222,10 +222,9 @@ export default function HealthDetailScreen() {
                   </div>
                 ))}
               </div>
-              {/* Quality + Interruptions in one card + Apnea bar below */}
+              {/* Quality + Interruptions */}
               <div style={{ padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
-                {/* Unified quality + interruptions */}
-                <div style={{ display: 'flex', gap: 16, marginBottom: 16 } as any}>
+                <div style={{ display: 'flex', gap: 16 } as any}>
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 } as any}>
                     <div style={{ width: 44, height: 44, borderRadius: 14, background: slQ >= 80 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                       <i className="ri-star-line" style={{ fontSize: 20, color: slQ >= 80 ? '#10B981' : '#F59E0B' }} />
@@ -246,27 +245,42 @@ export default function HealthDetailScreen() {
                     </div>
                   </div>
                 </div>
-                {/* Apnea risk bar */}
-                <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                      <i className="ri-lungs-line" style={{ fontSize: 16, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }} />
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Estimation risque d'apnee du sommeil</span>
-                    </div>
-                    <span style={{ padding: '4px 12px', borderRadius: 999, background: apneaRisk < 30 ? 'rgba(16,185,129,0.12)' : apneaRisk < 60 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)', fontSize: 11, fontWeight: 700, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modere' : 'Eleve'}</span>
-                  </div>
-                  <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative' } as any}>
-                    <div style={{ position: 'absolute', inset: 0, borderRadius: 5, background: 'linear-gradient(90deg, #10B981 0%, #10B981 30%, #F59E0B 50%, #EF4444 80%, #DC2626 100%)', opacity: 0.15 } as any} />
-                    <div style={{ height: 10, borderRadius: 5, width: `${apneaRisk}%`, background: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? 'linear-gradient(90deg, #10B981, #F59E0B)' : 'linear-gradient(90deg, #F59E0B, #EF4444)', transition: 'width 1s ease', boxShadow: `0 0 12px ${apneaRisk < 30 ? 'rgba(16,185,129,0.4)' : apneaRisk < 60 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'}` } as any} />
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 } as any}>
-                    <span style={{ fontSize: 9, color: 'rgba(16,185,129,0.5)' }}>Faible</span>
-                    <span style={{ fontSize: 9, color: 'rgba(245,158,11,0.5)' }}>Modere</span>
-                    <span style={{ fontSize: 9, color: 'rgba(239,68,68,0.5)' }}>Eleve</span>
-                  </div>
+              </div>
+            </div>
+
+            {/* Apnea risk — separate card with Nora analysis */}
+            <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                <i className="ri-lungs-line" style={{ fontSize: 16, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }} />
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Risque d'apnee du sommeil</span>
+                <span style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, background: apneaRisk < 30 ? 'rgba(16,185,129,0.12)' : apneaRisk < 60 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)', fontSize: 10, fontWeight: 700, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modere' : 'Eleve'}</span>
+              </div>
+              <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative', marginBottom: 6 } as any}>
+                <div style={{ position: 'absolute', inset: 0, borderRadius: 5, background: 'linear-gradient(90deg, #10B981 0%, #10B981 30%, #F59E0B 50%, #EF4444 80%, #DC2626 100%)', opacity: 0.15 } as any} />
+                <div style={{ height: 10, borderRadius: 5, width: `${apneaRisk}%`, background: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? 'linear-gradient(90deg, #10B981, #F59E0B)' : 'linear-gradient(90deg, #F59E0B, #EF4444)', transition: 'width 1s ease', boxShadow: `0 0 12px ${apneaRisk < 30 ? 'rgba(16,185,129,0.4)' : apneaRisk < 60 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'}` } as any} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 } as any}>
+                <span style={{ fontSize: 9, color: 'rgba(16,185,129,0.5)' }}>Faible</span>
+                <span style={{ fontSize: 9, color: 'rgba(245,158,11,0.5)' }}>Modere</span>
+                <span style={{ fontSize: 9, color: 'rgba(239,68,68,0.5)' }}>Eleve</span>
+              </div>
+              {/* Nora analysis for apnea */}
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 12 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
+                  <div style={{ width: 22, height: 22, borderRadius: 7, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 8, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.7)' }}>Analyse de Nora</span>
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
+                  {apneaRisk < 30
+                    ? `Avec ${inter} interruption${inter > 1 ? 's' : ''} et une qualite de sommeil de ${slQ}%, votre risque d'apnee est faible. Votre sommeil profond represente ${Math.round(deep / total * 100)}% du total, ce qui est un bon indicateur de recuperation. Continuez a maintenir une heure de coucher reguliere.`
+                    : apneaRisk < 60
+                    ? `${inter} interruptions detectees avec une qualite de ${slQ}%. Le risque modere d'apnee merite attention. Votre sommeil profond (${Math.round(deep / total * 100)}%) pourrait etre ameliore. Je recommande de consulter si les interruptions persistent ou augmentent.`
+                    : `Attention : ${inter} interruptions et une qualite de ${slQ}% indiquent un risque eleve d'apnee. Le sommeil profond ne represente que ${Math.round(deep / total * 100)}% du total. Une consultation en medecine du sommeil est fortement recommandee pour un diagnostic precis.`
+                  }
                 </div>
               </div>
             </div>
+            </>
           );
         })()}
 
