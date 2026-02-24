@@ -12,8 +12,9 @@ BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 def auth_token():
     """Get authentication token using beneficiary credentials"""
     # Login with beneficiary phone: +33651245918, password: demo123
+    # Note: API uses 'email' field but accepts phone number
     response = requests.post(f"{BASE_URL}/api/auth/login", json={
-        "phone": "+33651245918",
+        "email": "+33651245918",
         "password": "demo123"
     })
     if response.status_code == 200:
