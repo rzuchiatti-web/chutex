@@ -139,7 +139,7 @@ export default function HealthDetailScreen() {
         {metricId === 'sleep' ? (
           <div style={{ textAlign: 'center', marginBottom: 0, position: 'relative', zIndex: 2 } as any}>
             <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 16 }}>{sec.title}</div>
-            <img src={sec.img} alt="" style={{ width: 140, height: 140, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.5))', position: 'relative', zIndex: 3, marginBottom: -30 } as any} />
+            <img src={sec.img} alt="" style={{ width: 200, height: 200, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', position: 'relative', zIndex: 3, marginBottom: -50 } as any} />
           </div>
         ) : (
           <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
