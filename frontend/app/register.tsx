@@ -53,12 +53,12 @@ const PREFIXES = [
   { code: '+1', flag: '\u{1F1FA}\u{1F1F8}', label: 'USA / Canada' },
 ];
 
-const INPUT_STYLE = { width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
+const INPUT_STYLE = { width: '100%', padding: '13px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
 
 function GI({ label, ...props }: any) {
   return (
     <div style={{ marginBottom: 14 } as any}>
-      <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>{label}</div>
+      <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>{label}</div>
       <input {...props} style={{ ...INPUT_STYLE, ...(props.style || {}) }} />
     </div>
   );
@@ -66,7 +66,7 @@ function GI({ label, ...props }: any) {
 
 function Chip({ label, selected, onClick }: any) {
   return (
-    <div onClick={onClick} style={{ padding: '10px 16px', borderRadius: 999, background: selected ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${selected ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 13, fontWeight: selected ? 700 : 500, color: selected ? '#FFF' : 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+    <div onClick={onClick} style={{ padding: '10px 16px', borderRadius: 999, background: selected ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)', border: `1px solid ${selected ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)'}`, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'pointer', fontSize: 13, fontWeight: selected ? 700 : 500, color: selected ? '#FFF' : 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: 8 } as any}>
       {selected && <i className="ri-check-line" style={{ fontSize: 14 }} />}{label}
     </div>
   );
