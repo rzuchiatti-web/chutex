@@ -89,7 +89,6 @@ CARE WATCH is a sophisticated preventative health application. The central goal 
 
 ### P1 (High)
 - Full i18n audit (convert all remaining hardcoded strings to t() function)
-- Portuguese and Dutch translations completion
 - Native BLE integration debugging (bracelet, scale, vest)
 
 ### P2 (Medium)
