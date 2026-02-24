@@ -235,6 +235,48 @@ export default function HealthScreen() {
 
           {ai.motivation && <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>{ai.motivation}</div>}
 
+          {/* PDF Report card */}
+          <div data-testid="pdf-report-card" style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, padding: '18px 18px 16px', overflow: 'hidden' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 } as any}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <i className="ri-file-text-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.5)' }} />
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>Obtenir mon rapport de sante</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Rapport PDF medical detaille</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 14 } as any}>
+              {[{ k: '7j', l: '7 jours' }, { k: '30j', l: '30 jours' }, { k: '90j', l: '90 jours' }].map(p => (
+                <div key={p.k} data-testid={`pdf-period-${p.k}`} onClick={() => setPdfPeriod(p.k)} style={{ flex: 1, padding: '8px 0', borderRadius: 10, background: pdfPeriod === p.k ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${pdfPeriod === p.k ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: 700, color: pdfPeriod === p.k ? '#FFF' : 'rgba(255,255,255,0.3)', transition: 'all 0.15s' } as any}>{p.l}</div>
+              ))}
+            </div>
+            <div data-testid="pdf-download-btn" onClick={async () => {
+              if (pdfLoading) return;
+              setPdfLoading(true);
+              try {
+                const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+                const res = await fetch(`${backendUrl}/api/health/report/pdf?period=${pdfPeriod}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) throw new Error('Erreur');
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `rapport_sante_${pdfPeriod}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              } catch (e) { console.error(e); } finally { setPdfLoading(false); }
+            }} style={{ padding: '12px 0', borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: pdfLoading ? 'wait' : 'pointer', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all 0.15s' } as any}
+              onMouseEnter={(e: any) => { if (!pdfLoading) e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+            >
+              <i className={pdfLoading ? 'ri-loader-4-line' : 'ri-download-2-line'} style={{ fontSize: 16, color: '#FFF', ...(pdfLoading ? { animation: 'spin 1s linear infinite' } : {}) }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{pdfLoading ? 'Generation en cours...' : 'Telecharger le rapport PDF'}</span>
+            </div>
+          </div>
+
           {/* DEV: Day simulator */}
           <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)', marginBottom: 14 } as any}>
             <div style={{ fontSize: 9, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Simulateur</div>
