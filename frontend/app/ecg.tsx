@@ -166,6 +166,7 @@ export default function ECGScreen() {
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
               Gardez votre doigt sur le capteur
             </div>
+            <div onClick={() => { setStep(0); setRecordProgress(0); }} style={{ marginTop: 24, padding: '14px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler l'ECG</div>
           </div>
         )}
 
