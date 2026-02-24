@@ -1141,11 +1141,29 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 }
 
 /* ═══════════════════════════════════════════════════════ */
-/*                    GUARDIAN HOME                         */
+/*                   MAIN DASHBOARD ROUTER                 */
 /* ═══════════════════════════════════════════════════════ */
-function GuardianHome({ token, user }: { token: string; user: any }) {
-  const router = useRouter();
-  const { t, lang, setLang } = useI18n();  const { refreshUser } = useAuth();
+export default function Dashboard() {
+  const { user, token } = useAuth();
+  if (!user || !token) return null;
+  const r = user.active_role || user.role;
+
+  switch (r) {
+    case 'beneficiary': return <BeneficiaryHome token={token} user={user} />;
+    case 'guardian': return <GuardianHome token={token} user={user} />;
+    case 'teleassistance': return <TeleassistanceHome token={token} user={user} />;
+    case 'admin': return <AdminHome token={token} user={user} />;
+    case 'prescriber_company': return <CompanyHome token={token} user={user} />;
+    default: return <BeneficiaryHome token={token} user={user} />;
+  }
+}
+
+// ═══ REMAINING CODE BELOW IS NOW IN EXTRACTED COMPONENTS ═══
+// GuardianHome → src/components/dashboard/GuardianHome.tsx
+// TeleassistanceHome → src/components/dashboard/TeleassistanceHome.tsx
+// AdminHome → src/components/dashboard/AdminHome.tsx
+// CompanyHome → src/components/dashboard/CompanyHome.tsx
+// END_OF_REFACTORED_FILE
   const [bens, setBens] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
   const [invitations, setInvitations] = useState<any[]>([]);
