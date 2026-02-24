@@ -5,7 +5,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 
-const BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
+const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 
 function ECGWaveform({ data, color = '#EF4444', w = 360, h = 120 }: { data?: number[]; color?: string; w?: number; h?: number }) {
   // Generate realistic ECG waveform if no data
