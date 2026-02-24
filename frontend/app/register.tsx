@@ -228,7 +228,7 @@ export default function RegisterScreen() {
           {/* ═══ STEP 2: Phone + Password (both roles) ═══ */}
           {step === 2 && (<>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Creez votre compte</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Vos identifiants de connexion</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>Vos identifiants de connexion</div>
             {/* Phone with prefix */}
             <div style={{ marginBottom: 14 } as any}>
               <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Telephone</div>
