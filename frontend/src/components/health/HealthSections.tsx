@@ -29,13 +29,11 @@ export default function HealthSections({ d, subs }: Props) {
           onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
           onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = ''; }}
         >
-          {/* Image - no frame, oversized, bleeds top and bottom */}
-          <div style={{ width: 90, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', alignSelf: 'stretch', position: 'relative' } as any}>
+          {/* Image - no frame, sized to fit card */}
+          <div style={{ width: 70, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 0 8px 12px' } as any}>
             <img src={sec.img} alt={sec.label} style={{
-              height: 90, objectFit: 'contain',
-              filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.4))',
-              position: 'absolute', top: '50%', left: '50%',
-              transform: 'translate(-50%, -50%)',
+              height: 52, objectFit: 'contain',
+              filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.35))',
             } as any} />
           </div>
           {/* Text */}
