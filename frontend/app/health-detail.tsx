@@ -84,7 +84,6 @@ export default function HealthDetailScreen() {
   const sleepNightData = useMemo(() => {
     const deep = 130, light = 245, rem = 68;
     const seed = (selectedDate.getDate() * 7 + selectedDate.getMonth() * 31 + selectedDate.getFullYear()) % 997;
-    console.log('[SLEEP] Computing for date:', selectedDate.toDateString(), 'seed:', seed);
     const pr = (n: number) => ((seed * 9301 + n * 49297 + 233280) % 233280) / 233280;
 
     const nDeep = Math.max(60, deep + Math.round((pr(1) - 0.5) * 60));
