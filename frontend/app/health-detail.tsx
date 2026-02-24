@@ -80,6 +80,54 @@ export default function HealthDetailScreen() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  /* ── Per-night sleep data computation ── */
+  const sleepNightData = useMemo(() => {
+    const deep = 130, light = 245, rem = 68;
+    const seed = (selectedDate.getDate() * 7 + selectedDate.getMonth() * 31 + selectedDate.getFullYear()) % 997;
+    const pr = (n: number) => ((seed * 9301 + n * 49297 + 233280) % 233280) / 233280;
+
+    const nDeep = Math.max(60, deep + Math.round((pr(1) - 0.5) * 60));
+    const nLight = Math.max(100, light + Math.round((pr(2) - 0.5) * 80));
+    const nRem = Math.max(30, rem + Math.round((pr(3) - 0.5) * 40));
+    const nTotal = nDeep + nLight + nRem;
+    const nDur = nTotal + Math.round(pr(4) * 20) + 5;
+    const startH = 22 + Math.floor(pr(5) * 1.5);
+    const startM = Math.round(pr(6) * 50);
+
+    const stages: number[] = [];
+    let m = 0;
+    const awake = Math.max(0, nDur - nTotal);
+    for (let i = 0; i < Math.min(8, awake); i++) { stages.push(0); m++; }
+    const cycles = Math.max(3, Math.round(nTotal / 90));
+    for (let c = 0; c < cycles && m < nDur; c++) {
+      const lpc = Math.round(nLight / cycles);
+      for (let i = 0; i < lpc && m < nDur; i++) { stages.push(2); m++; }
+      const dpc = c < 2 ? Math.round(nDeep / cycles) + 5 : Math.max(5, Math.round(nDeep / cycles) - 5);
+      for (let i = 0; i < dpc && m < nDur; i++) { stages.push(1); m++; }
+      for (let i = 0; i < Math.round(lpc * 0.3) && m < nDur; i++) { stages.push(2); m++; }
+      const rpc = c < 2 ? Math.max(5, Math.round(nRem / cycles) - 5) : Math.round(nRem / cycles) + 5;
+      for (let i = 0; i < rpc && m < nDur; i++) { stages.push(3); m++; }
+      if (c < cycles - 1 && pr(10 + c) > 0.4) {
+        for (let i = 0; i < 1 + Math.round(pr(20 + c) * 3) && m < nDur; i++) { stages.push(0); m++; }
+      }
+    }
+    for (let i = 0; i < 3 && m < nDur; i++) { stages.push(0); m++; }
+
+    const session = fromBraceletStages(stages, startH, startM);
+    const pts = session.points;
+    const deepMin = pts.filter((p: any) => p.stage === 'deep').length;
+    const lightMin = pts.filter((p: any) => p.stage === 'light').length;
+    const remMin = pts.filter((p: any) => p.stage === 'rem').length;
+    const awakeMin = pts.filter((p: any) => p.stage === 'awake').length;
+    const totalSleep = deepMin + lightMin + remMin;
+    const duration = totalSleep + awakeMin;
+    const quality = totalSleep > 0 ? Math.min(100, Math.round((deepMin * 2 + remMin * 1.5 + lightMin * 0.8) / totalSleep * 100)) : 0;
+    const interruptions = pts.filter((p: any, i: number) => i > 0 && p.stage === 'awake' && pts[i - 1]?.stage !== 'awake').length;
+    const apnea = Math.min(100, Math.max(5, interruptions * 12 + (quality < 70 ? 20 : 0)));
+
+    return { session, deepMin, lightMin, remMin, awakeMin, totalSleep, duration, quality, interruptions, apnea };
+  }, [selectedDate]);
+
   const changeDate = (offset: number) => {
     const d = new Date(selectedDate);
     d.setDate(d.getDate() + offset);
