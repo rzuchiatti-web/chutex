@@ -205,14 +205,14 @@ export default function RegisterScreen() {
               </div>
               {/* Gardien card */}
               <div onClick={() => { setRole('guardian'); setStep(1); }} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Gardien / Professionnel</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous accompagnez un proche ou un patient dans son suivi de sante.</div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Gardien</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous etes un aidant ou professionnel souhaitant accompagner un beneficiaire.</div>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
                   {[
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/gx3y3hjr_img1_gardien.svg', label: 'PROCHE' },
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/2vkyj2ee_img2_gardien.svg', label: 'MEDECIN' },
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/6pui8o6u_img3_gardien.svg', label: 'INFIRMIER' },
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/u9b8whua_img4_gardien.svg', label: 'STRUCTURE' },
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/gx3y3hjr_img1_gardien.svg', label: 'FAMILLE' },
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/2vkyj2ee_img2_gardien.svg', label: 'INFIRMIER' },
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/6pui8o6u_img3_gardien.svg', label: 'SAP/HAD' },
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/u9b8whua_img4_gardien.svg', label: 'COACH' },
                   ].map((a, i) => (
                     <div key={i} style={{ textAlign: 'center' } as any}>
                       <div style={{ width: 56, height: 56, borderRadius: 999, overflow: 'hidden', margin: '0 auto 6px', border: '2px solid rgba(255,255,255,0.15)' } as any}><img src={a.img} alt={a.label} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>
@@ -220,7 +220,7 @@ export default function RegisterScreen() {
                     </div>
                   ))}
                 </div>
-                <div style={{ padding: '14px 0', borderRadius: 999, background: '#111', fontSize: 14, fontWeight: 800, color: '#FFF', letterSpacing: 0.5 }}>JE SUIS GARDIEN</div>
+                <div style={{ padding: '14px 0', borderRadius: 999, background: '#FFF', fontSize: 14, fontWeight: 800, color: '#111', letterSpacing: 0.5 }}>JE SUIS GARDIEN</div>
               </div>
             </div>
           </>)}
