@@ -179,9 +179,8 @@ export default function RegisterScreen() {
 
           {/* ═══ STEP 0: Role Selection ═══ */}
           {step === 0 && (<>
-            <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Bienvenue</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Choisissez votre espace pour commencer</div>
+            <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Choisissez votre espace</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 } as any}>
               {/* Beneficiaire card */}
