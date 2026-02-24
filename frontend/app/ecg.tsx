@@ -77,7 +77,7 @@ export default function ECGScreen() {
                 </div>
               ))}
             </div>
-            <div data-testid="ecg-start-prep" onClick={() => setStep(1)} style={{ padding: '16px', borderRadius: 16, background: '#F97316', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFF', textAlign: 'center' } as any}>
+            <div data-testid="ecg-start-prep" onClick={() => setStep(1)} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFF', textAlign: 'center' } as any}>
               Je suis pret
             </div>
             <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>Annuler</div>
@@ -119,7 +119,7 @@ export default function ECGScreen() {
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Ne retirez pas votre doigt pendant 30 secondes</div>
               </div>
             </div>
-            <div data-testid="ecg-launch" onClick={startRecording} style={{ padding: '16px', borderRadius: 16, background: '#F97316', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFF', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+            <div data-testid="ecg-launch" onClick={startRecording} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFF', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
               <i className="ri-pulse-line" style={{ fontSize: 20 }} /> Lancer l'ECG
             </div>
           </div>
@@ -185,7 +185,7 @@ export default function ECGScreen() {
               ))}
             </div>
 
-            <div data-testid="ecg-view-report" onClick={() => router.push({ pathname: '/ecg-detail' as any, params: { id: result.id } })} style={{ padding: '16px', borderRadius: 16, background: '#F97316', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFF', textAlign: 'center', marginBottom: 10 } as any}>
+            <div data-testid="ecg-view-report" onClick={() => router.push({ pathname: '/ecg-detail' as any, params: { id: result.id } })} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFF', textAlign: 'center', marginBottom: 10 } as any}>
               Voir le rapport detaille
             </div>
             <div onClick={() => { setStep(0); setResult(null); }} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center' } as any}>Nouvel ECG</div>
