@@ -119,6 +119,17 @@ export default function ProfileScreen() {
   const [savingNotif, setSavingNotif] = useState(false);
   const [showCareDetail, setShowCareDetail] = useState(false);
   const [showMedical, setShowMedical] = useState(false);
+  const [showRGPD, setShowRGPD] = useState(false);
+  const [rgpdRight, setRgpdRight] = useState('access');
+  const [rgpdMsg, setRgpdMsg] = useState('');
+  const [rgpdSending, setRgpdSending] = useState(false);
+  const [rgpdSent, setRgpdSent] = useState(false);
+  const [rgpdRef, setRgpdRef] = useState('');
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showCGU, setShowCGU] = useState(false);
+  const [showMentions, setShowMentions] = useState(false);
+  const [consentStatus, setConsentStatus] = useState<any>({});
+  const [showConsent, setShowConsent] = useState(false);
   const parseMedList = (val: any): string[] => {
     if (!val) return [];
     if (Array.isArray(val)) return val;
