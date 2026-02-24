@@ -1,227 +1,406 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, TextInput } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { apiFetch } from '../../services/api';
 import FullScreenLoader from '../FullScreenLoader';
-import { Card, HeroCard, SectionHeader, PillButton, LanguageFlagButton } from './SharedUI';
-import { Icon } from '../WebIcon';
-import { CHX, BG_IMAGES } from './constants';
+import { BG_IMAGES } from './constants';
 
-/* ─── REWARDS ADMIN CARD ─── */
-function RewardsAdminCard({ token }: { token: string }) {
-  const [reward, setReward] = useState<any>(null);
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ prize_1: '100', prize_2: '70', prize_3: '30' });
-  const [saving, setSaving] = useState(false);
+const BG = BG_IMAGES.dashboard;
+const BG_RED = BG_IMAGES.red;
+const G: any = { borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 
-  useEffect(() => {
-    apiFetch('/api/company/rewards/current', {}, token).then(r => {
-      setReward(r);
-      setForm({ prize_1: String(r.prize_1 || 100), prize_2: String(r.prize_2 || 70), prize_3: String(r.prize_3 || 30) });
-    }).catch(() => {});
-  }, [token]);
+type Tab = 'dashboard' | 'users' | 'alerts' | 'analytics' | 'settings';
 
-  const save = async () => {
-    setSaving(true);
-    try {
-      await apiFetch('/api/admin/rewards', { method: 'POST', body: JSON.stringify({ prize_1: parseInt(form.prize_1) || 100, prize_2: parseInt(form.prize_2) || 70, prize_3: parseInt(form.prize_3) || 30 }) }, token);
-      setEditing(false);
-      setReward({ ...reward, prize_1: parseInt(form.prize_1), prize_2: parseInt(form.prize_2), prize_3: parseInt(form.prize_3) });
-    } catch {} finally { setSaving(false); }
-  };
-
-  const monthLabel = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-
-  return (
-    <Card style={{ borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.2)', backgroundColor: 'rgba(0,0,0,0.03)' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-        <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: '#111827', justifyContent: 'center', alignItems: 'center' }}>
-          <Icon name="trophy" size={22} color="#FFF" />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 15, fontWeight: '800', color: '#111827' }}>Recompenses {monthLabel}</Text>
-          <Text style={{ fontSize: 11, color: '#6B7280' }}>Top 3 prescripteurs</Text>
-        </View>
-        <TouchableOpacity onPress={() => setEditing(!editing)} style={{ padding: 6 }}>
-          <Icon name={editing ? 'close' : 'create-outline'} size={20} color="#111827" />
-        </TouchableOpacity>
-      </View>
-      {!editing ? (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-          {[
-            { pos: '1er', prize: reward?.prize_1 || 100, color: '#FFD700' },
-            { pos: '2e', prize: reward?.prize_2 || 70, color: '#C0C0C0' },
-            { pos: '3e', prize: reward?.prize_3 || 30, color: '#CD7F32' },
-          ].map(t => (
-            <View key={t.pos} style={{ alignItems: 'center' }}>
-              <View style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: t.color, justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
-                <Icon name="trophy" size={18} color="#FFF" />
-              </View>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: '#111827' }}>{t.prize}EUR</Text>
-              <Text style={{ fontSize: 10, color: '#6B7280' }}>{t.pos}</Text>
-            </View>
-          ))}
-        </View>
-      ) : (
-        <View style={{ gap: 10 }}>
-          {['prize_1', 'prize_2', 'prize_3'].map((k, i) => (
-            <View key={k} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: '#6B7280', width: 30 }}>{i + 1}e</Text>
-              <TextInput value={(form as any)[k]} onChangeText={(v: string) => setForm({ ...form, [k]: v })} keyboardType="numeric" style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 14, padding: 12, fontSize: 16, fontWeight: '700', borderWidth: 1, borderColor: 'rgba(0,0,0,0.08)' }} />
-              <Text style={{ fontSize: 12, color: '#6B7280' }}>EUR</Text>
-            </View>
-          ))}
-          <TouchableOpacity onPress={save} style={{ backgroundColor: '#111827', borderRadius: 9999, paddingVertical: 12, alignItems: 'center', marginTop: 4 }}>
-            {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>Enregistrer</Text>}
-          </TouchableOpacity>
-        </View>
-      )}
-    </Card>
-  );
-}
-
-/* ─── ADMIN HOME ─── */
 export default function AdminHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
-  const [stats, setStats] = useState<any>({});
-  const [alerts, setAlerts] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
-  const [companies, setCompanies] = useState<any[]>([]);
+  const [tab, setTab] = useState<Tab>('dashboard');
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [ranking, setRanking] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>({});
+  const [users, setUsers] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [interventions, setInterventions] = useState<any[]>([]);
+  const [actCodes, setActCodes] = useState<any[]>([]);
+  const [ivCodes, setIvCodes] = useState<any[]>([]);
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [invitations, setInvitations] = useState<any[]>([]);
+  const [kpi, setKpi] = useState<any>({});
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [selectedUser, setSelectedUser] = useState<any>(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
     try {
-      const [st, al, us, co, rk] = await Promise.all([
-        apiFetch('/api/admin/stats', {}, token).catch(() => ({})),
-        apiFetch('/api/alerts', {}, token).catch(() => []),
-        apiFetch('/api/admin/users', {}, token).catch(() => []),
-        apiFetch('/api/admin/companies', {}, token).catch(() => []),
-        apiFetch('/api/company/ranking', {}, token).catch(() => []),
+      const [st, us, al, iv, ac, ic, sub, inv, k] = await Promise.all([
+        apiFetch('/api/backoffice/stats', {}, token).catch(() => ({})),
+        apiFetch('/api/backoffice/users', {}, token).catch(() => []),
+        apiFetch('/api/backoffice/alerts', {}, token).catch(() => []),
+        apiFetch('/api/backoffice/interventions', {}, token).catch(() => []),
+        apiFetch('/api/admin/activation-codes', {}, token).catch(() => []),
+        apiFetch('/api/admin/intervention-codes', {}, token).catch(() => []),
+        apiFetch('/api/admin/subscriptions', {}, token).catch(() => []),
+        apiFetch('/api/admin/saad-invitations', {}, token).catch(() => []),
+        apiFetch('/api/backoffice/kpi', {}, token).catch(() => ({})),
       ]);
-      setStats(st); setAlerts(al); setUsers(us); setCompanies(co); setRanking(rk);
-    } catch {} finally { setLoading(false); setRefreshing(false); }
+      setStats(st); setUsers(Array.isArray(us) ? us : []); setAlerts(Array.isArray(al) ? al : []);
+      setInterventions(Array.isArray(iv) ? iv : []); setActCodes(Array.isArray(ac) ? ac : []);
+      setIvCodes(Array.isArray(ic) ? ic : []); setSubscriptions(Array.isArray(sub) ? sub : []);
+      setInvitations(Array.isArray(inv) ? inv : []); setKpi(k);
+    } catch {} finally { setLoading(false); }
   }, [token]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  if (Platform.OS !== 'web') return null;
   if (loading) return <FullScreenLoader />;
-  const activeAlerts = alerts.filter((a: any) => a.status === 'active');
-  const BG_DASH = BG_IMAGES.dashboard;
-  const BG_RED = BG_IMAGES.red;
 
-  if (Platform.OS === 'web') {
-    return (
-      <div data-testid="admin-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <img src={BG_DASH} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
-          {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}><div style={{ width: 46, height: 46, borderRadius: 999, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.15)' } as any}><i className="ri-shield-check-line" style={{ fontSize: 20, color: '#FFF' }} /></div><div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{user.name}</div><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Administration CARE WATCH</span></div></div>
-          </div>
-          {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>{[{ val: stats.total_users || 0, label: 'Utilisateurs', icon: 'ri-group-line' }, { val: stats.total_alerts || 0, label: 'Alertes', icon: 'ri-alarm-warning-line' }, { val: activeAlerts.length, label: 'Actives', icon: 'ri-pulse-line', color: activeAlerts.length > 0 ? '#EF4444' : undefined }, { val: stats.total_interventions || 0, label: 'Interventions', icon: 'ri-map-pin-range-line' }].map((s: any, i) => (<div key={i} style={{ padding: '12px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' } as any}><i className={s.icon} style={{ fontSize: 16, color: s.color || 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 4 }} /><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{s.val}</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</div></div>))}</div>
-          {/* Quick actions */}
-          <div onClick={() => router.push('/backoffice')} data-testid="admin-backoffice-btn" style={{ padding: '14px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}><div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-settings-3-line" style={{ fontSize: 18, color: '#FFF' }} /></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Back-Office</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Gestion complete du systeme</div></div><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} /></div>
-          {/* Active alerts */}
-          {activeAlerts.map((a: any) => (<div key={a.id} onClick={() => router.push({ pathname: '/alert-detail', params: { alertId: a.id } })} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px', marginBottom: 10, cursor: 'pointer', minHeight: 70 } as any}><img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} /><div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} /><div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 12 } as any}><div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-alarm-warning-line" style={{ fontSize: 18, color: '#FFF' }} /></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{a.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{a.message}</div></div><div style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(239,68,68,0.25)' } as any}><span style={{ fontSize: 9, fontWeight: 600, color: '#FFF' }}>Active</span></div></div></div>))}
-          {/* SAAD Invitation */}
-          <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(124,92,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-mail-send-line" style={{ fontSize: 18, color: '#A78BFA' }} /></div>
-              <div><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Inviter un SAAD</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Envoyer un lien d'inscription</div></div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 } as any}>
-              <input data-testid="saad-invite-email" placeholder="Email du dirigeant SAAD" style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', width: '100%' } as any} id="saad-email" />
-              <input data-testid="saad-invite-name" placeholder="Nom du dirigeant" style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', width: '100%' } as any} id="saad-name" />
-              <input data-testid="saad-invite-structure" placeholder="Nom de la structure SAAD" style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', width: '100%' } as any} id="saad-structure" />
-            </div>
-            <div data-testid="saad-invite-btn" onClick={async () => {
-              const email = (document.getElementById('saad-email') as HTMLInputElement)?.value;
-              const name = (document.getElementById('saad-name') as HTMLInputElement)?.value;
-              const structure = (document.getElementById('saad-structure') as HTMLInputElement)?.value;
-              if (!email) return;
-              try {
-                const res = await apiFetch('/api/admin/saad-invitation', { method: 'POST', body: JSON.stringify({ email, name, structure_name: structure }) }, token);
-                alert(`Invitation envoyee a ${email} (Token: ${res.token})`);
-                (document.getElementById('saad-email') as HTMLInputElement).value = '';
-                (document.getElementById('saad-name') as HTMLInputElement).value = '';
-                (document.getElementById('saad-structure') as HTMLInputElement).value = '';
-              } catch (e: any) { alert('Erreur: ' + e.message); }
-            }} style={{ padding: '12px', borderRadius: 12, background: 'rgba(124,92,255,0.12)', border: '1px solid rgba(124,92,255,0.25)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#A78BFA' } as any}>Envoyer l'invitation</div>
-          </div>
-          {/* Rewards */}
-          <RewardsAdminCard token={token} />
-          {/* Ranking */}
-          {ranking.length > 0 && (<><div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10, marginTop: 8 }}>Classement prescripteurs</div>{ranking.slice(0, 5).map((p: any, i: number) => (<div key={p.id || i} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 6, cursor: 'pointer' } as any}><div style={{ width: 30, height: 30, borderRadius: 10, background: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? '#FFF' : 'rgba(255,255,255,0.5)' }}>#{i + 1}</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{p.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{p.prescriptions_count || 0} prescriptions</div></div><i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }} /></div>))}</>)}
-        </div>
-      </div>
-    );
-  }
+  const activeAlerts = alerts.filter((a: any) => a.status === 'active');
+  const filteredUsers = users.filter((u: any) => {
+    if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+    if (search && !u.name?.toLowerCase().includes(search.toLowerCase()) && !u.email?.toLowerCase().includes(search.toLowerCase()) && !u.phone?.includes(search)) return false;
+    return true;
+  });
+  const roleLabels: any = { beneficiary: 'Beneficiaire', guardian: 'Gardien', admin: 'Admin', teleassistance: 'Teleassistance', prescriber_company: 'SAAD' };
+  const roleColors: any = { beneficiary: '#38BDF8', guardian: '#10B981', admin: '#A78BFA', teleassistance: '#F59E0B', prescriber_company: '#F97316' };
+
+  const tabs: { key: Tab; icon: string; label: string }[] = [
+    { key: 'dashboard', icon: 'ri-dashboard-line', label: 'Dashboard' },
+    { key: 'users', icon: 'ri-group-line', label: 'Utilisateurs' },
+    { key: 'alerts', icon: 'ri-alarm-warning-line', label: 'Alertes' },
+    { key: 'analytics', icon: 'ri-bar-chart-box-line', label: 'Analytique' },
+    { key: 'settings', icon: 'ri-settings-3-line', label: 'Parametres' },
+  ];
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#FFFFFF' }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#111827" />} showsVerticalScrollIndicator={false}>
+    <div data-testid="admin-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
+      <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
 
-      <HeroCard style={{ backgroundColor: '#111827', ...(Platform.OS === 'web' ? { background: 'linear-gradient(135deg, #0C0A09 0%, #111827 40%, #44403C 100%)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' } : {}) }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 13, color: '#6B7280', fontWeight: '600' }}>Administration</Text>
-            <Text style={{ fontSize: 20, fontWeight: '700', color: '#111827' }}>{user.name}</Text>
-          </View>
-          <LanguageFlagButton />
-        </View>
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          {[
-            { val: stats.total_users || 0, label: 'Utilisateurs' },
-            { val: stats.total_alerts || 0, label: 'Alertes' },
-            { val: stats.active_alerts || 0, label: 'Actives' },
-          ].map((s, i) => (
-            <View key={i} style={{ flex: 1, backgroundColor: '#F3F4F6', borderRadius: 16, padding: 12, alignItems: 'center' }}>
-              <Text style={{ fontSize: 22, fontWeight: '700', color: '#111827' }}>{s.val}</Text>
-              <Text style={{ fontSize: 9, color: '#6B7280', fontWeight: '500', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</Text>
-            </View>
+      {/* Content */}
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 16px 90px', WebkitOverflowScrolling: 'touch' } as any}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+            <div style={{ width: 42, height: 42, borderRadius: 999, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(167,139,250,0.3)' } as any}>
+              <i className="ri-shield-check-line" style={{ fontSize: 20, color: '#A78BFA' }} />
+            </div>
+            <div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{user.name}</div><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Administration CARE WATCH</span></div>
+          </div>
+          <div onClick={fetchAll} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <i className="ri-refresh-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
+          </div>
+        </div>
+
+        {/* ═══════ TAB: DASHBOARD ═══════ */}
+        {tab === 'dashboard' && (
+          <>
+            {/* KPI Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>
+              {[
+                { val: stats.total_users || users.length, label: 'Utilisateurs', icon: 'ri-group-line', color: '#38BDF8' },
+                { val: activeAlerts.length, label: 'Alertes actives', icon: 'ri-alarm-warning-line', color: activeAlerts.length > 0 ? '#EF4444' : '#10B981' },
+                { val: interventions.length, label: 'Interventions', icon: 'ri-map-pin-range-line', color: '#F59E0B' },
+                { val: subscriptions.length, label: 'Abonnements', icon: 'ri-vip-crown-line', color: '#A78BFA' },
+              ].map((s, i) => (
+                <div key={i} style={{ ...G, padding: '12px 8px', textAlign: 'center' } as any}>
+                  <i className={s.icon} style={{ fontSize: 16, color: s.color, display: 'block', marginBottom: 4 }} />
+                  <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
+                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Active Alerts */}
+            {activeAlerts.length > 0 && (
+              <div style={{ marginBottom: 14 } as any}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Alertes actives</div>
+                {activeAlerts.slice(0, 3).map((a: any) => (
+                  <div key={a.id} onClick={() => router.push({ pathname: '/alert-detail' as any, params: { alertId: a.id } })} style={{ borderRadius: 16, overflow: 'hidden', position: 'relative', padding: '14px 16px', marginBottom: 8, cursor: 'pointer', minHeight: 60 } as any}>
+                    <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+                    <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                      <i className="ri-alarm-warning-line" style={{ fontSize: 18, color: '#FFF' }} />
+                      <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{a.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{a.message?.substring(0, 50)}</div></div>
+                      <div style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>Active</span></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Users by role */}
+            <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Repartition par role</div>
+              {Object.entries(roleLabels).map(([role, label]: any) => {
+                const count = users.filter((u: any) => u.role === role).length;
+                return (
+                  <div key={role} onClick={() => { setRoleFilter(role); setTab('users'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer' } as any}>
+                    <div style={{ width: 8, height: 8, borderRadius: 4, background: roleColors[role] } as any} />
+                    <span style={{ flex: 1, fontSize: 13, color: '#FFF', fontWeight: 600 }}>{label}</span>
+                    <span style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{count}</span>
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.15)' }} />
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* SAAD Invitation */}
+            <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
+                <i className="ri-mail-send-line" style={{ fontSize: 16, color: '#A78BFA' }} />
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Inviter un SAAD</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 } as any}>
+                <input id="saad-email" placeholder="Email du dirigeant" style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 12, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', width: '100%' } as any} />
+                <input id="saad-name" placeholder="Nom" style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 12, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', width: '100%' } as any} />
+                <input id="saad-structure" placeholder="Structure SAAD" style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 12, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', width: '100%' } as any} />
+              </div>
+              <div onClick={async () => {
+                const email = (document.getElementById('saad-email') as HTMLInputElement)?.value;
+                const name = (document.getElementById('saad-name') as HTMLInputElement)?.value;
+                const structure = (document.getElementById('saad-structure') as HTMLInputElement)?.value;
+                if (!email) return;
+                try { const r = await apiFetch('/api/admin/saad-invitation', { method: 'POST', body: JSON.stringify({ email, name, structure_name: structure }) }, token); alert(`Invitation envoyee (${r.token})`); fetchAll(); } catch (e: any) { alert(e.message); }
+              }} style={{ padding: '10px', borderRadius: 10, background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.25)', cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: 700, color: '#A78BFA' } as any}>Envoyer l'invitation</div>
+            </div>
+
+            {/* Recent users */}
+            <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Derniers inscrits</div>
+              {users.slice(0, 5).map((u: any, i: number) => (
+                <div key={u.id || i} onClick={() => setSelectedUser(u)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer' } as any}>
+                  <div style={{ width: 32, height: 32, borderRadius: 999, background: `${roleColors[u.role] || '#666'}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 12, fontWeight: 800, color: roleColors[u.role] || '#FFF' }}>{u.name?.charAt(0)}</span></div>
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{u.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{u.phone || u.email}</div></div>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: roleColors[u.role], padding: '2px 8px', borderRadius: 999, background: `${roleColors[u.role]}15` }}>{roleLabels[u.role] || u.role}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ═══════ TAB: USERS ═══════ */}
+        {tab === 'users' && (
+          <>
+            <input value={search} onChange={(e: any) => setSearch(e.target.value)} placeholder="Rechercher par nom, email ou telephone..." style={{ width: '100%', padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 12 } as any} />
+            <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' } as any}>
+              {[{ k: 'all', l: 'Tous' }, ...Object.entries(roleLabels).map(([k, l]) => ({ k, l: l as string }))].map(r => (
+                <div key={r.k} onClick={() => setRoleFilter(r.k)} style={{ padding: '6px 14px', borderRadius: 999, background: roleFilter === r.k ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${roleFilter === r.k ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 11, fontWeight: 700, color: roleFilter === r.k ? '#FFF' : 'rgba(255,255,255,0.3)' } as any}>{r.l} ({r.k === 'all' ? users.length : users.filter((u: any) => u.role === r.k).length})</div>
+              ))}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 10 }}>{filteredUsers.length} utilisateur(s)</div>
+            {filteredUsers.map((u: any, i: number) => (
+              <div key={u.id || i} onClick={() => setSelectedUser(u)} style={{ ...G, padding: '14px 16px', marginBottom: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ width: 40, height: 40, borderRadius: 999, background: `${roleColors[u.role] || '#666'}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 16, fontWeight: 800, color: roleColors[u.role] || '#FFF' }}>{u.name?.charAt(0)}</span></div>
+                <div style={{ flex: 1, minWidth: 0 } as any}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{u.name}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{u.phone} {u.email ? `- ${u.email}` : ''}</div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0 } as any}>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: roleColors[u.role], padding: '3px 8px', borderRadius: 999, background: `${roleColors[u.role]}15`, display: 'inline-block', marginBottom: 2 }}>{roleLabels[u.role] || u.role}</span>
+                  {u.has_subscription && <div style={{ fontSize: 8, color: '#A78BFA' }}>Abonne</div>}
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+
+        {/* ═══════ TAB: ALERTS ═══════ */}
+        {tab === 'alerts' && (
+          <>
+            {activeAlerts.length > 0 && (
+              <div style={{ marginBottom: 16 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#EF4444', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Alertes actives ({activeAlerts.length})</div>
+                {activeAlerts.map((a: any) => (
+                  <div key={a.id} onClick={() => router.push({ pathname: '/alert-detail' as any, params: { alertId: a.id } })} style={{ borderRadius: 16, overflow: 'hidden', position: 'relative', padding: '14px 16px', marginBottom: 8, cursor: 'pointer' } as any}>
+                    <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 1 } as any} />
+                    <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                      <i className="ri-alarm-warning-line" style={{ fontSize: 18, color: '#FFF' }} />
+                      <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{a.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{a.type} - {a.message?.substring(0, 60)}</div></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Historique ({alerts.length})</div>
+            {alerts.slice(0, 20).map((a: any, i: number) => (
+              <div key={a.id || i} style={{ ...G, padding: '12px 16px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                <div style={{ width: 8, height: 8, borderRadius: 4, background: a.status === 'active' ? '#EF4444' : a.status === 'resolved' ? '#10B981' : '#F59E0B', flexShrink: 0 } as any} />
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{a.beneficiary_name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{a.type} - {new Date(a.created_at).toLocaleDateString('fr-FR')}</div></div>
+                <span style={{ fontSize: 9, fontWeight: 700, color: a.status === 'active' ? '#EF4444' : '#10B981', padding: '2px 8px', borderRadius: 999, background: a.status === 'active' ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)' }}>{a.status}</span>
+              </div>
+            ))}
+            {/* Interventions */}
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginTop: 16, marginBottom: 10 }}>Interventions ({interventions.length})</div>
+            {interventions.slice(0, 10).map((iv: any, i: number) => (
+              <div key={iv.id || i} style={{ ...G, padding: '12px 16px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                <i className="ri-map-pin-range-line" style={{ fontSize: 14, color: '#F59E0B' }} />
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{iv.intervenant_name || 'Intervenant'}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{iv.status} - {iv.beneficiary_name}</div></div>
+              </div>
+            ))}
+          </>
+        )}
+
+        {/* ═══════ TAB: ANALYTICS ═══════ */}
+        {tab === 'analytics' && (
+          <>
+            {/* KPI summary */}
+            <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Indicateurs cles</div>
+              {[
+                { label: 'Beneficiaires actifs', value: users.filter((u: any) => u.role === 'beneficiary').length, color: '#38BDF8' },
+                { label: 'Taux d\'abonnement', value: `${subscriptions.length > 0 ? Math.round(subscriptions.filter((s: any) => s.status === 'active').length / Math.max(1, users.filter((u: any) => u.role === 'beneficiary').length) * 100) : 0}%`, color: '#A78BFA' },
+                { label: 'Alertes resolues', value: alerts.filter((a: any) => a.status === 'resolved').length, color: '#10B981' },
+                { label: 'Temps moyen resolution', value: kpi.avg_resolution_time || '< 15 min', color: '#F59E0B' },
+              ].map((k, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{k.label}</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: k.color }}>{k.value}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Subscriptions */}
+            <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Abonnements ({subscriptions.length})</div>
+              {subscriptions.slice(0, 8).map((s: any, i: number) => (
+                <div key={s.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                  <i className="ri-vip-crown-line" style={{ fontSize: 14, color: s.status === 'active' ? '#A78BFA' : 'rgba(255,255,255,0.2)' }} />
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{s.beneficiary_phone}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{s.subscription_type} - {s.source}</div></div>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: s.status === 'active' ? '#10B981' : '#EF4444' }}>{s.status}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* SAAD Invitations */}
+            {invitations.length > 0 && (
+              <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Invitations SAAD ({invitations.length})</div>
+                {invitations.map((inv: any, i: number) => (
+                  <div key={inv.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                    <i className="ri-mail-check-line" style={{ fontSize: 14, color: inv.status === 'pending' ? '#F59E0B' : '#10B981' }} />
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{inv.name || inv.email}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{inv.structure_name} - {inv.email}</div></div>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: inv.status === 'pending' ? '#F59E0B' : '#10B981' }}>{inv.status}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ═══════ TAB: SETTINGS ═══════ */}
+        {tab === 'settings' && (
+          <>
+            {/* Activation Codes */}
+            <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase' }}>Codes d'activation ({actCodes.length})</div>
+                <div onClick={() => {
+                  const code = prompt('Code (ex: PRESC-XXX-01)');
+                  const structure = prompt('Nom de la structure');
+                  if (code && structure) apiFetch('/api/admin/activation-codes', { method: 'POST', body: JSON.stringify({ code, structure_name: structure, max_uses: 50 }) }, token).then(() => fetchAll()).catch((e: any) => alert(e.message));
+                }} style={{ padding: '6px 12px', borderRadius: 10, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer', fontSize: 10, fontWeight: 700, color: '#10B981' } as any}>+ Ajouter</div>
+              </div>
+              {actCodes.map((c: any, i: number) => (
+                <div key={c.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                  <div style={{ width: 8, height: 8, borderRadius: 4, background: c.active ? '#10B981' : '#EF4444' } as any} />
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', fontFamily: 'monospace' }}>{c.code}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{c.structure_name} - {c.uses_count || 0}/{c.max_uses} utilisations</div></div>
+                  <div onClick={() => apiFetch(`/api/admin/activation-codes/${c.id}/toggle`, { method: 'PUT' }, token).then(() => fetchAll())} style={{ padding: '4px 10px', borderRadius: 8, background: c.active ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', cursor: 'pointer', fontSize: 9, fontWeight: 700, color: c.active ? '#EF4444' : '#10B981' } as any}>{c.active ? 'Desactiver' : 'Activer'}</div>
+                  <div onClick={() => { if (window.confirm(`Supprimer le code ${c.code} ?`)) apiFetch(`/api/admin/activation-codes/${c.id}`, { method: 'DELETE' }, token).then(() => fetchAll()); }} style={{ cursor: 'pointer' } as any}><i className="ri-delete-bin-line" style={{ fontSize: 14, color: 'rgba(239,68,68,0.5)' }} /></div>
+                </div>
+              ))}
+            </div>
+
+            {/* Intervention Codes */}
+            <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase' }}>Codes intervention ({ivCodes.length})</div>
+                <div onClick={() => {
+                  const code = prompt('Code (ex: CARE-XXX-01)');
+                  const structure = prompt('Nom de la structure');
+                  if (code && structure) apiFetch('/api/admin/intervention-codes', { method: 'POST', body: JSON.stringify({ code, structure_name: structure, default_radius_km: 30 }) }, token).then(() => fetchAll()).catch((e: any) => alert(e.message));
+                }} style={{ padding: '6px 12px', borderRadius: 10, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.2)', cursor: 'pointer', fontSize: 10, fontWeight: 700, color: '#F59E0B' } as any}>+ Ajouter</div>
+              </div>
+              {ivCodes.map((c: any, i: number) => (
+                <div key={c.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                  <div style={{ width: 8, height: 8, borderRadius: 4, background: c.active ? '#F59E0B' : '#EF4444' } as any} />
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', fontFamily: 'monospace' }}>{c.code}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{c.structure_name} - Rayon {c.default_radius_km}km</div></div>
+                  <div onClick={() => apiFetch(`/api/admin/intervention-codes/${c.id}/toggle`, { method: 'PUT' }, token).then(() => fetchAll())} style={{ padding: '4px 10px', borderRadius: 8, background: c.active ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', cursor: 'pointer', fontSize: 9, fontWeight: 700, color: c.active ? '#EF4444' : '#10B981' } as any}>{c.active ? 'Desactiver' : 'Activer'}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* System Info */}
+            <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Systeme</div>
+              {[
+                { label: 'Version', value: 'CARE WATCH v3.0' },
+                { label: 'Editeur', value: 'Chutex Innovation SAS' },
+                { label: 'Contact DPO', value: 'contact@chutex-innovation.com' },
+                { label: 'API', value: 'FastAPI + MongoDB' },
+                { label: 'IA', value: 'GPT-4.1 via Emergent' },
+              ].map((s, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{s.label}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>{s.value}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ═══════ USER DETAIL POPUP ═══════ */}
+        {selectedUser && (
+          <div onClick={() => setSelectedUser(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', overflowY: 'auto' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
+                <div onClick={() => setSelectedUser(null)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
+              </div>
+              <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+                <div style={{ width: 64, height: 64, borderRadius: 999, background: `${roleColors[selectedUser.role] || '#666'}25`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, border: `2px solid ${roleColors[selectedUser.role] || '#666'}50` } as any}><span style={{ fontSize: 26, fontWeight: 800, color: roleColors[selectedUser.role] || '#FFF' }}>{selectedUser.name?.charAt(0)}</span></div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{selectedUser.name}</div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: roleColors[selectedUser.role], padding: '3px 12px', borderRadius: 999, background: `${roleColors[selectedUser.role]}15`, display: 'inline-block', marginTop: 8 }}>{roleLabels[selectedUser.role] || selectedUser.role}</span>
+              </div>
+              <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+                {[
+                  selectedUser.phone && { icon: 'ri-phone-line', label: 'Telephone', value: selectedUser.phone },
+                  selectedUser.email && { icon: 'ri-mail-line', label: 'Email', value: selectedUser.email },
+                  selectedUser.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: selectedUser.address },
+                  selectedUser.date_of_birth && { icon: 'ri-calendar-line', label: 'Date de naissance', value: selectedUser.date_of_birth },
+                  selectedUser.gender && { icon: 'ri-user-line', label: 'Genre', value: selectedUser.gender },
+                  selectedUser.doctor_name && { icon: 'ri-stethoscope-line', label: 'Medecin', value: selectedUser.doctor_name },
+                  selectedUser.blood_type && { icon: 'ri-drop-line', label: 'Groupe sanguin', value: selectedUser.blood_type },
+                  selectedUser.medical_conditions && { icon: 'ri-heart-pulse-line', label: 'Pathologies', value: selectedUser.medical_conditions },
+                  selectedUser.allergies && { icon: 'ri-alert-line', label: 'Allergies', value: selectedUser.allergies },
+                  selectedUser.structure_name && { icon: 'ri-building-line', label: 'Structure', value: selectedUser.structure_name },
+                  selectedUser.guardian_type && { icon: 'ri-shield-line', label: 'Type gardien', value: selectedUser.guardian_type },
+                  selectedUser.relationship && { icon: 'ri-heart-line', label: 'Lien', value: selectedUser.relationship },
+                  { icon: 'ri-time-line', label: 'Inscription', value: selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleDateString('fr-FR') : '--' },
+                  { icon: 'ri-id-card-line', label: 'ID', value: selectedUser.id?.substring(0, 12) + '...' },
+                ].filter(Boolean).map((item: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                    <i className={item.icon} style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', flexShrink: 0 }} />
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{item.label}</div><div style={{ fontSize: 13, color: '#FFF', fontWeight: 600 }}>{item.value}</div></div>
+                  </div>
+                ))}
+              </div>
+              <div onClick={() => setSelectedUser(null)} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>Fermer</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ═══════ TAB BAR ═══════ */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10, padding: '8px 12px 20px', background: 'linear-gradient(transparent, rgba(0,0,0,0.8) 30%)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } as any}>
+        <div style={{ display: 'flex', justifyContent: 'space-around', maxWidth: 420, margin: '0 auto' } as any}>
+          {tabs.map(t => (
+            <div key={t.key} data-testid={`admin-tab-${t.key}`} onClick={() => setTab(t.key)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, cursor: 'pointer', padding: '6px 0', opacity: tab === t.key ? 1 : 0.4, transition: 'opacity 0.2s' } as any}>
+              <i className={t.icon} style={{ fontSize: 20, color: tab === t.key ? '#A78BFA' : '#FFF' }} />
+              <span style={{ fontSize: 9, fontWeight: 700, color: tab === t.key ? '#A78BFA' : '#FFF' }}>{t.label}</span>
+            </div>
           ))}
-        </View>
-      </HeroCard>
-
-      <PillButton label="Back-Office" icon="settings-outline" onPress={() => router.push('/backoffice')} testID="admin-backoffice-btn" />
-
-      <RewardsAdminCard token={token} />
-
-      {ranking.length > 0 && (
-        <>
-          <SectionHeader title="Classement prescripteurs" />
-          {ranking.slice(0, 5).map((p: any, i: number) => (
-            <Card key={p.id || i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
-              <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#F3F4F6', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 14, fontWeight: '800', color: i < 3 ? '#FFF' : '#6B7280' }}>#{i + 1}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{p.name}</Text>
-                <Text style={{ fontSize: 11, color: '#6B7280' }}>{p.prescriptions_count || 0} prescriptions</Text>
-              </View>
-            </Card>
-          ))}
-        </>
-      )}
-
-      <SectionHeader title="Entreprises" />
-      {companies.slice(0, 5).map((c: any) => (
-        <TouchableOpacity key={c.id} onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: c.id } })}>
-          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
-            <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.08)', justifyContent: 'center', alignItems: 'center' }}>
-              <Icon name="business-outline" size={20} color="#111827" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{c.name || c.company_name}</Text>
-              <Text style={{ fontSize: 11, color: '#6B7280' }}>{c.email}</Text>
-            </View>
-            <Icon name="chevron-forward" size={16} color="#9CA3AF" />
-          </Card>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+        </div>
+      </div>
+    </div>
   );
 }
