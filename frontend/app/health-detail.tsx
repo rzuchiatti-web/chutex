@@ -312,15 +312,54 @@ export default function HealthDetailScreen() {
         {/* Metrics list */}
         {sec.metrics.map((m) => {
           const val = getValue(m.key);
+          const numVal = parseFloat(String(val).replace(/[^0-9.]/g, ''));
           const isExpanded = expanded === m.key;
+          // Define normal/abnormal zones per metric
+          const zones: Record<string, { low: number; normal: [number, number]; high: number; unit: string }> = {
+            heart_rate: { low: 50, normal: [60, 100], high: 120, unit: 'bpm' },
+            hrv: { low: 10, normal: [20, 80], high: 100, unit: 'ms' },
+            spo2: { low: 88, normal: [95, 100], high: 100, unit: '%' },
+            temperature: { low: 35.5, normal: [36.1, 37.5], high: 39, unit: '°C' },
+            vo2_max: { low: 15, normal: [30, 50], high: 60, unit: 'ml/kg/min' },
+            glycemia: { low: 0.5, normal: [0.7, 1.1], high: 1.5, unit: 'g/L' },
+            bmi: { low: 15, normal: [18.5, 25], high: 35, unit: '' },
+            visceral_fat: { low: 1, normal: [1, 10], high: 20, unit: '' },
+            steps: { low: 0, normal: [6000, 12000], high: 15000, unit: 'pas' },
+            calories: { low: 0, normal: [200, 600], high: 1000, unit: 'kcal' },
+            basal_metabolism: { low: 1000, normal: [1300, 2000], high: 2500, unit: 'kcal' },
+          };
+          const z = zones[m.key];
+          const inNormal = z ? numVal >= z.normal[0] && numVal <= z.normal[1] : true;
+          const zoneLabel = z ? (numVal < z.normal[0] ? 'En dessous de la normale' : numVal > z.normal[1] ? 'Au dessus de la normale' : 'Zone normale') : null;
+          const zoneColor = z ? (inNormal ? '#10B981' : numVal < z.normal[0] ? '#38BDF8' : '#EF4444') : null;
           return (
-            <div key={m.key} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: `1px solid ${isExpanded ? `${sec.color}30` : 'rgba(255,255,255,0.06)'}`, marginBottom: 8, overflow: 'hidden', transition: 'border-color 0.2s' } as any}>
+            <div key={m.key} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: `1px solid ${isExpanded ? `${sec.color}30` : 'rgba(255,255,255,0.06)'}`, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 8, overflow: 'hidden', transition: 'border-color 0.2s' } as any}>
               <div onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: m.key === 'bp_display' ? 'heart_rate' : m.key } })} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', cursor: 'pointer' } as any}>
-                <div>
+                <div style={{ flex: 1 } as any}>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginBottom: 4 }}>{m.label}</div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{val} <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span></div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
+                    <span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{val}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span>
+                    {zoneLabel && <span style={{ fontSize: 9, fontWeight: 700, color: zoneColor, marginLeft: 'auto', padding: '2px 8px', borderRadius: 99, background: `${zoneColor}15` }}>{zoneLabel}</span>}
+                  </div>
+                  {/* Zone bar */}
+                  {z && !isNaN(numVal) && (
+                    <div style={{ marginTop: 8 } as any}>
+                      <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' } as any}>
+                        {/* Normal zone highlight */}
+                        <div style={{ position: 'absolute', left: `${((z.normal[0] - z.low) / (z.high - z.low)) * 100}%`, width: `${((z.normal[1] - z.normal[0]) / (z.high - z.low)) * 100}%`, height: '100%', background: 'rgba(16,185,129,0.25)', borderRadius: 2 } as any} />
+                        {/* Current value marker */}
+                        <div style={{ position: 'absolute', left: `${Math.max(0, Math.min(100, ((numVal - z.low) / (z.high - z.low)) * 100))}%`, top: -2, width: 8, height: 8, borderRadius: 4, background: zoneColor || '#FFF', border: '2px solid rgba(0,0,0,0.3)', transform: 'translateX(-4px)' } as any} />
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 } as any}>
+                        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>{z.low}</span>
+                        <span style={{ fontSize: 8, color: 'rgba(16,185,129,0.4)' }}>{z.normal[0]}-{z.normal[1]} {z.unit}</span>
+                        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>{z.high}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <i className={isExpanded ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 20, color: 'rgba(255,255,255,0.25)' }} />
+                <i className={isExpanded ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 20, color: 'rgba(255,255,255,0.25)', flexShrink: 0, marginLeft: 10 }} />
               </div>
               {isExpanded && (
                 <div style={{ padding: '0 18px 16px', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
