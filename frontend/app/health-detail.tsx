@@ -93,6 +93,15 @@ export default function HealthDetailScreen() {
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const changeDate = (offset: number) => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() + offset);
+    if (d <= new Date()) setSelectedDate(d);
+  };
+  const isToday = selectedDate.toDateString() === new Date().toDateString();
+  const dateLabel = isToday ? "Aujourd'hui" : selectedDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
 
   useEffect(() => {
     (async () => {
