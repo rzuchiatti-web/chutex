@@ -118,7 +118,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                 <div style={{ flex: 1 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 } as any}>
                     <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{saadLink.company_name}</span>
-                    <span style={{ fontSize: 9, fontWeight: 700, color: '#FFF', background: 'rgba(255,255,255,0.2)', padding: '2px 7px', borderRadius: 99, letterSpacing: 0.5, textTransform: 'uppercase' }}>Rattach\u00e9</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: '#FFF', background: 'rgba(255,255,255,0.2)', padding: '2px 7px', borderRadius: 99, letterSpacing: 0.5, textTransform: 'uppercase' }}>Rattaché</span>
                   </div>
                   {saadLink.company_address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{saadLink.company_address}</div>}
                 </div>
@@ -174,7 +174,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                     <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{saadLink.company_name}</div>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4, padding: '3px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
                       <span style={{ width: 6, height: 6, borderRadius: 99, background: '#10B981', display: 'inline-block' } as any} />
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Rattach\u00e9</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Rattaché</span>
                     </div>
                   </div>
                 </div>
@@ -183,7 +183,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                   {[
                     saadLink.company_address && { icon: 'ri-map-pin-line', label: 'Adresse', value: saadLink.company_address },
                     saadLink.company_siret && { icon: 'ri-file-text-line', label: 'SIRET', value: saadLink.company_siret },
-                    saadLink.linked_since && { icon: 'ri-calendar-line', label: 'Rattach\u00e9 depuis', value: new Date(saadLink.linked_since).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
+                    saadLink.linked_since && { icon: 'ri-calendar-line', label: 'Rattaché depuis', value: new Date(saadLink.linked_since).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
                   ].filter(Boolean).map((item: any, i: number) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
                       <i className={item.icon} style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 2, flexShrink: 0 }} />
@@ -200,17 +200,17 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                     <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: saadLink.intervenant_active !== false ? 'rgba(124,92,255,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${saadLink.intervenant_active !== false ? 'rgba(124,92,255,0.25)' : 'rgba(255,255,255,0.08)'}`, textAlign: 'center' } as any}>
                       <i className="ri-stethoscope-line" style={{ fontSize: 16, color: saadLink.intervenant_active !== false ? '#A78BFA' : 'rgba(255,255,255,0.25)', display: 'block', marginBottom: 4 }} />
                       <div style={{ fontSize: 11, fontWeight: 700, color: saadLink.intervenant_active !== false ? '#A78BFA' : 'rgba(255,255,255,0.3)' }}>Intervenant Care</div>
-                      <div style={{ fontSize: 9, color: saadLink.intervenant_active !== false ? 'rgba(164,139,250,0.7)' : 'rgba(255,255,255,0.2)', marginTop: 2 }}>{saadLink.intervenant_active !== false ? 'Actif' : 'D\u00e9sactiv\u00e9'}</div>
+                      <div style={{ fontSize: 9, color: saadLink.intervenant_active !== false ? 'rgba(164,139,250,0.7)' : 'rgba(255,255,255,0.2)', marginTop: 2 }}>{saadLink.intervenant_active !== false ? 'Actif' : 'Désactivé'}</div>
                     </div>
                     <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: saadLink.prescripteur_active !== false ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${saadLink.prescripteur_active !== false ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.08)'}`, textAlign: 'center' } as any}>
                       <i className="ri-file-text-line" style={{ fontSize: 16, color: saadLink.prescripteur_active !== false ? '#F59E0B' : 'rgba(255,255,255,0.25)', display: 'block', marginBottom: 4 }} />
                       <div style={{ fontSize: 11, fontWeight: 700, color: saadLink.prescripteur_active !== false ? '#F59E0B' : 'rgba(255,255,255,0.3)' }}>Prescripteur</div>
-                      <div style={{ fontSize: 9, color: saadLink.prescripteur_active !== false ? 'rgba(245,158,11,0.7)' : 'rgba(255,255,255,0.2)', marginTop: 2 }}>{saadLink.prescripteur_active !== false ? 'Actif' : 'D\u00e9sactiv\u00e9'}</div>
+                      <div style={{ fontSize: 9, color: saadLink.prescripteur_active !== false ? 'rgba(245,158,11,0.7)' : 'rgba(255,255,255,0.2)', marginTop: 2 }}>{saadLink.prescripteur_active !== false ? 'Actif' : 'Désactivé'}</div>
                     </div>
                   </div>
                 </div>
                 <div onClick={async () => {
-                  if (!window.confirm(`Vous allez vous d\u00e9tacher de ${saadLink.company_name}. Cette action est irr\u00e9versible. Continuer ?`)) return;
+                  if (!window.confirm(`Vous allez vous détacher de ${saadLink.company_name}. Cette action est irréversible. Continuer ?`)) return;
                   setDetaching(true);
                   try {
                     await apiFetch('/api/guardian/saad-detach', { method: 'POST' }, token);
@@ -219,7 +219,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                   } catch (e: any) { window.alert(`Erreur : ${(e as any).message}`); }
                   finally { setDetaching(false); }
                 }} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: detaching ? 'not-allowed' : 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-                  {detaching ? <><i className="ri-loader-4-line" style={{ fontSize: 16 }} />D\u00e9tachement...</> : <><i className="ri-link-unlink-m" style={{ fontSize: 16 }} />Se d\u00e9tacher de la structure</>}
+                  {detaching ? <><i className="ri-loader-4-line" style={{ fontSize: 16 }} />Détachement...</> : <><i className="ri-link-unlink-m" style={{ fontSize: 16 }} />Se détacher de la structure</>}
                 </div>
               </div>
             </div>
@@ -314,40 +314,40 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                 </div>
               </div>
               <div style={{ marginBottom: 28 } as any}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>Gardien &middot; B\u00e9n\u00e9ficiaire</div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 8, lineHeight: 1.1 }}>Ajouter un<br />b\u00e9n\u00e9ficiaire</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>Gardien &middot; Bénéficiaire</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 8, lineHeight: 1.1 }}>Ajouter un<br />bénéficiaire</div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
-                  Entrez le num\u00e9ro de t\u00e9l\u00e9phone de votre proche. S'il a d\u00e9j\u00e0 un compte, il recevra une notification. Sinon, un SMS lui sera envoy\u00e9.
+                  Entrez le numéro de téléphone de votre proche. S'il a déjà un compte, il recevra une notification. Sinon, un SMS lui sera envoyé.
                 </div>
               </div>
               <div style={{ marginBottom: 28 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Num\u00e9ro de t\u00e9l\u00e9phone</div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numéro de téléphone</div>
                 <div style={{ position: 'relative' } as any}>
                   <i className="ri-phone-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
                   <input value={linkPhone} onChange={(e: any) => setLinkPhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" style={{ width: '100%', padding: '15px 16px 15px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
                 </div>
               </div>
               {(() => {
-                const PROS = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide \u00e0 domicile', 'Professionnel de sant\u00e9', 'Infirmier(e) lib\u00e9rale', 'Coach sportif', 'Pr\u00e9parateur physique'];
-                const PERSO = ['M\u00e8re', 'P\u00e8re', 'Fils', 'Fille', 'Petit-enfant', 'Conjoint(e)', 'Fr\u00e8re', 'S\u0153ur', 'Ami(e)', 'Voisin(e)', 'Autre'];
+                const PROS = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale', 'Coach sportif', 'Préparateur physique'];
+                const PERSO = ['Mère', 'Père', 'Fils', 'Fille', 'Petit-enfant', 'Conjoint(e)', 'Frère', 'Sœur', 'Ami(e)', 'Voisin(e)', 'Autre'];
                 const isPro = PROS.includes(linkRelationship);
                 const isPerso = PERSO.includes(linkRelationship);
                 const linkType = isPro ? 'pro' : isPerso ? 'perso' : '';
                 return (
                   <div style={{ marginBottom: 28 } as any}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Lien avec le b\u00e9n\u00e9ficiaire</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Lien avec le bénéficiaire</div>
                     <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
                       <div onClick={() => { if (linkType !== 'pro') { setLinkRelationship(PROS[0]); } }} style={{ flex: 1, padding: '14px 12px', borderRadius: 16, cursor: 'pointer', background: isPro ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)', border: `2px solid ${isPro ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`, textAlign: 'center', transition: 'all 0.2s', opacity: isPerso ? 0.5 : 1 } as any}>
                         <i className="ri-briefcase-line" style={{ fontSize: 22, color: '#FFF', display: 'block', marginBottom: 6 }} />
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Professionnel</div>
-                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Auxil., infirmier\u2026</div>
-                        {isPro && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: '#FFF' }}>\u2713 {linkRelationship}</div>}
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Auxil., infirmier…</div>
+                        {isPro && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: '#FFF' }}>✓ {linkRelationship}</div>}
                       </div>
                       <div onClick={() => { if (linkType !== 'perso') { setLinkRelationship(PERSO[0]); } }} style={{ flex: 1, padding: '14px 12px', borderRadius: 16, cursor: 'pointer', background: isPerso ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)', border: `2px solid ${isPerso ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`, textAlign: 'center', transition: 'all 0.2s', opacity: isPro ? 0.5 : 1 } as any}>
                         <i className="ri-heart-line" style={{ fontSize: 22, color: '#FFF', display: 'block', marginBottom: 6 }} />
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Particulier</div>
-                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Famille, ami\u2026</div>
-                        {isPerso && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: '#FFF' }}>\u2713 {linkRelationship}</div>}
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>Famille, ami…</div>
+                        {isPerso && <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: '#FFF' }}>✓ {linkRelationship}</div>}
                       </div>
                     </div>
                     {isPro && (
@@ -366,7 +366,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                         <i className="ri-arrow-down-s-line" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' } as any} />
                       </div>
                     )}
-                    {isPro && <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'rgba(16,185,129,0.7)' } as any}><i className="ri-information-line" style={{ fontSize: 13 }} /><span>Les alertes de ce b\u00e9n\u00e9ficiaire remonteront dans l'espace SAAD</span></div>}
+                    {isPro && <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'rgba(16,185,129,0.7)' } as any}><i className="ri-information-line" style={{ fontSize: 13 }} /><span>Les alertes de ce bénéficiaire remonteront dans l'espace SAAD</span></div>}
                   </div>
                 );
               })()}

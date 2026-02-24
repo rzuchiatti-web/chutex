@@ -2,7 +2,7 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import { useI18n } from '../../context/I18nContext';
 
-export default function CopilotCard() {
+export default function CopilotCard({ subtitle }: { subtitle?: string }) {
   const router = useRouter();
   const { t } = useI18n();
   return (
@@ -11,7 +11,7 @@ export default function CopilotCard() {
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)', zIndex: 1 } as any} />
       <div style={{ position: 'relative', zIndex: 2, padding: '0 20px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: '50%' } as any}>
         <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6, letterSpacing: -0.3, lineHeight: 1.1 }}>Nora IA</div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{t('nora_subtitle')}</div>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{subtitle || t('nora_subtitle')}</div>
       </div>
     </div>
   );
