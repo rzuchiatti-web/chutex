@@ -222,11 +222,7 @@ export default function RegisterScreen() {
                     </div>
                   ))}
                 </div>
-                <div style={{ padding: '14px 0', borderRadius: 999, background: '#FFF', fontSize: 14, fontWeight: 800, color: '#111', letterSpacing: 0.5 }}>JE SUIS GARDIEN</div>
               </div>
-            </div>
-            <div onClick={() => setShowChoiceHelp(true)} style={{ textAlign: 'center', marginTop: 16, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.45)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
-              <i className="ri-question-line" style={{ fontSize: 14 }} />Comment choisir ?
             </div>
             {showChoiceHelp && (
               <div onClick={() => setShowChoiceHelp(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 } as any}>
