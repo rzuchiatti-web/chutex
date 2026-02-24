@@ -74,6 +74,7 @@ export default function HealthDetailScreen() {
   const { token } = useAuth();
   const router = useRouter();
   const [report, setReport] = useState<any>(null);
+  const [sectionAi, setSectionAi] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -88,7 +89,17 @@ export default function HealthDetailScreen() {
 
   useEffect(() => {
     (async () => {
-      try { setReport(await apiFetch('/api/health/daily-report', {}, token)); } catch {} finally { setLoading(false); }
+      try {
+        const [rep, ai] = await Promise.all([
+          apiFetch('/api/health/daily-report', {}, token),
+          metricId && metricId !== 'heart_rate' && metricId !== 'spo2' && metricId !== 'blood_pressure' && metricId !== 'temperature'
+            ? apiFetch(`/api/health/section-analysis/${metricId}`, {}, token).catch(() => null)
+            : null,
+        ]);
+        setReport(rep);
+        setSectionAi(ai);
+      } catch {} finally { setLoading(false); }
+    })();
     })();
   }, [token]);
 
