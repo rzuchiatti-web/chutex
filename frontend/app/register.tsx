@@ -181,22 +181,46 @@ export default function RegisterScreen() {
           {step === 0 && (<>
             <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
               <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Bienvenue</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>Choisissez votre espace pour commencer</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Choisissez votre espace pour commencer</div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
-              <div onClick={() => { setRole('beneficiary'); setStep(1); }} style={{ padding: '24px 20px', borderRadius: 22, background: role === 'beneficiary' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${role === 'beneficiary' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center' } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(239,68,68,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 } as any}>
-                  <i className="ri-heart-pulse-line" style={{ fontSize: 28, color: '#EF4444' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 } as any}>
+              {/* Beneficiaire card */}
+              <div onClick={() => { setRole('beneficiary'); setStep(1); }} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Beneficiaire</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous souhaitez utiliser ou porter les dispositifs de sante de Chutex.</div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
+                  {[
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/papb1yyb_img1_beneficiare.svg', label: 'SENIOR' },
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/1tclenjo_img2_beneficiare.svg', label: 'SPORTIF' },
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/i2jtf6u2_img3_beneficiare.svg', label: 'HOMME' },
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/1tq0ru76_img4_beneficiare.svg', label: 'FEMME' },
+                  ].map((a, i) => (
+                    <div key={i} style={{ textAlign: 'center' } as any}>
+                      <div style={{ width: 56, height: 56, borderRadius: 999, overflow: 'hidden', margin: '0 auto 6px', border: '2px solid rgba(255,255,255,0.15)' } as any}><img src={a.img} alt={a.label} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>
+                      <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5 }}>{a.label}</div>
+                    </div>
+                  ))}
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Je suis beneficiaire</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Je veux suivre ma sante au quotidien</div>
+                <div style={{ padding: '14px 0', borderRadius: 999, background: '#111', fontSize: 14, fontWeight: 800, color: '#FFF', letterSpacing: 0.5 }}>JE SUIS BENEFICIAIRE</div>
               </div>
-              <div onClick={() => { setRole('guardian'); setStep(1); }} style={{ padding: '24px 20px', borderRadius: 22, background: role === 'guardian' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${role === 'guardian' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center' } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(56,189,248,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 } as any}>
-                  <i className="ri-shield-user-line" style={{ fontSize: 28, color: '#38BDF8' }} />
+              {/* Gardien card */}
+              <div onClick={() => { setRole('guardian'); setStep(1); }} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Gardien / Professionnel</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous accompagnez un proche ou un patient dans son suivi de sante.</div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
+                  {[
+                    { icon: 'ri-user-heart-line', label: 'PROCHE' },
+                    { icon: 'ri-stethoscope-line', label: 'MEDECIN' },
+                    { icon: 'ri-nurse-line', label: 'INFIRMIER' },
+                    { icon: 'ri-building-line', label: 'STRUCTURE' },
+                  ].map((a, i) => (
+                    <div key={i} style={{ textAlign: 'center' } as any}>
+                      <div style={{ width: 56, height: 56, borderRadius: 999, background: 'rgba(56,189,248,0.08)', border: '2px solid rgba(56,189,248,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px' } as any}><i className={a.icon} style={{ fontSize: 22, color: '#38BDF8' }} /></div>
+                      <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5 }}>{a.label}</div>
+                    </div>
+                  ))}
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Je suis gardien / professionnel</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Je surveille un proche ou un patient</div>
+                <div style={{ padding: '14px 0', borderRadius: 999, background: '#111', fontSize: 14, fontWeight: 800, color: '#FFF', letterSpacing: 0.5 }}>JE SUIS GARDIEN</div>
               </div>
             </div>
           </>)}
