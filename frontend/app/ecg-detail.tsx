@@ -115,20 +115,59 @@ export default function ECGDetailScreen() {
           </div>
         </div>
 
-        {/* Intervals card */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>
+        {/* Intervals card with descriptions */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 } as any}>
           {[
-            { label: 'PR', val: `${iv.pr || 160}`, unit: 'ms', ok: (iv.pr || 160) >= 120 && (iv.pr || 160) <= 200 },
-            { label: 'QRS', val: `${iv.qrs || 88}`, unit: 'ms', ok: (iv.qrs || 88) < 120 },
-            { label: 'QT', val: `${iv.qt || 380}`, unit: 'ms', ok: true },
-            { label: 'QTc', val: `${iv.qtc || 410}`, unit: 'ms', ok: (iv.qtc || 410) < 460 },
+            { label: 'PR', val: `${iv.pr || 160}`, unit: 'ms', ok: (iv.pr || 160) >= 120 && (iv.pr || 160) <= 200, desc: 'Conduction auriculo-ventriculaire' },
+            { label: 'QRS', val: `${iv.qrs || 88}`, unit: 'ms', ok: (iv.qrs || 88) < 120, desc: 'Depolarisation ventriculaire' },
+            { label: 'QT', val: `${iv.qt || 380}`, unit: 'ms', ok: true, desc: 'Cycle ventriculaire complet' },
+            { label: 'QTc', val: `${iv.qtc || 410}`, unit: 'ms', ok: (iv.qtc || 410) < 460, desc: 'QT corrige par la frequence' },
           ].map((m, i) => (
-            <div key={i} style={{ padding: '12px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', textAlign: 'center' } as any}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>{m.label}</div>
-              <div style={{ fontSize: 18, fontWeight: 900, color: m.ok ? '#FFF' : '#EF4444' }}>{m.val}<span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span></div>
+            <div key={i} style={{ padding: '14px 12px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>{m.label}</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: m.ok ? '#FFF' : '#EF4444', marginBottom: 4 }}>{m.val}<span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginLeft: 2 }}>{m.unit}</span></div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', lineHeight: 1.3 }}>{m.desc}</div>
             </div>
           ))}
         </div>
+
+        {/* Comprendre les données button */}
+        <div onClick={() => setShowExplain(true)} style={{ padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 14 } as any}>
+          <i className="ri-book-open-line" style={{ fontSize: 16, color: '#FFF' }} />
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Comprendre les donnees</span>
+        </div>
+
+        {/* Explain popup */}
+        {showExplain && (
+          <div onClick={() => setShowExplain(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                <div onClick={() => setShowExplain(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+              </div>
+              <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-book-open-line" style={{ fontSize: 26, color: '#F97316' }} /></div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Comprendre votre ECG</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Chaque mesure a une signification medicale precise</div>
+              </div>
+              {[
+                { title: 'Frequence cardiaque (BPM)', icon: 'ri-heart-pulse-line', color: '#EF4444', text: 'Le nombre de battements par minute au repos. Entre 60 et 100 bpm est considere normal pour un adulte. En dessous de 60, on parle de bradycardie. Au dessus de 100, de tachycardie.' },
+                { title: 'Intervalle PR', icon: 'ri-time-line', color: '#38BDF8', text: "Mesure le temps de conduction electrique entre les oreillettes et les ventricules. Normal entre 120 et 200 ms. Un PR trop long peut indiquer un bloc auriculo-ventriculaire." },
+                { title: 'Complexe QRS', icon: 'ri-pulse-line', color: '#10B981', text: 'Represente la depolarisation des ventricules, le moment ou ils se contractent pour pomper le sang. Normal en dessous de 120 ms. Un QRS elargi peut signaler un trouble de conduction.' },
+                { title: 'Intervalle QT / QTc', icon: 'ri-timer-line', color: '#A78BFA', text: "Mesure le temps total de depolarisation et repolarisation des ventricules. Le QTc est corrige selon la frequence cardiaque. Un QTc superieur a 460 ms augmente le risque d'arythmie." },
+                { title: 'Rythme sinusal', icon: 'ri-checkbox-circle-line', color: '#F59E0B', text: "Un rythme sinusal signifie que l'impulsion electrique part du noeud sinusal (le pacemaker naturel du coeur). C'est le rythme normal. Toute deviation peut indiquer une arythmie." },
+                { title: 'Fibrillation auriculaire', icon: 'ri-error-warning-line', color: '#EF4444', text: "La FA est un trouble du rythme ou les oreillettes battent de facon irreguliere et rapide. L'ECG permet de la detecter par l'absence d'ondes P regulieres et un rythme irregulier." },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '14px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: `${item.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 } as any}><i className={item.icon} style={{ fontSize: 18, color: item.color }} /></div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{item.title}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>{item.text}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Checklist card */}
         <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 14 } as any}>
