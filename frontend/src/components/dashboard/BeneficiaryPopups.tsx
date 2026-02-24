@@ -114,8 +114,6 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
                 {/* Hours scroll */}
                 <div style={{ width: 70, height: 150, overflow: 'hidden', position: 'relative', borderRadius: 14 } as any}>
-                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 50, background: 'linear-gradient(180deg, rgba(0,0,0,0.7), transparent)', zIndex: 2, pointerEvents: 'none' } as any} />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 50, background: 'linear-gradient(0deg, rgba(0,0,0,0.7), transparent)', zIndex: 2, pointerEvents: 'none' } as any} />
                   <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 44, marginTop: -22, borderTop: `1px solid ${accent}40`, borderBottom: `1px solid ${accent}40`, zIndex: 1, pointerEvents: 'none' } as any} />
                   <div data-testid="hour-scroll" style={{ height: '100%', overflowY: 'scroll', scrollSnapType: 'y mandatory', scrollbarWidth: 'none', position: 'relative', zIndex: 3, paddingTop: 53, paddingBottom: 53 } as any}
                     ref={(el: any) => { if (el && !el._scrolled) { el.scrollTop = hr * 44; el._scrolled = true; } }}
@@ -128,8 +126,6 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                 <span style={{ fontSize: 36, fontWeight: 900, color: 'rgba(255,255,255,0.15)' }}>:</span>
                 {/* Minutes scroll — every minute */}
                 <div style={{ width: 70, height: 150, overflow: 'hidden', position: 'relative', borderRadius: 14 } as any}>
-                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 50, background: 'linear-gradient(180deg, rgba(0,0,0,0.7), transparent)', zIndex: 2, pointerEvents: 'none' } as any} />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 50, background: 'linear-gradient(0deg, rgba(0,0,0,0.7), transparent)', zIndex: 2, pointerEvents: 'none' } as any} />
                   <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 44, marginTop: -22, borderTop: `1px solid ${accent}40`, borderBottom: `1px solid ${accent}40`, zIndex: 1, pointerEvents: 'none' } as any} />
                   <div data-testid="minute-scroll" style={{ height: '100%', overflowY: 'scroll', scrollSnapType: 'y mandatory', scrollbarWidth: 'none', position: 'relative', zIndex: 3, paddingTop: 53, paddingBottom: 53 } as any}
                     ref={(el: any) => { if (el && !el._scrolled) { el.scrollTop = mn * 44; el._scrolled = true; } }}
