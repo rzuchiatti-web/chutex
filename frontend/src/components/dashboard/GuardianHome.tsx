@@ -264,7 +264,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                     { val: b.latest_vitals.heart_rate, unit: 'bpm', color: '#EF4444', dot: '#EF4444' },
                     { val: b.latest_vitals.spo2, unit: '%', color: '#60A5FA', dot: '#3B82F6' },
                     { val: b.latest_vitals.blood_pressure_systolic ? `${b.latest_vitals.blood_pressure_systolic}/${b.latest_vitals.blood_pressure_diastolic}` : null, unit: 'mmHg', color: '#C084FC', dot: '#A78BFA' },
-                    { val: b.latest_vitals.temperature, unit: '\u00b0C', color: '#FB923C', dot: '#F59E0B' },
+                    { val: b.latest_vitals.temperature, unit: '°C', color: '#FB923C', dot: '#F59E0B' },
                   ].map((s: any, i: number) => s.val ? (
                     <div key={i} style={{ flex: 1, padding: '6px 4px', borderRadius: 10, background: `${s.dot}15`, textAlign: 'center' } as any}>
                       <div style={{ fontSize: 14, fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.val}</div>
