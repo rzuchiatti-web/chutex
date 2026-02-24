@@ -29,7 +29,7 @@ export default function SleepScreen() {
     ]).then(([s, h]) => { setSleep(s); setHistory(h); }).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
 
   // No sleep data available
   if (!sleep || !sleep.stages || sleep.stages.length === 0) {

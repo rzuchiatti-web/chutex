@@ -81,7 +81,7 @@ export default function SubscriptionScreen() {
     } catch (e: any) { setAddResult({ error: e.message }); } finally { setAdding(false); }
   };
 
-  if (loading) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
 
   const isCare = sub?.subscription_type === 'care';
   const hasSubscription = sub?.has_subscription;

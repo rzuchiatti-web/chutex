@@ -65,7 +65,7 @@ export default function InterventionDetailScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setClosing(false); }
   };
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
   if (!iv) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#6B7280' }}>Intervention non trouvee</Text></SafeAreaView>;
 
   const isRecipient = iv.recipients?.some((r: any) => r.id === user?.id) || iv.assigned_to === user?.id;

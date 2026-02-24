@@ -61,7 +61,7 @@ export default function GeofencingScreen() {
     catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
-  if (loading) return <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}><ActivityIndicator size="large" color={Colors.primary} /></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
 
   return (
     <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}>

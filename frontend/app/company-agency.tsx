@@ -82,7 +82,7 @@ export default function CompanyAgencyScreen() {
     try { await apiFetch(`/api/company/guardians/${linkId}`, { method: 'DELETE' }, token); fetchData(); } catch {}
   };
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
   if (Platform.OS !== 'web') return <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF', padding: 20 }}>Structure</Text></SafeAreaView>;
 
   const pendingGuardians = guardianLinks.filter(g => g.status === 'pending').length;

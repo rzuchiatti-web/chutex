@@ -24,7 +24,7 @@ export default function GuardianDetailScreen() {
     })();
   }, [guardianId, token]);
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
   if (!guardian) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.5)' }}>Gardien non trouve</Text></SafeAreaView>;
 
   const isPro = guardian.guardian_type === 'professional';

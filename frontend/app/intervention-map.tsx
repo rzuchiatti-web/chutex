@@ -115,7 +115,7 @@ export default function InterventionMapScreen() {
     if (mapRef.current) setTimeout(() => mapRef.current.invalidateSize(), 100);
   }, [sheetHeight]);
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#FFF" /></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
   if (!iv) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.5)' }}>Intervention non trouvee</Text></SafeAreaView>;
 
   const ben = iv.beneficiary_info || {};

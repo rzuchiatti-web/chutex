@@ -49,7 +49,7 @@ export default function DataSharingScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
   };
 
-  if (loading) return <SafeAreaView style={[s.c, { backgroundColor: themeColors.background }]}><ActivityIndicator size="large" color={Colors.primary} /></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
 
   const allOn = SHARING_ITEMS.every(i => prefs[i.key] !== false);
   const toggleAll = () => {

@@ -279,7 +279,7 @@ export default function BraceletConnectScreen() {
     } catch {}
   };
 
-  if (loading) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
 
   const stColor = isActive || bleStatus === 'connected' ? Colors.success : Colors.textMuted;
 

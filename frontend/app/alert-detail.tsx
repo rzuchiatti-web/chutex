@@ -100,7 +100,7 @@ export default function AlertDetailScreen() {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setEscalating(false); }
   };
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
   if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><Text>Erreur de chargement</Text></SafeAreaView>;
 
   const a = data.alert;

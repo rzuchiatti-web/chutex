@@ -86,7 +86,7 @@ export default function RemindersScreen() {
     try { await apiFetch(`/api/reminders/${rid}`, { method: 'DELETE' }, token); setConfirmDelete(null); fetch_(); } catch (e: any) { if (Platform.OS === 'web') window.alert(e.message); }
   };
 
-  if (loading) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
 
   const cat = activeCat ? CATEGORIES.find(c => c.key === activeCat) : null;
   const catR = cat ? reminders.filter(r => cat.types.includes(r.reminder_type)) : [];

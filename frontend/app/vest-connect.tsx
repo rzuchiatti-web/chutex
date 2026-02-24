@@ -186,7 +186,7 @@ export default function VestConnectScreen() {
     } catch {}
   };
 
-  if (loading) return <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}><View style={s.center}><ActivityIndicator size="large" color={Colors.primary} /></View></SafeAreaView>;
+  if (loading) return <FullScreenLoader />;
 
   // ========== NOT PAIRED ==========
   if (!isPaired) {
