@@ -81,84 +81,118 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
   const typeRems = reminders.filter((r: any) => r.reminder_type === popupType);
   const editingId = editReminder._editingId || null;
   const editingData = editReminder._editingData || null;
+  const colors: Record<string, string> = { hydration: '#38BDF8', medication: '#F59E0B', alarm: '#EF4444' };
+  const accent = colors[popupType] || '#38BDF8';
+
+  const setTime = (h: number, m: number) => setEditReminder({ ...editReminder, _editingData: { ...editingData, time: `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}` } });
+  const hr = editingData ? parseInt((editingData.time || '08:00').split(':')[0]) || 8 : 8;
+  const mn = editingData ? parseInt((editingData.time || '08:00').split(':')[1]) || 0 : 0;
+
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
-      <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
-          <div onClick={onClose} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+      <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '24px 20px 120px', boxSizing: 'border-box' } as any}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+            <img src={meta.img} alt="" style={{ width: 40, height: 40, objectFit: 'contain' } as any} />
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{meta.label}</div>
+          </div>
+          <div onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
+          </div>
         </div>
-        <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-          <img src={meta.img} alt="" style={{ width: 120, height: 120, objectFit: 'contain', margin: '0 auto 12px', display: 'block', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.3))' } as any} />
-          <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{meta.label}</div>
-        </div>
-        {typeRems.map((r: any) => {
-          const isEditing = editingId === r.id;
-          const daysStr = (!r.days || r.days.length === 0 || r.days.length === 7) ? 'Tous les jours' : r.days.join(', ').toUpperCase();
-          return (
-            <div key={r.id} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: `1px solid ${isEditing ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'}`, marginBottom: 10, overflow: 'hidden' } as any}>
-              {!isEditing ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px' } as any}>
-                  <div onClick={() => setEditReminder({ ...editReminder, _editingId: r.id, _editingData: { time: r.time, notes: r.notes || '', days: r.days || ['lun','mar','mer','jeu','ven','sam','dim'] } })} style={{ cursor: 'pointer', flex: 1 } as any}>
-                    <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{r.time}</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{daysStr}{r.notes ? ` \u00b7 ${r.notes}` : ''}</div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                    <div onClick={async () => { try { await apiFetch(`/api/reminders/${r.id}/toggle`, { method: 'PUT' }, token); fetchData(); } catch {} }} style={{ width: 44, height: 24, borderRadius: 12, background: r.active ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)', border: `1px solid ${r.active ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.15)'}`, cursor: 'pointer', position: 'relative' } as any}>
-                      <div style={{ width: 18, height: 18, borderRadius: 9, background: r.active ? '#10B981' : 'rgba(255,255,255,0.4)', position: 'absolute', top: 2, left: r.active ? 22 : 2, transition: 'left 0.2s' } as any} />
-                    </div>
-                    <div onClick={async () => { await deleteReminder(r.id); }} style={{ cursor: 'pointer' } as any}><i className="ri-delete-bin-line" style={{ fontSize: 16, color: 'rgba(239,68,68,0.5)' }} /></div>
-                  </div>
+
+        {/* Edit mode — full screen form */}
+        {editingId ? (
+          <div style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', overflow: 'hidden' } as any}>
+
+            {/* Time picker */}
+            <div style={{ padding: '24px 20px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Heure du rappel</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 } as any}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 } as any}>
+                  <div onClick={() => setTime((hr + 1) % 24, mn)} style={{ cursor: 'pointer', padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-up-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)' }} /></div>
+                  <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', width: 72, textAlign: 'center', lineHeight: 1 }}>{String(hr).padStart(2, '0')}</div>
+                  <div onClick={() => setTime((hr - 1 + 24) % 24, mn)} style={{ cursor: 'pointer', padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-down-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)' }} /></div>
                 </div>
-              ) : (
-                <div style={{ padding: '16px 18px' } as any}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Heure</div>
-                  {/* Scroll wheel time picker */}
-                  {(() => {
-                    const t = (editingData?.time || '08:00').split(':');
-                    const hr = parseInt(t[0]) || 8;
-                    const mn = parseInt(t[1]) || 0;
-                    const setTime = (h: number, m: number) => setEditReminder({ ...editReminder, _editingData: { ...editingData, time: `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}` } });
-                    return (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 12, background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '10px 16px', border: '1px solid rgba(255,255,255,0.08)' } as any}>
-                        {/* Hours */}
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 } as any}>
-                          <div onClick={() => setTime((hr + 1) % 24, mn)} style={{ cursor: 'pointer', padding: '4px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-up-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }} /></div>
-                          <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', width: 56, textAlign: 'center', lineHeight: 1.2 }}>{String(hr).padStart(2, '0')}</div>
-                          <div onClick={() => setTime((hr - 1 + 24) % 24, mn)} style={{ cursor: 'pointer', padding: '4px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-down-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }} /></div>
-                        </div>
-                        <span style={{ fontSize: 32, fontWeight: 900, color: 'rgba(255,255,255,0.3)' }}>:</span>
-                        {/* Minutes */}
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 } as any}>
-                          <div onClick={() => setTime(hr, (mn + 5) % 60)} style={{ cursor: 'pointer', padding: '4px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-up-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }} /></div>
-                          <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', width: 56, textAlign: 'center', lineHeight: 1.2 }}>{String(mn).padStart(2, '0')}</div>
-                          <div onClick={() => setTime(hr, (mn - 5 + 60) % 60)} style={{ cursor: 'pointer', padding: '4px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-down-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }} /></div>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Notes</div>
-                  <input value={editingData?.notes || ''} onChange={(e: any) => setEditReminder({ ...editReminder, _editingData: { ...editingData, notes: e.target.value } })} placeholder="Ex: 2 verres d'eau..." style={{ width: '100%', padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', marginBottom: 14 } as any} />
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>Frequence</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginBottom: 14 } as any}>
-                    {[{ key: 'lun', l: 'L' },{ key: 'mar', l: 'M' },{ key: 'mer', l: 'Me' },{ key: 'jeu', l: 'J' },{ key: 'ven', l: 'V' },{ key: 'sam', l: 'S' },{ key: 'dim', l: 'D' }].map(d => {
-                      const sel = (editingData?.days || []).includes(d.key);
-                      return <div key={d.key} onClick={() => { const days = editingData?.days || []; setEditReminder({ ...editReminder, _editingData: { ...editingData, days: sel ? days.filter((x: string) => x !== d.key) : [...days, d.key] } }); }} style={{ padding: '10px', borderRadius: 10, background: sel ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.02)', border: `1px solid ${sel ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: sel ? 800 : 500, color: sel ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>{d.l}</div>;
-                    })}
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 } as any}>
-                    <div onClick={async () => { try { await apiFetch(`/api/reminders/${r.id}`, { method: 'PUT', body: JSON.stringify({ ...editingData, reminder_type: popupType, title: editingData.notes || meta.label }) }, token); fetchData(); setEditReminder({ ...editReminder, _editingId: null, _editingData: null, _saved: r.id }); setTimeout(() => setEditReminder((p: any) => ({ ...p, _saved: null })), 2000); } catch {} }} style={{ flex: 1, padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>Sauvegarder</div>
-                    <div onClick={() => setEditReminder({ ...editReminder, _editingId: null, _editingData: null })} style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
-                  </div>
+                <span style={{ fontSize: 40, fontWeight: 900, color: 'rgba(255,255,255,0.2)', marginBottom: 8 }}>:</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 } as any}>
+                  <div onClick={() => setTime(hr, (mn + 5) % 60)} style={{ cursor: 'pointer', padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-up-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)' }} /></div>
+                  <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', width: 72, textAlign: 'center', lineHeight: 1 }}>{String(mn).padStart(2, '0')}</div>
+                  <div onClick={() => setTime(hr, (mn - 5 + 60) % 60)} style={{ cursor: 'pointer', padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-down-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)' }} /></div>
                 </div>
-              )}
-              {editReminder._saved === r.id && <div style={{ padding: '8px 18px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}><i className="ri-checkbox-circle-line" style={{ fontSize: 14, color: '#10B981' }} /><span style={{ fontSize: 12, fontWeight: 700, color: '#10B981' }}>Sauvegarde !</span></div>}
+              </div>
             </div>
-          );
-        })}
-        {typeRems.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>Aucun rappel configure</div>}
-        <div onClick={async () => { try { await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: meta.label, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token); fetchData(); } catch {} }} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-          <i className="ri-add-line" style={{ fontSize: 16, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Ajouter un rappel</span>
-        </div>
+
+            {/* Days */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Jours</div>
+              <div style={{ display: 'flex', gap: 6 } as any}>
+                {[{ key: 'lun', l: 'L' },{ key: 'mar', l: 'M' },{ key: 'mer', l: 'Me' },{ key: 'jeu', l: 'J' },{ key: 'ven', l: 'V' },{ key: 'sam', l: 'S' },{ key: 'dim', l: 'D' }].map(d => {
+                  const sel = (editingData?.days || []).includes(d.key);
+                  return <div key={d.key} onClick={() => { const days = editingData?.days || []; setEditReminder({ ...editReminder, _editingData: { ...editingData, days: sel ? days.filter((x: string) => x !== d.key) : [...days, d.key] } }); }} style={{ flex: 1, padding: '10px 0', borderRadius: 12, background: sel ? `${accent}20` : 'rgba(255,255,255,0.03)', border: `1.5px solid ${sel ? accent : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: sel ? 800 : 500, color: sel ? accent : 'rgba(255,255,255,0.25)', transition: 'all 0.15s' } as any}>{d.l}</div>;
+                })}
+              </div>
+            </div>
+
+            {/* Note */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Note (optionnel)</div>
+              <input value={editingData?.notes || ''} onChange={(e: any) => setEditReminder({ ...editReminder, _editingData: { ...editingData, notes: e.target.value } })} placeholder="Ex: 2 verres d'eau..." style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+            </div>
+
+            {/* Actions */}
+            <div style={{ padding: '16px 20px', display: 'flex', gap: 10 } as any}>
+              <div onClick={async () => {
+                const r = typeRems.find((r: any) => r.id === editingId);
+                if (!r) return;
+                try { await apiFetch(`/api/reminders/${r.id}`, { method: 'PUT', body: JSON.stringify({ ...editingData, reminder_type: popupType, title: editingData.notes || meta.label }) }, token); fetchData(); setEditReminder({ ...editReminder, _editingId: null, _editingData: null }); } catch {}
+              }} style={{ flex: 1, padding: '14px', borderRadius: 14, background: accent, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>Sauvegarder</div>
+              <div onClick={() => setEditReminder({ ...editReminder, _editingId: null, _editingData: null })} style={{ padding: '14px 20px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Reminder list */}
+            {typeRems.map((r: any) => {
+              const daysStr = (!r.days || r.days.length === 0 || r.days.length === 7) ? 'Tous les jours' : r.days.join(', ').toUpperCase();
+              return (
+                <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 8 } as any}>
+                  {/* Time + info — click to edit */}
+                  <div onClick={() => setEditReminder({ ...editReminder, _editingId: r.id, _editingData: { time: r.time, notes: r.notes || '', days: r.days || ['lun','mar','mer','jeu','ven','sam','dim'] } })} style={{ flex: 1, cursor: 'pointer' } as any}>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)' }}>{r.time}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{daysStr}{r.notes ? ` · ${r.notes}` : ''}</div>
+                  </div>
+                  {/* Toggle */}
+                  <div onClick={async () => { try { await apiFetch(`/api/reminders/${r.id}/toggle`, { method: 'PUT' }, token); fetchData(); } catch {} }} style={{ width: 48, height: 26, borderRadius: 13, background: r.active ? `${accent}40` : 'rgba(255,255,255,0.08)', border: `1px solid ${r.active ? accent : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', flexShrink: 0, transition: 'all 0.2s' } as any}>
+                    <div style={{ width: 20, height: 20, borderRadius: 10, background: r.active ? accent : 'rgba(255,255,255,0.3)', position: 'absolute', top: 2, left: r.active ? 24 : 2, transition: 'left 0.2s' } as any} />
+                  </div>
+                  {/* Delete */}
+                  <div onClick={async () => { await deleteReminder(r.id); }} style={{ cursor: 'pointer', padding: '6px' } as any}>
+                    <i className="ri-delete-bin-line" style={{ fontSize: 16, color: 'rgba(239,68,68,0.4)' }} />
+                  </div>
+                </div>
+              );
+            })}
+
+            {typeRems.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '30px 20px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', marginBottom: 8 } as any}>
+                <img src={meta.img} alt="" style={{ width: 64, height: 64, objectFit: 'contain', margin: '0 auto 12px', display: 'block', opacity: 0.5 } as any} />
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>Aucun rappel configure</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)', marginTop: 4 }}>Ajoutez votre premier rappel</div>
+              </div>
+            )}
+
+            {/* Add button */}
+            <div onClick={async () => { try { await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: meta.label, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token); fetchData(); } catch {} }} style={{ padding: '14px', borderRadius: 14, background: `${accent}15`, border: `1px solid ${accent}30`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4, transition: 'background 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.background = `${accent}25`; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.background = `${accent}15`; }}>
+              <i className="ri-add-line" style={{ fontSize: 18, color: accent }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: accent }}>Ajouter un rappel</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -167,20 +201,21 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
 /* ─── REMINDER NOTIFICATION POPUP ─── */
 export function ReminderNotifPopup({ reminderNotif, setReminderNotif, reminderMeta, token, fetchData }: any) {
   if (!reminderNotif) return null;
+  const meta = reminderMeta[reminderNotif.reminder_type] || reminderMeta.hydration;
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10000, backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', background: 'rgba(200,190,210,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-      <div style={{ width: '100%', maxWidth: 360, padding: '40px 30px 30px', textAlign: 'center', position: 'relative' } as any}>
-        <div onClick={() => setReminderNotif(null)} style={{ position: 'absolute', top: 10, right: 10, width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
-        <div style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Rappel</div>
-        <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', marginBottom: 20 }}>{reminderMeta[reminderNotif.reminder_type]?.label || reminderNotif.title}</div>
-        <img src={reminderMeta[reminderNotif.reminder_type]?.img || REMINDER_IMAGES.alarm} alt="" style={{ width: 140, height: 140, objectFit: 'contain', margin: '0 auto 16px', display: 'block' } as any} />
-        {reminderNotif.notes && <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>[{reminderNotif.notes}]</div>}
-        <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 28, fontStyle: 'italic', lineHeight: 1.4 }}>{reminderMeta[reminderNotif.reminder_type]?.question}</div>
-        <div onClick={async () => { try { await apiFetch(`/api/reminders/${reminderNotif.id}/complete`, { method: 'PUT' }, token); } catch {} setReminderNotif(null); fetchData(); }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', cursor: 'pointer', marginBottom: 12 } as any}>
-          <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-check-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
-          <span style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Confirmer le rappel</span>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10000, backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+      <div style={{ width: '100%', maxWidth: 340, padding: '0 20px', boxSizing: 'border-box' } as any}>
+        <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '28px 24px', textAlign: 'center' } as any}>
+          <img src={meta.img} alt="" style={{ width: 80, height: 80, objectFit: 'contain', margin: '0 auto 16px', display: 'block' } as any} />
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Rappel</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>{meta.label}</div>
+          {reminderNotif.notes && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>{reminderNotif.notes}</div>}
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 24, lineHeight: 1.5 }}>{meta.question}</div>
+          <div onClick={async () => { try { await apiFetch(`/api/reminders/${reminderNotif.id}/complete`, { method: 'PUT' }, token); } catch {} setReminderNotif(null); fetchData(); }} style={{ padding: '14px', borderRadius: 14, background: '#10B981', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 10 } as any}>
+            Confirmer
+          </div>
+          <div onClick={() => setReminderNotif(null)} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Plus tard</div>
         </div>
-        <div onClick={() => setReminderNotif(null)} style={{ padding: '12px', borderRadius: 999, border: '2px solid rgba(239,68,68,0.4)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#EF4444', textTransform: 'uppercase', letterSpacing: 1 } as any}>Refuser</div>
       </div>
     </div>
   );
