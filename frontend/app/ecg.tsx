@@ -125,27 +125,39 @@ export default function ECGScreen() {
           </div>
         )}
 
-        {/* Step 3: Recording */}
+        {/* Step 3: Recording with live ECG waveform */}
         {step === 3 && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 20 }}>Enregistrement</div>
-            {/* Pulse ring */}
-            <div style={{ width: 160, height: 160, borderRadius: 80, border: '3px solid rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', position: 'relative' } as any}>
-              <svg width="160" height="160" style={{ position: 'absolute', top: -1.5, left: -1.5, transform: 'rotate(-90deg)' }}>
-                <circle cx="80" cy="80" r="78" fill="none" stroke="#EF4444" strokeWidth="3" strokeDasharray={`${(recordProgress / 100) * 490} 490`} strokeLinecap="round" />
+            {/* White timer ring */}
+            <div style={{ width: 140, height: 140, borderRadius: 70, border: '3px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', position: 'relative' } as any}>
+              <svg width="140" height="140" style={{ position: 'absolute', top: -1.5, left: -1.5, transform: 'rotate(-90deg)' }}>
+                <circle cx="70" cy="70" r="68" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeDasharray={`${(recordProgress / 100) * 427} 427`} strokeLinecap="round" />
               </svg>
               <div>
-                <i className="ri-pulse-line" style={{ fontSize: 40, color: '#EF4444', display: 'block', marginBottom: 4 }} />
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{Math.round(recordProgress)}%</div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{Math.max(0, 30 - Math.round(recordProgress * 30 / 100))}s</div>
               </div>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Mesure en cours...</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
-              Gardez votre doigt sur le capteur.<br/>Ne bougez pas et ne parlez pas.
+            {/* Simulated ECG waveform */}
+            <div style={{ ...glassCard, padding: '12px 16px', marginBottom: 16, overflow: 'hidden' } as any}>
+              <svg width="100%" viewBox="0 0 340 60" style={{ display: 'block' }}>
+                {Array.from({ length: 340 }).map((_, i) => {
+                  const t = (i + Math.round(recordProgress * 3)) % 60;
+                  let y = 30;
+                  if (t > 8 && t < 12) y = 35;
+                  else if (t > 18 && t < 20) y = 38;
+                  else if (t > 20 && t < 24) y = 5;
+                  else if (t > 24 && t < 27) y = 48;
+                  else if (t > 32 && t < 40) y = 24;
+                  else y = 30 + (Math.random() - 0.5) * 3;
+                  const opacity = i > 300 ? (340 - i) / 40 : i < 20 ? i / 20 : 1;
+                  return <rect key={i} x={i} y={y} width="1" height="1.5" fill="#FFF" opacity={opacity * 0.6} />;
+                })}
+              </svg>
             </div>
-            {/* Progress bar */}
-            <div style={{ marginTop: 24, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-              <div style={{ height: 6, borderRadius: 3, background: '#EF4444', width: `${recordProgress}%`, transition: 'width 1s linear' } as any} />
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Mesure en cours...</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
+              Gardez votre doigt sur le capteur
             </div>
           </div>
         )}
