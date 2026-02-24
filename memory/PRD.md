@@ -116,8 +116,8 @@ CARE WATCH is a sophisticated preventative health application. The central goal 
 ## Prioritized Backlog
 
 ### P0 (Critical)
-- iOS TestFlight build verification (build was initiated previously)
-- Lefu Scale BLE data parsing fix (pre-existing bug, needs native testing)
+- iOS TestFlight build (requires Expo/EAS login - user action needed)
+- Lefu Scale BLE data parsing fix (needs native testing)
 
 ### P1 (High)
 - Full i18n audit (convert all remaining hardcoded strings to t() function)
