@@ -469,6 +469,56 @@ export default function AdminHome({ token, user }: { token: string; user: any })
                 ))}
               </div>
             )}
+
+            {/* Prescriptions */}
+            {prescriptions.length > 0 && (
+              <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Prescriptions ({prescriptions.length})</div>
+                {prescriptions.slice(0, 10).map((p: any, i: number) => (
+                  <div key={p.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                    <i className="ri-file-list-line" style={{ fontSize: 14, color: '#38BDF8' }} />
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{p.beneficiary_name || p.beneficiary_phone || 'Beneficiaire'}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Par {p.guardian_name || 'Prescripteur'} - {p.status}</div></div>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: p.status === 'active' ? '#10B981' : '#F59E0B' }}>{p.status}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Demandes RGPD */}
+            {rgpdRequests.length > 0 && (
+              <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Demandes RGPD ({rgpdRequests.length})</div>
+                {rgpdRequests.slice(0, 10).map((r: any, i: number) => (
+                  <div key={r.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                    <i className="ri-shield-check-line" style={{ fontSize: 14, color: r.status === 'pending' ? '#F59E0B' : '#10B981' }} />
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{r.user_name} - {r.right_label}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Ref: {r.id} - {new Date(r.created_at).toLocaleDateString('fr-FR')}</div></div>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: r.status === 'pending' ? '#F59E0B' : '#10B981' }}>{r.status}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Emails envoyes */}
+            {emails.length > 0 && (
+              <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Emails envoyes ({emails.length})</div>
+                {emails.slice(0, 8).map((e: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                    <i className="ri-mail-line" style={{ fontSize: 14, color: '#38BDF8' }} />
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{e.subject?.substring(0, 40)}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>A: {e.to} - {e.sent_at ? new Date(e.sent_at).toLocaleDateString('fr-FR') : ''}</div></div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Shopify */}
+            <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase' }}>Shopify</div>
+                <div onClick={() => apiFetch('/api/admin/shopify/sync', { method: 'POST' }, token).then(() => { alert('Sync lance'); fetchAll(); }).catch(() => {})} style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(16,185,129,0.1)', cursor: 'pointer', fontSize: 9, fontWeight: 700, color: '#10B981' } as any}>Sync</div>
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Statut: {shopifyStatus?.connected ? 'Connecte' : 'Non configure'}</div>
+            </div>
           </>
         )}
 
