@@ -107,7 +107,7 @@ export default function ECGDetailScreen() {
             <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Trace ECG</span>
             <span style={{ fontSize: 22, fontWeight: 900, color: '#EF4444' }}>{ecg?.bpm || 72} <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>bpm</span></span>
           </div>
-          <ECGWaveform color="#EF4444" />
+          <ECGWaveform color="#FFFFFF" />
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 } as any}>
             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>25mm/s</span>
             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>Duree: {ecg?.duration_sec || 30}s</span>
