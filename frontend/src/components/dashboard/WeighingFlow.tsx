@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useI18n } from '../../context/I18nContext';
 
@@ -8,6 +8,14 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
   const { t } = useI18n();
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [countdown, setCountdown] = useState(15);
+
+  useEffect(() => {
+    if (step !== 3) return;
+    setCountdown(15);
+    const iv = setInterval(() => setCountdown(c => { if (c <= 1) { clearInterval(iv); setStep(4); return 0; } return c - 1; }), 1000);
+    return () => clearInterval(iv);
+  }, [step]);
 
   const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
 
