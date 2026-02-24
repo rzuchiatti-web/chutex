@@ -72,9 +72,12 @@ export default function SleepCard({ d }: Props) {
         ))}
       </div>
       <div style={{ padding: '10px 16px 14px' } as any}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 6 } as any}>
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>Voir le detail du sommeil</span>
-          <i className="ri-arrow-right-s-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.15)' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 } as any}>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Estimation risque apnee</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modere' : 'Eleve'}</span>
+        </div>
+        <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+          <div style={{ height: 6, borderRadius: 3, width: `${apneaRisk}%`, background: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? 'linear-gradient(90deg, #10B981, #F59E0B)' : 'linear-gradient(90deg, #F59E0B, #EF4444)' } as any} />
         </div>
       </div>
     </div>
