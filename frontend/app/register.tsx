@@ -266,14 +266,17 @@ export default function RegisterScreen() {
               </div>
 
               {[
-                { title: 'Hebergement HDS Classe 6', desc: 'Donnees stockees en France sur des serveurs certifies Hebergeur de Donnees de Sante, le standard le plus eleve.' },
-                { title: 'Conformite RGPD', desc: 'Traitement conforme au Reglement General sur la Protection des Donnees. Vos droits sont garantis.' },
-                { title: 'Chiffrement de bout en bout', desc: 'Toutes les communications sont chiffrees. Personne ne peut acceder a vos donnees sans votre accord.' },
-                { title: 'Aucun partage non consenti', desc: 'Vos donnees ne sont jamais vendues ni partagees a des tiers sans votre consentement explicite.' },
+                { icon: 'ri-server-line', title: 'Hebergement HDS Classe 6', desc: 'Donnees stockees en France sur des serveurs certifies Hebergeur de Donnees de Sante, le standard le plus eleve.' },
+                { icon: 'ri-eu-line', title: 'Conformite RGPD', desc: 'Traitement conforme au Reglement General sur la Protection des Donnees. Vos droits sont garantis.' },
+                { icon: 'ri-lock-line', title: 'Chiffrement de bout en bout', desc: 'Toutes les communications sont chiffrees. Personne ne peut acceder a vos donnees sans votre accord.' },
+                { icon: 'ri-eye-off-line', title: 'Aucun partage non consenti', desc: 'Vos donnees ne sont jamais vendues ni partagees a des tiers sans votre consentement explicite.' },
               ].map((item, i) => (
-                <div key={i} style={{ padding: '14px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{item.title}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>{item.desc}</div>
+                <div key={i} style={{ padding: '14px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none', display: 'flex', gap: 12, alignItems: 'flex-start' } as any}>
+                  <i className={item.icon} style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)', flexShrink: 0, marginTop: 1 }} />
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{item.title}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>{item.desc}</div>
+                  </div>
                 </div>
               ))}
 
