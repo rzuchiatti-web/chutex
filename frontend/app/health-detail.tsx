@@ -306,7 +306,10 @@ export default function HealthDetailScreen() {
         })()}
 
         {/* Nora Analysis for this section */}
-        {report?.ai && (
+        {(() => {
+          const ai = sectionAi || report?.ai;
+          if (!ai) return null;
+          return (
           <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '20px', paddingTop: metricId !== 'sleep' ? 60 : 20, marginBottom: 16, position: 'relative', zIndex: 1 } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 } as any}>
               <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.2)', border: '1px solid rgba(167,139,250,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 14, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
