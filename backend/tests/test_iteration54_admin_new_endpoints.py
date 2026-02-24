@@ -20,9 +20,9 @@ class TestAdminNewEndpoints:
     @pytest.fixture(autouse=True)
     def setup(self):
         """Get admin token for testing"""
-        # Login as admin
+        # Login as admin using email
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": "+33600000001",
+            "email": "admin@chutex.fr",
             "password": "demo123"
         })
         assert login_resp.status_code == 200, f"Admin login failed: {login_resp.text}"
