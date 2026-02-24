@@ -32,7 +32,7 @@ export default function SleepCard({ d }: Props) {
   const phaseH = [15, 55, 100, 140];
 
   return (
-    <div data-testid="sleep-card" onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: 'sleep' } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', cursor: 'pointer', marginBottom: 14 } as any}>
+    <div data-testid="sleep-card" onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: 'sleep' } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', overflow: 'hidden', cursor: 'pointer', marginBottom: 14 } as any}>
       <div style={{ padding: '16px 16px 0' } as any}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
           <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Sommeil</div>
