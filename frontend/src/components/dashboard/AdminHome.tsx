@@ -351,42 +351,7 @@ export default function AdminHome({ token, user }: { token: string; user: any })
 
         {/* ═══════ USER DETAIL POPUP ═══════ */}
         {selectedUser && (
-          <div onClick={() => setSelectedUser(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', overflowY: 'auto' } as any}>
-            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
-                <div onClick={() => setSelectedUser(null)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
-              </div>
-              <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-                <div style={{ width: 64, height: 64, borderRadius: 999, background: `${roleColors[selectedUser.role] || '#666'}25`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, border: `2px solid ${roleColors[selectedUser.role] || '#666'}50` } as any}><span style={{ fontSize: 26, fontWeight: 800, color: roleColors[selectedUser.role] || '#FFF' }}>{selectedUser.name?.charAt(0)}</span></div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{selectedUser.name}</div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: roleColors[selectedUser.role], padding: '3px 12px', borderRadius: 999, background: `${roleColors[selectedUser.role]}15`, display: 'inline-block', marginTop: 8 }}>{roleLabels[selectedUser.role] || selectedUser.role}</span>
-              </div>
-              <div style={{ ...G, padding: '16px', marginBottom: 14 } as any}>
-                {[
-                  selectedUser.phone && { icon: 'ri-phone-line', label: 'Telephone', value: selectedUser.phone },
-                  selectedUser.email && { icon: 'ri-mail-line', label: 'Email', value: selectedUser.email },
-                  selectedUser.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: selectedUser.address },
-                  selectedUser.date_of_birth && { icon: 'ri-calendar-line', label: 'Date de naissance', value: selectedUser.date_of_birth },
-                  selectedUser.gender && { icon: 'ri-user-line', label: 'Genre', value: selectedUser.gender },
-                  selectedUser.doctor_name && { icon: 'ri-stethoscope-line', label: 'Medecin', value: selectedUser.doctor_name },
-                  selectedUser.blood_type && { icon: 'ri-drop-line', label: 'Groupe sanguin', value: selectedUser.blood_type },
-                  selectedUser.medical_conditions && { icon: 'ri-heart-pulse-line', label: 'Pathologies', value: selectedUser.medical_conditions },
-                  selectedUser.allergies && { icon: 'ri-alert-line', label: 'Allergies', value: selectedUser.allergies },
-                  selectedUser.structure_name && { icon: 'ri-building-line', label: 'Structure', value: selectedUser.structure_name },
-                  selectedUser.guardian_type && { icon: 'ri-shield-line', label: 'Type gardien', value: selectedUser.guardian_type },
-                  selectedUser.relationship && { icon: 'ri-heart-line', label: 'Lien', value: selectedUser.relationship },
-                  { icon: 'ri-time-line', label: 'Inscription', value: selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleDateString('fr-FR') : '--' },
-                  { icon: 'ri-id-card-line', label: 'ID', value: selectedUser.id?.substring(0, 12) + '...' },
-                ].filter(Boolean).map((item: any, i: number) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
-                    <i className={item.icon} style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', flexShrink: 0 }} />
-                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{item.label}</div><div style={{ fontSize: 13, color: '#FFF', fontWeight: 600 }}>{item.value}</div></div>
-                  </div>
-                ))}
-              </div>
-              <div onClick={() => setSelectedUser(null)} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>Fermer</div>
-            </div>
-          </div>
+          <UserDetailPopup user={selectedUser} token={token} onClose={() => setSelectedUser(null)} roleLabels={roleLabels} roleColors={roleColors} G={G} />
         )}
       </div>
 
