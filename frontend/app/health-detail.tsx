@@ -247,10 +247,10 @@ export default function HealthDetailScreen() {
               </div>
               <div style={{ padding: '8px 16px', display: 'flex', flexDirection: 'column', gap: 6 } as any}>
                 {[
-                  { l: 'Eveil', v: `${Math.floor((slD - total) / 60)}h${String(Math.max(0, (slD - total) % 60)).padStart(2, '0')}m`, c: 'rgba(255,255,255,0.5)' },
-                  { l: 'REM', v: `${Math.floor(rem / 60)}h${String(rem % 60).padStart(2, '0')}m`, pct: `${Math.round(rem / total * 100)}%`, c: '#7CB3E8' },
-                  { l: 'Leger', v: `${Math.floor(light / 60)}h${String(light % 60).padStart(2, '0')}m`, pct: `${Math.round(light / total * 100)}%`, c: '#4A90D9' },
-                  { l: 'Profond', v: `${Math.floor(deep / 60)}h${String(deep % 60).padStart(2, '0')}m`, pct: `${Math.round(deep / total * 100)}%`, c: '#2D5F8A' },
+                  { l: 'Eveil', v: `${Math.floor(nightAwakeMin / 60)}h${String(nightAwakeMin % 60).padStart(2, '0')}m`, c: '#E87C8A' },
+                  { l: 'REM', v: `${Math.floor(nightRemMin / 60)}h${String(nightRemMin % 60).padStart(2, '0')}m`, pct: nightTotalSleep > 0 ? `${Math.round(nightRemMin / nightTotalSleep * 100)}%` : '', c: '#A8B4F0' },
+                  { l: 'Leger', v: `${Math.floor(nightLightMin / 60)}h${String(nightLightMin % 60).padStart(2, '0')}m`, pct: nightTotalSleep > 0 ? `${Math.round(nightLightMin / nightTotalSleep * 100)}%` : '', c: '#6B7BD9' },
+                  { l: 'Profond', v: `${Math.floor(nightDeepMin / 60)}h${String(nightDeepMin % 60).padStart(2, '0')}m`, pct: nightTotalSleep > 0 ? `${Math.round(nightDeepMin / nightTotalSleep * 100)}%` : '', c: '#3A4099' },
                 ].map((s, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
                     <div style={{ width: 28, height: 14, borderRadius: 4, background: s.c, flexShrink: 0 } as any} />
