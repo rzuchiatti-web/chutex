@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import FullScreenLoader from '../src/components/FullScreenLoader';
+import SleepHypnogram, { fromBraceletStages } from '../src/components/health/SleepHypnogram';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
