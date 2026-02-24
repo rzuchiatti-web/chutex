@@ -267,38 +267,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} />
 
-          {/* ── Language GLASS POPUP — vertical scroll picker ── */}
-          {langOpen && (
-            <div onClick={() => setLangOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
-                  <div onClick={() => setLangOpen(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
-                </div>
-                <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-global-line" style={{ fontSize: 26, color: 'rgba(255,255,255,0.6)' }} /></div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Langue</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Selectionnez votre langue</div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
-                  {[
-                    { code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', name: 'Francais' },
-                    { code: 'EN', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' },
-                    { code: 'DE', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutsch' },
-                    { code: 'ES', flag: '\u{1F1EA}\u{1F1F8}', name: 'Espanol' },
-                    { code: 'IT', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italiano' },
-                    { code: 'PT', flag: '\u{1F1F5}\u{1F1F9}', name: 'Portugues' },
-                    { code: 'NL', flag: '\u{1F1F3}\u{1F1F1}', name: 'Nederlands' },
-                  ].map(l => (
-                    <div key={l.code} onClick={() => { setLang(l.code); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 18px', borderRadius: 18, cursor: 'pointer', background: lang === l.code ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)', border: lang === l.code ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(255,255,255,0.05)', transition: 'all 0.2s' } as any}>
-                      <span style={{ fontSize: 32, lineHeight: 1 }}>{l.flag}</span>
-                      <span style={{ fontSize: 15, fontWeight: lang === l.code ? 800 : 500, color: lang === l.code ? '#FFF' : 'rgba(255,255,255,0.45)', flex: 1 }}>{l.name}</span>
-                      {lang === l.code && <i className="ri-check-line" style={{ fontSize: 18, color: '#22D3EE' }} />}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
           {/* ── SOS Button (top) ── */}
           <div data-testid="sos-button" onClick={handleSOS} style={{
             padding: '18px', borderRadius: 18, textAlign: 'center', cursor: 'pointer', marginBottom: 16,
