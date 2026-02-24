@@ -227,8 +227,6 @@ export default function HealthScreen() {
           <HealthSections d={d} subs={subs} />
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
-            ))}
-          </div>
 
           {ai.motivation && <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>{ai.motivation}</div>}
 
