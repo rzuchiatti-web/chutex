@@ -80,7 +80,7 @@ export default function WeighingReportScreen() {
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
       <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
 
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
@@ -113,7 +113,7 @@ export default function WeighingReportScreen() {
                   const val = w[k.k];
                   if (val === undefined || val === null) return null;
                   return (
-                    <div key={k.k} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: k.k } })} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', transition: 'transform 0.2s' } as any}
+                    <div key={k.k} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: k.k } })} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', transition: 'transform 0.2s' } as any}
                       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
                       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
