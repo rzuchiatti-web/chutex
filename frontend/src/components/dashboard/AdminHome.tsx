@@ -77,10 +77,10 @@ export default function AdminHome({ token, user }: { token: string; user: any })
   );
 
   const Table = ({ headers, rows }: { headers: string[]; rows: any[][] }) => (
-    <div style={{ overflowX: 'auto' } as any}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 } as any}>
-        <thead><tr>{headers.map((h, i) => <th key={i} style={{ textAlign: 'left', padding: '8px 10px', fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>{h}</th>)}</tr></thead>
-        <tbody>{rows.map((row, i) => <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' } as any}>{row.map((cell, j) => <td key={j} style={{ padding: '8px 10px', color: '#FFF', verticalAlign: 'middle' } as any}>{cell}</td>)}</tr>)}</tbody>
+    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: mobile ? 11 : 12, minWidth: mobile ? 500 : 'auto' } as any}>
+        <thead><tr>{headers.map((h, i) => <th key={i} style={{ textAlign: 'left', padding: mobile ? '6px 8px' : '8px 10px', fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, borderBottom: '1px solid rgba(255,255,255,0.06)', whiteSpace: 'nowrap' } as any}>{h}</th>)}</tr></thead>
+        <tbody>{rows.map((row, i) => <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' } as any}>{row.map((cell, j) => <td key={j} style={{ padding: mobile ? '6px 8px' : '8px 10px', color: '#FFF', verticalAlign: 'middle' } as any}>{cell}</td>)}</tr>)}</tbody>
       </table>
     </div>
   );
