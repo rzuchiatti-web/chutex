@@ -100,7 +100,6 @@ export default function HealthDetailScreen() {
         setSectionAi(ai);
       } catch {} finally { setLoading(false); }
     })();
-    })();
   }, [token]);
 
   const sec = SECTIONS[metricId || ''] || SECTIONS.cardio;
