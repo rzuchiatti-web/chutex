@@ -180,8 +180,11 @@ export default function RegisterScreen() {
 
           {/* ═══ STEP 0: Role Selection ═══ */}
           {step === 0 && (<>
-            <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 } as any}>
               <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Choisissez votre espace</div>
+              <div onClick={() => setShowChoiceHelp(true)} style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                <i className="ri-question-line" style={{ fontSize: 13 }} />Comment choisir ?
+              </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 } as any}>
               {/* Beneficiaire card */}
