@@ -80,10 +80,10 @@ export default function HealthDetailScreen() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  /* ── Per-night sleep data computation ── */
-  const sleepNightData = useMemo(() => {
+  /* ── Per-night sleep data computation (depends on selectedDate) ── */
+  const computeSleepForDate = (dt: Date) => {
     const deep = 130, light = 245, rem = 68;
-    const seed = (selectedDate.getDate() * 7 + selectedDate.getMonth() * 31 + selectedDate.getFullYear()) % 997;
+    const seed = (dt.getDate() * 7 + dt.getMonth() * 31 + dt.getFullYear()) % 997;
     const pr = (n: number) => ((seed * 9301 + n * 49297 + 233280) % 233280) / 233280;
 
     const nDeep = Math.max(60, deep + Math.round((pr(1) - 0.5) * 60));
@@ -126,7 +126,8 @@ export default function HealthDetailScreen() {
     const apnea = Math.min(100, Math.max(5, interruptions * 12 + (quality < 70 ? 20 : 0)));
 
     return { session, deepMin, lightMin, remMin, awakeMin, totalSleep, duration, quality, interruptions, apnea };
-  }, [selectedDate.getTime()]);
+  };
+  const sleepNightData = computeSleepForDate(selectedDate);
 
   const changeDate = (offset: number) => {
     const d = new Date(selectedDate);
