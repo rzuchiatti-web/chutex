@@ -173,7 +173,14 @@ function UserDetailPopup({ user: u, token, onClose, roleLabels, roleColors, G: G
               </div>
             )}
 
-            <div onClick={onClose} style={{ padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF', marginTop: 6 } as any}>Fermer</div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 10 } as any}>
+              <div onClick={onClose} style={{ flex: 1, padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>Fermer</div>
+              <div onClick={() => {
+                if (window.confirm(`Supprimer definitivement ${d.name} et toutes ses donnees ?`)) {
+                  apiFetch(`/api/admin/user/${d.id}`, { method: 'DELETE' }, token).then(() => { onClose(); window.location.reload(); }).catch((e: any) => alert(e.message));
+                }
+              }} style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#EF4444' } as any}><i className="ri-delete-bin-line" style={{ fontSize: 13 }} /></div>
+            </div>
           </>
         )}
       </div>
