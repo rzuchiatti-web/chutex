@@ -47,6 +47,7 @@ export default function ECGDetailScreen() {
   const router = useRouter();
   const [ecg, setEcg] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showExplain, setShowExplain] = useState(false);
 
   useEffect(() => {
     (async () => {
