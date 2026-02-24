@@ -26,6 +26,9 @@ export default function AdminHome({ token, user }: { token: string; user: any })
   const [sel, setSel] = useState<any>(null);
   const [detail, setDetail] = useState<any>(null);
   const [detailLoad, setDetailLoad] = useState(false);
+  const [w, setW] = useState(typeof window !== 'undefined' ? window.innerWidth : 400);
+  useEffect(() => { const h = () => setW(window.innerWidth); window.addEventListener('resize', h); return () => window.removeEventListener('resize', h); }, []);
+  const mobile = w < 500;
 
   const load = useCallback(async () => {
     setLoading(true);
