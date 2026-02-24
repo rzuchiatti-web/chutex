@@ -1,0 +1,111 @@
+{
+  "summary": "Tested SleepHypnogram date selector feature. CRITICAL BUG FOUND: Date selector UI updates (label changes from 'Aujourd'hui' to '23 févr.' to '22 févr.') but ALL sleep statistics (duration, stage breakdown, quality, interruptions, apnea risk, hypnogram pattern) remain UNCHANGED when navigating between dates.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "critical": [
+      {
+        "component": "health-detail.tsx - Sleep section",
+        "issue": "Date selector does not update sleep data - clicking left/right arrows changes date label but ALL sleep statistics (duration, stage breakdown, quality, interruptions, hypnogram pattern) remain identical across different dates",
+        "priority": "HIGH",
+        "root_cause_analysis": "The buildSleepSession() function and computed stats (nightDeepMin, nightLightMin, etc.) are inside an IIFE that uses selectedDate as seed, but the computed values are not changing. The IIFE returns JSX but React may not be detecting the state dependency properly. The seed calculation IS different per date but output remains same.",
+        "reproduction_steps": [
+          "1. Login as beneficiary (651245918 / demo123)",
+          "2. Click SOMMEIL card or navigate to /health-detail?metricId=sleep",
+          "3. Note the values: Duration, Eveil, REM, Leger, Profond, Quality, Interruptions",
+          "4. Click left arrow (<) to go to previous day",
+          "5. Observe: Date label changes (e.g., 'Aujourd'hui' → '23 févr.') but ALL values stay same",
+          "6. Click left arrow again - same issue persists"
+        ],
+        "expected_behavior": "Each date should show different sleep data (different duration, stage breakdown, quality, etc.) based on the date-seeded pseudo-random generation",
+        "actual_behavior": "All dates show identical sleep data despite date selector working correctly",
+        "affected_code_section": "Lines 163-218 in health-detail.tsx - buildSleepSession() function and computed stats"
+      }
+    ],
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "features_tested": {
+      "sleep_card_on_dashboard": {
+        "status": "PASS",
+        "notes": "SOMMEIL card displays on home dashboard with duration and quality. Clicking navigates to sleep detail."
+      },
+      "sleep_detail_page_loads": {
+        "status": "PASS",
+        "notes": "Sleep detail page loads with SleepHypnogram, Y-axis labels (Eveil/REM/Leger/Profond), stage breakdown, quality, interruptions, apnea risk, Nora analysis"
+      },
+      "hypnogram_svg_renders": {
+        "status": "PASS",
+        "notes": "SVG step-chart hypnogram renders with colored segments and time labels"
+      },
+      "date_selector_ui": {
+        "status": "PASS",
+        "notes": "Left/right arrows visible. Date label updates correctly when arrows clicked."
+      },
+      "date_changes_data": {
+        "status": "FAIL - CRITICAL",
+        "notes": "Date label updates but sleep data does NOT change. All dates show identical values."
+      },
+      "apnea_risk_section": {
+        "status": "PASS",
+        "notes": "Apnea risk section displays with risk level indicator and Nora analysis text"
+      }
+    },
+    "verification_data": {
+      "date_feb_23": {
+        "duration": "7h 03min",
+        "eveil": "0h25m",
+        "rem": "0h56m (14%)",
+        "leger": "3h35m (54%)",
+        "profond": "2h07m (32%)",
+        "quality": "80%",
+        "interruptions": "3",
+        "apnea_risk": "Modere"
+      },
+      "date_feb_22": {
+        "duration": "7h 03min - SAME!",
+        "eveil": "0h25m - SAME!",
+        "rem": "0h56m - SAME!",
+        "leger": "3h35m - SAME!",
+        "profond": "2h07m - SAME!",
+        "quality": "80% - SAME!",
+        "interruptions": "3 - SAME!",
+        "apnea_risk": "Modere - SAME!"
+      }
+    }
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_47.json"
+  ],
+  "action_items": [
+    "FIX CRITICAL: The sleep data must change when date selector arrows are clicked. The buildSleepSession() function uses selectedDate but React is not re-computing the values.",
+    "SUGGESTION: Move buildSleepSession and computed stats (nightDeepMin, etc.) to useMemo with [selectedDate] as dependency, or move outside the IIFE to proper component scope",
+    "ALTERNATIVE: Use a key prop on the sleep section wrapper that changes with selectedDate to force React re-render"
+  ],
+  "critical_code_review_comments": [
+    "The IIFE pattern (() => {...})() inside JSX may not properly trigger React re-render when selectedDate state changes. Consider using useMemo() or moving computation outside the render return",
+    "The seed calculation is correct (different per date) but the actual computation is not being re-executed"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (frontend only test)",
+    "frontend": "80% - Most UI elements work but CRITICAL date selector bug"
+  },
+  "test_credentials": {
+    "beneficiary": "Phone: 651245918, Password: demo123"
+  },
+  "mocked_apis": {
+    "has_mocked_apis": true,
+    "mocked_apis_list": [
+      "Sleep sessions are MOCKED using date-seeded pseudo-random generation (not real bracelet data)"
+    ]
+  },
+  "seed_data_creation": "None - used existing test users",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Date selector bug: Date label changes but sleep stats do not. The buildSleepSession function and computed stats are inside an IIFE - need to refactor to use useMemo or move outside JSX. Login: 651245918/demo123. Navigate via clicking SOMMEIL card on dashboard or direct URL /health-detail?metricId=sleep."
+}
