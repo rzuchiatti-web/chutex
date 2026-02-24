@@ -1,0 +1,94 @@
+{
+  "summary": "CRITICAL BUG STILL PRESENT: Sleep detail page date selector does not update sleep data. Testing showed that when clicking left/right arrows, the date LABEL changes (Aujourd'hui → 23 févr. → 22 févr.) but ALL sleep statistics remain IDENTICAL across all dates. The useMemo with [selectedDate.getTime()] dependency is present but not triggering re-computation.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "critical": [
+      {
+        "component": "health-detail.tsx - Sleep section date selector",
+        "issue": "Date selector arrows change date label but DO NOT update sleep data (duration, deep/light/REM/awake minutes, quality %, interruptions, apnea risk)",
+        "priority": "CRITICAL",
+        "root_cause_analysis": "The useMemo hook with [selectedDate.getTime()] dependency should recompute when selectedDate changes, but it's NOT being triggered. This could be a React reconciliation issue where: 1) The click event on the icon child isn't properly bubbling to parent div with onClick, OR 2) The IIFE pattern inside JSX is not properly detecting the useMemo value change, OR 3) React Native Web rendering optimization is preventing re-render",
+        "reproduction_steps": [
+          "1. Login as beneficiary (651245918/demo123)",
+          "2. Navigate to /health-detail?metricId=sleep",
+          "3. Note the sleep data: duration, Eveil, REM, Leger, Profond, Quality %, Interruptions",
+          "4. Click left arrow (<) to go to previous day",
+          "5. Observe: Date label changes but ALL data remains IDENTICAL",
+          "6. Click left again - same issue"
+        ],
+        "test_data": {
+          "today_sample": {"duration": "7h 33min", "quality": "76%", "interruptions": "4", "eveil": "0h54m", "rem": "1h01m", "leger": "3h39m", "profond": "1h59m"},
+          "yesterday_sample": {"duration": "7h 33min - SAME!", "quality": "76% - SAME!", "interruptions": "4 - SAME!"},
+          "2_days_ago_sample": {"duration": "7h 33min - SAME!", "quality": "76% - SAME!", "interruptions": "4 - SAME!"}
+        },
+        "suggested_fix": [
+          "1. Move sleepNightData computation outside the IIFE, directly in component body",
+          "2. Add a key prop to the sleep section that changes with selectedDate to force re-mount: key={selectedDate.getTime()}",
+          "3. Try using useCallback for changeDate function",
+          "4. Verify onClick handler is properly attached - consider using TouchableOpacity from react-native instead of div onClick"
+        ]
+      }
+    ],
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "features_tested": {
+      "login_flow": "PASS - Login works with 651245918/demo123",
+      "sleep_detail_page_loads": "PASS - Sleep page loads with all UI elements",
+      "hypnogram_svg_renders": "PASS - SVG hypnogram renders correctly",
+      "date_selector_ui": "PASS - Left/right arrows visible, date label updates",
+      "date_selector_data_update": "FAIL - CRITICAL - Data does NOT change when date changes"
+    }
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_48.json"
+  ],
+  "action_items": [
+    "CRITICAL FIX NEEDED: Sleep data must change when date selector arrows are clicked",
+    "Root cause: useMemo([selectedDate.getTime()]) is not recomputing despite state change",
+    "Suggested approach: Add key={selectedDate.getTime()} to the sleep section container to force React re-mount",
+    "Alternative: Replace IIFE pattern with direct component render using sleepNightData values"
+  ],
+  "critical_code_review_comments": [
+    "The useMemo dependency [selectedDate.getTime()] is correct but not triggering re-computation",
+    "The IIFE pattern (() => {...})() inside JSX may have React reconciliation issues",
+    "Consider extracting the sleep section to a separate component with selectedDate as prop",
+    "The onClick on div may not work properly with icon child in React Native Web - consider using TouchableOpacity"
+  ],
+  "updated_files": [
+    "/app/frontend/app/health-detail.tsx - Added data-testid attributes, changed useMemo dependency to getTime()"
+  ],
+  "success_rate": {
+    "backend": "N/A (frontend only test)",
+    "frontend": "60% - UI renders but critical date selector bug persists"
+  },
+  "test_credentials": {
+    "beneficiary": "Phone: 651245918, Password: demo123"
+  },
+  "mocked_apis": {
+    "has_mocked_apis": true,
+    "mocked_apis_list": [
+      "Sleep sessions use date-seeded pseudo-random generation (MOCKED, not real bracelet data)"
+    ]
+  },
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Bug from iteration_47 is NOT fixed. The useMemo with [selectedDate.getTime()] dependency exists but is not triggering re-computation. The date label updates but sleep data stays same. Try: 1) Adding key prop to force re-mount, 2) Moving computation outside IIFE, 3) Using TouchableOpacity instead of div onClick. Login: 651245918/demo123",
+  "rca_of_issue": {
+    "issue": "Sleep date selector does not update sleep data",
+    "identified_cause": "useMemo is not re-computing when selectedDate state changes",
+    "code_location": "/app/frontend/app/health-detail.tsx lines 84-130 (useMemo), lines 220-225 (date selector arrows)",
+    "why_not_fixed": "The fix of moving computation to useMemo with selectedDate dependency was applied, but React is not detecting the state change properly, possibly due to IIFE pattern or React Native Web rendering optimization",
+    "mitigation_steps": [
+      "Add key={selectedDate.getTime()} to the parent div of sleep section to force re-mount",
+      "Extract sleep section to separate component with selectedDate as prop",
+      "Replace div onClick with TouchableOpacity from react-native"
+    ]
+  }
+}
