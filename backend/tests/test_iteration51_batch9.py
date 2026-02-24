@@ -1,12 +1,76 @@
 """
 Iteration 51 - Batch 9 Tests
 Tests for: SAAD invitation system, hydration reminders, SAAD account login
+Login API uses 'email' field but accepts both email and phone numbers
 """
 import pytest
 import requests
 import os
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
+
+
+class TestBeneficiaryLogin:
+    """Test beneficiary login"""
+    
+    def test_beneficiary_login_with_phone(self):
+        """Login with beneficiary phone 651245918 works"""
+        resp = requests.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "651245918",  # API accepts phone in email field
+            "password": "demo123"
+        })
+        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
+        data = resp.json()
+        assert "token" in data
+        assert data.get("user", {}).get("role") == "beneficiary"
+        assert data.get("user", {}).get("name") == "Robert Martin"
+        print("PASSED: Beneficiary login successful")
+        return data.get("token")
+
+
+class TestAdminLogin:
+    """Test admin login"""
+    
+    def test_admin_login_with_phone(self):
+        """Login with admin phone 600000001 works"""
+        resp = requests.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "600000001",
+            "password": "demo123"
+        })
+        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
+        data = resp.json()
+        assert "token" in data
+        assert data.get("user", {}).get("role") == "admin"
+        print("PASSED: Admin login successful")
+        return data.get("token")
+
+
+class TestSAADAccountLogin:
+    """Test SAAD/prescriber_company account login"""
+    
+    def test_saad_login_with_phone(self):
+        """Login with SAAD account phone 499887766 returns prescriber_company role"""
+        resp = requests.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "499887766",  # Phone without country code
+            "password": "demo123"
+        })
+        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
+        data = resp.json()
+        assert "token" in data, "Response should include token"
+        assert data.get("user", {}).get("role") == "prescriber_company", f"Expected role prescriber_company, got {data.get('user', {}).get('role')}"
+        assert data.get("user", {}).get("name") == "Marie Dupont", f"Expected name Marie Dupont, got {data.get('user', {}).get('name')}"
+        print(f"PASSED: SAAD login successful, role: {data.get('user', {}).get('role')}")
+    
+    def test_saad_login_returns_structure_info(self):
+        """SAAD account should have structure name"""
+        resp = requests.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "499887766",
+            "password": "demo123"
+        })
+        assert resp.status_code == 200
+        user = resp.json().get("user", {})
+        assert user.get("structure_name"), "SAAD should have structure_name"
+        print(f"PASSED: SAAD has structure_name: {user.get('structure_name')}")
 
 
 class TestSAADInvitationSystem:
@@ -16,7 +80,7 @@ class TestSAADInvitationSystem:
     def setup(self):
         """Login as admin to get token"""
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": "+33600000001",
+            "email": "600000001",
             "password": "demo123"
         })
         if login_resp.status_code == 200:
@@ -77,34 +141,6 @@ class TestSAADInvitationSystem:
         print(f"PASSED: Got {len(data)} SAAD invitations")
 
 
-class TestSAADAccountLogin:
-    """Test SAAD/prescriber_company account login"""
-    
-    def test_saad_login_with_phone(self):
-        """Login with SAAD account phone +33499887766 returns prescriber_company role"""
-        resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": "+33499887766",
-            "password": "demo123"
-        })
-        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
-        data = resp.json()
-        assert "token" in data, "Response should include token"
-        assert data.get("user", {}).get("role") == "prescriber_company", f"Expected role prescriber_company, got {data.get('user', {}).get('role')}"
-        assert data.get("user", {}).get("name") == "Marie Dupont", f"Expected name Marie Dupont, got {data.get('user', {}).get('name')}"
-        print(f"PASSED: SAAD login successful, role: {data.get('user', {}).get('role')}")
-    
-    def test_saad_login_returns_structure_info(self):
-        """SAAD account should have structure name and SIRET"""
-        resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": "+33499887766",
-            "password": "demo123"
-        })
-        assert resp.status_code == 200
-        user = resp.json().get("user", {})
-        assert user.get("structure_name"), "SAAD should have structure_name"
-        print(f"PASSED: SAAD has structure_name: {user.get('structure_name')}")
-
-
 class TestHydrationReminders:
     """Test hydration reminders for beneficiary"""
     
@@ -112,7 +148,7 @@ class TestHydrationReminders:
     def setup(self):
         """Login as beneficiary"""
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": "+33651245918",
+            "email": "651245918",
             "password": "demo123"
         })
         if login_resp.status_code == 200:
@@ -142,39 +178,6 @@ class TestHydrationReminders:
         print(f"PASSED: Found {len(hydration_reminders)} hydration reminders")
 
 
-class TestBeneficiaryLogin:
-    """Test beneficiary login and basic data"""
-    
-    def test_beneficiary_login_success(self):
-        """Login with beneficiary phone 651245918 works"""
-        resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": "+33651245918",
-            "password": "demo123"
-        })
-        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
-        data = resp.json()
-        assert "token" in data
-        assert data.get("user", {}).get("role") == "beneficiary"
-        assert data.get("user", {}).get("name") == "Robert Martin"
-        print("PASSED: Beneficiary login successful")
-
-
-class TestAdminLogin:
-    """Test admin login"""
-    
-    def test_admin_login_success(self):
-        """Login with admin phone 600000001 works"""
-        resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": "+33600000001",
-            "password": "demo123"
-        })
-        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
-        data = resp.json()
-        assert "token" in data
-        assert data.get("user", {}).get("role") == "admin"
-        print("PASSED: Admin login successful")
-
-
 class TestHealthDailyReport:
     """Test health daily report for vitals data"""
     
@@ -182,7 +185,7 @@ class TestHealthDailyReport:
     def setup(self):
         """Login as beneficiary"""
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": "+33651245918",
+            "email": "651245918",
             "password": "demo123"
         })
         if login_resp.status_code == 200:
@@ -203,6 +206,38 @@ class TestHealthDailyReport:
         report_data = data.get("data", {})
         assert "heart_rate" in report_data or report_data, "Report should have health data"
         print(f"PASSED: Daily report returned with data keys: {list(report_data.keys())[:5]}...")
+
+
+class TestGuardiansAPI:
+    """Test guardians endpoint"""
+    
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        """Login as beneficiary"""
+        login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "651245918",
+            "password": "demo123"
+        })
+        if login_resp.status_code == 200:
+            self.token = login_resp.json().get("token")
+        else:
+            pytest.skip("Beneficiary login failed")
+    
+    def test_get_guardians_returns_list(self):
+        """GET /api/guardians/my returns guardian list"""
+        resp = requests.get(
+            f"{BASE_URL}/api/guardians/my",
+            headers={"Authorization": f"Bearer {self.token}"}
+        )
+        assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
+        data = resp.json()
+        assert isinstance(data, list), "Response should be a list"
+        # Robert Martin should have Claire Martin as guardian
+        if len(data) > 0:
+            guardian_names = [g.get("name") for g in data]
+            print(f"PASSED: Found guardians: {guardian_names}")
+        else:
+            print("PASSED: Guardians list retrieved (empty)")
 
 
 if __name__ == "__main__":
