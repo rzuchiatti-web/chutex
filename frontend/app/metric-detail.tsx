@@ -508,7 +508,64 @@ export default function MetricDetailScreen() {
           )}
         </div>
 
-        {/* ─── Alert thresholds ─── */}
+        {/* ─── Objectives (activity) or Alert thresholds (health) ─── */}
+        {(() => {
+          const OBJECTIVE_KEYS = new Set(['steps', 'calories', 'distance_km', 'stress_level', 'recovery_score', 'sleep_quality', 'vo2_max']);
+          const isObjective = OBJECTIVE_KEYS.has(key || '');
+          const defaultGoals: Record<string, { value: string; label: string }> = {
+            steps: { value: '6000', label: 'pas/jour' },
+            calories: { value: '300', label: 'kcal/jour' },
+            distance_km: { value: '4', label: 'km/jour' },
+            stress_level: { value: '40', label: 'maximum /100' },
+            recovery_score: { value: '75', label: 'minimum /100' },
+            sleep_quality: { value: '80', label: 'minimum %' },
+            vo2_max: { value: '30', label: 'ml/kg/min' },
+          };
+          const goal = defaultGoals[key || ''];
+
+          if (isObjective) return (
+            <div data-testid="objectives-section" style={{ ...G, padding: '16px 18px', marginBottom: 14 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                <i className="ri-flag-line" style={{ fontSize: 16, color: '#10B981' }} />
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Objectif journalier</span>
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14, lineHeight: 1.5 }}>Fixez un objectif personnalise pour suivre votre progression quotidienne.</div>
+              {!thEdit ? (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', marginBottom: 12 } as any}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className="ri-trophy-line" style={{ fontSize: 20, color: '#10B981' }} />
+                    </div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Objectif</div>
+                      <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{threshold?.goal || threshold?.max_val || goal?.value || '--'} <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{goal?.label || m.unit}</span></div>
+                    </div>
+                    {typeof currentVal === 'number' && (
+                      <div style={{ textAlign: 'center' } as any}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: currentVal >= parseFloat(threshold?.goal || threshold?.max_val || goal?.value || '0') ? '#10B981' : '#F59E0B' }}>
+                          {currentVal >= parseFloat(threshold?.goal || threshold?.max_val || goal?.value || '0') ? 'Atteint' : 'En cours'}
+                        </div>
+                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{Math.round((currentVal / parseFloat(threshold?.goal || threshold?.max_val || goal?.value || '1')) * 100)}%</div>
+                      </div>
+                    )}
+                  </div>
+                  <div onClick={() => { setThEdit(true); setThMax(threshold?.goal || threshold?.max_val?.toString() || goal?.value || ''); }} style={{ padding: '12px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Modifier l'objectif</div>
+                </>
+              ) : (
+                <div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(16,185,129,0.7)', textTransform: 'uppercase', marginBottom: 6 }}>Nouvel objectif ({goal?.label || m.unit})</div>
+                  <input type="number" step="1" value={thMax} onChange={(e: any) => setThMax(e.target.value)} placeholder={goal?.value || '0'} style={{ width: '100%', padding: '14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(16,185,129,0.2)', color: '#FFF', fontSize: 20, fontWeight: 800, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', textAlign: 'center', marginBottom: 12 } as any} />
+                  <div style={{ display: 'flex', gap: 8 } as any}>
+                    <div onClick={async () => { setThSaving(true); try { await apiFetch('/api/health/thresholds', { method: 'POST', body: JSON.stringify({ metric_id: key, goal: thMax ? parseFloat(thMax) : null, max_val: thMax ? parseFloat(thMax) : null }) }, token); setThreshold({ metric_id: key, goal: thMax ? parseFloat(thMax) : null, max_val: thMax ? parseFloat(thMax) : null }); setThEdit(false); } catch {} finally { setThSaving(false); } }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: '#10B981', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>{thSaving ? '...' : 'Sauvegarder'}</div>
+                    <div onClick={() => setThEdit(false)} style={{ padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+
+          // Default: alert thresholds for health metrics
+          return (
         <div data-testid="thresholds-section" style={{ ...G, padding: '16px 18px', marginBottom: 14 } as any}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
@@ -522,7 +579,6 @@ export default function MetricDetailScreen() {
             )}
           </div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 12, lineHeight: 1.5 }}>Vos gardiens seront alertes si cette donnee depasse les seuils definis.</div>
-          {/* Nora suggestion */}
           {nMin != null && !thEdit && !(threshold?.min_val != null) && (
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 12px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 12 } as any}>
               <div style={{ width: 20, height: 20, borderRadius: 6, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}><span style={{ fontSize: 8, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
@@ -564,6 +620,8 @@ export default function MetricDetailScreen() {
             </div>
           )}
         </div>
+          );
+        })()}
 
       </div>
     </div>
