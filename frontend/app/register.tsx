@@ -209,13 +209,13 @@ export default function RegisterScreen() {
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous accompagnez un proche ou un patient dans son suivi de sante.</div>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
                   {[
-                    { icon: 'ri-user-heart-line', label: 'PROCHE' },
-                    { icon: 'ri-stethoscope-line', label: 'MEDECIN' },
-                    { icon: 'ri-nurse-line', label: 'INFIRMIER' },
-                    { icon: 'ri-building-line', label: 'STRUCTURE' },
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/gx3y3hjr_img1_gardien.svg', label: 'PROCHE' },
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/2vkyj2ee_img2_gardien.svg', label: 'MEDECIN' },
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/6pui8o6u_img3_gardien.svg', label: 'INFIRMIER' },
+                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/u9b8whua_img4_gardien.svg', label: 'STRUCTURE' },
                   ].map((a, i) => (
                     <div key={i} style={{ textAlign: 'center' } as any}>
-                      <div style={{ width: 56, height: 56, borderRadius: 999, background: 'rgba(56,189,248,0.08)', border: '2px solid rgba(56,189,248,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px' } as any}><i className={a.icon} style={{ fontSize: 22, color: '#38BDF8' }} /></div>
+                      <div style={{ width: 56, height: 56, borderRadius: 999, overflow: 'hidden', margin: '0 auto 6px', border: '2px solid rgba(255,255,255,0.15)' } as any}><img src={a.img} alt={a.label} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>
                       <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5 }}>{a.label}</div>
                     </div>
                   ))}
