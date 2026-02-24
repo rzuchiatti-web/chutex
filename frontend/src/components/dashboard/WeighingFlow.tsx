@@ -54,14 +54,24 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
             <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src="https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/8h3820je_dna%281%29.webm" />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{t('weighing_measuring')}</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 32 }}>{t('weighing_stay_still')}</div>
-              <div style={{ fontSize: 64, fontWeight: 900, color: '#FFF', marginBottom: 16 }}>10s</div>
-              <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', overflow: 'hidden', width: 200, margin: '0 auto' } as any}>
-                <div style={{ height: 4, borderRadius: 2, background: '#FFF', animation: 'fillBar 10s linear forwards' } as any} />
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{t('weighing_measuring')}</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 28 }}>{t('weighing_stay_still')}</div>
+              {/* Timer ring 15s */}
+              <div style={{ width: 140, height: 140, borderRadius: 70, border: '3px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', position: 'relative' } as any}>
+                <svg width="140" height="140" style={{ position: 'absolute', top: -1.5, left: -1.5, transform: 'rotate(-90deg)', animation: 'weighTimer 15s linear forwards' }}>
+                  <circle cx="70" cy="70" r="68" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeDasharray="0 427" strokeLinecap="round">
+                    <animate attributeName="stroke-dasharray" from="0 427" to="427 427" dur="15s" fill="freeze" />
+                  </circle>
+                </svg>
+                <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>
+                  <span style={{ display: 'inline-block', animation: 'countDown15 15s steps(15) forwards' }}>15</span><span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>s</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 4 } as any}>
+                {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: 3, background: '#FFF', opacity: 0.4, animation: `pulse 1.2s ${i*0.3}s infinite` } as any} />)}
               </div>
             </div>
-            <style dangerouslySetInnerHTML={{ __html: '@keyframes fillBar{from{width:0%}to{width:100%}}' }} />
+            <style dangerouslySetInnerHTML={{ __html: '@keyframes pulse{0%,100%{opacity:0.2;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}' }} />
           </div>
         )}
 
