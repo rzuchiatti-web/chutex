@@ -96,7 +96,11 @@ export default function ChatIAScreen() {
           <div style={{ padding: '0 24px 24px' } as any}>
             <div>
               <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1.2, marginBottom: 6 }}>Bonjour {firstName},</div>
-              <div style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>Je suis Nora, votre assistante medicale. Je connais votre dossier de sante et vos donnees en temps reel. Posez-moi vos questions.</div>
+              <div style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>
+                {role === 'guardian'
+                  ? 'Je suis Nora, votre assistante medicale. Je connais les donnees de sante de vos beneficiaires. Posez-moi vos questions sur leur etat de sante, les alertes, ou le fonctionnement de votre espace gardien.'
+                  : 'Je suis Nora, votre assistante medicale. Je connais votre dossier de sante et vos donnees en temps reel. Posez-moi vos questions.'}
+              </div>
             </div>
           </div>
         )}
