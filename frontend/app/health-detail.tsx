@@ -205,28 +205,7 @@ export default function HealthDetailScreen() {
                 </div>
               </div>
               <div style={{ padding: '0 16px 8px' } as any}>
-                <svg width="100%" viewBox="0 0 700 180" style={{ display: 'block' }}>
-                  <text x="0" y="16" fill="rgba(255,255,255,0.25)" fontSize="9">Eveil</text>
-                  <text x="0" y="64" fill="rgba(255,255,255,0.25)" fontSize="9">REM</text>
-                  <text x="0" y="114" fill="rgba(255,255,255,0.25)" fontSize="9">Leger</text>
-                  <text x="0" y="159" fill="rgba(255,255,255,0.25)" fontSize="9">Profond</text>
-                  {[12, 60, 110, 155].map(y => <line key={y} x1="55" y1={y} x2="690" y2={y} stroke="rgba(255,255,255,0.03)" />)}
-                  {phases.map((p, i) => {
-                    const x = 55 + (i / phases.length) * 635;
-                    const w = 635 / phases.length + 1;
-                    const y = pY[p];
-                    const ny = i < phases.length - 1 ? pY[phases[i + 1]] : y;
-                    return <g key={i}>
-                      <rect x={x} y={Math.min(y, ny)} width={w} height={Math.abs(ny - y) || 3} fill={pColors[p]} opacity="0.35" />
-                      <rect x={x} y={y - 1.5} width={w} height={3} fill={pColors[p]} />
-                    </g>;
-                  })}
-                  <text x="55" y="175" fill="rgba(255,255,255,0.3)" fontSize="9" fontWeight="700">22:30</text>
-                  <text x="210" y="175" fill="rgba(255,255,255,0.2)" fontSize="9">0h</text>
-                  <text x="370" y="175" fill="rgba(255,255,255,0.2)" fontSize="9">2h</text>
-                  <text x="530" y="175" fill="rgba(255,255,255,0.2)" fontSize="9">4h</text>
-                  <text x="660" y="175" fill="rgba(255,255,255,0.3)" fontSize="9" fontWeight="700">6:30</text>
-                </svg>
+                <SleepHypnogram session={sleepSession} width={700} height={180} showLabels={true} timeLabelCount={5} />
               </div>
               <div style={{ padding: '4px 16px 8px' } as any}>
                 <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginBottom: 3 }}>Mouvements</div>
