@@ -259,8 +259,8 @@ export default function HealthDetailScreen() {
                 </div>
                 <div style={{ width: 1, background: 'rgba(255,255,255,0.06)' }}></div>
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                  <div style={{ width: 44, height: 44, borderRadius: 14, background: inter <= 2 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-alarm-line" style={{ fontSize: 20, color: inter <= 2 ? '#10B981' : '#F59E0B' }} />
+                  <div style={{ width: 44, height: 44, borderRadius: 14, background: nightInterruptions <= 2 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className="ri-alarm-line" style={{ fontSize: 20, color: nightInterruptions <= 2 ? '#10B981' : '#F59E0B' }} />
                   </div>
                   <div>
                     <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{nightInterruptions}</div>
