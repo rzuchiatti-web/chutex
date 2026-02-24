@@ -199,7 +199,6 @@ export default function HealthDetailScreen() {
 
         {/* Sleep section: Hypnogram hero + apnea risk */}
         {metricId === 'sleep' && d.sleep_duration_min && (() => {
-          console.log('[SLEEP-RENDER] Rendering with sleepNightData:', sleepNightData.duration, sleepNightData.quality);
           const { session: sleepSession, deepMin: nightDeepMin, lightMin: nightLightMin, remMin: nightRemMin, awakeMin: nightAwakeMin, totalSleep: nightTotalSleep, duration: nightDuration, quality: nightQuality, interruptions: nightInterruptions, apnea: nightApnea } = sleepNightData;
           const deepPct = nightTotalSleep > 0 ? Math.round(nightDeepMin / nightTotalSleep * 100) : 0;
           return (
