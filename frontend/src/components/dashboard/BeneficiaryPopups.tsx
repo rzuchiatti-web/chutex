@@ -92,35 +92,53 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
       <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '24px 20px 120px', boxSizing: 'border-box' } as any}>
 
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-            <img src={meta.img} alt="" style={{ width: 40, height: 40, objectFit: 'contain' } as any} />
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{meta.label}</div>
-          </div>
+        {/* Close button */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 } as any}>
           <div onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
           </div>
         </div>
 
-        {/* Edit mode — full screen form */}
+        {/* Big image + title */}
+        <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+          <img src={meta.img} alt="" style={{ width: 120, height: 120, objectFit: 'contain', margin: '0 auto 12px', display: 'block', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.3))' } as any} />
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{meta.label}</div>
+        </div>
+
+        {/* Edit mode */}
         {editingId ? (
           <div style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', overflow: 'hidden' } as any}>
 
-            {/* Time picker */}
-            <div style={{ padding: '24px 20px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Heure du rappel</div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 } as any}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 } as any}>
-                  <div onClick={() => setTime((hr + 1) % 24, mn)} style={{ cursor: 'pointer', padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-up-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)' }} /></div>
-                  <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', width: 72, textAlign: 'center', lineHeight: 1 }}>{String(hr).padStart(2, '0')}</div>
-                  <div onClick={() => setTime((hr - 1 + 24) % 24, mn)} style={{ cursor: 'pointer', padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-down-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)' }} /></div>
+            {/* Scroll time picker */}
+            <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14, textAlign: 'center' }}>Heure du rappel</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+                {/* Hours scroll */}
+                <div style={{ width: 80, height: 140, overflow: 'hidden', position: 'relative', borderRadius: 14, background: 'rgba(255,255,255,0.03)' } as any}>
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 40, background: 'linear-gradient(180deg, rgba(0,0,0,0.6), transparent)', zIndex: 2, pointerEvents: 'none' } as any} />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 40, background: 'linear-gradient(0deg, rgba(0,0,0,0.6), transparent)', zIndex: 2, pointerEvents: 'none' } as any} />
+                  <div style={{ position: 'absolute', top: '50%', left: 4, right: 4, height: 40, marginTop: -20, borderRadius: 10, background: `${accent}15`, border: `1px solid ${accent}30`, zIndex: 1, pointerEvents: 'none' } as any} />
+                  <div data-testid="hour-scroll" style={{ height: '100%', overflowY: 'scroll', scrollSnapType: 'y mandatory', scrollbarWidth: 'none', msOverflowStyle: 'none', position: 'relative', zIndex: 3, paddingTop: 50, paddingBottom: 50 } as any}
+                    ref={(el: any) => { if (el && !el._scrolled) { el.scrollTop = hr * 40; el._scrolled = true; } }}
+                    onScroll={(e: any) => { const idx = Math.round(e.target.scrollTop / 40); if (idx >= 0 && idx < 24) setTime(idx, mn); }}>
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <div key={i} style={{ height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center', fontSize: i === hr ? 32 : 20, fontWeight: i === hr ? 900 : 500, color: i === hr ? '#FFF' : 'rgba(255,255,255,0.15)', transition: 'all 0.1s' } as any}>{String(i).padStart(2, '0')}</div>
+                    ))}
+                  </div>
                 </div>
-                <span style={{ fontSize: 40, fontWeight: 900, color: 'rgba(255,255,255,0.2)', marginBottom: 8 }}>:</span>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 } as any}>
-                  <div onClick={() => setTime(hr, (mn + 5) % 60)} style={{ cursor: 'pointer', padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-up-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)' }} /></div>
-                  <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', width: 72, textAlign: 'center', lineHeight: 1 }}>{String(mn).padStart(2, '0')}</div>
-                  <div onClick={() => setTime(hr, (mn - 5 + 60) % 60)} style={{ cursor: 'pointer', padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.06)' } as any}><i className="ri-arrow-down-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)' }} /></div>
+                <span style={{ fontSize: 36, fontWeight: 900, color: 'rgba(255,255,255,0.2)' }}>:</span>
+                {/* Minutes scroll */}
+                <div style={{ width: 80, height: 140, overflow: 'hidden', position: 'relative', borderRadius: 14, background: 'rgba(255,255,255,0.03)' } as any}>
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 40, background: 'linear-gradient(180deg, rgba(0,0,0,0.6), transparent)', zIndex: 2, pointerEvents: 'none' } as any} />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 40, background: 'linear-gradient(0deg, rgba(0,0,0,0.6), transparent)', zIndex: 2, pointerEvents: 'none' } as any} />
+                  <div style={{ position: 'absolute', top: '50%', left: 4, right: 4, height: 40, marginTop: -20, borderRadius: 10, background: `${accent}15`, border: `1px solid ${accent}30`, zIndex: 1, pointerEvents: 'none' } as any} />
+                  <div data-testid="minute-scroll" style={{ height: '100%', overflowY: 'scroll', scrollSnapType: 'y mandatory', scrollbarWidth: 'none', msOverflowStyle: 'none', position: 'relative', zIndex: 3, paddingTop: 50, paddingBottom: 50 } as any}
+                    ref={(el: any) => { if (el && !el._scrolled) { el.scrollTop = (mn / 5) * 40; el._scrolled = true; } }}
+                    onScroll={(e: any) => { const idx = Math.round(e.target.scrollTop / 40); const m = idx * 5; if (m >= 0 && m < 60) setTime(hr, m); }}>
+                    {Array.from({ length: 12 }, (_, i) => i * 5).map(m => (
+                      <div key={m} style={{ height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center', fontSize: m === mn ? 32 : 20, fontWeight: m === mn ? 900 : 500, color: m === mn ? '#FFF' : 'rgba(255,255,255,0.15)', transition: 'all 0.1s' } as any}>{String(m).padStart(2, '0')}</div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
