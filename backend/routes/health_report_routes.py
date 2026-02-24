@@ -300,7 +300,7 @@ async def get_metric_history(key: str, period: str = "7j", user=Depends(get_curr
 
     gen = generators.get(key, lambda i: round(50 + 10 * math.sin(i / 5 * math.pi) + random.uniform(-2, 2), 1))
 
-    for i in builtins_range(points):
+    for i in __builtins__['range'](points) if isinstance(__builtins__, dict) else __builtins__.range(points):
         if is_hourly:
             dt = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(hours=i)
             label = dt.strftime("%Hh")
