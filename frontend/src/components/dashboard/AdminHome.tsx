@@ -199,11 +199,16 @@ export default function AdminHome({ token, user }: { token: string; user: any })
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const [rgpdRequests, setRgpdRequests] = useState<any[]>([]);
+  const [emails, setEmails] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<any>({});
+  const [shopifyStatus, setShopifyStatus] = useState<any>(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [st, us, al, iv, ac, ic, sub, inv, k] = await Promise.all([
+      const [st, us, al, iv, ac, ic, sub, inv, k, pr, rgpd, em, an, sh] = await Promise.all([
         apiFetch('/api/backoffice/stats', {}, token).catch(() => ({})),
         apiFetch('/api/backoffice/users', {}, token).catch(() => []),
         apiFetch('/api/backoffice/alerts', {}, token).catch(() => []),
@@ -213,11 +218,18 @@ export default function AdminHome({ token, user }: { token: string; user: any })
         apiFetch('/api/admin/subscriptions', {}, token).catch(() => []),
         apiFetch('/api/admin/saad-invitations', {}, token).catch(() => []),
         apiFetch('/api/backoffice/kpi', {}, token).catch(() => ({})),
+        apiFetch('/api/backoffice/prescriptions', {}, token).catch(() => []),
+        apiFetch('/api/admin/rgpd-requests', {}, token).catch(() => []),
+        apiFetch('/api/admin/emails', {}, token).catch(() => []),
+        apiFetch('/api/backoffice/analytics', {}, token).catch(() => ({})),
+        apiFetch('/api/admin/shopify/status', {}, token).catch(() => null),
       ]);
       setStats(st); setUsers(Array.isArray(us) ? us : []); setAlerts(Array.isArray(al) ? al : []);
       setInterventions(Array.isArray(iv) ? iv : []); setActCodes(Array.isArray(ac) ? ac : []);
       setIvCodes(Array.isArray(ic) ? ic : []); setSubscriptions(Array.isArray(sub) ? sub : []);
       setInvitations(Array.isArray(inv) ? inv : []); setKpi(k);
+      setPrescriptions(Array.isArray(pr) ? pr : []); setRgpdRequests(Array.isArray(rgpd) ? rgpd : []);
+      setEmails(Array.isArray(em) ? em : []); setAnalytics(an || {}); setShopifyStatus(sh);
     } catch {} finally { setLoading(false); }
   }, [token]);
 
