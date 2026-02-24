@@ -93,20 +93,20 @@ export default function AdminHome({ token, user }: { token: string; user: any })
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
 
       {/* ══ TOP BAR ══ */}
-      <div style={{ position: 'relative', zIndex: 10, padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: 'rgba(0,0,0,0.2)' } as any}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 } as any}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-shield-check-line" style={{ fontSize: 16, color: '#A78BFA' }} /></div>
-          <div style={{ flex: 1 } as any}><span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>CARE WATCH</span><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 8 }}>Administration</span></div>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginRight: 8 }}>{user.name}</span>
-          <div onClick={load} style={{ width: 30, height: 30, borderRadius: 8, ...G, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-refresh-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }} /></div>
-          <div data-testid="admin-logout-btn" onClick={logout} style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-logout-box-r-line" style={{ fontSize: 14, color: '#EF4444' }} /></div>
+      <div style={{ position: 'relative', zIndex: 10, padding: mobile ? '10px 12px' : '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: 'rgba(0,0,0,0.2)' } as any}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: mobile ? 8 : 12, marginBottom: 8 } as any}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-shield-check-line" style={{ fontSize: 16, color: '#A78BFA' }} /></div>
+          <div style={{ flex: 1, minWidth: 0 } as any}><span style={{ fontSize: mobile ? 12 : 14, fontWeight: 800, color: '#FFF' }}>CARE WATCH</span>{!mobile && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 8 }}>Administration</span>}</div>
+          {!mobile && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginRight: 8 }}>{user.name}</span>}
+          <div onClick={load} style={{ width: 30, height: 30, borderRadius: 8, ...G, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-refresh-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }} /></div>
+          <div data-testid="admin-logout-btn" onClick={logout} style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-logout-box-r-line" style={{ fontSize: 14, color: '#EF4444' }} /></div>
         </div>
-        {/* Main tabs */}
-        <div style={{ display: 'flex', gap: 4, overflowX: 'auto' } as any}>
+        {/* Main tabs - scrollable on mobile */}
+        <div style={{ display: 'flex', gap: 2, overflowX: 'auto', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' } as any}>
           {mainTabs.map(t => (
-            <div key={t.key} data-testid={`admin-tab-${t.key}`} onClick={() => setTab(t.key)} style={{ padding: '8px 14px', borderRadius: '10px 10px 0 0', background: tab === t.key ? 'rgba(167,139,250,0.12)' : 'transparent', borderBottom: tab === t.key ? '2px solid #A78BFA' : '2px solid transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', transition: 'all 0.15s' } as any}>
+            <div key={t.key} data-testid={`admin-tab-${t.key}`} onClick={() => setTab(t.key)} style={{ padding: mobile ? '7px 10px' : '8px 14px', borderRadius: '10px 10px 0 0', background: tab === t.key ? 'rgba(167,139,250,0.12)' : 'transparent', borderBottom: tab === t.key ? '2px solid #A78BFA' : '2px solid transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', transition: 'all 0.15s', flexShrink: 0 } as any}>
               <i className={t.icon} style={{ fontSize: 14, color: tab === t.key ? '#A78BFA' : 'rgba(255,255,255,0.3)' }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: tab === t.key ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{t.label}</span>
+              {!mobile && <span style={{ fontSize: 11, fontWeight: 700, color: tab === t.key ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{t.label}</span>}
               {t.key === 'alerts' && active.length > 0 && <span style={{ width: 16, height: 16, borderRadius: 999, background: '#EF4444', fontSize: 9, fontWeight: 800, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>{active.length}</span>}
             </div>
           ))}
