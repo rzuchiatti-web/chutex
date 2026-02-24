@@ -211,7 +211,7 @@ export default function ProfileScreen() {
     input.click();
   };
 
-const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2l2wimir_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2020_02_41.png';
+const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
 
   const effectiveRole = user.active_role || user.role;
   const isBen = effectiveRole === 'beneficiary';
@@ -223,7 +223,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-
 
   /* ─── WEB: Full-page profile with dark background ─── */
   if (Platform.OS === 'web') {
-    const BG_DARK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
+    const BG_DARK = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
 
     return (
       <div data-testid="profile-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
