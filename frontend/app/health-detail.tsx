@@ -197,9 +197,13 @@ export default function HealthDetailScreen() {
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Duree de sommeil</div>
                   <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1.1 }}>{Math.floor(slD / 60)}h {String(slD % 60).padStart(2, '0')}min</div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' } as any}>
-                  <i className="ri-calendar-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} />
-                  <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Aujourd'hui</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                  <div onClick={() => changeDate(-1)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} /></div>
+                  <div style={{ padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                    <i className="ri-calendar-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }} />
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{dateLabel}</span>
+                  </div>
+                  {!isToday && <div onClick={() => changeDate(1)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} /></div>}
                 </div>
               </div>
               <div style={{ padding: '0 16px 8px' } as any}>
