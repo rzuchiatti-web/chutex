@@ -26,6 +26,8 @@ CARE WATCH is a sophisticated preventative health application. The central goal 
 - **NEW: PDF health report export with period selection (backend ready, frontend removed for now)**
 - **NEW: Dynamic SleepHypnogram component replacing static sleep charts**
 - **NEW: RGPD/CNIL compliance (rights form, privacy policy, CGU, mentions legales, security headers, consent tracking)**
+- **NEW: SAAD invitation system from admin + SAAD demo account**
+- **NEW: Hydration reminders + guardian request seed data for Robert Martin**
 
 ## Architecture
 
