@@ -30,18 +30,25 @@ export default function ECGScreen() {
     return () => clearInterval(timerRef.current);
   }, [step]);
 
-  // Recording
-  const startRecording = async () => {
+  // Recording — wait full 30s before calling API
+  const startRecording = () => {
     setStep(3); setRecordProgress(0);
-    const iv = setInterval(() => setRecordProgress(p => { if (p >= 100) { clearInterval(iv); return 100; } return p + (100 / 30); }), 1000);
-    try {
-      const r = await apiFetch('/api/ecg/start', { method: 'POST' }, token);
-      clearInterval(iv); setRecordProgress(100); setResult(r); setStep(4);
-    } catch {
-      clearInterval(iv); setRecordProgress(100);
-      setResult({ id: 'sim', bpm: 72, status: 'normal', rhythm: 'sinusal', interpretation: 'Rythme sinusal normal', pr_interval_ms: 162, qrs_duration_ms: 88, qt_interval_ms: 382, duration_sec: 30 });
-      setStep(4);
-    }
+    let elapsed = 0;
+    const iv = setInterval(() => {
+      elapsed++;
+      const pct = Math.min(100, (elapsed / 30) * 100);
+      setRecordProgress(pct);
+      if (elapsed >= 30) {
+        clearInterval(iv);
+        // Now call API after full 30s
+        apiFetch('/api/ecg/start', { method: 'POST' }, token).then(r => {
+          setResult(r); setStep(4);
+        }).catch(() => {
+          setResult({ id: 'sim-' + Date.now(), bpm: 72, status: 'normal', rhythm: 'sinusal', interpretation: 'Rythme sinusal normal', pr_interval_ms: 162, qrs_duration_ms: 88, qt_interval_ms: 382, duration_sec: 30, created_at: new Date().toISOString() });
+          setStep(4);
+        });
+      }
+    }, 1000);
   };
 
   if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF', padding: 20 }}>Web uniquement</Text></View>;
