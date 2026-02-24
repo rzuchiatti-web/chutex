@@ -314,7 +314,7 @@ export default function HealthDetailScreen() {
 
         {/* Nora Analysis for this section */}
         {report?.ai && (
-          <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
+          <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', paddingTop: metricId !== 'sleep' ? 56 : 16, marginBottom: 14, position: 'relative', zIndex: 1 } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
               <div style={{ width: 28, height: 28, borderRadius: 9, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 10, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
               <div>
