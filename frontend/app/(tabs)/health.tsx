@@ -227,49 +227,6 @@ export default function HealthScreen() {
           <HealthSections d={d} subs={subs} />
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
-
-          {/* 8. Recent Weighings - in glass card */}
-          <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '14px 16px', marginBottom: 14 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                <i className="ri-scales-3-line" style={{ fontSize: 14, color: '#A78BFA' }} />
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Dernieres pesees</span>
-              </div>
-              {weighings.length > 3 && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', cursor: 'pointer' }}>Voir tout</span>}
-            </div>
-            {weighings.length === 0 && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>Aucune pesee enregistree</div>}
-            {weighings.slice(0, 3).map((w: any, i: number) => (
-              <div key={i} onClick={() => router.push({ pathname: '/weighing-report' as any, params: { id: w.id } })} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer' } as any}>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{w.weight} kg</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{new Date(w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-                </div>
-                <span style={{ padding: '3px 10px', borderRadius: 999, background: w.status === 'Bonne' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', fontSize: 10, fontWeight: 700, color: w.status === 'Bonne' ? '#10B981' : '#F59E0B' }}>{w.status}</span>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }} />
-              </div>
-            ))}
-          </div>
-
-          {/* 9. Recent ECGs - in glass card */}
-          <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '14px 16px', marginBottom: 14 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                <i className="ri-pulse-line" style={{ fontSize: 14, color: '#F97316' }} />
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Derniers ECG</span>
-              </div>
-              <div onClick={() => router.push('/ecg' as any)} style={{ fontSize: 10, color: '#F97316', cursor: 'pointer', fontWeight: 600 }}>Nouveau ECG</div>
-            </div>
-            {(!report?.ecg_history || report.ecg_history.length === 0) && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>Aucun ECG enregistre</div>}
-            {(report?.ecg_history || []).slice(0, 3).map((e: any, i: number) => (
-              <div key={i} onClick={() => router.push({ pathname: '/ecg-detail' as any, params: { id: e.id } })} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer' } as any}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(249,115,22,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-heart-pulse-line" style={{ fontSize: 16, color: '#F97316' }} /></div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{e.result || 'Rythme sinusal'}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{new Date(e.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - {e.bpm || '--'} bpm</div>
-                </div>
-                <span style={{ padding: '3px 10px', borderRadius: 999, background: e.normal !== false ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', fontSize: 10, fontWeight: 700, color: e.normal !== false ? '#10B981' : '#EF4444' }}>{e.normal !== false ? 'Normal' : 'Anomalie'}</span>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }} />
-              </div>
             ))}
           </div>
 
