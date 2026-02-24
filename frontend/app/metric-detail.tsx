@@ -123,49 +123,83 @@ export default function MetricDetailScreen() {
           </div>
         )}
 
-        {/* Graph: bars + line overlay */}
-        <div style={{ ...glass, padding: '16px', marginBottom: 14, overflow: 'hidden' } as any}>
-          <div style={{ overflowX: 'auto' } as any} onClick={(e: any) => { const rect = e.currentTarget.getBoundingClientRect(); const x = e.clientX - rect.left - pad; const idx = Math.round((x / gw) * (sliced.length - 1)); if (idx >= 0 && idx < sliced.length) setSelectedDay(selectedDay === idx ? null : idx); }}>
-            <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }}>
-              {/* Grid lines */}
-              {[0, 0.25, 0.5, 0.75, 1].map((p, i) => <line key={i} x1={pad} y1={pad + gh * p} x2={pad + gw} y2={pad + gh * p} stroke="rgba(255,255,255,0.04)" />)}
-              {/* Normal zone */}
-              {normalMin != null && <rect x={pad} y={toY(normalMax)} width={gw} height={Math.max(1, Math.abs(toY(normalMin) - toY(normalMax)))} fill="rgba(16,185,129,0.06)" rx="4" />}
-              {/* Blood pressure: dual bars (systolic + diastolic) */}
-              {m.graph_type === 'bp_dual' ? sliced.map((h: any, i: number) => {
-                const bw = Math.max(4, gw / sliced.length * 0.35);
-                const sysH = Math.max(2, ((h.systolic - mn) / rg) * gh);
-                const diaH = Math.max(2, (((h.diastolic || h.value * 0.6) - mn) / rg) * gh);
-                const isSel = selectedDay === i;
-                return <g key={i}>
-                  <rect x={toX(i) - bw - 1} y={pad + gh - sysH} width={bw} height={sysH} rx={2} fill="#8B5CF6" opacity={isSel ? 0.8 : 0.4} />
-                  <rect x={toX(i) + 1} y={pad + gh - diaH} width={bw} height={diaH} rx={2} fill="#C4B5FD" opacity={isSel ? 0.8 : 0.4} />
-                </g>;
-              }) : (
-                /* Standard: bars + line */
+        {/* Graph card — full width */}
+        <div style={{ ...glass, padding: '12px 0', marginBottom: 14, overflow: 'hidden' } as any}>
+          <div onClick={(e: any) => { const rect = e.currentTarget.getBoundingClientRect(); const x = e.clientX - rect.left; const idx = Math.round((x / rect.width) * (sliced.length - 1)); if (idx >= 0 && idx < sliced.length) setSelectedDay(selectedDay === idx ? null : idx); }}>
+            <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block' }}>
+              {/* Grid */}
+              {[0.25, 0.5, 0.75].map((p, i) => <line key={i} x1={0} y1={marginV + (gh - marginV * 2) * p} x2={gw} y2={marginV + (gh - marginV * 2) * p} stroke="rgba(255,255,255,0.04)" />)}
+              {/* Normal zone band */}
+              {normalMin != null && <rect x={0} y={toY(normalMax)} width={gw} height={Math.max(1, Math.abs(toY(normalMin) - toY(normalMax)))} fill="rgba(16,185,129,0.08)" />}
+
+              {isBP ? (
+                /* Blood Pressure: side-by-side bars systolic (dark) + diastolic (light) */
+                sliced.map((h: any, i: number) => {
+                  const bw = Math.max(6, gw / sliced.length * 0.35);
+                  const sys = h.systolic || h.value;
+                  const dia = h.diastolic || h.value * 0.62;
+                  const sH = Math.max(2, ((sys - drawMn) / drawRg) * (gh - marginV * 2));
+                  const dH = Math.max(2, ((dia - drawMn) / drawRg) * (gh - marginV * 2));
+                  const isSel = selectedDay === i;
+                  return <g key={i}>
+                    <rect x={toX(i) - bw - 1} y={gh - marginV - sH} width={bw} height={sH} rx={3} fill="#8B5CF6" opacity={isSel ? 0.9 : 0.5} />
+                    <rect x={toX(i) + 1} y={gh - marginV - dH} width={bw} height={dH} rx={3} fill="#C4B5FD" opacity={isSel ? 0.9 : 0.5} />
+                    {isSel && <text x={toX(i)} y={gh - marginV - sH - 6} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{sys}/{dia}</text>}
+                  </g>;
+                })
+              ) : isBars ? (
+                /* Steps/Calories: filled bars */
+                sliced.map((h: any, i: number) => {
+                  const bw = Math.max(6, gw / sliced.length * 0.65);
+                  const bh = Math.max(2, ((h.value - drawMn) / drawRg) * (gh - marginV * 2));
+                  const isSel = selectedDay === i;
+                  return <g key={i}>
+                    <rect x={toX(i) - bw / 2} y={gh - marginV - bh} width={bw} height={bh} rx={3} fill={color} opacity={isSel ? 0.9 : 0.4} />
+                    {isSel && <text x={toX(i)} y={gh - marginV - bh - 6} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{h.value}</text>}
+                  </g>;
+                })
+              ) : isScatter ? (
+                /* HRV: scatter dots */
                 <>
-                {sliced.map((h: any, i: number) => {
-                  const bw = Math.max(3, gw / sliced.length * 0.6);
-                  const bh = Math.max(2, ((h.value - mn) / rg) * gh);
-                  return <rect key={`b${i}`} x={toX(i) - bw / 2} y={pad + gh - bh} width={bw} height={bh} rx={2} fill={color} opacity={selectedDay === i ? 0.6 : 0.15} />;
-                })}
-                <polyline points={sliced.map((h: any, i: number) => `${toX(i)},${toY(h.value)}`).join(' ')} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />
-                {sliced.length <= 30 && sliced.map((h: any, i: number) => <circle key={`d${i}`} cx={toX(i)} cy={toY(h.value)} r={selectedDay === i ? 5 : 2.5} fill={selectedDay === i ? '#FFF' : color} stroke={selectedDay === i ? color : 'none'} strokeWidth={2} />)}
+                  {sliced.map((h: any, i: number) => {
+                    const isSel = selectedDay === i;
+                    return <g key={i}>
+                      <circle cx={toX(i)} cy={toY(h.value)} r={isSel ? 7 : 4} fill={color} opacity={isSel ? 1 : 0.5} stroke={isSel ? '#FFF' : 'none'} strokeWidth={2} />
+                      {isSel && <text x={toX(i)} y={toY(h.value) - 12} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{h.value}</text>}
+                    </g>;
+                  })}
+                </>
+              ) : (
+                /* Default: area + line + dots */
+                <>
+                  <defs><linearGradient id={`gm-${key}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity="0.25" /><stop offset="100%" stopColor={color} stopOpacity="0.02" /></linearGradient></defs>
+                  <polygon points={`0,${gh} ${sliced.map((h: any, i: number) => `${toX(i)},${toY(h.value)}`).join(' ')} ${gw},${gh}`} fill={`url(#gm-${key})`} />
+                  <polyline points={sliced.map((h: any, i: number) => `${toX(i)},${toY(h.value)}`).join(' ')} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" />
+                  {sliced.length <= 31 && sliced.map((h: any, i: number) => {
+                    const isSel = selectedDay === i;
+                    return <g key={i}>
+                      <circle cx={toX(i)} cy={toY(h.value)} r={isSel ? 6 : 3} fill={isSel ? '#FFF' : color} stroke={isSel ? color : 'none'} strokeWidth={2} />
+                      {isSel && <text x={toX(i)} y={toY(h.value) - 12} fill="#FFF" fontSize="11" fontWeight="800" textAnchor="middle">{h.value}</text>}
+                    </g>;
+                  })}
                 </>
               )}
-              {/* Selected indicator */}
-              {selectedDay !== null && <line x1={toX(selectedDay)} y1={pad} x2={toX(selectedDay)} y2={pad + gh} stroke="rgba(255,255,255,0.15)" strokeDasharray="3,3" />}
-              {/* Y-axis labels */}
-              <text x={pad + 2} y={pad + 10} fill="rgba(255,255,255,0.2)" fontSize="8" fontWeight="600">{mx.toFixed(mx > 100 ? 0 : 1)}</text>
-              <text x={pad + 2} y={pad + gh - 2} fill="rgba(255,255,255,0.2)" fontSize="8" fontWeight="600">{mn.toFixed(mn > 100 ? 0 : 1)}</text>
             </svg>
           </div>
-          {/* X-axis dates */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 6 } as any}>
-            {[sliced[0], sliced[Math.floor(sliced.length / 2)], sliced[sliced.length - 1]].filter(Boolean).map((h: any, i: number) => (
-              <span key={i} style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>{new Date(h.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span>
-            ))}
+          {/* X-axis labels */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 12px 0' } as any}>
+            {sliced.filter((_: any, i: number) => {
+              const step = Math.max(1, Math.floor(sliced.length / 5));
+              return i === 0 || i === sliced.length - 1 || i % step === 0;
+            }).map((h: any, i: number) => <span key={i} style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>{h.label}</span>)}
           </div>
+          {/* BP Legend */}
+          {isBP && (
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 16, padding: '8px 0 2px' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}><span style={{ width: 10, height: 10, borderRadius: 3, background: '#8B5CF6' } as any} /><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>Systolique</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}><span style={{ width: 10, height: 10, borderRadius: 3, background: '#C4B5FD' } as any} /><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>Diastolique</span></div>
+            </div>
+          )}
         </div>
 
         {/* Selected point detail */}
