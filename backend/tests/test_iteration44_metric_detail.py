@@ -16,9 +16,9 @@ class TestMetricHistoryAPI:
     @pytest.fixture(autouse=True)
     def setup(self):
         """Setup: login as beneficiary to get token"""
-        # Login with beneficiary credentials
+        # Login with beneficiary credentials (API expects 'email' field but accepts phone)
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": "+33651245918",
+            "email": "+33651245918",
             "password": "demo123"
         })
         if login_resp.status_code == 200:
@@ -240,7 +240,7 @@ class TestThresholdsAPI:
     def setup(self):
         """Setup: login as beneficiary to get token"""
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": "+33651245918",
+            "email": "+33651245918",
             "password": "demo123"
         })
         if login_resp.status_code == 200:
