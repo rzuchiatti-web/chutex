@@ -83,7 +83,8 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
         return {"error": "Message vide"}
 
     uid = user['id']
-    session_id = data.get("session_id", f"chat-{uid}")
+    role = user.get('active_role') or user.get('role', 'beneficiary')
+    session_id = data.get("session_id", f"chat-{uid}-{role}")
 
     # Save user message
     msg_id = str(uuid.uuid4())
@@ -94,7 +95,6 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
     })
 
     # Build health context — for guardian, include beneficiary data
-    role = user.get('active_role') or user.get('role', 'beneficiary')
     is_guardian = role == 'guardian'
     health_ctx = ""
     if is_guardian:
@@ -107,12 +107,24 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
                 ctx = await build_health_context(user, for_guardian=True, beneficiary_data=ben)
                 ben_contexts.append(ctx)
         health_ctx = "\n---\n".join(ben_contexts) if ben_contexts else "Aucun beneficiaire rattache."
+
+        # Add guardian-specific context (interventions, prescriptions, etc.)
+        interventions = await db.interventions.find({"guardian_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(5)
+        if interventions:
+            iv_summary = ", ".join(f"{iv.get('status','?')} pour {iv.get('beneficiary_name','?')}" for iv in interventions)
+            health_ctx += f"\nInterventions recentes du gardien: {iv_summary}."
+
+        alerts = await db.alerts.find({"status": {"$in": ["active", "acknowledged"]}}, {"_id": 0}).sort("created_at", -1).to_list(5)
+        if alerts:
+            alert_summary = ", ".join(f"{a.get('message','')} ({a.get('beneficiary_name','')})" for a in alerts)
+            health_ctx += f"\nAlertes en cours: {alert_summary}."
     else:
         health_ctx = await build_health_context(user)
 
-    # Get recent chat history for context (last 10 messages)
+    # Get recent chat history for context (last 10 messages from today only)
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
     recent = await db.chat_messages.find(
-        {"user_id": uid, "session_id": session_id}, {"_id": 0}
+        {"user_id": uid, "session_id": session_id, "created_at": {"$gte": today_start}}, {"_id": 0}
     ).sort("created_at", -1).to_list(10)
     recent.reverse()
     history_str = "\n".join(f"{'Patient' if m['role'] == 'user' else 'Coach'}: {m['content']}" for m in recent[-8:])
@@ -125,7 +137,12 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
             from emergentintegrations.llm.chat import LlmChat, UserMessage
             guardian_extra = ""
             if is_guardian:
-                guardian_extra = "\n- L'utilisateur est un GARDIEN/AIDANT. Il te pose des questions sur la sante de ses beneficiaires. Reponds en faisant reference aux donnees des beneficiaires. Tu peux le tutoyer car c'est un aidant, pas un patient."
+                guardian_extra = """
+- L'utilisateur est un GARDIEN/AIDANT dans l'espace gardien de Care Watch.
+- Il te pose des questions sur la sante de ses beneficiaires. Reponds en faisant reference aux donnees des beneficiaires.
+- Tu peux aussi l'aider sur le fonctionnement de l'espace gardien: interventions, prescriptions, alertes, rattachement de beneficiaires, suivi en temps reel.
+- Si il te demande comment fonctionne l'espace gardien, explique: suivi sante en temps reel, reception des alertes SOS/chutes, coordination des interventions, et gestion des prescriptions si il est prescripteur.
+- Tu peux le tutoyer car c'est un aidant, pas un patient."""
             system = f"""Tu es Nora, l'assistante medicale IA de Chutex Care Watch. Tu es un professionnel de sante rigoureux et factuel. Ton nom est Nora — quand on te demande qui tu es, tu reponds que tu es Nora, l'assistante medicale IA personnelle.
 
 DONNEES SANTE:
@@ -147,7 +164,7 @@ REGLES STRICTES:
                 system_message=system
             ).with_model("openai", "gpt-4.1-mini")
 
-            prompt = f"Historique recent:\n{history_str}\n\nNouveau message du patient: {user_message}"
+            prompt = f"Historique recent:\n{history_str}\n\nNouveau message du {'gardien' if is_guardian else 'patient'}: {user_message}"
             r = await chat.send_message(UserMessage(text=prompt))
             ai_response = r.strip()
         except Exception as e:
@@ -173,18 +190,22 @@ REGLES STRICTES:
 
 @router.get("/chat/history")
 async def get_chat_history(user=Depends(get_current_user)):
-    """Get chat message history"""
+    """Get chat message history for current role - only today's messages"""
     uid = user['id']
-    session_id = f"chat-{uid}"
+    role = user.get('active_role') or user.get('role', 'beneficiary')
+    session_id = f"chat-{uid}-{role}"
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
     messages = await db.chat_messages.find(
-        {"user_id": uid, "session_id": session_id}, {"_id": 0}
+        {"user_id": uid, "session_id": session_id, "created_at": {"$gte": today_start}}, {"_id": 0}
     ).sort("created_at", 1).to_list(100)
     return messages
 
 
 @router.delete("/chat/clear")
 async def clear_chat(user=Depends(get_current_user)):
-    """Clear chat history"""
+    """Clear chat history for current role"""
     uid = user['id']
-    await db.chat_messages.delete_many({"user_id": uid})
+    role = user.get('active_role') or user.get('role', 'beneficiary')
+    session_id = f"chat-{uid}-{role}"
+    await db.chat_messages.delete_many({"user_id": uid, "session_id": session_id})
     return {"status": "cleared"}
