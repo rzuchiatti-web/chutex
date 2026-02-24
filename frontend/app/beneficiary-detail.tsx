@@ -225,7 +225,7 @@ export default function BeneficiaryDetailScreen() {
                 data.gender && { label: 'Genre', val: data.gender, color: '#FFF' },
                 (data.height_cm || data.weight_kg) && { label: 'Taille / Poids', val: [data.height_cm && `${data.height_cm} cm`, data.weight_kg && `${data.weight_kg} kg`].filter(Boolean).join(' · '), color: '#FFF' },
               ].filter(Boolean).map((item: any, i: number) => (
-                <div key={i} style={{ padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
+                <div key={i} style={{ padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
                   <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginBottom: 4 }}>{item.label}</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: item.color }}>{item.val}</div>
                 </div>
