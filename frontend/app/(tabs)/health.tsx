@@ -165,18 +165,30 @@ export default function HealthScreen() {
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
-          {/* 4. Vitals Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>
+          {/* 4. Vitals Row — same design as dashboard */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
             {[
-              { val: d.heart_rate || 72, unit: '', label: 'BPM', icon: 'ri-heart-pulse-line', color: '#EF4444', bg: 'rgba(239,68,68,0.12)', key: 'heart_rate' },
-              { val: `${d.spo2 || 97}%`, unit: '', label: 'SpO2', icon: 'ri-drop-line', color: '#38BDF8', bg: 'rgba(56,189,248,0.12)', key: 'spo2' },
-              { val: `${d.blood_pressure?.systolic || 125}`, unit: `/${d.blood_pressure?.diastolic || 78}`, label: 'Tension', icon: 'ri-pulse-line', color: '#A78BFA', bg: 'rgba(167,139,250,0.12)', key: 'blood_pressure' },
-              { val: `${d.temperature || 36.6}`, unit: 'C', label: 'Temp.', icon: 'ri-temp-hot-line', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', key: 'temperature' },
+              { val: d.heart_rate || 72, unit: 'bpm', label: 'Rythme cardiaque', status: 'Au repos', icon: 'ri-heart-pulse-line', color: '#EF4444', key: 'heart_rate' },
+              { val: `${d.spo2 || 97}`, unit: '%', label: 'Saturation O2', status: 'Normal', icon: 'ri-drop-line', color: '#6366F1', key: 'spo2' },
+              { val: `${d.blood_pressure?.systolic || 125}/${d.blood_pressure?.diastolic || 78}`, unit: 'mmHg', label: 'Pression arterielle', status: 'Stable', icon: 'ri-water-flash-line', color: '#8B5CF6', key: 'blood_pressure' },
+              { val: `${d.temperature || 36.6}`, unit: '°C', label: 'Temperature', status: 'Normale', icon: 'ri-temp-hot-line', color: '#F59E0B', key: 'temperature' },
             ].map((v, i) => (
-              <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '14px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', textAlign: 'center', cursor: 'pointer' } as any}>
-                <div style={{ width: 32, height: 32, borderRadius: 10, background: v.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px' } as any}><i className={v.icon} style={{ fontSize: 16, color: v.color }} /></div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{v.val}<span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>{v.unit}</span></div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{v.label}</div>
+              <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '12px 14px 10px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', transition: 'transform 0.15s, background 0.15s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = ''; }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                    <i className={v.icon} style={{ fontSize: 13, color: v.color }} />
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{v.label}</span>
+                  </div>
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.15)' }} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 2 } as any}>
+                  <span style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -0.5 }}>{v.val}</span>
+                  <span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.3)' }}>{v.unit}</span>
+                </div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: v.color, opacity: 0.7 }}>{v.status}</div>
               </div>
             ))}
           </div>
