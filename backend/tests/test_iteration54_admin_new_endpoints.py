@@ -241,9 +241,9 @@ class TestNonAdminAccess:
     @pytest.fixture(autouse=True)
     def setup(self):
         """Get non-admin token"""
-        # Login as beneficiary
+        # Login as beneficiary using email
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": "+33651245918",
+            "email": "jean.test@care.fr",
             "password": "demo123"
         })
         if login_resp.status_code != 200:
