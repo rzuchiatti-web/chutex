@@ -159,27 +159,32 @@ export default function HealthDetailScreen() {
           const inter = d.sleep_interruptions || 2;
           const total = deep + light + rem;
           const apneaRisk = Math.min(100, Math.max(5, inter * 12 + (slQ < 70 ? 20 : 0)));
-          const phases: number[] = [];
-          for (let i = 0; i < 48; i++) {
-            const t = i / 48;
-            if (t < 0.03 || t > 0.97) phases.push(0);
-            else if (t < 0.08) phases.push(2);
-            else if (t < 0.18) phases.push(3);
-            else if (t < 0.22) phases.push(2);
-            else if (t < 0.28) phases.push(1);
-            else if (t < 0.32) phases.push(0);
-            else if (t < 0.42) phases.push(3);
-            else if (t < 0.50) phases.push(2);
-            else if (t < 0.58) phases.push(1);
-            else if (t < 0.65) phases.push(2);
-            else if (t < 0.72) phases.push(3);
-            else if (t < 0.80) phases.push(2);
-            else if (t < 0.88) phases.push(1);
-            else if (t < 0.93) phases.push(2);
-            else phases.push(0);
-          }
-          const pColors = ['rgba(255,255,255,0.5)', '#7CB3E8', '#4A90D9', '#2D5F8A'];
-          const pY = [12, 60, 110, 155];
+          // Build sleep session from bracelet data or simulate
+          const buildSleepSession = () => {
+            const totalMin = deep + light + rem + Math.max(0, slD - total);
+            const stages: number[] = [];
+            let minute = 0;
+            const awakeMins = Math.max(0, slD - total);
+            for (let i = 0; i < Math.min(5, awakeMins); i++) { stages.push(0); minute++; }
+            const cycles = Math.max(3, Math.round(totalMin / 90));
+            const deepPerCycle = Math.round(deep / cycles);
+            const lightPerCycle = Math.round(light / cycles);
+            const remPerCycle = Math.round(rem / cycles);
+            for (let c = 0; c < cycles && minute < totalMin; c++) {
+              for (let i = 0; i < lightPerCycle && minute < totalMin; i++) { stages.push(2); minute++; }
+              const deepDur = c < 2 ? deepPerCycle + 5 : Math.max(5, deepPerCycle - 5);
+              for (let i = 0; i < deepDur && minute < totalMin; i++) { stages.push(1); minute++; }
+              for (let i = 0; i < Math.round(lightPerCycle * 0.4) && minute < totalMin; i++) { stages.push(2); minute++; }
+              const remDur = c < 2 ? Math.max(5, remPerCycle - 5) : remPerCycle + 5;
+              for (let i = 0; i < remDur && minute < totalMin; i++) { stages.push(3); minute++; }
+              if (c < cycles - 1 && Math.random() > 0.5) {
+                for (let i = 0; i < 2 && minute < totalMin; i++) { stages.push(0); minute++; }
+              }
+            }
+            for (let i = 0; i < Math.min(3, awakeMins) && minute < totalMin; i++) { stages.push(0); minute++; }
+            return fromBraceletStages(stages);
+          };
+          const sleepSession = buildSleepSession();
           return (
             <>
             {/* Hypnogram card with blur — image overlaps into this card */}
