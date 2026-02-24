@@ -36,7 +36,7 @@ CARE WATCH is a sophisticated preventative health application. The central goal 
 ├── frontend/
 │   ├── app/
 │   │   ├── (tabs)/
-│   │   │   ├── index.tsx          # BeneficiaryHome + Dashboard Router (~1166 lines)
+│   │   │   ├── index.tsx          # BeneficiaryHome + Dashboard Router (~773 lines, was 2625)
 │   │   │   ├── _layout.tsx        # Custom glassmorphism navbar
 │   │   │   ├── health.tsx
 │   │   │   ├── profile.tsx
@@ -46,12 +46,13 @@ CARE WATCH is a sophisticated preventative health application. The central goal 
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── dashboard/
-│   │   │   │   ├── constants.ts        # Shared theme constants, image URLs
-│   │   │   │   ├── SharedUI.tsx        # Card, HeroCard, PillButton, etc.
-│   │   │   │   ├── GuardianHome.tsx    # Guardian dashboard (633 lines)
+│   │   │   │   ├── constants.ts          # Shared theme constants, image URLs (46 lines)
+│   │   │   │   ├── SharedUI.tsx          # Card, HeroCard, PillButton, etc. (119 lines)
+│   │   │   │   ├── BeneficiaryPopups.tsx # 7 popup components extracted (347 lines)
+│   │   │   │   ├── GuardianHome.tsx      # Guardian dashboard (633 lines)
 │   │   │   │   ├── TeleassistanceHome.tsx # Teleassistance dashboard (114 lines)
-│   │   │   │   ├── AdminHome.tsx       # Admin dashboard + RewardsCard (202 lines)
-│   │   │   │   ├── CompanyHome.tsx     # Company/SAAD dashboard (343 lines)
+│   │   │   │   ├── AdminHome.tsx         # Admin dashboard + RewardsCard (202 lines)
+│   │   │   │   ├── CompanyHome.tsx       # Company/SAAD dashboard (343 lines)
 │   │   │   │   ├── AlertBanner.tsx
 │   │   │   │   ├── VitalsRow.tsx
 │   │   │   │   ├── ActivitySleep.tsx
