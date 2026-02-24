@@ -306,7 +306,7 @@ export default function HealthDetailScreen() {
             </div>
               );
             })()}
-            </>
+            </div>
           );
         })()}
 
