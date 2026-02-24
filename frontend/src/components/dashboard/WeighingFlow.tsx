@@ -36,7 +36,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{s.text}</span>
               </div>
             ))}
-            <div onClick={() => setStep(2)} style={{ marginTop: 20, padding: '16px', borderRadius: 999, background: '#FFF', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#111' } as any}>{t('weighing_ready')}</div>
+            <div onClick={() => setStep(2)} style={{ marginTop: 20, padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF' } as any}>{t('weighing_ready')}</div>
           </div>
         )}
 
@@ -74,10 +74,10 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
               <div style={{ fontSize: 56, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>{w}<span style={{ fontSize: 22, color: 'rgba(255,255,255,0.3)' }}> kg</span></div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 20, marginBottom: 20 } as any}>
                 {[{ label: 'Graisse', value: `${d.body_fat_pct || 22.3}%`, color: '#F59E0B' }, { label: 'Muscle', value: `${d.muscle_pct || 33.8}%`, color: '#10B981' }, { label: 'Hydratation', value: `${d.water_pct || 55.2}%`, color: '#38BDF8' }, { label: 'Metabolisme', value: `${d.basal_metabolism || 1550} kcal`, color: '#A78BFA' }].map((m, i) => (
-                  <div key={i} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' } as any}><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>{m.label}</div><div style={{ fontSize: 18, fontWeight: 900, color: m.color }}>{m.value}</div></div>
+                  <div key={i} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>{m.label}</div><div style={{ fontSize: 18, fontWeight: 900, color: m.color }}>{m.value}</div></div>
                 ))}
               </div>
-              <div onClick={onClose} style={{ padding: '16px', borderRadius: 999, background: '#FFF', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#111' } as any}>{t('weighing_report')}</div>
+              <div onClick={onClose} style={{ padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF' } as any}>{t('weighing_report')}</div>
             </div>
           );
         })()}
