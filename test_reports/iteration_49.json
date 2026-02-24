@@ -1,0 +1,65 @@
+{
+  "summary": "Sleep date selector bug FIXED (iteration 47-48 issue). Testing confirmed that sleep data (duration, quality, stage breakdown) now changes when navigating between dates. Also fixed a blocking 'inter is not defined' ReferenceError in health-detail.tsx that was preventing the sleep page from loading.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "critical": [],
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "sleep_date_selector_bug": {
+      "status": "FIXED",
+      "day1_data": {"date": "Aujourd'hui", "duration": "7h 49min", "quality": "14%"},
+      "day2_data": {"date": "23 févr.", "duration": "7h 14min", "quality": "13%"},
+      "day3_data": {"date": "22 févr.", "duration": "7h 17min", "quality": "11%"},
+      "verification": {
+        "dates_changed": true,
+        "durations_changed": true,
+        "qualities_changed": true
+      }
+    }
+  },
+  "bugs_fixed_by_testing_agent": [
+    {
+      "file": "/app/frontend/app/health-detail.tsx",
+      "line": "262-263",
+      "issue": "ReferenceError: inter is not defined - variable 'inter' was used instead of 'nightInterruptions'",
+      "fix": "Changed 'inter' to 'nightInterruptions' in two places within the interruptions icon styling"
+    }
+  ],
+  "test_report_links": [
+    "/app/test_reports/iteration_49.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/frontend/app/health-detail.tsx - Fixed 'inter is not defined' bug (changed to 'nightInterruptions')"
+  ],
+  "success_rate": {
+    "backend": "N/A (frontend only test)",
+    "frontend": "100% - Sleep date selector bug verified as FIXED"
+  },
+  "test_credentials": {
+    "beneficiary": "Phone: 651245918, Password: demo123"
+  },
+  "mocked_apis": {
+    "has_mocked_apis": true,
+    "mocked_apis_list": [
+      "Sleep data is date-seeded pseudo-random simulation using computeSleepForDate()"
+    ]
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Sleep date selector bug from iteration_47/48 is now FIXED. The fix involved: 1) Direct function call computeSleepForDate(selectedDate) instead of useMemo, 2) key={selectedDate.getTime()} on wrapper div to force React re-mount. Additionally fixed blocking 'inter is not defined' error that was preventing page load. Login: 651245918/demo123. Use goToDashboard logic to skip morning briefing.",
+  "rca_of_issue": {
+    "original_bug": "Sleep date selector: date label changed but data stayed same",
+    "root_cause": "React was not re-rendering sleep content when selectedDate state changed due to useMemo not properly detecting dependency changes",
+    "fix_applied_by_main_agent": "1) computeSleepForDate() called directly on every render instead of useMemo, 2) key={`sleep-${selectedDate.getTime()}`} on parent div forces React to unmount/remount when date changes",
+    "additional_fix_by_testing_agent": "Fixed 'inter is not defined' ReferenceError - typo where 'inter' should have been 'nightInterruptions'"
+  }
+}
