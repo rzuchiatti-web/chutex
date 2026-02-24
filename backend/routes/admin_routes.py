@@ -415,3 +415,57 @@ async def list_saad_invitations(user=Depends(get_current_user)):
     invitations = await db.saad_invitations.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return invitations
 
+
+@router.get("/admin/rgpd-requests")
+async def list_all_rgpd_requests(user=Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    return await db.rgpd_requests.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
+
+
+@router.get("/admin/emails")
+async def list_sent_emails(user=Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    return await db.sent_emails.find({}, {"_id": 0}).sort("sent_at", -1).to_list(100)
+
+
+@router.put("/admin/user/{user_id}")
+async def admin_update_user(user_id: str, data: dict, user=Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    allowed = {"name", "email", "phone", "role", "address", "active", "subscription_type", "has_subscription"}
+    updates = {k: v for k, v in data.items() if k in allowed}
+    if not updates:
+        raise HTTPException(status_code=400, detail="Aucun champ a modifier")
+    await db.users.update_one({"id": user_id}, {"$set": updates})
+    return {"status": "updated"}
+
+
+@router.delete("/admin/user/{user_id}")
+async def admin_delete_user(user_id: str, user=Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    if user_id == user["id"]:
+        raise HTTPException(status_code=400, detail="Impossible de supprimer votre propre compte")
+    await db.users.delete_one({"id": user_id})
+    await db.devices.delete_many({"user_id": user_id})
+    await db.reminders.delete_many({"user_id": user_id})
+    await db.thresholds.delete_many({"user_id": user_id})
+    return {"status": "deleted"}
+
+
+@router.get("/admin/programs")
+async def admin_list_programs(user=Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    enrollments = await db.program_enrollments.find({}, {"_id": 0}).sort("started_at", -1).to_list(100)
+    return enrollments
+
+
+@router.get("/admin/push-history")
+async def admin_push_history(user=Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    return await db.push_history.find({}, {"_id": 0}).sort("sent_at", -1).to_list(100)
+
