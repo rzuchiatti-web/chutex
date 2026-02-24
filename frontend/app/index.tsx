@@ -109,58 +109,73 @@ export default function AuthScreen() {
   if (Platform.OS === 'web') {
     return (
       <div data-testid="login-screen" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
-        <img src="https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: 'url(https://cdn.shopify.com/s/files/1/0886/1918/8558/files/banner_login_mobile.jpg?v=1771242072)', backgroundSize: 'cover', backgroundPosition: 'center 30%' } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%)', zIndex: 1 } as any} />
 
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' } as any}>
-          <div style={{ width: '100%', maxWidth: 380 } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' } as any}>
+          <div style={{ width: '100%', maxWidth: 360 } as any}>
 
-            <div style={{ textAlign: 'center', marginBottom: 32 } as any}>
-              <img src="https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429" alt="Chutex" style={{ height: 56, width: 'auto', marginBottom: 28, display: 'block', margin: '0 auto 28px' } as any} />
-              <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Connexion</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Accedez a votre espace sante securise</div>
+            {/* Logo centered top */}
+            <div style={{ textAlign: 'center', marginBottom: 36 } as any}>
+              <img src="https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429" alt="Chutex" style={{ height: 52, width: 'auto', display: 'block', margin: '0 auto' } as any} />
             </div>
 
-            {error && <div data-testid="login-error" style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 16, fontSize: 13, color: '#FCA5A5', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>{error}</div>}
+            {/* Form card with glassmorphism */}
+            <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '32px 24px 28px' } as any}>
 
-            <form onSubmit={handleSubmit} data-testid="login-form" style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '24px 20px' } as any}>
-              {/* Phone with prefix */}
-              <div style={{ marginBottom: 16 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>Telephone</div>
-                <div style={{ display: 'flex', gap: 8 } as any}>
-                  <div onClick={() => setShowPrefix(!showPrefix)} style={{ padding: '13px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, minWidth: 90 } as any}>
-                    <span style={{ fontSize: 16 }}>{selectedPfx.flag}</span>
-                    <span style={{ fontSize: 13, color: '#FFF', fontWeight: 600 }}>{prefix}</span>
-                    <i className="ri-arrow-down-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} />
+              <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Connexion</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Accedez a votre espace sante securise</div>
+              </div>
+
+              {error && <div data-testid="login-error" style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 16, fontSize: 12, color: '#FCA5A5' } as any}>{error}</div>}
+
+              <form onSubmit={handleSubmit} data-testid="login-form">
+                {/* Phone */}
+                <div style={{ marginBottom: 14 } as any}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Telephone</div>
+                  <div style={{ display: 'flex', gap: 8 } as any}>
+                    <div onClick={() => setShowPrefix(!showPrefix)} style={{ padding: '12px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 } as any}>
+                      <span style={{ fontSize: 15 }}>{selectedPfx.flag}</span>
+                      <span style={{ fontSize: 13, color: '#FFF', fontWeight: 600 }}>{prefix}</span>
+                      <i className="ri-arrow-down-s-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }} />
+                    </div>
+                    <input name="phone" type="tel" autoComplete="tel" data-testid="login-phone-input" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)}
+                      style={{ flex: 1, padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
                   </div>
-                  <input name="phone" type="tel" autoComplete="tel" data-testid="login-phone-input" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)}
-                    style={{ flex: 1, padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                  {showPrefix && (
+                    <div style={{ marginTop: 6, padding: '6px', borderRadius: 12, background: 'rgba(10,15,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', maxHeight: 180, overflowY: 'auto' } as any}>
+                      {PREFIXES.map(p => (
+                        <div key={p.code} onClick={() => { setPrefix(p.code); setShowPrefix(false); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, cursor: 'pointer', background: prefix === p.code ? 'rgba(255,255,255,0.06)' : 'transparent' } as any}>
+                          <span style={{ fontSize: 14 }}>{p.flag}</span>
+                          <span style={{ fontSize: 12, color: '#FFF', flex: 1 }}>{p.label}</span>
+                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{p.code}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                {showPrefix && (
-                  <div style={{ marginTop: 8, padding: '8px', borderRadius: 14, background: 'rgba(10,15,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', maxHeight: 200, overflowY: 'auto' } as any}>
-                    {PREFIXES.map(p => (
-                      <div key={p.code} onClick={() => { setPrefix(p.code); setShowPrefix(false); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', background: prefix === p.code ? 'rgba(255,255,255,0.06)' : 'transparent' } as any}>
-                        <span style={{ fontSize: 16 }}>{p.flag}</span>
-                        <span style={{ fontSize: 13, color: '#FFF', flex: 1 }}>{p.label}</span>
-                        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{p.code}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
 
-              <div style={{ marginBottom: 16 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>Mot de passe</div>
-                <input name="password" type="password" autoComplete="current-password" data-testid="login-password-input" placeholder="Votre mot de passe" value={password} onChange={(e: any) => setPassword(e.target.value)}
-                  style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
-              </div>
+                {/* Password */}
+                <div style={{ marginBottom: 20 } as any}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Mot de passe</div>
+                  <input name="password" type="password" autoComplete="current-password" data-testid="login-password-input" placeholder="Votre mot de passe" value={password} onChange={(e: any) => setPassword(e.target.value)}
+                    style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                </div>
 
-              <button type="submit" disabled={submitting} data-testid="login-form-submit-button" style={{ width: '100%', padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.6 : 1, marginTop: 8 } as any}>
-                {submitting ? 'Connexion...' : 'Se connecter'}
-              </button>
-            </form>
+                {/* Submit */}
+                <button type="submit" disabled={submitting} data-testid="login-form-submit-button" style={{ width: '100%', padding: '14px', borderRadius: 999, background: '#111', border: 'none', color: '#FFF', fontSize: 14, fontWeight: 800, fontFamily: 'inherit', cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.6 : 1, letterSpacing: 0.3 } as any}>
+                  {submitting ? 'Connexion...' : 'Se connecter'}
+                </button>
+              </form>
+            </div>
 
-            <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); }} style={{ textAlign: 'center', marginTop: 20, fontSize: 12, color: 'rgba(255,255,255,0.4)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
+            <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); }} style={{ textAlign: 'center', marginTop: 18, fontSize: 12, color: 'rgba(255,255,255,0.45)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
+
+            <div style={{ textAlign: 'center', marginTop: 12 } as any}>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Pas encore de compte ? </span>
+              <span onClick={() => router.push('/register' as any)} style={{ fontSize: 12, color: '#FFF', fontWeight: 700, cursor: 'pointer' }}>S'inscrire</span>
+            </div>
 
             {/* Forgot password popup */}
             {showForgot && (
