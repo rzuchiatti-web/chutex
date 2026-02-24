@@ -388,7 +388,7 @@ export default function HealthDetailScreen() {
           const normalStart = z ? ((z.normal[0] - z.low) / (z.high - z.low)) * 100 : 0;
           const normalWidth = z ? ((z.normal[1] - z.normal[0]) / (z.high - z.low)) * 100 : 100;
           return (
-            <div key={m.key} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: m.key === 'bp_display' ? 'heart_rate' : m.key } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.15s' } as any}
+            <div key={m.key} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: m.key === 'bp_display' ? 'blood_pressure' : m.key } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
               <div style={{ padding: '18px 20px' } as any}>
