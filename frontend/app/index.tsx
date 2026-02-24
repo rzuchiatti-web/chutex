@@ -210,12 +210,6 @@ export default function AuthScreen() {
               </div>
             )}
 
-            <div style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'rgba(255,255,255,0.35)' } as any}>
-              Pas encore de compte ?{' '}
-              <span data-testid="register-link" onClick={() => router.push('/register' as any)} style={{ fontWeight: 800, color: '#FFF', cursor: 'pointer' }}>S'inscrire</span>
-            </div>
-
-            <div style={{ textAlign: 'center', marginTop: 32, fontSize: 9, color: 'rgba(255,255,255,0.12)', letterSpacing: 1 }}>Donnees confidentielles · Interface clinique premium</div>
           </div>
         </div>
       </div>
