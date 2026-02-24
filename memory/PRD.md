@@ -1,100 +1,106 @@
-# CARE WATCH - PRD
+# CARE WATCH - PRD (Product Requirements Document)
 
-## Problem Statement
-Application de santé préventive "CARE WATCH" centrée sur des programmes guidés (21-Day Deep Sleep, 14-Day Cardio Fit, 30-Day Activity). L'objectif est de transformer l'app d'un simple dashboard de données en un moteur de transformation santé engageant et personnalisé.
+## Original Problem Statement
+CARE WATCH is a sophisticated preventative health application. The central goal is to transform the app from a simple data dashboard into a guided, engaging, and personalized health and longevity transformation engine. The system supports beneficiaries, guardians, teleassistance operators, admins, and company (SAAD) roles.
+
+## Tech Stack
+- **Frontend**: React Native / Expo (web + native iOS)
+- **Backend**: FastAPI (Python)
+- **Database**: MongoDB
+- **AI**: OpenAI GPT-4o via Emergent LLM Key (persona "Nora")
+- **Build**: EAS (Expo Application Services) for iOS TestFlight
+
+## Core Features Implemented
+- Multi-role dashboards (Beneficiary, Guardian, Teleassistance, Admin, Company)
+- AI Chat assistant "Nora" with medical persona
+- Morning Briefing (personalized AI daily summary)
+- Health Programs system (discovery → daily missions → reports)
+- Device management (Bracelet, Scale, Vest)
+- Alert/SOS system with intervention chain
+- Reminders (hydration, medication, alarms)
+- Profile editing with full medical records
+- Internationalization (7 languages: FR, EN, DE, ES, IT, PT, NL)
+- Custom glassmorphism tab navbar
+- Full-screen video loader
 
 ## Architecture
-- **Frontend**: React Native / Expo (web + mobile)
-- **Backend**: FastAPI + MongoDB
-- **AI**: OpenAI GPT-4.1-mini via Emergent LLM Key
-- **Devices**: Bracelet J-Style, Balance Lefu, Gilet S-AIRBAG
 
-## Core Features
-### Programmes de Santé (Core Engine)
-- Catalogue de 6 programmes (sommeil, tension, activité, etc.)
-- Onboarding personnalisé (7 questions pour le sommeil)
-- Vue quotidienne immersive avec missions cochables
-- Check-in quotidien (humeur 1-5, note, tâches)
-- Feedback IA personnalisé basé sur les données capteurs
-- Simulation J1→J21 avec navigation par flèches
-- Bilans automatiques J7/J14/J21 (IA)
-- Bilan final avant/après avec stats détaillées
-- Badges et streak de motivation
-- Modes Solo / Duo / Groupe
-
-### Chat IA (Coach Santé)
-- Interface glassmorphism
-- Contexte conversationnel
-- Effet typewriter
-- Bouton proéminent au centre de la navbar
-
-### Dashboard Bénéficiaire
-- Score santé IA (96/100)
-- Appareils connectés (bracelet, balance, gilet)
-- Carte programme actif
-- Carte alertes avec historique
-- Bouton SOS
-
-### Multi-rôles
-- Bénéficiaire, Aidant, Admin, Prescripteur, Structure (SAAD)
+```
+/app
+├── backend/
+│   ├── routes/
+│   │   ├── health_routes.py
+│   │   ├── chat_routes.py
+│   │   └── user_routes.py
+│   └── server.py
+├── frontend/
+│   ├── app/
+│   │   ├── (tabs)/
+│   │   │   ├── index.tsx          # BeneficiaryHome + Dashboard Router (~1166 lines)
+│   │   │   ├── _layout.tsx        # Custom glassmorphism navbar
+│   │   │   ├── health.tsx
+│   │   │   ├── profile.tsx
+│   │   │   └── programs.tsx
+│   │   ├── morning-briefing.tsx
+│   │   └── chat-ia.tsx
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── dashboard/
+│   │   │   │   ├── constants.ts        # Shared theme constants, image URLs
+│   │   │   │   ├── SharedUI.tsx        # Card, HeroCard, PillButton, etc.
+│   │   │   │   ├── GuardianHome.tsx    # Guardian dashboard (633 lines)
+│   │   │   │   ├── TeleassistanceHome.tsx # Teleassistance dashboard (114 lines)
+│   │   │   │   ├── AdminHome.tsx       # Admin dashboard + RewardsCard (202 lines)
+│   │   │   │   ├── CompanyHome.tsx     # Company/SAAD dashboard (343 lines)
+│   │   │   │   ├── AlertBanner.tsx
+│   │   │   │   ├── VitalsRow.tsx
+│   │   │   │   ├── ActivitySleep.tsx
+│   │   │   │   ├── CopilotCard.tsx
+│   │   │   │   ├── DeviceCards.tsx
+│   │   │   │   └── WeighingFlow.tsx
+│   │   │   ├── health/
+│   │   │   └── FullScreenLoader.tsx
+│   │   └── translations/
+│   │       └── i18n.ts
+│   └── assets/
+```
 
 ## Key API Endpoints
-- `GET /api/programs/catalog` - Catalogue des programmes
-- `GET /api/programs/active?day=X` - Programme actif (simulation)
-- `POST /api/programs/start/{id}` - Démarrer un programme
-- `POST /api/programs/checkin` - Check-in quotidien
-- `GET /api/programs/weekly-report` - Bilan hebdomadaire IA
-- `GET /api/programs/completion-report/{id}` - Bilan final IA
-- `GET /api/programs/badges` - Badges gagnés
-- `POST /api/chat` - Chat IA
-- `GET /api/health/daily-report` - Rapport santé quotidien
+- `POST /api/users/update-profile`
+- `POST /api/chat` (Nora AI)
+- `POST /api/devices/remove-by-type`
+- `GET /api/health/morning-briefing`
+- `POST /api/alerts` (SOS)
+- `GET /api/alerts/active-with-interventions`
 
-## Files of Reference
-- `frontend/app/(tabs)/health.tsx` - Page Santé principale
-- `frontend/app/(tabs)/_layout.tsx` - Navigation/Navbar
-- `frontend/app/program-detail.tsx` - Onboarding programme
-- `frontend/src/components/ProgramDailyView.tsx` - Vue quotidienne programme
-- `backend/routes/program_routes.py` - API programmes
-
-## Credentials
-| Role | Phone | Password |
-|------|-------|----------|
+## Test Credentials
+| Role | Phone / Email | Password |
+|---|---|---|
 | Beneficiary | +33651245918 | demo123 |
 | Guardian | claire.martin@email.fr | demo123 |
 | Admin | admin@chutex.fr | demo123 |
 
-## What's Implemented (Feb 2026)
-- [x] Programme complet 21j sommeil avec missions quotidiennes
-- [x] Questionnaire d'onboarding 7 questions
-- [x] Vue quotidienne immersive (ProgramDailyView)
-- [x] Check-in interactif (humeur, tâches, note)
-- [x] Feedback IA quotidien
-- [x] Bilans J7/J14/J21 avec rapports IA
-- [x] Badges et streak
-- [x] Simulation des jours (J1→J21)
-- [x] Chat IA avec glassmorphism
-- [x] Navbar glassmorphism pill-shaped (5 onglets, IA central avec glow)
-- [x] Alertes retirées navbar (accessible depuis dashboard)
-- [x] Appareils retirés navbar (cartes sur dashboard avec status + actions)
-- [x] Dashboard multi-rôles
-- [x] Backend programmes complet
+## Prioritized Backlog
 
-## Backlog
-### P0
-- Améliorer état vide Chat IA
-- Refactoring health.tsx (1300+ lignes)
+### P0 (Critical)
+- iOS TestFlight build verification (build was initiated previously)
+- Lefu Scale BLE data parsing fix (pre-existing bug, needs native testing)
 
-### P1
-- Partage social rapports santé & badges
-- UI programmes en équipe (backend existe)
-- Tutoriel connexion appareils
+### P1 (High)
+- Full i18n audit (convert all remaining hardcoded strings to t() function)
+- Portuguese and Dutch translations completion
+- Native BLE integration debugging (bracelet, scale, vest)
 
-### P2
-- Build natif + intégration BLE
-- Intégration Shopify
-- Mode hors-ligne intervenants
+### P2 (Medium)
+- Team/group programs UI
+- Shopify integration
+- Offline mode for "intervenants"
+
+### P3 (Low)
+- Further BeneficiaryHome refactoring (still ~1100 lines, popups could be extracted)
 
 ## Known Issues
-- Expo tunnel ngrok échoue (utilisation export statique web)
-- Balance Lefu BLE parsing incorrect (hardware)
-- SMS mot de passe oublié simulé (MOCKED)
+- Lefu Scale live data parsing is incorrect (hardware integration bug)
+- SMS for "forgot password" is MOCKED
+- Expo tunnel/cache instability in dev environment (workaround: static web export)
+- Portuguese and Dutch translation keys are incomplete
