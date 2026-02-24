@@ -162,10 +162,10 @@ export default function HealthScreen() {
           </div>
           {/* 3b. Pesee card — button + history merged */}
           <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden' } as any}>
-            <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
-              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg" alt="Balance" style={{ height: 44, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
+            <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
+              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg" alt="Balance" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
               <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Nouvelle pesee</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Balance 8 electrodes</div></div>
-              <i className="ri-add-circle-line" style={{ fontSize: 20, color: '#A78BFA' }} />
+              <div style={{ padding: '8px 14px', borderRadius: 12, background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.25)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-scales-3-line" style={{ fontSize: 14, color: '#A78BFA' }} /><span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Lancer</span></div>
             </div>
             <div style={{ padding: '0 16px' } as any}>
               {weighings.length === 0 && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>Aucune pesee</div>}
@@ -181,10 +181,10 @@ export default function HealthScreen() {
 
           {/* 3c. ECG card — button + history merged */}
           <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden' } as any}>
-            <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
-              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="Bracelet" style={{ height: 44, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
+            <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
+              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="Bracelet" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
               <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Realiser un ECG</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Electrocardiogramme</div></div>
-              <i className="ri-add-circle-line" style={{ fontSize: 20, color: '#F97316' }} />
+              <div style={{ padding: '8px 14px', borderRadius: 12, background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-pulse-line" style={{ fontSize: 14, color: '#F97316' }} /><span style={{ fontSize: 11, fontWeight: 700, color: '#F97316' }}>Lancer</span></div>
             </div>
             <div style={{ padding: '0 16px' } as any}>
               {(!report?.ecg_history || report.ecg_history.length === 0) && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>Aucun ECG</div>}
