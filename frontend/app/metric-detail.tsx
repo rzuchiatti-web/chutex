@@ -99,7 +99,7 @@ export default function MetricDetailScreen() {
         {/* Period selector */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 14 } as any}>
           {['24h', '7j', '30j', '90j'].map(r => (
-            <div key={r} onClick={() => { setRange(r); setSelectedDay(null); setShowCalendar(false); }} style={{ padding: '8px 14px', borderRadius: 10, background: range === r ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${range === r ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 700, color: range === r ? '#FFF' : 'rgba(255,255,255,0.3)' } as any}>{r}</div>
+            <div key={r} onClick={() => changeRange(r)} style={{ padding: '8px 14px', borderRadius: 10, background: range === r ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${range === r ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 700, color: range === r ? '#FFF' : 'rgba(255,255,255,0.3)' } as any}>{r}</div>
           ))}
           <div onClick={() => setShowCalendar(!showCalendar)} style={{ padding: '8px 12px', borderRadius: 10, background: range === 'custom' ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${range === 'custom' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer' } as any}>
             <i className="ri-calendar-line" style={{ fontSize: 14, color: range === 'custom' ? '#FFF' : 'rgba(255,255,255,0.3)' }} />
