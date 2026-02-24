@@ -246,9 +246,9 @@ export default function HealthScreen() {
               ))}
             </div>
           </div>
-        </div>
+          </div>
 
-        {/* Weighing Flow Popup — 8-electrode scale */}
+          {/* Weighing Flow Popup — 8-electrode scale */}
         {weighingStep > 0 && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', overflowY: 'scroll' } as any}>
             <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
