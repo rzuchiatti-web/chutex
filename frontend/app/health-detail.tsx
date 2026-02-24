@@ -277,7 +277,7 @@ export default function HealthDetailScreen() {
                     <i className="ri-alarm-line" style={{ fontSize: 20, color: inter <= 2 ? '#10B981' : '#F59E0B' }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{inter}</div>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{nightInterruptions}</div>
                     <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Interruptions</div>
                   </div>
                 </div>
@@ -285,15 +285,19 @@ export default function HealthDetailScreen() {
             </div>
 
             {/* Apnea risk — separate card with Nora analysis */}
+            {(() => {
+              const nightApnea = Math.min(100, Math.max(5, nightInterruptions * 12 + (nightQuality < 70 ? 20 : 0)));
+              const deepPct = nightTotalSleep > 0 ? Math.round(nightDeepMin / nightTotalSleep * 100) : 0;
+              return (
             <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
-                <i className="ri-lungs-line" style={{ fontSize: 16, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }} />
+                <i className="ri-lungs-line" style={{ fontSize: 16, color: nightApnea < 30 ? '#10B981' : nightApnea < 60 ? '#F59E0B' : '#EF4444' }} />
                 <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Risque d'apnee du sommeil</span>
-                <span style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, background: apneaRisk < 30 ? 'rgba(16,185,129,0.12)' : apneaRisk < 60 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)', fontSize: 10, fontWeight: 700, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modere' : 'Eleve'}</span>
+                <span style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, background: nightApnea < 30 ? 'rgba(16,185,129,0.12)' : nightApnea < 60 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)', fontSize: 10, fontWeight: 700, color: nightApnea < 30 ? '#10B981' : nightApnea < 60 ? '#F59E0B' : '#EF4444' }}>{nightApnea < 30 ? 'Faible' : nightApnea < 60 ? 'Modere' : 'Eleve'}</span>
               </div>
               <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative', marginBottom: 6 } as any}>
                 <div style={{ position: 'absolute', inset: 0, borderRadius: 5, background: 'linear-gradient(90deg, #10B981 0%, #10B981 30%, #F59E0B 50%, #EF4444 80%, #DC2626 100%)', opacity: 0.15 } as any} />
-                <div style={{ height: 10, borderRadius: 5, width: `${apneaRisk}%`, background: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? 'linear-gradient(90deg, #10B981, #F59E0B)' : 'linear-gradient(90deg, #F59E0B, #EF4444)', transition: 'width 1s ease', boxShadow: `0 0 12px ${apneaRisk < 30 ? 'rgba(16,185,129,0.4)' : apneaRisk < 60 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'}` } as any} />
+                <div style={{ height: 10, borderRadius: 5, width: `${nightApnea}%`, background: nightApnea < 30 ? '#10B981' : nightApnea < 60 ? 'linear-gradient(90deg, #10B981, #F59E0B)' : 'linear-gradient(90deg, #F59E0B, #EF4444)', transition: 'width 1s ease', boxShadow: `0 0 12px ${nightApnea < 30 ? 'rgba(16,185,129,0.4)' : nightApnea < 60 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'}` } as any} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 } as any}>
                 <span style={{ fontSize: 9, color: 'rgba(16,185,129,0.5)' }}>Faible</span>
@@ -307,15 +311,17 @@ export default function HealthDetailScreen() {
                   <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.7)' }}>Analyse de Nora</span>
                 </div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
-                  {apneaRisk < 30
-                    ? `Avec ${inter} interruption${inter > 1 ? 's' : ''} et une qualite de sommeil de ${slQ}%, votre risque d'apnee est faible. Votre sommeil profond represente ${Math.round(deep / total * 100)}% du total, ce qui est un bon indicateur de recuperation. Continuez a maintenir une heure de coucher reguliere.`
-                    : apneaRisk < 60
-                    ? `${inter} interruptions detectees avec une qualite de ${slQ}%. Le risque modere d'apnee merite attention. Votre sommeil profond (${Math.round(deep / total * 100)}%) pourrait etre ameliore. Je recommande de consulter si les interruptions persistent ou augmentent.`
-                    : `Attention : ${inter} interruptions et une qualite de ${slQ}% indiquent un risque eleve d'apnee. Le sommeil profond ne represente que ${Math.round(deep / total * 100)}% du total. Une consultation en medecine du sommeil est fortement recommandee pour un diagnostic precis.`
+                  {nightApnea < 30
+                    ? `Avec ${nightInterruptions} interruption${nightInterruptions > 1 ? 's' : ''} et une qualite de sommeil de ${nightQuality}%, votre risque d'apnee est faible. Votre sommeil profond represente ${deepPct}% du total, ce qui est un bon indicateur de recuperation. Continuez a maintenir une heure de coucher reguliere.`
+                    : nightApnea < 60
+                    ? `${nightInterruptions} interruptions detectees avec une qualite de ${nightQuality}%. Le risque modere d'apnee merite attention. Votre sommeil profond (${deepPct}%) pourrait etre ameliore. Je recommande de consulter si les interruptions persistent ou augmentent.`
+                    : `Attention : ${nightInterruptions} interruptions et une qualite de ${nightQuality}% indiquent un risque eleve d'apnee. Le sommeil profond ne represente que ${deepPct}% du total. Une consultation en medecine du sommeil est fortement recommandee pour un diagnostic precis.`
                   }
                 </div>
               </div>
             </div>
+              );
+            })()}
             </>
           );
         })()}
