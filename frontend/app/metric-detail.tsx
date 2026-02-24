@@ -123,18 +123,29 @@ export default function MetricDetailScreen() {
               {/* Grid lines */}
               {[0, 0.25, 0.5, 0.75, 1].map((p, i) => <line key={i} x1={pad} y1={pad + gh * p} x2={pad + gw} y2={pad + gh * p} stroke="rgba(255,255,255,0.04)" />)}
               {/* Normal zone */}
-              {normalMin != null && <rect x={pad} y={toY(normalMax)} width={gw} height={Math.abs(toY(normalMin) - toY(normalMax))} fill="rgba(16,185,129,0.06)" rx="4" />}
-              {/* Vertical bars */}
-              {sliced.map((h: any, i: number) => {
-                const bw = Math.max(3, gw / sliced.length * 0.6);
-                const bh = Math.max(2, ((h.value - mn) / rg) * gh);
+              {normalMin != null && <rect x={pad} y={toY(normalMax)} width={gw} height={Math.max(1, Math.abs(toY(normalMin) - toY(normalMax)))} fill="rgba(16,185,129,0.06)" rx="4" />}
+              {/* Blood pressure: dual bars (systolic + diastolic) */}
+              {m.graph_type === 'bp_dual' ? sliced.map((h: any, i: number) => {
+                const bw = Math.max(4, gw / sliced.length * 0.35);
+                const sysH = Math.max(2, ((h.systolic - mn) / rg) * gh);
+                const diaH = Math.max(2, (((h.diastolic || h.value * 0.6) - mn) / rg) * gh);
                 const isSel = selectedDay === i;
-                return <rect key={`b${i}`} x={toX(i) - bw / 2} y={pad + gh - bh} width={bw} height={bh} rx={2} fill={color} opacity={isSel ? 0.6 : 0.15} />;
-              })}
-              {/* Line overlay */}
-              <polyline points={sliced.map((h: any, i: number) => `${toX(i)},${toY(h.value)}`).join(' ')} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />
-              {/* Dots on line */}
-              {sliced.length <= 30 && sliced.map((h: any, i: number) => <circle key={`d${i}`} cx={toX(i)} cy={toY(h.value)} r={selectedDay === i ? 5 : 2.5} fill={selectedDay === i ? '#FFF' : color} stroke={selectedDay === i ? color : 'none'} strokeWidth={2} />)}
+                return <g key={i}>
+                  <rect x={toX(i) - bw - 1} y={pad + gh - sysH} width={bw} height={sysH} rx={2} fill="#8B5CF6" opacity={isSel ? 0.8 : 0.4} />
+                  <rect x={toX(i) + 1} y={pad + gh - diaH} width={bw} height={diaH} rx={2} fill="#C4B5FD" opacity={isSel ? 0.8 : 0.4} />
+                </g>;
+              }) : (
+                /* Standard: bars + line */
+                <>
+                {sliced.map((h: any, i: number) => {
+                  const bw = Math.max(3, gw / sliced.length * 0.6);
+                  const bh = Math.max(2, ((h.value - mn) / rg) * gh);
+                  return <rect key={`b${i}`} x={toX(i) - bw / 2} y={pad + gh - bh} width={bw} height={bh} rx={2} fill={color} opacity={selectedDay === i ? 0.6 : 0.15} />;
+                })}
+                <polyline points={sliced.map((h: any, i: number) => `${toX(i)},${toY(h.value)}`).join(' ')} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />
+                {sliced.length <= 30 && sliced.map((h: any, i: number) => <circle key={`d${i}`} cx={toX(i)} cy={toY(h.value)} r={selectedDay === i ? 5 : 2.5} fill={selectedDay === i ? '#FFF' : color} stroke={selectedDay === i ? color : 'none'} strokeWidth={2} />)}
+                </>
+              )}
               {/* Selected indicator */}
               {selectedDay !== null && <line x1={toX(selectedDay)} y1={pad} x2={toX(selectedDay)} y2={pad + gh} stroke="rgba(255,255,255,0.15)" strokeDasharray="3,3" />}
               {/* Y-axis labels */}
