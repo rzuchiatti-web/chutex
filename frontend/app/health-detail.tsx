@@ -193,6 +193,7 @@ export default function HealthDetailScreen() {
                   <span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: 0.5 }}>Analyse</span>
                 </div>
               </div>
+              <div style={{ padding: '0 16px 8px' } as any}>
                 <svg width="100%" viewBox="0 0 700 180" style={{ display: 'block' }}>
                   <text x="0" y="16" fill="rgba(255,255,255,0.25)" fontSize="9">Eveil</text>
                   <text x="0" y="64" fill="rgba(255,255,255,0.25)" fontSize="9">REM</text>
