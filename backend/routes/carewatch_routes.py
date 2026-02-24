@@ -16,7 +16,7 @@ from services.elevenlabs_service import generate_speech_base64
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-BASE_URL = "https://care-watch-preview.preview.emergentagent.com"
+BASE_URL = "https://nora-ai-coach.preview.emergentagent.com"
 
 
 # ─── TWILIO WEBHOOKS ───
