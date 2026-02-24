@@ -90,6 +90,7 @@ export default function RegisterScreen() {
   const [role, setRole] = useState('');
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
+  const [showChoiceHelp, setShowChoiceHelp] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showPrefix, setShowPrefix] = useState(false);
   const [form, setForm] = useState({
