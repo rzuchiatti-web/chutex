@@ -223,6 +223,30 @@ export default function RegisterScreen() {
                 <div style={{ padding: '14px 0', borderRadius: 999, background: '#FFF', fontSize: 14, fontWeight: 800, color: '#111', letterSpacing: 0.5 }}>JE SUIS GARDIEN</div>
               </div>
             </div>
+            <div onClick={() => setShowChoiceHelp(true)} style={{ textAlign: 'center', marginTop: 16, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.45)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+              <i className="ri-question-line" style={{ fontSize: 14 }} />Comment choisir ?
+            </div>
+            {showChoiceHelp && (
+              <div onClick={() => setShowChoiceHelp(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 } as any}>
+                <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, borderRadius: 24, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '28px 22px' } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>Comment choisir ?</div>
+                    <div onClick={() => setShowChoiceHelp(false)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#FFF' }} /></div>
+                  </div>
+                  {[
+                    { title: 'Beneficiaire', desc: 'Vous portez les dispositifs de sante (bracelet, balance) et souhaitez suivre vos constantes vitales au quotidien. Vous etes le patient ou la personne accompagnee.', who: 'Seniors, sportifs, personnes avec pathologies chroniques, toute personne soucieuse de sa sante.' },
+                    { title: 'Gardien', desc: 'Vous accompagnez un beneficiaire dans son suivi de sante. Vous recevez ses alertes, consultez ses donnees et intervenez en cas de besoin.', who: 'Famille, aidants, infirmiers, medecins, SAP/HAD, coachs sportifs, structures de soins.' },
+                  ].map((item, i) => (
+                    <div key={i} style={{ padding: '16px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{item.title}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 8 }}>{item.desc}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}><strong style={{ color: 'rgba(255,255,255,0.5)' }}>Pour qui :</strong> {item.who}</div>
+                    </div>
+                  ))}
+                  <div onClick={() => setShowChoiceHelp(false)} style={{ marginTop: 16, padding: '14px', borderRadius: 999, background: '#FFF', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#111', cursor: 'pointer' } as any}>Compris</div>
+                </div>
+              </div>
+            )}
           </>)}
 
           {/* ═══ STEP 2: Phone + Password (both roles) ═══ */}
