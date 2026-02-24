@@ -127,7 +127,7 @@ export default function HealthDetailScreen() {
     const apnea = Math.min(100, Math.max(5, interruptions * 12 + (quality < 70 ? 20 : 0)));
 
     return { session, deepMin, lightMin, remMin, awakeMin, totalSleep, duration, quality, interruptions, apnea };
-  }, [selectedDate]);
+  }, [selectedDate.getTime()]);
 
   const changeDate = (offset: number) => {
     const d = new Date(selectedDate);
