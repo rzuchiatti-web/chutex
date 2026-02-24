@@ -198,7 +198,7 @@ export default function AdminHome({ token, user }: { token: string; user: any })
 
         {/* ── SYSTEM ── */}
         {tab === 'system' && (<>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' } as any}>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: mobile ? 'nowrap' : 'wrap', overflowX: mobile ? 'auto' : 'visible', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', paddingBottom: 2 } as any}>
             {([['activation', 'Codes activation', actC.length], ['intervention', 'Codes intervention', ivC.length], ['shopify', 'Shopify', null], ['info', 'Systeme', null]] as any).map(([k, l, n]: any) => <Pill key={k} active={sysSub === k} onClick={() => setSysSub(k)} count={n}>{l}</Pill>)}
           </div>
           {sysSub === 'activation' && (<div style={{ ...G, overflow: 'hidden' } as any}>
