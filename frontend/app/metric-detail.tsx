@@ -283,7 +283,7 @@ export default function MetricDetailScreen() {
               <i className="ri-alarm-warning-line" style={{ fontSize: 16, color: '#F59E0B' }} />
               <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Seuils d'alerte</span>
             </div>
-            {!thEdit && <div onClick={() => setThEdit(true)} style={{ padding: '6px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>{threshold?.min_val != null ? 'Modifier' : 'Configurer'}</div>}
+            {!thEdit && <div onClick={() => { setThEdit(true); if (!thMin && normalMin != null) setThMin(String(Math.round(normalMin * 0.9))); if (!thMax && normalMax != null) setThMax(String(Math.round(normalMax * 1.15))); }} style={{ padding: '6px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>{threshold?.min_val != null ? 'Modifier' : 'Configurer'}</div>}
           </div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 12, lineHeight: 1.5 }}>Vos gardiens seront alertes si cette donnee depasse les seuils definis.</div>
           {/* Nora threshold suggestion — 1st person, pre-filled */}
