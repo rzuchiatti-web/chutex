@@ -152,7 +152,7 @@ export default function HealthScreen() {
           <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Objectifs journaliers</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 } as any}>
             {plan.map((p: any) => (
-              <div key={p.key} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' } as any}>
+              <div key={p.key} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}><i className={p.icon} style={{ fontSize: 14, color: p.color }} /><span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{p.status || p.label}</span></div>
                 <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{p.value} <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{p.unit}</span></div>
                 <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{p.label}</div>
