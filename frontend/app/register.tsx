@@ -533,7 +533,7 @@ export default function RegisterScreen() {
           {/* CTA */}
           {step > 0 && (
             <div style={{ marginTop: 24 } as any}>
-              <div onClick={() => { if (!canNext()) return; setError(''); const isLast = (role === 'beneficiary' && step === BEN_STEPS) || (role === 'guardian' && step === GUARD_STEPS); if (isLast) handleRegister(); else setStep(step + 1); }} style={{ padding: '16px', borderRadius: 999, background: canNext() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${canNext() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: canNext() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 15, fontWeight: 700, color: canNext() ? '#FFF' : 'rgba(255,255,255,0.2)', opacity: submitting ? 0.6 : 1 } as any}>
+              <div onClick={() => { if (!canNext()) return; setError(''); const isLast = (role === 'beneficiary' && step === BEN_STEPS) || (role === 'guardian' && step === GUARD_STEPS); if (isLast) handleRegister(); else setStep(step + 1); }} style={{ padding: '16px', borderRadius: 999, background: canNext() ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)', border: `1px solid ${canNext() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: canNext() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 15, fontWeight: 800, color: canNext() ? '#FFF' : 'rgba(255,255,255,0.25)', opacity: submitting ? 0.6 : 1 } as any}>
                 {submitting ? 'Creation en cours...' : ((role === 'beneficiary' && step === BEN_STEPS) || (role === 'guardian' && step === GUARD_STEPS)) ? 'Creer mon compte' : 'Continuer'}
               </div>
             </div>
