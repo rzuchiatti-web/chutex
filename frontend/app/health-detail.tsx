@@ -85,6 +85,7 @@ const SECTIONS: Record<string, { title: string; color: string; img: string; metr
 
 const BG_DEFAULT = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
 const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
+const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
 export default function HealthDetailScreen() {
   const { metricId } = useLocalSearchParams<{ metricId: string }>();
@@ -129,12 +130,12 @@ export default function HealthDetailScreen() {
 
   if (loading) return <FullScreenLoader />;
 
-  const bgUrl = metricId === 'sleep' ? BG_VIOLET : BG_DEFAULT;
+  const bgUrl = metricId === 'sleep' ? BG_VIOLET : BG_RED;
 
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
       <img src={bgUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: metricId === 'sleep' ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
 
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
