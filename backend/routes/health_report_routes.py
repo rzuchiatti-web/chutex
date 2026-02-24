@@ -259,12 +259,16 @@ JSON:
 
 
 @router.get("/health/metric-history/{key}")
-async def get_metric_history(key: str, user=Depends(get_current_user)):
-    """30 days of simulated history for a specific metric + AI analysis"""
+async def get_metric_history(key: str, range: str = "7j", user=Depends(get_current_user)):
+    """History for a specific metric with range support: 24h, 7j, 30j, 90j"""
     import math
     from datetime import timedelta
     now = datetime.now(timezone.utc)
-    days = 30
+
+    # Determine days and granularity
+    is_hourly = range == "24h"
+    days = {"24h": 1, "7j": 7, "30j": 30, "90j": 90}.get(range, 7)
+    points = 24 if is_hourly else days
     history = []
 
     generators = {
@@ -274,7 +278,7 @@ async def get_metric_history(key: str, user=Depends(get_current_user)):
         "bp_systolic": lambda i: 122 + int(4 * math.sin(i / 8 * math.pi)) + random.randint(-3, 3),
         "bp_diastolic": lambda i: 76 + int(3 * math.sin(i / 8 * math.pi)) + random.randint(-2, 2),
         "temperature": lambda i: round(36.5 + 0.3 * math.sin(i / 5 * math.pi) + random.uniform(-0.1, 0.1), 1),
-        "vo2_max": lambda i: round(29 + 0.5 * i / days + random.uniform(-0.5, 0.5), 1),
+        "vo2_max": lambda i: round(29 + 0.5 * i / max(points, 1) + random.uniform(-0.5, 0.5), 1),
         "glycemia": lambda i: round(0.98 + 0.08 * math.sin(i / 6 * math.pi) + random.uniform(-0.03, 0.03), 2),
         "stress_level": lambda i: max(10, min(80, 35 + int(10 * math.sin(i / 5 * math.pi)) + random.randint(-5, 5))),
         "recovery_score": lambda i: max(50, min(100, 80 + int(8 * math.sin(i / 6 * math.pi)) + random.randint(-4, 4))),
@@ -288,39 +292,27 @@ async def get_metric_history(key: str, user=Depends(get_current_user)):
         "visceral_fat": lambda i: random.choice([8, 9, 9, 9, 10]),
         "bone_mass_kg": lambda i: round(3.05 + random.uniform(-0.05, 0.05), 2),
         "sleep_quality": lambda i: max(50, min(100, 80 + int(8 * math.sin(i / 5 * math.pi)) + random.randint(-5, 5))),
-        "sleep_duration_min": lambda i: max(300, min(540, 440 + int(30 * math.sin(i / 6 * math.pi)) + random.randint(-15, 15))),
-        "deep_sleep_min": lambda i: max(60, min(180, 130 + int(20 * math.sin(i / 5 * math.pi)) + random.randint(-10, 10))),
-        "light_sleep_min": lambda i: max(150, min(300, 240 + int(20 * math.sin(i / 7 * math.pi)) + random.randint(-10, 10))),
-        "rem_sleep_min": lambda i: max(30, min(100, 65 + int(15 * math.sin(i / 6 * math.pi)) + random.randint(-5, 5))),
-        "sleep_interruptions": lambda i: random.choice([1, 1, 2, 2, 3, 3, 4]),
+        "temperature": lambda i: round(36.5 + 0.3 * math.sin(i / 5 * math.pi) + random.uniform(-0.1, 0.1), 1),
         "basal_metabolism": lambda i: random.randint(1480, 1620),
         "recommended_calories": lambda i: random.randint(1850, 2150),
         "bmi": lambda i: round(24.2 - 0.01 * i + random.uniform(-0.1, 0.1), 1),
     }
 
-    # Fallback
     gen = generators.get(key, lambda i: round(50 + 10 * math.sin(i / 5 * math.pi) + random.uniform(-2, 2), 1))
 
-    for i in range(days):
-        dt = now - timedelta(days=days - 1 - i)
-        val = gen(i)
-        # For sleep, add phases
-        entry = {"date": dt.strftime("%Y-%m-%d"), "value": val}
-        if key == "sleep_duration_min":
-            deep = max(60, min(180, 130 + random.randint(-15, 15)))
-            light = max(150, min(300, 240 + random.randint(-15, 15)))
-            rem = max(30, min(100, 65 + random.randint(-8, 8)))
-            entry["deep"] = deep
-            entry["light"] = light
-            entry["rem"] = rem
-        if key in ("bp_systolic", "heart_rate") and key == "heart_rate":
-            # Add intraday for ECG-like
-            entry["intraday"] = [68 + int(10 * math.sin(h / 3)) + random.randint(-2, 2) for h in range(24)]
+    for i in range_val(points):
+        if is_hourly:
+            dt = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(hours=i)
+            label = dt.strftime("%Hh")
+            entry = {"date": dt.isoformat(), "label": label, "value": gen(i)}
+        else:
+            dt = now - timedelta(days=points - 1 - i)
+            entry = {"date": dt.strftime("%Y-%m-%d"), "label": dt.strftime("%d/%m"), "value": gen(i)}
         history.append(entry)
 
     vals = [h["value"] for h in history]
     avg = round(sum(vals) / len(vals), 1) if vals else 0
-    mn, mx = (min(vals), max(vals)) if vals else (0, 0)
+    mn_val, mx_val = (min(vals), max(vals)) if vals else (0, 0)
     trend = round(vals[-1] - vals[0], 1) if len(vals) >= 2 else 0
 
     # Metric meta
