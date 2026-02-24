@@ -1,7 +1,7 @@
 """
 Iteration 51 - Batch 9 Tests
 Tests for: SAAD invitation system, hydration reminders, SAAD account login
-Login API uses 'email' field but accepts both email and phone numbers
+Login credentials based on actual seeded accounts
 """
 import pytest
 import requests
@@ -13,10 +13,10 @@ BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 class TestBeneficiaryLogin:
     """Test beneficiary login"""
     
-    def test_beneficiary_login_with_phone(self):
-        """Login with beneficiary phone 651245918 works"""
+    def test_beneficiary_login_with_email(self):
+        """Login with beneficiary email works"""
         resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "651245918",  # API accepts phone in email field
+            "email": "robert.martin@email.fr",
             "password": "demo123"
         })
         assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
@@ -31,10 +31,10 @@ class TestBeneficiaryLogin:
 class TestAdminLogin:
     """Test admin login"""
     
-    def test_admin_login_with_phone(self):
-        """Login with admin phone 600000001 works"""
+    def test_admin_login_with_email(self):
+        """Login with admin email works"""
         resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "600000001",
+            "email": "admin@chutex.fr",
             "password": "demo123"
         })
         assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
@@ -48,10 +48,10 @@ class TestAdminLogin:
 class TestSAADAccountLogin:
     """Test SAAD/prescriber_company account login"""
     
-    def test_saad_login_with_phone(self):
-        """Login with SAAD account phone 499887766 returns prescriber_company role"""
+    def test_saad_login_with_email(self):
+        """Login with SAAD account email returns prescriber_company role"""
         resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "499887766",  # Phone without country code
+            "email": "saad@aide-domicile.fr",
             "password": "demo123"
         })
         assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
@@ -64,12 +64,13 @@ class TestSAADAccountLogin:
     def test_saad_login_returns_structure_info(self):
         """SAAD account should have structure name"""
         resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "499887766",
+            "email": "saad@aide-domicile.fr",
             "password": "demo123"
         })
         assert resp.status_code == 200
         user = resp.json().get("user", {})
-        assert user.get("structure_name"), "SAAD should have structure_name"
+        assert user.get("structure_name") == "SAAD Aide a Domicile Loire", f"Expected structure name, got {user.get('structure_name')}"
+        assert user.get("is_prescriber") == True, "SAAD should be prescriber"
         print(f"PASSED: SAAD has structure_name: {user.get('structure_name')}")
 
 
@@ -80,7 +81,7 @@ class TestSAADInvitationSystem:
     def setup(self):
         """Login as admin to get token"""
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "600000001",
+            "email": "admin@chutex.fr",
             "password": "demo123"
         })
         if login_resp.status_code == 200:
@@ -148,7 +149,7 @@ class TestHydrationReminders:
     def setup(self):
         """Login as beneficiary"""
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "651245918",
+            "email": "robert.martin@email.fr",
             "password": "demo123"
         })
         if login_resp.status_code == 200:
@@ -185,7 +186,7 @@ class TestHealthDailyReport:
     def setup(self):
         """Login as beneficiary"""
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "651245918",
+            "email": "robert.martin@email.fr",
             "password": "demo123"
         })
         if login_resp.status_code == 200:
@@ -202,10 +203,13 @@ class TestHealthDailyReport:
         assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
         data = resp.json()
         
-        # Check required fields
+        # Check required fields for vitals
         report_data = data.get("data", {})
-        assert "heart_rate" in report_data or report_data, "Report should have health data"
-        print(f"PASSED: Daily report returned with data keys: {list(report_data.keys())[:5]}...")
+        assert "heart_rate" in report_data, "Report should have heart_rate"
+        assert "spo2" in report_data, "Report should have spo2"
+        assert "blood_pressure" in report_data, "Report should have blood_pressure"
+        assert "temperature" in report_data, "Report should have temperature"
+        print(f"PASSED: Daily report returned with heart_rate={report_data.get('heart_rate')}, spo2={report_data.get('spo2')}")
 
 
 class TestGuardiansAPI:
@@ -215,7 +219,7 @@ class TestGuardiansAPI:
     def setup(self):
         """Login as beneficiary"""
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "651245918",
+            "email": "robert.martin@email.fr",
             "password": "demo123"
         })
         if login_resp.status_code == 200:
@@ -232,12 +236,10 @@ class TestGuardiansAPI:
         assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
         data = resp.json()
         assert isinstance(data, list), "Response should be a list"
-        # Robert Martin should have Claire Martin as guardian
-        if len(data) > 0:
-            guardian_names = [g.get("name") for g in data]
-            print(f"PASSED: Found guardians: {guardian_names}")
-        else:
-            print("PASSED: Guardians list retrieved (empty)")
+        # Robert Martin should have guardians
+        assert len(data) > 0, "Should have at least one guardian"
+        guardian_names = [g.get("name") for g in data]
+        print(f"PASSED: Found guardians: {guardian_names}")
 
 
 if __name__ == "__main__":
