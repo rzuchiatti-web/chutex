@@ -66,10 +66,17 @@ export default function MetricDetailScreen() {
   const normalMax = m.normal_max;
   const isNormal = normalMin != null ? (currentVal >= normalMin && currentVal <= normalMax) : true;
 
-  const W = 340, H = 160, pad = 8;
-  const gw = W - pad * 2, gh = H - pad * 2;
-  const toX = (i: number) => pad + (i / (sliced.length - 1 || 1)) * gw;
-  const toY = (v: number) => pad + gh - ((v - mn) / rg) * gh;
+  const W = 380, H = 200, pad = 0;
+  const gw = W, gh = H;
+  const marginV = 10;
+  const drawMn = mn - (rg * 0.05);
+  const drawMx = mx + (rg * 0.05);
+  const drawRg = drawMx - drawMn || 1;
+  const toX = (i: number) => (i / (sliced.length - 1 || 1)) * gw;
+  const toY = (v: number) => marginV + (gh - marginV * 2) - ((v - drawMn) / drawRg) * (gh - marginV * 2);
+  const isBP = m.graph_type === 'bp_dual';
+  const isBars = m.graph_type === 'bars';
+  const isScatter = m.graph_type === 'scatter';
 
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
