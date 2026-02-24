@@ -120,55 +120,51 @@ export default function AuthScreen() {
               <img src="https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429" alt="Chutex" style={{ height: 52, width: 'auto', display: 'block', margin: '0 auto' } as any} />
             </div>
 
-            {/* Form card with glassmorphism */}
-            <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '32px 24px 28px' } as any}>
+            <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Connexion</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Accedez a votre espace sante securise</div>
+            </div>
 
-              <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Connexion</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Accedez a votre espace sante securise</div>
+            {error && <div data-testid="login-error" style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 16, fontSize: 12, color: '#FCA5A5' } as any}>{error}</div>}
+
+            <form onSubmit={handleSubmit} data-testid="login-form">
+              {/* Phone */}
+              <div style={{ marginBottom: 14 } as any}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Telephone</div>
+                <div style={{ display: 'flex', gap: 8 } as any}>
+                  <div onClick={() => setShowPrefix(!showPrefix)} style={{ padding: '12px', borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 } as any}>
+                    <span style={{ fontSize: 15 }}>{selectedPfx.flag}</span>
+                    <span style={{ fontSize: 13, color: '#FFF', fontWeight: 600 }}>{prefix}</span>
+                    <i className="ri-arrow-down-s-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }} />
+                  </div>
+                  <input name="phone" type="tel" autoComplete="tel" data-testid="login-phone-input" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)}
+                    style={{ flex: 1, padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                </div>
+                {showPrefix && (
+                  <div style={{ marginTop: 6, padding: '6px', borderRadius: 12, background: 'rgba(10,15,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', maxHeight: 180, overflowY: 'auto' } as any}>
+                    {PREFIXES.map(p => (
+                      <div key={p.code} onClick={() => { setPrefix(p.code); setShowPrefix(false); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, cursor: 'pointer', background: prefix === p.code ? 'rgba(255,255,255,0.06)' : 'transparent' } as any}>
+                        <span style={{ fontSize: 14 }}>{p.flag}</span>
+                        <span style={{ fontSize: 12, color: '#FFF', flex: 1 }}>{p.label}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{p.code}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {error && <div data-testid="login-error" style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 16, fontSize: 12, color: '#FCA5A5' } as any}>{error}</div>}
+              {/* Password */}
+              <div style={{ marginBottom: 20 } as any}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Mot de passe</div>
+                <input name="password" type="password" autoComplete="current-password" data-testid="login-password-input" placeholder="Votre mot de passe" value={password} onChange={(e: any) => setPassword(e.target.value)}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+              </div>
 
-              <form onSubmit={handleSubmit} data-testid="login-form">
-                {/* Phone */}
-                <div style={{ marginBottom: 14 } as any}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Telephone</div>
-                  <div style={{ display: 'flex', gap: 8 } as any}>
-                    <div onClick={() => setShowPrefix(!showPrefix)} style={{ padding: '12px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 } as any}>
-                      <span style={{ fontSize: 15 }}>{selectedPfx.flag}</span>
-                      <span style={{ fontSize: 13, color: '#FFF', fontWeight: 600 }}>{prefix}</span>
-                      <i className="ri-arrow-down-s-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }} />
-                    </div>
-                    <input name="phone" type="tel" autoComplete="tel" data-testid="login-phone-input" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)}
-                      style={{ flex: 1, padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
-                  </div>
-                  {showPrefix && (
-                    <div style={{ marginTop: 6, padding: '6px', borderRadius: 12, background: 'rgba(10,15,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', maxHeight: 180, overflowY: 'auto' } as any}>
-                      {PREFIXES.map(p => (
-                        <div key={p.code} onClick={() => { setPrefix(p.code); setShowPrefix(false); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, cursor: 'pointer', background: prefix === p.code ? 'rgba(255,255,255,0.06)' : 'transparent' } as any}>
-                          <span style={{ fontSize: 14 }}>{p.flag}</span>
-                          <span style={{ fontSize: 12, color: '#FFF', flex: 1 }}>{p.label}</span>
-                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{p.code}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Password */}
-                <div style={{ marginBottom: 20 } as any}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Mot de passe</div>
-                  <input name="password" type="password" autoComplete="current-password" data-testid="login-password-input" placeholder="Votre mot de passe" value={password} onChange={(e: any) => setPassword(e.target.value)}
-                    style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
-                </div>
-
-                {/* Submit */}
-                <button type="submit" disabled={submitting} data-testid="login-form-submit-button" style={{ width: '100%', padding: '14px', borderRadius: 999, background: '#111', border: 'none', color: '#FFF', fontSize: 14, fontWeight: 800, fontFamily: 'inherit', cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.6 : 1, letterSpacing: 0.3 } as any}>
-                  {submitting ? 'Connexion...' : 'Se connecter'}
-                </button>
-              </form>
-            </div>
+              {/* Submit */}
+              <button type="submit" disabled={submitting} data-testid="login-form-submit-button" style={{ width: '100%', padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: '#FFF', fontSize: 14, fontWeight: 800, fontFamily: 'inherit', cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.6 : 1, letterSpacing: 0.3 } as any}>
+                {submitting ? 'Connexion...' : 'Se connecter'}
+              </button>
+            </form>
 
             <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); }} style={{ textAlign: 'center', marginTop: 18, fontSize: 12, color: 'rgba(255,255,255,0.45)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
 
