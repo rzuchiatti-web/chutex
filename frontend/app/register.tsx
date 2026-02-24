@@ -201,7 +201,7 @@ export default function RegisterScreen() {
                     </div>
                   ))}
                 </div>
-                <div style={{ padding: '14px 0', borderRadius: 999, background: '#111', fontSize: 14, fontWeight: 800, color: '#FFF', letterSpacing: 0.5 }}>JE SUIS BENEFICIAIRE</div>
+                <div style={{ padding: '14px 0', borderRadius: 999, background: '#FFF', fontSize: 14, fontWeight: 800, color: '#111', letterSpacing: 0.5 }}>JE SUIS BENEFICIAIRE</div>
               </div>
               {/* Gardien card */}
               <div onClick={() => { setRole('guardian'); setStep(1); }} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
