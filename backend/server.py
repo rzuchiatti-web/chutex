@@ -197,6 +197,48 @@ async def seed_demo_data():
             })
             logger.info(f"Seed: created intervention code {ic['code']}")
 
+    # Seed hydration reminders and guardian request for Robert Martin
+    if ben:
+        # Hydration reminders
+        existing_rem = await db.reminders.find_one({"user_id": ben['id'], "type": "hydration"})
+        if not existing_rem:
+            for time_str in ["07:30", "10:00", "13:00", "16:00", "19:00"]:
+                await db.reminders.insert_one({
+                    "id": str(uuid.uuid4()), "user_id": ben['id'], "type": "hydration",
+                    "time": time_str, "enabled": True, "label": f"Boire un verre d'eau",
+                    "created_at": now,
+                })
+            logger.info("Seed: created hydration reminders for Robert Martin")
+
+        # Guardian request (pending)
+        existing_req = await db.guardian_requests.find_one({"beneficiary_id": ben['id'], "status": "pending"})
+        if not existing_req:
+            await db.guardian_requests.insert_one({
+                "id": str(uuid.uuid4()), "beneficiary_id": ben['id'],
+                "beneficiary_name": ben.get('name', 'Robert Martin'),
+                "guardian_phone": "+33612345678", "guardian_name": "Pierre Durand",
+                "relationship": "Voisin", "type": "particular",
+                "status": "pending", "created_at": now,
+            })
+            logger.info("Seed: created pending guardian request for Robert Martin")
+
+    # Seed SAAD/Company demo account
+    existing_saad = await db.users.find_one({"email": "saad@aide-domicile.fr"})
+    if not existing_saad:
+        saad_uid = str(uuid.uuid4())
+        await db.users.insert_one({
+            "id": saad_uid, "email": "saad@aide-domicile.fr", "password_hash": hash_password("demo123"),
+            "name": "Marie Dupont", "phone": "+33499887766", "role": "prescriber_company",
+            "created_at": now, "beneficiaries": [], "guardians": [],
+            "structure_name": "SAAD Aide a Domicile Loire", "siret": "66677788800056",
+            "location_sharing": "alert_only", "date_of_birth": "", "gender": "Femme",
+            "address": "12 rue de la Loire, 42000 Saint-Etienne",
+            "guardian_type": "", "relationship": "", "is_prescriber": True,
+            "prescriber_structure": "SAAD Aide a Domicile Loire", "prescriber_code_used": "PRESC-SAAD-01",
+        })
+        logger.info("Seed: created SAAD company account (Marie Dupont)")
+
+
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
