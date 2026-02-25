@@ -263,26 +263,6 @@ export default function AlertDetailScreen() {
           })}
         </div>
 
-        {/* Resolution report (if closed) */}
-        {a.status === 'resolved' && (a.resolution_report || a.report) && (
-          <div style={{ ...G, padding: '16px', marginBottom: 12 } as any}>
-            <div style={{ fontSize: 13, fontWeight: 800, color: '#10B981', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 } as any}>
-              <i className="ri-file-text-line" style={{ fontSize: 16 }} />Rapport de cloture
-            </div>
-            {Object.entries(a.resolution_report || a.report || {}).filter(([k]) => k !== 'closed_at').map(([k, v]: any) => (
-              <div key={k} style={{ padding: '8px 0', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', marginBottom: 2 }}>{k === 'reason' ? 'Raison' : k === 'situation' ? 'Situation' : k === 'actions' ? 'Actions' : k === 'condition' ? 'Etat du beneficiaire' : k === 'notes' ? 'Notes' : k === 'closed_by' ? 'Cloturee par' : k === 'closed_by_role' ? 'Role' : k}</div>
-                <div style={{ fontSize: 13, color: '#FFF', fontWeight: 500 }}>{String(v)}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Actions - Clôture avec rapport */}
-        {a.status === 'active' && !showReport && (
-          <div onClick={() => setShowReport(true)} style={{ padding: '16px', borderRadius: 14, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#10B981', marginBottom: 12 } as any}>Cloturer l'alerte</div>
-        )}
-
         {/* Report form */}
         {showReport && (() => {
           const isBen = user?.role === 'beneficiary' || user?.active_role === 'beneficiary';
