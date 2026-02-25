@@ -262,7 +262,7 @@ export default function AlertDetailScreen() {
           })}
         </div>
 
-        {/* Report form */}
+        {/* Report popup glass */}
         {showReport && (() => {
           const isBen = user?.role === 'beneficiary' || user?.active_role === 'beneficiary';
           const questions = isBen ? [
@@ -274,34 +274,38 @@ export default function AlertDetailScreen() {
           ];
           const allAnswered = questions.every(q => reportAnswers[q.id]);
           return (
-            <div style={{ ...G, padding: '18px', marginBottom: 12 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{isBen ? 'Cloturer l\'alerte' : 'Rapport de cloture'}</div>
-                <div onClick={() => setShowReport(false)} style={{ width: 28, height: 28, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} /></div>
-              </div>
-              {questions.map((q, qi) => (
-                <div key={q.id} style={{ marginBottom: 14 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>{qi + 1}. {q.label} <span style={{ color: '#EF4444' }}>*</span></div>
-                  {q.options.map((opt, oi) => (
-                    <div key={oi} onClick={() => setReportAnswers({ ...reportAnswers, [q.id]: opt })} style={{ padding: '11px 14px', borderRadius: 12, marginBottom: 5, cursor: 'pointer', background: reportAnswers[q.id] === opt ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${reportAnswers[q.id] === opt ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                      <div style={{ width: 18, height: 18, borderRadius: 999, border: `2px solid ${reportAnswers[q.id] === opt ? '#FFF' : 'rgba(255,255,255,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>{reportAnswers[q.id] === opt && <div style={{ width: 9, height: 9, borderRadius: 999, background: '#FFF' }} />}</div>
-                      <span style={{ fontSize: 13, color: '#FFF' }}>{opt}</span>
+            <div onClick={() => setShowReport(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto', display: 'flex', justifyContent: 'center' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '32px auto', padding: '0 16px 60px', boxSizing: 'border-box' } as any}>
+                <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '24px 20px' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 } as any}>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{isBen ? 'Cloturer l\'alerte' : 'Rapport de cloture'}</div>
+                    <div onClick={() => setShowReport(false)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#FFF' }} /></div>
+                  </div>
+                  {questions.map((q, qi) => (
+                    <div key={q.id} style={{ marginBottom: 16 } as any}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>{qi + 1}. {q.label} <span style={{ color: '#EF4444' }}>*</span></div>
+                      {q.options.map((opt, oi) => (
+                        <div key={oi} onClick={() => setReportAnswers({ ...reportAnswers, [q.id]: opt })} style={{ padding: '11px 14px', borderRadius: 12, marginBottom: 5, cursor: 'pointer', background: reportAnswers[q.id] === opt ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${reportAnswers[q.id] === opt ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                          <div style={{ width: 18, height: 18, borderRadius: 999, border: `2px solid ${reportAnswers[q.id] === opt ? '#FFF' : 'rgba(255,255,255,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>{reportAnswers[q.id] === opt && <div style={{ width: 9, height: 9, borderRadius: 999, background: '#FFF' }} />}</div>
+                          <span style={{ fontSize: 13, color: '#FFF' }}>{opt}</span>
+                        </div>
+                      ))}
                     </div>
                   ))}
+                  <div style={{ marginBottom: 16 } as any}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 6 }}>{isBen ? 'Un commentaire ?' : 'Notes supplementaires'}</div>
+                    <textarea value={reportText} onChange={(e: any) => setReportText(e.target.value)} placeholder="Optionnel..." rows={3} style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', resize: 'none', outline: 'none', boxSizing: 'border-box' } as any} />
+                  </div>
+                  <div onClick={async () => {
+                    if (!allAnswered) return;
+                    try {
+                      await apiFetch(`/api/alerts/${alertId}/resolve`, { method: 'PUT', body: JSON.stringify({ answers: { ...reportAnswers, notes: reportText, closed_by: user?.name, closed_at: new Date().toISOString() }, notes: reportText }) }, token);
+                      setShowReport(false); load();
+                    } catch (e: any) { Alert.alert('Erreur', e.message); }
+                  }} style={{ padding: '14px', borderRadius: 999, cursor: allAnswered ? 'pointer' : 'not-allowed', background: allAnswered ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${allAnswered ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.06)'}`, textAlign: 'center', fontSize: 14, fontWeight: 700, color: allAnswered ? '#10B981' : 'rgba(255,255,255,0.2)' } as any}>
+                    {allAnswered ? 'Confirmer la cloture' : 'Repondez aux questions'}
+                  </div>
                 </div>
-              ))}
-              <div style={{ marginBottom: 14 } as any}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 6 }}>{isBen ? 'Un commentaire ?' : 'Notes supplementaires'}</div>
-                <textarea value={reportText} onChange={(e: any) => setReportText(e.target.value)} placeholder="Optionnel..." rows={3} style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', resize: 'none', outline: 'none', boxSizing: 'border-box' } as any} />
-              </div>
-              <div onClick={async () => {
-                if (!allAnswered) return;
-                try {
-                  await apiFetch(`/api/alerts/${alertId}/resolve`, { method: 'PUT', body: JSON.stringify({ answers: { ...reportAnswers, notes: reportText, closed_by: user?.name, closed_at: new Date().toISOString() }, notes: reportText }) }, token);
-                  setShowReport(false); load();
-                } catch (e: any) { Alert.alert('Erreur', e.message); }
-              }} style={{ padding: '14px', borderRadius: 999, cursor: allAnswered ? 'pointer' : 'not-allowed', background: allAnswered ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${allAnswered ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.06)'}`, textAlign: 'center', fontSize: 14, fontWeight: 700, color: allAnswered ? '#10B981' : 'rgba(255,255,255,0.2)' } as any}>
-                {allAnswered ? 'Confirmer la cloture' : 'Repondez aux questions'}
               </div>
             </div>
           );
