@@ -321,7 +321,7 @@ async def get_alert_detail(aid: str, user=Depends(get_current_user)):
                          "latitude": ben.get('latitude'), "longitude": ben.get('longitude'),
                          } if ben else None,
         "guardians": guardians, "escalations": escalations, "calls": calls, "interventions": interventions,
-        "location": location, "timeline": timeline,
+        "location": location, "timeline": timeline, "incident": incident,
     }
 
 
