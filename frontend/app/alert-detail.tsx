@@ -237,8 +237,7 @@ export default function AlertDetailScreen() {
           </div>
         )}
 
-        {/* Timeline */}
-        <div style={{ ...G, padding: '18px', marginBottom: 12 } as any}>
+        {/* Timeline */}        <div style={{ ...G, padding: '18px', marginBottom: 12 } as any}>
           <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 } as any}>
             <i className="ri-time-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />Chronologie
           </div>
