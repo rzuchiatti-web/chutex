@@ -309,7 +309,8 @@ async def get_alert_detail(aid: str, user=Depends(get_current_user)):
 
 
 def _build_alert_timeline(alert, escalations, calls, interventions):
-    timeline = [{"time": alert['created_at'], "event": "alert_created", "detail": f"Alerte {alert['alert_type']} ({alert['severity']})"}]
+    type_labels = {"manual_app": "Bouton SOS (app)", "manual_bracelet": "Pression manuelle (bracelet)", "health_anomaly": "Anomalie de sante", "fall": "Chute detectee (gilet)", "sos": "Alerte SOS"}
+    timeline = [{"time": alert['created_at'], "event": "alert_created", "detail": f"{type_labels.get(alert.get('alert_type', ''), alert.get('alert_type', 'Alerte'))}"}]
     for esc in escalations:
         for t in esc.get('timeline', []):
             timeline.append({"time": t.get('time', ''), "event": t.get('step', ''), "detail": t.get('note', '')})
