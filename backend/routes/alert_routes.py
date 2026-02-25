@@ -297,7 +297,18 @@ async def get_alert_detail(aid: str, user=Depends(get_current_user)):
             enriched_r.append(er)
         iv['recipients'] = enriched_r
     location = await db.locations.find_one({"user_id": alert['beneficiary_id']}, {"_id": 0})
+    # Get Vapi incident data for enriched timeline
+    incident = None
+    if alert.get('incident_id'):
+        incident = await db.incidents.find_one({"id": alert['incident_id']}, {"_id": 0})
+    incident_timeline = []
+    if incident:
+        for t in incident.get('timeline', []):
+            incident_timeline.append({"time": t.get('timestamp', ''), "event": "ia_" + t.get('state', ''), "detail": t.get('detail', ''), "icon": "ri-robot-line", "color": "#A78BFA"})
+    resolution_report = alert.get('resolution_report') or alert.get('report') or None
     timeline = _build_alert_timeline(alert, escalations, calls, interventions)
+    timeline.extend(incident_timeline)
+    timeline.sort(key=lambda x: x.get('time', ''))
     return {
         "alert": alert,
         "beneficiary": {"id": ben['id'], "name": ben['name'], "phone": ben.get('phone', ''), "email": ben.get('email', ''),
