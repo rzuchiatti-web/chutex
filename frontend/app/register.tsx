@@ -3,86 +3,19 @@ import { View, Text, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { apiFetch } from '../src/services/api';
 import { useAuth } from '../src/context/AuthContext';
+import { RegisterForm } from '../src/components/register/RegisterUI';
+import RoleSelection from '../src/components/register/RoleSelection';
+import RGPDStep from '../src/components/register/RGPDStep';
+import PhonePasswordStep from '../src/components/register/PhonePasswordStep';
+import SAADStep from '../src/components/register/SAADStep';
+import BeneficiaryInfoStep from '../src/components/register/BeneficiaryInfoStep';
+import MedicalStep from '../src/components/register/MedicalStep';
+import AntecedentsStep from '../src/components/register/AntecedentsStep';
+import GuardianInfoStep from '../src/components/register/GuardianInfoStep';
 
-const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
-const PREFIXES = [
-  { code: '+33', flag: '\u{1F1EB}\u{1F1F7}', label: 'France' },
-  { code: '+32', flag: '\u{1F1E7}\u{1F1EA}', label: 'Belgique' },
-  { code: '+41', flag: '\u{1F1E8}\u{1F1ED}', label: 'Suisse' },
-  { code: '+352', flag: '\u{1F1F1}\u{1F1FA}', label: 'Luxembourg' },
-  { code: '+49', flag: '\u{1F1E9}\u{1F1EA}', label: 'Allemagne' },
-  { code: '+39', flag: '\u{1F1EE}\u{1F1F9}', label: 'Italie' },
-  { code: '+34', flag: '\u{1F1EA}\u{1F1F8}', label: 'Espagne' },
-  { code: '+351', flag: '\u{1F1F5}\u{1F1F9}', label: 'Portugal' },
-  { code: '+44', flag: '\u{1F1EC}\u{1F1E7}', label: 'Royaume-Uni' },
-  { code: '+353', flag: '\u{1F1EE}\u{1F1EA}', label: 'Irlande' },
-  { code: '+31', flag: '\u{1F1F3}\u{1F1F1}', label: 'Pays-Bas' },
-  { code: '+43', flag: '\u{1F1E6}\u{1F1F9}', label: 'Autriche' },
-  { code: '+48', flag: '\u{1F1F5}\u{1F1F1}', label: 'Pologne' },
-  { code: '+420', flag: '\u{1F1E8}\u{1F1FF}', label: 'Tchequie' },
-  { code: '+421', flag: '\u{1F1F8}\u{1F1F0}', label: 'Slovaquie' },
-  { code: '+36', flag: '\u{1F1ED}\u{1F1FA}', label: 'Hongrie' },
-  { code: '+40', flag: '\u{1F1F7}\u{1F1F4}', label: 'Roumanie' },
-  { code: '+359', flag: '\u{1F1E7}\u{1F1EC}', label: 'Bulgarie' },
-  { code: '+385', flag: '\u{1F1ED}\u{1F1F7}', label: 'Croatie' },
-  { code: '+386', flag: '\u{1F1F8}\u{1F1EE}', label: 'Slovenie' },
-  { code: '+30', flag: '\u{1F1EC}\u{1F1F7}', label: 'Grece' },
-  { code: '+45', flag: '\u{1F1E9}\u{1F1F0}', label: 'Danemark' },
-  { code: '+46', flag: '\u{1F1F8}\u{1F1EA}', label: 'Suede' },
-  { code: '+47', flag: '\u{1F1F3}\u{1F1F4}', label: 'Norvege' },
-  { code: '+358', flag: '\u{1F1EB}\u{1F1EE}', label: 'Finlande' },
-  { code: '+354', flag: '\u{1F1EE}\u{1F1F8}', label: 'Islande' },
-  { code: '+372', flag: '\u{1F1EA}\u{1F1EA}', label: 'Estonie' },
-  { code: '+371', flag: '\u{1F1F1}\u{1F1FB}', label: 'Lettonie' },
-  { code: '+370', flag: '\u{1F1F1}\u{1F1F9}', label: 'Lituanie' },
-  { code: '+356', flag: '\u{1F1F2}\u{1F1F9}', label: 'Malte' },
-  { code: '+357', flag: '\u{1F1E8}\u{1F1FE}', label: 'Chypre' },
-  { code: '+377', flag: '\u{1F1F2}\u{1F1E8}', label: 'Monaco' },
-  { code: '+376', flag: '\u{1F1E6}\u{1F1E9}', label: 'Andorre' },
-  { code: '+381', flag: '\u{1F1F7}\u{1F1F8}', label: 'Serbie' },
-  { code: '+382', flag: '\u{1F1F2}\u{1F1EA}', label: 'Montenegro' },
-  { code: '+355', flag: '\u{1F1E6}\u{1F1F1}', label: 'Albanie' },
-  { code: '+389', flag: '\u{1F1F2}\u{1F1F0}', label: 'Macedoine du Nord' },
-  { code: '+387', flag: '\u{1F1E7}\u{1F1E6}', label: 'Bosnie-Herzegovine' },
-  { code: '+380', flag: '\u{1F1FA}\u{1F1E6}', label: 'Ukraine' },
-  { code: '+373', flag: '\u{1F1F2}\u{1F1E9}', label: 'Moldavie' },
-  { code: '+90', flag: '\u{1F1F9}\u{1F1F7}', label: 'Turquie' },
-  { code: '+212', flag: '\u{1F1F2}\u{1F1E6}', label: 'Maroc' },
-  { code: '+216', flag: '\u{1F1F9}\u{1F1F3}', label: 'Tunisie' },
-  { code: '+213', flag: '\u{1F1E9}\u{1F1FF}', label: 'Algerie' },
-  { code: '+1', flag: '\u{1F1FA}\u{1F1F8}', label: 'USA / Canada' },
-];
-
-const INPUT_STYLE = { width: '100%', padding: '13px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
-
-function GI({ label, ...props }: any) {
-  return (
-    <div style={{ marginBottom: 14 } as any}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>{label}</div>
-      <input {...props} style={{ ...INPUT_STYLE, ...(props.style || {}) }} />
-    </div>
-  );
-}
-
-function Chip({ label, selected, onClick }: any) {
-  return (
-    <div onClick={onClick} style={{ padding: '10px 16px', borderRadius: 999, background: selected ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)', border: `1px solid ${selected ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)'}`, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'pointer', fontSize: 13, fontWeight: selected ? 700 : 500, color: selected ? '#FFF' : 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: 8 } as any}>
-      {selected && <i className="ri-check-line" style={{ fontSize: 14 }} />}{label}
-    </div>
-  );
-}
-
-function RadioCard({ icon, label, desc, selected, onClick }: any) {
-  return (
-    <div onClick={onClick} style={{ padding: '16px 18px', borderRadius: 16, background: selected ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.15)', border: `1px solid ${selected ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)'}`, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-      <div style={{ width: 44, height: 44, borderRadius: 14, background: selected ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-        <i className={icon} style={{ fontSize: 20, color: selected ? '#FFF' : 'rgba(255,255,255,0.35)' }} />
-      </div>
-      <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: selected ? '#FFF' : 'rgba(255,255,255,0.5)' }}>{label}</div>{desc && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{desc}</div>}</div>
-      {selected && <i className="ri-check-line" style={{ fontSize: 18, color: '#10B981' }} />}
-    </div>
-  );
-}
+const BEN_STEPS = 5;
+const GUARD_STEPS = 3;
+const SAAD_STEPS = 2;
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -90,22 +23,19 @@ export default function RegisterScreen() {
   const [role, setRole] = useState('');
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
-  const [showChoiceHelp, setShowChoiceHelp] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [showPrefix, setShowPrefix] = useState(false);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<RegisterForm>({
     phone: '', prefix: '+33', password: '', confirmPassword: '',
     name: '', firstName: '', dob_day: '', dob_month: '', dob_year: '', gender: '', address: '',
     height_cm: '', weight_kg: '', blood_type: '', thyroid: '',
     pacemaker: '', stents: '',
-    allergies: [] as string[], medical_conditions: [] as string[], other_condition: '',
+    allergies: [], medical_conditions: [], other_condition: '',
     doctor_name: '', doctor_phone: '', social_security: '',
     devices: '',
-    had_surgery: '', surgeries: [] as { zone: string; date: string }[],
-    family_history: [] as string[], how_found: '',
+    had_surgery: '', surgeries: [],
+    family_history: [], how_found: '',
     pro_type: '', structure: '', alert_sms: false, alert_email: false,
     acceptTerms: false,
-    // SAAD fields
     structure_name: '', siret: '', saad_address: '', saad_director_name: '', saad_director_phone: '', saad_email: '', invite_token: '',
   });
   const u = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
@@ -114,9 +44,6 @@ export default function RegisterScreen() {
     return { ...f, [k]: arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v] };
   });
 
-  const BEN_STEPS = 5;
-  const GUARD_STEPS = 3;
-  const SAAD_STEPS = 2;
   const totalSteps = role === 'beneficiary' ? BEN_STEPS : role === 'prescriber_company' ? SAAD_STEPS : GUARD_STEPS;
 
   const canNext = () => {
@@ -167,6 +94,8 @@ export default function RegisterScreen() {
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
   };
 
+  const isLastStep = (role === 'beneficiary' && step === BEN_STEPS) || (role === 'guardian' && step === GUARD_STEPS) || (role === 'prescriber_company' && step === SAAD_STEPS);
+
   if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Web uniquement</Text></View>;
 
   return (
@@ -177,7 +106,6 @@ export default function RegisterScreen() {
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '40px 24px 100px' } as any}>
         <div style={{ width: '100%', maxWidth: 400 } as any}>
 
-          {/* Progress bar (hidden on role select) */}
           {step > 0 && (
             <div style={{ display: 'flex', gap: 6, marginBottom: 24 } as any}>
               {Array.from({ length: totalSteps }).map((_, i) => (
@@ -186,9 +114,8 @@ export default function RegisterScreen() {
             </div>
           )}
 
-          {/* Back + Step */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 } as any}>
-            <div onClick={() => { if (step > 1) setStep(step - 1); else if (step === 1) setStep(0); else router.back(); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer' } as any}>
+            <div data-testid="register-back-btn" onClick={() => { if (step > 1) setStep(step - 1); else if (step === 1) setStep(0); else router.back(); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer' } as any}>
               <i className="ri-arrow-left-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }} />
               <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{step === 0 ? 'Connexion' : 'Retour'}</span>
             </div>
@@ -197,427 +124,22 @@ export default function RegisterScreen() {
 
           {error && <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 16, fontSize: 13, color: '#F87171' } as any}>{error}</div>}
 
-          {/* ═══ STEP 0: Role Selection ═══ */}
-          {step === 0 && (<>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 } as any}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Choisissez votre espace</div>
-              <div onClick={() => setShowChoiceHelp(true)} style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 } as any}>
-                <i className="ri-question-line" style={{ fontSize: 13 }} />Comment choisir ?
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 } as any}>
-              {/* Beneficiaire card */}
-              <div onClick={() => { setRole('beneficiary'); setStep(1); }} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Beneficiaire</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous souhaitez utiliser ou porter les dispositifs de sante de Chutex.</div>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
-                  {[
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/papb1yyb_img1_beneficiare.svg', label: 'SENIOR' },
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/1tclenjo_img2_beneficiare.svg', label: 'SPORTIF' },
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/i2jtf6u2_img3_beneficiare.svg', label: 'HOMME' },
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/1tq0ru76_img4_beneficiare.svg', label: 'FEMME' },
-                  ].map((a, i) => (
-                    <div key={i} style={{ textAlign: 'center' } as any}>
-                      <div style={{ width: 56, height: 56, borderRadius: 999, overflow: 'hidden', margin: '0 auto 6px', border: '2px solid rgba(255,255,255,0.15)' } as any}><img src={a.img} alt={a.label} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>
-                      <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5 }}>{a.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {/* Gardien card */}
-              <div onClick={() => { setRole('guardian'); setStep(1); }} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Gardien</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous etes un aidant ou professionnel souhaitant accompagner un beneficiaire.</div>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
-                  {[
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/gx3y3hjr_img1_gardien.svg', label: 'FAMILLE' },
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/2vkyj2ee_img2_gardien.svg', label: 'INFIRMIER' },
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/6pui8o6u_img3_gardien.svg', label: 'SAP/HAD' },
-                    { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/u9b8whua_img4_gardien.svg', label: 'COACH' },
-                  ].map((a, i) => (
-                    <div key={i} style={{ textAlign: 'center' } as any}>
-                      <div style={{ width: 56, height: 56, borderRadius: 999, overflow: 'hidden', margin: '0 auto 6px', border: '2px solid rgba(255,255,255,0.15)' } as any}><img src={a.img} alt={a.label} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>
-                      <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5 }}>{a.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {/* SAAD card */}
-              <div onClick={() => { setRole('prescriber_company'); setStep(1); }} style={{ padding: '20px 16px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Espace SAAD</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>Vous etes un dirigeant de structure d'aide a domicile (SAAD, SAP, HAD).</div>
-              </div>
-            </div>
-            {showChoiceHelp && (
-              <div onClick={() => setShowChoiceHelp(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 } as any}>
-                <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, borderRadius: 24, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '28px 22px' } as any}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>Comment choisir ?</div>
-                    <div onClick={() => setShowChoiceHelp(false)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#FFF' }} /></div>
-                  </div>
-                  {[
-                    { title: 'Beneficiaire', desc: 'Vous portez les dispositifs de sante (bracelet, balance) et souhaitez suivre vos constantes vitales au quotidien. Vous etes le patient ou la personne accompagnee.', who: 'Seniors, sportifs, personnes avec pathologies chroniques, toute personne soucieuse de sa sante.' },
-                    { title: 'Gardien', desc: 'Vous accompagnez un beneficiaire dans son suivi de sante. Vous recevez ses alertes, consultez ses donnees et intervenez en cas de besoin.', who: 'Famille, aidants, infirmiers, medecins, SAP/HAD, coachs sportifs, structures de soins.' },
-                  ].map((item, i) => (
-                    <div key={i} style={{ padding: '16px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{item.title}</div>
-                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 8 }}>{item.desc}</div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}><strong style={{ color: 'rgba(255,255,255,0.5)' }}>Pour qui :</strong> {item.who}</div>
-                    </div>
-                  ))}
-                  <div onClick={() => setShowChoiceHelp(false)} style={{ marginTop: 16, padding: '14px', borderRadius: 999, background: '#FFF', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#111', cursor: 'pointer' } as any}>Compris</div>
-                </div>
-              </div>
-            )}
-          </>)}
+          {step === 0 && <RoleSelection onSelect={(r) => { setRole(r); setStep(1); }} />}
+          {step === 1 && <RGPDStep />}
+          {step === 2 && role === 'prescriber_company' && <SAADStep form={form} u={u} />}
+          {step === 2 && role !== 'prescriber_company' && <PhonePasswordStep form={form} u={u} />}
+          {step === 3 && role === 'beneficiary' && <BeneficiaryInfoStep form={form} u={u} />}
+          {step === 4 && role === 'beneficiary' && <MedicalStep form={form} u={u} toggleArr={toggleArr} />}
+          {step === 5 && role === 'beneficiary' && <AntecedentsStep form={form} u={u} toggleArr={toggleArr} />}
+          {step === 3 && role === 'guardian' && <GuardianInfoStep form={form} u={u} />}
 
-          {/* ═══ STEP 2: SAAD Registration ═══ */}
-          {step === 2 && role === 'prescriber_company' && (<>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Inscription SAAD</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>Informations de votre structure</div>
-            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '20px 18px', marginBottom: 16 } as any}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Structure</div>
-              <GI label="Nom de la structure" value={form.structure_name} onChange={(e: any) => u('structure_name', e.target.value)} placeholder="Ex: SAAD Aide a Domicile Loire" />
-              <GI label="Numero SIRET" value={form.siret} onChange={(e: any) => u('siret', e.target.value)} placeholder="14 chiffres" />
-              <GI label="Adresse de la structure" value={form.saad_address} onChange={(e: any) => u('saad_address', e.target.value)} placeholder="Adresse complete" />
-              <GI label="Email professionnel" value={form.saad_email} onChange={(e: any) => u('saad_email', e.target.value)} placeholder="contact@votre-saad.fr" type="email" />
-            </div>
-            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '20px 18px', marginBottom: 16 } as any}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Dirigeant</div>
-              <GI label="Nom et prenom du dirigeant" value={form.saad_director_name} onChange={(e: any) => u('saad_director_name', e.target.value)} placeholder="Jean Dupont" />
-              <div style={{ marginBottom: 14 } as any}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>Telephone</div>
-                <div style={{ display: 'flex', gap: 8 } as any}>
-                  <div style={{ ...INPUT_STYLE, width: 'auto', padding: '13px 12px', display: 'flex', alignItems: 'center', gap: 4 } as any}><span>{PREFIXES.find(p => p.code === form.prefix)?.flag}</span><span style={{ fontWeight: 600 }}>{form.prefix}</span></div>
-                  <input value={form.phone} onChange={(e: any) => u('phone', e.target.value)} placeholder="06 12 34 56 78" style={{ ...INPUT_STYLE, flex: 1 }} />
-                </div>
-              </div>
-            </div>
-            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '20px 18px', marginBottom: 16 } as any}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Identifiants de connexion</div>
-              <GI label="Mot de passe" type="password" value={form.password} onChange={(e: any) => u('password', e.target.value)} placeholder="6 caracteres minimum" />
-              <GI label="Confirmer le mot de passe" type="password" value={form.confirmPassword} onChange={(e: any) => u('confirmPassword', e.target.value)} placeholder="Confirmez" />
-            </div>
-            <div onClick={() => u('acceptTerms', !form.acceptTerms)} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 14, background: form.acceptTerms ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.acceptTerms ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer' } as any}>
-              <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${form.acceptTerms ? '#10B981' : 'rgba(255,255,255,0.2)'}`, background: form.acceptTerms ? '#10B981' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>{form.acceptTerms && <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />}</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>J'accepte les conditions generales d'utilisation et la politique de confidentialite de Chutex.</div>
-            </div>
-          </>)}
-
-          {/* ═══ STEP 2: Phone + Password (beneficiary/guardian) ═══ */}
-          {step === 2 && role !== 'prescriber_company' && (<>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Creez votre compte</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>Vos identifiants de connexion</div>
-            {/* Phone with prefix */}
-            <div style={{ marginBottom: 14 } as any}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Telephone</div>
-              <div style={{ display: 'flex', gap: 8 } as any}>
-                <div onClick={() => setShowPrefix(!showPrefix)} style={{ padding: '13px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, minWidth: 90 } as any}>
-                  <span style={{ fontSize: 13, color: '#FFF', fontWeight: 600 }}>{form.prefix}</span>
-                  <i className="ri-arrow-down-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} />
-                </div>
-                <input type="tel" placeholder="06 12 34 56 78" value={form.phone} onChange={(e: any) => u('phone', e.target.value)} style={INPUT_STYLE} />
-              </div>
-              {showPrefix && (
-                <div style={{ marginTop: 8, padding: '8px', borderRadius: 14, background: 'rgba(10,15,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', maxHeight: 180, overflowY: 'auto' } as any}>
-                  {PREFIXES.map((p: any) => (
-                    <div key={p.code} onClick={() => { u('prefix', p.code); setShowPrefix(false); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', background: form.prefix === p.code ? 'rgba(255,255,255,0.06)' : 'transparent' } as any}>
-                      <span style={{ fontSize: 16 }}>{p.flag}</span>
-                      <span style={{ fontSize: 13, color: '#FFF', flex: 1 }}>{p.label}</span>
-                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{p.code}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <GI label="Mot de passe" type="password" placeholder="Minimum 6 caracteres" value={form.password} onChange={(e: any) => u('password', e.target.value)} />
-            <GI label="Confirmer le mot de passe" type="password" placeholder="Retapez votre mot de passe" value={form.confirmPassword} onChange={(e: any) => u('confirmPassword', e.target.value)} />
-            {form.password && form.confirmPassword && form.password !== form.confirmPassword && <div style={{ fontSize: 12, color: '#F87171', marginTop: -8, marginBottom: 8 }}>Les mots de passe ne correspondent pas</div>}
-          </>)}
-
-          {/* ═══ STEP 1: RGPD / Securite (both roles) ═══ */}
-          {step === 1 && (<>
-            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '28px 22px' } as any}>
-              <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Protection de vos donnees</div>
-                <div style={{ width: 40, height: 1, background: 'rgba(255,255,255,0.15)', margin: '0 auto 12px' } as any} />
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>Vos informations de sante sont traitees avec le plus haut niveau de securite.</div>
-              </div>
-
-              {[
-                { icon: 'ri-server-line', title: 'Hebergement HDS Classe 6', desc: 'Donnees stockees en France sur des serveurs certifies Hebergeur de Donnees de Sante, le standard le plus eleve.' },
-                { icon: 'ri-eu-line', title: 'Conformite RGPD', desc: 'Traitement conforme au Reglement General sur la Protection des Donnees. Vos droits sont garantis.' },
-                { icon: 'ri-lock-line', title: 'Chiffrement de bout en bout', desc: 'Toutes les communications sont chiffrees. Personne ne peut acceder a vos donnees sans votre accord.' },
-                { icon: 'ri-eye-off-line', title: 'Aucun partage non consenti', desc: 'Vos donnees ne sont jamais vendues ni partagees a des tiers sans votre consentement explicite.' },
-              ].map((item, i) => (
-                <div key={i} style={{ padding: '14px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none', display: 'flex', gap: 12, alignItems: 'flex-start' } as any}>
-                  <i className={item.icon} style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)', flexShrink: 0, marginTop: 1 }} />
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{item.title}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>{item.desc}</div>
-                  </div>
-                </div>
-              ))}
-
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0 16px' } as any} />
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', lineHeight: 1.6, textAlign: 'center' }}>
-                Contact DPO : contact@chutex-innovation.com<br />
-                Politique de confidentialite disponible dans votre profil.
-              </div>
-            </div>
-          </>)}
-
-          {/* ═══ BENEFICIARY STEP 3: Infos perso ═══ */}
-          {step === 3 && role === 'beneficiary' && (<>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Informations personnelles</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>Pour personnaliser votre suivi sante</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
-              <GI label="Prenom" placeholder="Jean" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
-              <GI label="Nom" placeholder="Dupont" value={form.name} onChange={(e: any) => u('name', e.target.value)} />
-            </div>
-            <div style={{ marginBottom: 14 } as any}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Date de naissance</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr', gap: 8 } as any}>
-                <select value={form.dob_day} onChange={(e: any) => u('dob_day', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
-                  <option value="" style={{ background: '#0a0f1a' }}>Jour</option>
-                  {Array.from({ length: 31 }, (_, i) => i + 1).map(d => <option key={d} value={String(d)} style={{ background: '#0a0f1a' }}>{d}</option>)}
-                </select>
-                <select value={form.dob_month} onChange={(e: any) => u('dob_month', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
-                  <option value="" style={{ background: '#0a0f1a' }}>Mois</option>
-                  {['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'].map((m, i) => <option key={i} value={String(i + 1)} style={{ background: '#0a0f1a' }}>{m}</option>)}
-                </select>
-                <select value={form.dob_year} onChange={(e: any) => u('dob_year', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
-                  <option value="" style={{ background: '#0a0f1a' }}>Annee</option>
-                  {Array.from({ length: 100 }, (_, i) => 2026 - i).map(y => <option key={y} value={String(y)} style={{ background: '#0a0f1a' }}>{y}</option>)}
-                </select>
-              </div>
-            </div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Sexe</div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-              {[{ v: 'male', l: 'Homme', ic: 'ri-men-line' }, { v: 'female', l: 'Femme', ic: 'ri-women-line' }].map(g => (
-                <div key={g.v} onClick={() => u('gender', g.v)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.gender === g.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.gender === g.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center' } as any}>
-                  <i className={g.ic} style={{ fontSize: 22, color: form.gender === g.v ? '#FFF' : 'rgba(255,255,255,0.25)', display: 'block', marginBottom: 6 }} />
-                  <div style={{ fontSize: 13, fontWeight: 700, color: form.gender === g.v ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{g.l}</div>
-                </div>
-              ))}
-            </div>
-            {/* Taille dropdown */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
-              <div style={{ marginBottom: 14 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Taille</div>
-                <select value={form.height_cm} onChange={(e: any) => u('height_cm', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
-                  <option value="" style={{ background: '#0a0f1a' }}>Selectionner</option>
-                  {Array.from({ length: 61 }, (_, i) => 140 + i).map(h => <option key={h} value={String(h)} style={{ background: '#0a0f1a' }}>{h} cm</option>)}
-                </select>
-              </div>
-              <div style={{ marginBottom: 14 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Poids</div>
-                <select value={form.weight_kg} onChange={(e: any) => u('weight_kg', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
-                  <option value="" style={{ background: '#0a0f1a' }}>Selectionner</option>
-                  {Array.from({ length: 121 }, (_, i) => 30 + i).map(w => <option key={w} value={String(w)} style={{ background: '#0a0f1a' }}>{w} kg</option>)}
-                </select>
-              </div>
-            </div>
-            <GI label="Adresse" placeholder="12 rue de la Paix, 75002 Paris" value={form.address} onChange={(e: any) => u('address', e.target.value)} />
-          </>)}
-          {step === 4 && role === 'beneficiary' && (<>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Dossier medical</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Ces informations sont confidentielles et aident a personnaliser votre suivi</div>
-            <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.5)', marginBottom: 16, marginTop: -16 }}>Tous les champs sont obligatoires. Selectionnez "Aucune" si non concerne.</div>
-
-            {/* Groupe sanguin — dropdown */}
-            <div style={{ marginBottom: 18 } as any}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Groupe sanguin</div>
-              <select value={form.blood_type} onChange={(e: any) => u('blood_type', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
-                <option value="" style={{ background: '#0a0f1a' }}>Selectionner</option>
-                {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Je ne sais pas'].map(bt => <option key={bt} value={bt} style={{ background: '#0a0f1a' }}>{bt}</option>)}
-              </select>
-            </div>
-
-            {/* Pathologies — grid cards */}
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Pathologies / Antecedents medicaux</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 8 } as any}>
-              {['Diabete', 'Hypertension', 'Cholesterol', 'Arthrose', 'Insuffisance cardiaque', 'AVC', 'Asthme', 'Osteoporose', 'Parkinson', 'Alzheimer', 'Depression', 'Hemophilie', 'Epilepsie', 'Aucune'].map(c => (
-                <div key={c} onClick={() => { if (c === 'Aucune') u('medical_conditions', ['Aucune']); else { const arr = form.medical_conditions.filter(x => x !== 'Aucune'); toggleArr('medical_conditions', c); } }} style={{ padding: '12px 14px', borderRadius: 14, background: form.medical_conditions.includes(c) ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.medical_conditions.includes(c) ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                  <div style={{ width: 20, height: 20, borderRadius: 6, background: form.medical_conditions.includes(c) ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.medical_conditions.includes(c) ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    {form.medical_conditions.includes(c) && <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />}
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: form.medical_conditions.includes(c) ? 700 : 500, color: form.medical_conditions.includes(c) ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{c}</span>
-                </div>
-              ))}
-            </div>
-            <GI label="Autre pathologie (optionnel)" placeholder="Precisez..." value={form.other_condition} onChange={(e: any) => u('other_condition', e.target.value)} />
-
-            {/* Allergies */}
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Allergies</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 18 } as any}>
-              {['Penicilline', 'Aspirine', 'Latex', 'Arachides', 'Gluten', 'Lactose', 'Iode', 'Aucune'].map(a => (
-                <div key={a} onClick={() => { if (a === 'Aucune') u('allergies', ['Aucune']); else toggleArr('allergies', a); }} style={{ padding: '12px 14px', borderRadius: 14, background: form.allergies.includes(a) ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.allergies.includes(a) ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                  <div style={{ width: 20, height: 20, borderRadius: 6, background: form.allergies.includes(a) ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.allergies.includes(a) ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    {form.allergies.includes(a) && <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />}
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: form.allergies.includes(a) ? 700 : 500, color: form.allergies.includes(a) ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{a}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Pacemaker */}
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Portez-vous un pacemaker ?</div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 18 } as any}>
-              {[{ v: 'oui', l: 'Oui' }, { v: 'non', l: 'Non' }].map(t => (
-                <div key={t.v} onClick={() => u('pacemaker', t.v)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.pacemaker === t.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.pacemaker === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.pacemaker === t.v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>{t.l}</div>
-              ))}
-            </div>
-
-            {/* Stents */}
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Avez-vous des stents ?</div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 18 } as any}>
-              {[{ v: 'oui', l: 'Oui' }, { v: 'non', l: 'Non' }].map(t => (
-                <div key={t.v} onClick={() => u('stents', t.v)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.stents === t.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.stents === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.stents === t.v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>{t.l}</div>
-              ))}
-            </div>
-
-            {/* Thyroide */}
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Avez-vous ete diagnostique d'un probleme de thyroide ?</div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 18 } as any}>
-              {[{ v: 'oui', l: 'Oui' }, { v: 'non', l: 'Non' }].map(t => (
-                <div key={t.v} onClick={() => u('thyroid', t.v)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.thyroid === t.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.thyroid === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.thyroid === t.v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>{t.l}</div>
-              ))}
-            </div>
-
-            <GI label="" type="hidden" value="" onChange={() => {}} style={{ display: 'none' }} />
-          </>)}
-
-          {/* ═══ BENEFICIARY STEP 4: Antecedents ═══ */}
-          {step === 5 && role === 'beneficiary' && (<>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Antecedents</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Informations complementaires pour votre suivi</div>
-            <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.5)', marginBottom: 16, marginTop: -16 }}>Tous les champs sont obligatoires. Repondez a chaque question.</div>
-
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Avez-vous deja ete opere ?</div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-              {[{ v: 'oui', l: 'Oui' }, { v: 'non', l: 'Non' }].map(t => (
-                <div key={t.v} onClick={() => { u('had_surgery', t.v); if (t.v === 'oui' && form.surgeries.length === 0) u('surgeries', [{ zone: '', date: '' }]); }} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.had_surgery === t.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.had_surgery === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.had_surgery === t.v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>{t.l}</div>
-              ))}
-            </div>
-            {form.had_surgery === 'oui' && (<>
-              {form.surgeries.map((s: any, idx: number) => (
-                <div key={idx} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8 } as any}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>Operation {idx + 1}</span>
-                    {form.surgeries.length > 1 && <div onClick={() => u('surgeries', form.surgeries.filter((_: any, i: number) => i !== idx))} style={{ cursor: 'pointer', fontSize: 11, color: '#EF4444', fontWeight: 700 } as any}>Supprimer</div>}
-                  </div>
-                  <GI label="Zone operee" placeholder="Ex: Genou droit, hanche, coeur..." value={s.zone} onChange={(e: any) => { const arr = [...form.surgeries]; arr[idx] = { ...arr[idx], zone: e.target.value }; u('surgeries', arr); }} />
-                  <div style={{ marginBottom: 14 } as any}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Date approximative</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 8 } as any}>
-                      <select value={s.date?.split('-')?.[1] || ''} onChange={(e: any) => { const arr = [...form.surgeries]; arr[idx] = { ...arr[idx], date: `${s.date?.split('-')?.[0] || '2024'}-${e.target.value}` }; u('surgeries', arr); }} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
-                        <option value="" style={{ background: '#0a0f1a' }}>Mois</option>
-                        {['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'].map((m, i) => <option key={i} value={String(i + 1).padStart(2, '0')} style={{ background: '#0a0f1a' }}>{m}</option>)}
-                      </select>
-                      <select value={s.date?.split('-')?.[0] || ''} onChange={(e: any) => { const arr = [...form.surgeries]; arr[idx] = { ...arr[idx], date: `${e.target.value}-${s.date?.split('-')?.[1] || '01'}` }; u('surgeries', arr); }} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
-                        <option value="" style={{ background: '#0a0f1a' }}>Annee</option>
-                        {Array.from({ length: 50 }, (_, i) => 2026 - i).map(y => <option key={y} value={String(y)} style={{ background: '#0a0f1a' }}>{y}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <div onClick={() => u('surgeries', [...form.surgeries, { zone: '', date: '' }])} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 14 } as any}>
-                <i className="ri-add-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Ajouter une operation</span>
-              </div>
-            </>)}
-
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10, marginTop: 16 }}>Antecedents familiaux</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginBottom: 10 }}>Des membres de votre famille ont-ils ete touches par :</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
-              {['Diabete', 'Hypertension', 'Maladie cardiaque', 'AVC', 'Cancer', 'Alzheimer', 'Parkinson', 'Osteoporose', 'Thyroide', 'Aucun'].map(f => (
-                <Chip key={f} label={f} selected={form.family_history.includes(f)} onClick={() => { if (f === 'Aucun') u('family_history', ['Aucun']); else toggleArr('family_history', f); }} />
-              ))}
-            </div>
-
-
-            {/* Comment connu Chutex */}
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 8, marginTop: 16 }}>Comment avez-vous connu Chutex ?</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 14 } as any}>
-              {['Professionnel de sante', 'SAAD / Structure', 'Famille / Proche', 'Recherche internet', 'Reseaux sociaux', 'Autre'].map(h => (
-                <div key={h} onClick={() => u('how_found', h)} style={{ padding: '12px 14px', borderRadius: 14, background: form.how_found === h ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.how_found === h ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                  <div style={{ width: 18, height: 18, borderRadius: 9, background: form.how_found === h ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.how_found === h ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    {form.how_found === h && <div style={{ width: 8, height: 8, borderRadius: 4, background: '#FFF' } as any} />}
-                  </div>
-                  <span style={{ fontSize: 12, color: form.how_found === h ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{h}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* CGU */}
-            <div onClick={() => u('acceptTerms', !form.acceptTerms)} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', marginTop: 20 } as any}>
-              <div style={{ width: 22, height: 22, borderRadius: 6, background: form.acceptTerms ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.acceptTerms ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
-                {form.acceptTerms && <i className="ri-check-line" style={{ fontSize: 14, color: '#FFF' }} />}
-              </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>J'accepte les <span style={{ color: '#FFF', fontWeight: 600 }}>conditions d'utilisation</span> et la <span style={{ color: '#FFF', fontWeight: 600 }}>politique de confidentialite</span>.</div>
-            </div>
-          </>)}
-
-          {/* ═══ GUARDIAN STEP 3: Infos + Alertes + CGU ═══ */}
-          {step === 3 && role === 'guardian' && (<>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Vos informations</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Pour personnaliser votre espace gardien</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
-              <GI label="Prenom" placeholder="Claire" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
-              <GI label="Nom" placeholder="Martin" value={form.name} onChange={(e: any) => u('name', e.target.value)} />
-            </div>
-            <GI label="Adresse" placeholder="12 rue de la Paix, 75002 Paris" value={form.address} onChange={(e: any) => u('address', e.target.value)} />
-
-            {/* How found Chutex */}
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 8, marginTop: 8 }}>Comment avez-vous connu Chutex ?</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 18 } as any}>
-              {['Professionnel de sante', 'SAAD / Structure', 'Famille / Proche', 'Recherche internet', 'Reseaux sociaux', 'Autre'].map(h => (
-                <div key={h} onClick={() => u('how_found', h)} style={{ padding: '12px 14px', borderRadius: 14, background: form.how_found === h ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.how_found === h ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                  <div style={{ width: 18, height: 18, borderRadius: 9, background: form.how_found === h ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.how_found === h ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    {form.how_found === h && <div style={{ width: 8, height: 8, borderRadius: 4, background: '#FFF' } as any} />}
-                  </div>
-                  <span style={{ fontSize: 12, color: form.how_found === h ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{h}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Alert preferences */}
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 10 }}>Recevoir les alertes par :</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 18 } as any}>
-              <div onClick={() => u('alert_sms', !form.alert_sms)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 14, background: form.alert_sms ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.alert_sms ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer' } as any}>
-                <div style={{ width: 22, height: 22, borderRadius: 6, background: form.alert_sms ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.alert_sms ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  {form.alert_sms && <i className="ri-check-line" style={{ fontSize: 14, color: '#FFF' }} />}
-                </div>
-                <div><div style={{ fontSize: 14, fontWeight: 600, color: form.alert_sms ? '#FFF' : 'rgba(255,255,255,0.4)' }}>SMS</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Recevez un SMS pour chaque alerte critique</div></div>
-              </div>
-              <div onClick={() => u('alert_email', !form.alert_email)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 14, background: form.alert_email ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.alert_email ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer' } as any}>
-                <div style={{ width: 22, height: 22, borderRadius: 6, background: form.alert_email ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.alert_email ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  {form.alert_email && <i className="ri-check-line" style={{ fontSize: 14, color: '#FFF' }} />}
-                </div>
-                <div><div style={{ fontSize: 14, fontWeight: 600, color: form.alert_email ? '#FFF' : 'rgba(255,255,255,0.4)' }}>Email</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Recevez un email pour les rapports et alertes</div></div>
-              </div>
-            </div>
-
-            {/* CGU */}
-            <div onClick={() => u('acceptTerms', !form.acceptTerms)} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}>
-              <div style={{ width: 22, height: 22, borderRadius: 6, background: form.acceptTerms ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${form.acceptTerms ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
-                {form.acceptTerms && <i className="ri-check-line" style={{ fontSize: 14, color: '#FFF' }} />}
-              </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>J'accepte les <span style={{ color: '#FFF', fontWeight: 600 }}>conditions d'utilisation</span> et la <span style={{ color: '#FFF', fontWeight: 600 }}>politique de confidentialite</span>.</div>
-            </div>
-          </>)}
-
-          {/* CTA */}
           {step > 0 && (
             <div style={{ marginTop: 24 } as any}>
-              <div onClick={() => { if (!canNext()) return; setError(''); const isLast = (role === 'beneficiary' && step === BEN_STEPS) || (role === 'guardian' && step === GUARD_STEPS) || (role === 'prescriber_company' && step === SAAD_STEPS); if (isLast) handleRegister(); else setStep(step + 1); }} style={{ padding: '16px', borderRadius: 999, background: canNext() ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)', border: `1px solid ${canNext() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: canNext() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 15, fontWeight: 800, color: canNext() ? '#FFF' : 'rgba(255,255,255,0.25)', opacity: submitting ? 0.6 : 1 } as any}>
-                {submitting ? 'Creation en cours...' : ((role === 'beneficiary' && step === BEN_STEPS) || (role === 'guardian' && step === GUARD_STEPS) || (role === 'prescriber_company' && step === SAAD_STEPS)) ? 'Creer mon compte' : 'Continuer'}
+              <div data-testid="register-next-btn" onClick={() => { if (!canNext()) return; setError(''); if (isLastStep) handleRegister(); else setStep(step + 1); }} style={{ padding: '16px', borderRadius: 999, background: canNext() ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)', border: `1px solid ${canNext() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: canNext() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 15, fontWeight: 800, color: canNext() ? '#FFF' : 'rgba(255,255,255,0.25)', opacity: submitting ? 0.6 : 1 } as any}>
+                {submitting ? 'Creation en cours...' : isLastStep ? 'Creer mon compte' : 'Continuer'}
               </div>
             </div>
           )}
-
         </div>
       </div>
     </div>
