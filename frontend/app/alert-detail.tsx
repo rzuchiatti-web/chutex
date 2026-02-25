@@ -28,6 +28,10 @@ export default function AlertDetailScreen() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const [showReport, setShowReport] = useState(false);
+  const [reportAnswers, setReportAnswers] = useState<Record<string, string>>({});
+  const [reportText, setReportText] = useState('');
+
   const load = useCallback(async () => {
     try { setData(await apiFetch(`/api/alerts/${alertId}/detail`, {}, token)); }
     catch {} finally { setLoading(false); }
