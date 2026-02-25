@@ -144,30 +144,32 @@ async def get_dashboard_summary(user=Depends(get_current_user)):
         bracelet["battery"] = bracelet_dev.get('battery', bracelet["battery"])
 
     scale = {
-        "connected": True, "battery": 92, "name": "Balance Lefu",
-        "weight": round(72.4 + random.random() * 0.3, 1),
-        "bmi": round(24.1 + random.random() * 0.2, 1),
-        "body_fat": round(22.3 + random.random() * 0.5, 1),
-        "muscle_mass": round(33.8 + random.random() * 0.3, 1),
-        "water_pct": round(55.2 + random.random() * 0.5, 1),
-        "bone_mass": round(3.1 + random.random() * 0.1, 1),
-        "visceral_fat": random.choice([8, 9, 9, 10]),
-        "metabolic_age": random.choice([62, 63, 64]),
-        "last_sync": now.isoformat(),
+        "connected": bool(scale_dev), "battery": 92 if scale_dev else 0, "name": "Balance Lefu",
+        "weight": round(72.4 + random.random() * 0.3, 1) if scale_dev else 0,
+        "bmi": round(24.1 + random.random() * 0.2, 1) if scale_dev else 0,
+        "body_fat": round(22.3 + random.random() * 0.5, 1) if scale_dev else 0,
+        "muscle_mass": round(33.8 + random.random() * 0.3, 1) if scale_dev else 0,
+        "water_pct": round(55.2 + random.random() * 0.5, 1) if scale_dev else 0,
+        "bone_mass": round(3.1 + random.random() * 0.1, 1) if scale_dev else 0,
+        "visceral_fat": random.choice([8, 9, 9, 10]) if scale_dev else 0,
+        "metabolic_age": random.choice([62, 63, 64]) if scale_dev else 0,
+        "last_sync": now.isoformat() if scale_dev else None,
         "weight_history": [
             {"date": f"{d} fev", "value": round(72.4 + random.random() * 0.8 - 0.4, 1)}
             for d in range(13, 20)
-        ],
+        ] if scale_dev else [],
+        "paired": bool(scale_dev),
     }
 
     vest = {
-        "connected": True, "battery": 65, "name": "Gilet CareWatch",
-        "fall_detected": False, "posture_score": random.choice([82, 85, 87, 90]),
-        "chest_temp": round(36.5 + random.random() * 0.3, 1),
-        "impact_events_today": 0, "wearing_hours_today": round(4.5 + random.random() * 2, 1),
-        "last_fall_check": now.isoformat(),
-        "last_sync": now.isoformat(),
+        "connected": bool(vest_dev), "battery": 65 if vest_dev else 0, "name": "Gilet Elder",
+        "fall_detected": False, "posture_score": random.choice([82, 85, 87, 90]) if vest_dev else 0,
+        "chest_temp": round(36.5 + random.random() * 0.3, 1) if vest_dev else 0,
+        "impact_events_today": 0, "wearing_hours_today": round(4.5 + random.random() * 2, 1) if vest_dev else 0,
+        "last_fall_check": now.isoformat() if vest_dev else None,
+        "last_sync": now.isoformat() if vest_dev else None,
         "alerts_today": 0,
+        "paired": bool(vest_dev),
     }
 
     sleep = {
