@@ -1,7 +1,8 @@
 {
   "cli": {
     "version": ">= 3.0.0",
-    "appVersionSource": "local"
+    "appVersionSource": "local",
+    "promptToConfigurePushNotifications": false
   },
   "build": {
     "development": {
@@ -30,7 +31,8 @@
       "ios": {
         "distribution": "store",
         "autoIncrement": true,
-        "credentialsSource": "local"
+        "credentialsSource": "local",
+        "disableIosBuildNotifications": true
       }
     }
   },
