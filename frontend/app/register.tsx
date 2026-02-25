@@ -140,16 +140,28 @@ export default function RegisterScreen() {
       let ph = form.phone.trim().replace(/\s/g, '');
       if (ph.startsWith('0') && ph.length >= 9) ph = form.prefix + ph.substring(1);
       else if (!ph.startsWith('+')) ph = form.prefix + ph;
-      await apiFetch('/api/auth/register', { method: 'POST', body: JSON.stringify({
-        email: ph, password: form.password,
-        name: `${form.firstName} ${form.name}`.trim(), phone: ph,
-        date_of_birth: form.dob_year && form.dob_month && form.dob_day ? `${form.dob_year}-${form.dob_month.padStart(2,'0')}-${form.dob_day.padStart(2,'0')}` : '', gender: form.gender,
-        height_cm: form.height_cm ? parseFloat(form.height_cm) : null,
-        weight_kg: form.weight_kg ? parseFloat(form.weight_kg) : null,
-        blood_type: form.blood_type, allergies: form.allergies.join(', '),
-        medical_conditions: form.medical_conditions.join(', '),
-        role: role,
-      }) });
+      const body: any = {
+        email: role === 'prescriber_company' ? form.saad_email || ph : ph,
+        password: form.password, name: role === 'prescriber_company' ? form.saad_director_name : `${form.firstName} ${form.name}`.trim(),
+        phone: ph, role: role,
+      };
+      if (role === 'prescriber_company') {
+        body.structure_name = form.structure_name;
+        body.siret = form.siret;
+        body.address = form.saad_address;
+        body.is_prescriber = true;
+        body.prescriber_structure = form.structure_name;
+        if (form.invite_token) body.invite_token = form.invite_token;
+      } else {
+        body.date_of_birth = form.dob_year && form.dob_month && form.dob_day ? `${form.dob_year}-${form.dob_month.padStart(2,'0')}-${form.dob_day.padStart(2,'0')}` : '';
+        body.gender = form.gender;
+        body.height_cm = form.height_cm ? parseFloat(form.height_cm) : null;
+        body.weight_kg = form.weight_kg ? parseFloat(form.weight_kg) : null;
+        body.blood_type = form.blood_type;
+        body.allergies = form.allergies.join(', ');
+        body.medical_conditions = form.medical_conditions.join(', ');
+      }
+      await apiFetch('/api/auth/register', { method: 'POST', body: JSON.stringify(body) });
       await login(ph, form.password);
       router.replace('/(tabs)');
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
