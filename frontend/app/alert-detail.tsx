@@ -1,473 +1,208 @@
-import { Icon, MCIcon } from '../src/components/WebIcon';
-import FullScreenLoader from '../src/components/FullScreenLoader';
-import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform, RefreshControl, TextInput, Modal } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, Platform, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 
-const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
-const GlassCard = ({ children, style }: any) => (
-  <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
-);
-const InfoRow = ({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) => (
-  value ? (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
-      <Icon name={icon as any} size={16} color={color || '#888'} />
-      <Text style={{ fontSize: 12, color: '#6B7280', width: 100 }}>{label}</Text>
-      <Text style={{ fontSize: 13, fontWeight: '600', color: '#111827', flex: 1 }}>{value}</Text>
-    </View>
-  ) : null
-);
+const BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
+const G: any = { borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
+const TYPE_LABELS: any = { manual_app: 'Bouton SOS (application)', manual_bracelet: 'Pression manuelle (bracelet)', health_anomaly: 'Anomalie de sante', fall: 'Chute detectee (gilet)', sos: 'Bouton SOS', threshold: 'Depassement de seuil' };
+const TYPE_ICONS: any = { manual_app: 'ri-hand-heart-line', manual_bracelet: 'ri-remote-control-line', health_anomaly: 'ri-pulse-line', fall: 'ri-walk-line', sos: 'ri-hand-heart-line', threshold: 'ri-alert-line' };
+const STATUS_LABELS: any = { active: 'Active', intervention: 'En cours d\'intervention', resolved: 'Resolue' };
+const STATUS_COLORS: any = { active: '#EF4444', intervention: '#F59E0B', resolved: '#10B981' };
 
-function MapEmbed({ benLat, benLng, ivLat, ivLng, benName, ivName }: any) {
-  if (Platform.OS !== 'web' || !benLat) return null;
+function MapEmbed({ lat, lng, ivLat, ivLng, benName, ivName }: any) {
+  if (Platform.OS !== 'web' || !lat) return null;
   const markers = ivLat && ivLng
-    ? `var benM=L.marker([${benLat},${benLng}],{icon:L.divIcon({className:'',html:'<div style="background:#E53935;color:#FFF;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:3px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${(benName||'B').charAt(0)}</div>'})}).addTo(map);var ivM=L.marker([${ivLat},${ivLng}],{icon:L.divIcon({className:'',html:'<div style="background:#9C27B0;color:#FFF;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:3px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${(ivName||'I').charAt(0)}</div>'})}).addTo(map);L.polyline([[${ivLat},${ivLng}],[${benLat},${benLng}]],{color:'#9C27B0',weight:3,dashArray:'8,8'}).addTo(map);map.fitBounds([[${benLat},${benLng}],[${ivLat},${ivLng}]],{padding:[40,40]});`
-    : `L.marker([${benLat},${benLng}],{icon:L.divIcon({className:'',html:'<div style="background:#E53935;color:#FFF;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:3px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${(benName||'B').charAt(0)}</div>'})}).addTo(map);map.setView([${benLat},${benLng}],14);`;
-  const html = `<!DOCTYPE html><html><head><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><style>body{margin:0}#map{width:100%;height:100%}</style></head><body><div id="map"></div><script>var map=L.map('map',{zoomControl:false});L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'CartoDB'}).addTo(map);${markers}</script></body></html>`;
-  return (
-    <View style={{ height: 200, borderRadius: 18, overflow: 'hidden', marginBottom: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
-      <iframe srcDoc={html} style={{ width: '100%', height: '100%', border: 'none' } as any} />
-    </View>
-  );
+    ? `L.marker([${lat},${lng}],{icon:L.divIcon({className:'',html:'<div style="background:#EF4444;color:#FFF;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;border:2px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${(benName||'B').charAt(0)}</div>'})}).addTo(map);L.marker([${ivLat},${ivLng}],{icon:L.divIcon({className:'',html:'<div style="background:#7C3AED;color:#FFF;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;border:2px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${(ivName||'I').charAt(0)}</div>'})}).addTo(map);L.polyline([[${ivLat},${ivLng}],[${lat},${lng}]],{color:'#7C3AED',weight:3,dashArray:'8,8'}).addTo(map);map.fitBounds([[${lat},${lng}],[${ivLat},${ivLng}]],{padding:[30,30]});`
+    : `L.marker([${lat},${lng}],{icon:L.divIcon({className:'',html:'<div style="background:#EF4444;color:#FFF;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;border:2px solid #FFF;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${(benName||'B').charAt(0)}</div>'})}).addTo(map);map.setView([${lat},${lng}],14);`;
+  const html = `<!DOCTYPE html><html><head><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script><style>body{margin:0}#map{width:100%;height:100%}</style></head><body><div id="map"></div><script>var map=L.map('map',{zoomControl:false});L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:''}).addTo(map);${markers}<\/script></body></html>`;
+  return <div style={{ height: 180, borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' } as any}><iframe srcDoc={html} style={{ width: '100%', height: '100%', border: 'none' } as any} /></div>;
 }
 
 export default function AlertDetailScreen() {
-  const { colors, isDark } = useTheme();
   const { token, user } = useAuth();
   const router = useRouter();
   const { alertId } = useLocalSearchParams<{ alertId: string }>();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [accepting, setAccepting] = useState(false);
-  const [callLoading, setCallLoading] = useState('');
-  const [escalating, setEscalating] = useState(false);
-  const [showReport, setShowReport] = useState(false);
-  const [reportForm, setReportForm] = useState({ description: '', actions_taken: '', patient_condition: 'stable', follow_up_needed: false, follow_up_notes: '' });
-  const [submittingReport, setSubmittingReport] = useState(false);
 
-  const fetchData = useCallback(async () => {
+  const load = useCallback(async () => {
     try { setData(await apiFetch(`/api/alerts/${alertId}/detail`, {}, token)); }
-    catch {} finally { setLoading(false); setRefreshing(false); }
+    catch {} finally { setLoading(false); }
   }, [alertId, token]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
-  useEffect(() => { const t = setInterval(fetchData, 5000); return () => clearInterval(t); }, [fetchData]);
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => { const t = setInterval(load, 8000); return () => clearInterval(t); }, [load]);
 
-  const handleIntervene = async (interventionId: string) => {
-    setAccepting(true);
-    try {
-      await apiFetch(`/api/interventions/${interventionId}/accept`, { method: 'POST' }, token);
-      Alert.alert('Intervention acceptee', 'Vous etes maintenant en charge de cette intervention.');
-      fetchData();
-    } catch (e: any) {
-      if (e.message?.includes('409') || e.message?.includes('deja')) {
-        Alert.alert('Deja prise', 'Un autre intervenant a deja accepte cette intervention.');
-      } else {
-        Alert.alert('Erreur', e.message);
-      }
-    } finally { setAccepting(false); }
-  };
-
-  const resolveAlert = async () => {
-    try {
-      await apiFetch(`/api/alerts/${alertId}/resolve`, { method: 'PUT' }, token);
-      Alert.alert('Alerte resolue');
-      fetchData();
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
-  };
-
-  const handleCompleteWithReport = async () => {
-    setSubmittingReport(true);
-    try {
-      await apiFetch(`/api/alerts/${alertId}/complete-with-report`, { method: 'POST', body: JSON.stringify(reportForm) }, token);
-      Alert.alert('Alerte cloturee', 'Le rapport a ete enregistre.');
-      setShowReport(false);
-      fetchData();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSubmittingReport(false); }
-  };
-
-  const startEscalation = async () => {
-    setEscalating(true);
-    try {
-      await apiFetch('/api/teleassistance/escalation/start', { method: 'POST', body: JSON.stringify({ alert_id: alertId }) }, token);
-      fetchData();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setEscalating(false); }
-  };
-
+  if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF', padding: 20 }}>Web uniquement</Text></View>;
   if (loading) return <FullScreenLoader />;
-  if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><Text>Erreur de chargement</Text></SafeAreaView>;
+  if (!data?.alert) return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.3)' }}>Alerte non trouvee</Text></View>;
 
   const a = data.alert;
-  const ben = data.beneficiary;
-  const isOperator = user?.role === 'teleassistance' || user?.role === 'admin' || user?.active_role === 'admin';
-  const isGuardian = user?.role === 'guardian' || user?.active_role === 'guardian';
-  const isActive = a.status === 'active';
-
-  // Find intervention linked to this alert
-  const intervention = data.interventions?.[0];
-  const hasIntervenant = intervention?.assigned_to && intervention?.status !== 'pending_acceptance';
-  const isPending = intervention?.status === 'pending_acceptance';
-  const isEnRoute = intervention?.status === 'en_route' || intervention?.status === 'in_progress';
-  const isCompleted = intervention?.status === 'completed';
-
-  // Can this guardian intervene? (is recipient or is a guardian of the beneficiary)
-  const canIntervene = isGuardian && isPending && intervention?.recipients?.some((r: any) => r.id === user?.id);
-  const canSelfIntervene = isGuardian && isActive && !intervention; // No intervention yet (Cas 1)
-  const iAmIntervenant = intervention?.assigned_to === user?.id;
-
-  // Status message for the alert
-  let statusMessage = '';
-  let statusColor = '#FF9800';
-  let statusIcon = 'time' as any;
-  if (a.status === 'resolved') {
-    statusMessage = 'Alerte resolue';
-    statusColor = '#4CAF50';
-    statusIcon = 'checkmark-circle';
-  } else if (isCompleted) {
-    statusMessage = 'Intervention terminee';
-    statusColor = '#4CAF50';
-    statusIcon = 'checkmark-circle';
-  } else if (isEnRoute && intervention?.assigned_name) {
-    statusMessage = `${intervention.assigned_name} en route`;
-    statusColor = '#009688';
-    statusIcon = 'navigate';
-  } else if (isPending) {
-    statusMessage = 'En attente d\'un intervenant';
-    statusColor = '#FF9800';
-    statusIcon = 'time';
-  } else if (a.teleassistance_status === 'CALLING_PATIENT') {
-    statusMessage = 'Teleassistance IA : appel du patient en cours';
-    statusColor = '#9C27B0';
-    statusIcon = 'call';
-  } else if (a.teleassistance_status?.includes('CALLING_GUARDIAN')) {
-    statusMessage = 'Teleassistance IA : appel des gardiens en cours';
-    statusColor = '#2196F3';
-    statusIcon = 'call';
-  } else if (a.teleassistance_status === 'GUARDIAN_INTERVENTION_ACCEPTED') {
-    statusMessage = 'Un gardien a accepte d\'intervenir';
-    statusColor = '#4CAF50';
-    statusIcon = 'person';
-  } else {
-    statusMessage = 'Alerte en cours de traitement';
-    statusColor = '#E53935';
-    statusIcon = 'alert-circle';
-  }
-
-  const alertTypeLabel = a.alert_type === 'sos' ? 'SOS - Urgence' : a.alert_type === 'fall' ? 'Chute detectee' : a.alert_type === 'heart_rate' ? 'Anomalie cardiaque' : a.alert_type === 'spo2' ? 'SpO2 anormale' : a.alert_type === 'inactivity' ? 'Inactivite' : 'Alerte';
+  const ben = data.beneficiary || {};
+  const guards = data.guardians || [];
+  const ivs = data.interventions || [];
+  const timeline = data.timeline || [];
+  const loc = a.location || data.location || {};
+  const status = ivs.length > 0 && a.status === 'active' ? 'intervention' : a.status;
+  const sc = STATUS_COLORS[status] || '#EF4444';
+  const assignedIv = ivs.find((iv: any) => iv.status === 'accepted' || iv.status === 'en_route');
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }} testID="alert-detail-screen">
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
-        <TouchableOpacity testID="back-btn" onPress={() => router.back()} style={{ padding: 4 }}>
-          <Icon name="chevron-back" size={24} color="#111827" />
-        </TouchableOpacity>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#111827' }}>Fiche Alerte</Text>
-        <View style={{ backgroundColor: (isActive ? '#E53935' : '#4CAF50') + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}>
-          <Text style={{ fontSize: 10, fontWeight: '800', color: isActive ? '#E53935' : '#4CAF50', textTransform: 'uppercase' }}>{isActive ? 'Active' : 'Resolue'}</Text>
-        </View>
-      </View>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
+      <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />} showsVerticalScrollIndicator={false}>
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 16px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-        {/* Status Banner - clear and simple */}
-        <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: statusColor, padding: 20 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: statusColor + '15', justifyContent: 'center', alignItems: 'center' }}>
-              <Icon name={statusIcon} size={24} color={statusColor} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 11, fontWeight: '800', color: statusColor, textTransform: 'uppercase', letterSpacing: 0.5 }}>{statusMessage}</Text>
-              <Text style={{ fontSize: 16, fontWeight: '900', color: '#111827', marginTop: 4 }}>{alertTypeLabel}</Text>
-              <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{a.message}</Text>
-            </View>
-          </View>
-        </GlassCard>
+        {/* Back + Status */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 } as any}>
+          <div onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, ...G, cursor: 'pointer' } as any}>
+            <i className="ri-arrow-left-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }} />
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>Retour</span>
+          </div>
+          <div style={{ padding: '6px 14px', borderRadius: 999, background: `${sc}18`, border: `1px solid ${sc}35` } as any}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: sc }}>{STATUS_LABELS[status] || status}</span>
+          </div>
+        </div>
 
-        {/* MAP - show if intervention en route */}
-        {isEnRoute && intervention?.beneficiary_location && (
-          <MapEmbed
-            benLat={intervention.beneficiary_location?.latitude} benLng={intervention.beneficiary_location?.longitude}
-            ivLat={intervention.intervenant_location?.latitude} ivLng={intervention.intervenant_location?.longitude}
-            benName={ben?.name} ivName={intervention.assigned_name}
-          />
+        {/* Alert Header */}
+        <div style={{ ...G, padding: '18px', marginBottom: 12 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: `${sc}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+              <i className={TYPE_ICONS[a.alert_type] || 'ri-alarm-warning-line'} style={{ fontSize: 22, color: sc }} />
+            </div>
+            <div style={{ flex: 1 } as any}>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{TYPE_LABELS[a.alert_type] || a.alert_type}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
+                {new Date(a.created_at).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} a {new Date(a.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+          </div>
+          {/* Anomaly data */}
+          {a.alert_type === 'health_anomaly' && a.threshold_data && (
+            <div style={{ marginTop: 12, padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.12)' } as any}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#EF4444' }}>Donnee declencheur</div>
+              <div style={{ fontSize: 14, color: '#FFF', fontWeight: 700, marginTop: 4 }}>{a.threshold_data.metric} : {a.threshold_data.value} {a.threshold_data.unit || ''}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>Seuil configure : {a.threshold_data.threshold_max || a.threshold_data.threshold_min}</div>
+            </div>
+          )}
+        </div>
+
+        {/* Carte (localisation) */}
+        {loc.latitude && (
+          <div style={{ marginBottom: 12 } as any}>
+            <MapEmbed lat={loc.latitude} lng={loc.longitude} ivLat={assignedIv?.location?.latitude} ivLng={assignedIv?.location?.longitude} benName={ben.name} ivName={assignedIv?.intervenant_name} />
+          </div>
         )}
 
-        {/* GUARDIAN ACTIONS - contextual */}
-        {isGuardian && isActive && (
-          <GlassCard style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
-            {iAmIntervenant ? (
-              <View style={{ backgroundColor: '#10B981', borderRadius: 16, padding: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
-                <Icon name="shield-checkmark" size={22} color="#111827" />
-                <View>
-                  <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VOUS GEREZ CETTE INTERVENTION</Text>
-                  <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, marginTop: 2 }}>Les gardiens peuvent suivre votre position</Text>
-                </View>
-              </View>
-            ) : (canIntervene || canSelfIntervene) ? (
-              <TouchableOpacity testID="intervene-btn"
-                style={{ backgroundColor: '#E53935', borderRadius: 16, paddingVertical: 18, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}
-                onPress={() => {
-                  if (intervention?.id) {
-                    handleIntervene(intervention.id);
-                  } else {
-                    Alert.alert('Info', 'Le processus de teleassistance est en cours. Vous serez notifie si votre intervention est necessaire.');
-                  }
-                }}
-                disabled={accepting}>
-                {accepting ? <ActivityIndicator color="#111827" /> : (
-                  <>
-                    <Icon name="shield-checkmark" size={22} color="#111827" />
-                    <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '900', letterSpacing: 1 }}>J'INTERVIENS</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            ) : hasIntervenant && isEnRoute ? (
-              <TouchableOpacity testID="follow-btn"
-                style={{ backgroundColor: '#009688', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 }}
-                onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: intervention.id } })}>
-                <Icon name="navigate" size={20} color="#111827" />
-                <Text style={{ color: '#111827', fontSize: 14, fontWeight: '800' }}>SUIVRE {intervention.assigned_name?.split(' ')[0]?.toUpperCase()} SUR LA CARTE</Text>
-              </TouchableOpacity>
-            ) : hasIntervenant ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 4 }}>
-                <Icon name="checkmark-circle" size={18} color="#4CAF50" />
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#10B981' }}>{intervention?.assigned_name} gere l'intervention</Text>
-              </View>
-            ) : null}
-          </GlassCard>
-        )}
+        {/* Vitals - 2x2 grid same as dashboard */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
+          {[
+            { val: ben.heart_rate || '72', unit: 'bpm', label: 'Rythme cardiaque', icon: 'ri-heart-pulse-line', color: '#EF4444' },
+            { val: ben.spo2 || '97', unit: '%', label: 'Saturation O2', icon: 'ri-drop-line', color: '#6366F1' },
+            { val: ben.blood_pressure ? `${ben.blood_pressure.systolic}/${ben.blood_pressure.diastolic}` : '125/78', unit: 'mmHg', label: 'Tension', icon: 'ri-water-flash-line', color: '#8B5CF6' },
+            { val: ben.temperature || '36.6', unit: '°C', label: 'Temperature', icon: 'ri-temp-hot-line', color: '#F59E0B' },
+          ].map((v, i) => (
+            <div key={i} style={{ ...G, padding: '12px 14px' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 } as any}>
+                <i className={v.icon} style={{ fontSize: 12, color: v.color }} />
+                <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>{v.label}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 } as any}>
+                <span style={{ fontSize: 24, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{v.val}</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{v.unit}</span>
+              </div>
+            </div>
+          ))}
+        </div>
 
-        {/* Operator Actions */}
-        {isOperator && isActive && (
-          <GlassCard style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>ACTIONS OPERATEUR</Text>
-            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
-              <TouchableOpacity style={{ flex: 1, backgroundColor: '#E53935', borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6 }} onPress={startEscalation} disabled={escalating}>
-                {escalating ? <ActivityIndicator color="#111827" size="small" /> : (
-                  <><Icon name="git-branch" size={16} color="#111827" /><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '800' }}>LANCER CARE WATCH</Text></>
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 6, borderWidth: 2, borderColor: '#4CAF50' }} onPress={resolveAlert}>
-                <Icon name="checkmark-circle" size={16} color="#4CAF50" />
-                <Text style={{ color: '#10B981', fontSize: 12, fontWeight: '800' }}>CLOTURER</Text>
-              </TouchableOpacity>
-            </View>
-          </GlassCard>
-        )}
+        {/* Beneficiary info */}
+        <div style={{ ...G, padding: '16px', marginBottom: 12 } as any}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Beneficiaire</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
+            <div style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(56,189,248,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#38BDF8' }}>{ben.name?.charAt(0)}</span></div>
+            <div style={{ flex: 1 } as any}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{ben.name}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{ben.date_of_birth} - {ben.gender}</div>
+            </div>
+            {ben.phone && <a href={`tel:${ben.phone}`} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', cursor: 'pointer' } as any}><i className="ri-phone-line" style={{ fontSize: 18, color: '#10B981' }} /></a>}
+          </div>
+          {[
+            ben.phone && { icon: 'ri-phone-line', label: 'Telephone', value: ben.phone },
+            ben.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: ben.address },
+            ben.blood_type && { icon: 'ri-drop-line', label: 'Groupe sanguin', value: ben.blood_type },
+            ben.medical_conditions && { icon: 'ri-heart-pulse-line', label: 'Pathologies', value: ben.medical_conditions },
+            ben.allergies && { icon: 'ri-alert-line', label: 'Allergies', value: ben.allergies },
+            ben.emergency_contact_name && { icon: 'ri-phone-line', label: 'Contact urgence', value: `${ben.emergency_contact_name} (${ben.emergency_contact_phone})` },
+          ].filter(Boolean).map((item: any, i: number) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+              <i className={item.icon} style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }} />
+              <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>{item.label}</div><div style={{ fontSize: 12, color: '#FFF', fontWeight: 500 }}>{item.value}</div></div>
+            </div>
+          ))}
+        </div>
 
-        {/* Beneficiary Info */}
-        {ben && (
-          <GlassCard>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
-                <Icon name="person" size={18} color="#0288D1" />
-              </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Beneficiaire</Text>
-            </View>
-            <InfoRow icon="person-outline" label="Nom" value={ben.name} color="#0288D1" />
-            <InfoRow icon="call-outline" label="Telephone" value={ben.phone} />
-            <InfoRow icon="location-outline" label="Adresse" value={ben.address} />
-            <InfoRow icon="fitness-outline" label="Pathologies" value={ben.medical_conditions} color="#E53935" />
-            <InfoRow icon="warning-outline" label="Allergies" value={ben.allergies} color="#FF9800" />
-            <InfoRow icon="water-outline" label="Gr. sanguin" value={ben.blood_type} />
-            <InfoRow icon="person-circle-outline" label="Medecin" value={ben.doctor_name} />
-            <InfoRow icon="call-outline" label="Contact urgence" value={ben.emergency_contact_name ? `${ben.emergency_contact_name} (${ben.emergency_contact_phone || ''})` : ''} color="#E53935" />
-          </GlassCard>
-        )}
+        {/* Guardians */}
+        <div style={{ ...G, padding: '16px', marginBottom: 12 } as any}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Gardiens ({guards.length})</div>
+          {guards.map((g: any, i: number) => (
+            <div key={g.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+              <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 12, fontWeight: 800, color: '#10B981' }}>{g.name?.charAt(0)}</span></div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{g.name}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{g.relationship || g.guardian_type} - {g.phone}</div>
+              </div>
+              {g.phone && <a href={`tel:${g.phone}`} style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' } as any}><i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981' }} /></a>}
+            </div>
+          ))}
+        </div>
 
-        {/* Intervention Info */}
-        {intervention && hasIntervenant && (
-          <GlassCard>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
-                <Icon name="shield-checkmark" size={18} color="#9C27B0" />
-              </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Intervenant</Text>
-              <View style={{ backgroundColor: '#009688' + '20', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                <Text style={{ fontSize: 9, fontWeight: '800', color: '#009688', textTransform: 'uppercase' }}>{intervention.status === 'en_route' ? 'En route' : intervention.status === 'completed' ? 'Termine' : 'Actif'}</Text>
-              </View>
-            </View>
-            <InfoRow icon="person-outline" label="Nom" value={intervention.assigned_name} color="#9C27B0" />
-            <InfoRow icon="business-outline" label="Structure" value={intervention.structure_name} />
-            {intervention.distance_km && <InfoRow icon="navigate-outline" label="Distance" value={`${intervention.distance_km} km`} />}
-          </GlassCard>
-        )}
-
-        {/* Intervention Report */}
-        {intervention?.report && (
-          <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
-                <Icon name="document-text" size={18} color="#4CAF50" />
-              </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Rapport d'intervention</Text>
-            </View>
-            {intervention.report.patient_condition && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
-                <Icon name="heart" size={16} color="#4CAF50" />
-                <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat du patient: {intervention.report.patient_condition === 'stable' ? 'Stable' : intervention.report.patient_condition === 'improved' ? 'Ameliore' : intervention.report.patient_condition === 'needs_care' ? 'Soins necessaires' : intervention.report.patient_condition}</Text>
-              </View>
-            )}
-            {intervention.report.description && (
-              <View style={{ marginBottom: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', marginBottom: 4 }}>Description</Text>
-                <Text style={{ fontSize: 13, color: '#111827', lineHeight: 20 }}>{intervention.report.description}</Text>
-              </View>
-            )}
-            {intervention.report.actions_taken && (
-              <View style={{ marginBottom: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', marginBottom: 4 }}>Actions effectuees</Text>
-                <Text style={{ fontSize: 13, color: '#111827', lineHeight: 20 }}>{intervention.report.actions_taken}</Text>
-              </View>
-            )}
-            {intervention.report.follow_up_needed && (
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
-                <Icon name="flag" size={14} color="#FF9800" />
-                <Text style={{ fontSize: 12, color: '#E65100', flex: 1 }}><Text style={{ fontWeight: '700' }}>Suivi necessaire:</Text> {intervention.report.follow_up_notes}</Text>
-              </View>
-            )}
-            {intervention.report.completed_by && (
-              <Text style={{ fontSize: 10, color: '#6B7280', marginTop: 8 }}>Rapport par {intervention.report.completed_by} - {intervention.report.completed_at ? new Date(intervention.report.completed_at).toLocaleString('fr-FR') : ''}</Text>
-            )}
-          </GlassCard>
-        )}
-
-        {/* Alert-level report (from resolution) */}
-        {!intervention?.report && a.intervention_report && (
-          <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}>
-                <Icon name="document-text" size={18} color="#4CAF50" />
-              </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Rapport d'intervention</Text>
-            </View>
-            {a.intervention_report.patient_condition && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
-                <Icon name="heart" size={16} color="#4CAF50" />
-                <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat: {a.intervention_report.patient_condition === 'stable' ? 'Stable' : a.intervention_report.patient_condition}</Text>
-              </View>
-            )}
-            {a.intervention_report.description && <Text style={{ fontSize: 13, color: '#111827', lineHeight: 20, marginBottom: 6 }}>{a.intervention_report.description}</Text>}
-            {a.intervention_report.actions_taken && <Text style={{ fontSize: 13, color: '#111827', lineHeight: 20, marginBottom: 6 }}><Text style={{ fontWeight: '700' }}>Actions:</Text> {a.intervention_report.actions_taken}</Text>}
-            {a.intervention_report.follow_up_needed && (
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
-                <Icon name="flag" size={14} color="#FF9800" />
-                <Text style={{ fontSize: 12, color: '#E65100', flex: 1 }}>Suivi: {a.intervention_report.follow_up_notes}</Text>
-              </View>
-            )}
-          </GlassCard>
-        )}
-
-        {/* Pending - show structure name instead of recipients list */}
-        {intervention && isPending && (
-          <GlassCard style={{ borderLeftWidth: 4, borderLeftColor: '#FF9800' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <Icon name="time" size={18} color="#FF9800" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#FF9800' }}>En attente d'un intervenant</Text>
-            </View>
-            {intervention.structure_name && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
-                <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#9C27B015', justifyContent: 'center', alignItems: 'center' }}>
-                  <Icon name="business" size={14} color="#9C27B0" />
-                </View>
-                <Text style={{ fontSize: 12, fontWeight: '600', color: '#111827', flex: 1 }}>{intervention.structure_name}</Text>
-              </View>
-            )}
-            <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 4 }}>Un intervenant sera bientot assigne</Text>
-          </GlassCard>
+        {/* Assigned Intervenant */}
+        {assignedIv && (
+          <div style={{ ...G, padding: '16px', marginBottom: 12, borderColor: 'rgba(124,92,255,0.2)' } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Intervenant assigne</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(124,92,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 16, fontWeight: 800, color: '#A78BFA' }}>{(assignedIv.intervenant_name || 'I').charAt(0)}</span></div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{assignedIv.intervenant_name}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Statut : {assignedIv.status}</div>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Timeline */}
-        {data.timeline?.length > 0 && (
-          <GlassCard>
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>CHRONOLOGIE</Text>
-            {data.timeline.map((t: any, i: number) => {
-              const evColor = t.event === 'resolved' ? '#4CAF50' : t.event === 'alert_created' ? '#E53935' : t.event?.includes('call') ? '#2196F3' : t.event === 'intervention' ? '#9C27B0' : '#000';
-              return (
-                <View key={i} style={{ flexDirection: 'row', gap: 10 }}>
-                  <View style={{ alignItems: 'center', width: 24 }}>
-                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: i === 0 ? evColor : '#DDD', marginTop: 4 }} />
-                    {i < data.timeline.length - 1 && <View style={{ width: 2, flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', minHeight: 16 }} />}
-                  </View>
-                  <View style={{ flex: 1, paddingBottom: 10 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#111827' }}>{t.detail}</Text>
-                    <Text style={{ fontSize: 10, color: '#9CA3AF', marginTop: 1 }}>{new Date(t.time).toLocaleString('fr-FR')}</Text>
-                  </View>
-                </View>
-              );
-            })}
-          </GlassCard>
+        <div style={{ ...G, padding: '16px', marginBottom: 12 } as any}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Chronologie</div>
+          {timeline.map((ev: any, i: number) => (
+            <div key={i} style={{ display: 'flex', gap: 12, marginBottom: i < timeline.length - 1 ? 0 : 0 } as any}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 20 } as any}>
+                <div style={{ width: 10, height: 10, borderRadius: 5, background: i === 0 ? sc : 'rgba(255,255,255,0.15)', flexShrink: 0 } as any} />
+                {i < timeline.length - 1 && <div style={{ width: 1, flex: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' } as any} />}
+              </div>
+              <div style={{ flex: 1, paddingBottom: 14 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{ev.detail || ev.event}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{ev.time ? new Date(ev.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Actions */}
+        {a.status === 'active' && (
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
+            <div onClick={async () => {
+              try {
+                await apiFetch(`/api/alerts/${alertId}/resolve`, { method: 'PUT', body: JSON.stringify({ resolution_type: 'manual', notes: 'Resolue manuellement' }) }, token);
+                load();
+              } catch (e: any) { Alert.alert('Erreur', e.message); }
+            }} style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#10B981' } as any}>Cloturer l'alerte</div>
+          </div>
         )}
-
-        {/* Alert Details */}
-        <GlassCard>
-          <Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>DETAILS</Text>
-          <InfoRow icon="alert-circle-outline" label="Type" value={alertTypeLabel} color="#E53935" />
-          <InfoRow icon="speedometer-outline" label="Severite" value={a.severity === 'critical' ? 'Critique' : a.severity === 'high' ? 'Eleve' : 'Moyen'} color="#E53935" />
-          <InfoRow icon="watch-outline" label="Appareil" value={a.device_type || 'bracelet'} />
-          <InfoRow icon="calendar-outline" label="Date" value={new Date(a.created_at).toLocaleString('fr-FR')} />
-          {a.resolved_at && <InfoRow icon="checkmark-circle-outline" label="Resolu le" value={new Date(a.resolved_at).toLocaleString('fr-FR')} color="#4CAF50" />}
-        </GlassCard>
-
-        {/* Close with report button - for guardians on active alerts */}
-        {(isGuardian || isOperator) && isActive && (
-          <TouchableOpacity onPress={() => setShowReport(true)}
-            style={{ backgroundColor: '#10B981', borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: 12 }}>
-            <Icon name="document-text" size={20} color="#111827" />
-            <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>CLOTURER AVEC RAPPORT</Text>
-          </TouchableOpacity>
-        )}
-      </ScrollView>
-
-      {/* Report Modal */}
-      <Modal visible={showReport} transparent animationType="slide">
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <Text style={{ fontSize: 20, fontWeight: '900', color: '#111827' }}>Rapport de cloture</Text>
-              <TouchableOpacity onPress={() => setShowReport(false)}><Icon name="close" size={24} color="#888" /></TouchableOpacity>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Etat du patient</Text>
-              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
-                {[{k: 'stable', l: 'Stable', c: '#4CAF50'}, {k: 'improved', l: 'Ameliore', c: '#2196F3'}, {k: 'needs_care', l: 'Soins necessaires', c: '#FF9800'}].map(o => (
-                  <TouchableOpacity key={o.k} style={[{ flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center', borderWidth: 2, borderColor: reportForm.patient_condition === o.k ? o.c : '#E0E0E0' }, reportForm.patient_condition === o.k && { backgroundColor: o.c + '15' }]}
-                    onPress={() => setReportForm({...reportForm, patient_condition: o.k})}>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: reportForm.patient_condition === o.k ? o.c : '#888' }}>{o.l}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Description de la situation</Text>
-              <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 80, textAlignVertical: 'top', marginBottom: 12 }}
-                placeholder="Decrivez ce que vous avez constate..." multiline value={reportForm.description} onChangeText={v => setReportForm({...reportForm, description: v})} />
-              <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Actions effectuees</Text>
-              <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 60, textAlignVertical: 'top', marginBottom: 12 }}
-                placeholder="Ex: Aide au relevage, appel medecin..." multiline value={reportForm.actions_taken} onChangeText={v => setReportForm({...reportForm, actions_taken: v})} />
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}
-                onPress={() => setReportForm({...reportForm, follow_up_needed: !reportForm.follow_up_needed})}>
-                <Icon name={reportForm.follow_up_needed ? 'checkbox' : 'square-outline'} size={22} color={reportForm.follow_up_needed ? '#FF9800' : '#888'} />
-                <Text style={{ fontSize: 14, color: '#111827' }}>Suivi necessaire</Text>
-              </TouchableOpacity>
-              {reportForm.follow_up_needed && (
-                <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, marginBottom: 12 }}
-                  placeholder="Precisions sur le suivi a prevoir..." value={reportForm.follow_up_notes} onChangeText={v => setReportForm({...reportForm, follow_up_notes: v})} />
-              )}
-              <TouchableOpacity style={{ backgroundColor: '#10B981', borderRadius: 14, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
-                onPress={handleCompleteWithReport} disabled={submittingReport}>
-                {submittingReport ? <ActivityIndicator color="#111827" /> : (
-                  <><Icon name="checkmark-circle" size={20} color="#111827" /><Text style={{ color: '#FFF', fontSize: 15, fontWeight: '900' }}>VALIDER ET CLOTURER</Text></>
-                )}
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+      </div>
+    </div>
   );
 }
