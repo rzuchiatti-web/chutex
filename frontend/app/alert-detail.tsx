@@ -95,13 +95,6 @@ export default function AlertDetailScreen() {
           )}
         </div>
 
-        {/* Carte (localisation) */}
-        {loc.latitude && (
-          <div style={{ marginBottom: 12 } as any}>
-            <MapEmbed lat={loc.latitude} lng={loc.longitude} ivLat={assignedIv?.location?.latitude} ivLng={assignedIv?.location?.longitude} benName={ben.name} ivName={assignedIv?.intervenant_name} />
-          </div>
-        )}
-
         {/* Vitals - 2x2 grid same as dashboard */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
           {[
