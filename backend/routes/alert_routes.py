@@ -315,16 +315,45 @@ async def get_alert_detail(aid: str, user=Depends(get_current_user)):
 
 
 def _build_alert_timeline(alert, escalations, calls, interventions):
-    type_labels = {"manual_app": "Bouton SOS (app)", "manual_bracelet": "Pression manuelle (bracelet)", "health_anomaly": "Anomalie de sante", "fall": "Chute detectee (gilet)", "sos": "Alerte SOS"}
-    timeline = [{"time": alert['created_at'], "event": "alert_created", "detail": f"{type_labels.get(alert.get('alert_type', ''), alert.get('alert_type', 'Alerte'))}"}]
+    type_labels = {"manual_app": "Bouton SOS (application)", "manual_bracelet": "Pression manuelle (bracelet)", "health_anomaly": "Anomalie de sante detectee", "fall": "Chute detectee (gilet)", "sos": "Alerte SOS", "threshold": "Depassement de seuil"}
+    status_fr = {
+        "pending": "En attente", "active": "Active", "resolved": "Resolue",
+        "CALLING_PATIENT": "Appel du beneficiaire en cours", "PATIENT_CONFIRMED_OK": "Beneficiaire confirme aller bien",
+        "PATIENT_NEEDS_HELP": "Beneficiaire a besoin d'aide", "PATIENT_NO_RESPONSE": "Beneficiaire injoignable",
+        "CALLING_GUARDIANS": "Appel des gardiens en cours", "CALLING_GUARDIAN_1": "Appel du 1er gardien",
+        "CALLING_GUARDIAN_2": "Appel du 2e gardien", "CALLING_GUARDIAN_3": "Appel du 3e gardien",
+        "GUARDIAN_INTERVENTION_ACCEPTED": "Gardien accepte d'intervenir", "GUARDIAN_UNREACHABLE": "Gardien injoignable",
+        "CARE_DISPATCHED": "Recherche d'un intervenant professionnel", "RESOLVED": "Alerte resolue",
+        "no_care_subscription": "Pas d'abonnement Chutex Care - pas d'appel IA",
+        "pending_acceptance": "En attente d'acceptation", "accepted": "Accepte", "en_route": "En route",
+        "on_site": "Sur place", "completed": "Terminee",
+    }
+    timeline = [{"time": alert['created_at'], "event": "creation", "detail": type_labels.get(alert.get('alert_type', ''), alert.get('alert_type', 'Alerte')), "icon": "ri-alarm-warning-line", "color": "#EF4444"}]
+
+    # Teleassistance status
+    ts = alert.get('teleassistance_status', '')
+    if ts and ts != 'pending':
+        timeline.append({"time": alert.get('created_at', ''), "event": "teleassistance", "detail": status_fr.get(ts, ts), "icon": "ri-phone-line", "color": "#A78BFA"})
+
     for esc in escalations:
         for t in esc.get('timeline', []):
-            timeline.append({"time": t.get('time', ''), "event": t.get('step', ''), "detail": t.get('note', '')})
+            raw = t.get('note', t.get('detail', ''))
+            translated = raw
+            for eng, fr in status_fr.items():
+                translated = translated.replace(eng, fr)
+            timeline.append({"time": t.get('time', t.get('timestamp', '')), "event": "escalation", "detail": translated, "icon": "ri-arrow-up-line", "color": "#F59E0B"})
+
     for c in calls:
-        timeline.append({"time": c.get('created_at', ''), "event": f"call_{c.get('target_type', '')}", "detail": f"Appel {c.get('target_name', '')} - {c.get('status', '')}"})
+        st = status_fr.get(c.get('status', ''), c.get('status', ''))
+        timeline.append({"time": c.get('created_at', ''), "event": "appel", "detail": f"Appel {c.get('target_name', 'en cours')} - {st}", "icon": "ri-phone-line", "color": "#38BDF8"})
+
     for iv in interventions:
-        timeline.append({"time": iv.get('created_at', ''), "event": "intervention", "detail": f"Intervention {iv.get('status', '')}"})
+        st = status_fr.get(iv.get('status', ''), iv.get('status', ''))
+        name = iv.get('intervenant_name', 'Intervenant')
+        timeline.append({"time": iv.get('created_at', ''), "event": "intervention", "detail": f"Intervention de {name} - {st}", "icon": "ri-map-pin-range-line", "color": "#10B981"})
+
     if alert.get('resolved_at'):
-        timeline.append({"time": alert['resolved_at'], "event": "resolved", "detail": "Alerte resolue"})
+        timeline.append({"time": alert['resolved_at'], "event": "resolution", "detail": "Alerte cloturee", "icon": "ri-check-double-line", "color": "#10B981"})
+
     timeline.sort(key=lambda x: x.get('time', ''))
     return timeline
