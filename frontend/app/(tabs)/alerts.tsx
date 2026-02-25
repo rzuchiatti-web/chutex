@@ -16,10 +16,13 @@ const STATE_LABEL: Record<string, string> = {
 
 /* Clean alert type label */
 const getAlertLabel = (t: string) => {
-  if (t === 'fall') return 'Chute detectee';
-  if (t === 'sos') return 'SOS';
+  if (t === 'fall') return 'Chute detectee (gilet)';
+  if (t === 'manual_app') return 'Bouton SOS (application)';
+  if (t === 'manual_bracelet') return 'Pression manuelle (bracelet)';
+  if (t === 'sos') return 'Bouton SOS';
   if (t === 'heart_rate' || t === 'health_anomaly') return 'Anomalie de sante detectee';
   if (t === 'spo2') return 'Anomalie de sante detectee';
+  if (t === 'threshold') return 'Depassement de seuil';
   if (t === 'inactivity') return 'Inactivite detectee';
   return t || 'Alerte';
 };
