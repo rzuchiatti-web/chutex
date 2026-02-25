@@ -16,7 +16,7 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
     now = datetime.now(timezone.utc).isoformat()
     alert = {
         "id": str(uuid.uuid4()), "beneficiary_id": user['id'], "beneficiary_name": user['name'],
-        "alert_type": data.alert_type, "severity": data.severity, "message": data.message or f"Alerte {data.alert_type}",
+        "alert_type": data.alert_type, "message": data.message or f"Alerte {data.alert_type}",
         "device_type": data.device_type, "status": "active", "created_at": now, "resolved_at": None, "resolved_by": None,
         "teleassistance_status": "pending",
     }
@@ -24,6 +24,27 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
         alert["vital_data"] = data.vital_data
     if data.threshold_data:
         alert["threshold_data"] = data.threshold_data
+
+    # Store beneficiary geolocation at alert time
+    if data.latitude and data.longitude:
+        alert["location"] = {"latitude": data.latitude, "longitude": data.longitude, "timestamp": now}
+        await db.locations.update_one(
+            {"user_id": user['id']},
+            {"$set": {"user_id": user['id'], "latitude": data.latitude, "longitude": data.longitude, "updated_at": now}},
+            upsert=True,
+        )
+    else:
+        loc = await db.locations.find_one({"user_id": user['id']}, {"_id": 0})
+        if loc:
+            alert["location"] = {"latitude": loc.get("latitude"), "longitude": loc.get("longitude"), "timestamp": loc.get("updated_at", now)}
+
+    # Start tracking beneficiary location during alert
+    await db.alert_tracking.update_one(
+        {"alert_id": alert["id"]},
+        {"$set": {"alert_id": alert["id"], "beneficiary_id": user['id'], "positions": [alert.get("location", {})], "started_at": now}},
+        upsert=True,
+    )
+
     await db.alerts.insert_one(alert)
     
     # Send push notifications to guardians
@@ -37,9 +58,20 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
         else:
             asyncio.create_task(notify_sos_alert(user['name'], alert['id'], guardian_ids))
     
-    if data.severity in ('critical', 'high') and twilio_client:
+    # Only trigger teleassistance if beneficiary has a Care subscription
+    has_care = False
+    sub = await db.subscriptions.find_one({"beneficiary_phone": user.get('phone'), "status": "active"}, {"_id": 0})
+    if not sub:
+        sub = await db.subscriptions.find_one({"beneficiary_id": user['id'], "status": "active"}, {"_id": 0})
+    if sub and sub.get('subscription_type') == 'care':
+        has_care = True
+
+    if has_care and twilio_client:
         from services.carewatch_engine import carewatch_orchestrate
         asyncio.create_task(carewatch_orchestrate(alert))
+    elif not has_care:
+        await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "no_care_subscription"}})
+
     return {k: v for k, v in alert.items() if k != '_id'}
 
 
