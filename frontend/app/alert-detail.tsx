@@ -210,14 +210,34 @@ export default function AlertDetailScreen() {
           </div>
         )}
 
-        {/* Carte de localisation - au dessus de la chronologie */}
+        {/* Resolution report (if closed) */}
+        {a.status === 'resolved' && (a.resolution_report || a.report) && (
+          <div style={{ ...G, padding: '16px', marginBottom: 12 } as any}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#10B981', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 } as any}>
+              <i className="ri-file-text-line" style={{ fontSize: 16 }} />Rapport de cloture
+            </div>
+            {Object.entries(a.resolution_report || a.report || {}).filter(([k]) => k !== 'closed_at').map(([k, v]: any) => (
+              <div key={k} style={{ padding: '8px 0', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', marginBottom: 2 }}>{k === 'reason' ? 'Raison' : k === 'situation' ? 'Situation' : k === 'actions' ? 'Actions' : k === 'condition' ? 'Etat du beneficiaire' : k === 'notes' ? 'Notes' : k === 'closed_by' ? 'Cloturee par' : k === 'closed_by_role' ? 'Role' : k}</div>
+                <div style={{ fontSize: 13, color: '#FFF', fontWeight: 500 }}>{String(v)}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Clôturer - above timeline */}
+        {a.status === 'active' && !showReport && (
+          <div onClick={() => setShowReport(true)} style={{ padding: '16px', borderRadius: 14, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#10B981', marginBottom: 12 } as any}>Cloturer l'alerte</div>
+        )}
+
+        {/* Carte de localisation */}
         {loc.latitude && (
           <div style={{ marginBottom: 12 } as any}>
             <MapEmbed lat={loc.latitude} lng={loc.longitude} ivLat={assignedIv?.location?.latitude} ivLng={assignedIv?.location?.longitude} benName={ben.name} ivName={assignedIv?.intervenant_name} />
           </div>
         )}
 
-        {/* Timeline - redesigned */}
+        {/* Timeline */}
         <div style={{ ...G, padding: '18px', marginBottom: 12 } as any}>
           <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 } as any}>
             <i className="ri-time-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />Chronologie
