@@ -1,138 +1,83 @@
-# CARE WATCH - PRD (Product Requirements Document)
+# Chutex Care - PRD
 
-## Original Problem Statement
-CARE WATCH is a sophisticated preventative health application. The central goal is to transform the app from a simple data dashboard into a guided, engaging, and personalized health and longevity transformation engine. The system supports beneficiaries, guardians, teleassistance operators, admins, and company (SAAD) roles.
-
-## Tech Stack
-- **Frontend**: React Native / Expo (web + native iOS)
-- **Backend**: FastAPI (Python)
-- **Database**: MongoDB
-- **AI**: OpenAI GPT-4o via Emergent LLM Key (persona "Nora")
-- **Build**: EAS (Expo Application Services) for iOS TestFlight
-
-## Core Features Implemented
-- Multi-role dashboards (Beneficiary, Guardian, Teleassistance, Admin, Company)
-- AI Chat assistant "Nora" with medical persona
-- Morning Briefing (personalized AI daily summary)
-- Health Programs system (discovery -> daily missions -> reports)
-- Device management (Bracelet, Scale, Vest)
-- Alert/SOS system with intervention chain
-- Reminders (hydration, medication, alarms)
-- Profile editing with full medical records
-- Internationalization (7 languages: FR, EN, DE, ES, IT, PT, NL)
-- Custom glassmorphism tab navbar
-- Full-screen video loader
-- **NEW: Complete metric-detail page redesign with chart/gauge dual mode**
-- **NEW: PDF health report export with period selection (backend ready, frontend removed for now)**
-- **NEW: Dynamic SleepHypnogram component replacing static sleep charts**
-- **NEW: RGPD/CNIL compliance (rights form, privacy policy, CGU, mentions legales, security headers, consent tracking)**
-- **NEW: SAAD invitation system from admin + SAAD demo account**
-- **NEW: Complete admin panel redesign with 5-tab navigation (Dashboard, Users, Alerts, Analytics, Settings)**
+## Probleme original
+Application de sante preventive "Chutex Care" - plateforme complete avec React Native (Expo) frontend, FastAPI backend, MongoDB. Gestion des alertes, surveillance sante, integration materiel BLE, back-office admin.
 
 ## Architecture
+- **Frontend**: React Native / Expo (expo-router, file-based routing)
+- **Backend**: FastAPI + MongoDB
+- **Integrations**: Vapi.ai (voice), SMS Mode (SMS), OpenAI GPT-4o (AI)
+- **Build**: EAS (Expo Application Services) pour iOS/Android
 
-```
-/app
-├── backend/
-│   ├── routes/
-│   │   ├── health_routes.py
-│   │   ├── health_report_routes.py  # metric-history, section-analysis, daily-report
-│   │   ├── chat_routes.py
-│   │   └── user_routes.py
-│   └── server.py
-├── frontend/
-│   ├── app/
-│   │   ├── (tabs)/
-│   │   │   ├── index.tsx          # Dashboard Router (~773 lines)
-│   │   │   ├── _layout.tsx        # Custom glassmorphism navbar
-│   │   │   ├── health.tsx         # Health hub page (vitals, sections, weighing, ECG)
-│   │   │   ├── profile.tsx
-│   │   │   └── programs.tsx
-│   │   ├── metric-detail.tsx      # REDESIGNED: Chart/Gauge dual mode per metric type
-│   │   ├── health-detail.tsx      # Section detail (cardio, metabolism, etc.)
-│   │   ├── morning-briefing.tsx
-│   │   └── chat-ia.tsx
-│   └── src/
-│       ├── components/
-│       │   ├── dashboard/
-│       │   │   ├── constants.ts, SharedUI.tsx, BeneficiaryPopups.tsx
-│       │   │   ├── GuardianHome.tsx, AdminHome.tsx, CompanyHome.tsx
-│       │   │   ├── TeleassistanceHome.tsx, AlertBanner.tsx
-│       │   │   ├── VitalsRow.tsx, ActivitySleep.tsx
-│       │   │   ├── CopilotCard.tsx, DeviceCards.tsx, WeighingFlow.tsx
-│       │   ├── health/
-│       │   │   ├── HealthSections.tsx, SleepCard.tsx
-│       │   │   ├── HeroScore.tsx, AnalysisPhase.tsx
-│       │   │   ├── DailyObjectives.tsx, AdminClients.tsx
-│       │   ├── FullScreenLoader.tsx
-│       └── translations/
-│           └── i18n.ts
-```
+## Utilisateurs
+| Role | Description |
+|------|-------------|
+| Beneficiaire | Porte les dispositifs de sante |
+| Gardien | Aidant/professionnel accompagnant un beneficiaire |
+| SAAD | Dirigeant de structure d'aide a domicile |
+| Admin | Gestion complete du systeme |
+| Teleassistance | Operateur d'appels d'urgence |
 
-## Key API Endpoints
-- `POST /api/auth/login`
-- `POST /api/chat` (Nora AI)
-- `GET /api/health/daily-report`
-- `GET /api/health/metric-history/{key}?period={period}` - Returns chart data with meta, history, stats
-- `GET /api/health/section-analysis/{section_id}` - AI analysis per health category
-- `GET /api/health/thresholds/{metric_id}` - User alert thresholds
-- `POST /api/health/thresholds` - Save thresholds
-- `POST /api/alerts` (SOS)
+## Ce qui a ete implemente
+- Admin Back-Office complet (tabs: Dashboard, Utilisateurs, Alertes, Donnees, Systeme)
+- Systeme d'alertes avec Vapi.ai et SMS Mode
+- Inscription multi-etapes (Beneficiaire, Gardien, SAAD)
+- Page de detail d'alerte riche
+- Generation automatique de codes d'activation pour SAAD
+- Build iOS TestFlight
 
-## Test Credentials
-| Role | Phone / Email | Password |
-|---|---|---|
-| Beneficiary | +33651245918 | demo123 |
-| Guardian | claire.martin@email.fr | demo123 |
-| Admin | admin@chutex.fr | demo123 |
+## Refactoring (25 Feb 2026)
+Decomposition de 3 fichiers volumineux en composants modulaires :
 
-## What's Been Implemented (Latest Session - Feb 24, 2026)
+### register.tsx (626 -> 147 lignes, -76%)
+Extrait en 9 composants dans `src/components/register/`:
+- RegisterUI.tsx (types partagees, GI, Chip, YesNoToggle, etc.)
+- RoleSelection.tsx (etape 0)
+- RGPDStep.tsx (etape 1)
+- PhonePasswordStep.tsx (etape 2 - beneficiaire/gardien)
+- SAADStep.tsx (etape 2 - SAAD)
+- BeneficiaryInfoStep.tsx (etape 3 - beneficiaire)
+- MedicalStep.tsx (etape 4 - beneficiaire)
+- AntecedentsStep.tsx (etape 5 - beneficiaire)
+- GuardianInfoStep.tsx (etape 3 - gardien)
 
-### Metric Detail Page Complete Redesign
-- **Chart mode** for time-varying metrics: smooth area curves (heart rate, SpO2, temp), bars (steps, calories, distance), dual-bars (blood pressure), scatter (HRV)
-- **Gauge mode** for stable/index metrics: semi-circular gauge with colored zones (BMI, visceral fat, waist-hip ratio), sparkline for trend
-- **Smart Nora analysis**: per-metric AI text with zone-specific medical advice
-- **Bug fix**: Tension now correctly navigates to `blood_pressure` (was incorrectly `heart_rate`)
-- All data-testids added for testing
+### AdminHome.tsx (242 -> 107 lignes, -56%)
+Extrait en 7 composants dans `src/components/admin/`:
+- AdminUI.tsx (Card, Badge, Pill, Table, InfoRow, SH)
+- DashboardTab.tsx
+- UsersTab.tsx
+- AlertsTab.tsx
+- DataTab.tsx
+- SystemTab.tsx
+- UserDetailModal.tsx
 
-### Metric Types and Visualization Decisions
-| Metric | Display Mode | Chart Type | Rationale |
-|--------|-------------|------------|-----------|
-| heart_rate | Chart | Area/line | Continuous monitoring, trends matter |
-| hrv | Chart | Scatter | Shows variability |
-| spo2 | Chart | Area | Threshold monitoring (>95%) |
-| blood_pressure | Chart | Dual bars | Two values (systolic/diastolic) |
-| temperature | Chart | Smooth line | Fever patterns |
-| steps | Chart | Bars | Daily discrete counts |
-| calories | Chart | Bars | Daily discrete counts |
-| stress_level | Chart | Area | Stress patterns |
-| weight | Chart | Smooth line | Long-term trend |
-| bmi | Gauge | Semi-circle | Relatively stable index |
-| visceral_fat | Gauge | Semi-circle | Stable index with zones |
-| waist_hip_ratio | Gauge | Semi-circle | Single measurement |
-| body_age | Gauge | Semi-circle | Comparison value |
-| ideal_weight | Gauge | Semi-circle | Target comparison |
+### alert-detail.tsx (317 -> 157 lignes, -50%)
+Extrait en 7 composants dans `src/components/alert/`:
+- MapEmbed.tsx
+- VitalsGrid.tsx
+- BeneficiaryCard.tsx
+- GuardiansCard.tsx
+- IntervenantCard.tsx
+- AlertTimeline.tsx
+- ReportModal.tsx
 
-## Prioritized Backlog
+## Problemes connus
+- **P0 iOS Crash**: Build 4 TestFlight en attente de verification utilisateur
+- **P1 Vapi.ai**: Appels internationaux bloques (plan gratuit)
+- **P2 Lefu Scale**: Parsing BLE incorrect (bloque par crash iOS)
 
-### P0 (Critical)
-- iOS TestFlight build (requires Expo/EAS login - user action needed)
-- Lefu Scale BLE data parsing fix (needs native testing)
+## Backlog
+- P1: Tests materiel natif (bracelet, balance, gilet)
+- P2: Audit i18n complet
+- P3: Page abonnement SAAD
+- UI programmes d'equipe/groupe
+- Integration Shopify
+- Mode hors-ligne intervenants
+- Fichiers deploiement production (Dockerfile, docker-compose)
 
-### P1 (High)
-- Full i18n audit (convert all remaining hardcoded strings to t() function)
-- Native BLE integration debugging (bracelet, scale, vest)
-
-### P2 (Medium)
-- Team/group programs UI
-- Shopify integration
-- Offline mode for "intervenants"
-
-### P3 (Low / Refactoring)
-- Decompose GuardianHome.tsx (633 lines)
-- Further BeneficiaryHome refactoring
-
-## Known Issues
-- Lefu Scale BLE data parsing (blocked on iOS build)
-- SMS for "forgot password" is mocked
-- All hardware interactions (ECG, Weighing) are simulations with mock data
+## Comptes de test
+| Role | Telephone | Mot de passe |
+|------|-----------|-------------|
+| Admin | +33600000001 | demo123 |
+| Teleassistance | +33477101011 | demo123 |
+| SAAD (test) | +33612345678 | demo123 |
