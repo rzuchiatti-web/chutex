@@ -274,7 +274,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           </div>
 
-          <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} />
+          <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} token={token} onRefresh={fetchData} />
 
           <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
           {/* ── SOS Button (top) ── */}
