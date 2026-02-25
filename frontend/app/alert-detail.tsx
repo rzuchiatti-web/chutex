@@ -5,7 +5,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 
-const BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
+const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 const G: any = { borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 const TYPE_LABELS: any = { manual_app: 'Bouton SOS (application)', manual_bracelet: 'Pression manuelle (bracelet)', health_anomaly: 'Anomalie de sante', fall: 'Chute detectee (gilet)', sos: 'Bouton SOS', threshold: 'Depassement de seuil' };
 const TYPE_ICONS: any = { manual_app: 'ri-hand-heart-line', manual_bracelet: 'ri-remote-control-line', health_anomaly: 'ri-pulse-line', fall: 'ri-walk-line', sos: 'ri-hand-heart-line', threshold: 'ri-alert-line' };
