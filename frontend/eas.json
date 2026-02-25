@@ -31,8 +31,7 @@
       "ios": {
         "distribution": "store",
         "autoIncrement": true,
-        "credentialsSource": "local",
-        "disableIosBuildNotifications": true
+        "credentialsSource": "local"
       }
     }
   },
