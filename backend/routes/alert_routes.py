@@ -57,6 +57,12 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
             asyncio.create_task(notify_fall_detected(user['name'], alert['id'], guardian_ids))
         else:
             asyncio.create_task(notify_sos_alert(user['name'], alert['id'], guardian_ids))
+        # Send SMS to all guardians via SMS Mode
+        from services.smsmode_service import send_alert_sms
+        for gid in guardian_ids:
+            g = await db.users.find_one({"id": gid}, {"_id": 0, "phone": 1, "name": 1})
+            if g and g.get('phone'):
+                asyncio.create_task(send_alert_sms(g['phone'], user['name'], data.alert_type, alert['id']))
     
     # Only trigger teleassistance if beneficiary has a Care subscription
     has_care = False
