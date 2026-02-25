@@ -169,9 +169,18 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const handleSOS = async () => {
     setSosLoading(true);
     try {
-      await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'sos', severity: 'critical', message: 'SOS - Aide requise immediatement!', device_type: 'bracelet' }) }, token);
-      notifyAlert('sos', 'SOS envoye ! Vos gardiens et la teleassistance ont ete alertes.');
-      Alert.alert('Alerte SOS envoyee', 'Nous avons bien recu votre alerte.\n\n1. Vos gardiens sont alertes\n2. La teleassistance IA vous appelle\n3. Un intervenant sera envoye si besoin');
+      // Get geolocation if available
+      let lat = null, lng = null;
+      try {
+        if (typeof navigator !== 'undefined' && navigator.geolocation) {
+          const pos: any = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 }));
+          lat = pos.coords.latitude;
+          lng = pos.coords.longitude;
+        }
+      } catch {}
+      await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'sos', message: 'SOS - Aide requise immediatement!', device_type: 'bracelet', latitude: lat, longitude: lng }) }, token);
+      notifyAlert('sos', 'SOS envoye ! Vos gardiens ont ete alertes.');
+      Alert.alert('Alerte SOS envoyee', 'Nous avons bien recu votre alerte.\n\n1. Vos gardiens sont alertes\n2. Votre position est transmise\n3. Un intervenant sera envoye si besoin');
       fetchData();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSosLoading(false); }
   };
