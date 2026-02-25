@@ -167,35 +167,46 @@ export default function AlertDetailScreen() {
           ))}
         </div>
 
-        {/* Assigned Intervenant */}
+        {/* Assigned Intervenant - clickable card */}
         {assignedIv && (
-          <div style={{ ...G, padding: '16px', marginBottom: 12, borderColor: 'rgba(124,92,255,0.2)' } as any}>
+          <div onClick={() => { if (assignedIv.intervenant_id) router.push({ pathname: '/guardian-detail' as any, params: { guardianId: assignedIv.intervenant_id } }); }} style={{ ...G, padding: '16px', marginBottom: 12, borderColor: 'rgba(124,92,255,0.2)', cursor: assignedIv.intervenant_id ? 'pointer' : 'default' } as any}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Intervenant assigne</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-              <div style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(124,92,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 16, fontWeight: 800, color: '#A78BFA' }}>{(assignedIv.intervenant_name || 'I').charAt(0)}</span></div>
+              <div style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(124,92,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#A78BFA' }}>{(assignedIv.intervenant_name || 'I').charAt(0)}</span></div>
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{assignedIv.intervenant_name}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Statut : {assignedIv.status}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{assignedIv.intervenant_name}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{assignedIv.status === 'accepted' ? 'Intervention acceptee' : assignedIv.status === 'en_route' ? 'En route' : assignedIv.status === 'on_site' ? 'Sur place' : assignedIv.status}</div>
               </div>
+              {assignedIv.intervenant_phone && <a href={`tel:${assignedIv.intervenant_phone}`} onClick={(e: any) => e.stopPropagation()} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' } as any}><i className="ri-phone-line" style={{ fontSize: 16, color: '#10B981' }} /></a>}
+              {assignedIv.intervenant_id && <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }} />}
             </div>
           </div>
         )}
 
-        {/* Timeline */}
-        <div style={{ ...G, padding: '16px', marginBottom: 12 } as any}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Chronologie</div>
-          {timeline.map((ev: any, i: number) => (
-            <div key={i} style={{ display: 'flex', gap: 12, marginBottom: i < timeline.length - 1 ? 0 : 0 } as any}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 20 } as any}>
-                <div style={{ width: 10, height: 10, borderRadius: 5, background: i === 0 ? sc : 'rgba(255,255,255,0.15)', flexShrink: 0 } as any} />
-                {i < timeline.length - 1 && <div style={{ width: 1, flex: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' } as any} />}
+        {/* Timeline - redesigned */}
+        <div style={{ ...G, padding: '18px', marginBottom: 12 } as any}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 } as any}>
+            <i className="ri-time-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />Chronologie
+          </div>
+          {timeline.map((ev: any, i: number) => {
+            const evIcon = ev.icon || 'ri-checkbox-blank-circle-line';
+            const evColor = ev.color || 'rgba(255,255,255,0.3)';
+            const time = ev.time ? new Date(ev.time) : null;
+            return (
+              <div key={i} style={{ display: 'flex', gap: 14 } as any}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 28 } as any}>
+                  <div style={{ width: 28, height: 28, borderRadius: 10, background: `${evColor}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className={evIcon} style={{ fontSize: 13, color: evColor }} />
+                  </div>
+                  {i < timeline.length - 1 && <div style={{ width: 2, flex: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0', borderRadius: 1 } as any} />}
+                </div>
+                <div style={{ flex: 1, paddingBottom: i < timeline.length - 1 ? 16 : 0 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#FFF', lineHeight: 1.4 }}>{ev.detail}</div>
+                  {time && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 3 }}>{time.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} a {time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>}
+                </div>
               </div>
-              <div style={{ flex: 1, paddingBottom: 14 } as any}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>{ev.detail || ev.event}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{ev.time ? new Date(ev.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Actions - Clôture avec rapport */}
