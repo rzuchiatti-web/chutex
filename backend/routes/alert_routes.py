@@ -303,8 +303,27 @@ async def get_alert_detail(aid: str, user=Depends(get_current_user)):
         incident = await db.incidents.find_one({"id": alert['incident_id']}, {"_id": 0})
     incident_timeline = []
     if incident:
+        # Clean and translate incident events for user-facing timeline
+        state_display = {
+            'NEW_ALERT': None,  # Skip, already shown as creation
+            'CALLING_PATIENT': {'detail': 'Appel IA au beneficiaire en cours', 'icon': 'ri-phone-line', 'color': '#A78BFA'},
+            'PATIENT_CONFIRMED_OK': {'detail': 'Le beneficiaire confirme aller bien', 'icon': 'ri-check-line', 'color': '#10B981'},
+            'PATIENT_NEEDS_HELP': {'detail': 'Le beneficiaire a besoin d\'aide', 'icon': 'ri-alarm-warning-line', 'color': '#EF4444'},
+            'PATIENT_NO_RESPONSE': {'detail': 'Beneficiaire injoignable par telephone', 'icon': 'ri-phone-off-line', 'color': '#F59E0B'},
+            'CALLING_GUARDIAN_1': {'detail': 'Appel IA au 1er gardien', 'icon': 'ri-phone-line', 'color': '#38BDF8'},
+            'CALLING_GUARDIAN_2': {'detail': 'Appel IA au 2e gardien', 'icon': 'ri-phone-line', 'color': '#38BDF8'},
+            'CALLING_GUARDIAN_3': {'detail': 'Appel IA au 3e gardien', 'icon': 'ri-phone-line', 'color': '#38BDF8'},
+            'GUARDIAN_INTERVENTION_ACCEPTED': {'detail': 'Un gardien accepte d\'intervenir', 'icon': 'ri-check-double-line', 'color': '#10B981'},
+            'GUARDIAN_UNREACHABLE': {'detail': 'Gardien injoignable', 'icon': 'ri-phone-off-line', 'color': '#F59E0B'},
+            'CARE_DISPATCHED': {'detail': 'Aucun gardien disponible - recherche d\'un intervenant SAAD', 'icon': 'ri-search-line', 'color': '#F59E0B'},
+            'RESOLVED': {'detail': 'Alerte cloturee', 'icon': 'ri-check-double-line', 'color': '#10B981'},
+        }
         for t in incident.get('timeline', []):
-            incident_timeline.append({"time": t.get('timestamp', ''), "event": "ia_" + t.get('state', ''), "detail": t.get('detail', ''), "icon": "ri-robot-line", "color": "#A78BFA"})
+            state = t.get('state', '')
+            display = state_display.get(state)
+            if display is None:
+                continue  # Skip states we don't want to show
+            incident_timeline.append({"time": t.get('timestamp', ''), "event": "ia", "detail": display['detail'], "icon": display['icon'], "color": display['color']})
     resolution_report = alert.get('resolution_report') or alert.get('report') or None
     timeline = _build_alert_timeline(alert, escalations, calls, interventions)
     timeline.extend(incident_timeline)
