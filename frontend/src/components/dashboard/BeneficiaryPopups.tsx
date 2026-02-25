@@ -4,9 +4,26 @@ import { apiFetch } from '../../services/api';
 import { REMINDER_IMAGES } from './constants';
 
 /* ─── NOTIFICATIONS POPUP ─── */
-export function NotificationsPopup({ show, onClose, activeAlerts, guardianRequests }: any) {
+export function NotificationsPopup({ show, onClose, activeAlerts, guardianRequests, token, onRefresh }: any) {
   const router = useRouter();
+  const [processing, setProcessing] = useState<string | null>(null);
   if (!show) return null;
+
+  const handleAccept = async (reqId: string) => {
+    setProcessing(reqId);
+    try {
+      await apiFetch(`/api/beneficiary/guardian-requests/${reqId}/accept`, { method: 'POST' }, token);
+      if (onRefresh) onRefresh();
+    } catch {} finally { setProcessing(null); }
+  };
+  const handleReject = async (reqId: string) => {
+    setProcessing(reqId);
+    try {
+      await apiFetch(`/api/beneficiary/guardian-requests/${reqId}/reject`, { method: 'POST' }, token);
+      if (onRefresh) onRefresh();
+    } catch {} finally { setProcessing(null); }
+  };
+
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', overflowY: 'auto' } as any}>
       <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
@@ -19,16 +36,25 @@ export function NotificationsPopup({ show, onClose, activeAlerts, guardianReques
         </div>
         {activeAlerts.length === 0 && guardianRequests.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Aucune notification pour le moment.</div>}
         {activeAlerts.map((a: any) => (
-          <div key={a.id} onClick={() => { onClose(); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 16, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 8, cursor: 'pointer' } as any}>
+          <div key={a.id} onClick={() => { onClose(); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 16, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 8, cursor: 'pointer' } as any}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-alarm-warning-line" style={{ fontSize: 18, color: '#EF4444' }} /></div>
             <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{a.message}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Alerte active</div></div>
             <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }} />
           </div>
         ))}
         {guardianRequests.map((r: any) => (
-          <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-shield-user-line" style={{ fontSize: 18, color: '#A78BFA' }} /></div>
-            <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{r.guardian_name || 'Demande gardien'}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Demande de rattachement</div></div>
+          <div key={r.id} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 8 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 16, fontWeight: 800, color: '#A78BFA' }}>{(r.guardian_name || '?').charAt(0)}</span></div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{r.guardian_name || 'Demande gardien'}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{r.relationship || r.type === 'particular' ? 'Particulier' : 'Professionnel'} - Demande de rattachement</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 } as any}>
+              <div onClick={() => handleAccept(r.id)} style={{ flex: 1, padding: '11px', borderRadius: 12, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', cursor: processing === r.id ? 'wait' : 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#10B981' } as any}>{processing === r.id ? '...' : 'Accepter'}</div>
+              <div onClick={() => handleReject(r.id)} style={{ flex: 1, padding: '11px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', cursor: processing === r.id ? 'wait' : 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#EF4444' } as any}>{processing === r.id ? '...' : 'Refuser'}</div>
+            </div>
           </div>
         ))}
       </div>
