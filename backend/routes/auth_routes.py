@@ -37,6 +37,16 @@ async def register(data: UserRegister):
             user['prescriber_code_used'] = data.prescriber_code
             await db.activation_codes.update_one({"code": data.prescriber_code}, {"$inc": {"uses_count": 1}})
     await db.users.insert_one(user)
+    # Auto-generate activation + intervention codes for SAAD
+    if data.role == "prescriber_company":
+        struct = data.structure_name or data.name or "SAAD"
+        prefix = struct.replace(" ", "")[:6].upper()
+        act_code = f"PRESC-{prefix}-{str(uuid.uuid4())[:4].upper()}"
+        iv_code = f"CARE-{prefix}-{str(uuid.uuid4())[:4].upper()}"
+        now_str = datetime.now(timezone.utc).isoformat()
+        await db.activation_codes.insert_one({"id": str(uuid.uuid4()), "code": act_code, "structure_name": struct, "siret": data.siret or "", "max_uses": 100, "uses_count": 0, "active": True, "created_at": now_str, "created_by": uid})
+        await db.intervention_codes.insert_one({"id": str(uuid.uuid4()), "code": iv_code, "structure_name": struct, "siret": data.siret or "", "default_radius_km": 30, "active": True, "created_at": now_str, "created_by": uid})
+        await db.users.update_one({"id": uid}, {"$set": {"activation_code": act_code, "intervention_code": iv_code}})
     if data.role == "beneficiary":
         for dt, nm in [("bracelet", "Bracelet Sante"), ("scale", "Balance Connectee"), ("vest", "Gilet Anti-Chute")]:
             await db.devices.insert_one({"id": str(uuid.uuid4()), "user_id": uid, "device_type": dt, "name": nm, "connected": False, "battery": random.randint(60, 95), "last_sync": None})
