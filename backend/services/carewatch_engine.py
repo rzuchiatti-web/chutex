@@ -203,7 +203,7 @@ async def carewatch_orchestrate(alert: dict):
             "alert_id": alert['id'],
             "alert_type": alert.get('alert_type', 'sos'),
             "alert_message": alert.get('message', ''),
-            "severity": alert.get('severity', 'medium'),
+            "severity": alert.get('alert_type', 'sos'),
             "beneficiary_id": ben['id'],
             "beneficiary_name": ben['name'],
             "beneficiary_phone": phone,
@@ -450,7 +450,7 @@ async def _dispatch_care(incident_id: str, alert: dict, ben: dict, guardians: li
     """Dispatch intervention to nearest SAAD company's intervenants"""
     now = _now()
     await _log_event(incident_id, "CARE_DISPATCHED", "Aucun gardien disponible - dispatch intervention Care")
-    await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "CARE_DISPATCHED", "severity": "critical"}})
+    await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "CARE_DISPATCHED"}})
 
     ben_lat = ben.get('latitude', 45.4737)
     ben_lng = ben.get('longitude', 4.5134)
