@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { apiFetch } from '../../services/api';
 import { REMINDER_IMAGES } from './constants';
