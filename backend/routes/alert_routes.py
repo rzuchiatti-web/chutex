@@ -67,8 +67,12 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
         has_care = True
 
     if has_care and twilio_client:
-        from services.carewatch_engine import carewatch_orchestrate
-        asyncio.create_task(carewatch_orchestrate(alert))
+        from services.vapi_engine import vapi_orchestrate, VAPI_API_KEY
+        if VAPI_API_KEY:
+            asyncio.create_task(vapi_orchestrate(alert))
+        else:
+            from services.carewatch_engine import carewatch_orchestrate
+            asyncio.create_task(carewatch_orchestrate(alert))
     elif not has_care:
         await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "no_care_subscription"}})
 
