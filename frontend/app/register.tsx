@@ -116,11 +116,16 @@ export default function RegisterScreen() {
 
   const BEN_STEPS = 5;
   const GUARD_STEPS = 3;
-  const totalSteps = role === 'beneficiary' ? BEN_STEPS : GUARD_STEPS;
+  const SAAD_STEPS = 2;
+  const totalSteps = role === 'beneficiary' ? BEN_STEPS : role === 'prescriber_company' ? SAAD_STEPS : GUARD_STEPS;
 
   const canNext = () => {
     if (step === 0) return !!role;
     if (step === 1) return true;
+    if (role === 'prescriber_company') {
+      if (step === 2) return form.structure_name.trim() && form.siret.trim() && form.saad_director_name.trim() && form.phone.trim().length >= 6 && form.password.length >= 6 && form.password === form.confirmPassword && form.acceptTerms;
+      return true;
+    }
     if (step === 2) return form.phone.trim().length >= 6 && form.password.length >= 6 && form.password === form.confirmPassword;
     if (step === 3 && role === 'beneficiary') return form.name.trim() && form.firstName.trim() && form.gender && form.dob_day && form.dob_month && form.dob_year && form.height_cm && form.weight_kg;
     if (step === 3 && role === 'guardian') return form.name.trim() && form.firstName.trim() && form.acceptTerms;
