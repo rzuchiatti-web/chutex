@@ -50,9 +50,12 @@ export default function AlertDetailScreen() {
   const ivs = data.interventions || [];
   const timeline = data.timeline || [];
   const loc = a.location || data.location || {};
-  const status = ivs.length > 0 && a.status === 'active' ? 'intervention' : a.status;
+  const incident = data.incident || {};
+  const status = (ivs.length > 0 || incident.assigned_guardian) && a.status === 'active' ? 'intervention' : a.status;
   const sc = STATUS_COLORS[status] || '#EF4444';
-  const assignedIv = ivs.find((iv: any) => iv.status === 'accepted' || iv.status === 'en_route');
+  // Find assigned intervenant from interventions OR incident
+  const assignedIv = ivs.find((iv: any) => iv.status === 'accepted' || iv.status === 'en_route' || iv.status === 'on_site' || iv.status === 'pending_acceptance')
+    || (incident.assigned_guardian ? { intervenant_name: incident.assigned_guardian.name, intervenant_id: incident.assigned_guardian.id, intervenant_phone: incident.assigned_guardian.phone, status: 'accepted', id: incident.id } : null);
 
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
