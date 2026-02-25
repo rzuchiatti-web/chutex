@@ -132,6 +132,55 @@ async def resolve_alert_with_report(alert_id: str, data: dict, user=Depends(get_
     return {"status": "resolved", "report": report}
 
 
+@router.post("/alerts/{alert_id}/location")
+async def update_alert_location(alert_id: str, data: dict, user=Depends(get_current_user)):
+    """Update beneficiary geolocation during an active alert"""
+    now = datetime.now(timezone.utc).isoformat()
+    pos = {"latitude": data.get("latitude"), "longitude": data.get("longitude"), "timestamp": now}
+    await db.alert_tracking.update_one(
+        {"alert_id": alert_id},
+        {"$push": {"positions": pos}, "$set": {"updated_at": now}},
+        upsert=True,
+    )
+    await db.locations.update_one(
+        {"user_id": user['id']},
+        {"$set": {"user_id": user['id'], "latitude": data.get("latitude"), "longitude": data.get("longitude"), "updated_at": now}},
+        upsert=True,
+    )
+    return {"status": "updated"}
+
+
+@router.post("/interventions/{intervention_id}/location")
+async def update_intervention_location(intervention_id: str, data: dict, user=Depends(get_current_user)):
+    """Update intervenant geolocation during an intervention — visible to guardians"""
+    now = datetime.now(timezone.utc).isoformat()
+    pos = {"latitude": data.get("latitude"), "longitude": data.get("longitude"), "timestamp": now}
+    await db.intervention_tracking.update_one(
+        {"intervention_id": intervention_id},
+        {"$push": {"positions": pos}, "$set": {"intervenant_id": user['id'], "intervenant_name": user.get('name', ''), "updated_at": now}},
+        upsert=True,
+    )
+    return {"status": "updated"}
+
+
+@router.get("/alerts/{alert_id}/tracking")
+async def get_alert_tracking(alert_id: str, user=Depends(get_current_user)):
+    """Get all location data for an alert — beneficiary + intervenant positions"""
+    alert = await db.alerts.find_one({"id": alert_id}, {"_id": 0})
+    if not alert:
+        return {"beneficiary": [], "intervenant": []}
+    ben_tracking = await db.alert_tracking.find_one({"alert_id": alert_id}, {"_id": 0})
+    iv = await db.interventions.find_one({"alert_id": alert_id}, {"_id": 0, "id": 1})
+    iv_tracking = None
+    if iv:
+        iv_tracking = await db.intervention_tracking.find_one({"intervention_id": iv['id']}, {"_id": 0})
+    return {
+        "beneficiary": ben_tracking.get("positions", []) if ben_tracking else [],
+        "intervenant": iv_tracking.get("positions", []) if iv_tracking else [],
+        "intervenant_name": iv_tracking.get("intervenant_name", "") if iv_tracking else "",
+    }
+
+
 
 @router.post("/interventions/accept-as-guardian")
 async def accept_intervention_as_guardian(data: dict, user=Depends(get_current_user)):
