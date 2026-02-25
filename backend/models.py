@@ -47,11 +47,12 @@ class MedicationCreate(BaseModel):
 
 class AlertCreate(BaseModel):
     alert_type: str
-    severity: str = "medium"
     message: str = ""
     device_type: str = "bracelet"
     vital_data: dict = None
     threshold_data: dict = None
+    latitude: float = None
+    longitude: float = None
 
 
 class PrescriptionCreate(BaseModel):
