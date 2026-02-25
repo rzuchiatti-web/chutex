@@ -604,31 +604,19 @@ async def accept_guardian_request(req_id: str, user=Depends(get_current_user)):
     req = await db.guardian_requests.find_one({"id": req_id, "beneficiary_id": user['id']}, {"_id": 0})
     if not req:
         raise HTTPException(status_code=404, detail="Demande non trouvee")
-PROFESSIONAL_RELATIONSHIPS_LIST = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Aide soignante', 'Aide-soignante', 'Aide-soignant']
-
-
-@router.post("/beneficiary/guardian-requests/{req_id}/accept")
-async def accept_guardian_request(req_id: str, user=Depends(get_current_user)):
-    """Beneficiary accepts a guardian request"""
-    req = await db.guardian_requests.find_one({"id": req_id, "beneficiary_id": user['id']}, {"_id": 0})
-    if not req:
-        raise HTTPException(status_code=404, detail="Demande non trouvee")
-    await db.users.update_one({"id": user['id']}, {"$addToSet": {"guardians": req['guardian_id']}})
-    await db.users.update_one({"id": req['guardian_id']}, {"$addToSet": {"beneficiaries": user['id']}})
+    await db.users.update_one({"id": user['id']}, {"$addToSet": {"guardians": req.get('guardian_id', '')}})
+    if req.get('guardian_id'):
+        await db.users.update_one({"id": req['guardian_id']}, {"$addToSet": {"beneficiaries": user['id']}})
     await db.guardian_requests.update_one({"id": req_id}, {"$set": {"status": "accepted"}})
-    # Store relationship with type (professional/personal) for SAAD alert visibility
     relationship = req.get('relationship', '')
-    relationship_type = 'professional' if relationship in PROFESSIONAL_RELATIONSHIPS_LIST else 'personal'
+    PROFESSIONAL_LIST = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé']
+    relationship_type = 'professional' if relationship in PROFESSIONAL_LIST else 'personal'
     await db.guardian_relationships.update_one(
-        {"guardian_id": req['guardian_id'], "beneficiary_id": user['id']},
-        {"$set": {
-            "relationship": relationship,
-            "relationship_type": relationship_type,
-            "updated_at": datetime.now(timezone.utc).isoformat()
-        }},
+        {"guardian_id": req.get('guardian_id', ''), "beneficiary_id": user['id']},
+        {"$set": {"relationship": relationship, "relationship_type": relationship_type, "updated_at": datetime.now(timezone.utc).isoformat()}},
         upsert=True
     )
-    return {"status": "accepted", "message": f"{req['guardian_name']} est maintenant votre gardien."}
+    return {"status": "accepted", "message": f"{req.get('guardian_name', 'Le gardien')} est maintenant votre gardien."}
 
 
 @router.post("/beneficiary/guardian-requests/{req_id}/reject")
