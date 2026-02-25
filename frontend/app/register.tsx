@@ -242,6 +242,12 @@ export default function RegisterScreen() {
                   ))}
                 </div>
               </div>
+              {/* SAAD card */}
+              <div onClick={() => { setRole('prescriber_company'); setStep(1); }} style={{ padding: '20px 16px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Espace SAAD</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>Vous etes un dirigeant de structure d'aide a domicile (SAAD, SAP, HAD).</div>
+              </div>
+            </div>
             {showChoiceHelp && (
               <div onClick={() => setShowChoiceHelp(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 } as any}>
                 <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, borderRadius: 24, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '28px 22px' } as any}>
