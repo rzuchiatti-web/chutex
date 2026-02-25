@@ -243,18 +243,6 @@ export default function AlertDetailScreen() {
           })}
         </div>
 
-        {/* Slide to track intervention */}
-        {assignedIv && a.status === 'active' && (
-          <div onClick={() => router.push({ pathname: '/intervention-map' as any, params: { interventionId: assignedIv.id || '', alertId: a.id } })} style={{ ...G, padding: '16px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,92,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-map-pin-range-line" style={{ fontSize: 20, color: '#A78BFA' }} /></div>
-            <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Suivre l'intervention</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{assignedIv.intervenant_name} - {assignedIv.status === 'en_route' ? 'En route' : 'Sur place'}</div>
-            </div>
-            <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)' }} />
-          </div>
-        )}
-
         {/* Resolution report (if closed) */}
         {a.status === 'resolved' && (a.resolution_report || a.report) && (
           <div style={{ ...G, padding: '16px', marginBottom: 12 } as any}>
