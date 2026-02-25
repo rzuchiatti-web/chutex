@@ -162,16 +162,43 @@ export default function AlertDetailScreen() {
 
         {/* Assigned Intervenant - clickable card */}
         {assignedIv && (
-          <div onClick={() => { if (assignedIv.intervenant_id) router.push({ pathname: '/guardian-detail' as any, params: { guardianId: assignedIv.intervenant_id } }); }} style={{ ...G, padding: '16px', marginBottom: 12, borderColor: 'rgba(124,92,255,0.2)', cursor: assignedIv.intervenant_id ? 'pointer' : 'default' } as any}>
+          <div onClick={() => { if (assignedIv.intervenant_id || assignedIv.assigned_to) router.push({ pathname: '/guardian-detail' as any, params: { guardianId: assignedIv.intervenant_id || assignedIv.assigned_to } }); }} style={{ ...G, padding: '16px', marginBottom: 12, borderColor: 'rgba(124,92,255,0.2)', cursor: 'pointer' } as any}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Intervenant assigne</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
               <div style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(124,92,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#A78BFA' }}>{(assignedIv.intervenant_name || 'I').charAt(0)}</span></div>
               <div style={{ flex: 1 } as any}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{assignedIv.intervenant_name}</div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{assignedIv.status === 'accepted' ? 'Intervention acceptee' : assignedIv.status === 'en_route' ? 'En route' : assignedIv.status === 'on_site' ? 'Sur place' : assignedIv.status}</div>
+                {assignedIv.intervenant_profile?.structure_name && <div style={{ fontSize: 10, color: 'rgba(167,139,250,0.6)', marginTop: 2 }}>{assignedIv.intervenant_profile.structure_name}</div>}
               </div>
-              {assignedIv.intervenant_phone && <a href={`tel:${assignedIv.intervenant_phone}`} onClick={(e: any) => e.stopPropagation()} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' } as any}><i className="ri-phone-line" style={{ fontSize: 16, color: '#10B981' }} /></a>}
-              {assignedIv.intervenant_id && <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }} />}
+              {(assignedIv.intervenant_phone || assignedIv.intervenant_profile?.phone) && <a href={`tel:${assignedIv.intervenant_phone || assignedIv.intervenant_profile?.phone}`} onClick={(e: any) => e.stopPropagation()} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' } as any}><i className="ri-phone-line" style={{ fontSize: 16, color: '#10B981' }} /></a>}
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }} />
+            </div>
+          </div>
+        )}
+
+        {/* Teleassistance status - when CARE_DISPATCHED but no intervention yet */}
+        {!assignedIv && a.teleassistance_status === 'CARE_DISPATCHED' && (
+          <div style={{ ...G, padding: '16px', marginBottom: 12, borderColor: 'rgba(245,158,11,0.15)' } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#F59E0B', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Recherche d'intervenant</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <div style={{ width: 20, height: 20, borderRadius: 999, border: '2px solid #F59E0B', borderTopColor: 'transparent', animation: 'spin 1s linear infinite' } as any} />
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>En cours de recherche</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Aucun gardien disponible. Recherche d'un intervenant professionnel dans la SAAD la plus proche.</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* No Care subscription info */}
+        {a.teleassistance_status === 'no_care_subscription' && (
+          <div style={{ ...G, padding: '14px 16px', marginBottom: 12 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+              <i className="ri-information-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Pas d'abonnement Chutex Care actif. La teleassistance vocale IA n'est pas disponible. Seuls les gardiens ont ete notifies par SMS et push.</div>
             </div>
           </div>
         )}
