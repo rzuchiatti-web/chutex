@@ -79,6 +79,28 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
               ))}
             </div>
           </div>
+          {/* Codes de la structure */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
+            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
+                <i className="ri-key-line" style={{ fontSize: 14, color: '#10B981' }} />
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Prescripteur</span>
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF', fontFamily: 'monospace', letterSpacing: 1 }}>{user.activation_code || '--'}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>A partager avec vos gardiens professionnels</div>
+              {user.activation_code && <div onClick={() => { navigator.clipboard?.writeText(user.activation_code); alert('Code copie !'); }} style={{ marginTop: 8, padding: '6px 0', borderRadius: 8, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.15)', textAlign: 'center', fontSize: 10, fontWeight: 700, color: '#10B981', cursor: 'pointer' } as any}>Copier le code</div>}
+            </div>
+            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
+                <i className="ri-map-pin-range-line" style={{ fontSize: 14, color: '#F59E0B' }} />
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Intervention</span>
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF', fontFamily: 'monospace', letterSpacing: 1 }}>{user.intervention_code || '--'}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Pour activer l'espace intervenant Care</div>
+              {user.intervention_code && <div onClick={() => { navigator.clipboard?.writeText(user.intervention_code); alert('Code copie !'); }} style={{ marginTop: 8, padding: '6px 0', borderRadius: 8, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.15)', textAlign: 'center', fontSize: 10, fontWeight: 700, color: '#F59E0B', cursor: 'pointer' } as any}>Copier le code</div>}
+            </div>
+          </div>
+
           {/* Alert card */}
           {(() => {
             const totalA = alerts.length;
