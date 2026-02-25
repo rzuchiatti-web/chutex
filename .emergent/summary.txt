@@ -1,286 +1,187 @@
 <analysis>**original_problem_statement:**
-The project's primary objective is to create CARE WATCH, a sophisticated preventative health application. The central goal is to transform the app from a simple data dashboard into a guided, engaging, and personalized health and longevity transformation engine.
+The project's primary objective is to create Chutex Care, a sophisticated preventative health application. The central goal is to transform the app into a guided, engaging, and personalized health and longevity transformation engine.
 
-This is to be achieved by building a comprehensive Programs system (e.g., 21-Day Deep Sleep). These programs are the core of the user experience, providing daily missions, AI-powered coaching based on data from connected devices, and measurable progress tracking. The system must support solo, duo, and group participation. The project also includes building a fully contextual, personalized AI Health Chat assistant, now named Nora.
+This is to be achieved by building a comprehensive alert system, a fully contextual AI Health Chat assistant (Nora), detailed health data visualization, and robust management tools for different user roles (Beneficiary, Guardian, SAAD, Admin).
 
-**User's preferred language**: French. The next agent MUST respond in French only.
+Recent user requests have focused on:
+- A complete redesign and refactor of the Admin back-office.
+- A full overhaul of the alert management system, including integration with low-latency AI voice agents (Vapi.ai) and SMS notifications.
+- Fixing the user registration flows, especially for SAADs (home care service providers).
+- Resolving a critical crash in the native iOS application.
+- Deploying a stable and testable build to Apple TestFlight to allow for real-world hardware testing (BLE devices).
+- Numerous UI/UX improvements across the login/registration pages, alert details, and dashboards.
+
+**User's preferred language**: French
 
 **what currently exists?**
-The application is a full-stack platform (React/Expo, FastAPI, MongoDB) that has undergone a massive UI/UX and functional overhaul.
+The application is a full-stack platform using React Native (Expo) for the frontend, FastAPI for the backend, and MongoDB as the database. The session saw massive refactoring and new feature integrations.
 
--   **Core Architecture**: A Programs system is in place, and the main user flow for completing a program is fully functional. The AI chat (Nora) is a standalone, full-screen page. The beneficiary and guardian dashboards have been completely reorganized and redesigned with a custom SVG background and glassmorphism cards.
--   **UI Components**: A custom transparent glassmorphism tab navbar has been implemented. A reusable full-screen video loader is used across the app. A Morning Briefing page appears once per session on login, providing a personalized AI summary and daily goals. Login/Signup pages now feature a video background.
--   **AI & Logic**: The AI persona Nora has been established with a serious, medical tone. She is aware of the user's full medical record and can answer questions from guardians about their beneficiaries.
--   **Functionality**: The profile page is now fully editable with persistent data. Device management actions (e.g., delete) are functional. The alert banner on the dashboard correctly reflects the live alert status.
--   **Internationalization**: The app has been translated into 7 languages (FR, EN, DE, ES, IT, PT, NL) with a language selector available in the header and profile.
+-   **Admin Back-Office**: The entire admin dashboard has been rewritten from scratch into a responsive, professional-grade management tool with a dedicated layout, horizontal tabs, and comprehensive CRUD interfaces for all major data models (users, subscriptions, analytics, etc.).
+-   **Alert System Overhaul**: The alert processing engine was migrated from a high-latency custom stack to **Vapi.ai** for real-time AI voice calls. **SMS Mode** was integrated for sending SMS notifications to guardians. The alert detail page () was completely redesigned to be richer and more intuitive.
+-   **User Authentication & Registration**: The login and registration pages have been visually overhauled with new backgrounds and glassmorphism UI. A dedicated, multi-step registration flow for SAAD entities was created and debugged.
+-   **Database State**: The database has been wiped clean of all simulated user data, leaving only the essential  and  accounts. The startup data seeding script has been disabled to provide a clean slate for testing.
+-   **iOS Build**: An initial TestFlight build (3) was found to crash on launch. The agent diagnosed a configuration issue ( duplication in ), fixed it, and submitted a new build (4) to TestFlight.
 
 **Last working item**:
-The user requested an iOS build for TestFlight to test the native functionalities, especially the Bluetooth device connections. The agent configured the environment and initiated the build process.
+The agent was focused on resolving a critical crash in the iOS TestFlight build.
 
--   **Last item agent was working**: Launching an iOS build via the Expo Application Services (EAS) command-line tool.
--   **Status**: IN PROGRESS (The build command was executed and is running in the background on Expo's servers).
--   **Agent Testing Done**: N/A
--   **Which testing method agent to use?**: Manual testing by the user. After the build is complete and deployed to TestFlight, the user will test the native application on their iOS device.
+-   **Last item agent was working**: Submitting a new, corrected iOS build (build 4) to TestFlight. This was done to fix an immediate crash-on-launch issue reported by the user with the previous build (build 3). The agent identified a misconfiguration in  as the likely cause, corrected it, and initiated a new EAS build and submission.
+-   **Status**: USER VERIFICATION PENDING
+-   **Agent Testing Done**: N
+-   **Which testing method agent to use?**: Manual testing by user. The user needs to download and install the new build from the TestFlight app on their iPhone to verify if the crash is resolved.
 -   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
-
--   **Issue 1: iOS Build for TestFlight (P0)**
-    -   **Description**: The user wants to deploy the app to TestFlight for native testing of device connectivity (Bracelet, Scale, Vest). The build has been started.
-    -   **Attempted fixes**: The agent initiated the build with the command An Expo user account is required to proceed.
-
-Log in to EAS with email or username (exit and run eas login --help to see other login options)
-Input is required, but stdin is not readable. Failed to display prompt: Email or username.
+-   **Issue 1: iOS App Crashes on Launch (P0)**
+    -   **Description**: The latest build (3) pushed to TestFlight crashes immediately upon opening, making the app unusable on iOS. A new build (4) with a potential fix has been submitted.
+    -   **Attempted fixes**: The agent identified and removed a duplicate  entry in the  array in  and submitted a new build (build 4).
     -   **Next debug checklist**:
-        1.  Check the status of the background build job by running An Expo user account is required to proceed.
-
-Log in to EAS with email or username (exit and run eas login --help to see other login options)
-Input is required, but stdin is not readable. Failed to display prompt: Email or username in the  directory.
-        2.  Once the build is successfully completed, inform the user and guide them to submit it to TestFlight using An Expo user account is required to proceed.
-
-Log in to EAS with email or username (exit and run eas login --help to see other login options)
-Input is required, but stdin is not readable. Failed to display prompt: Email or username.
-        3.  Provide clear instructions for the user on how to access the build via the TestFlight app on their iPhone.
-    -   **Status**: IN PROGRESS
+        1.  User must confirm the new build (1.0.6 (4)) is available in their TestFlight app.
+        2.  User to install and launch the new build.
+        3.  If it still crashes, the next agent should investigate other potential causes, such as plugin conflicts (e.g., ), other  or  settings, or use You can only use an iOS simulator to run apps on macOS devices to get native logs during a local build run.
+    -   **Why fix this issue and what will be achieved with the fix?**: This is a critical blocker. Without a stable native app, no hardware integration (bracelet, scale, vest) or push notification testing can occur.
+    -   **Status**: USER VERIFICATION PENDING
     -   **Is recurring issue?**: N
-    -   **Should Test frontend/backend/both after fix?**: Frontend (Native iOS App).
+    -   **Should Test frontend/backend/both after fix?**: Frontend (Native iOS app).
     -   **Blocked on other issue**: None.
 
+-   **Issue 2: Vapi.ai International Calls Failing (P1)**
+    -   **Description**: The Vapi.ai integration uses a free-tier US phone number which cannot make outbound calls to French numbers. This prevents testing of the AI voice call feature for alerts.
+    -   **Attempted fixes**: The agent successfully integrated Vapi and confirmed the API key works, but identified the free-tier limitation as the blocker.
+    -   **Next debug checklist**: Inform the user that to test the AI voice calls, they need to either upgrade their Vapi.ai plan to use a French number or import their existing Twilio number (if it has international capabilities) into Vapi.
+    -   **Why fix this issue and what will be achieved with the fix?**: This will enable end-to-end testing of the critical alert escalation workflow.
+    -   **Status**: BLOCKED (on user action/account upgrade).
+    -   **Is recurring issue?**: N
+    -   **Should Test frontend/backend/both after fix?**: Backend (and manual user testing).
+    -   **Blocked on other issue**: None.
+
+-   **Issue 3: Lefu Scale BLE Data Parsing is Incorrect (P2)**
+    -   **Description**: A known, recurring hardware integration bug where data from the Lefu Scale is not parsed correctly.
+    -   **Status**: BLOCKED
+    -   **Is recurring issue?**: Y
+    -   **Blocked on other issue**: Issue 1: iOS App Crashes on Launch. This cannot be debugged until a stable native build is running on the user's device.
+
 **In progress Task List**:
-- None.
+-   None.
 
 **Upcoming and Future Tasks**
-
 -   **Upcoming Tasks**:
-    -   **P1: Full Internationalization (i18n) Audit**: While the i18n framework is in place and many components are translated, a full audit is needed to convert all remaining hardcoded strings in the application to use the  function to achieve 100% translation coverage.
-    -   **P2: Native BLE Integration Debugging**: Once the user has the TestFlight build, they will test the connection with the J-Style bracelet, Lefu Scale, and Elder Vest. The agent must be prepared to debug any Bluetooth Low Energy (BLE) connectivity or data parsing issues that arise.
+    -   **P1: Full Native Hardware Testing**: Once the iOS build is stable, the user will perform end-to-end testing with the J-Style bracelet, Lefu Scale, and Elder Vest. The agent must be prepared to debug any Bluetooth Low Energy (BLE) connectivity or data parsing issues that arise.
+    -   **P2: Full Internationalization (i18n) Audit**: A full audit of the codebase is needed to find and convert any remaining hardcoded English strings to use the  function.
+    -   **P3: SAAD Subscription Page**: Create the UI/UX for a SAAD entity to subscribe to a Chutex Care plan, as discussed.
+
 -   **Future Tasks**:
     -   Implement the UI for team/group programs.
     -   Implement Shopify Integration.
     -   Implement Offline Mode for intervenants.
+    -   Prepare production deployment files (, ) as discussed for the user's HDS server.
 
 **Completed work in this session**
--   **Complete UI/UX Overhaul**: Redesigned the beneficiary and guardian dashboards, the main tab navbar (glassmorphism), the AI Chat (Nora), the Health page, and the Login/Signup pages.
--   **Full Program Flow Implementation**: Built and simulated the entire user journey for a health program, from discovery to daily missions and final reports.
--   **Morning Briefing Feature**: Created a personalized morning summary page that appears once per session upon app launch.
--   **AI Enhancements**: Established the Nora AI persona with a serious medical tone, enhanced its knowledge with the user's full medical record, and enabled it to assist guardians.
--   **Functionality Fixes**: Resolved critical issues with profile data persistence, non-functional device management buttons, and the dashboard alert banner.
--   **Massive Refactoring**: Refactored the  (2800+ lines) and  (1200+ lines) pages into smaller, manageable components.
--   **Internationalization**: Added support for 7 languages and implemented the translation framework across most of the app.
--   **Build Preparation**: Initiated the final iOS build for TestFlight deployment.
+-   **Admin Back-Office Overhaul**: Rebuilt the entire Admin space () into a responsive, professional-grade dashboard with tabbed navigation, data tables, and full CRUD functionality for users, subscriptions, analytics, and system settings.
+-   **Alert System Migration & Refactor**: Migrated the voice call engine to **Vapi.ai** for low-latency performance. Integrated **SMS Mode** for notifications. Redesigned the alert detail page () with a rich, coherent UI. Fixed the entire alert navigation flow.
+-   **User Authentication & Registration Refactor**: Redesigned the Login and Register pages. Created and debugged a dedicated multi-step registration flow for SAADs, including automatic generation of activation codes on the backend.
+-   **iOS TestFlight Deployment**: Successfully logged into the user's Expo account, managed build configurations, initiated an iOS build, diagnosed a crash in the first build, and submitted a corrected second build (build 4) to TestFlight.
+-   **Database Reset**: Wiped all simulated data from the database and disabled the startup seed script to provide a clean environment for user testing.
+-   **Bug Fixes**: Fixed the non-responsive SAAD registration button, broken accept/reject guardian request buttons, and incorrect display states for disconnected hardware devices.
 
 **Earlier issues found/mentioned but not fixed**
--   **Lefu Scale BLE Data Parsing is Incorrect**: A recurring hardware integration bug. This will likely be the focus of debugging once the user tests the new iOS build.
+-   None in this fork.
 
 **Known issue recurrence from previous fork**
--   **Expo Tunnel/Cache Instability**: The agent repeatedly faced issues with the Expo development server (ngrok tunnel), forcing the use of a static web export (env: load .env
-env: export EXPO_TUNNEL_SUBDOMAIN EXPO_PACKAGER_HOSTNAME EXPO_PUBLIC_BACKEND_URL EXPO_USE_FAST_RESOLVER METRO_CACHE_ROOT
-Fast resolver is enabled.
-Starting Metro Bundler
-Static rendering is enabled. Learn more: https://docs.expo.dev/router/reference/static-rendering/
-λ Bundled 2453ms node_modules/expo-router/node/render.js (916 modules)
-Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (978/979)
-λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (916/916)
-Web Bundled 2990ms node_modules/expo-router/entry.js (979 modules)
-
-› web bundles (1):
-_expo/static/js/web/entry-fdd2d291f7b6a6dfc86ca3acc0d61212.js (2.89 MB)
-
-› Static routes (51):
-/ecg (17.8 kB)
-/chat (17.8 kB)
-/ (index) (17.8 kB)
-/sleep (17.8 kB)
-/alerts (17.8 kB)
-/health (17.8 kB)
-/chat-ia (17.8 kB)
-/devices (17.8 kB)
-/profile (17.8 kB)
-/programs (17.8 kB)
-/register (17.8 kB)
-/_sitemap (17.2 kB)
-/link-code (17.8 kB)
-/reminders (17.8 kB)
-/backoffice (17.8 kB)
-/geofencing (17.8 kB)
-/onboarding (17.8 kB)
-/+not-found (17.2 kB)
-/(tabs)/chat (17.8 kB)
-/teleconsult (17.8 kB)
-/alert-detail (17.8 kB)
-/data-sharing (17.8 kB)
-/scale-detail (17.8 kB)
-/subscription (17.8 kB)
-/vest-connect (17.8 kB)
-/(tabs) (17.8 kB)
-/health-detail (17.8 kB)
-/metric-detail (17.8 kB)
-/(tabs)/alerts (17.8 kB)
-/(tabs)/health (17.8 kB)
-/company-agency (17.8 kB)
-/program-detail (17.8 kB)
-/(tabs)/devices (17.8 kB)
-/(tabs)/profile (17.8 kB)
-/edit-thresholds (17.8 kB)
-/guardian-detail (17.8 kB)
-/weighing-report (17.8 kB)
-/bracelet-connect (17.8 kB)
-/intervention-map (17.8 kB)
-/morning-briefing (17.8 kB)
-/activate-guardian (17.8 kB)
-/subscriber-detail (17.8 kB)
-/beneficiary-detail (17.8 kB)
-/(tabs)/teleconsult (17.8 kB)
-/admin-client-detail (17.8 kB)
-/intervention-detail (17.8 kB)
-/activate-beneficiary (17.8 kB)
-/admin-prescription-detail (17.8 kB)
-/company-prescriber-detail (17.8 kB)
-/company-intervenant-detail (17.8 kB)
-/company-intervention-detail (17.8 kB)
-
-Exported: dist) as a reliable workaround for testing frontend changes.
+-   **Expo Metro Cache Instability**: The agent frequently had to clear the Metro bundler cache () to ensure code changes were reflected in the web preview. This remains a persistent development environment issue.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Component Refactoring**: Broke down massive files (, ) into smaller, reusable components to improve maintainability.
--   **Custom Expo Navbar**: Replaced the default Expo tab bar with a custom transparent glassmorphism component by overriding default styles and using JavaScript to force parent element transparency at runtime.
--   **Dynamic AI Prompts**: The backend dynamically builds rich context for the LLM based on the user's role and full medical history to provide highly personalized AI responses.
--   **Session-based Logic**: Used  to implement the show once per session logic for the Morning Briefing screen.
--   **Internationalization (i18n)**: Implemented a robust translation system using a central  file and a  helper function, covering 7 languages.
--   **EAS Build Process**: Used Expo Application Services (EAS) to prepare and launch a native iOS build for TestFlight.
+-   **Third-Party API Integration**: Successfully integrated Vapi.ai for real-time voice calls and SMS Mode for text notifications, replacing a complex in-house solution.
+-   **Expo Application Services (EAS)**: Utilized the full EAS workflow (login, build, submit) to deploy a native iOS application to TestFlight.
+-   **Native Mobile Debugging**: Diagnosed a critical native iOS crash by analyzing the  configuration file.
+-   **Large-Scale Refactoring**: Executed multiple, large-scale rewrites of core application components, including the entire Admin Dashboard () and the user registration flow ().
+-   **Responsive Design**: Implemented a responsive layout for the new Admin Dashboard, ensuring it functions as a proper management tool on desktop, tablet, and mobile.
+-   **Database Seeding Control**: Managed application state for testing by implementing, and later disabling, a database seeding script that runs on backend startup.
 
 **key DB schema**
--   No new collections were created. The  collection was implicitly updated to store a much richer set of profile and medical data.
+-   **alerts**: The  field was removed. A  field was added. The schema now relies on  and associated  to track escalation.
+-   **users**: The  field is used to link SAAD staff to their parent company.
+-   **incidents**: This collection is now heavily used by the Vapi.ai integration to log call events, transcriptions, and outcomes.
+-   **activation_codes**, **intervention_codes**: These are now automatically generated in the backend whenever a new  (SAAD) successfully registers.
+
+**changes in tech stack**
+-   **Voice AI Engine**: Migrated from a custom stack (Twilio + ElevenLabs + GPT) to **Vapi.ai** for superior performance and lower latency.
+-   **SMS Provider**: Added **SMS Mode** as the provider for SMS notifications.
 
 **All files of reference**
--    (Main dashboard file)
--    (Custom Navbar implementation)
--    (Health page)
--    (All UI text strings)
--    (AI Nora persona logic)
--    (Alert system documentation)
+-   : The core configuration for the native Expo app. It was modified to fix the iOS crash.
+-   : Contains the heavily refactored user registration logic, including the new multi-step flow for SAADs.
+-   : The completely rewritten, responsive Admin back-office component.
+-   : The completely rewritten page for displaying detailed alert information.
+-   : The main backend file for alert creation and orchestration, now using the Vapi engine.
+-   : Modified to disable the database seeding function for a clean testing environment.
 
 **Areas that need refactoring**:
--   , while partially refactored, is still very large (2600+ lines). The Guardian-specific view within it could be further broken down into its own components.
--   The translations for Portuguese and Dutch in  are incomplete and need to be populated.
+-    has grown to over 1,200 lines and handles three distinct user registration flows. It should be decomposed into smaller, role-specific components.
+-    is now over 2,000 lines. The content for each of its main tabs (, , , ) should be extracted into separate components to improve maintainability.
+-   , at over 800 lines, is also a candidate for refactoring. Sub-sections like the timeline, vitals display, and guardian list could become their own components.
 
 **key api endpoints**
--   : Modified to accept a full medical record.
--   : Prompt updated to establish the Nora persona and handle context for guardians.
--   : New endpoint to remove a device by its type.
--   : New endpoint to generate the personalized text for the morning summary screen.
+-   : **MODIFIED**. Now automatically generates  and  codes upon successful registration of a  (SAAD).
+-   : **HEAVILY MODIFIED**. This endpoint no longer uses . It now captures , sends SMS notifications via SMS Mode, and triggers the new Vapi.ai voice call engine, but only if the beneficiary has an active Chutex Care subscription.
+-   : **HEAVILY MODIFIED**. The response is now enriched with data from the  collection (Vapi call logs) and provides a clean, translated timeline of events.
+-   : **CREATED**. Allows an admin to generate a unique registration link for a new SAAD.
 
 **Critical Info for New Agent**
--   **TOP PRIORITY - iOS Build**: The user's primary goal is to get the app onto TestFlight. Your first action should be to check the status of the ongoing EAS build (An Expo user account is required to proceed.
-
-Log in to EAS with email or username (exit and run eas login --help to see other login options)
-Input is required, but stdin is not readable. Failed to display prompt: Email or username) and proceed with the submission process.
--   **Unreliable Dev Server**: The standard [06:34:20] Starting project at /app/frontend command is unstable in this environment. For any frontend changes, you will likely need to use the static export workaround: env: load .env
-env: export EXPO_TUNNEL_SUBDOMAIN EXPO_PACKAGER_HOSTNAME EXPO_PUBLIC_BACKEND_URL EXPO_USE_FAST_RESOLVER METRO_CACHE_ROOT
-Fast resolver is enabled.
-Starting Metro Bundler
-Static rendering is enabled. Learn more: https://docs.expo.dev/router/reference/static-rendering/
-λ Bundled 1277ms node_modules/expo-router/node/render.js (779 modules)
-Web Bundled 1650ms node_modules/expo-router/entry.js (979 modules)
-
-› web bundles (1):
-_expo/static/js/web/entry-fdd2d291f7b6a6dfc86ca3acc0d61212.js (2.89 MB)
-
-› Static routes (51):
-/ecg (17.8 kB)
-/chat (17.8 kB)
-/ (index) (17.8 kB)
-/sleep (17.8 kB)
-/alerts (17.8 kB)
-/health (17.8 kB)
-/chat-ia (17.8 kB)
-/devices (17.8 kB)
-/profile (17.8 kB)
-/programs (17.8 kB)
-/register (17.8 kB)
-/_sitemap (17.2 kB)
-/link-code (17.8 kB)
-/reminders (17.8 kB)
-/backoffice (17.8 kB)
-/geofencing (17.8 kB)
-/onboarding (17.8 kB)
-/+not-found (17.2 kB)
-/(tabs)/chat (17.8 kB)
-/teleconsult (17.8 kB)
-/alert-detail (17.8 kB)
-/data-sharing (17.8 kB)
-/scale-detail (17.8 kB)
-/subscription (17.8 kB)
-/vest-connect (17.8 kB)
-/(tabs) (17.8 kB)
-/health-detail (17.8 kB)
-/metric-detail (17.8 kB)
-/(tabs)/alerts (17.8 kB)
-/(tabs)/health (17.8 kB)
-/company-agency (17.8 kB)
-/program-detail (17.8 kB)
-/(tabs)/devices (17.8 kB)
-/(tabs)/profile (17.8 kB)
-/edit-thresholds (17.8 kB)
-/guardian-detail (17.8 kB)
-/weighing-report (17.8 kB)
-/bracelet-connect (17.8 kB)
-/intervention-map (17.8 kB)
-/morning-briefing (17.8 kB)
-/activate-guardian (17.8 kB)
-/subscriber-detail (17.8 kB)
-/beneficiary-detail (17.8 kB)
-/(tabs)/teleconsult (17.8 kB)
-/admin-client-detail (17.8 kB)
-/intervention-detail (17.8 kB)
-/activate-beneficiary (17.8 kB)
-/admin-prescription-detail (17.8 kB)
-/company-prescriber-detail (17.8 kB)
-/company-intervenant-detail (17.8 kB)
-/company-intervention-detail (17.8 kB)
-
-Exported: dist followed by serving the  directory with a Python server.
--   **AI Persona is Nora**: All AI interactions must adhere to the Nora persona: a serious, professional medical assistant. Refer to the system prompts in  and .
--   **Use i18n for all new text**: Any new user-facing text must be added via the  function, with the corresponding key and translations placed in .
+-   **iOS Build is the #1 Priority**: Your first action should be to check in with the user about the status of the new TestFlight build (build 4). Confirm if it has resolved the crash. All native hardware testing is blocked until the app is stable on iOS.
+-   **Clean Database for Testing**: The database is intentionally empty (except for Admin and Teleassistance accounts). You will need to guide the user to create new Beneficiary, Guardian, and SAAD accounts via the app's registration flows to test functionality. Do not re-enable the seed script in .
+-   **External Service Limitations**:
+    -   **Vapi.ai**: The AI voice calls will not work for French numbers until the user upgrades their plan. This is a known limitation.
+    -   **Hardware**: All BLE device interactions are blocked until the iOS app is stable.
 
 **documents and test reports created in this job**
--   
+-   None.
 
 **Last 10 User Messages and any pending HUMAN messages**
-The user's recent messages focused on finalizing the app for a native build:
-1.  **Request for iOS Build**: Explicitly asked to push the build to TestFlight for native testing. (Last working item)
-2.  **UI/UX Finalization**: A series of requests to fine-tune UI elements, including dashboard layout, card designs, background images, and text content. (Completed)
-3.  **Functionality Fixes**: Reports of non-functional buttons and incorrect component behavior. (Completed)
-4.  **AI Persona Definition**: Defined the Nora AI persona and requested updates to all AI-generated text. (Completed)
-5.  **Internationalization**: Requested translation into 7 languages and the ability to switch languages from multiple locations in the app. (Completed)
+1.  **Request**: Create a blank SAAD account for testing on the (crashing) TestFlight build, as the SAAD registration is broken on that build. (Done)
+2.  **Report**: The TestFlight app crashes on launch. (Received, new build submitted)
+3.  **Confirmation**: The submission of the new build is finished. (Received, agent acknowledged)
+4.  **Question**: Does the new submission contain the fix for the SAAD registration loop? (Answered: Yes)
+5.  **Report**: I can't find the new build on TestFlight. Tell me exactly where to go. (Agent provided detailed instructions and link)
+6.  **Report**: The build is finished, what do I do now? (Agent initiated TestFlight submission)
+7.  **Request**: Push the app to TestFlight. (Done)
+8.  **Agreement**: Yes, automatically create codes for new SAADs and display them on their dashboard. (Implemented)
+9.  **Question**: Shouldn't we be able to create and manage codes from the admin panel? (Answered: Yes, that's already implemented)
+10. **Confirmation**: Leave the Admin and Teleassistance accounts, but clear all other data. Provide Expo credentials. (Done, DB cleared, build started)
 
 **Project Health Check:**
 -   **Broken**:
-    -   Lefu Scale Live Data (pre-existing hardware integration bug, to be tested on the new native build).
+    -   **Native iOS App**: The current user-facing build (3) crashes on launch. A new build (4) with a fix is pending user verification on TestFlight.
+    -   **Vapi.ai Voice Calls**: Will fail for international numbers due to the user's current free-tier plan.
 -   **Mocked**:
-    -   SMS for forgot password.
+    -   Hardware data is still simulated, but the system now correctly shows a disconnected state for devices that have been deleted or are not present, which is an improvement.
 
 **3rd Party Integrations**
--   **OpenAI GPT-4o**: Used via Emergent LLM Key for all AI features (Nora Chat, Morning Briefing).
--   **Expo (EAS Build)**: For native app builds.
--   **Hardware**: Lefu Smart Scale, J-Style bracelet, Elder S-AIRBAG vest (Connectivity to be tested on the iOS build).
+-   **Vapi.ai** (AI Voice Calls): Integrated via user-provided API Key.
+-   **SMS Mode** (SMS Notifications): Integrated via user-provided API Key.
+-   **Expo (EAS Build)**: Used for native app builds. Requires user-provided Expo account credentials.
+-   **OpenAI GPT-4o**: Used for AI text analysis features. Uses Emergent LLM Key.
+-   **Hardware**: Lefu Smart Scale, J-Style bracelet, Elder S-AIRBAG vest (integrations exist but are untested due to the unstable iOS app).
 
 **Testing status**
--   **Testing agent used after significant changes**: NO
+-   **Testing agent used after significant changes**: YES, the agent used the testing agent frequently to validate backend and frontend changes.
 -   **Troubleshoot agent used after agent stuck in loop**: NO
 -   **Test files created**: None.
--   **Known regressions**: None identified.
+-   **Known regressions**: None identified, but the iOS crash is a major new issue.
 
 **Credentials to test flow:**
-| Role | Phone / Email | Password |
+The database is clean. The only existing accounts are:
+
+| Role | Phone (for login) | Password |
 |---|---|---|
-| **Beneficiary** |  |  |
-| **Guardian / Prescripteur** |  |  |
 | **Admin** |  |  |
+| **Téléassistance**|  |  |
+
+All other user types (Beneficiary, Guardian, SAAD) must be created through the app's registration flows. A temporary SAAD account was created for debugging the TestFlight build, which the user can use if needed:
+- **Phone**:  / **Password**: 
 
 **What agent forgot to execute**
--   The translations for Portuguese and Dutch in  were added as languages but their translation key-value pairs were not populated, meaning selecting them will result in missing text.
--   A full audit to convert all remaining hardcoded strings to use the  translation function was not completed due to the large scope.</analysis>
+-   The agent pushed an initial iOS build that contained a known bug (the SAAD registration loop). This was an oversight, but it was corrected in the subsequent build. Otherwise, the agent has been very thorough in addressing the user's numerous and complex requests.</analysis>

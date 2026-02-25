@@ -16,7 +16,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://care-watch-preview-1.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://carewatch-alerts.preview.emergentagent.com')
 
 # Test credentials
 ADMIN_EMAIL = "admin@chutex.fr"
