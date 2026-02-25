@@ -341,10 +341,8 @@ def _build_alert_timeline(alert, escalations, calls, interventions):
     }
     timeline = [{"time": alert['created_at'], "event": "creation", "detail": type_labels.get(alert.get('alert_type', ''), alert.get('alert_type', 'Alerte')), "icon": "ri-alarm-warning-line", "color": "#EF4444"}]
 
-    # Teleassistance status
-    ts = alert.get('teleassistance_status', '')
-    if ts and ts != 'pending':
-        timeline.append({"time": alert.get('created_at', ''), "event": "teleassistance", "detail": status_fr.get(ts, ts), "icon": "ri-phone-line", "color": "#A78BFA"})
+    # Add SMS notification step
+    timeline.append({"time": alert['created_at'], "event": "sms", "detail": "Notification SMS et push envoyee aux gardiens", "icon": "ri-message-2-line", "color": "#38BDF8"})
 
     for esc in escalations:
         for t in esc.get('timeline', []):
