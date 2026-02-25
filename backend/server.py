@@ -77,6 +77,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 async def seed_demo_data():
     """Seed disabled — clean database for production testing"""
     logger.info("Seed disabled - base propre")
+    return
     demo_accounts = [
         {"email": "admin@chutex.fr", "name": "Directeur Chutex", "phone": "+33600000001", "role": "admin"},
         {"email": "robert.martin@email.fr", "name": "Robert Martin", "phone": "+33651245918", "role": "beneficiary",
