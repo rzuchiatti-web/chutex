@@ -176,6 +176,13 @@ export default function AlertDetailScreen() {
           </div>
         )}
 
+        {/* Carte de localisation - au dessus de la chronologie */}
+        {loc.latitude && (
+          <div style={{ marginBottom: 12 } as any}>
+            <MapEmbed lat={loc.latitude} lng={loc.longitude} ivLat={assignedIv?.location?.latitude} ivLng={assignedIv?.location?.longitude} benName={ben.name} ivName={assignedIv?.intervenant_name} />
+          </div>
+        )}
+
         {/* Timeline - redesigned */}
         <div style={{ ...G, padding: '18px', marginBottom: 12 } as any}>
           <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 } as any}>
