@@ -28,7 +28,7 @@ export default function TabLayout() {
   const isWebBen = Platform.OS === 'web' && isBen;
 
   // Single unified tab bar style — NO position absolute, just styled inline
-  const isWebAny = Platform.OS === 'web' && (isBen || isG || isTA);
+  const isWebAny = Platform.OS === 'web' && (isBen || isG || isTA || isCompany);
   const hideTabBar = isAdmin;
   const tabStyle = hideTabBar ? {
     display: 'none' as any,
