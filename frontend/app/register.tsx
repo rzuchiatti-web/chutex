@@ -103,8 +103,10 @@ export default function RegisterScreen() {
     devices: '',
     had_surgery: '', surgeries: [] as { zone: string; date: string }[],
     family_history: [] as string[], how_found: '',
-    pro_type: '', structure: '', how_found: '', alert_sms: false, alert_email: false,
+    pro_type: '', structure: '', alert_sms: false, alert_email: false,
     acceptTerms: false,
+    // SAAD fields
+    structure_name: '', siret: '', saad_address: '', saad_director_name: '', saad_director_phone: '', saad_email: '', invite_token: '',
   });
   const u = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
   const toggleArr = (k: string, v: string) => setForm(f => {
