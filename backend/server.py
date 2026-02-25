@@ -75,7 +75,8 @@ app.add_middleware(SecurityHeadersMiddleware)
 
 @app.on_event("startup")
 async def seed_demo_data():
-    """Create demo accounts if they don't exist"""
+    """Seed disabled — clean database for production testing"""
+    logger.info("Seed disabled - base propre")
     demo_accounts = [
         {"email": "admin@chutex.fr", "name": "Directeur Chutex", "phone": "+33600000001", "role": "admin"},
         {"email": "robert.martin@email.fr", "name": "Robert Martin", "phone": "+33651245918", "role": "beneficiary",
