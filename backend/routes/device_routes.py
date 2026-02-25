@@ -122,19 +122,20 @@ async def get_dashboard_summary(user=Depends(get_current_user)):
     base_hr = 68 + int(8 * math.sin(hour / 24 * math.pi * 2))
 
     bracelet = {
-        "connected": True, "battery": 78, "name": "Bracelet Elio",
-        "heart_rate": base_hr + random.randint(-3, 3),
-        "spo2": random.choice([96, 97, 97, 98, 98, 99]),
-        "blood_pressure": {"systolic": 125 + random.randint(-5, 5), "diastolic": 78 + random.randint(-3, 3)},
-        "temperature": round(36.4 + random.random() * 0.5, 1),
-        "steps": 3842 + random.randint(0, 500),
-        "calories": 154 + random.randint(0, 30),
-        "distance_km": round(2.7 + random.random() * 0.5, 1),
-        "last_sync": now.isoformat(),
+        "connected": bool(bracelet_dev), "battery": 78 if bracelet_dev else 0, "name": "Bracelet Elio",
+        "heart_rate": base_hr + random.randint(-3, 3) if bracelet_dev else 0,
+        "spo2": random.choice([96, 97, 97, 98, 98, 99]) if bracelet_dev else 0,
+        "blood_pressure": {"systolic": 125 + random.randint(-5, 5), "diastolic": 78 + random.randint(-3, 3)} if bracelet_dev else {"systolic": 0, "diastolic": 0},
+        "temperature": round(36.4 + random.random() * 0.5, 1) if bracelet_dev else 0,
+        "steps": (3842 + random.randint(0, 500)) if bracelet_dev else 0,
+        "calories": (154 + random.randint(0, 30)) if bracelet_dev else 0,
+        "distance_km": round(2.7 + random.random() * 0.5, 1) if bracelet_dev else 0,
+        "last_sync": now.isoformat() if bracelet_dev else None,
         "heart_rate_history": [
             {"hour": f"{h:02d}h", "value": 68 + int(8 * math.sin(h / 24 * math.pi * 2)) + random.randint(-2, 4)}
             for h in range(max(0, hour - 6), hour + 1)
-        ],
+        ] if bracelet_dev else [],
+        "paired": bool(bracelet_dev),
     }
     if bracelet_dev and bracelet_dev.get('last_heart_rate', 0) > 0:
         bracelet["heart_rate"] = bracelet_dev.get('last_heart_rate', bracelet["heart_rate"])
