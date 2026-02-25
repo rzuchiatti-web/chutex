@@ -178,9 +178,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           lng = pos.coords.longitude;
         }
       } catch {}
-      await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'sos', message: 'SOS - Aide requise immediatement!', device_type: 'bracelet', latitude: lat, longitude: lng }) }, token);
+      await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'manual_app', message: 'Bouton SOS active depuis l\'application', device_type: 'app', latitude: lat, longitude: lng }) }, token);
       notifyAlert('sos', 'SOS envoye ! Vos gardiens ont ete alertes.');
-      Alert.alert('Alerte SOS envoyee', 'Nous avons bien recu votre alerte.\n\n1. Vos gardiens sont alertes\n2. Votre position est transmise\n3. Un intervenant sera envoye si besoin');
+      Alert.alert('Alerte envoyee', 'Nous avons bien recu votre alerte.\n\n1. Vos gardiens sont notifies par SMS et push\n2. Votre position est transmise\n3. Un intervenant sera envoye si besoin');
       fetchData();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSosLoading(false); }
   };
