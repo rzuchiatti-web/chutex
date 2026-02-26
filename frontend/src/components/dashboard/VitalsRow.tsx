@@ -6,25 +6,34 @@ interface Props { br: any; }
 export default function VitalsRow({ br }: Props) {
   const router = useRouter();
 
+  const hasData = br.heart_rate > 0 || br.spo2 > 0;
+  const fmt = (v: any) => (v && v !== 0) ? v : '--';
+  const fmtBp = () => {
+    const s = br.blood_pressure?.systolic;
+    const d = br.blood_pressure?.diastolic;
+    return (s && s > 0 && d && d > 0) ? `${s}/${d}` : '--';
+  };
+  const fmtTemp = () => (br.temperature && br.temperature > 0) ? `${br.temperature}` : '--';
+
   const vitals = [
     {
       label: 'Rythme cardiaque', icon: 'ri-heart-pulse-line', color: '#EF4444',
-      val: br.heart_rate, unit: 'bpm', status: 'Au repos',
+      val: fmt(br.heart_rate), unit: 'bpm', status: hasData ? 'Au repos' : 'Non connecte',
       route: '/health-detail', params: { metricId: 'heart_rate' },
     },
     {
       label: 'Saturation O2', icon: 'ri-drop-line', color: '#6366F1',
-      val: `${br.spo2}`, unit: '%', status: 'Normal',
+      val: fmt(br.spo2), unit: '%', status: hasData ? 'Normal' : 'Non connecte',
       route: '/health-detail', params: { metricId: 'spo2' },
     },
     {
       label: 'Pression arterielle', icon: 'ri-water-flash-line', color: '#8B5CF6',
-      val: `${br.blood_pressure?.systolic || 125}/${br.blood_pressure?.diastolic || 78}`, unit: 'mmHg', status: 'Stable',
+      val: fmtBp(), unit: 'mmHg', status: hasData ? 'Stable' : 'Non connecte',
       route: '/health-detail', params: { metricId: 'blood_pressure' },
     },
     {
       label: 'Temperature', icon: 'ri-temp-hot-line', color: '#F59E0B',
-      val: `${br.temperature}`, unit: '°C', status: 'Normale',
+      val: fmtTemp(), unit: '°C', status: hasData ? 'Normale' : 'Non connecte',
       route: '/health-detail', params: { metricId: 'temperature' },
     },
   ];
