@@ -1,21 +1,27 @@
 import React, { useState } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiFetch } from '../src/services/api';
 import { useAuth } from '../src/context/AuthContext';
 import { RegisterForm } from '../src/components/register/RegisterUI';
 import RoleSelection from '../src/components/register/RoleSelection';
 import RGPDStep from '../src/components/register/RGPDStep';
 import PhonePasswordStep from '../src/components/register/PhonePasswordStep';
+import VerifyPhoneStep from '../src/components/register/VerifyPhoneStep';
 import SAADStep from '../src/components/register/SAADStep';
 import BeneficiaryInfoStep from '../src/components/register/BeneficiaryInfoStep';
 import MedicalStep from '../src/components/register/MedicalStep';
 import AntecedentsStep from '../src/components/register/AntecedentsStep';
 import GuardianInfoStep from '../src/components/register/GuardianInfoStep';
 
-const BEN_STEPS = 5;
-const GUARD_STEPS = 3;
-const SAAD_STEPS = 2;
+// Steps: 0=role, 1=RGPD, 2=phone/pass (or SAAD form), 3=SMS verify, 4+=info steps
+// Beneficiary: 0,1,2,3,4(info),5(medical),6(antecedents) = 6 steps
+// Guardian: 0,1,2,3,4(info) = 4 steps
+// SAAD: 0,1,2(form),3(verify) = 3 steps
+const BEN_STEPS = 6;
+const GUARD_STEPS = 4;
+const SAAD_STEPS = 3;
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -24,6 +30,8 @@ export default function RegisterScreen() {
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [showBiometric, setShowBiometric] = useState(false);
   const [form, setForm] = useState<RegisterForm>({
     phone: '', prefix: '+33', password: '', confirmPassword: '',
     name: '', firstName: '', dob_day: '', dob_month: '', dob_year: '', gender: '', address: '',
@@ -46,27 +54,33 @@ export default function RegisterScreen() {
 
   const totalSteps = role === 'beneficiary' ? BEN_STEPS : role === 'prescriber_company' ? SAAD_STEPS : GUARD_STEPS;
 
+  const getFullPhone = () => {
+    let ph = form.phone.trim().replace(/\s/g, '');
+    if (ph.startsWith('0') && ph.length >= 9) ph = form.prefix + ph.substring(1);
+    else if (!ph.startsWith('+')) ph = form.prefix + ph;
+    return ph;
+  };
+
   const canNext = () => {
     if (step === 0) return !!role;
-    if (step === 1) return true;
+    if (step === 1) return true; // RGPD info
+    if (step === 3) return phoneVerified; // SMS verify - auto-advances
     if (role === 'prescriber_company') {
       if (step === 2) return form.structure_name.trim() && form.siret.trim() && form.saad_director_name.trim() && form.phone.trim().length >= 6 && form.password.length >= 6 && form.password === form.confirmPassword && form.acceptTerms;
       return true;
     }
     if (step === 2) return form.phone.trim().length >= 6 && form.password.length >= 6 && form.password === form.confirmPassword;
-    if (step === 3 && role === 'beneficiary') return form.name.trim() && form.firstName.trim() && form.gender && form.dob_day && form.dob_month && form.dob_year && form.height_cm && form.weight_kg;
-    if (step === 3 && role === 'guardian') return form.name.trim() && form.firstName.trim() && form.acceptTerms;
-    if (step === 4 && role === 'beneficiary') return !!form.blood_type && form.medical_conditions.length > 0 && form.allergies.length > 0 && !!form.pacemaker && !!form.stents && !!form.thyroid;
-    if (step === 5 && role === 'beneficiary') return !!form.had_surgery && form.family_history.length > 0 && form.acceptTerms;
+    if (step === 4 && role === 'beneficiary') return form.name.trim() && form.firstName.trim() && form.gender && form.dob_day && form.dob_month && form.dob_year && form.height_cm && form.weight_kg;
+    if (step === 4 && role === 'guardian') return form.name.trim() && form.firstName.trim() && form.acceptTerms;
+    if (step === 5 && role === 'beneficiary') return !!form.blood_type && form.medical_conditions.length > 0 && form.allergies.length > 0 && !!form.pacemaker && !!form.stents && !!form.thyroid;
+    if (step === 6 && role === 'beneficiary') return !!form.had_surgery && form.family_history.length > 0 && form.acceptTerms;
     return true;
   };
 
   const handleRegister = async () => {
     setSubmitting(true); setError('');
     try {
-      let ph = form.phone.trim().replace(/\s/g, '');
-      if (ph.startsWith('0') && ph.length >= 9) ph = form.prefix + ph.substring(1);
-      else if (!ph.startsWith('+')) ph = form.prefix + ph;
+      const ph = getFullPhone();
       const body: any = {
         email: role === 'prescriber_company' ? form.saad_email || ph : ph,
         password: form.password, name: role === 'prescriber_company' ? form.saad_director_name : `${form.firstName} ${form.name}`.trim(),
@@ -90,11 +104,26 @@ export default function RegisterScreen() {
       }
       await apiFetch('/api/auth/register', { method: 'POST', body: JSON.stringify(body) });
       await login(ph, form.password);
-      router.replace('/(tabs)');
+      // Propose biometric
+      if (Platform.OS !== 'web') {
+        setShowBiometric(true);
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
   };
 
+  const enableBiometric = async () => {
+    try {
+      await AsyncStorage.setItem('biometric_enabled', 'true');
+      await AsyncStorage.setItem('biometric_phone', getFullPhone());
+      await AsyncStorage.setItem('biometric_password', form.password);
+    } catch {}
+    router.replace('/(tabs)');
+  };
+
   const isLastStep = (role === 'beneficiary' && step === BEN_STEPS) || (role === 'guardian' && step === GUARD_STEPS) || (role === 'prescriber_company' && step === SAAD_STEPS);
+  const isVerifyStep = step === 3;
 
   if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Web uniquement</Text></View>;
 
@@ -128,12 +157,13 @@ export default function RegisterScreen() {
           {step === 1 && <RGPDStep />}
           {step === 2 && role === 'prescriber_company' && <SAADStep form={form} u={u} />}
           {step === 2 && role !== 'prescriber_company' && <PhonePasswordStep form={form} u={u} />}
-          {step === 3 && role === 'beneficiary' && <BeneficiaryInfoStep form={form} u={u} />}
-          {step === 4 && role === 'beneficiary' && <MedicalStep form={form} u={u} toggleArr={toggleArr} />}
-          {step === 5 && role === 'beneficiary' && <AntecedentsStep form={form} u={u} toggleArr={toggleArr} />}
-          {step === 3 && role === 'guardian' && <GuardianInfoStep form={form} u={u} />}
+          {step === 3 && <VerifyPhoneStep phone={getFullPhone()} onVerified={() => { setPhoneVerified(true); if (role === 'prescriber_company') handleRegister(); else setStep(4); }} />}
+          {step === 4 && role === 'beneficiary' && <BeneficiaryInfoStep form={form} u={u} />}
+          {step === 5 && role === 'beneficiary' && <MedicalStep form={form} u={u} toggleArr={toggleArr} />}
+          {step === 6 && role === 'beneficiary' && <AntecedentsStep form={form} u={u} toggleArr={toggleArr} />}
+          {step === 4 && role === 'guardian' && <GuardianInfoStep form={form} u={u} />}
 
-          {step > 0 && (
+          {step > 0 && !isVerifyStep && (
             <div style={{ marginTop: 24 } as any}>
               <div data-testid="register-next-btn" onClick={() => { if (!canNext()) return; setError(''); if (isLastStep) handleRegister(); else setStep(step + 1); }} style={{ padding: '16px', borderRadius: 999, background: canNext() ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)', border: `1px solid ${canNext() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: canNext() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 15, fontWeight: 800, color: canNext() ? '#FFF' : 'rgba(255,255,255,0.25)', opacity: submitting ? 0.6 : 1 } as any}>
                 {submitting ? 'Creation en cours...' : isLastStep ? 'Creer mon compte' : 'Continuer'}
@@ -142,6 +172,21 @@ export default function RegisterScreen() {
           )}
         </div>
       </div>
+
+      {/* Biometric Prompt Modal */}
+      {showBiometric && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 } as any}>
+          <div style={{ width: '100%', maxWidth: 360, borderRadius: 24, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '32px 24px', textAlign: 'center' } as any}>
+            <div style={{ width: 64, height: 64, borderRadius: 18, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' } as any}>
+              <i className="ri-fingerprint-line" style={{ fontSize: 32, color: '#10B981' }} />
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Connexion biometrique</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, marginBottom: 24 }}>Activez Face ID ou l'empreinte digitale pour vous connecter plus rapidement la prochaine fois.</div>
+            <div data-testid="enable-biometric-btn" onClick={enableBiometric} style={{ padding: '14px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#10B981', marginBottom: 10 } as any}>Activer</div>
+            <div data-testid="skip-biometric-btn" onClick={() => router.replace('/(tabs)')} style={{ padding: '12px', cursor: 'pointer', fontSize: 13, color: 'rgba(255,255,255,0.35)' } as any}>Plus tard</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
