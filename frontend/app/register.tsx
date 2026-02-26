@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiFetch } from '../src/services/api';
 import { useAuth } from '../src/context/AuthContext';
 import { RegisterForm } from '../src/components/register/RegisterUI';
+import LanguagePicker from '../src/components/LanguagePicker';
 import RoleSelection from '../src/components/register/RoleSelection';
 import RGPDStep from '../src/components/register/RGPDStep';
 import PhonePasswordStep from '../src/components/register/PhonePasswordStep';
@@ -32,6 +33,9 @@ export default function RegisterScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [showBiometric, setShowBiometric] = useState(false);
+  const [lang, setLang] = useState('fr');
+
+  useEffect(() => { AsyncStorage.getItem('chutex_lang').then(v => { if (v) setLang(v); }).catch(() => {}); }, []);
   const [form, setForm] = useState<RegisterForm>({
     phone: '', prefix: '+33', password: '', confirmPassword: '',
     name: '', firstName: '', dob_day: '', dob_month: '', dob_year: '', gender: '', address: '',
@@ -143,12 +147,21 @@ export default function RegisterScreen() {
             </div>
           )}
 
+          {step === 0 && (
+            <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+              <LanguagePicker lang={lang} setLang={setLang} />
+            </div>
+          )}
+
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 } as any}>
             <div data-testid="register-back-btn" onClick={() => { if (step > 1) setStep(step - 1); else if (step === 1) setStep(0); else router.back(); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer' } as any}>
               <i className="ri-arrow-left-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }} />
               <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{step === 0 ? 'Connexion' : 'Retour'}</span>
             </div>
-            {step > 0 && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Etape {step}/{totalSteps}</span>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+              {step > 0 && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Etape {step}/{totalSteps}</span>}
+              {step > 0 && <LanguagePicker lang={lang} setLang={setLang} />}
+            </div>
           </div>
 
           {error && <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 16, fontSize: 13, color: '#F87171' } as any}>{error}</div>}
