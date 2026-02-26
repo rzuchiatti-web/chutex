@@ -93,13 +93,13 @@ export default function AuthScreen() {
             <form onSubmit={handleSubmit} data-testid="login-form">
               <div style={{ marginBottom: 16 } as any}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>Telephone</div>
-                <div style={{ display: 'flex', gap: 8 } as any}>
-                  <div onClick={() => setShowPrefix(!showPrefix)} style={{ ...INPUT, padding: '13px 12px', borderRadius: 999, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', overflow: 'hidden' } as any}>
+                  <div onClick={() => setShowPrefix(!showPrefix)} style={{ padding: '13px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, borderRight: '1px solid rgba(255,255,255,0.08)' } as any}>
                     <span style={{ fontSize: 16 }}>{selectedPfx.flag}</span>
                     <span style={{ fontSize: 14, color: '#FFF', fontWeight: 600 }}>{prefix}</span>
                     <i className="ri-arrow-down-s-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }} />
                   </div>
-                  <input name="phone" type="tel" autoComplete="tel" data-testid="login-phone-input" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)} style={{ ...INPUT, flex: 1, width: 'auto' }} />
+                  <input name="phone" type="tel" autoComplete="tel" data-testid="login-phone-input" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)} style={{ flex: 1, padding: '13px 16px', background: 'transparent', border: 'none', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
                 </div>
                 {showPrefix && (
                   <div style={{ marginTop: 6, padding: '6px', borderRadius: 16, background: 'rgba(10,15,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', maxHeight: 160, overflowY: 'auto' } as any}>
