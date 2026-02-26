@@ -63,7 +63,7 @@
           ],
           "bluetoothAlwaysPermission": "Chutex needs Bluetooth to connect to your health devices."
         }
-      ],
+      ]
     ],
     "experiments": {
       "typedRoutes": true
