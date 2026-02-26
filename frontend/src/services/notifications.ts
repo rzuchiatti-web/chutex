@@ -114,6 +114,7 @@ export function sendLocalNotification(title: string, body: string, icon?: string
 // ─── Schedule Reminder Notification (Native only) ───
 export async function scheduleReminderNotification(title: string, body: string, hour: number, minute: number, weekdays?: number[]) {
   if (Platform.OS === 'web') return null;
+  ensureNotificationHandler();
   
   try {
     const trigger: any = { hour, minute, repeats: true };
@@ -172,10 +173,12 @@ export function notifyIntervention(beneficiaryName: string, distance?: number) {
 // ─── Notification Listeners (for navigation on tap) ───
 export function addNotificationResponseListener(callback: (response: Notifications.NotificationResponse) => void) {
   if (Platform.OS === 'web') return { remove: () => {} };
+  ensureNotificationHandler();
   return Notifications.addNotificationResponseReceivedListener(callback);
 }
 
 export function addNotificationReceivedListener(callback: (notification: Notifications.Notification) => void) {
   if (Platform.OS === 'web') return { remove: () => {} };
+  ensureNotificationHandler();
   return Notifications.addNotificationReceivedListener(callback);
 }
