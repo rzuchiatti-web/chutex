@@ -2,9 +2,11 @@ import { Platform } from 'react-native';
 
 let BleManager: any = null;
 let bleManagerInstance: any = null;
+let bleInitAttempted = false;
 
-// Only import react-native-ble-plx on native
-if (Platform.OS !== 'web') {
+function ensureBleManager() {
+  if (bleInitAttempted || Platform.OS === 'web') return;
+  bleInitAttempted = true;
   try {
     BleManager = require('react-native-ble-plx').BleManager;
     bleManagerInstance = new BleManager();
@@ -17,10 +19,12 @@ export function isBleAvailable(): boolean {
   if (Platform.OS === 'web') {
     return 'bluetooth' in navigator;
   }
+  ensureBleManager();
   return !!bleManagerInstance;
 }
 
 export function getBleManager() {
+  ensureBleManager();
   return bleManagerInstance;
 }
 
