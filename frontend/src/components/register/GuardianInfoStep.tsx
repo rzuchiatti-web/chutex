@@ -15,7 +15,7 @@ export default function GuardianInfoStep({ form, u }: { form: RegisterForm; u: U
         <GI label="Code postal" placeholder="75002" value={form.postal_code} onChange={(e: any) => u('postal_code', e.target.value)} />
         <GI label="Ville" placeholder="Paris" value={form.city} onChange={(e: any) => u('city', e.target.value)} />
       </div>
-      <GI label="Pays" placeholder="France" value={form.country} onChange={(e: any) => u('country', e.target.value)} />
+      <CountryPicker value={form.country} onChange={(c) => u('country', c)} />
 
       <HowFoundGrid value={form.how_found} onChange={(v) => u('how_found', v)} />
 

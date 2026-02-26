@@ -1,5 +1,6 @@
 import React from 'react';
 import { GI, INPUT_STYLE, RegisterForm, UpdateFn } from './RegisterUI';
+import { CountryPicker } from '../GlassPickers';
 
 export default function BeneficiaryInfoStep({ form, u }: { form: RegisterForm; u: UpdateFn }) {
   return (
@@ -57,7 +58,7 @@ export default function BeneficiaryInfoStep({ form, u }: { form: RegisterForm; u
         <GI label="Code postal" placeholder="75002" value={form.postal_code} onChange={(e: any) => u('postal_code', e.target.value)} />
         <GI label="Ville" placeholder="Paris" value={form.city} onChange={(e: any) => u('city', e.target.value)} />
       </div>
-      <GI label="Pays" placeholder="France" value={form.country} onChange={(e: any) => u('country', e.target.value)} />
+      <CountryPicker value={form.country} onChange={(c) => u('country', c)} />
     </>
   );
 }
