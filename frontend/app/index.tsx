@@ -5,6 +5,9 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../src/context/AuthContext';
 import { PREFIXES } from '../src/components/register/RegisterUI';
+import LanguagePicker from '../src/components/LanguagePicker';
+
+const INPUT = { padding: '13px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
 
 export default function AuthScreen() {
   const { user, loading, login } = useAuth();
@@ -20,10 +23,15 @@ export default function AuthScreen() {
   const [showForgot, setShowForgot] = useState(false);
   const [forgotPhone, setForgotPhone] = useState('');
   const [forgotMsg, setForgotMsg] = useState('');
+  const [lang, setLang] = useState('fr');
 
   useEffect(() => {
-    AsyncStorage.getItem('chutex_onboarding_done').then(val => {
-      if (!val) router.replace('/onboarding'); else setReady(true);
+    Promise.all([
+      AsyncStorage.getItem('chutex_onboarding_done'),
+      AsyncStorage.getItem('chutex_lang'),
+    ]).then(([onb, lng]) => {
+      if (!onb) router.replace('/onboarding'); else setReady(true);
+      if (lng) setLang(lng);
     }).catch(() => setReady(true));
   }, []);
 
@@ -64,33 +72,37 @@ export default function AuthScreen() {
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' } as any}>
           <div style={{ width: '100%', maxWidth: 340 } as any}>
 
+            {/* Language picker */}
+            <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+              <LanguagePicker lang={lang} setLang={setLang} />
+            </div>
+
             {/* Logo */}
-            <div style={{ textAlign: 'center', marginBottom: 40 } as any}>
+            <div style={{ textAlign: 'center', marginBottom: 32 } as any}>
               <img src="https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429" alt="Chutex" style={{ height: 48, width: 'auto', display: 'block', margin: '0 auto' } as any} />
             </div>
 
-            {/* Title */}
-            <div style={{ marginBottom: 24 } as any}>
+            {/* Title centered */}
+            <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
               <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Connexion</div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Accedez a votre espace sante</div>
             </div>
 
-            {error && <div data-testid="login-error" style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 16, fontSize: 12, color: '#FCA5A5' } as any}>{error}</div>}
+            {error && <div data-testid="login-error" style={{ padding: '10px 14px', borderRadius: 999, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 16, fontSize: 12, color: '#FCA5A5', textAlign: 'center' } as any}>{error}</div>}
 
             <form onSubmit={handleSubmit} data-testid="login-form">
               <div style={{ marginBottom: 16 } as any}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>Telephone</div>
                 <div style={{ display: 'flex', gap: 8 } as any}>
-                  <div onClick={() => setShowPrefix(!showPrefix)} style={{ padding: '13px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 } as any}>
+                  <div onClick={() => setShowPrefix(!showPrefix)} style={{ ...INPUT, padding: '13px 12px', borderRadius: 999, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 } as any}>
                     <span style={{ fontSize: 16 }}>{selectedPfx.flag}</span>
                     <span style={{ fontSize: 14, color: '#FFF', fontWeight: 600 }}>{prefix}</span>
                     <i className="ri-arrow-down-s-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }} />
                   </div>
-                  <input name="phone" type="tel" autoComplete="tel" data-testid="login-phone-input" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)}
-                    style={{ flex: 1, padding: '13px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                  <input name="phone" type="tel" autoComplete="tel" data-testid="login-phone-input" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)} style={{ ...INPUT, flex: 1, width: 'auto' }} />
                 </div>
                 {showPrefix && (
-                  <div style={{ marginTop: 6, padding: '6px', borderRadius: 12, background: 'rgba(10,15,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', maxHeight: 160, overflowY: 'auto' } as any}>
+                  <div style={{ marginTop: 6, padding: '6px', borderRadius: 16, background: 'rgba(10,15,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', maxHeight: 160, overflowY: 'auto' } as any}>
                     {PREFIXES.map(p => (
                       <div key={p.code} onClick={() => { setPrefix(p.code); setShowPrefix(false); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, cursor: 'pointer', background: prefix === p.code ? 'rgba(255,255,255,0.06)' : 'transparent' } as any}>
                         <span style={{ fontSize: 14 }}>{p.flag}</span>
@@ -104,8 +116,7 @@ export default function AuthScreen() {
 
               <div style={{ marginBottom: 24 } as any}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>Mot de passe</div>
-                <input name="password" type="password" autoComplete="current-password" data-testid="login-password-input" placeholder="Votre mot de passe" value={password} onChange={(e: any) => setPassword(e.target.value)}
-                  style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                <input name="password" type="password" autoComplete="current-password" data-testid="login-password-input" placeholder="Votre mot de passe" value={password} onChange={(e: any) => setPassword(e.target.value)} style={{ ...INPUT, width: '100%' }} />
               </div>
 
               <button type="submit" disabled={submitting} data-testid="login-form-submit-button" style={{ width: '100%', padding: '15px', borderRadius: 999, background: '#FFF', border: 'none', color: '#111', fontSize: 15, fontWeight: 800, fontFamily: 'inherit', cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.6 : 1 } as any}>
@@ -122,7 +133,6 @@ export default function AuthScreen() {
               <span data-testid="register-link" onClick={() => router.push('/register' as any)} style={{ fontSize: 13, color: '#FFF', fontWeight: 700, cursor: 'pointer' }}>S'inscrire</span>
             </div>
 
-            {/* Forgot password popup */}
             {showForgot && (
               <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                 <div style={{ width: '100%', maxWidth: 380, padding: '32px 28px', boxSizing: 'border-box' } as any}>
@@ -137,27 +147,19 @@ export default function AuthScreen() {
                     <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>Entrez votre numero de telephone pour recevoir un lien de reinitialisation par SMS.</div>
                   </div>
                   <div style={{ marginBottom: 16 } as any}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>Telephone</div>
                     <div style={{ display: 'flex', gap: 8 } as any}>
-                      <div style={{ padding: '13px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 } as any}>
+                      <div style={{ ...INPUT, padding: '13px 12px', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 } as any}>
                         <span style={{ fontSize: 16 }}>{selectedPfx.flag}</span>
                         <span style={{ fontSize: 13, color: '#FFF', fontWeight: 600 }}>{prefix}</span>
                       </div>
-                      <input type="tel" placeholder="06 12 34 56 78" value={forgotPhone} onChange={(e: any) => setForgotPhone(e.target.value)}
-                        style={{ flex: 1, padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                      <input type="tel" placeholder="06 12 34 56 78" value={forgotPhone} onChange={(e: any) => setForgotPhone(e.target.value)} style={{ ...INPUT, flex: 1, width: 'auto' }} />
                     </div>
                   </div>
-                  {forgotMsg && (
-                    <div style={{ padding: '12px 16px', borderRadius: 14, background: forgotMsg.includes('envoye') ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${forgotMsg.includes('envoye') ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}`, marginBottom: 14, fontSize: 13, color: forgotMsg.includes('envoye') ? '#10B981' : '#F87171' } as any}>{forgotMsg}</div>
-                  )}
-                  <div onClick={() => {
-                    if (!forgotPhone.trim()) return setForgotMsg('Veuillez entrer votre numero de telephone.');
-                    setForgotMsg('Un SMS de reinitialisation a ete envoye a votre numero.');
-                  }} style={{ padding: '16px', borderRadius: 999, background: forgotPhone.trim() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotPhone.trim() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: forgotPhone.trim() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotPhone.trim() ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>Envoyer le lien</div>
+                  {forgotMsg && <div style={{ padding: '12px 16px', borderRadius: 999, background: forgotMsg.includes('envoye') ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${forgotMsg.includes('envoye') ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}`, marginBottom: 14, fontSize: 13, color: forgotMsg.includes('envoye') ? '#10B981' : '#F87171', textAlign: 'center' } as any}>{forgotMsg}</div>}
+                  <div onClick={() => { if (!forgotPhone.trim()) return setForgotMsg('Veuillez entrer votre numero.'); setForgotMsg('Un SMS de reinitialisation a ete envoye.'); }} style={{ padding: '16px', borderRadius: 999, background: forgotPhone.trim() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotPhone.trim() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: forgotPhone.trim() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotPhone.trim() ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>Envoyer le lien</div>
                 </div>
               </div>
             )}
-
           </div>
         </div>
       </div>
@@ -176,9 +178,9 @@ export default function AuthScreen() {
           <Text style={{ fontSize: 28, fontWeight: '800', color: '#FFF', textAlign: 'center', marginBottom: 40 }}>Connexion</Text>
           {error ? <View style={{ backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 14, padding: 12, marginBottom: 20 }}><Text style={{ fontSize: 13, color: '#F87171' }}>{error}</Text></View> : null}
           <TextInput defaultValue="" onChangeText={(t: string) => phoneRef.current = t} placeholder="06 12 34 56 78" placeholderTextColor="rgba(255,255,255,0.2)" keyboardType="phone-pad"
-            style={{ fontSize: 15, padding: 16, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', color: '#FFF', marginBottom: 16 }} />
+            style={{ fontSize: 15, padding: 16, borderRadius: 9999, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', color: '#FFF', marginBottom: 16 }} />
           <TextInput defaultValue="" onChangeText={(t: string) => passwordRef.current = t} placeholder="Mot de passe" placeholderTextColor="rgba(255,255,255,0.2)" secureTextEntry
-            style={{ fontSize: 15, padding: 16, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', color: '#FFF', marginBottom: 24 }} />
+            style={{ fontSize: 15, padding: 16, borderRadius: 9999, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', color: '#FFF', marginBottom: 24 }} />
           <TouchableOpacity disabled={submitting} onPress={async () => {
             setError(''); const ph = phoneRef.current.trim(); const pw = passwordRef.current;
             if (!ph || !pw) return setError('Telephone et mot de passe requis'); setSubmitting(true);
