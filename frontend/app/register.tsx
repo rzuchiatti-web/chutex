@@ -139,6 +139,8 @@ export default function RegisterScreen() {
     const userName = role === 'prescriber_company' ? form.saad_director_name : `${form.firstName} ${form.name}`.trim();
     return <NoraPresentationStep role={role} userName={userName} onContinue={() => {
       if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('briefing_seen', '1');
+      // Mark Nora welcome as seen so next login shows morning briefing
+      apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ nora_welcome_seen: true }) }, token).catch(() => {});
       if (Platform.OS !== 'web') { setShowNora(false); setShowBiometric(true); }
       else router.replace('/(tabs)');
     }} />;
