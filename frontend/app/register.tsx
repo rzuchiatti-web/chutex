@@ -93,13 +93,20 @@ export default function RegisterScreen() {
       if (role === 'prescriber_company') {
         body.structure_name = form.structure_name;
         body.siret = form.siret;
-        body.address = form.saad_address;
+        body.address = [form.saad_address, form.saad_postal_code, form.saad_city, form.saad_country].filter(Boolean).join(', ');
+        body.postal_code = form.saad_postal_code;
+        body.city = form.saad_city;
+        body.country = form.saad_country;
         body.is_prescriber = true;
         body.prescriber_structure = form.structure_name;
         if (form.invite_token) body.invite_token = form.invite_token;
       } else {
         body.date_of_birth = form.dob_year && form.dob_month && form.dob_day ? `${form.dob_year}-${form.dob_month.padStart(2,'0')}-${form.dob_day.padStart(2,'0')}` : '';
         body.gender = form.gender;
+        body.address = form.address;
+        body.postal_code = form.postal_code;
+        body.city = form.city;
+        body.country = form.country;
         body.height_cm = form.height_cm ? parseFloat(form.height_cm) : null;
         body.weight_kg = form.weight_kg ? parseFloat(form.weight_kg) : null;
         body.blood_type = form.blood_type;
