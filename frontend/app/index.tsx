@@ -90,7 +90,7 @@ export default function AuthScreen() {
 
             <form onSubmit={handleSubmit} data-testid="login-form">
               <div style={{ marginBottom: 16 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', overflow: 'hidden' } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                   <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)' } as any}>
                     <PrefixPicker value={prefix} onChange={setPrefix} />
                   </div>

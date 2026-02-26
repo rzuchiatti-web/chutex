@@ -9,7 +9,7 @@ export default function PhonePasswordStep({ form, u }: { form: RegisterForm; u: 
       <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>Vos identifiants de connexion</div>
       <div style={{ marginBottom: 14 } as any}>
         <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Telephone</div>
-        <div style={{ display: 'flex', alignItems: 'center', borderRadius: 999, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', overflow: 'hidden' } as any}>
+        <div style={{ display: 'flex', alignItems: 'center', borderRadius: 999, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
           <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)' } as any}>
             <PrefixPicker value={form.prefix} onChange={(code) => u('prefix', code)} />
           </div>
