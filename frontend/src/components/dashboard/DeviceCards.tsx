@@ -60,19 +60,40 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
     <>
       <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>{t('devices_connected')}</div>
       {devices.map((d) => (
-        <div key={d.id} data-testid={`device-card-${d.id}`} onClick={() => setSelected(d.id)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8, cursor: 'pointer', transition: 'transform 0.2s', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}
-          onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-1px)'}
-          onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
+        <div key={d.id} data-testid={`device-card-${d.id}`} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 0.2s' } as any}>
           <img src={d.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
-          <div style={{ flex: 1 } as any}>
+          <div style={{ flex: 1, minWidth: 0 } as any}>
             <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>{d.name}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
-              <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : '#EF4444' } as any} />
-              <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : '#EF4444' }}>{d.connected ? 'Connecte' : 'Deconnecte'}</span>
-            </div>
-            <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: 4, borderRadius: 2, width: `${d.battery}%`, background: batteryGrad(d.battery) } as any} /></div>
+            {d.paired ? (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
+                  <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : '#EF4444' } as any} />
+                  <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : '#EF4444' }}>{d.connected ? 'Connecte' : 'Deconnecte'}</span>
+                </div>
+                <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: 4, borderRadius: 2, width: `${d.battery}%`, background: batteryGrad(d.battery) } as any} /></div>
+              </>
+            ) : (
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>Non associe</div>
+            )}
           </div>
-          <div style={{ fontSize: 14, fontWeight: 900, color: batteryColor(d.battery), flexShrink: 0 }}>{d.battery}%</div>
+          {d.paired ? (
+            <div onClick={() => setSelected(d.id)} style={{ fontSize: 14, fontWeight: 900, color: batteryColor(d.battery), flexShrink: 0, cursor: 'pointer' }}>{d.battery}%</div>
+          ) : (
+            <div style={{ display: 'flex', gap: 6, flexShrink: 0 } as any}>
+              <div data-testid={`associate-${d.id}`} onClick={() => {
+                if (d.id === 'bracelet') router.push('/bracelet-pairing' as any);
+                else if (d.id === 'vest') router.push('/vest-pairing' as any);
+                else router.push('/(tabs)/devices' as any);
+              }} style={{ padding: '6px 14px', borderRadius: 999, background: `${d.color}18`, border: `1px solid ${d.color}30`, cursor: 'pointer', fontSize: 11, fontWeight: 700, color: d.color, transition: 'background 0.2s' } as any}
+                onMouseEnter={(e: any) => e.currentTarget.style.background = `${d.color}30`}
+                onMouseLeave={(e: any) => e.currentTarget.style.background = `${d.color}18`}
+              >Associer</div>
+              <div data-testid={`discover-${d.id}`} onClick={(e: any) => { e.stopPropagation(); window.open(d.link, '_blank'); }} style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', transition: 'background 0.2s' } as any}
+                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+                onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+              >Decouvrir</div>
+            </div>
+          )}
         </div>
       ))}
 
