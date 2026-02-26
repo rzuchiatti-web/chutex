@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
 const AVATARS_BEN = [
-  { icon: 'ri-user-heart-line', color: '#38BDF8', bg: 'rgba(56,189,248,0.15)', label: 'SENIOR' },
-  { icon: 'ri-run-line', color: '#10B981', bg: 'rgba(16,185,129,0.15)', label: 'SPORTIF' },
-  { icon: 'ri-men-line', color: '#8B5CF6', bg: 'rgba(139,92,246,0.15)', label: 'HOMME' },
-  { icon: 'ri-women-line', color: '#F472B6', bg: 'rgba(244,114,182,0.15)', label: 'FEMME' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/dbnv0bpj_img1_beneficiaire.png', label: 'SENIOR' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/ifr3insc_img4_beneficiaire.png', label: 'SPORTIVE' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/9xmj6v5y_img3_beneficiaire.png', label: 'HOMME' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/z2xcol2r_img2_beneficiaire.png', label: 'FEMME' },
 ];
 
 const AVATARS_GUARD = [
@@ -14,14 +14,20 @@ const AVATARS_GUARD = [
   { icon: 'ri-shield-star-line', color: '#EC4899', bg: 'rgba(236,72,153,0.15)', label: 'COACH' },
 ];
 
-function AvatarRow({ items }: { items: typeof AVATARS_BEN }) {
+function AvatarRow({ items }: { items: any[] }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
       {items.map((a, i) => (
         <div key={i} style={{ textAlign: 'center' } as any}>
-          <div style={{ width: 52, height: 52, borderRadius: 999, background: a.bg, border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px' } as any}>
-            <i className={a.icon} style={{ fontSize: 22, color: a.color }} />
-          </div>
+          {a.img ? (
+            <div style={{ width: 56, height: 56, borderRadius: 999, overflow: 'hidden', margin: '0 auto 6px', border: '2px solid rgba(255,255,255,0.15)' } as any}>
+              <img src={a.img} alt={a.label} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+            </div>
+          ) : (
+            <div style={{ width: 52, height: 52, borderRadius: 999, background: a.bg, border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px' } as any}>
+              <i className={a.icon} style={{ fontSize: 22, color: a.color }} />
+            </div>
+          )}
           <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5 }}>{a.label}</div>
         </div>
       ))}
