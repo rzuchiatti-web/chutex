@@ -24,7 +24,7 @@ export default function SAADStep({ form, u }: { form: RegisterForm; u: UpdateFn 
         <GI label="Nom et prenom du dirigeant" value={form.saad_director_name} onChange={(e: any) => u('saad_director_name', e.target.value)} placeholder="Jean Dupont" />
         <div style={{ marginBottom: 14 } as any}>
           <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>Telephone</div>
-          <div style={{ display: 'flex', alignItems: 'center', borderRadius: 999, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', overflow: 'hidden' } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', borderRadius: 999, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
             <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)' } as any}>
               <PrefixPicker value={form.prefix} onChange={(code) => u('prefix', code)} />
             </div>
