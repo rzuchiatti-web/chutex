@@ -15,6 +15,7 @@ import BeneficiaryInfoStep from '../src/components/register/BeneficiaryInfoStep'
 import MedicalStep from '../src/components/register/MedicalStep';
 import AntecedentsStep from '../src/components/register/AntecedentsStep';
 import GuardianInfoStep from '../src/components/register/GuardianInfoStep';
+import NoraPresentationStep from '../src/components/register/NoraPresentationStep';
 
 // Steps: 0=role, 1=RGPD, 2=phone/pass (or SAAD form), 3=SMS verify, 4+=info steps
 // Beneficiary: 0,1,2,3,4(info),5(medical),6(antecedents) = 6 steps
@@ -33,6 +34,7 @@ export default function RegisterScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [showBiometric, setShowBiometric] = useState(false);
+  const [showNora, setShowNora] = useState(false);
   const [lang, setLang] = useState('fr');
 
   useEffect(() => { AsyncStorage.getItem('chutex_lang').then(v => { if (v) setLang(v); }).catch(() => {}); }, []);
@@ -115,12 +117,7 @@ export default function RegisterScreen() {
       }
       await apiFetch('/api/auth/register', { method: 'POST', body: JSON.stringify(body) });
       await login(ph, form.password);
-      // Propose biometric
-      if (Platform.OS !== 'web') {
-        setShowBiometric(true);
-      } else {
-        router.replace('/(tabs)');
-      }
+      setShowNora(true);
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setSubmitting(false); }
   };
 
