@@ -370,6 +370,15 @@ async def get_metric_history(key: str, period: str = "7j", user=Depends(get_curr
 async def get_health_summary(user=Depends(get_current_user)):
     """Lightweight endpoint: AI health summary sentence + recommendation"""
     uid = user['id']
+
+    # No devices = no data
+    has_devices = await db.devices.find_one({"user_id": uid}, {"_id": 0})
+    if not has_devices:
+        return {"user_id": uid, "score": 0, "status": "Aucune donnee", "status_color": "#6B7280",
+                "summary": "Connectez un appareil pour commencer votre suivi sante.",
+                "recommendation": "Rendez-vous dans Appareils pour connecter votre bracelet ou votre balance.",
+                "no_data": True, "generated_at": datetime.now(timezone.utc).isoformat()}
+
     # Check cache (1h TTL)
     cached = await db.health_summary_cache.find_one({"user_id": uid}, {"_id": 0})
     if cached:
@@ -441,6 +450,15 @@ Reponds UNIQUEMENT en JSON: {{"summary": "phrase medicale factuelle courte", "re
 @router.get("/health/daily-report")
 async def get_daily_report(user=Depends(get_current_user)):
     uid = user['id']
+
+    # No devices = no data
+    has_devices = await db.devices.find_one({"user_id": uid}, {"_id": 0})
+    if not has_devices:
+        return {"no_data": True, "data": {}, "score_info": {"score": 0, "status": "Aucune donnee", "status_color": "#6B7280", "subscores": {}, "lifts": [], "limits": []},
+                "ai_insights": {"hero_line": "Connectez un appareil pour demarrer votre suivi", "priority": "Connecter un bracelet ou une balance", "priority_why": "Sans appareil, Nora ne peut pas analyser vos donnees.",
+                "correlations": [], "whats_good": [], "watch_out": [], "secondary_recs": [], "motivation": "", "score_explain_up": "", "score_explain_down": ""},
+                "daily_plan": [], "sparklines": {}, "weighings": []}
+
     bracelet = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
     scale = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
     d = gen_data()
