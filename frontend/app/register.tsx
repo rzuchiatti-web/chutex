@@ -27,7 +27,7 @@ const SAAD_STEPS = 3;
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, token } = useAuth();
   const [role, setRole] = useState('');
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
