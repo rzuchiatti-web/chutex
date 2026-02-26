@@ -12,71 +12,111 @@ export default function MorningBriefingScreen() {
   const started = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const NORA_CONTENT: Record<string, { greeting: string; features: { icon: string; color: string; label: string; value: string; detail: string }[] }> = {
+    beneficiary: {
+      greeting: `Je suis Nora, votre assistante sante personnelle.\n\nJe vais vous accompagner au quotidien pour surveiller votre sante, prevenir les risques et vous aider a rester en pleine forme. Voici ce que je peux faire pour vous :`,
+      features: [
+        { icon: 'ri-heart-pulse-line', color: '#EF4444', label: 'Suivi sante', value: 'Surveillance continue', detail: 'Frequence cardiaque, tension, SpO2, sommeil en temps reel' },
+        { icon: 'ri-alarm-warning-line', color: '#F59E0B', label: 'Alertes intelligentes', value: 'Prevention des chutes', detail: 'Detection automatique et alerte de vos proches en cas de danger' },
+        { icon: 'ri-chat-smile-3-line', color: '#10B981', label: 'Chat IA', value: 'Disponible 24h/24', detail: 'Posez-moi vos questions sante, je suis toujours la pour vous' },
+        { icon: 'ri-calendar-check-line', color: '#A78BFA', label: 'Briefing quotidien', value: 'Chaque matin', detail: 'Un resume personnalise de votre etat et vos objectifs du jour' },
+      ],
+    },
+    guardian: {
+      greeting: `Je suis Nora, l'assistante sante de Chutex Care.\n\nEn tant que gardien, vous avez un role essentiel dans le suivi de vos proches. Je vous tiendrai informe en temps reel et vous alerterai en cas de besoin. Voici vos outils :`,
+      features: [
+        { icon: 'ri-group-line', color: '#38BDF8', label: 'Suivi de vos proches', value: 'Tableau de bord', detail: 'Visualisez les donnees sante de vos beneficiaires en un coup d\'oeil' },
+        { icon: 'ri-notification-3-line', color: '#EF4444', label: 'Alertes en direct', value: 'Notifications push', detail: 'Soyez prevenu immediatement en cas de chute ou anomalie' },
+        { icon: 'ri-line-chart-line', color: '#10B981', label: 'Rapports sante', value: 'Historique complet', detail: 'Suivez les tendances et partagez avec les professionnels de sante' },
+        { icon: 'ri-chat-smile-3-line', color: '#A78BFA', label: 'Chat avec Nora', value: 'Conseils personnalises', detail: 'Des recommandations adaptees pour accompagner vos proches' },
+      ],
+    },
+    prescriber_company: {
+      greeting: `Je suis Nora, l'IA integree a la plateforme Chutex Care.\n\nVotre structure SAAD dispose maintenant d'un outil puissant pour suivre et proteger vos beneficiaires. Voici les fonctionnalites a votre disposition :`,
+      features: [
+        { icon: 'ri-building-2-line', color: '#38BDF8', label: 'Gestion structure', value: 'Back-office complet', detail: 'Gerez vos equipes, beneficiaires et intervenants depuis un seul endroit' },
+        { icon: 'ri-shield-check-line', color: '#10B981', label: 'Teleassistance', value: 'Centre d\'alertes', detail: 'Recevez et gerez les alertes de tous vos beneficiaires' },
+        { icon: 'ri-bar-chart-grouped-line', color: '#F59E0B', label: 'Statistiques', value: 'Rapports detailles', detail: 'Analysez les donnees sante de votre parc de beneficiaires' },
+        { icon: 'ri-robot-2-line', color: '#A78BFA', label: 'IA Nora', value: 'Assistance intelligente', detail: 'Analyses predictives et recommandations pour vos equipes' },
+      ],
+    },
+  };
+
   useEffect(() => {
     if (started.current || !user) return;
     started.current = true;
     const name = user?.name?.split(' ')[0] || '';
+    const role = user?.role || 'beneficiary';
 
     Promise.all([
       apiFetch('/api/health/daily-report', {}, token).catch(() => null),
       apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
     ]).then(([report, dash]) => {
-      const d = report?.data || {};
-      const br = dash?.bracelet || {};
-      const sc = dash?.scale || {};
+      const isNewUser = report?.no_data || (!dash?.bracelet?.connected && !dash?.scale?.connected && !dash?.vest?.connected);
 
-      const hr = br.heart_rate || d.heart_rate || 72;
-      const spo2 = br.spo2 || d.spo2 || 97;
-      const sys = br.blood_pressure?.systolic || d.blood_pressure?.systolic || 125;
-      const dia = br.blood_pressure?.diastolic || d.blood_pressure?.diastolic || 78;
-      const weight = sc.weight || d.weight || 72.4;
-      const sleepQ = d.sleep_quality || 82;
-      const sleepMin = d.sleep_duration_min || 443;
-      const sleepH = Math.floor(sleepMin / 60);
-      const sleepM = sleepMin % 60;
-      const stress = d.stress_level || 35;
-      const score = report?.score || 96;
-      const recoCal = d.recommended_calories || 2050;
-      const recovery = d.recovery_score || 78;
+      let fullText: string;
 
-      // Personal, warm but medical text
-      let fullText = `Bonjour ${name},\n`;
-      if (score >= 90) {
-        fullText += `vous etes en pleine forme aujourd'hui. `;
-        if (hr >= 55 && hr <= 75) fullText += `Votre frequence cardiaque de ${hr} bpm est excellente, `;
-        else fullText += `Frequence cardiaque a ${hr} bpm, `;
-        if (stress < 40) fullText += `un niveau de stress faible a ${stress}/100 et `;
-        else fullText += `stress modere a ${stress}/100, `;
-        fullText += `une saturation en oxygene optimale a ${spo2}%. `;
-        fullText += `Nuit de ${sleepH}h${String(sleepM).padStart(2,'0')} avec une qualite de ${sleepQ}%. `;
-        if (recovery > 75) fullText += `Recuperation solide.`;
-        else fullText += `Recuperation a consolider.`;
-      } else if (score >= 70) {
-        fullText += `votre etat general est correct avec quelques points d'attention. `;
-        fullText += `Frequence cardiaque ${hr} bpm, SpO2 ${spo2}%. `;
-        if (sys > 120) fullText += `Tension a ${sys}/${dia} mmHg, legerement elevee. `;
-        if (sleepQ < 80) fullText += `Qualite de sommeil a ameliorer (${sleepQ}%). `;
-        if (stress > 50) fullText += `Stress modere a ${stress}/100.`;
+      if (isNewUser) {
+        // NEW USER: Nora welcome message
+        const nora = NORA_CONTENT[role] || NORA_CONTENT.beneficiary;
+        fullText = `Bonjour ${name},\n\n${nora.greeting}`;
+        setObjectives(nora.features);
       } else {
-        fullText += `certains indicateurs necessitent votre attention. `;
-        fullText += `FC ${hr} bpm, tension ${sys}/${dia}, SpO2 ${spo2}%. `;
-        if (sleepQ < 70) fullText += `Sommeil insuffisant (${sleepQ}%). `;
-        fullText += `Consultez votre medecin si ces valeurs persistent.`;
+        // EXISTING USER: Health briefing
+        const d = report?.data || {};
+        const br = dash?.bracelet || {};
+        const sc = dash?.scale || {};
+
+        const hr = br.heart_rate || d.heart_rate || 72;
+        const spo2 = br.spo2 || d.spo2 || 97;
+        const sys = br.blood_pressure?.systolic || d.blood_pressure?.systolic || 125;
+        const dia = br.blood_pressure?.diastolic || d.blood_pressure?.diastolic || 78;
+        const weight = sc.weight || d.weight || 72.4;
+        const sleepQ = d.sleep_quality || 82;
+        const sleepMin = d.sleep_duration_min || 443;
+        const sleepH = Math.floor(sleepMin / 60);
+        const sleepM = sleepMin % 60;
+        const stress = d.stress_level || 35;
+        const score = report?.score || 96;
+        const recoCal = d.recommended_calories || 2050;
+        const recovery = d.recovery_score || 78;
+
+        fullText = `Bonjour ${name},\n`;
+        if (score >= 90) {
+          fullText += `vous etes en pleine forme aujourd'hui. `;
+          if (hr >= 55 && hr <= 75) fullText += `Votre frequence cardiaque de ${hr} bpm est excellente, `;
+          else fullText += `Frequence cardiaque a ${hr} bpm, `;
+          if (stress < 40) fullText += `un niveau de stress faible a ${stress}/100 et `;
+          else fullText += `stress modere a ${stress}/100, `;
+          fullText += `une saturation en oxygene optimale a ${spo2}%. `;
+          fullText += `Nuit de ${sleepH}h${String(sleepM).padStart(2,'0')} avec une qualite de ${sleepQ}%. `;
+          if (recovery > 75) fullText += `Recuperation solide.`;
+          else fullText += `Recuperation a consolider.`;
+        } else if (score >= 70) {
+          fullText += `votre etat general est correct avec quelques points d'attention. `;
+          fullText += `Frequence cardiaque ${hr} bpm, SpO2 ${spo2}%. `;
+          if (sys > 120) fullText += `Tension a ${sys}/${dia} mmHg, legerement elevee. `;
+          if (sleepQ < 80) fullText += `Qualite de sommeil a ameliorer (${sleepQ}%). `;
+          if (stress > 50) fullText += `Stress modere a ${stress}/100.`;
+        } else {
+          fullText += `certains indicateurs necessitent votre attention. `;
+          fullText += `FC ${hr} bpm, tension ${sys}/${dia}, SpO2 ${spo2}%. `;
+          if (sleepQ < 70) fullText += `Sommeil insuffisant (${sleepQ}%). `;
+          fullText += `Consultez votre medecin si ces valeurs persistent.`;
+        }
+        fullText += `\n\nVoici vos objectifs pour aujourd'hui :`;
+
+        const targetSteps = score >= 90 ? 8000 : score >= 70 ? 6000 : 4000;
+        const targetWater = weight > 80 ? '2L' : weight > 60 ? '1.5L' : '1.2L';
+        const bedtime = sleepQ < 70 ? '22h00' : sleepQ < 85 ? '22h30' : '23h00';
+
+        setObjectives([
+          { icon: 'ri-restaurant-line', color: '#F59E0B', label: 'Apport calorique', value: `${recoCal} kcal`, detail: 'Repartis en 3 repas equilibres' },
+          { icon: 'ri-drop-line', color: '#38BDF8', label: 'Hydratation', value: targetWater, detail: 'A repartir regulierement' },
+          { icon: 'ri-footprint-line', color: '#10B981', label: 'Activite physique', value: `${targetSteps.toLocaleString()} pas`, detail: '30 min de marche ou equivalent' },
+          { icon: 'ri-moon-line', color: '#A78BFA', label: 'Coucher recommande', value: bedtime, detail: 'Ecrans eteints 30 min avant' },
+        ]);
       }
-
-      fullText += `\n\nVoici vos objectifs pour aujourd'hui :`;
-
-      // Objectives — actionable daily targets
-      const targetSteps = score >= 90 ? 8000 : score >= 70 ? 6000 : 4000;
-      const targetWater = weight > 80 ? '2L' : weight > 60 ? '1.5L' : '1.2L';
-      const bedtime = sleepQ < 70 ? '22h00' : sleepQ < 85 ? '22h30' : '23h00';
-
-      setObjectives([
-        { icon: 'ri-restaurant-line', color: '#F59E0B', label: 'Apport calorique', value: `${recoCal} kcal`, detail: 'Repartis en 3 repas equilibres' },
-        { icon: 'ri-drop-line', color: '#38BDF8', label: 'Hydratation', value: targetWater, detail: 'A repartir regulierement' },
-        { icon: 'ri-footprint-line', color: '#10B981', label: 'Activite physique', value: `${targetSteps.toLocaleString()} pas`, detail: '30 min de marche ou equivalent' },
-        { icon: 'ri-moon-line', color: '#A78BFA', label: 'Coucher recommande', value: bedtime, detail: 'Ecrans eteints 30 min avant' },
-      ]);
 
       // Typewriter
       let idx = 0;
