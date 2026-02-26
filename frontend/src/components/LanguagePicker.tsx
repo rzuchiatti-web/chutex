@@ -71,7 +71,7 @@ export default function LanguagePicker({ lang, setLang }: { lang: string; setLan
               ))}
             </div>
           </div>
-        </div>
+        </div>, document.body
       )}
     </>
   );
