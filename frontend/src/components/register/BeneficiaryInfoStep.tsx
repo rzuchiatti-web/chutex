@@ -52,7 +52,12 @@ export default function BeneficiaryInfoStep({ form, u }: { form: RegisterForm; u
           </select>
         </div>
       </div>
-      <GI label="Adresse" placeholder="12 rue de la Paix, 75002 Paris" value={form.address} onChange={(e: any) => u('address', e.target.value)} />
+      <GI label="Adresse" placeholder="12 rue de la Paix" value={form.address} onChange={(e: any) => u('address', e.target.value)} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
+        <GI label="Code postal" placeholder="75002" value={form.postal_code} onChange={(e: any) => u('postal_code', e.target.value)} />
+        <GI label="Ville" placeholder="Paris" value={form.city} onChange={(e: any) => u('city', e.target.value)} />
+      </div>
+      <GI label="Pays" placeholder="France" value={form.country} onChange={(e: any) => u('country', e.target.value)} />
     </>
   );
 }

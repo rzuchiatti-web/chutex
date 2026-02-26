@@ -10,7 +10,12 @@ export default function SAADStep({ form, u }: { form: RegisterForm; u: UpdateFn 
         <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Structure</div>
         <GI label="Nom de la structure" value={form.structure_name} onChange={(e: any) => u('structure_name', e.target.value)} placeholder="Ex: SAAD Aide a Domicile Loire" />
         <GI label="Numero SIRET" value={form.siret} onChange={(e: any) => u('siret', e.target.value)} placeholder="14 chiffres" />
-        <GI label="Adresse de la structure" value={form.saad_address} onChange={(e: any) => u('saad_address', e.target.value)} placeholder="Adresse complete" />
+        <GI label="Adresse de la structure" value={form.saad_address} onChange={(e: any) => u('saad_address', e.target.value)} placeholder="12 rue de la Paix" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
+          <GI label="Code postal" value={form.saad_postal_code} onChange={(e: any) => u('saad_postal_code', e.target.value)} placeholder="75002" />
+          <GI label="Ville" value={form.saad_city} onChange={(e: any) => u('saad_city', e.target.value)} placeholder="Paris" />
+        </div>
+        <GI label="Pays" value={form.saad_country} onChange={(e: any) => u('saad_country', e.target.value)} placeholder="France" />
         <GI label="Email professionnel" value={form.saad_email} onChange={(e: any) => u('saad_email', e.target.value)} placeholder="contact@votre-saad.fr" type="email" />
       </div>
       <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '20px 18px', marginBottom: 16 } as any}>
