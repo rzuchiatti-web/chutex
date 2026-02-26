@@ -107,7 +107,9 @@ async function requestWebNotificationPermission(): Promise<boolean> {
 export async function requestNotificationPermission(): Promise<boolean> {
   ensureNotificationHandler();
   if (Platform.OS === 'web') return requestWebNotificationPermission();
-  const { status } = await Notifications.getPermissionsAsync();
+  const N = getNotifications();
+  if (!N) return false;
+  const { status } = await N.getPermissionsAsync();
   return status === 'granted';
 }
 
@@ -120,7 +122,9 @@ export function sendLocalNotification(title: string, body: string, icon?: string
       new Notification(title, { body, icon: icon || '/favicon.ico', tag: `chutex-${Date.now()}` });
     } catch {}
   } else {
-    Notifications.scheduleNotificationAsync({
+    const N = getNotifications();
+    if (!N) return;
+    N.scheduleNotificationAsync({
       content: { title, body, sound: 'default' },
       trigger: null,
     }).catch(() => {});
@@ -131,14 +135,15 @@ export function sendLocalNotification(title: string, body: string, icon?: string
 export async function scheduleReminderNotification(title: string, body: string, hour: number, minute: number, weekdays?: number[]) {
   if (Platform.OS === 'web') return null;
   ensureNotificationHandler();
+  const N = getNotifications();
+  if (!N) return null;
   
   try {
     const trigger: any = { hour, minute, repeats: true };
     if (weekdays && weekdays.length > 0) {
-      // Schedule for each weekday
       const ids = [];
       for (const day of weekdays) {
-        const id = await Notifications.scheduleNotificationAsync({
+        const id = await N.scheduleNotificationAsync({
           content: { title, body, sound: 'default', categoryIdentifier: 'reminder' },
           trigger: { ...trigger, weekday: day },
         });
@@ -147,7 +152,7 @@ export async function scheduleReminderNotification(title: string, body: string, 
       return ids;
     }
     
-    return await Notifications.scheduleNotificationAsync({
+    return await N.scheduleNotificationAsync({
       content: { title, body, sound: 'default', categoryIdentifier: 'reminder' },
       trigger,
     });
@@ -187,14 +192,18 @@ export function notifyIntervention(beneficiaryName: string, distance?: number) {
 }
 
 // ─── Notification Listeners (for navigation on tap) ───
-export function addNotificationResponseListener(callback: (response: Notifications.NotificationResponse) => void) {
+export function addNotificationResponseListener(callback: (response: any) => void) {
   if (Platform.OS === 'web') return { remove: () => {} };
   ensureNotificationHandler();
-  return Notifications.addNotificationResponseReceivedListener(callback);
+  const N = getNotifications();
+  if (!N) return { remove: () => {} };
+  return N.addNotificationResponseReceivedListener(callback);
 }
 
-export function addNotificationReceivedListener(callback: (notification: Notifications.Notification) => void) {
+export function addNotificationReceivedListener(callback: (notification: any) => void) {
   if (Platform.OS === 'web') return { remove: () => {} };
   ensureNotificationHandler();
-  return Notifications.addNotificationReceivedListener(callback);
+  const N = getNotifications();
+  if (!N) return { remove: () => {} };
+  return N.addNotificationReceivedListener(callback);
 }
