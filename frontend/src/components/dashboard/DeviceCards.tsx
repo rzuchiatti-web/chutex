@@ -17,9 +17,9 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
   const { t } = useI18n();
 
   const devices = [
-    { id: 'bracelet', name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE' },
-    { id: 'scale', name: 'Balance Lefu', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, color: '#A78BFA' },
-    { id: 'vest', name: 'Elder', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, color: '#10B981' },
+    { id: 'bracelet', name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, paired: br.paired, color: '#22D3EE', link: 'https://chutex-innovation.com/bracelet-elio' },
+    { id: 'scale', name: 'Balance Lefu', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, paired: sc.paired, color: '#A78BFA', link: 'https://chutex-innovation.com/balance-vita' },
+    { id: 'vest', name: 'Elder', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, paired: vs.paired, color: '#10B981', link: 'https://chutex-innovation.com/gilet-elder' },
   ];
 
   const lastSync = (ts: string) => ts ? new Date(ts).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '--';
