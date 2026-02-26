@@ -14,6 +14,8 @@ export default function AuthScreen() {
   const { user, loading, login } = useAuth();
   const router = useRouter();
   const hasRedirected = useRef(false);
+  const phoneRef = useRef('');
+  const passwordRef = useRef('');
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
