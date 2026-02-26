@@ -15,7 +15,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://carewatch-alerts.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://nora-health-ai.preview.emergentagent.com')
 
 # Test credentials
 CLAIRE_EMAIL = "claire.martin@email.fr"  # guardian with has_beneficiary_space: true
