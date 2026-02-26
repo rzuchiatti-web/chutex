@@ -20,7 +20,7 @@
         ],
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "4"
+      "buildNumber": "5"
     },
     "android": {
       "package": "com.chutex.app",
@@ -64,7 +64,6 @@
           "bluetoothAlwaysPermission": "Chutex needs Bluetooth to connect to your health devices."
         }
       ],
-      "./plugins/lefu-scale"
     ],
     "experiments": {
       "typedRoutes": true
