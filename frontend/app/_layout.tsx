@@ -27,6 +27,7 @@ function RootNav() {
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#FFFFFF' }, animation: 'none' }}>
           <Stack.Screen name="index" options={{ animation: 'none' }} />
           <Stack.Screen name="onboarding" options={{ animation: 'none' }} />
+          <Stack.Screen name="register" options={{ animation: 'none' }} />
         </Stack>
       </>
     );
@@ -61,6 +62,7 @@ function RootNav() {
         <Stack.Screen name="chat-ia" options={{ presentation: 'card', animation: 'slide_from_bottom' }} />
         <Stack.Screen name="morning-briefing" options={{ presentation: 'card', animation: 'fade' }} />
         <Stack.Screen name="nora-welcome" options={{ presentation: 'card', animation: 'fade' }} />
+        <Stack.Screen name="register" options={{ animation: 'none' }} />
       </Stack>
     </>
   );
