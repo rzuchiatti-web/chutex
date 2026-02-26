@@ -30,7 +30,7 @@ export default function LanguagePicker({ lang, setLang }: { lang: string; setLan
         <i className="ri-arrow-down-s-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }} />
       </div>
 
-      {open && (
+      {open && typeof document !== 'undefined' && createPortal(
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: 'rgba(0,0,0,0.4)' } as any}>
           {/* Backdrop click */}
           <div onClick={() => setOpen(false)} style={{ position: 'absolute', inset: 0 } as any} />
