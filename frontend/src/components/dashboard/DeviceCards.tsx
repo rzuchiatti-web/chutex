@@ -108,7 +108,6 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
               <StatusPill connected={br.connected} />
             </div>
             <div style={{ padding: '4px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 12 } as any}>
-              <InfoRow label="ID appareil" val={br.device_id || 'ELIO-8A3F'} />
               <InfoRow label="Nom" val="Bracelet Elio" />
               <InfoRow label="Derniere connexion" val={lastSync(br.last_sync)} />
             </div>
@@ -142,7 +141,6 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
               <StatusPill connected={vs.connected} />
             </div>
             <div style={{ padding: '4px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 12 } as any}>
-              <InfoRow label="ID appareil" val={vs.device_id || 'ELDER-5B2C'} />
               <InfoRow label="Nom" val="Elder" />
               <InfoRow label="Derniere connexion" val={lastSync(vs.last_sync)} />
             </div>
