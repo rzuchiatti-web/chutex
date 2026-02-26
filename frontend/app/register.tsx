@@ -135,6 +135,14 @@ export default function RegisterScreen() {
 
   if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Web uniquement</Text></View>;
 
+  if (showNora) {
+    const userName = role === 'prescriber_company' ? form.saad_director_name : `${form.firstName} ${form.name}`.trim();
+    return <NoraPresentationStep role={role} userName={userName} onContinue={() => {
+      if (Platform.OS !== 'web') { setShowNora(false); setShowBiometric(true); }
+      else router.replace('/(tabs)');
+    }} />;
+  }
+
   return (
     <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
       <div style={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: 'url(https://cdn.shopify.com/s/files/1/0886/1918/8558/files/banner_login_mobile.jpg?v=1771242072)', backgroundSize: 'cover', backgroundPosition: 'center 30%' } as any} />
