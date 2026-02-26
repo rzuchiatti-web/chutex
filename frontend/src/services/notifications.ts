@@ -4,9 +4,12 @@ import * as Notifications from 'expo-notifications';
 
 let permissionGranted = false;
 let expoPushToken: string | null = null;
+let handlerConfigured = false;
 
-// Configure notification handler
-if (Platform.OS !== 'web') {
+// Lazy configure notification handler (must not run at module load time on native)
+function ensureNotificationHandler() {
+  if (handlerConfigured || Platform.OS === 'web') return;
+  handlerConfigured = true;
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
