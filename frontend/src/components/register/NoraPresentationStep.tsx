@@ -7,7 +7,7 @@ const ROLE_CONTENT: Record<string, { greeting: string; features: { icon: string;
     greeting: `Je suis Nora, votre assistante sante personnelle.\n\nMon objectif est de vous accompagner chaque jour pour ameliorer votre longevite, preserver votre sante et optimiser votre bien-etre. Grace a vos appareils connectes et a l'intelligence artificielle, je vais analyser vos donnees pour vous offrir un suivi personnalise. Voici ce que je peux faire pour vous :`,
     features: [
       { icon: 'ri-heart-pulse-line', color: '#EF4444', label: 'Suivi sante', value: 'Surveillance continue', detail: 'Frequence cardiaque, tension, SpO2, sommeil en temps reel' },
-      { icon: 'ri-alarm-warning-line', color: '#F59E0B', label: 'Alertes intelligentes', value: 'Prevention des chutes', detail: 'Detection automatique et alerte de vos proches en cas de danger' },
+      { icon: 'ri-alarm-warning-line', color: '#F59E0B', label: 'Alertes preventives', value: 'Surveillance intelligente', detail: 'Detection automatique des anomalies et alerte de vos proches' },
       { icon: 'ri-chat-smile-3-line', color: '#10B981', label: 'Chat IA', value: 'Disponible 24h/24', detail: 'Posez-moi vos questions sante, je suis toujours la pour vous' },
       { icon: 'ri-calendar-check-line', color: '#A78BFA', label: 'Briefing quotidien', value: 'Chaque matin', detail: 'Un resume personnalise de votre etat et vos objectifs du jour' },
     ],
