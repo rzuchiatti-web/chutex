@@ -4,9 +4,6 @@ export default function RGPDStep() {
   return (
     <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '28px 22px' } as any}>
       <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-        <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' } as any}>
-          <i className="ri-database-2-line" style={{ fontSize: 26, color: '#818CF8' }} />
-        </div>
         <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Protection de vos donnees</div>
         <div style={{ width: 40, height: 1, background: 'rgba(255,255,255,0.15)', margin: '0 auto 12px' } as any} />
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>Vos informations de sante sont traitees avec le plus haut niveau de securite et stockees sur des serveurs francais certifies.</div>
