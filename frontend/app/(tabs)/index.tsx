@@ -111,25 +111,18 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   useEffect(() => { fetchData(); const iv = setInterval(fetchData, 30000); return () => clearInterval(iv); }, [fetchData]);
   useEffect(() => { requestNotificationPermission(); }, []);
-  // Morning briefing — only once per session, skip for new users without data
+  // Morning briefing — only once per session, Nora welcome for new users
   useEffect(() => {
     if (Platform.OS === 'web') {
       const seen = sessionStorage.getItem('briefing_seen');
-      const isNew = sessionStorage.getItem('nora_welcome_done');
-      if (!seen && !isNew) {
-        // Check if user has real health data before showing medical briefing
-        apiFetch('/api/health/daily-report', {}, token).then(report => {
-          if (report?.data?.heart_rate) {
-            router.push('/morning-briefing' as any);
-          } else {
-            // New user, no data — show Nora welcome instead
-            sessionStorage.setItem('briefing_seen', '1');
-            router.push('/nora-welcome' as any);
-          }
-        }).catch(() => {
+      if (!seen) {
+        // Check if user has already seen Nora welcome (new user check)
+        if (!user?.nora_welcome_seen) {
           sessionStorage.setItem('briefing_seen', '1');
           router.push('/nora-welcome' as any);
-        });
+        } else {
+          router.push('/morning-briefing' as any);
+        }
       }
     }
   }, []);
