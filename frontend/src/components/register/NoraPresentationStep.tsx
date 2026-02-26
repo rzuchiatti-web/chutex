@@ -4,7 +4,7 @@ const VIDEO = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-
 
 const ROLE_CONTENT: Record<string, { greeting: string; features: { icon: string; color: string; label: string; value: string; detail: string }[] }> = {
   beneficiary: {
-    greeting: `Je suis Nora, votre assistante sante personnelle.\n\nJe vais vous accompagner au quotidien pour surveiller votre sante, prevenir les risques et vous aider a rester en pleine forme. Voici ce que je peux faire pour vous :`,
+    greeting: `Je suis Nora, votre assistante sante personnelle.\n\nMon objectif est de vous accompagner chaque jour pour ameliorer votre longevite, preserver votre sante et optimiser votre bien-etre. Grace a vos appareils connectes et a l'intelligence artificielle, je vais analyser vos donnees pour vous offrir un suivi personnalise. Voici ce que je peux faire pour vous :`,
     features: [
       { icon: 'ri-heart-pulse-line', color: '#EF4444', label: 'Suivi sante', value: 'Surveillance continue', detail: 'Frequence cardiaque, tension, SpO2, sommeil en temps reel' },
       { icon: 'ri-alarm-warning-line', color: '#F59E0B', label: 'Alertes intelligentes', value: 'Prevention des chutes', detail: 'Detection automatique et alerte de vos proches en cas de danger' },
