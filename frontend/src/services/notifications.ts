@@ -21,6 +21,7 @@ function ensureNotificationHandler() {
 
 // ─── Register for Push Notifications ───
 export async function registerForPushNotifications(apiUrl: string, token: string): Promise<string | null> {
+  ensureNotificationHandler();
   if (Platform.OS === 'web') {
     await requestWebNotificationPermission();
     return null;
@@ -88,6 +89,7 @@ async function requestWebNotificationPermission(): Promise<boolean> {
 
 // Keep backward compatibility
 export async function requestNotificationPermission(): Promise<boolean> {
+  ensureNotificationHandler();
   if (Platform.OS === 'web') return requestWebNotificationPermission();
   const { status } = await Notifications.getPermissionsAsync();
   return status === 'granted';
@@ -95,6 +97,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
 // ─── Send Local Notification (Web + Native) ───
 export function sendLocalNotification(title: string, body: string, icon?: string) {
+  ensureNotificationHandler();
   if (Platform.OS === 'web') {
     try {
       if (!('Notification' in window) || Notification.permission !== 'granted') return;
