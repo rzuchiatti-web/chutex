@@ -8,7 +8,7 @@ const LANGUAGES = [
   { code: 'de', flag: '\u{1F1E9}\u{1F1EA}', label: 'Deutsch' },
   { code: 'it', flag: '\u{1F1EE}\u{1F1F9}', label: 'Italiano' },
   { code: 'pt', flag: '\u{1F1F5}\u{1F1F9}', label: 'Portugues' },
-  { code: 'ar', flag: '\u{1F1F2}\u{1F1E6}', label: 'العربية' },
+  { code: 'ar', flag: '\u{1F1F2}\u{1F1E6}', label: '\u0627\u0644\u0639\u0631\u0628\u064A\u0629' },
 ];
 
 export default function LanguagePicker({ lang, setLang }: { lang: string; setLang: (l: string) => void }) {
@@ -22,26 +22,56 @@ export default function LanguagePicker({ lang, setLang }: { lang: string; setLan
   };
 
   return (
-    <div style={{ position: 'relative', display: 'inline-flex', justifyContent: 'center' } as any}>
-      <div data-testid="language-picker" onClick={() => setOpen(!open)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'pointer' } as any}>
+    <>
+      <div data-testid="language-picker" onClick={() => setOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'pointer' } as any}>
         <span style={{ fontSize: 18 }}>{current.flag}</span>
         <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}>{current.code}</span>
         <i className="ri-arrow-down-s-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }} />
       </div>
+
       {open && (
-        <>
-          <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 998 } as any} />
-          <div style={{ position: 'absolute', top: '100%', marginTop: 6, zIndex: 999, borderRadius: 14, background: 'rgba(10,15,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: 4, minWidth: 150, boxShadow: '0 8px 32px rgba(0,0,0,0.4)' } as any}>
-            {LANGUAGES.map(l => (
-              <div key={l.code} onClick={() => select(l.code)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, cursor: 'pointer', background: lang === l.code ? 'rgba(255,255,255,0.08)' : 'transparent' } as any}>
-                <span style={{ fontSize: 16 }}>{l.flag}</span>
-                <span style={{ fontSize: 12, color: lang === l.code ? '#FFF' : 'rgba(255,255,255,0.5)', fontWeight: lang === l.code ? 700 : 400, flex: 1 }}>{l.label}</span>
-                {lang === l.code && <i className="ri-check-line" style={{ fontSize: 14, color: '#10B981' }} />}
-              </div>
-            ))}
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: 'rgba(0,0,0,0.4)' } as any}>
+          {/* Backdrop click */}
+          <div onClick={() => setOpen(false)} style={{ position: 'absolute', inset: 0 } as any} />
+
+          {/* Glass card */}
+          <div data-testid="language-picker-popup" style={{
+            position: 'relative', zIndex: 1, width: '90%', maxWidth: 320,
+            borderRadius: 24, padding: '28px 20px 20px',
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)',
+            boxShadow: '0 16px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)',
+          } as any}>
+            {/* Close button */}
+            <div onClick={() => setOpen(false)} style={{ position: 'absolute', top: 12, right: 12, width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+              <i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
+            </div>
+
+            {/* Title */}
+            <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+              <i className="ri-global-line" style={{ fontSize: 28, color: 'rgba(255,255,255,0.5)', marginBottom: 8, display: 'block' }} />
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>Langue</div>
+            </div>
+
+            {/* Language list */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 } as any}>
+              {LANGUAGES.map(l => (
+                <div key={l.code} data-testid={`lang-option-${l.code}`} onClick={() => select(l.code)} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, cursor: 'pointer',
+                  background: lang === l.code ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  border: lang === l.code ? '1px solid rgba(255,255,255,0.15)' : '1px solid transparent',
+                  transition: 'background 0.15s ease',
+                } as any}>
+                  <span style={{ fontSize: 22 }}>{l.flag}</span>
+                  <span style={{ fontSize: 14, color: lang === l.code ? '#FFF' : 'rgba(255,255,255,0.55)', fontWeight: lang === l.code ? 700 : 400, flex: 1 }}>{l.label}</span>
+                  {lang === l.code && <i className="ri-check-line" style={{ fontSize: 16, color: '#10B981' }} />}
+                </div>
+              ))}
+            </div>
           </div>
-        </>
+        </div>
       )}
-    </div>
+    </>
   );
 }
