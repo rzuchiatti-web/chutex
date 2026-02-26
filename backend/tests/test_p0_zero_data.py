@@ -148,6 +148,7 @@ class TestAdminLogin:
     def test_admin_login_success(self):
         """Admin can login with correct credentials"""
         resp = requests.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "admin@chutex.fr",
             "phone": "600000001",
             "password": "demo123"
         })
