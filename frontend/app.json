@@ -63,7 +63,8 @@
           ],
           "bluetoothAlwaysPermission": "Chutex needs Bluetooth to connect to your health devices."
         }
-      ]
+      ],
+      "@config-plugins/react-native-ble-plx"
     ],
     "experiments": {
       "typedRoutes": true
