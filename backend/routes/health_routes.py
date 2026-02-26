@@ -21,8 +21,13 @@ async def get_health_history(metric_id: str, user=Depends(get_current_user)):
         sim = BRACELET_SIM if dt == "bracelet" else SCALE_SIM
         lo, hi = sim[metric_id]
         now = datetime.now(timezone.utc)
-        syn = [{"value": round(random.uniform(lo, hi), 1) if isinstance(lo, float) else random.randint(lo, hi), "date": (now - timedelta(days=i)).isoformat()} for i in range(7, 0, -1)]
-        history = (syn[:7 - len(history)] + history) if history else syn
+        # Only fill synthetic data if user has at least one device of this type
+        dev = await db.devices.find_one({"user_id": user['id'], "device_type": dt}, {"_id": 0})
+        if dev:
+            syn = [{"value": round(random.uniform(lo, hi), 1) if isinstance(lo, float) else random.randint(lo, hi), "date": (now - timedelta(days=i)).isoformat()} for i in range(7, 0, -1)]
+            history = (syn[:7 - len(history)] + history) if history else syn
+        elif not history:
+            return {"metric_id": metric_id, "history": [], "stats": {"current": 0, "average": 0, "min": 0, "max": 0}}
     vals = [h['value'] for h in history]
     return {
         "metric_id": metric_id, "history": history[-7:],
@@ -147,17 +152,20 @@ async def get_sleep_history(user=Depends(get_current_user)):
             "awake": s.get('awake_minutes', 0),
         })
     if len(history) < 7:
-        from utils import generate_sleep_hypnogram
-        now = datetime.now(timezone.utc)
-        for i in range(7 - len(history), 0, -1):
-            s = generate_sleep_hypnogram()
-            history.insert(0, {
-                "date": (now - timedelta(days=i)).isoformat(),
-                "duration": s['sleep_duration'],
-                "quality": s['sleep_quality'],
-                "deep": s['deep_minutes'],
-                "light": s['light_minutes'],
-                "rem": s['rem_minutes'],
-                "awake": s['awake_minutes'],
-            })
+        # Only generate simulated sleep if user has a bracelet
+        bracelet = await db.devices.find_one({"user_id": user['id'], "device_type": "bracelet"}, {"_id": 0})
+        if bracelet:
+            from utils import generate_sleep_hypnogram
+            now = datetime.now(timezone.utc)
+            for i in range(7 - len(history), 0, -1):
+                s = generate_sleep_hypnogram()
+                history.insert(0, {
+                    "date": (now - timedelta(days=i)).isoformat(),
+                    "duration": s['sleep_duration'],
+                    "quality": s['sleep_quality'],
+                    "deep": s['deep_minutes'],
+                    "light": s['light_minutes'],
+                    "rem": s['rem_minutes'],
+                    "awake": s['awake_minutes'],
+                })
     return history[-7:]
