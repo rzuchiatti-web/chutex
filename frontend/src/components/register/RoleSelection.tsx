@@ -1,5 +1,34 @@
 import React, { useState } from 'react';
 
+const AVATARS_BEN = [
+  { icon: 'ri-user-heart-line', color: '#38BDF8', bg: 'rgba(56,189,248,0.15)', label: 'SENIOR' },
+  { icon: 'ri-run-line', color: '#10B981', bg: 'rgba(16,185,129,0.15)', label: 'SPORTIF' },
+  { icon: 'ri-men-line', color: '#8B5CF6', bg: 'rgba(139,92,246,0.15)', label: 'HOMME' },
+  { icon: 'ri-women-line', color: '#F472B6', bg: 'rgba(244,114,182,0.15)', label: 'FEMME' },
+];
+
+const AVATARS_GUARD = [
+  { icon: 'ri-heart-line', color: '#F59E0B', bg: 'rgba(245,158,11,0.15)', label: 'FAMILLE' },
+  { icon: 'ri-stethoscope-line', color: '#10B981', bg: 'rgba(16,185,129,0.15)', label: 'INFIRMIER' },
+  { icon: 'ri-building-2-line', color: '#6366F1', bg: 'rgba(99,102,241,0.15)', label: 'SAP/HAD' },
+  { icon: 'ri-shield-star-line', color: '#EC4899', bg: 'rgba(236,72,153,0.15)', label: 'COACH' },
+];
+
+function AvatarRow({ items }: { items: typeof AVATARS_BEN }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
+      {items.map((a, i) => (
+        <div key={i} style={{ textAlign: 'center' } as any}>
+          <div style={{ width: 52, height: 52, borderRadius: 999, background: a.bg, border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px' } as any}>
+            <i className={a.icon} style={{ fontSize: 22, color: a.color }} />
+          </div>
+          <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5 }}>{a.label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function RoleSelection({ onSelect }: { onSelect: (role: string) => void }) {
   const [showHelp, setShowHelp] = useState(false);
 
@@ -15,36 +44,12 @@ export default function RoleSelection({ onSelect }: { onSelect: (role: string) =
         <div data-testid="role-beneficiary" onClick={() => onSelect('beneficiary')} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
           <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Beneficiaire</div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous souhaitez utiliser ou porter les dispositifs de sante de Chutex.</div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
-            {[
-              { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/papb1yyb_img1_beneficiare.svg', label: 'SENIOR' },
-              { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/1tclenjo_img2_beneficiare.svg', label: 'SPORTIF' },
-              { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/i2jtf6u2_img3_beneficiare.svg', label: 'HOMME' },
-              { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/1tq0ru76_img4_beneficiare.svg', label: 'FEMME' },
-            ].map((a, i) => (
-              <div key={i} style={{ textAlign: 'center' } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 999, overflow: 'hidden', margin: '0 auto 6px', border: '2px solid rgba(255,255,255,0.15)' } as any}><img src={a.img} alt={a.label} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>
-                <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5 }}>{a.label}</div>
-              </div>
-            ))}
-          </div>
+          <AvatarRow items={AVATARS_BEN} />
         </div>
         <div data-testid="role-guardian" onClick={() => onSelect('guardian')} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
           <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Gardien</div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous etes un aidant ou professionnel souhaitant accompagner un beneficiaire.</div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
-            {[
-              { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/gx3y3hjr_img1_gardien.svg', label: 'FAMILLE' },
-              { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/2vkyj2ee_img2_gardien.svg', label: 'INFIRMIER' },
-              { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/6pui8o6u_img3_gardien.svg', label: 'SAP/HAD' },
-              { img: 'https://customer-assets.emergentagent.com/job_3701e920-064d-4d3b-b70a-a6459e286cff/artifacts/u9b8whua_img4_gardien.svg', label: 'COACH' },
-            ].map((a, i) => (
-              <div key={i} style={{ textAlign: 'center' } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 999, overflow: 'hidden', margin: '0 auto 6px', border: '2px solid rgba(255,255,255,0.15)' } as any}><img src={a.img} alt={a.label} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>
-                <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5 }}>{a.label}</div>
-              </div>
-            ))}
-          </div>
+          <AvatarRow items={AVATARS_GUARD} />
         </div>
         <div data-testid="role-saad" onClick={() => onSelect('prescriber_company')} style={{ padding: '20px 16px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
           <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Espace SAAD</div>
