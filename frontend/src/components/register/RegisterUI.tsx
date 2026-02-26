@@ -52,7 +52,7 @@ export const INPUT_STYLE = { width: '100%', padding: '13px 16px', borderRadius: 
 
 export interface RegisterForm {
   phone: string; prefix: string; password: string; confirmPassword: string;
-  name: string; firstName: string; dob_day: string; dob_month: string; dob_year: string; gender: string; address: string;
+  name: string; firstName: string; dob_day: string; dob_month: string; dob_year: string; gender: string; address: string; postal_code: string; city: string; country: string;
   height_cm: string; weight_kg: string; blood_type: string; thyroid: string;
   pacemaker: string; stents: string;
   allergies: string[]; medical_conditions: string[]; other_condition: string;
@@ -62,7 +62,7 @@ export interface RegisterForm {
   family_history: string[]; how_found: string;
   pro_type: string; structure: string; alert_sms: boolean; alert_email: boolean;
   acceptTerms: boolean;
-  structure_name: string; siret: string; saad_address: string; saad_director_name: string; saad_director_phone: string; saad_email: string; invite_token: string;
+  structure_name: string; siret: string; saad_address: string; saad_postal_code: string; saad_city: string; saad_country: string; saad_director_name: string; saad_director_phone: string; saad_email: string; invite_token: string;
 }
 
 export type UpdateFn = (k: string, v: any) => void;

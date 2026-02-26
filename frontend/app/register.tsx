@@ -38,7 +38,7 @@ export default function RegisterScreen() {
   useEffect(() => { AsyncStorage.getItem('chutex_lang').then(v => { if (v) setLang(v); }).catch(() => {}); }, []);
   const [form, setForm] = useState<RegisterForm>({
     phone: '', prefix: '+33', password: '', confirmPassword: '',
-    name: '', firstName: '', dob_day: '', dob_month: '', dob_year: '', gender: '', address: '',
+    name: '', firstName: '', dob_day: '', dob_month: '', dob_year: '', gender: '', address: '', postal_code: '', city: '', country: 'France',
     height_cm: '', weight_kg: '', blood_type: '', thyroid: '',
     pacemaker: '', stents: '',
     allergies: [], medical_conditions: [], other_condition: '',
