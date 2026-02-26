@@ -38,14 +38,14 @@ export default function BeneficiaryInfoStep({ form, u }: { form: RegisterForm; u
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
         <div style={{ marginBottom: 14 } as any}>
-          <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Taille</div>
+          <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Taille</div>
           <select value={form.height_cm} onChange={(e: any) => u('height_cm', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
             <option value="" style={{ background: '#0a0f1a' }}>Selectionner</option>
             {Array.from({ length: 61 }, (_, i) => 140 + i).map(h => <option key={h} value={String(h)} style={{ background: '#0a0f1a' }}>{h} cm</option>)}
           </select>
         </div>
         <div style={{ marginBottom: 14 } as any}>
-          <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Poids</div>
+          <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Poids</div>
           <select value={form.weight_kg} onChange={(e: any) => u('weight_kg', e.target.value)} style={{ ...INPUT_STYLE, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}>
             <option value="" style={{ background: '#0a0f1a' }}>Selectionner</option>
             {Array.from({ length: 121 }, (_, i) => 30 + i).map(w => <option key={w} value={String(w)} style={{ background: '#0a0f1a' }}>{w} kg</option>)}
