@@ -9,6 +9,46 @@ from models import UserRegister, UserLogin
 router = APIRouter()
 
 
+@router.post("/auth/send-verification-code")
+async def send_verification_code(data: dict):
+    """Send a 6-digit SMS verification code to a phone number."""
+    phone = data.get("phone", "").strip()
+    if not phone or len(phone) < 6:
+        raise HTTPException(status_code=400, detail="Numero de telephone invalide")
+    code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    await db.verification_codes.delete_many({"phone": phone})
+    await db.verification_codes.insert_one({
+        "phone": phone, "code": code,
+        "created_at": datetime.now(timezone.utc),
+        "expires_at": datetime.now(timezone.utc) + timedelta(minutes=5),
+    })
+    try:
+        from services.smsmode_service import send_sms
+        text = f"Votre code de verification Chutex : {code}"
+        sent = await send_sms(phone, text)
+        if not sent:
+            return {"status": "sent", "message": "Code envoye (mode dev)", "dev_code": code}
+    except Exception:
+        return {"status": "sent", "message": "Code envoye (mode dev)", "dev_code": code}
+    return {"status": "sent", "message": "Code envoye par SMS"}
+
+
+@router.post("/auth/verify-code")
+async def verify_code(data: dict):
+    """Verify a phone verification code."""
+    phone = data.get("phone", "").strip()
+    code = data.get("code", "").strip()
+    if not phone or not code:
+        raise HTTPException(status_code=400, detail="Telephone et code requis")
+    record = await db.verification_codes.find_one({"phone": phone, "code": code}, {"_id": 0})
+    if not record:
+        raise HTTPException(status_code=400, detail="Code incorrect")
+    if record.get("expires_at") and record["expires_at"] < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Code expire, renvoyez un nouveau code")
+    await db.verification_codes.delete_many({"phone": phone})
+    return {"status": "verified", "message": "Telephone verifie"}
+
+
 @router.post("/auth/register")
 async def register(data: UserRegister):
     if await db.users.find_one({"email": data.email}, {"_id": 0}):
