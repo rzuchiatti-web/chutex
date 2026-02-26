@@ -25,7 +25,7 @@ export function PrefixPicker({ value, onChange }: { value: string; onChange: (co
         <i className="ri-arrow-down-s-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }} />
       </div>
 
-      {open && (
+      <GlassPortal open={open}>
         <div style={GLASS_OVERLAY}>
           <div onClick={() => setOpen(false)} style={{ position: 'absolute', inset: 0 } as any} />
           <div data-testid="prefix-picker-popup" style={GLASS_CARD}>
@@ -47,7 +47,7 @@ export function PrefixPicker({ value, onChange }: { value: string; onChange: (co
             </div>
           </div>
         </div>
-      )}
+      </GlassPortal>
     </>
   );
 }
@@ -82,7 +82,7 @@ export function CountryPicker({ value, onChange }: { value: string; onChange: (c
         </div>
       </div>
 
-      {open && (
+      <GlassPortal open={open}>
         <div style={GLASS_OVERLAY}>
           <div onClick={() => setOpen(false)} style={{ position: 'absolute', inset: 0 } as any} />
           <div data-testid="country-picker-popup" style={GLASS_CARD}>
@@ -103,7 +103,7 @@ export function CountryPicker({ value, onChange }: { value: string; onChange: (c
             </div>
           </div>
         </div>
-      )}
+      </GlassPortal>
     </>
   );
 }
