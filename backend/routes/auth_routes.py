@@ -56,8 +56,8 @@ async def verify_code(data: dict):
 
 @router.post("/auth/register")
 async def register(data: UserRegister):
-    if await db.users.find_one({"email": data.email}, {"_id": 0}):
-        raise HTTPException(status_code=400, detail="Email deja utilise")
+    if await db.users.find_one({"$or": [{"email": data.email}, {"phone": data.phone}]}, {"_id": 0}):
+        raise HTTPException(status_code=400, detail="Ce numero de telephone est deja utilise")
     uid = str(uuid.uuid4())
     user = {
         "id": uid, "email": data.email, "password_hash": hash_password(data.password),
