@@ -50,17 +50,19 @@ export async function registerForPushNotifications(apiUrl: string, token: string
   } catch {}
 
   try {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    const N = getNotifications();
+    if (!N) return null;
+    const { status: existingStatus } = await N.getPermissionsAsync();
     let finalStatus = existingStatus;
     
     if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
+      const { status } = await N.requestPermissionsAsync();
       finalStatus = status;
     }
     
     if (finalStatus !== 'granted') return null;
 
-    const tokenData = await Notifications.getExpoPushTokenAsync({
+    const tokenData = await N.getExpoPushTokenAsync({
       projectId: '6095040a-fe78-4b71-ae8f-bd1d82f93ef3',
     });
     expoPushToken = tokenData.data;
@@ -76,10 +78,10 @@ export async function registerForPushNotifications(apiUrl: string, token: string
     }
 
     if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('sos', { name: 'Alertes SOS', importance: Notifications.AndroidImportance.MAX, vibrationPattern: [0, 250, 250, 250], sound: 'default' });
-      await Notifications.setNotificationChannelAsync('health', { name: 'Seuils de sante', importance: Notifications.AndroidImportance.HIGH, sound: 'default' });
-      await Notifications.setNotificationChannelAsync('reminders', { name: 'Rappels', importance: Notifications.AndroidImportance.DEFAULT, sound: 'default' });
-      await Notifications.setNotificationChannelAsync('battery', { name: 'Batterie', importance: Notifications.AndroidImportance.LOW });
+      await N.setNotificationChannelAsync('sos', { name: 'Alertes SOS', importance: N.AndroidImportance.MAX, vibrationPattern: [0, 250, 250, 250], sound: 'default' });
+      await N.setNotificationChannelAsync('health', { name: 'Seuils de sante', importance: N.AndroidImportance.HIGH, sound: 'default' });
+      await N.setNotificationChannelAsync('reminders', { name: 'Rappels', importance: N.AndroidImportance.DEFAULT, sound: 'default' });
+      await N.setNotificationChannelAsync('battery', { name: 'Batterie', importance: N.AndroidImportance.LOW });
     }
 
     return expoPushToken;
