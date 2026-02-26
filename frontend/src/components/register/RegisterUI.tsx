@@ -48,7 +48,7 @@ export const PREFIXES = [
   { code: '+1', flag: '\u{1F1FA}\u{1F1F8}', label: 'USA / Canada' },
 ];
 
-export const INPUT_STYLE = { width: '100%', padding: '13px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
+export const INPUT_STYLE = { width: '100%', padding: '13px 16px', borderRadius: 999, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
 
 export interface RegisterForm {
   phone: string; prefix: string; password: string; confirmPassword: string;

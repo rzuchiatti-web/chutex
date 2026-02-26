@@ -19,7 +19,7 @@ export default function SAADStep({ form, u }: { form: RegisterForm; u: UpdateFn 
         <div style={{ marginBottom: 14 } as any}>
           <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>Telephone</div>
           <div style={{ display: 'flex', gap: 8 } as any}>
-            <div style={{ ...INPUT_STYLE, width: 'auto', padding: '13px 12px', display: 'flex', alignItems: 'center', gap: 4 } as any}><span>{PREFIXES.find(p => p.code === form.prefix)?.flag}</span><span style={{ fontWeight: 600 }}>{form.prefix}</span></div>
+            <div style={{ ...INPUT_STYLE, width: 'auto', padding: '13px 12px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 4 } as any}><span>{PREFIXES.find(p => p.code === form.prefix)?.flag}</span><span style={{ fontWeight: 600 }}>{form.prefix}</span></div>
             <input data-testid="saad-phone" value={form.phone} onChange={(e: any) => u('phone', e.target.value)} placeholder="06 12 34 56 78" style={{ ...INPUT_STYLE, flex: 1 }} />
           </div>
         </div>
