@@ -2,7 +2,7 @@
   "expo": {
     "name": "Chutex Health",
     "slug": "chutex",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "chutex",
@@ -20,7 +20,7 @@
         ],
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "7"
+      "buildNumber": "8"
     },
     "android": {
       "package": "com.chutex.app",
