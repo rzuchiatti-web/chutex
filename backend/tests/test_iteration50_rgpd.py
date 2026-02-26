@@ -9,7 +9,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://health-longevity.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://chutex-ios-fix.preview.emergentagent.com')
 
 class TestRGPDCompliance:
     """Test RGPD/CNIL compliance endpoints"""
