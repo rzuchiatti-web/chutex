@@ -11,7 +11,7 @@ export default function AntecedentsStep({ form, u, toggleArr }: { form: Register
       <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Avez-vous deja ete opere ?</div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
         {[{ v: 'oui', l: 'Oui' }, { v: 'non', l: 'Non' }].map(t => (
-          <div key={t.v} onClick={() => { u('had_surgery', t.v); if (t.v === 'oui' && form.surgeries.length === 0) u('surgeries', [{ zone: '', date: '' }]); }} style={{ flex: 1, padding: '14px', borderRadius: 14, background: form.had_surgery === t.v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.had_surgery === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.had_surgery === t.v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>{t.l}</div>
+          <div key={t.v} onClick={() => { u('had_surgery', t.v); if (t.v === 'oui' && form.surgeries.length === 0) u('surgeries', [{ zone: '', date: '' }]); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: form.had_surgery === t.v ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.2)', border: `1px solid ${form.had_surgery === t.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)'}`, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: form.had_surgery === t.v ? '#FFF' : 'rgba(255,255,255,0.5)' } as any}>{t.l}</div>
         ))}
       </div>
       {form.had_surgery === 'oui' && (

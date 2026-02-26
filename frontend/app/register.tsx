@@ -40,7 +40,7 @@ export default function RegisterScreen() {
     phone: '', prefix: '+33', password: '', confirmPassword: '',
     name: '', firstName: '', dob_day: '', dob_month: '', dob_year: '', gender: '', address: '', postal_code: '', city: '', country: 'France',
     height_cm: '', weight_kg: '', blood_type: '', thyroid: '',
-    pacemaker: '', stents: '',
+    pacemaker: '', stents: '', had_avc: '',
     allergies: [], medical_conditions: [], other_condition: '',
     doctor_name: '', doctor_phone: '', social_security: '',
     devices: '',
