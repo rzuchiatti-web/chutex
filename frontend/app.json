@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "chutex",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "owner": "chutex",
     "ios": {
       "supportsTablet": true,
