@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 
 const AVATARS_BEN = [
   { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/dbnv0bpj_img1_beneficiaire.png', label: 'SENIOR' },
-  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/z2xcol2r_img2_beneficiaire.png', label: 'FEMME' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/z2xcol2r_img2_beneficiaire.png', label: 'SPORTIVE' },
   { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/9xmj6v5y_img3_beneficiaire.png', label: 'HOMME' },
-  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/ifr3insc_img4_beneficiaire.png', label: 'SPORTIVE' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/ifr3insc_img4_beneficiaire.png', label: 'FEMME' },
 ];
 
 const AVATARS_GUARD = [
