@@ -201,6 +201,12 @@ def _fb():
 async def get_section_analysis(section: str, user=Depends(get_current_user)):
     """Get Nora AI analysis specific to a health section"""
     uid = user['id']
+
+    # No devices = no analysis
+    has_devices = await db.devices.find_one({"user_id": uid}, {"_id": 0})
+    if not has_devices:
+        return {"section": section, "no_data": True, "analysis": "Connectez un appareil pour obtenir une analyse de cette section."}
+
     bracelet = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
     scale = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
     d = gen_data()
