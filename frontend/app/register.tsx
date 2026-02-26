@@ -48,7 +48,7 @@ export default function RegisterScreen() {
     family_history: [], how_found: '',
     pro_type: '', structure: '', alert_sms: false, alert_email: false,
     acceptTerms: false,
-    structure_name: '', siret: '', saad_address: '', saad_director_name: '', saad_director_phone: '', saad_email: '', invite_token: '',
+    structure_name: '', siret: '', saad_address: '', saad_postal_code: '', saad_city: '', saad_country: 'France', saad_director_name: '', saad_director_phone: '', saad_email: '', invite_token: '',
   });
   const u = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
   const toggleArr = (k: string, v: string) => setForm(f => {
