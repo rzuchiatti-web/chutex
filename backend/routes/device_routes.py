@@ -172,12 +172,15 @@ async def get_dashboard_summary(user=Depends(get_current_user)):
         "paired": bool(vest_dev),
     }
 
-    sleep = {
-        "duration": "7h 23min", "quality": 82,
-        "deep": "2h 10min", "light": "4h 05min", "rem": "1h 08min",
-        "deep_pct": 30, "light_pct": 55, "rem_pct": 15,
-        "bedtime": "22:45", "wakeup": "06:08",
-    }
+    if bracelet_dev:
+        sleep = {
+            "duration": "7h 23min", "quality": 82,
+            "deep": "2h 10min", "light": "4h 05min", "rem": "1h 08min",
+            "deep_pct": 30, "light_pct": 55, "rem_pct": 15,
+            "bedtime": "22:45", "wakeup": "06:08",
+        }
+    else:
+        sleep = None
 
     return {
         "bracelet": bracelet, "scale": scale, "vest": vest, "sleep": sleep,
