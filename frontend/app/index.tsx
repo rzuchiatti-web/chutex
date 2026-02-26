@@ -4,58 +4,7 @@ import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../src/context/AuthContext';
-
-const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
-const PREFIXES = [
-  { code: '+33', flag: '\u{1F1EB}\u{1F1F7}', label: 'France' },
-  { code: '+32', flag: '\u{1F1E7}\u{1F1EA}', label: 'Belgique' },
-  { code: '+41', flag: '\u{1F1E8}\u{1F1ED}', label: 'Suisse' },
-  { code: '+352', flag: '\u{1F1F1}\u{1F1FA}', label: 'Luxembourg' },
-  { code: '+49', flag: '\u{1F1E9}\u{1F1EA}', label: 'Allemagne' },
-  { code: '+39', flag: '\u{1F1EE}\u{1F1F9}', label: 'Italie' },
-  { code: '+34', flag: '\u{1F1EA}\u{1F1F8}', label: 'Espagne' },
-  { code: '+351', flag: '\u{1F1F5}\u{1F1F9}', label: 'Portugal' },
-  { code: '+44', flag: '\u{1F1EC}\u{1F1E7}', label: 'Royaume-Uni' },
-  { code: '+353', flag: '\u{1F1EE}\u{1F1EA}', label: 'Irlande' },
-  { code: '+31', flag: '\u{1F1F3}\u{1F1F1}', label: 'Pays-Bas' },
-  { code: '+43', flag: '\u{1F1E6}\u{1F1F9}', label: 'Autriche' },
-  { code: '+48', flag: '\u{1F1F5}\u{1F1F1}', label: 'Pologne' },
-  { code: '+420', flag: '\u{1F1E8}\u{1F1FF}', label: 'Tchequie' },
-  { code: '+421', flag: '\u{1F1F8}\u{1F1F0}', label: 'Slovaquie' },
-  { code: '+36', flag: '\u{1F1ED}\u{1F1FA}', label: 'Hongrie' },
-  { code: '+40', flag: '\u{1F1F7}\u{1F1F4}', label: 'Roumanie' },
-  { code: '+359', flag: '\u{1F1E7}\u{1F1EC}', label: 'Bulgarie' },
-  { code: '+385', flag: '\u{1F1ED}\u{1F1F7}', label: 'Croatie' },
-  { code: '+386', flag: '\u{1F1F8}\u{1F1EE}', label: 'Slovenie' },
-  { code: '+30', flag: '\u{1F1EC}\u{1F1F7}', label: 'Grece' },
-  { code: '+45', flag: '\u{1F1E9}\u{1F1F0}', label: 'Danemark' },
-  { code: '+46', flag: '\u{1F1F8}\u{1F1EA}', label: 'Suede' },
-  { code: '+47', flag: '\u{1F1F3}\u{1F1F4}', label: 'Norvege' },
-  { code: '+358', flag: '\u{1F1EB}\u{1F1EE}', label: 'Finlande' },
-  { code: '+354', flag: '\u{1F1EE}\u{1F1F8}', label: 'Islande' },
-  { code: '+372', flag: '\u{1F1EA}\u{1F1EA}', label: 'Estonie' },
-  { code: '+371', flag: '\u{1F1F1}\u{1F1FB}', label: 'Lettonie' },
-  { code: '+370', flag: '\u{1F1F1}\u{1F1F9}', label: 'Lituanie' },
-  { code: '+356', flag: '\u{1F1F2}\u{1F1F9}', label: 'Malte' },
-  { code: '+357', flag: '\u{1F1E8}\u{1F1FE}', label: 'Chypre' },
-  { code: '+377', flag: '\u{1F1F2}\u{1F1E8}', label: 'Monaco' },
-  { code: '+376', flag: '\u{1F1E6}\u{1F1E9}', label: 'Andorre' },
-  { code: '+378', flag: '\u{1F1F8}\u{1F1F2}', label: 'Saint-Marin' },
-  { code: '+381', flag: '\u{1F1F7}\u{1F1F8}', label: 'Serbie' },
-  { code: '+382', flag: '\u{1F1F2}\u{1F1EA}', label: 'Montenegro' },
-  { code: '+355', flag: '\u{1F1E6}\u{1F1F1}', label: 'Albanie' },
-  { code: '+389', flag: '\u{1F1F2}\u{1F1F0}', label: 'Macedoine du Nord' },
-  { code: '+387', flag: '\u{1F1E7}\u{1F1E6}', label: 'Bosnie-Herzegovine' },
-  { code: '+380', flag: '\u{1F1FA}\u{1F1E6}', label: 'Ukraine' },
-  { code: '+373', flag: '\u{1F1F2}\u{1F1E9}', label: 'Moldavie' },
-  { code: '+375', flag: '\u{1F1E7}\u{1F1FE}', label: 'Bielorussie' },
-  { code: '+7', flag: '\u{1F1F7}\u{1F1FA}', label: 'Russie' },
-  { code: '+90', flag: '\u{1F1F9}\u{1F1F7}', label: 'Turquie' },
-  { code: '+212', flag: '\u{1F1F2}\u{1F1E6}', label: 'Maroc' },
-  { code: '+216', flag: '\u{1F1F9}\u{1F1F3}', label: 'Tunisie' },
-  { code: '+213', flag: '\u{1F1E9}\u{1F1FF}', label: 'Algerie' },
-  { code: '+1', flag: '\u{1F1FA}\u{1F1F8}', label: 'USA / Canada' },
-];
+import { PREFIXES } from '../src/components/register/RegisterUI';
 
 export default function AuthScreen() {
   const { user, loading, login } = useAuth();
