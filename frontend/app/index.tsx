@@ -21,6 +21,9 @@ export default function AuthScreen() {
   const [prefix, setPrefix] = useState('+33');
   const [password, setPassword] = useState('');
   const [lang, setLang] = useState('fr');
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotPhone, setForgotPhone] = useState('');
+  const [forgotMsg, setForgotMsg] = useState('');
 
   useEffect(() => {
     Promise.all([
