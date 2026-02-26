@@ -154,8 +154,6 @@ export default function AuthScreen() {
   /* NATIVE */
   const { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView } = require('react-native');
   const { SafeAreaView } = require('react-native-safe-area-context');
-  const phoneRef = useRef('');
-  const passwordRef = useRef('');
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
