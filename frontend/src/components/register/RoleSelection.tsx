@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 
 const AVATARS_BEN = [
   { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/dbnv0bpj_img1_beneficiaire.png', label: 'SENIOR' },
-  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/ifr3insc_img4_beneficiaire.png', label: 'SPORTIVE' },
-  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/9xmj6v5y_img3_beneficiaire.png', label: 'HOMME' },
   { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/z2xcol2r_img2_beneficiaire.png', label: 'FEMME' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/9xmj6v5y_img3_beneficiaire.png', label: 'HOMME' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/ifr3insc_img4_beneficiaire.png', label: 'SPORTIVE' },
 ];
 
 const AVATARS_GUARD = [
-  { icon: 'ri-heart-line', color: '#F59E0B', bg: 'rgba(245,158,11,0.15)', label: 'FAMILLE' },
-  { icon: 'ri-stethoscope-line', color: '#10B981', bg: 'rgba(16,185,129,0.15)', label: 'INFIRMIER' },
-  { icon: 'ri-building-2-line', color: '#6366F1', bg: 'rgba(99,102,241,0.15)', label: 'SAP/HAD' },
-  { icon: 'ri-shield-star-line', color: '#EC4899', bg: 'rgba(236,72,153,0.15)', label: 'COACH' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/7ku5ya2b_img1_gardien.png', label: 'FAMILLE' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/19odrghm_img2_gardien.png', label: 'INFIRMIER' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/sw8tg5m6_img3_gardien.png', label: 'SAP/HAD' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/a6hgksly_img4_gardien%281%29.png', label: 'COACH' },
 ];
 
 function AvatarRow({ items }: { items: any[] }) {
@@ -19,15 +19,9 @@ function AvatarRow({ items }: { items: any[] }) {
     <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
       {items.map((a, i) => (
         <div key={i} style={{ textAlign: 'center' } as any}>
-          {a.img ? (
-            <div style={{ width: 56, height: 56, borderRadius: 999, overflow: 'hidden', margin: '0 auto 6px', border: '2px solid rgba(255,255,255,0.15)' } as any}>
-              <img src={a.img} alt={a.label} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
-            </div>
-          ) : (
-            <div style={{ width: 52, height: 52, borderRadius: 999, background: a.bg, border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px' } as any}>
-              <i className={a.icon} style={{ fontSize: 22, color: a.color }} />
-            </div>
-          )}
+          <div style={{ width: 68, height: 68, borderRadius: 999, overflow: 'hidden', margin: '0 auto 6px', border: '2px solid rgba(255,255,255,0.15)' } as any}>
+            <img src={a.img} alt={a.label} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+          </div>
           <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5 }}>{a.label}</div>
         </div>
       ))}
