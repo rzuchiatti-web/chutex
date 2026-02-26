@@ -7,12 +7,9 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
-      "android": {
-        "buildType": "apk"
-      },
+      "distribution": "store",
       "ios": {
-        "simulator": false
+        "credentialsSource": "local"
       }
     },
     "preview": {
