@@ -20,10 +20,6 @@ export default function AuthScreen() {
   const [phone, setPhone] = useState('');
   const [prefix, setPrefix] = useState('+33');
   const [password, setPassword] = useState('');
-  const [showPrefix, setShowPrefix] = useState(false);
-  const [showForgot, setShowForgot] = useState(false);
-  const [forgotPhone, setForgotPhone] = useState('');
-  const [forgotMsg, setForgotMsg] = useState('');
   const [lang, setLang] = useState('fr');
 
   useEffect(() => {
