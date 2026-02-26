@@ -1,16 +1,30 @@
 // Push Notification Service for CHUTEX - Expo Push + Web fallback
 import { Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
 
+let Notifications: any = null;
 let permissionGranted = false;
 let expoPushToken: string | null = null;
 let handlerConfigured = false;
 
-// Lazy configure notification handler (must not run at module load time on native)
+// Lazy load expo-notifications (must not import at module load time on native - crashes with New Arch)
+function getNotifications() {
+  if (!Notifications && Platform.OS !== 'web') {
+    try {
+      Notifications = require('expo-notifications');
+    } catch (e) {
+      console.warn('expo-notifications not available:', e);
+    }
+  }
+  return Notifications;
+}
+
+// Lazy configure notification handler
 function ensureNotificationHandler() {
   if (handlerConfigured || Platform.OS === 'web') return;
+  const N = getNotifications();
+  if (!N) return;
   handlerConfigured = true;
-  Notifications.setNotificationHandler({
+  N.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
       shouldPlaySound: true,
