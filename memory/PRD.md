@@ -4,10 +4,11 @@
 Application de sante preventive "Chutex Care" - plateforme complete avec React Native (Expo) frontend, FastAPI backend, MongoDB. Gestion des alertes, surveillance sante, integration materiel BLE, back-office admin.
 
 ## Architecture
-- Frontend: React Native (Expo) avec expo-router
+- Frontend: React Native (Expo SDK 54) avec expo-router
 - Backend: FastAPI (Python)
 - Database: MongoDB
 - Hebergement preview: Emergent Platform (Kubernetes)
+- Architecture native: **New Architecture** (Fabric/TurboModules) activee
 
 ## Fonctionnalites implementees
 - Flux d'authentification complet (onboarding, login, register)
@@ -18,15 +19,13 @@ Application de sante preventive "Chutex Care" - plateforme complete avec React N
 - Systeme d'alertes (Vapi.ai + SMS Mode)
 - Gestion des roles (Beneficiaire, Gardien, SAAD, Admin, Teleassistance)
 - Pages RGPD / Protection des donnees
-- **P0 FIX: Dashboard zero-data pour nouveaux utilisateurs** (Feb 2026)
-- **P1: Popups glass appairage integrees au dashboard** (Feb 2026)
-  - Bracelet Elio: 3 etapes (charge → voyant bleu → scan)
-  - Gilet Elder: 4 etapes (porter → ajuster → activer bouton avant bas → scan)
-  - Balance Lefu: 2 etapes (placer → monter)
-  - Animation scan BLE avec anneaux pulse
-  - Boutons Associer/Decouvrir pour appareils non associes
-  - IDs appareils retires des popups
-- Pages bracelet-pairing.tsx et vest-pairing.tsx supprimees (tout dans DeviceCards popup)
+- P0 FIX: Dashboard zero-data pour nouveaux utilisateurs
+- P1: Popups glass appairage integrees au dashboard
+- **P0 FIX: Crash iOS resolu** (Feb 2026) - Passage a New Architecture + babel config + worklets
+
+## iOS Build History
+- Build 38: CRASH - Reanimated v4 + Old Architecture incompatible
+- Build 39: EN ATTENTE - Fix: newArchEnabled=true, babel.config.js, react-native-worklets
 
 ## Comptes de test
 | Role | Phone | Password |
@@ -36,18 +35,27 @@ Application de sante preventive "Chutex Care" - plateforme complete avec React N
 | TestUIZero (no devices) | +33699001122 | test123 |
 
 ## Statut actuel
-- P0 zero-data fix: COMPLETE
-- P1 popups appairage glass: COMPLETE
-- Build iOS: BLOQUE (quota Expo)
+- P0 crash iOS fix: PRET A TESTER (build 39)
 - Vapi.ai international: BLOQUE (plan gratuit)
+- Modules natifs (BLE, notifications, biometrie): NON INSTALLES (a reintegrer apres validation build 39)
+
+## Corrections appliquees (Build 39)
+1. `app.json`: `newArchEnabled: true` (requis pour Reanimated v4)
+2. `babel.config.js`: Cree avec `babel-preset-expo` preset
+3. `package.json`: Ajoute `react-native-worklets@0.5.1` (peer dep Reanimated v4)
+4. `package.json`: Ajoute `babel-preset-expo@~54.0.10`
+5. `package.json`: Retire `react-native-chart-kit` (inutilise)
+6. `package.json`: Retire `react-native-dotenv` (inutilise)
+7. `app.json`: `buildNumber` incremente a 39
 
 ## Taches a venir (priorite)
-1. P1: Continuer checkup page par page (retours utilisateur restants)
-2. P1: Audit i18n complet
-3. P2: Page abonnement SAAD
+1. P0: Valider build iOS 39 sur TestFlight
+2. P0: Reintegrer modules natifs (react-native-ble-plx, expo-notifications, expo-local-authentication)
+3. P1: Tests materiel natif (bracelet, balance, gilet)
+4. P1: Audit i18n complet
+5. P2: Page abonnement SAAD
 
 ## Backlog
-- Tests materiel natif (apres fix build iOS)
 - UI programmes d'equipe/groupe
 - Integration Shopify
 - Mode hors-ligne intervenants
@@ -55,13 +63,10 @@ Application de sante preventive "Chutex Care" - plateforme complete avec React N
 
 ## Integrations tierces
 - Vapi.ai, SMS Mode, Expo EAS Build
-- expo-local-authentication (biometrie)
 - OpenAI GPT-4o via Emergent LLM Key
 - Materiel: Lefu Smart Scale, J-Style bracelet, Elder S-AIRBAG vest
 
-## Fichiers cles
-- `frontend/src/components/dashboard/DeviceCards.tsx` - Popups appairage + dashboard appareil
-- `frontend/src/components/dashboard/VitalsRow.tsx` - Affichage '--' sans donnees
-- `frontend/src/components/dashboard/ActivitySleep.tsx` - Etat vide 'Aucune donnee'
-- `backend/routes/device_routes.py` - dashboard-summary sleep=null sans bracelet
-- `frontend/app/(tabs)/index.tsx` - Fallbacks zeros
+## Fichiers cles modifies (Build 39)
+- `frontend/app.json` - newArchEnabled: true, buildNumber: 39
+- `frontend/babel.config.js` - NOUVEAU
+- `frontend/package.json` - worklets, babel-preset, cleanup
