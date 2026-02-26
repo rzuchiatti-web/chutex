@@ -138,6 +138,7 @@ export default function RegisterScreen() {
   if (showNora) {
     const userName = role === 'prescriber_company' ? form.saad_director_name : `${form.firstName} ${form.name}`.trim();
     return <NoraPresentationStep role={role} userName={userName} onContinue={() => {
+      if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('briefing_seen', '1');
       if (Platform.OS !== 'web') { setShowNora(false); setShowBiometric(true); }
       else router.replace('/(tabs)');
     }} />;
