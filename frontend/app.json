@@ -53,16 +53,6 @@
           "resizeMode": "contain",
           "backgroundColor": "#000000"
         }
-      ],
-      [
-        "@config-plugins/react-native-ble-plx",
-        {
-          "isBackgroundEnabled": true,
-          "modes": [
-            "central"
-          ],
-          "bluetoothAlwaysPermission": "Chutex utilise le Bluetooth pour se connecter a vos appareils de sante."
-        }
       ]
     ],
     "experiments": {
