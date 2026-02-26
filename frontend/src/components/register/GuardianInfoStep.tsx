@@ -1,5 +1,6 @@
 import React from 'react';
 import { GI, RegisterForm, UpdateFn, AcceptTerms, HowFoundGrid } from './RegisterUI';
+import { CountryPicker } from '../GlassPickers';
 
 export default function GuardianInfoStep({ form, u }: { form: RegisterForm; u: UpdateFn }) {
   return (
