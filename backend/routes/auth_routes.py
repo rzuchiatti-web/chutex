@@ -93,8 +93,6 @@ async def register(data: UserRegister):
         await db.intervention_codes.insert_one({"id": str(uuid.uuid4()), "code": iv_code, "structure_name": struct, "siret": data.siret or "", "default_radius_km": 30, "active": True, "created_at": now_str, "created_by": uid})
         await db.users.update_one({"id": uid}, {"$set": {"activation_code": act_code, "intervention_code": iv_code}})
     if data.role == "beneficiary":
-        for dt, nm in [("bracelet", "Bracelet Sante"), ("scale", "Balance Connectee"), ("vest", "Gilet Anti-Chute")]:
-            await db.devices.insert_one({"id": str(uuid.uuid4()), "user_id": uid, "device_type": dt, "name": nm, "connected": False, "battery": random.randint(60, 95), "last_sync": None})
         if data.phone:
             presc = await db.prescriptions.find_one({"beneficiary_phone": data.phone, "status": "pending"}, {"_id": 0})
             if presc:
