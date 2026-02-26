@@ -55,12 +55,6 @@
         }
       ],
       [
-        "expo-local-authentication",
-        {
-          "faceIDPermission": "Chutex utilise Face ID pour securiser votre connexion."
-        }
-      ],
-      [
         "react-native-ble-plx",
         {
           "isBackgroundEnabled": true,
