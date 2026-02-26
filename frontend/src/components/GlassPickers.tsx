@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { PREFIXES } from './register/RegisterUI';
 
 const GLASS_OVERLAY = { position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: 'rgba(0,0,0,0.4)' } as any;
 const GLASS_CARD = { position: 'relative', zIndex: 1, width: '90%', maxWidth: 340, maxHeight: '70vh', borderRadius: 24, padding: '24px 16px 16px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 16px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column' } as any;
 const CLOSE_BTN = { position: 'absolute', top: 10, right: 10, width: 30, height: 30, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any;
+
+function GlassPortal({ children, open }: { children: React.ReactNode; open: boolean }) {
+  if (!open || typeof document === 'undefined') return null;
+  return createPortal(children, document.body);
+}
 
 export function PrefixPicker({ value, onChange }: { value: string; onChange: (code: string) => void }) {
   const [open, setOpen] = useState(false);
