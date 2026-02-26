@@ -55,16 +55,15 @@
         }
       ],
       [
-        "react-native-ble-plx",
+        "@config-plugins/react-native-ble-plx",
         {
           "isBackgroundEnabled": true,
           "modes": [
             "central"
           ],
-          "bluetoothAlwaysPermission": "Chutex needs Bluetooth to connect to your health devices."
+          "bluetoothAlwaysPermission": "Chutex utilise le Bluetooth pour se connecter a vos appareils de sante."
         }
-      ],
-      "@config-plugins/react-native-ble-plx"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
