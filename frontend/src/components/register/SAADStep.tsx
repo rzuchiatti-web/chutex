@@ -1,5 +1,6 @@
 import React from 'react';
 import { GI, INPUT_STYLE, PREFIXES, RegisterForm, UpdateFn, AcceptTerms } from './RegisterUI';
+import { PrefixPicker, CountryPicker } from '../GlassPickers';
 
 export default function SAADStep({ form, u }: { form: RegisterForm; u: UpdateFn }) {
   return (
@@ -15,7 +16,7 @@ export default function SAADStep({ form, u }: { form: RegisterForm; u: UpdateFn 
           <GI label="Code postal" value={form.saad_postal_code} onChange={(e: any) => u('saad_postal_code', e.target.value)} placeholder="75002" />
           <GI label="Ville" value={form.saad_city} onChange={(e: any) => u('saad_city', e.target.value)} placeholder="Paris" />
         </div>
-        <GI label="Pays" value={form.saad_country} onChange={(e: any) => u('saad_country', e.target.value)} placeholder="France" />
+        <CountryPicker value={form.saad_country} onChange={(c) => u('saad_country', c)} />
         <GI label="Email professionnel" value={form.saad_email} onChange={(e: any) => u('saad_email', e.target.value)} placeholder="contact@votre-saad.fr" type="email" />
       </div>
       <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '20px 18px', marginBottom: 16 } as any}>
@@ -23,9 +24,11 @@ export default function SAADStep({ form, u }: { form: RegisterForm; u: UpdateFn 
         <GI label="Nom et prenom du dirigeant" value={form.saad_director_name} onChange={(e: any) => u('saad_director_name', e.target.value)} placeholder="Jean Dupont" />
         <div style={{ marginBottom: 14 } as any}>
           <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>Telephone</div>
-          <div style={{ display: 'flex', gap: 8 } as any}>
-            <div style={{ ...INPUT_STYLE, width: 'auto', padding: '13px 12px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 4 } as any}><span>{PREFIXES.find(p => p.code === form.prefix)?.flag}</span><span style={{ fontWeight: 600 }}>{form.prefix}</span></div>
-            <input data-testid="saad-phone" value={form.phone} onChange={(e: any) => u('phone', e.target.value)} placeholder="06 12 34 56 78" style={{ ...INPUT_STYLE, flex: 1 }} />
+          <div style={{ display: 'flex', alignItems: 'center', borderRadius: 999, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', overflow: 'hidden' } as any}>
+            <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)' } as any}>
+              <PrefixPicker value={form.prefix} onChange={(code) => u('prefix', code)} />
+            </div>
+            <input data-testid="saad-phone" value={form.phone} onChange={(e: any) => u('phone', e.target.value)} placeholder="06 12 34 56 78" style={{ flex: 1, padding: '13px 16px', background: 'transparent', border: 'none', color: '#FFF', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' } as any} />
           </div>
         </div>
       </div>
