@@ -92,7 +92,6 @@ export default function AuthScreen() {
 
             <form onSubmit={handleSubmit} data-testid="login-form">
               <div style={{ marginBottom: 16 } as any}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>Telephone</div>
                 <div style={{ display: 'flex', alignItems: 'center', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', overflow: 'hidden' } as any}>
                   <div onClick={() => setShowPrefix(!showPrefix)} style={{ padding: '13px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, borderRight: '1px solid rgba(255,255,255,0.08)' } as any}>
                     <span style={{ fontSize: 16 }}>{selectedPfx.flag}</span>
@@ -115,7 +114,6 @@ export default function AuthScreen() {
               </div>
 
               <div style={{ marginBottom: 24 } as any}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>Mot de passe</div>
                 <input name="password" type="password" autoComplete="current-password" data-testid="login-password-input" placeholder="Votre mot de passe" value={password} onChange={(e: any) => setPassword(e.target.value)} style={{ ...INPUT, width: '100%' }} />
               </div>
 
