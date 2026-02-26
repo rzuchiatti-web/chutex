@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LANGUAGES = [
