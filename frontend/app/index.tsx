@@ -26,6 +26,7 @@ export default function AuthScreen() {
   const [showForgot, setShowForgot] = useState(false);
   const [forgotPhone, setForgotPhone] = useState('');
   const [forgotMsg, setForgotMsg] = useState('');
+  const selectedPfx = PREFIXES.find((p: any) => p.value === prefix) || PREFIXES[0];
 
   useEffect(() => {
     Promise.all([
