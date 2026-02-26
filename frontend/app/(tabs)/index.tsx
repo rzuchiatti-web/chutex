@@ -111,19 +111,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   useEffect(() => { fetchData(); const iv = setInterval(fetchData, 30000); return () => clearInterval(iv); }, [fetchData]);
   useEffect(() => { requestNotificationPermission(); }, []);
-  // Morning briefing — only once per session, Nora welcome for new users
+  // Morning briefing — only once per session
   useEffect(() => {
     if (Platform.OS === 'web') {
       const seen = sessionStorage.getItem('briefing_seen');
-      if (!seen) {
-        // Check if user has already seen Nora welcome (new user check)
-        if (!user?.nora_welcome_seen) {
-          sessionStorage.setItem('briefing_seen', '1');
-          router.push('/nora-welcome' as any);
-        } else {
-          router.push('/morning-briefing' as any);
-        }
-      }
+      if (!seen) { router.push('/morning-briefing' as any); }
     }
   }, []);
   useEffect(() => { if (reminders.length > 0) { const cleanup = startReminderChecker(reminders); return cleanup; } }, [reminders]);
