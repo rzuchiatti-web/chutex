@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../src/context/AuthContext';
 import { PREFIXES } from '../src/components/register/RegisterUI';
+import { PrefixPicker } from '../src/components/GlassPickers';
 import LanguagePicker from '../src/components/LanguagePicker';
 
 const INPUT = { padding: '13px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
@@ -93,24 +94,11 @@ export default function AuthScreen() {
             <form onSubmit={handleSubmit} data-testid="login-form">
               <div style={{ marginBottom: 16 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', overflow: 'hidden' } as any}>
-                  <div onClick={() => setShowPrefix(!showPrefix)} style={{ padding: '13px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, borderRight: '1px solid rgba(255,255,255,0.08)' } as any}>
-                    <span style={{ fontSize: 16 }}>{selectedPfx.flag}</span>
-                    <span style={{ fontSize: 14, color: '#FFF', fontWeight: 600 }}>{prefix}</span>
-                    <i className="ri-arrow-down-s-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }} />
+                  <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)' } as any}>
+                    <PrefixPicker value={prefix} onChange={setPrefix} />
                   </div>
                   <input name="phone" type="tel" autoComplete="tel" data-testid="login-phone-input" placeholder="06 12 34 56 78" value={phone} onChange={(e: any) => setPhone(e.target.value)} style={{ flex: 1, padding: '13px 16px', background: 'transparent', border: 'none', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
                 </div>
-                {showPrefix && (
-                  <div style={{ marginTop: 6, padding: '6px', borderRadius: 16, background: 'rgba(10,15,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', maxHeight: 160, overflowY: 'auto' } as any}>
-                    {PREFIXES.map(p => (
-                      <div key={p.code} onClick={() => { setPrefix(p.code); setShowPrefix(false); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, cursor: 'pointer', background: prefix === p.code ? 'rgba(255,255,255,0.06)' : 'transparent' } as any}>
-                        <span style={{ fontSize: 14 }}>{p.flag}</span>
-                        <span style={{ fontSize: 12, color: '#FFF', flex: 1 }}>{p.label}</span>
-                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{p.code}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
 
               <div style={{ marginBottom: 24 } as any}>
