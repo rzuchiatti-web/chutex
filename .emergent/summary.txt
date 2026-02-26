@@ -13,86 +13,76 @@ Recent user requests have focused on:
 **User's preferred language**: French
 
 **what currently exists?**
-The application is a full-stack platform with a React Native (Expo) frontend, FastAPI backend, and MongoDB database. Key existing features include:
-- A fully refactored and responsive Admin back-office.
-- A redesigned alert system using Vapi.ai and SMS Mode.
-- Optimized login and registration pages, where massive SVG images (~150MB) were replaced with user-provided compressed JPEGs (~3MB total), resolving major performance issues.
-- A newly implemented SMS verification step required for all user registrations.
-- Logic for prompting biometric (Face ID/fingerprint) login on the native app.
-- A reusable language picker component.
-- Numerous UI fixes on the RGPD (Data Protection) and registration pages.
-- A known, persistent crash on the iOS TestFlight build. An attempted fix is blocked by the user's Expo build quota.
+The application is a full-stack platform with a React Native (Expo) frontend and a FastAPI/MongoDB backend.
+
+The session focused heavily on UI/UX improvements and bug fixing for the registration and initial user experience:
+-   The authentication flow (Welcome, Login, Register) has been redesigned with a consistent, modern UI, including fully rounded input fields and buttons.
+-   Reusable glass-morphism style popup components (, , ) have been created and implemented across the auth flow, using a React Portal to solve z-index issues.
+-   The registration process now includes separate fields for Address, Postal Code, City, and Country.
+-   The Medical Record and Antecedents steps in registration have been redesigned with glass-style containers and improved text legibility. A new question about prior strokes (AVC) has been added.
+-   A critical bug preventing the Nora Welcome message from appearing after registration has been fixed by correcting the React Navigation stack configuration.
+-   A bug allowing duplicate accounts with the same phone number has been fixed in the backend.
+-   **Crucially, logic that created dummy devices and returned simulated health data for new users has been removed from the backend.** New accounts now start with a clean slate.
+-   The Morning Briefing component now intelligently displays the Nora Welcome text for new users with no data, and the standard health summary for existing users.
 
 **Last working item**:
-The agent was in the middle of a page-by-page checkup requested by the user, implementing several UI changes to the authentication flow.
+The agent was preparing to implement a new, large batch of user requests focused on further UI/UX enhancements and data presentation.
 
--   **Last item agent was working**: Redesigning the Welcome screen, Login screen, and integrating a new  component across the authentication flow. The agent created the component and applied the changes to , , and  to center elements, add language flags, and round input fields.
--   **Status**: IN PROGRESS
+-   **Last item agent was working**: Planning the implementation of several UI/UX changes requested by the user. This includes updating the Nora welcome text, removing any remaining simulated data from the dashboard, redesigning device cards, and creating new multi-step pairing flows for the smart bracelet and vest.
+-   **Status**: NOT STARTED
 -   **Agent Testing Done**: N
--   **Which testing method agent to use?**: screenshot tool. The next agent should take screenshots of the Welcome screen and then the Login screen to verify that the new language picker is present and the layout changes have been correctly applied.
+-   **Which testing method agent to use?**: screenshot tool. The next agent should take screenshots of the beneficiary dashboard, the devices page, and the new pairing flows after implementation to verify all visual changes.
 -   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
 -   **Issue 1: iOS App Crashes on Launch (P0)**
-    -   **Description**: The TestFlight build crashes immediately on launch. An initial fix failed. A second attempted fix, which involved removing unused native plugins (, ), could not be built because the user's Expo account ran out of its monthly free build quota.
-    -   **Attempted fixes**: 1) Removed duplicate  entry in . 2) Removed  and  from  and .
-    -   **Next debug checklist**:
-        1.  Wait for the user's Expo build quota to reset (logs indicated this would be March 1st).
-        2.  Execute the build command again: 
-⚠️ Detected that your app uses Expo Go for development, this is not recommended when building production apps.
-Learn more: https://expo.fyi/why-not-build-expo-go-for-production
-To suppress this warning, set EAS_BUILD_NO_EXPO_GO_WARNING=true.
-
-Resolved "production" environment for the build. Learn more: https://docs.expo.dev/eas/environment-variables/#setting-the-environment-for-your-builds
-No environment variables with visibility "Plain text" and "Sensitive" found for the "production" environment on EAS.
-
-
-
-✔ Using local iOS credentials (credentials.json)
-
-Bumping expo.ios.buildNumber from 6 to 7
-
-Compressing project files and uploading to EAS Build. Learn more: https://expo.fyi/eas-build-archive
-- Compressing project files
-- Uploading to EAS Build (0 / 40.9 MB)
-✔ Uploaded to EAS 
-- Computing project fingerprint
-✔ Computed project fingerprint
-This account has used its iOS builds from the Free plan this month, which will reset in 2 days, 14 hours (on Sun Mar 01 2026). Upgrade your plan for more builds with shorter wait times and longer timeouts, and to run more builds concurrently with a subscription plan. https://expo.dev/accounts/chutex/settings/billing.
-        3.  If the build succeeds, submit it to TestFlight.
-        4.  Ask the user to test the new build on their iPhone.
+    -   **Description**: The TestFlight build crashes immediately on launch. The attempted fix is blocked by the user's Expo build quota.
     -   **Status**: BLOCKED (on Expo build quota).
     -   **Is recurring issue?**: Y
-    -   **Should Test frontend/backend/both after fix?**: Frontend (Native iOS app).
     -   **Blocked on other issue**: None.
 
--   **Issue 2: Vapi.ai International Calls Failing (P1)**
-    -   **Description**: The Vapi.ai integration uses a free-tier US phone number that cannot make outbound calls to French numbers, preventing testing of the AI voice call feature.
+-   **Issue 2: Remaining Simulated Data on Beneficiary Dashboard (P0)**
+    -   **Description**: The user reports that after creating a new account, the dashboard still shows simulated data for tension artérielle (blood pressure) and sommeil (sleep). This contradicts the goal of starting new users with a clean slate.
+    -   **Attempted fixes**: The previous agent removed dummy device creation on registration and removed simulation logic from several API endpoints (, ). However, some fallback data is clearly still being sent.
+    -   **Next debug checklist**:
+        1.  Examine the frontend code for the dashboard () to see if it contains any hardcoded fallback or placeholder data.
+        2.  Re-examine all backend endpoints that feed the dashboard (, , etc.) for any remaining  calls or other simulation logic that was missed.
+        3.  After applying a fix, create a new beneficiary account and verify via API call () that the endpoints return zero/empty data, then verify with a screenshot that the dashboard UI reflects this.
+    -   **Why fix this issue and what will be achieved with the fix?**: This is critical for user trust. New users must see a blank state that encourages them to pair their devices, not confusing simulated data.
+    -   **Status**: IN PROGRESS
+    -   **Is recurring issue?**: Y
+    -   **Should Test frontend/backend/both after fix?**: Both.
+    -   **Blocked on other issue**: None.
+
+-   **Issue 3: Vapi.ai International Calls Failing (P1)**
+    -   **Description**: The Vapi.ai integration uses a free-tier US phone number that cannot make outbound calls to French numbers.
     -   **Status**: BLOCKED (on user action/account upgrade).
     -   **Is recurring issue?**: N
-    -   **Should Test frontend/backend/both after fix?**: Backend.
     -   **Blocked on other issue**: None.
 
--   **Issue 3: Lefu Scale BLE Data Parsing is Incorrect (P2)**
+-   **Issue 4: Lefu Scale BLE Data Parsing is Incorrect (P2)**
     -   **Description**: A known, recurring hardware integration bug where data from the Lefu Scale is not parsed correctly.
     -   **Status**: BLOCKED
     -   **Is recurring issue?**: Y
     -   **Blocked on other issue**: Issue 1: iOS App Crashes on Launch.
 
 **In progress Task List**:
--   **Task 1: Verify and Complete UI Changes for Auth Flow (P0)**
-    -   **Description**: The user requested a redesign of the welcome and login screens, including a new language picker. The code has been written but not visually verified.
-    -   **Where to resume**: The files , , and  have been updated. The next step is to take a screenshot of the welcome and login pages to confirm the changes are correct, then inform the user.
-    -   **What will be achieved with this?**: The authentication flow will match the user's latest UI/UX specifications.
+-   **Task 1: Implement Page-by-Page Checkup Batch Request (P0)**
+    -   **Description**: Implement a large set of UI changes from the user's last message.
+    -   **Where to resume**: Start implementing the changes based on the plan created in the last turn. The highest priority is resolving the simulated data issue (Issue #2). After that, proceed with:
+        1.  **Text Updates**: Change Nora's welcome message to mention longévité and rename the Prévention des chutes card to Alerte préventive in  and .
+        2.  **Device Card Redesign**: In the devices list, for un-paired devices, remove the device ID display. Add two buttons: Associer (which will trigger the new pairing flow) and Découvrir (which links to the product website).
+        3.  **Bracelet Pairing Flow**: Create a new multi-step UI for pairing the Elio bracelet ().
+        4.  **Vest Pairing Flow**: Create a new multi-step UI for pairing the Elder vest ().
+    -   **What will be achieved with this?**: The application will have a much more polished and intuitive onboarding and device management experience, and a critical data integrity bug will be fixed.
     -   **Status**: IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?**: Frontend.
+    -   **Should Test frontend/backend/both after fix?**: Both.
     -   **Blocked on something**: No.
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks**:
-    -   **P0: Continue User's Page-by-Page Checkup**: After verifying the current auth flow changes, the next agent must ask the user Quelle est la prochaine page du checkup ? and continue implementing requested UI/UX fixes.
     -   **P1: Full Native Hardware Testing**: Once the iOS build is stable, perform end-to-end testing with the J-Style bracelet, Lefu Scale, and Elder Vest.
-    -   **P2: Full Internationalization (i18n) Audit**: Find and convert any remaining hardcoded English strings to use the  function, leveraging the new  component.
+    -   **P2: Full Internationalization (i18n) Audit**: Find and convert any remaining hardcoded English strings to use the  function.
     -   **P3: SAAD Subscription Page**: Create the UI/UX for a SAAD entity to subscribe to a Chutex Care plan.
 
 -   **Future Tasks**:
@@ -102,81 +92,89 @@ This account has used its iOS builds from the Free plan this month, which will r
     -   Prepare production deployment files (, ).
 
 **Completed work in this session**
--   **Major Component Refactoring**: Decomposed , , and  into smaller, more maintainable components, improving the codebase's structure.
--   **Performance Optimization**: Fixed a critical performance issue by replacing ~150MB of enormous SVG files on the registration page with ~3MB of user-provided compressed JPEGs, resulting in instant page loads.
--   **Feature: SMS Phone Verification**: Implemented a complete SMS verification flow during registration, including new backend endpoints and a new step in the frontend UI.
--   **Feature: Biometric Login**: Added logic to prompt users for Face ID/fingerprint setup on native devices after registration and on the login screen, using .
--   **UI/UX Overhaul**:
-    -   Redesigned the RGPD/Data Protection page per user specs.
-    -   Corrected image labels, order, and size on the registration role selection page.
-    -   Created a reusable  component for i18n.
--   **iOS Crash Investigation**: Diagnosed and prepared a fix for the TestFlight crash by identifying unused native plugins as the likely culprits. The final build is blocked by the Expo quota.
+-   **Feature: Glass-morphism UI**: Implemented a consistent glass UI for popups (, , ) and content cards (, ) using React Portals to ensure correct layering.
+-   **Feature: Unified Welcome Experience**: Simplified the new user welcome flow. The  component now intelligently shows either the Nora welcome message (for new users with no data) or the standard health summary, removing the need for complex flags and separate routes.
+-   **Bugfix: Post-Registration Navigation**: Fixed a critical bug where the Nora welcome screen would not appear after registration due to the React Navigation stack unmounting the component prematurely.
+-   **Bugfix: Data Simulation Removed**: Traced and removed backend logic that automatically created dummy devices and generated simulated health data on user registration.
+-   **Bugfix: Duplicate Phone Numbers**: Added backend validation to prevent multiple user accounts from being created with the same phone number.
+-   **UI/UX Polish**:
+    -   Applied fully rounded styles to inputs, buttons, and toggles across the entire registration process for a cohesive look.
+    -   Split the single address field into , , , and  across all registration forms.
+    -   Improved legibility of text on glass backgrounds.
 
 **Earlier issues found/mentioned but not fixed**
--   None.
+-   The issue of remaining simulated data on the dashboard was reported by the user at the very end of the session and is now the highest priority pending issue.
 
 **Known issue recurrence from previous fork**
--   **Expo Metro Cache Instability**: The agent frequently had to clear the Metro bundler cache () to ensure code changes were reflected in the web preview. This remains a persistent development environment issue.
+-   **Expo Metro Cache Instability**: The agent frequently had to clear the Metro bundler cache () to ensure UI changes were reflected in the web preview. This remains a persistent development environment issue.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Component Refactoring**: Decomposing large React components (, ) into smaller, single-responsibility components.
--   **Frontend Performance Optimization**: Identifying and replacing large, unoptimized image assets to drastically improve page load times.
--   **Two-Factor Authentication (2FA)**: Implementing an SMS code verification flow during user registration.
--   **Biometric Authentication**: Integrating  to enable Face ID/fingerprint login on native devices.
--   **Expo Native Build Debugging**: Analyzing  and  to diagnose native crashes and identifying unused plugins with native dependencies as the likely cause.
+-   **Glass-morphism UI**: Extensive use of  combined with semi-transparent backgrounds, implemented consistently across multiple components.
+-   **React Portals**: Solved  and  issues for  modals by rendering them in a separate DOM node at the root of the app.
+-   **State Simplification**: Refactored a feature from using complex state flags () and routing to a simpler, derived state based on an API response () within a single component.
+-   **React Navigation Debugging**: Diagnosed a non-obvious bug where component unmounting was caused by switching between authenticated and unauthenticated navigation stacks.
+-   **Backend Data Integrity**: Systematically traced and removed sources of unwanted simulated data from registration and multiple API endpoints to ensure a clean experience for new users.
 
 **key DB schema**
--   **sms_verification_codes** (New Collection): 
+-   **users**:
+    -   Added , ,  to store structured address data.
+    -   Backend Pydantic model now enforces  as a unique field to prevent duplicates.
 
 **changes in tech stack**
--   ****: Added to  to handle biometric authentication prompts.
+-   No new libraries were added. The session focused on improving code patterns and UI implementation with the existing stack.
 
 **All files of reference**
--   : The initial screen, simplified with a new language picker.
--   : Redesigned login page with new layout and language picker.
--   : The main registration flow, now integrating the .
--   : The new reusable component for selecting language.
--   : The new UI component for the SMS code input.
--   : The new FastAPI routes for sending and verifying SMS codes.
--   : Modified in an attempt to fix the iOS crash by removing unused plugins.
+-   : The main beneficiary dashboard. **Needs to be checked for hardcoded data.**
+-   : The component that now handles the welcome message for new users. **Needs text updates.**
+-   : A likely place for remaining simulated data logic.
+-   : Another likely place for remaining simulated data logic.
+-   : The main registration component.
+-   : Handles user creation.
+-   : The new reusable prefix picker component.
+-   : The new reusable country picker component.
+-   : The key component enabling the popup UI.
 
 **Areas that need refactoring**:
--   The major refactoring of , , and  was completed in this session, significantly improving the code structure. No large-scale refactoring is immediately required.
+-   The  file handles a lot of logic. While the agent simplified the Nora welcome flow, the file remains large and could be a candidate for further decomposition in the future. No immediate refactoring is required.
 
 **key api endpoints**
--   : **CREATED**. Sends a 6-digit verification code to the provided phone number.
--   : **CREATED**. Verifies that the user-submitted code is correct and has not expired.
+-   : **MODIFIED**. No longer creates dummy devices. Now validates phone number for uniqueness.
+-   : **MODIFIED**. Returns  for users without any paired devices.
+-   : **MODIFIED**. Returns zeroed-out or empty data structures for users without devices.
+-   : **MODIFIED**. Returns zeroed-out or empty data structures for users without devices.
 
 **Critical Info for New Agent**
--   **iOS Build is BLOCKED**: The top priority issue (the iOS app crash) cannot be worked on until the user's Expo build quota resets. The logs indicated this would be on **March 1st**. Do not attempt an iOS build before confirming the quota has reset.
--   **Continue the Page-by-Page Checkup**: The user is actively reviewing the web application. Your first task is to verify the last set of UI changes (auth flow) and then ask the user in French: **Quelle est la prochaine page du checkup ?**. Be prepared to make further UI/UX adjustments based on their feedback.
--   **Biometric Auth is Native-Only**: The prompts for Face ID / fingerprint login will only appear on the native iOS/Android app, not in the web preview. Do not try to debug its absence on the web.
+-   **Your immediate priority is Issue #2: fixing the remaining simulated data.** The user has reported this multiple times and is frustrated. You must ensure that a newly created beneficiary account shows a dashboard with ZERO data for blood pressure, sleep, etc. Verify this fix thoroughly before moving on.
+-   **Follow the plan for the Page-by-Page Checkup task.** After fixing the data simulation bug, proceed with the other UI requests from the user's last message (text changes, device cards, pairing flows).
+-   **iOS Build is BLOCKED**. The top priority issue (the iOS app crash) cannot be worked on until the user's Expo build quota resets (expected after March 1st). Do not attempt an iOS build.
+-   **The Metro cache is unreliable.** If your UI changes do not appear, your first reflex should be to run  and restart the frontend.
 
 **documents and test reports created in this job**
--   
+-   None.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **Request (In Progress)**: On the welcome screen, remove choice buttons and center the language flags above the logo. On the login page, add the language flags, center titles, and make input fields rounded. The language choice must persist through registration.
-2.  **Confirmation**: Agent confirms the SMS verification step is working in the UI and asks what's next.
-3.  **Request (Done)**: On the data protection page, remove the top icon. Add SMS phone verification to all registration flows. Propose biometric/Face ID login after password creation.
-4.  **Confirmation**: Agent confirms the data protection page has been updated as requested and asks what's next.
-5.  **Request (Done)**: On the registration page, swap the titles for sportive and femme. On the data protection page, remove descriptive texts, add a checkmark icon to RGPD Compliance, and add a subtitle stating data is stored on French servers.
-6.  **Confirmation**: Agent confirms the registration images/labels have been updated and asks what's next.
-7.  **Request (Done)**: Invert the sportive and femme images, make all role images larger, and provides the 4 compressed images for the guardian roles.
-8.  **Confirmation**: Agent confirms beneficiary images are updated and asks if the user has images for the guardian roles.
-9.  **Acknowledgement**: User confirms the compressed beneficiary images are much better (~600-800KB).
-10. **Request (Done)**: The user disliked the placeholder icons and provided their own compressed images for the beneficiary roles, as the original SVGs were ~20MB each.
+1.  **Request (In Progress)**: Fixes are needed for the welcome message, dashboard data, and device pairing. (This is the current main task).
+2.  **Confirmation (Done)**: User confirms the welcome message is now working.
+3.  **Request (Done)**: User reports the welcome message still isn't working and asks for the DB and cache to be cleared to re-test the whole registration process.
+4.  **Request (Done)**: User reports welcome message failed again after creating a new account.
+5.  **Request (Done)**: User asks the agent to reset the password for a specific test account.
+6.  **Request (Done)**: User reports the welcome message logic is wrong and asks to replace the morning briefing with the Nora welcome page for new users.
+7.  **Request (Done)**: User reports the welcome message isn't showing after registration and asks for it to appear for a specific account.
+8.  **Request (Done)**: User asks to apply the same glass UI from the medical record page to the Antecedents page.
+9.  **Request (Done)**: User requests a new Nora Presentation page to be shown after registration, with a design similar to the morning briefing.
+10. **Request (Done)**: User requests glass popups for the mobile prefix and country selection fields in the login and registration flows.
 
 **Project Health Check:**
 -   **Broken**:
     -   **Native iOS App**: Crashes on launch. The fix is pending a new build.
     -   **iOS Build Pipeline**: Blocked by the user's Expo account build quota.
     -   **Vapi.ai Voice Calls**: Will fail for international (French) numbers due to the user's free-tier plan.
+    -   **Beneficiary Dashboard**: Shows simulated data for new users, which is a critical bug.
 -   **Mocked**:
-    -   Hardware data from BLE devices (scale, bracelet, vest) is still simulated.
+    -   Hardware data from BLE devices (scale, bracelet, vest) is not yet integrated. The goal is to show real data or a true zero state, not simulated data.
 
 **3rd Party Integrations**
 -   **Vapi.ai** (AI Voice Calls): Integrated via user-provided API Key.
@@ -187,21 +185,18 @@ This account has used its iOS builds from the Free plan this month, which will r
 -   **Hardware**: Lefu Smart Scale, J-Style bracelet, Elder S-AIRBAG vest (integrations exist but are untested).
 
 **Testing status**
--   **Testing agent used after significant changes**: YES. A testing agent validated the major refactoring work at the beginning of the session.
+-   **Testing agent used after significant changes**: NO
 -   **Troubleshoot agent used after agent stuck in loop**: NO
 -   **Test files created**: None.
--   **Known regressions**: The iOS crash is the most significant regression.
+-   **Known regressions**: The appearance of simulated data on the dashboard for new users is a regression from the user's perspective, as they expect a clean slate.
 
 **Credentials to test flow:**
-The database is clean. The only existing accounts are:
+The database is regularly cleared to test the new user experience. The agent should create a new Beneficiary account to test the current set of tasks. The following static accounts exist but are not relevant for the current beneficiary flow:
 
 | Role | Phone (for login) | Password |
 |---|---|---|
 | **Admin** |  |  |
 | **Téléassistance**|  |  |
-| **SAAD (test)** |  |  |
-
-All other user types (Beneficiary, Guardian) must be created through the app's registration flow to be tested.
 
 **What agent forgot to execute**
--   The agent did not visually verify the final set of UI changes (language picker, login screen redesign) before the session ended. This is the immediate next step.</analysis>
+-   The previous agent's attempts to remove all simulated data from the backend were incomplete. The user still sees simulated blood pressure and sleep data on the dashboard, indicating that some data generation logic was missed. This is the top priority for the next agent to fix.</analysis>
