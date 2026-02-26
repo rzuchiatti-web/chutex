@@ -43,8 +43,13 @@ async def verify_code(data: dict):
     record = await db.verification_codes.find_one({"phone": phone, "code": code}, {"_id": 0})
     if not record:
         raise HTTPException(status_code=400, detail="Code incorrect")
-    if record.get("expires_at") and record["expires_at"] < datetime.now(timezone.utc):
-        raise HTTPException(status_code=400, detail="Code expire, renvoyez un nouveau code")
+    if record.get("expires_at"):
+        exp = record["expires_at"]
+        now = datetime.now(timezone.utc)
+        if exp.tzinfo is None:
+            exp = exp.replace(tzinfo=timezone.utc)
+        if exp < now:
+            raise HTTPException(status_code=400, detail="Code expire, renvoyez un nouveau code")
     await db.verification_codes.delete_many({"phone": phone})
     return {"status": "verified", "message": "Telephone verifie"}
 
