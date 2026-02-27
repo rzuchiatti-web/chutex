@@ -284,28 +284,34 @@ export default function SubscriptionPage() {
 
       case 7: return (<div>
         <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>Contrat & Paiement</div>
-        <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Lisez le contrat, signez et procedez au paiement.</div>
+        <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Lisez le contrat, signez et payez directement.</div>
         <div style={{ background: C.card, borderRadius: C.r, padding: 16, marginBottom: 16 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 8 }}>Contrat de teleassistance</div>
-          <div style={{ height: 200, overflowY: 'auto', padding: 14, background: '#FFF', borderRadius: 10, border: `1px solid ${C.border}`, fontSize: 12, color: C.muted, lineHeight: 1.7, whiteSpace: 'pre-wrap' } as any} onScroll={(e: any) => { if (e.target.scrollTop + e.target.clientHeight >= e.target.scrollHeight - 20) setContractRead(true); }}>{CONTRACT_TEXT}</div>
+          <div style={{ height: 180, overflowY: 'auto', padding: 14, background: '#FFF', borderRadius: 10, border: `1px solid ${C.border}`, fontSize: 12, color: C.muted, lineHeight: 1.7, whiteSpace: 'pre-wrap' } as any} onScroll={(e: any) => { if (e.target.scrollTop + e.target.clientHeight >= e.target.scrollHeight - 20) setContractRead(true); }}>{CONTRACT_TEXT}</div>
           {!contractRead && <div style={{ fontSize: 11, color: V, marginTop: 6, textAlign: 'center' }}>Faites defiler pour lire l'integralite du contrat</div>}
         </div>
         <label style={lbl}>Signature electronique<span style={req}>*</span></label>
         <div style={{ fontSize: 12, color: C.muted, marginBottom: 8, lineHeight: 1.5 }}>En signant, vous acceptez les conditions du contrat ci-dessus.</div>
         <input data-testid="signer-name" value={signerName} onChange={e => setSignerName(e.target.value)} style={{...inp, borderColor: signerName ? V : C.border, fontStyle: signerName ? 'italic' : 'normal', fontSize: 18, fontWeight: 600}} placeholder="Tapez votre nom complet" />
-        <div style={{height:20}} />
+        <div style={{height:16}} />
         <label style={lbl}>Personne a facturer</label>
         <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
           <Chip on={billing.person==='beneficiary'} onClick={()=>setBilling({...billing,person:'beneficiary',guardian_index:0})}>{ben.first_name||'Beneficiaire'}</Chip>
           {guardians.map((g,i)=><Chip key={i} on={billing.person==='guardian'&&billing.guardian_index===i} onClick={()=>setBilling({...billing,person:'guardian',guardian_index:i})}>{g.first_name||`Gardien ${i+1}`}</Chip>)}
         </div>
-        <div style={{ background: C.card, borderRadius: C.r, padding: 16, marginBottom: 20 }}>
+        <div style={{ background: C.card, borderRadius: C.r, padding: 16, marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}><span style={{ fontSize: 13, color: C.muted }}>{plan?.name} — mensuel</span><span style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{plan?.price.toFixed(2).replace('.',',')} EUR</span></div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ fontSize: 12, color: C.green }}>Apres credit d'impot 50%</span><span style={{ fontSize: 14, fontWeight: 700, color: C.green }}>{plan?.price_after_credit.toFixed(2).replace('.',',')} EUR/mois</span></div>
         </div>
+        {!clientSecret && !paymentDone && (<div data-testid="setup-payment-btn" onClick={() => { if (!contractRead) return setError('Veuillez lire le contrat en entier'); if (!signerName.trim()) return setError('Veuillez signer le contrat'); handleCreateContract(); }} style={{ padding: 16, borderRadius: C.pill, background: loading ? C.card : V, color: '#FFF', cursor: loading ? 'wait' : 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, opacity: loading ? 0.6 : 1, boxShadow: loading ? 'none' : `0 4px 14px ${V}40`, marginBottom: 12 }}>{loading ? 'Preparation du paiement...' : 'Configurer le paiement'}</div>)}
+        {clientSecret && !paymentDone && (<div style={{ background: '#FFF', borderRadius: C.r, border: `2px solid ${V}30`, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><svg width="16" height="16" fill="none" stroke={V} strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Paiement securise</div>
+          <div id="stripe-payment-element" style={{ minHeight: 100, marginBottom: 16 }}><div style={{ textAlign: 'center', padding: 20, color: C.muted, fontSize: 13 }}>Chargement du formulaire de paiement...</div></div>
+          <div data-testid="confirm-pay-btn" onClick={handleConfirmPayment} style={{ padding: 16, borderRadius: C.pill, background: loading ? C.card : V, color: '#FFF', cursor: loading ? 'wait' : 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, opacity: loading ? 0.6 : 1, boxShadow: loading ? 'none' : `0 4px 14px ${V}40` }}>{loading ? 'Traitement en cours...' : `Payer ${plan?.price.toFixed(2).replace('.',',')} EUR/mois`}</div>
+          <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: C.light }}>Abonnement mensuel — CB ou prelevement SEPA</div>
+        </div>)}
+        {paymentDone && <div style={{ padding: 16, borderRadius: C.r, background: `${C.green}10`, border: `1px solid ${C.green}30`, textAlign: 'center', marginBottom: 16 }}><span style={{ fontSize: 14, fontWeight: 700, color: C.green }}>Paiement confirme !</span></div>}
         {error && <div style={{ padding: 12, borderRadius: 10, background: '#FEF2F2', border: '1px solid #FECACA', marginBottom: 14, fontSize: 13, color: '#DC2626', textAlign: 'center' }}>{error}</div>}
-        <div data-testid="pay-btn" onClick={() => { if (!contractRead) return setError('Veuillez lire le contrat en entier'); if (!signerName.trim()) return setError('Veuillez signer le contrat'); handlePay(); }} style={{ padding: 16, borderRadius: C.pill, background: loading ? C.card : V, color: '#FFF', cursor: loading ? 'wait' : 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, opacity: loading ? 0.6 : 1, boxShadow: loading ? 'none' : `0 4px 14px ${V}40` }}>{loading ? 'Redirection vers le paiement securise...' : `Payer ${plan?.price.toFixed(2).replace('.',',')} EUR/mois`}</div>
-        <div style={{ textAlign: 'center', marginTop: 10, fontSize: 11, color: C.light }}>Paiement securise par Stripe — CB ou prelevement SEPA</div>
       </div>);
 
       case 8: return (<div style={{ textAlign: 'center' }}>
