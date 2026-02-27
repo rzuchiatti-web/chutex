@@ -101,6 +101,43 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
             </div>
           </div>
 
+          {/* Invite Guardian Card */}
+          <div onClick={() => setShowInviteGuardian(true)} data-testid="invite-guardian-btn" style={{ padding: '14px 16px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.03))', border: '1px solid rgba(16,185,129,0.15)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-user-add-line" style={{ fontSize: 20, color: '#10B981' }} /></div>
+            <div style={{ flex: 1 } as any}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Inviter un gardien</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Envoyez un SMS d'invitation pour rejoindre Chutex</div>
+            </div>
+            <i className="ri-send-plane-line" style={{ fontSize: 18, color: '#10B981' }} />
+          </div>
+
+          {/* Invite Guardian Popup */}
+          {showInviteGuardian && (
+            <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } as any} onClick={(e: any) => { if (e.target === e.currentTarget) setShowInviteGuardian(false); }}>
+              <div style={{ width: '90%', maxWidth: 380, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Inviter un gardien</div>
+                  <div onClick={() => setShowInviteGuardian(false)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /></div>
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 16, lineHeight: 1.5 }}>Entrez le numero du gardien. Il recevra un SMS l'invitant a telecharger l'app Chutex et s'inscrire en tant que gardien.</div>
+                <div style={{ marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Numero de telephone</div>
+                  <input data-testid="invite-phone-input" value={invitePhone} onChange={(e: any) => setInvitePhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" style={{ width: '100%', padding: '13px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                </div>
+                {inviteMsg && <div style={{ padding: '10px 14px', borderRadius: 12, background: inviteMsg.includes('envoye') ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${inviteMsg.includes('envoye') ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`, marginBottom: 12, fontSize: 12, color: inviteMsg.includes('envoye') ? '#10B981' : '#F87171', textAlign: 'center' } as any}>{inviteMsg}</div>}
+                <div data-testid="send-invite-btn" onClick={async () => {
+                  if (!invitePhone.trim()) return setInviteMsg('Entrez un numero');
+                  setInviteSending(true); setInviteMsg('');
+                  try {
+                    await apiFetch('/api/company/invite-guardian', { method: 'POST', body: JSON.stringify({ phone: invitePhone }) }, token);
+                    setInviteMsg('SMS d\'invitation envoye !'); setInvitePhone('');
+                  } catch (e: any) { setInviteMsg(e.message || 'Erreur'); }
+                  setInviteSending(false);
+                }} style={{ padding: '14px', borderRadius: 999, background: inviteSending ? 'rgba(255,255,255,0.05)' : 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', cursor: inviteSending ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#10B981', opacity: inviteSending ? 0.5 : 1 } as any}>{inviteSending ? 'Envoi...' : 'Envoyer l\'invitation SMS'}</div>
+              </div>
+            </div>
+          )}
+
           {/* Alert card */}
           {(() => {
             const totalA = alerts.length;
