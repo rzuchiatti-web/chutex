@@ -29,7 +29,7 @@ export default function CompanyPrescriberDetailScreen() {
   const p = data.prescriber || data;
   const prescriptions = data.prescriptions || [];
   const pendingCount = prescriptions.filter((rx: any) => rx.status === 'pending').length;
-  const validatedCount = prescriptions.filter((rx: any) => rx.status === 'subscribed').length;
+  const validatedCount = prescriptions.filter((rx: any) => (rx.status === 'subscribed' || rx.status === 'validated' || rx.status === 'contract_created')).length;
 
   const profileRows = [
     p.phone && { icon: 'ri-phone-line', label: 'Telephone', value: p.phone, phone: true },
@@ -89,7 +89,7 @@ export default function CompanyPrescriberDetailScreen() {
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{rx.subscription_type || 'Standard'} · +{rx.commission || 0} EUR</div>
                     {rx.created_at && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{new Date(rx.created_at).toLocaleDateString('fr-FR')}</div>}
                   </div>
-                  <div style={{ padding: '4px 10px', borderRadius: 999, background: rx.status === 'subscribed' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: rx.status === 'subscribed' ? '#10B981' : '#F59E0B' }}>{rx.status === 'subscribed' ? 'Validee' : 'En attente'}</span></div>
+                  <div style={{ padding: '4px 10px', borderRadius: 999, background: (rx.status === 'subscribed' || rx.status === 'validated' || rx.status === 'contract_created') ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: (rx.status === 'subscribed' || rx.status === 'validated' || rx.status === 'contract_created') ? '#10B981' : '#F59E0B' }}>{(rx.status === 'subscribed' || rx.status === 'validated' || rx.status === 'contract_created') ? 'Validee' : 'En attente'}</span></div>
                 </div>
               </div>
             ))}
