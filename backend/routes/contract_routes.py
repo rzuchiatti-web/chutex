@@ -315,23 +315,56 @@ async def _activate_contract(contract: dict, contract_id: str):
 
     # Stripe Connect: transfer to Chutex Care for Care plans
     if is_care and STRIPE_CARE_ACCOUNT:
-        transfer_amount = plan.get("price", 0) - plan.get("chutex_fee", 500)
+        # Check bracelet debt (109€ HT = 10900 cents amortized over transfers)
+        bracelet_cost = 10900  # 109€ HT in cents
+        debt_doc = await db.connect_debts.find_one({"contract_id": contract_id})
+        if not debt_doc:
+            # First activation: create bracelet debt
+            await db.connect_debts.insert_one({
+                "contract_id": contract_id,
+                "contract_number": contract.get("contract_number", ""),
+                "type": "bracelet_purchase",
+                "original_amount": bracelet_cost,
+                "remaining": bracelet_cost,
+                "created_at": now,
+            })
+            debt_remaining = bracelet_cost
+            logger.info(f"Bracelet debt 109EUR created for {contract.get('contract_number')}")
+        else:
+            debt_remaining = debt_doc.get("remaining", 0)
+
+        transfer_amount = plan.get("price", 0) - plan.get("chutex_fee", 500)  # Amount normally for Care
+        if debt_remaining > 0:
+            # Deduct from transfer to pay off bracelet
+            if transfer_amount <= debt_remaining:
+                # Full transfer kept by Chutex to pay bracelet
+                new_remaining = debt_remaining - transfer_amount
+                await db.connect_debts.update_one({"contract_id": contract_id}, {"$set": {"remaining": new_remaining, "updated_at": now}})
+                logger.info(f"Bracelet debt: kept {transfer_amount/100}EUR, remaining {new_remaining/100}EUR for {contract.get('contract_number')}")
+                transfer_amount = 0
+            else:
+                # Partial: pay off remaining debt, transfer the rest
+                transfer_amount -= debt_remaining
+                await db.connect_debts.update_one({"contract_id": contract_id}, {"$set": {"remaining": 0, "paid_off_at": now, "updated_at": now}})
+                logger.info(f"Bracelet debt PAID OFF for {contract.get('contract_number')}, transferring {transfer_amount/100}EUR")
+
         if transfer_amount > 0:
             try:
                 transfer = stripe.Transfer.create(
                     amount=transfer_amount,
                     currency="eur",
                     destination=STRIPE_CARE_ACCOUNT,
-                    description=f"Care contract {contract.get('contract_number', '')} - monthly transfer",
-                    metadata={"contract_id": contract_id, "contract_number": contract.get("contract_number", ""), "plan": plan_id},
+                    description=f"Care {contract.get('contract_number', '')} - monthly",
+                    metadata={"contract_id": contract_id, "plan": plan_id},
                 )
-                logger.info(f"Transfer {transfer.id}: {transfer_amount/100}EUR to Chutex Care for {contract.get('contract_number')}")
-                await db.payment_transactions.update_one(
-                    {"contract_id": contract_id},
-                    {"$set": {"stripe_transfer_id": transfer.id, "transfer_amount": transfer_amount / 100, "chutex_fee": plan.get("chutex_fee", 500) / 100}},
-                )
+                logger.info(f"Transfer {transfer.id}: {transfer_amount/100}EUR to Chutex Care")
             except Exception as e:
                 logger.error(f"Transfer to Chutex Care failed: {e}")
+
+        await db.payment_transactions.update_one(
+            {"contract_id": contract_id},
+            {"$set": {"transfer_amount": transfer_amount / 100, "chutex_fee": (plan.get("price", 0) - transfer_amount) / 100, "updated_at": now}},
+        )
 
     # Create/update subscription in app
     ben_phone = contract.get("beneficiary", {}).get("phone", "")
