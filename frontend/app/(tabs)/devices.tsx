@@ -754,7 +754,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Prescription</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>{selectedPresc.subscription_type === 'bracelet_gilet' ? 'Bracelet Elio + Gilet Elder — 79,90€/mois' : 'Bracelet Elio — 39,90€/mois'}</div>
-            <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', letterSpacing: -2, marginTop: 8 }}>+{selectedPresc.commission || getCommission(selectedPresc)}EUR</div>
+            <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', letterSpacing: -2, marginTop: 8 }}>+{selectedPresc.commission || getCommission(selectedPresc)}EUR/mois</div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
             {[
@@ -836,7 +836,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 <div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{p.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{p.subscription_type === 'bracelet_gilet' ? 'Bracelet + Gilet Elder' : 'Bracelet Elio'}</div></div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: p.status === 'subscribed' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: p.status === 'subscribed' ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{p.status === 'subscribed' ? 'Validee' : 'En cours'}</span></div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>+{p.commission || getCommission(p)}EUR</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', borderRadius: 999, padding: '8px 16px' } as any}><i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span></div></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>+{p.commission || getCommission(p)}EUR/mois</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', borderRadius: 999, padding: '8px 16px' } as any}><i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span></div></div>
             </div>
           ))}
           {displayedPresc.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-file-text-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>Aucune prescription {prescTab === 'pending' ? 'en cours' : 'validee'}</div></div>}
@@ -1028,7 +1028,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{p.subscription_type === 'teleassistance' ? 'Abonnement teleassistance' : `Abonnement ${p.subscription_type || 'Standard'}`}</div>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,.2)', borderRadius: 12, padding: '6px 12px', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,.2)' } as any}>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>+{p.commission || getCommission(p)}EUR</span>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>+{p.commission || getCommission(p)}EUR/mois</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
@@ -1045,7 +1045,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <View style={{ borderRadius: 20, overflow: 'hidden', padding: 16, marginBottom: 12, backgroundColor: isValidated ? '#0a3a2a' : '#5a2a0a' }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                   <View><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{p.beneficiary_name}</Text><Text style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{p.subscription_type === 'bracelet_gilet' ? 'Bracelet + Gilet Elder' : 'Bracelet Elio'}</Text></View>
-                  <View style={{ backgroundColor: 'rgba(255,255,255,.2)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}><Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>+{p.commission || getCommission(p)}EUR</Text></View>
+                  <View style={{ backgroundColor: 'rgba(255,255,255,.2)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}><Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>+{p.commission || getCommission(p)}EUR/mois</Text></View>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: 14, fontWeight: '600', color: '#FFF' }}>{isValidated ? 'Valide' : 'En attente'}</Text>
@@ -1191,7 +1191,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             <Text style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', marginBottom: 8 }}>{selectedPresc.beneficiary_email}</Text>
             <Text style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}>{selectedPresc.beneficiary_phone}</Text>
             <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Commission</Text>
-            <Text style={{ fontSize: 42, fontWeight: '900', color: '#FFF' }}>+{selectedPresc.commission || getCommission(selectedPresc)}EUR</Text>
+            <Text style={{ fontSize: 42, fontWeight: '900', color: '#FFF' }}>+{selectedPresc.commission || getCommission(selectedPresc)}EUR/mois</Text>
           </View>
         </Modal>
       )}
