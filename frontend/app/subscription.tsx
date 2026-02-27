@@ -76,7 +76,13 @@ export default function SubscriptionPage() {
     if (Platform.OS !== 'web' || typeof document === 'undefined') return;
     const style = document.createElement('style');
     style.id = 'sub-override';
-    style.textContent = `html, body, #root { background: #FFFFFF !important; } [role="tablist"] { display: none !important; } .chx-bg-dark::before, .chx-bg-light::before { display: none !important; }`;
+    style.textContent = `
+      html, body, #root { background: #FFFFFF !important; }
+      #root > div, #root > div > div, #root > div > div > div { background: transparent !important; }
+      [role="tablist"] { display: none !important; }
+      .chx-bg-dark::before, .chx-bg-light::before { display: none !important; }
+      #sub-root { position: fixed !important; inset: 0 !important; z-index: 99999 !important; background: #FFFFFF !important; overflow-y: auto !important; }
+    `;
     document.head.appendChild(style);
     return () => { style.remove(); };
   }, []);
