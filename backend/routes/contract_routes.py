@@ -464,3 +464,175 @@ async def mark_invoice_paid(invoice_id: str):
     if result.modified_count == 0:
         raise HTTPException(404, "Facture introuvable")
     return {"status": "paid", "paid_at": now}
+
+
+
+# ═══════════════════════════════════════════════════════
+#                 SAAD STRIPE CONNECT
+# ═══════════════════════════════════════════════════════
+
+@router.post("/saad/stripe-onboarding")
+async def create_saad_stripe_account(request: Request):
+    """Create Stripe Connect account for a SAAD entity and return onboarding link."""
+    body = await request.json()
+    saad_id = body.get("saad_id", "")
+    company_name = body.get("company_name", "")
+    email = body.get("email", "")
+    commission_type = body.get("commission_type", "monthly")  # "oneshot" (100€) or "monthly" (8€/mois)
+
+    if not saad_id or not company_name:
+        raise HTTPException(400, "saad_id et company_name requis")
+
+    # Check if already has Stripe account
+    existing = await db.saad_stripe.find_one({"saad_id": saad_id}, {"_id": 0})
+    if existing and existing.get("account_id"):
+        # Regenerate onboarding link
+        link = stripe.AccountLink.create(
+            account=existing["account_id"],
+            refresh_url=body.get("refresh_url", "https://chutex-ios-fix.preview.emergentagent.com"),
+            return_url=body.get("return_url", "https://chutex-ios-fix.preview.emergentagent.com"),
+            type="account_onboarding",
+        )
+        return {"account_id": existing["account_id"], "onboarding_url": link.url, "already_exists": True}
+
+    # Create new Express account
+    account = stripe.Account.create(
+        type="express",
+        country="FR",
+        email=email or None,
+        business_type="company",
+        company={"name": company_name},
+        capabilities={"card_payments": {"requested": True}, "transfers": {"requested": True}},
+        metadata={"saad_id": saad_id, "entity": "saad", "commission_type": commission_type},
+    )
+
+    link = stripe.AccountLink.create(
+        account=account.id,
+        refresh_url=body.get("refresh_url", "https://chutex-ios-fix.preview.emergentagent.com"),
+        return_url=body.get("return_url", "https://chutex-ios-fix.preview.emergentagent.com"),
+        type="account_onboarding",
+    )
+
+    now = datetime.now(timezone.utc).isoformat()
+    await db.saad_stripe.update_one(
+        {"saad_id": saad_id},
+        {"$set": {
+            "saad_id": saad_id,
+            "account_id": account.id,
+            "company_name": company_name,
+            "email": email,
+            "commission_type": commission_type,  # "oneshot" = 100€ one-time, "monthly" = 8€/month
+            "commission_amount": 10000 if commission_type == "oneshot" else 800,  # in cents
+            "status": "onboarding",
+            "created_at": now,
+        }},
+        upsert=True,
+    )
+
+    # Update the company/saad record
+    await db.users.update_one(
+        {"id": saad_id},
+        {"$set": {"stripe_account_id": account.id, "commission_type": commission_type}},
+    )
+
+    return {"account_id": account.id, "onboarding_url": link.url}
+
+
+@router.get("/saad/stripe-status/{saad_id}")
+async def get_saad_stripe_status(saad_id: str):
+    """Check if SAAD has completed Stripe onboarding."""
+    doc = await db.saad_stripe.find_one({"saad_id": saad_id}, {"_id": 0})
+    if not doc:
+        return {"has_stripe": False}
+
+    acct = stripe.Account.retrieve(doc["account_id"])
+    status = "active" if acct.charges_enabled and acct.payouts_enabled else "onboarding"
+    if status != doc.get("status"):
+        await db.saad_stripe.update_one({"saad_id": saad_id}, {"$set": {"status": status}})
+
+    return {
+        "has_stripe": True,
+        "account_id": doc["account_id"],
+        "status": status,
+        "charges_enabled": acct.charges_enabled,
+        "payouts_enabled": acct.payouts_enabled,
+        "commission_type": doc.get("commission_type", "monthly"),
+        "commission_display": "100 EUR (unique)" if doc.get("commission_type") == "oneshot" else "8 EUR/mois",
+    }
+
+
+# ─── SAAD Commission Processing ───
+async def _process_saad_commission(contract: dict, contract_id: str, now: str):
+    """Auto-send commission to SAAD when a prescribed contract is activated."""
+    ben_phone = contract.get("beneficiary", {}).get("phone", "")
+    if not ben_phone:
+        return
+
+    # Find prescription matching this beneficiary
+    prescription = await db.prescriptions.find_one({
+        "beneficiary_phone": {"$regex": ben_phone[-9:]},
+        "status": {"$in": ["pending", "contract_created", "validated"]},
+    })
+    if not prescription:
+        return
+
+    prescriber_id = prescription.get("prescriber_id", "")
+    if not prescriber_id:
+        return
+
+    # Find the prescriber's SAAD
+    prescriber = await db.users.find_one({"id": prescriber_id}, {"_id": 0})
+    if not prescriber:
+        return
+
+    # The prescriber might be a guardian linked to a SAAD, or a SAAD directly
+    saad_id = prescriber.get("company_id") or prescriber.get("id")
+    saad_stripe = await db.saad_stripe.find_one({"saad_id": saad_id, "status": "active"}, {"_id": 0})
+    if not saad_stripe:
+        logger.info(f"No active SAAD Stripe account for prescriber {prescriber_id}, skipping commission")
+        return
+
+    commission_type = saad_stripe.get("commission_type", "monthly")
+    commission_amount = saad_stripe.get("commission_amount", 800)  # cents
+    account_id = saad_stripe["account_id"]
+
+    # Check if commission already sent for this contract
+    existing_commission = await db.saad_commissions.find_one({"contract_id": contract_id, "saad_id": saad_id})
+    if existing_commission and commission_type == "oneshot":
+        return  # Already paid one-shot
+
+    try:
+        transfer = stripe.Transfer.create(
+            amount=commission_amount,
+            currency="eur",
+            destination=account_id,
+            description=f"Commission {'unique' if commission_type == 'oneshot' else 'mensuelle'} - {contract.get('contract_number', '')}",
+            metadata={"contract_id": contract_id, "saad_id": saad_id, "type": f"saad_commission_{commission_type}"},
+        )
+
+        await db.saad_commissions.insert_one({
+            "id": str(uuid.uuid4()),
+            "contract_id": contract_id,
+            "contract_number": contract.get("contract_number", ""),
+            "saad_id": saad_id,
+            "saad_name": saad_stripe.get("company_name", ""),
+            "prescriber_id": prescriber_id,
+            "commission_type": commission_type,
+            "amount": commission_amount / 100,
+            "stripe_transfer_id": transfer.id,
+            "status": "paid",
+            "created_at": now,
+        })
+
+        logger.info(f"SAAD commission: {commission_amount/100}EUR ({commission_type}) to {saad_stripe.get('company_name')} for {contract.get('contract_number')}")
+    except Exception as e:
+        logger.error(f"SAAD commission transfer failed: {e}")
+
+
+# ─── Admin: SAAD commissions overview ───
+@router.get("/admin/saad-commissions")
+async def get_saad_commissions():
+    """Get all SAAD commissions."""
+    commissions = await db.saad_commissions.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    total = sum(c.get("amount", 0) for c in commissions)
+    return {"commissions": commissions, "total": round(total, 2), "count": len(commissions)}
