@@ -1504,7 +1504,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   const BG_BLACK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
   const allPrescs = dashData?.prescriptions || [];
   const pendingPrescs = allPrescs.filter((p: any) => p.status === 'pending');
-  const subscribedPrescs = allPrescs.filter((p: any) => p.status === 'subscribed');
+  const subscribedPrescs = allPrescs.filter((p: any) => p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created');
   const displayedPrescs = prescTab === 'pending' ? pendingPrescs : subscribedPrescs;
   const prescTotal = displayedPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
 
