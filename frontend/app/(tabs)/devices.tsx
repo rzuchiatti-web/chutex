@@ -438,7 +438,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSubmitting(false); }
   };
 
-  const validated = prescriptions.filter((p: any) => p.status === 'subscribed');
+  const validated = prescriptions.filter((p: any) => p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created');
   const pending = prescriptions.filter((p: any) => p.status === 'pending');
   const [prescTab, setPrescTab] = useState<'pending'|'validated'>('pending');
   const displayedPresc = prescTab === 'pending' ? pending : validated;
