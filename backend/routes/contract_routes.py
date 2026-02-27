@@ -603,12 +603,14 @@ async def _process_saad_commission(contract: dict, contract_id: str, now: str):
         return  # Already paid one-shot
 
     try:
+        # Commission paid by Chutex Care (connected account) to SAAD
+        # Use Stripe Transfer from platform, funded by Chutex Care's balance
         transfer = stripe.Transfer.create(
             amount=commission_amount,
             currency="eur",
             destination=account_id,
-            description=f"Commission {'unique' if commission_type == 'oneshot' else 'mensuelle'} - {contract.get('contract_number', '')}",
-            metadata={"contract_id": contract_id, "saad_id": saad_id, "type": f"saad_commission_{commission_type}"},
+            description=f"Commission SAAD {'unique' if commission_type == 'oneshot' else 'mensuelle'} - {contract.get('contract_number', '')}",
+            metadata={"contract_id": contract_id, "saad_id": saad_id, "type": f"saad_commission_{commission_type}", "paid_by": "chutex_care"},
         )
 
         await db.saad_commissions.insert_one({
