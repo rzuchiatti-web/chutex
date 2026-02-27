@@ -310,3 +310,39 @@ async def get_plans():
             "includes": ["Bracelet Elio", "Gilet airbag Elder", "Teleassistance 24/7", "Detection de chute", "Protection airbag", "Bouton SOS", "Suivi cardiaque"],
         },
     ]
+
+
+
+# ─── SMS Notifications after payment ───
+async def _send_contract_notifications(contract: dict):
+    """Send SMS to beneficiary and all guardians after contract activation."""
+    try:
+        ben = contract.get("beneficiary", {})
+        ben_name = f"{ben.get('first_name', '')} {ben.get('last_name', '')}".strip()
+        ben_phone = ben.get("phone", "")
+        plan_name = contract.get("plan_label", "Teleassistance Chutex Care")
+        contract_num = contract.get("contract_number", "")
+
+        # SMS to beneficiary
+        if ben_phone:
+            await send_sms(
+                ben_phone,
+                f"Bienvenue chez Chutex Care ! Votre contrat {contract_num} est actif. "
+                f"Telechargez l'app Chutex pour activer votre bracelet : https://apps.apple.com/app/chutex/id6759215592"
+            )
+            logger.info(f"SMS sent to beneficiary {ben_phone}")
+
+        # SMS to each guardian
+        for g in contract.get("guardians", []):
+            g_phone = g.get("phone", "")
+            g_name = f"{g.get('first_name', '')} {g.get('last_name', '')}".strip()
+            if g_phone:
+                await send_sms(
+                    g_phone,
+                    f"Bonjour {g_name}, vous etes designe(e) comme gardien de {ben_name} "
+                    f"sur Chutex Care. Telechargez l'app et inscrivez-vous en tant que gardien : "
+                    f"https://apps.apple.com/app/chutex/id6759215592"
+                )
+                logger.info(f"SMS sent to guardian {g_phone}")
+    except Exception as e:
+        logger.error(f"SMS notification error: {e}")
