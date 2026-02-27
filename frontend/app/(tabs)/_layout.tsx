@@ -24,7 +24,7 @@ export default function TabLayout() {
   const isG = r === 'guardian';
   const isTA = r === 'teleassistance';
   const isAdmin = r === 'admin';
-  const isCompany = r === 'prescriber_company';
+  const isCompany = r === 'prescriber_company' || r === 'company';
   const isWebBen = Platform.OS === 'web' && isBen;
 
   // Single unified tab bar style — NO position absolute, just styled inline
