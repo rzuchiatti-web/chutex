@@ -309,6 +309,52 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             </div>
           )}
 
+          {/* SAAD Stripe Connect Card */}
+          {effectiveRole === 'prescriber_company' && (
+            <div onClick={() => setShowStripeConfig(true)} style={{ padding: '18px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(124,58,237,0.15)', marginBottom: 14, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-bank-card-line" style={{ fontSize: 22, color: '#7C3AED' }} /></div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{user.stripe_account_id ? 'Stripe Connect' : 'Configurer les paiements'}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{user.commission_type === 'oneshot' ? 'Commission unique (100/200 EUR)' : user.commission_type === 'monthly' ? 'Commission mensuelle (8/15 EUR)' : 'Non configure'}</div>
+                </div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: user.stripe_account_id ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' } as any}>
+                  <span style={{ width: 5, height: 5, borderRadius: 999, background: user.stripe_account_id ? '#10B981' : '#F59E0B' } as any} />
+                  <span style={{ fontSize: 10, fontWeight: 600, color: user.stripe_account_id ? '#10B981' : '#F59E0B' }}>{user.stripe_account_id ? 'Actif' : 'A configurer'}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Stripe Config Popup */}
+          {showStripeConfig && (
+            <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } as any} onClick={() => setShowStripeConfig(false)}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '92%', maxWidth: 400, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>Paiements & Commissions</div>
+                  <div onClick={() => setShowStripeConfig(false)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /></div>
+                </div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Mode de commissionnement</div>
+                {[
+                  { k: 'oneshot', title: 'Commission unique', sub: '100 EUR (Bracelet) / 200 EUR (Bracelet + Gilet)', icon: 'ri-coin-line' },
+                  { k: 'monthly', title: 'Commission mensuelle', sub: '8 EUR/mois (Bracelet) / 15 EUR/mois (Bracelet + Gilet)', icon: 'ri-loop-right-line' },
+                ].map(o => (
+                  <div key={o.k} onClick={async () => {
+                    try { await apiFetch('/api/saad/stripe-onboarding', { method: 'POST', body: JSON.stringify({ saad_id: user.id, company_name: user.structure_name || user.name, email: user.email, commission_type: o.k, refresh_url: window.location.href, return_url: window.location.href }) }, token); await refreshUser(); } catch {}
+                  }} style={{ padding: '14px 16px', borderRadius: 16, background: user.commission_type === o.k ? 'rgba(124,58,237,0.1)' : 'rgba(255,255,255,0.04)', border: `1.5px solid ${user.commission_type === o.k ? 'rgba(124,58,237,0.4)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 } as any}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: user.commission_type === o.k ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={o.icon} style={{ fontSize: 18, color: user.commission_type === o.k ? '#7C3AED' : 'rgba(255,255,255,0.3)' }} /></div>
+                    <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{o.title}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{o.sub}</div></div>
+                    {user.commission_type === o.k && <i className="ri-check-line" style={{ fontSize: 18, color: '#7C3AED', marginLeft: 'auto' }} />}
+                  </div>
+                ))}
+                {user.stripe_account_id && <div style={{ padding: 12, borderRadius: 14, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', textAlign: 'center', marginTop: 8, fontSize: 12, color: '#10B981', fontWeight: 600 }}>Stripe Connect actif</div>}
+                {!user.stripe_account_id && <div onClick={async () => {
+                  try { const res = await apiFetch('/api/saad/stripe-onboarding', { method: 'POST', body: JSON.stringify({ saad_id: user.id, company_name: user.structure_name || user.name, email: user.email, commission_type: user.commission_type || 'monthly', refresh_url: window.location.href, return_url: window.location.href }) }, token); if (res.onboarding_url) window.open(res.onboarding_url, '_blank'); } catch {}
+                }} style={{ padding: 15, borderRadius: 999, background: 'linear-gradient(135deg, #7C3AED, #6D28D9)', color: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, marginTop: 12, boxShadow: '0 4px 14px rgba(124,58,237,0.3)' } as any}>Creer mon compte Stripe</div>}
+              </div>
+            </div>
+          )}
+
           {/* Menu items — dark glass card */}
           <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
             <ProfileMenuItem testID="edit-profile-btn" icon="ri-user-settings-line" label={t('modify_profile')} onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
