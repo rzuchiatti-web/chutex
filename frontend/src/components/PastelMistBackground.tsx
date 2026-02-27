@@ -464,10 +464,12 @@ export function PastelMistBackground() {
       /* Remove any white padding at top */
       [role="tabpanel"] > div:first-child { padding-top: 0 !important; }
       [role="tabpanel"] { background: transparent !important; }
+      [role="tabpanel"] > div { background: transparent !important; }
       /* Kill ALL page headers/titles from Expo Router */
       header[role="banner"], div[style*="headerTitle"] { display: none !important; }
       /* Full screen - no white borders */
       #root, #root > div, #root > div > div, #root > div > div > div { min-height: 100dvh !important; background: transparent !important; }
+      .css-view-g5y9jx { background: transparent !important; }
       html, body, #root { margin: 0 !important; padding: 0 !important; background: #0b0f16 !important; overflow-x: hidden !important; }
 
       /* ── GUARDIANS STACK ── */
