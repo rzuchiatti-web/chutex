@@ -303,11 +303,8 @@ export default function CompanyAgencyScreen() {
 
         {/* ── TAB GARDIENS ── */}
         {tab === 'guardians' && (<>
-          <div onClick={() => setShowInvite(true)} style={{ padding: '13px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', color: '#10B981', fontSize: 14, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-            <i className="ri-shield-user-add-line" style={{ fontSize: 16 }} />Ajouter un gardien
-          </div>
           {guardianLinks.map((gl: any) => (
-            <GCard key={gl.link_id} onClick={() => gl.status === 'accepted' && setSelectedGuardian(gl)}>
+            <GCard key={gl.link_id} onClick={() => gl.status === 'accepted' && gl.id && router.push({ pathname: '/guardian-detail', params: { guardianId: gl.id } })}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
                 <div style={{ width: 46, height: 46, borderRadius: 999, background: gl.status === 'accepted' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: gl.status === 'accepted' ? '1px solid rgba(16,185,129,0.3)' : 'none' } as any}>
                   {gl.id
@@ -334,7 +331,7 @@ export default function CompanyAgencyScreen() {
             <div style={{ textAlign: 'center', padding: '50px 20px' } as any}>
               <i className="ri-shield-user-line" style={{ fontSize: 40, color: 'rgba(255,255,255,0.1)' }} />
               <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 12 }}>Aucun gardien rattache</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>Invitez des gardiens professionnels pour gerer vos beneficiaires</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>Invitez des gardiens depuis le dashboard</div>
             </div>
           )}
         </>)}
