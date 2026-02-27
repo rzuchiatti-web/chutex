@@ -1167,7 +1167,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 20 }}>
                 {[{k:'bracelet', l:'Bracelet Elio', p:'39,90€/mois'}, {k:'bracelet_gilet', l:'Bracelet + Gilet', p:'79,90€/mois'}].map(t => (
                   <TouchableOpacity key={t} style={{ flex: 1, paddingVertical: 12, borderRadius: 999, alignItems: 'center', borderWidth: 1.5, borderColor: formData.type === t ? '#FFF' : 'rgba(255,255,255,0.1)', backgroundColor: formData.type === t ? 'rgba(255,255,255,0.15)' : 'transparent' }} onPress={() => setFormData({ ...formData, type: t })}>
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: formData.type === t ? '#FFF' : 'rgba(255,255,255,0.5)' }}>{t === 'standard' ? 'Standard' : 'Teleassistance'}</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: formData.type === t.k ? '#FFF' : 'rgba(255,255,255,0.5)' }}>{t.l}{'\n'}<Text style={{ fontSize: 10, color: formData.type === t.k ? '#10B981' : 'rgba(255,255,255,0.3)' }}>{t.p}</Text></Text>
                   </TouchableOpacity>
                 ))}
               </View>
