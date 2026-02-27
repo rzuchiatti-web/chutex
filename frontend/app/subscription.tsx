@@ -286,7 +286,7 @@ export default function SubscriptionPage() {
   };
 
   return (
-    <div style={{ minHeight: '100dvh', background: C.bg, fontFamily: C.font, color: C.text, display: 'flex', flexDirection: 'column' } as any}>
+    <div id="sub-root" style={{ minHeight: '100dvh', background: C.bg, fontFamily: C.font, color: C.text, display: 'flex', flexDirection: 'column' } as any}>
       <div style={{ padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${C.border}`, background: '#FFF' } as any}>
         <img src="https://customer-assets.emergentagent.com/job_2d68398c-4513-47de-99bf-424741ed2892/artifacts/94ajxqu1_Logo_chutex_Noir.png" alt="Chutex" style={{ height: 28 } as any} />
         <div style={{ fontSize: 11, color: C.light, display: 'flex', alignItems: 'center', gap: 4 }}>
