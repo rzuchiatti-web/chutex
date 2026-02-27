@@ -24,6 +24,9 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
   const [inviteSending, setInviteSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showStripeSetup, setShowStripeSetup] = useState(false);
+  const [commissionChoice, setCommissionChoice] = useState('monthly');
+  const [stripeLoading, setStripeLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
