@@ -759,7 +759,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             {[
               { label: 'Beneficiaire', value: selectedPresc.beneficiary_name || '-' },
               { label: 'Statut', value: isValidated ? 'Valide' : 'En attente' },
-              { label: 'Type', value: selectedPresc.subscription_type === 'teleassistance' ? 'Teleassistance' : 'Standard' },
+              { label: 'Type', value: selectedPresc.subscription_type === 'bracelet_gilet' ? 'Bracelet + Gilet Elder' : 'Bracelet Elio' },
               { label: 'Paiement', value: isValidated ? 'Au 1er du mois' : 'Apres validation' },
               { label: 'Date', value: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-' },
               { label: 'Commission', value: `+${selectedPresc.commission || 25} EUR` },
