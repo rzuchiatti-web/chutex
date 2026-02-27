@@ -196,7 +196,6 @@ export default function CompanyAgencyScreen() {
         <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
           {([
             { k: 'agencies', label: `Agences (${agencies.length})`, icon: 'ri-building-line' },
-            { k: 'guardians', label: `Gardiens (${guardianLinks.length})`, icon: 'ri-shield-user-line', badge: pendingGuardians },
           ] as const).map(t => (
             <div key={t.k} onClick={() => setTab(t.k)} style={{ padding: '8px 14px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 700, background: tab === t.k ? '#FFF' : 'transparent', color: tab === t.k ? '#111' : 'rgba(255,255,255,0.7)', transition: 'all 0.2s', position: 'relative', whiteSpace: 'nowrap' } as any}>
               <i className={t.icon} style={{ marginRight: 4 }} />{t.label}
