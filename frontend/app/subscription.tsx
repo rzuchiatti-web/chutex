@@ -71,6 +71,16 @@ export default function SubscriptionPage() {
     }
   }, []);
 
+  // Force white background over global dark CSS (web only)
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const style = document.createElement('style');
+    style.id = 'sub-override';
+    style.textContent = `html, body, #root { background: #FFFFFF !important; } [role="tablist"] { display: none !important; } .chx-bg-dark::before, .chx-bg-light::before { display: none !important; }`;
+    document.head.appendChild(style);
+    return () => { style.remove(); };
+  }, []);
+
   const pollPay = async (sid: string, a = 0) => { if (a >= 8) return; try { const r = await fetch(`${API}/api/contract/payment-status/${sid}`); const d = await r.json(); if (d.payment_status === 'paid') return; setTimeout(() => pollPay(sid, a + 1), 2000); } catch {} };
   const plan = plans.find(p => p.id === selectedPlan);
   const deliveryDate = (() => { const d = new Date(); d.setDate(d.getDate() + 5); while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); })();
