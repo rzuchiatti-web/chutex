@@ -316,17 +316,20 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
         raise HTTPException(status_code=403, detail="Mode prescripteur non active.")
     now = datetime.now(timezone.utc).isoformat()
     structure = user.get('prescriber_structure', 'Chutex')
-    commission = 15.0 if data.subscription_type == "standard" else 25.0
+    # subscription_type is now "bracelet" or "bracelet_gilet" (always Care)
+    plan_label = "Bracelet Elio (Chutex Care)" if data.subscription_type == "bracelet" else "Bracelet Elio + Gilet Elder (Chutex Care)"
+    price = 39.90 if data.subscription_type == "bracelet" else 79.90
     next_month = (datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)).replace(day=1)
     p = {
         "id": str(uuid.uuid4()), "guardian_id": user['id'], "guardian_name": user['name'],
         "prescriber_structure": structure,
         "beneficiary_name": data.beneficiary_name, "beneficiary_email": data.beneficiary_email,
         "beneficiary_phone": data.beneficiary_phone, "subscription_type": data.subscription_type,
+        "plan_label": plan_label, "price": price,
         "notes": data.notes, "status": "pending", "beneficiary_id": None, "subscribed_at": None,
-        "commission": commission, "commission_payment_date": next_month.isoformat(),
+        "commission_payment_date": next_month.isoformat(),
         "tracking_phone": data.beneficiary_phone, "tracking_email": data.beneficiary_email,
-        "created_at": now, "notification_sent": True, "notification_type": "email",
+        "created_at": now, "notification_sent": True, "notification_type": "sms",
         "email_content": {
             "to": data.beneficiary_email,
             "subject": f"{structure} vous invite a souscrire a Chutex",
