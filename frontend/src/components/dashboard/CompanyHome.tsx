@@ -47,6 +47,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
   }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { if (!loading && !user.stripe_account_id) setShowStripeSetup(true); }, [loading, user.stripe_account_id]);
 
   if (loading) return <FullScreenLoader />;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
