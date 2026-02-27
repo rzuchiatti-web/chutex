@@ -21,39 +21,40 @@ Application de sante preventive "Chutex Care" - plateforme complete avec React N
 - Pages RGPD / Protection des donnees
 - P0 FIX: Dashboard zero-data pour nouveaux utilisateurs
 - P1: Popups glass appairage integrees au dashboard
-- **P0 FIX: Crash iOS resolu** (Feb 2026) - Passage a New Architecture + babel config + worklets
+- **P0 FIX: Crash iOS RESOLU** (Feb 2026)
 
-## iOS Build History
-- Build 38: CRASH - Reanimated v4 + Old Architecture incompatible
-- Build 39: EN ATTENTE - Fix: newArchEnabled=true, babel.config.js, react-native-worklets
+## iOS Crash Resolution (Build 44)
+### Causes identifiees et corrigees:
+1. **Reanimated v4 + Old Architecture incompatible**: `newArchEnabled` passe a `true`
+2. **babel.config.js manquant**: Cree avec `babel-preset-expo`
+3. **react-native-worklets manquant**: Ajoute comme dependance explicite
+4. **Violation des Rules of Hooks dans AuthScreen (index.tsx)**: `useRef` appeles apres des `return` conditionnels - deplaces en haut du composant
+5. **selectedPfx non defini**: Corrige avec derivation depuis PREFIXES
+
+### Build History:
+- Build 38: CRASH (Old Arch + Reanimated v4)
+- Build 40: CRASH (New Arch mais hooks bug)
+- Build 41: OK (diagnostic minimal)
+- Build 42: OK (Error Boundary - erreur hooks visible)
+- Build 43: OK (fix hooks - login visible)
+- Build 44: OK (production propre sans Error Boundary)
 
 ## Comptes de test
 | Role | Phone | Password |
 |---|---|---|
 | Admin | 600000001 | demo123 |
 | Teleassistance | 477101011 | demo123 |
-| TestUIZero (no devices) | +33699001122 | test123 |
 
 ## Statut actuel
-- P0 crash iOS fix: PRET A TESTER (build 39)
+- P0 crash iOS: RESOLU
+- Modules natifs (BLE, notifications, biometrie): NON INSTALLES (a reintegrer)
 - Vapi.ai international: BLOQUE (plan gratuit)
-- Modules natifs (BLE, notifications, biometrie): NON INSTALLES (a reintegrer apres validation build 39)
-
-## Corrections appliquees (Build 39)
-1. `app.json`: `newArchEnabled: true` (requis pour Reanimated v4)
-2. `babel.config.js`: Cree avec `babel-preset-expo` preset
-3. `package.json`: Ajoute `react-native-worklets@0.5.1` (peer dep Reanimated v4)
-4. `package.json`: Ajoute `babel-preset-expo@~54.0.10`
-5. `package.json`: Retire `react-native-chart-kit` (inutilise)
-6. `package.json`: Retire `react-native-dotenv` (inutilise)
-7. `app.json`: `buildNumber` incremente a 39
 
 ## Taches a venir (priorite)
-1. P0: Valider build iOS 39 sur TestFlight
-2. P0: Reintegrer modules natifs (react-native-ble-plx, expo-notifications, expo-local-authentication)
-3. P1: Tests materiel natif (bracelet, balance, gilet)
-4. P1: Audit i18n complet
-5. P2: Page abonnement SAAD
+1. P0: Reintegrer modules natifs (react-native-ble-plx, expo-notifications, expo-local-authentication)
+2. P1: Tests materiel natif (bracelet, balance, gilet)
+3. P1: Audit i18n complet
+4. P2: Page abonnement SAAD
 
 ## Backlog
 - UI programmes d'equipe/groupe
@@ -66,7 +67,9 @@ Application de sante preventive "Chutex Care" - plateforme complete avec React N
 - OpenAI GPT-4o via Emergent LLM Key
 - Materiel: Lefu Smart Scale, J-Style bracelet, Elder S-AIRBAG vest
 
-## Fichiers cles modifies (Build 39)
-- `frontend/app.json` - newArchEnabled: true, buildNumber: 39
+## Fichiers cles modifies
+- `frontend/app.json` - newArchEnabled: true, buildNumber: 44
 - `frontend/babel.config.js` - NOUVEAU
 - `frontend/package.json` - worklets, babel-preset, cleanup
+- `frontend/app/index.tsx` - Fix hooks order
+- `frontend/app/_layout.tsx` - Restaure proprement
