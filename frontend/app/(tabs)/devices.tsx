@@ -433,7 +433,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         beneficiary_name: formData.name, beneficiary_email: formData.email, beneficiary_phone: formData.phone,
         subscription_type: formData.type, notes: formData.notes,
       }) }, token);
-      setShowForm(false); setFormData({ name: '', email: '', phone: '', type: 'standard', notes: '' }); fetchPrescriptions();
+      setShowForm(false); setFormData({ name: '', email: '', phone: '', type: 'bracelet', notes: '' }); fetchPrescriptions();
       Alert.alert('Prescription creee');
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSubmitting(false); }
   };
