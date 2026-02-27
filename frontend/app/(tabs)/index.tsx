@@ -90,6 +90,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       setGuardians(Array.isArray(guards) ? guards : []);
       setGuardianRequests(Array.isArray(greqs) ? greqs : []);
       if (hs) setHealthSummary(hs);
+      apiFetch('/api/subscriptions/my', {}, token).then(setSubscription).catch(() => {});
       if (report?.weighings) setWeighings(report.weighings);
       try {
         const [prog, cat] = await Promise.all([
