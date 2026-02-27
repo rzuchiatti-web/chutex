@@ -52,6 +52,7 @@ api_router.include_router(health_report_router)
 api_router.include_router(chat_router)
 api_router.include_router(program_router)
 api_router.include_router(rgpd_router)
+api_router.include_router(contract_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
