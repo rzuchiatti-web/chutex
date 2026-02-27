@@ -25,6 +25,7 @@ from routes.health_report_routes import router as health_report_router
 from routes.chat_routes import router as chat_router
 from routes.program_routes import router as program_router
 from routes.rgpd_routes import router as rgpd_router
+from routes.contract_routes import router as contract_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
