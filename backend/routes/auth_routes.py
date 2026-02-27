@@ -86,8 +86,13 @@ async def register(data: UserRegister):
     if data.role == "prescriber_company":
         struct = data.structure_name or data.name or "SAAD"
         prefix = struct.replace(" ", "")[:6].upper()
-        act_code = f"PRESC-{prefix}-{str(uuid.uuid4())[:4].upper()}"
-        iv_code = f"CARE-{prefix}-{str(uuid.uuid4())[:4].upper()}"
+        act_code = str(random.randint(100000, 999999))
+        # Ensure unique
+        while await db.activation_codes.find_one({"code": act_code}):
+            act_code = str(random.randint(100000, 999999))
+        iv_code = str(random.randint(100000, 999999))
+        while await db.intervention_codes.find_one({"code": iv_code}) or iv_code == act_code:
+            iv_code = str(random.randint(100000, 999999))
         now_str = datetime.now(timezone.utc).isoformat()
         await db.activation_codes.insert_one({"id": str(uuid.uuid4()), "code": act_code, "structure_name": struct, "siret": data.siret or "", "max_uses": 100, "uses_count": 0, "active": True, "created_at": now_str, "created_by": uid})
         await db.intervention_codes.insert_one({"id": str(uuid.uuid4()), "code": iv_code, "structure_name": struct, "siret": data.siret or "", "default_radius_km": 30, "active": True, "created_at": now_str, "created_by": uid})
