@@ -476,7 +476,7 @@ async def company_prescriptions(user=Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Acces entreprise requis")
     structure = user.get('structure_name', '')
     prescriptions = await db.prescriptions.find(
-        {"structure_name": structure},
+        {"$or": [{"structure_name": structure}, {"prescriber_structure": structure}]},
         {"_id": 0}
     ).sort("created_at", -1).to_list(500)
     # Also get from prescribers linked to company
@@ -486,11 +486,12 @@ async def company_prescriptions(user=Depends(get_current_user)):
     ).to_list(200)
     prescriber_ids = [p['id'] for p in prescribers]
     if prescriber_ids:
+        existing_ids = {p.get('id') for p in prescriptions}
         more = await db.prescriptions.find(
-            {"prescriber_id": {"$in": prescriber_ids}, "structure_name": {"$ne": structure}},
+            {"$or": [{"prescriber_id": {"$in": prescriber_ids}}, {"guardian_id": {"$in": prescriber_ids}}]},
             {"_id": 0}
         ).to_list(500)
-        prescriptions.extend(more)
+        prescriptions.extend([m for m in more if m.get('id') not in existing_ids])
     return prescriptions
 
 
