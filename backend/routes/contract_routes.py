@@ -118,11 +118,25 @@ async def create_contract(data: ContractCreate):
         items=[{"price": _stripe_prices[data.plan]}],
         payment_behavior="default_incomplete",
         payment_settings={"save_default_payment_method": "on_subscription", "payment_method_types": ["card", "sepa_debit"]},
-        expand=["latest_invoice.payment_intent"],
+        expand=["latest_invoice.payments.data.payment_intent"],
         metadata={"contract_number": contract_number, "plan": data.plan, "beneficiary_phone": ben_phone},
     )
 
-    client_secret = subscription.latest_invoice.payment_intent.client_secret
+    # Get client_secret from the new Stripe API structure
+    client_secret = ""
+    invoice = subscription.latest_invoice
+    if invoice and hasattr(invoice, 'payments') and invoice.payments and invoice.payments.data:
+        pi = invoice.payments.data[0].payment_intent
+        if pi:
+            client_secret = pi.client_secret if hasattr(pi, 'client_secret') else ""
+    if not client_secret and invoice:
+        # Fallback: retrieve payment intent from invoice
+        inv_id = invoice.id if hasattr(invoice, 'id') else invoice
+        inv = stripe.Invoice.retrieve(inv_id, expand=["payments.data.payment_intent"])
+        if inv.payments and inv.payments.data:
+            pi = inv.payments.data[0].payment_intent
+            if pi:
+                client_secret = pi.client_secret if hasattr(pi, 'client_secret') else ""
 
     contract = {
         "id": str(uuid.uuid4()),
