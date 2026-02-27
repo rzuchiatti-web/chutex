@@ -449,8 +449,9 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
     const d = new Date(p.created_at || p.date || '');
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   });
-  const currentMonthAmount = currentMonthValidated.reduce((s: number, p: any) => s + (p.commission || 25), 0);
-  const allTimeAmount = validated.reduce((s: number, p: any) => s + (p.commission || 25), 0);
+  const getCommission = (p: any) => p.subscription_type === 'bracelet_gilet' ? 15 : 8;
+  const currentMonthAmount = currentMonthValidated.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0);
+  const allTimeAmount = validated.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0);
 
   const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
