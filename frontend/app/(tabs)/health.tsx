@@ -22,12 +22,7 @@ const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBack
 
 /* ===== COMPANY: AGENCES — kept inline due to heavy local state ===== */
 function CompanyAgences({ token }: { token: string }) {
-  const router = useRouter();
-  // Redirect to full company-agency page
-  useEffect(() => {
-    router.replace('/company-agency' as any);
-  }, []);
-  return <FullScreenLoader />;
+  return <CompanyAgencyScreen />;
 }
 
 export default function HealthScreen() {
