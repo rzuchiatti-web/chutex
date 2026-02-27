@@ -42,9 +42,10 @@ async def _ensure_stripe_prices():
             _stripe_prices[plan_id] = doc["price_id"]
         else:
             product = stripe.Product.create(name=plan["name"], metadata={"plan_id": plan_id})
+            interval = plan.get("interval", "month")
             price = stripe.Price.create(
                 product=product.id, unit_amount=plan["price"], currency="eur",
-                recurring={"interval": "month"},
+                recurring={"interval": interval},
             )
             await db.stripe_config.update_one(
                 {"plan_id": plan_id},
