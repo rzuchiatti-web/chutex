@@ -306,7 +306,7 @@ export default function CompanyAgencyScreen() {
             <i className="ri-shield-user-add-line" style={{ fontSize: 16 }} />Ajouter un gardien
           </div>
           {guardianLinks.map((gl: any) => (
-            <GCard key={gl.link_id}>
+            <GCard key={gl.link_id} onClick={() => gl.status === 'accepted' && setSelectedGuardian(gl)}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
                 <div style={{ width: 46, height: 46, borderRadius: 999, background: gl.status === 'accepted' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: gl.status === 'accepted' ? '1px solid rgba(16,185,129,0.3)' : 'none' } as any}>
                   {gl.id
@@ -317,19 +317,14 @@ export default function CompanyAgencyScreen() {
                 <div style={{ flex: 1 } as any}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{gl.name}</div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{gl.phone}{gl.profession ? ` · ${gl.profession}` : ''}</div>
-                  {gl.professional_beneficiaries > 0 && <div style={{ fontSize: 10, color: '#10B981', marginTop: 3 }}><i className="ri-heart-pulse-line" style={{ marginRight: 3 }} />{gl.professional_beneficiaries} bénéficiaire(s) professionnel(s)</div>}
+                  {gl.agency_name && <div style={{ fontSize: 10, color: '#A78BFA', marginTop: 3 }}><i className="ri-building-line" style={{ marginRight: 3 }} />{gl.agency_name}</div>}
+                  {gl.professional_beneficiaries > 0 && <div style={{ fontSize: 10, color: '#10B981', marginTop: 3 }}><i className="ri-heart-pulse-line" style={{ marginRight: 3 }} />{gl.professional_beneficiaries} beneficiaire(s)</div>}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 } as any}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 9px', borderRadius: 99, background: `${STATUS_COLOR[gl.status] || '#6B7280'}20`, fontSize: 10, fontWeight: 700, color: STATUS_COLOR[gl.status] || '#6B7280' } as any}>
                     <span style={{ width: 5, height: 5, borderRadius: 99, background: STATUS_COLOR[gl.status], display: 'inline-block' } as any} />
                     {STATUS_LABEL[gl.status] || gl.status}
                   </div>
-                  {gl.status !== 'removed' && (
-                    <div onClick={() => { if (window.confirm(`Retirer ${gl.name} ?`)) removeGuardian(gl.link_id); }}
-                      style={{ width: 28, height: 28, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                      <i className="ri-close-line" style={{ fontSize: 13, color: '#EF4444' }} />
-                    </div>
-                  )}
                 </div>
               </div>
             </GCard>
@@ -337,8 +332,8 @@ export default function CompanyAgencyScreen() {
           {guardianLinks.length === 0 && (
             <div style={{ textAlign: 'center', padding: '50px 20px' } as any}>
               <i className="ri-shield-user-line" style={{ fontSize: 40, color: 'rgba(255,255,255,0.1)' }} />
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 12 }}>Aucun gardien rattaché</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>Les gardiens professionnels rattachés font remonter les alertes de leurs bénéficiaires</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 12 }}>Aucun gardien rattache</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>Invitez des gardiens professionnels pour gerer vos beneficiaires</div>
             </div>
           )}
         </>)}
