@@ -21,7 +21,7 @@ export default function CompanyAgencyScreen() {
   const { agencyId } = useLocalSearchParams<{ agencyId?: string }>();
   const { token, user } = useAuth();
   const router = useRouter();
-  const [tab, setTab] = useState<'agencies' | 'intervenants' | 'guardians'>('agencies');
+  const [tab, setTab] = useState<'agencies' | 'guardians'>('agencies');
   const [agencies, setAgencies] = useState<any[]>([]);
   const [intervenants, setIntervenants] = useState<any[]>([]);
   const [guardianLinks, setGuardianLinks] = useState<any[]>([]);
