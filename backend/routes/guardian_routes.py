@@ -335,6 +335,14 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
         },
     }
     await db.prescriptions.insert_one(p)
+    # Send SMS to beneficiary with subscription link
+    if data.beneficiary_phone:
+        sub_link = "https://chutex-ios-fix.preview.emergentagent.com/subscription"
+        await send_sms(
+            data.beneficiary_phone,
+            f"Bonjour {data.beneficiary_name}, {structure} vous invite a souscrire a la teleassistance Chutex Care. "
+            f"Souscrivez ici : {sub_link}"
+        )
     await send_email(data.beneficiary_email, f"{structure} vous invite a souscrire a Chutex", f"<h2>Bonjour {data.beneficiary_name}</h2><p>L'entreprise {structure} vous invite.</p>")
     return {k: v for k, v in p.items() if k != '_id'}
 
