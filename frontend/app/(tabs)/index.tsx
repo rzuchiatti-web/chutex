@@ -22,6 +22,7 @@ import { useAuth } from '../../src/context/AuthContext';
 import { useI18n } from '../../src/context/I18nContext';
 import { apiFetch } from '../../src/services/api';
 import { requestNotificationPermission, startReminderChecker, notifyAlert } from '../../src/services/notifications';
+import { SubscriptionBanner, SubscriptionGate } from '../../src/components/SubscriptionGate';
 
 /* ═══════════════════════════════════════════════════════ */
 /*                    BENEFICIARY HOME                     */
