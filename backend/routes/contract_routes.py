@@ -305,11 +305,37 @@ async def stripe_webhook(request: Request):
 
 
 async def _activate_contract(contract: dict, contract_id: str):
-    """Activate contract, create subscription, send SMS."""
+    """Activate contract, create subscription, transfer to Chutex Care, send SMS."""
     now = datetime.now(timezone.utc).isoformat()
     await db.contracts.update_one({"id": contract_id}, {"$set": {"status": "active", "activated_at": now, "updated_at": now}})
 
+    plan_id = contract.get("plan", "")
+    plan = PLANS.get(plan_id, {})
+    is_care = plan_id in ("bracelet", "bracelet_gilet")
+
+    # Stripe Connect: transfer to Chutex Care for Care plans
+    if is_care and STRIPE_CARE_ACCOUNT:
+        transfer_amount = plan.get("price", 0) - plan.get("chutex_fee", 500)
+        if transfer_amount > 0:
+            try:
+                transfer = stripe.Transfer.create(
+                    amount=transfer_amount,
+                    currency="eur",
+                    destination=STRIPE_CARE_ACCOUNT,
+                    description=f"Care contract {contract.get('contract_number', '')} - monthly transfer",
+                    metadata={"contract_id": contract_id, "contract_number": contract.get("contract_number", ""), "plan": plan_id},
+                )
+                logger.info(f"Transfer {transfer.id}: {transfer_amount/100}EUR to Chutex Care for {contract.get('contract_number')}")
+                await db.payment_transactions.update_one(
+                    {"contract_id": contract_id},
+                    {"$set": {"stripe_transfer_id": transfer.id, "transfer_amount": transfer_amount / 100, "chutex_fee": plan.get("chutex_fee", 500) / 100}},
+                )
+            except Exception as e:
+                logger.error(f"Transfer to Chutex Care failed: {e}")
+
+    # Create/update subscription in app
     ben_phone = contract.get("beneficiary", {}).get("phone", "")
+    sub_type = "care" if is_care else "standard"
     if ben_phone:
         existing = await db.subscriptions.find_one({"beneficiary_phone": ben_phone, "status": "active"})
         if not existing:
