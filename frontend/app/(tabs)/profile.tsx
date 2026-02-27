@@ -255,6 +255,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             </div>
             <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>{user.name}</div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' } as any}>
+              {effectiveRole !== 'prescriber_company' && effectiveRole !== 'admin' && effectiveRole !== 'teleassistance' && (
               <div data-testid="profile-role-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', padding: 3, gap: 2 } as any}>
                 <div onClick={async () => {
                   if (effectiveRole !== 'beneficiary') {
@@ -271,6 +272,13 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                   <span style={{ fontSize: 11, fontWeight: 700, color: effectiveRole === 'guardian' ? '#111' : 'rgba(255,255,255,0.5)' }}>Gardien</span>
                 </div>
               </div>
+              )}
+              {effectiveRole === 'prescriber_company' && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)' } as any}>
+                  <i className="ri-building-line" style={{ fontSize: 12, color: '#7C3AED' }} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>SAAD</span>
+                </div>
+              )}
               {isGuardian && user.guardian_type === 'professional' && (
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)' } as any}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Care</span>
