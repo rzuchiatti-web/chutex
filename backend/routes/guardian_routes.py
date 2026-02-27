@@ -365,8 +365,39 @@ async def activate_prescriber(data: ActivatePrescriberRequest, user=Depends(get_
         raise HTTPException(status_code=404, detail="Code invalide ou expire")
     if code.get('uses_count', 0) >= code.get('max_uses', 50):
         raise HTTPException(status_code=400, detail="Code epuise")
-    await db.users.update_one({"id": user['id']}, {"$set": {"is_prescriber": True, "prescriber_structure": code['structure_name'], "prescriber_code_used": data.code}})
+
+    company_id = code.get('created_by', '')
+    await db.users.update_one({"id": user['id']}, {"$set": {
+        "is_prescriber": True,
+        "prescriber_structure": code['structure_name'],
+        "prescriber_code_used": data.code,
+        "prescriber_company_id": company_id,
+    }})
     await db.activation_codes.update_one({"code": data.code}, {"$inc": {"uses_count": 1}})
+
+    # Auto-update SAAD guardian link
+    phone_suffix = (user.get('phone', '') or '')[-9:]
+    if phone_suffix:
+        existing_link = await db.saad_guardian_links.find_one(
+            {"company_id": company_id, "guardian_phone": {"$regex": phone_suffix}},
+        )
+        if existing_link:
+            await db.saad_guardian_links.update_one(
+                {"_id": existing_link["_id"]},
+                {"$set": {"status": "accepted", "guardian_id": user['id'], "guardian_name": user.get('name', '')}},
+            )
+        else:
+            await db.saad_guardian_links.insert_one({
+                "id": str(uuid.uuid4()),
+                "company_id": company_id,
+                "company_name": code['structure_name'],
+                "guardian_id": user['id'],
+                "guardian_phone": user.get('phone', ''),
+                "guardian_name": user.get('name', ''),
+                "status": "accepted",
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+
     return {"status": "activated", "structure": code['structure_name']}
 
 
