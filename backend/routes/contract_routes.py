@@ -594,7 +594,12 @@ async def _process_saad_commission(contract: dict, contract_id: str, now: str):
         return
 
     commission_type = saad_stripe.get("commission_type", "monthly")
-    commission_amount = saad_stripe.get("commission_amount", 800)  # cents
+    # Commission depends on plan AND commission type
+    plan_id = contract.get("plan", "bracelet")
+    if commission_type == "oneshot":
+        commission_amount = 20000 if plan_id == "bracelet_gilet" else 10000  # 200€ or 100€
+    else:
+        commission_amount = 1500 if plan_id == "bracelet_gilet" else 800  # 15€ or 8€
     account_id = saad_stripe["account_id"]
 
     # Check if commission already sent for this contract
