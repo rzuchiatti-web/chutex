@@ -22,53 +22,11 @@ const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBack
 /* ===== COMPANY: AGENCES — kept inline due to heavy local state ===== */
 function CompanyAgences({ token }: { token: string }) {
   const router = useRouter();
-  const { user } = useAuth();
-  const [dashData, setDashData] = useState<any>(null);
-  const [intervenants, setIntervenants] = useState<any[]>([]);
-  const [guardianLinks, setGuardianLinks] = useState<any[]>([]);
-  const [allPrescribers, setAllPrescribers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'agencies' | 'guardians'>('agencies');
-  const [search, setSearch] = useState('');
-  const [selectedMember, setSelectedMember] = useState<any>(null);
-  const [memberDetail, setMemberDetail] = useState<any>(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
-  const [showCreate, setShowCreate] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [newAddr, setNewAddr] = useState('');
-  const [creating, setCreating] = useState(false);
-  const [editAgency, setEditAgency] = useState<any>(null);
-  const [editName, setEditName] = useState('');
-  const [editAddr, setEditAddr] = useState('');
-  const [assignModal, setAssignModal] = useState<any>(null);
-  const [showInvite, setShowInvite] = useState(false);
-  const [invitePhone, setInvitePhone] = useState('');
-  const [inviteMsg, setInviteMsg] = useState('');
-  const [inviting, setInviting] = useState(false);
-
-  const fetchData = useCallback(async () => {
-    try {
-      const [dash, iv, gl, pr] = await Promise.all([
-        apiFetch('/api/company/dashboard', {}, token).catch(() => ({})),
-        apiFetch('/api/company/intervenants', {}, token).catch(() => []),
-        apiFetch('/api/company/guardians', {}, token).catch(() => []),
-        apiFetch('/api/company/prescribers', {}, token).catch(() => []),
-      ]);
-      setDashData(dash); setIntervenants(Array.isArray(iv) ? iv : []); setGuardianLinks(Array.isArray(gl) ? gl : []); setAllPrescribers(Array.isArray(pr) ? pr : []);
-    } catch {} finally { setLoading(false); }
-  }, [token]);
-  useEffect(() => { fetchData(); }, [fetchData]);
-
-  if (loading) return <FullScreenLoader />;
-
-  // Simplified company view - full implementation preserved from original
-  return (
-    <View style={{ flex: 1, backgroundColor: '#000' }}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '900', color: '#FFF' }}>Structure</Text>
-      </View>
-    </View>
-  );
+  // Redirect to full company-agency page
+  useEffect(() => {
+    router.replace('/company-agency' as any);
+  }, []);
+  return <FullScreenLoader />;
 }
 
 export default function HealthScreen() {
