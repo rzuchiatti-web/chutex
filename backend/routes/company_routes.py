@@ -275,8 +275,11 @@ async def invite_guardian(data: dict, user=Depends(get_current_user)):
     company_name = user.get('structure_name', user.get('name', 'SAAD'))
 
     if not guardian:
-        # Simulate SMS
-        logger.info(f"[SMS SIMULE SAAD] {company_name} invite {cleaned} a creer un compte gardien sur Chutex")
+        # Send real SMS invitation
+        from services.smsmode_service import send_sms
+        company_name = user.get('structure_name', user.get('name', 'SAAD'))
+        await send_sms(cleaned, f"{company_name} vous invite a rejoindre Chutex en tant que gardien professionnel. Telechargez l'app et inscrivez-vous : https://apps.apple.com/app/chutex/id6759215592")
+        logger.info(f"[SMS SAAD] {company_name} invite {cleaned}")
         await db.saad_guardian_links.insert_one({
             "id": str(uuid.uuid4()), "company_id": user['id'], "company_name": company_name,
             "guardian_id": None, "guardian_phone": cleaned, "guardian_name": None,
