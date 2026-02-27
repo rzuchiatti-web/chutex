@@ -11,11 +11,14 @@ router = APIRouter()
 
 STRIPE_SECRET = os.environ.get("STRIPE_API_KEY", "")
 STRIPE_PK = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_CARE_ACCOUNT = os.environ.get("STRIPE_CONNECT_CHUTEX_CARE_ID", "")
 stripe.api_key = STRIPE_SECRET
 
 PLANS = {
-    "bracelet": {"name": "Bracelet Elio — Teleassistance 24/7", "price": 3990, "display": 39.90},
-    "bracelet_gilet": {"name": "Bracelet Elio + Gilet Elder — Teleassistance 24/7", "price": 7990, "display": 79.90},
+    "bracelet": {"name": "Bracelet Elio — Teleassistance 24/7", "price": 3990, "display": 39.90, "chutex_fee": 500},
+    "bracelet_gilet": {"name": "Bracelet Elio + Gilet Elder — Teleassistance 24/7", "price": 7990, "display": 79.90, "chutex_fee": 500},
+    "bracelet_standard": {"name": "Bracelet Elio — Abonnement Standard", "price": 2490, "display": 24.90, "chutex_fee": 2490},
+    "bracelet_standard_annual": {"name": "Bracelet Elio — Abonnement Annuel", "price": 24900, "display": 249.00, "chutex_fee": 24900, "interval": "year"},
 }
 
 _stripe_prices = {}
