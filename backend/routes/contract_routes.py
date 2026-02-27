@@ -344,7 +344,7 @@ async def _activate_contract(contract: dict, contract_id: str):
                 "id": str(uuid.uuid4()),
                 "beneficiary_phone": ben_phone,
                 "beneficiary_id": beneficiary["id"] if beneficiary else "",
-                "subscription_type": "care",
+                "subscription_type": sub_type,
                 "status": "active",
                 "source": "website_contract",
                 "contract_id": contract_id,
@@ -352,7 +352,7 @@ async def _activate_contract(contract: dict, contract_id: str):
                 "created_at": now, "updated_at": now, "created_by": "contract_system",
             })
             if beneficiary:
-                await db.users.update_one({"id": beneficiary["id"]}, {"$set": {"subscription_type": "care", "has_subscription": True}})
+                await db.users.update_one({"id": beneficiary["id"]}, {"$set": {"subscription_type": sub_type, "has_subscription": True}})
 
     if contract.get("prescriber_id"):
         await db.prescriptions.update_one({"contract_id": contract_id}, {"$set": {"status": "validated", "validated_at": now}})
