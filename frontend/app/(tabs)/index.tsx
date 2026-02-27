@@ -779,7 +779,8 @@ export default function Dashboard() {
     case 'guardian': return <GuardianHome token={token} user={user} />;
     case 'teleassistance': return <TeleassistanceHome token={token} user={user} />;
     case 'admin': return <AdminHome token={token} user={user} />;
-    case 'prescriber_company': return <CompanyHome token={token} user={user} />;
+    case 'prescriber_company':
+    case 'company': return <CompanyHome token={token} user={user} />;
     default: return <BeneficiaryHome token={token} user={user} />;
   }
 }
