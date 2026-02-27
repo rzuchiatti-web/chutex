@@ -122,7 +122,7 @@ export default function TabLayout() {
           : (isAdmin || isCompany) ? <Icon name="medkit-outline" size={size} color={color} /> : isG ? <Icon name="tab-intervention" size={size} color={color} /> : <Icon name={isTA ? 'headset-outline' : 'videocam-outline'} size={size} color={color} />,
       }} />
       <Tabs.Screen name="devices" options={{
-        tabBarIcon: ({ color, size }) => <MCIcon name="bluetooth-connect" size={size} color={color} />,
+        tabBarIcon: ({ color, size }) => isCompany ? <Icon name="document-text-outline" size={size} color={color} /> : <MCIcon name="bluetooth-connect" size={size} color={color} />,
         href: isBen ? null : undefined,
       }} />
       <Tabs.Screen name="profile" options={{
