@@ -69,6 +69,7 @@ export default function SubscriptionPage() {
 
   useEffect(() => {
     fetch(`${API}/api/plans`).then(r => r.json()).then(setPlans).catch(() => {});
+    fetch(`${API}/api/stripe/config`).then(r => r.json()).then(d => { STRIPE_PK = d.publishable_key; }).catch(() => {});
     // Load Stripe.js
     if (typeof window !== 'undefined' && !(window as any).Stripe) {
       const s = document.createElement('script');
