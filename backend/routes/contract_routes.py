@@ -404,6 +404,12 @@ async def _activate_contract(contract: dict, contract_id: str):
 
     if contract.get("prescriber_id"):
         await db.prescriptions.update_one({"contract_id": contract_id}, {"$set": {"status": "validated", "validated_at": now}})
+    else:
+        # Also check by beneficiary phone
+        await db.prescriptions.update_one(
+            {"beneficiary_phone": {"$regex": ben_phone[-9:]}, "status": {"$in": ["pending", "contract_created"]}},
+            {"$set": {"status": "validated", "validated_at": now, "contract_id": contract_id}}
+        )
 
     await _send_contract_notifications(contract)
 
