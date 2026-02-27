@@ -93,30 +93,24 @@ export default function CompanyAgencyScreen() {
   /* ─────────── AGENCY DETAIL ─────────── */
   if (selectedAgency) {
     const agIvs = intervenants.filter((iv: any) => iv.agency_id === selectedAgency.id || iv.agency_name === selectedAgency.name);
+    const agGuardians = guardianLinks.filter((gl: any) => gl.agency_name === selectedAgency.name);
+    const unaffiliated = guardianLinks.filter((gl: any) => gl.status === 'accepted' && (!gl.agency_name || gl.agency_name === 'Non assigne'));
     return (
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
-
-        <div style={{ position: 'relative', zIndex: 5, padding: '18px 20px 0' } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 } as any}>
-            <div onClick={() => setSelectedAgency(null)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
-              <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
-            </div>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any} onClick={() => setSelectedAgency(null)}>
+        <div onClick={(e: any) => e.stopPropagation()} style={{ width: '92%', maxWidth: 420, maxHeight: '85vh', overflowY: 'auto', padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
             <div>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{selectedAgency.name}</div>
-              {selectedAgency.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{selectedAgency.address}</div>}
+              {selectedAgency.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{selectedAgency.address}</div>}
             </div>
+            <div onClick={() => setSelectedAgency(null)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /></div>
           </div>
-        </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
           {/* Stats */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 18 } as any}>
             {[
+              { val: agGuardians.length, label: 'Gardiens', icon: 'ri-shield-user-line', color: '#10B981' },
               { val: agIvs.length, label: 'Intervenants', icon: 'ri-user-star-line', color: '#A78BFA' },
-              { val: agIvs.filter((iv: any) => iv.active_interventions > 0).length, label: 'En mission', icon: 'ri-navigation-line', color: '#F59E0B' },
-              { val: agIvs.reduce((s: number, iv: any) => s + (iv.completed_interventions || 0), 0), label: 'Terminées', icon: 'ri-checkbox-circle-line', color: '#10B981' },
             ].map((s, i) => (
               <div key={i} style={{ flex: 1, padding: '13px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
                 <i className={s.icon} style={{ fontSize: 16, color: s.color, display: 'block', marginBottom: 3 }} />
@@ -126,30 +120,37 @@ export default function CompanyAgencyScreen() {
             ))}
           </div>
 
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10 }}>Intervenants ({agIvs.length})</div>
-          {agIvs.map((iv: any) => (
-            <GCard key={iv.id} onClick={() => router.push({ pathname: '/company-intervenant-detail', params: { intervenantId: iv.id } })}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{iv.name?.charAt(0)}</span>
-                </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{iv.name}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{iv.profession || 'Intervenant'} · {iv.total_interventions || 0} missions</div>
-                </div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} />
+          {/* Gardiens affiliés */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 8 }}>Gardiens affilies ({agGuardians.length})</div>
+          {agGuardians.map((gl: any) => (
+            <div key={gl.link_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 14, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)', marginBottom: 6 } as any}>
+              <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 13, fontWeight: 800, color: '#10B981' }}>{gl.name?.charAt(0)}</span></div>
+              <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{gl.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{gl.phone}</div></div>
+              <div onClick={async () => { try { await apiFetch(`/api/company/prescriber/${gl.id}/assign`, { method: 'PUT', body: JSON.stringify({ agency_id: null }) }, token); fetchData(); } catch {} }}
+                style={{ width: 28, height: 28, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
+                <i className="ri-close-line" style={{ fontSize: 12, color: '#EF4444' }} />
               </div>
-            </GCard>
-          ))}
-          {agIvs.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '40px 20px' } as any}>
-              <i className="ri-group-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.1)' }} />
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginTop: 8 }}>Aucun intervenant dans cette agence</div>
             </div>
-          )}
+          ))}
+          {agGuardians.length === 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', textAlign: 'center', padding: '12px 0' }}>Aucun gardien affilie</div>}
 
-          <div onClick={() => { if (window.confirm(`Supprimer l'agence "${selectedAgency.name}" ?`)) deleteAgency(selectedAgency.id); }}
-            style={{ padding: '13px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444', fontSize: 13, fontWeight: 700, marginTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+          {/* Non affiliés */}
+          {unaffiliated.length > 0 && (<>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.2, textTransform: 'uppercase', marginTop: 16, marginBottom: 8 }}>Non affilies ({unaffiliated.length})</div>
+            {unaffiliated.map((gl: any) => (
+              <div key={gl.link_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 6 } as any}>
+                <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>{gl.name?.charAt(0)}</span></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{gl.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{gl.phone}</div></div>
+                <div onClick={async () => { try { await apiFetch(`/api/company/prescriber/${gl.id}/assign`, { method: 'PUT', body: JSON.stringify({ agency_id: selectedAgency.id }) }, token); fetchData(); } catch {} }}
+                  style={{ padding: '6px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#10B981', flexShrink: 0 } as any}>
+                  Affilier
+                </div>
+              </div>
+            ))}
+          </>)}
+
+          <div onClick={() => { if (window.confirm(`Supprimer l'agence "${selectedAgency.name}" ?`)) { deleteAgency(selectedAgency.id); setSelectedAgency(null); } }}
+            style={{ padding: '13px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444', fontSize: 13, fontWeight: 700, marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
             <i className="ri-delete-bin-line" style={{ fontSize: 14 }} />Supprimer cette agence
           </div>
         </div>
