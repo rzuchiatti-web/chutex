@@ -207,6 +207,16 @@ export default function CompanyAgencyScreen() {
       {/* ── Content ── */}
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '8px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
+        {/* Invite Guardian Card */}
+        <div onClick={() => setShowInvite(true)} style={{ padding: '14px 16px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.03))', border: '1px solid rgba(16,185,129,0.15)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-user-add-line" style={{ fontSize: 20, color: '#10B981' }} /></div>
+          <div style={{ flex: 1 } as any}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Inviter un gardien</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Envoyez un SMS d'invitation pour rejoindre Chutex</div>
+          </div>
+          <i className="ri-send-plane-line" style={{ fontSize: 18, color: '#10B981' }} />
+        </div>
+
         {/* ── TAB AGENCES ── */}
         {tab === 'agencies' && (<>
           <div onClick={() => setShowCreate(true)} style={{ padding: '13px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
