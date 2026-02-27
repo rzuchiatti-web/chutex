@@ -331,7 +331,7 @@ async def _activate_contract(contract: dict, contract_id: str):
             except Exception as e:
                 logger.error(f"Transfer to Chutex Care failed: {e}")
 
-        # Generate bracelet invoice (109€ HT = 130.80€ TTC) on first activation only
+        # Auto-charge Chutex Care for bracelet (130.80€ TTC) via Stripe Connect
         existing_invoice = await db.internal_invoices.find_one({"contract_id": contract_id, "type": "bracelet_purchase"})
         if not existing_invoice:
             inv_count = await db.internal_invoices.count_documents({}) + 1
@@ -353,8 +353,27 @@ async def _activate_contract(contract: dict, contract_id: str):
                 "beneficiary_name": f"{contract.get('beneficiary', {}).get('first_name', '')} {contract.get('beneficiary', {}).get('last_name', '')}".strip(),
                 "created_at": now,
             }
+            # Auto-charge Chutex Care via Stripe Connect (reverse transfer)
+            try:
+                charge = stripe.Charge.create(
+                    amount=13080,  # 130.80€ TTC
+                    currency="eur",
+                    source=STRIPE_CARE_ACCOUNT,
+                    description=f"Achat bracelet Elio - {contract.get('contract_number', '')}",
+                    metadata={"invoice_id": invoice["id"], "contract_id": contract_id, "type": "bracelet_purchase"},
+                )
+                invoice["status"] = "paid"
+                invoice["paid_at"] = now
+                invoice["stripe_charge_id"] = charge.id
+                logger.info(f"Bracelet auto-charged: {charge.id} - 130.80EUR from Chutex Care")
+            except Exception as e:
+                logger.warning(f"Bracelet auto-charge failed (will invoice manually): {e}")
+
             await db.internal_invoices.insert_one(invoice)
-            logger.info(f"Bracelet invoice {invoice['invoice_number']}: 130.80EUR TTC (Chutex Care → Chutex) for {contract.get('contract_number')}")
+            logger.info(f"Bracelet invoice {invoice['invoice_number']}: 130.80EUR TTC for {contract.get('contract_number')}")
+
+        # SAAD commission if prescribed
+        await _process_saad_commission(contract, contract_id, now)
 
         await db.payment_transactions.update_one(
             {"contract_id": contract_id},
