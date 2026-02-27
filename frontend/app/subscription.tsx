@@ -101,15 +101,6 @@ export default function SubscriptionPage() {
 
   if (Platform.OS !== 'web') return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' }}><Text style={{ color: '#000', fontSize: 16 }}>Ouvrez dans un navigateur.</Text></View>;
 
-  // Force white background over global dark CSS
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.id = 'sub-override';
-    style.textContent = `html, body, #root { background: #FFFFFF !important; } [role="tablist"] { display: none !important; } .chx-bg-dark::before, .chx-bg-light::before { display: none !important; }`;
-    document.head.appendChild(style);
-    return () => { style.remove(); };
-  }, []);
-
   const STEPS = ['Formule', 'Decouvrir', 'Beneficiaire', 'Logement', 'Gardiens', 'Livraison', 'Contrat & Paiement', 'Confirmation'];
   const canNext = () => { if (step === 1) return !!selectedPlan; if (step === 3) return !!(ben.first_name && ben.last_name && ben.phone && subType); if (step === 4) return !!housing.type; if (step === 5) return guardians.length > 0 && !!(guardians[0].first_name && guardians[0].phone) && consent; return true; };
 
