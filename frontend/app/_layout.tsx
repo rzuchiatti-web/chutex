@@ -27,6 +27,7 @@ function RootNav() {
           <Stack.Screen name="index" options={{ animation: 'none' }} />
           <Stack.Screen name="onboarding" options={{ animation: 'none' }} />
           <Stack.Screen name="register" options={{ animation: 'none' }} />
+          <Stack.Screen name="subscription" options={{ animation: 'none' }} />
         </Stack>
       </>
     );
