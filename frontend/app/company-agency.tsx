@@ -31,6 +31,7 @@ export default function CompanyAgencyScreen() {
   // Modals
   const [showCreate, setShowCreate] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
+  const [selectedGuardian, setSelectedGuardian] = useState<any>(null);
   const [agForm, setAgForm] = useState({ name: '', address: '' });
   const [invitePhone, setInvitePhone] = useState('');
   const [inviteMsg, setInviteMsg] = useState('');
