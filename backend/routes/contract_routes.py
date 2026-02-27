@@ -214,6 +214,9 @@ async def check_payment_status(session_id: str, request: Request):
                     {"$set": {"status": "validated", "validated_at": now}}
                 )
 
+            # Send SMS notifications
+            await _send_contract_notifications(contract)
+
     return {
         "status": status.status,
         "payment_status": status.payment_status,
