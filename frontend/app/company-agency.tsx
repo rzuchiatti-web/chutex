@@ -123,10 +123,10 @@ export default function CompanyAgencyScreen() {
           {/* Gardiens affiliés */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 8 }}>Gardiens affilies ({agGuardians.length})</div>
           {agGuardians.map((gl: any) => (
-            <div key={gl.link_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 14, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)', marginBottom: 6 } as any}>
+            <div key={gl.link_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 14, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)', marginBottom: 6, cursor: 'pointer' } as any} onClick={() => { setSelectedAgency(null); router.push({ pathname: '/guardian-detail', params: { guardianId: gl.id } }); }}>
               <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 13, fontWeight: 800, color: '#10B981' }}>{gl.name?.charAt(0)}</span></div>
               <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{gl.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{gl.phone}</div></div>
-              <div onClick={async () => { try { await apiFetch(`/api/company/prescriber/${gl.id}/assign`, { method: 'PUT', body: JSON.stringify({ agency_id: null }) }, token); fetchData(); } catch {} }}
+              <div onClick={async (e: any) => { e.stopPropagation(); try { await apiFetch(`/api/company/prescriber/${gl.id}/assign`, { method: 'PUT', body: JSON.stringify({ agency_id: null }) }, token); fetchData(); } catch {} }}
                 style={{ width: 28, height: 28, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
                 <i className="ri-close-line" style={{ fontSize: 12, color: '#EF4444' }} />
               </div>
