@@ -1,323 +1,119 @@
-import { Icon, MCIcon } from '../src/components/WebIcon';
-import FullScreenLoader from '../src/components/FullScreenLoader';
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useAuth } from '../src/context/AuthContext';
-import { apiFetch } from '../src/services/api';
-import { Colors } from '../src/constants/colors';
-import { useTheme } from '../src/context/ThemeContext';
+import React, { useState, useEffect } from 'react';
+import { Platform, View, Text } from 'react-native';
 
-export default function SubscriptionScreen() {
-  const { colors: themeColors } = useTheme();
-  const { token, user } = useAuth();
-  const router = useRouter();
-  const [sub, setSub] = useState<any>(null);
-  const [guardians, setGuardians] = useState<any[]>([]);
-  const [alerts, setAlerts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [showAddGuardian, setShowAddGuardian] = useState(false);
-  const [guardianPhone, setGuardianPhone] = useState('');
-  const [adding, setAdding] = useState(false);
-  const [addResult, setAddResult] = useState<any>(null);
+const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
-  const fetchData = useCallback(async () => {
-    try {
-      const [s, g, a] = await Promise.all([
-        apiFetch('/api/subscriptions/my', {}, token).catch(() => null),
-        apiFetch('/api/guardians/my', {}, token).catch(() => []),
-        apiFetch('/api/alerts/my?limit=10', {}, token).catch(() => []),
-      ]);
-      setSub(s);
-      setGuardians(Array.isArray(g) ? g : []);
-      setAlerts(Array.isArray(a) ? a : []);
-    } catch {} finally { setLoading(false); setRefreshing(false); }
-  }, [token]);
+type Plan = { id: string; name: string; description: string; price: number; price_after_credit: number; includes: string[] };
+type Guardian = { first_name: string; last_name: string; phone: string; email: string; address: string; city: string; postal_code: string; within_30min: boolean; has_keys: boolean; relationship: string };
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+const EMPTY_GUARDIAN: Guardian = { first_name: '', last_name: '', phone: '', email: '', address: '', city: '', postal_code: '', within_30min: false, has_keys: false, relationship: '' };
+const RELATIONSHIPS = ['Fils/Fille', 'Conjoint(e)', 'Petit-fils/Petite-fille', 'Frere/Soeur', 'Neveu/Niece', 'Ami(e)', 'Voisin(e)', 'Aide a domicile', 'Autre'];
 
-  const moveGuardian = async (guardianId: string, direction: 'up' | 'down') => {
-    const idx = guardians.findIndex(g => g.id === guardianId);
-    if (idx < 0) return;
-    if (direction === 'up' && idx === 0) return;
-    if (direction === 'down' && idx === guardians.length - 1) return;
-    const newOrder = [...guardians];
-    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
-    [newOrder[idx], newOrder[swapIdx]] = [newOrder[swapIdx], newOrder[idx]];
-    setGuardians(newOrder);
-    try {
-      await apiFetch('/api/guardians/reorder', {
-        method: 'POST',
-        body: JSON.stringify({ order: newOrder.map(g => g.id) }),
-      }, token);
-    } catch {}
-  };
+const G = {
+  bg: '#0A0A0A', card: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.08)',
+  accent: '#7CB4FF', green: '#10B981', white: '#FFF', muted: 'rgba(255,255,255,0.4)',
+  pill: 999, radius: 18, font: "'Inter', system-ui, sans-serif",
+};
+const inputStyle: any = { width: '100%', padding: '14px 16px', borderRadius: G.pill, background: G.card, border: `1px solid ${G.border}`, color: G.white, fontSize: 15, fontFamily: G.font, boxSizing: 'border-box', outline: 'none' };
+const labelStyle: any = { fontSize: 12, fontWeight: 600, color: G.muted, marginBottom: 6, display: 'block', letterSpacing: 0.5, textTransform: 'uppercase' };
+const rowStyle: any = { display: 'flex', gap: 12 };
 
-  const removeGuardian = async (guardianId: string) => {
-    try {
-      await apiFetch(`/api/guardians/${guardianId}/unlink`, { method: 'POST' }, token);
-      setGuardians(guardians.filter(g => g.id !== guardianId));
-    } catch {}
-  };
+export default function SubscriptionPage() {
+  const [step, setStep] = useState(1);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState('');
+  const [subscriberType, setSubscriberType] = useState('relative');
+  const [ben, setBen] = useState({ gender: 'F', first_name: '', last_name: '', phone: '', date_of_birth: '', address: '', city: '', postal_code: '' });
+  const [housing, setHousing] = useState({ floor: '', door: '', access_code: '', key_safe: false, key_safe_sell: false, animal: false, animal_type: '' });
+  const [guardians, setGuardians] = useState<Guardian[]>([{ ...EMPTY_GUARDIAN }]);
+  const [delivery, setDelivery] = useState({ type: 'beneficiary', guardian_index: 0 });
+  const [billing, setBilling] = useState({ person: 'guardian', guardian_index: 0, method: 'sepa' });
+  const [signerName, setSignerName] = useState('');
+  const [contractId, setContractId] = useState('');
+  const [contractNumber, setContractNumber] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const addGuardian = async () => {
-    if (!guardianPhone.trim()) return;
-    setAdding(true);
-    setAddResult(null);
-    try {
-      const r = await apiFetch('/api/guardians/invite', {
-        method: 'POST',
-        body: JSON.stringify({ phone: guardianPhone.trim() }),
-      }, token);
-      setAddResult(r);
-      if (r?.linked) {
-        setGuardians([...guardians, r.guardian]);
-        setGuardianPhone('');
-        setTimeout(() => { setShowAddGuardian(false); setAddResult(null); }, 2000);
+  useEffect(() => {
+    fetch(`${API}/api/plans`).then(r => r.json()).then(setPlans).catch(() => {});
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('step') === 'confirmation' && params.get('session_id')) {
+        setStep(8);
+        pollPaymentStatus(params.get('session_id')!);
       }
-    } catch (e: any) { setAddResult({ error: e.message }); } finally { setAdding(false); }
+    }
+  }, []);
+
+  const pollPaymentStatus = async (sessionId: string, attempts = 0) => {
+    if (attempts >= 8) return;
+    try {
+      const res = await fetch(`${API}/api/contract/payment-status/${sessionId}`);
+      const data = await res.json();
+      if (data.payment_status === 'paid') { setStep(8); return; }
+      setTimeout(() => pollPaymentStatus(sessionId, attempts + 1), 2000);
+    } catch { /* retry */ }
   };
 
-  if (loading) return <FullScreenLoader />;
+  const plan = plans.find(p => p.id === selectedPlan);
 
-  const isCare = sub?.subscription_type === 'care';
-  const hasSubscription = sub?.has_subscription;
+  const handleCreateAndPay = async () => {
+    setLoading(true); setError('');
+    try {
+      const res = await fetch(`${API}/api/contract/create`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: selectedPlan, subscriber_type: subscriberType, beneficiary: ben, housing, guardians, delivery, billing }),
+      });
+      if (!res.ok) throw new Error((await res.json()).detail || 'Erreur');
+      const contract = await res.json();
+      setContractId(contract.id); setContractNumber(contract.contract_number);
+      await fetch(`${API}/api/contract/sign/${contract.id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ signer_name: signerName }) });
+      const checkout = await fetch(`${API}/api/contract/checkout`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contract_id: contract.id, origin_url: window.location.origin }) });
+      if (!checkout.ok) throw new Error((await checkout.json()).detail || 'Erreur paiement');
+      const { checkout_url } = await checkout.json();
+      window.location.href = checkout_url;
+    } catch (e: any) { setError(e.message); }
+    setLoading(false);
+  };
+
+  if (Platform.OS !== 'web') {
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0A0A0A' }}><Text style={{ color: '#FFF', fontSize: 16 }}>Ouvrez cette page dans un navigateur.</Text></View>;
+  }
+
+  const deliveryDate = (() => { const d = new Date(); d.setDate(d.getDate() + 5); while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); })();
+  const STEPS = ['Formule', 'Detail', 'Beneficiaire', 'Logement', 'Gardiens', 'Livraison', 'Paiement', 'Confirmation'];
+  const canNext = () => { if (step === 1) return !!selectedPlan; if (step === 3) return !!(ben.first_name && ben.last_name && ben.phone); if (step === 5) return guardians.length > 0 && !!(guardians[0].first_name && guardians[0].phone); return true; };
+
+  const renderStep = () => {
+    switch (step) {
+      case 1: return (<div><div style={{ textAlign: 'center', marginBottom: 40 }}><div style={{ fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>Teleassistance Chutex Care</div><div style={{ fontSize: 28, fontWeight: 900, color: G.white, marginBottom: 8 }}>Choisissez votre formule</div><div style={{ fontSize: 14, color: G.muted, lineHeight: 1.6 }}>Protection et tranquillite pour vos proches, 24h/24.</div></div><div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>{plans.map(p => (<div key={p.id} data-testid={`plan-${p.id}`} onClick={() => { setSelectedPlan(p.id); setStep(2); }} style={{ padding: 24, borderRadius: G.radius, background: selectedPlan === p.id ? 'rgba(124,180,255,0.08)' : G.card, border: `1px solid ${selectedPlan === p.id ? 'rgba(124,180,255,0.3)' : G.border}`, cursor: 'pointer', transition: 'all 0.2s' }}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}><div style={{ fontSize: 18, fontWeight: 800, color: G.white }}>{p.name}</div><div style={{ textAlign: 'right' }}><div style={{ fontSize: 24, fontWeight: 900, color: G.white }}>{p.price.toFixed(2).replace('.', ',')} <span style={{ fontSize: 13, fontWeight: 500 }}>EUR/mois</span></div><div style={{ fontSize: 12, color: G.green, fontWeight: 600 }}>soit {p.price_after_credit.toFixed(2).replace('.', ',')} EUR apres credit d'impot*</div></div></div><div style={{ fontSize: 13, color: G.muted, marginBottom: 14 }}>{p.description}</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{p.includes.map((inc, i) => <span key={i} style={{ padding: '4px 12px', borderRadius: G.pill, background: 'rgba(255,255,255,0.06)', border: `1px solid ${G.border}`, fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{inc}</span>)}</div></div>))}</div><div style={{ textAlign: 'center', marginTop: 24, fontSize: 11, color: G.muted }}>*Credit d'impot de 50% au titre des services a la personne (art. 199 sexdecies du CGI)</div></div>);
+
+      case 2: return plan ? (<div><div style={{ textAlign: 'center', marginBottom: 32 }}><div style={{ fontSize: 24, fontWeight: 900, color: G.white, marginBottom: 8 }}>{plan.name}</div><div style={{ fontSize: 36, fontWeight: 900, color: G.accent }}>{plan.price.toFixed(2).replace('.', ',')} <span style={{ fontSize: 16 }}>EUR/mois</span></div><div style={{ fontSize: 14, color: G.green, marginTop: 4 }}>soit {plan.price_after_credit.toFixed(2).replace('.', ',')} EUR/mois apres credit d'impot</div></div><div style={{ padding: 24, borderRadius: G.radius, background: G.card, border: `1px solid ${G.border}`, marginBottom: 24 }}><div style={{ fontSize: 14, fontWeight: 700, color: G.white, marginBottom: 16 }}>Ce qui est inclus :</div>{plan.includes.map((inc, i) => (<div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}><div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><span style={{ color: G.green, fontSize: 12 }}>✓</span></div><span style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)' }}>{inc}</span></div>))}</div><div style={{ padding: 20, borderRadius: G.radius, background: 'rgba(124,180,255,0.06)', border: '1px solid rgba(124,180,255,0.15)' }}><div style={{ fontSize: 13, color: G.accent, fontWeight: 600, marginBottom: 8 }}>Engagement & livraison</div><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>Sans engagement — resiliable a tout moment. Livraison gratuite sous 3 jours ouvrables. Installation et mise en service incluses.</div></div></div>) : null;
+
+      case 3: return (<div><div style={{ fontSize: 20, fontWeight: 800, color: G.white, marginBottom: 6 }}>Informations du beneficiaire</div><div style={{ fontSize: 13, color: G.muted, marginBottom: 24 }}>Qui beneficiera de la teleassistance ?</div><div style={{ display: 'flex', gap: 10, marginBottom: 24 }}>{[{v:'self',l:'Pour moi-meme'},{v:'relative',l:'Pour un proche'}].map(o => (<div key={o.v} data-testid={`sub-type-${o.v}`} onClick={() => setSubscriberType(o.v)} style={{ flex: 1, padding: 14, borderRadius: G.radius, background: subscriberType === o.v ? 'rgba(124,180,255,0.1)' : G.card, border: `1px solid ${subscriberType === o.v ? 'rgba(124,180,255,0.3)' : G.border}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 600, color: subscriberType === o.v ? G.accent : G.muted }}>{o.l}</div>))}</div><div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>{[{v:'F',l:'Madame'},{v:'M',l:'Monsieur'}].map(g => (<div key={g.v} onClick={() => setBen({...ben, gender: g.v})} style={{ flex: 1, padding: 12, borderRadius: G.pill, background: ben.gender === g.v ? 'rgba(124,180,255,0.1)' : G.card, border: `1px solid ${ben.gender === g.v ? 'rgba(124,180,255,0.3)' : G.border}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 600, color: ben.gender === g.v ? G.accent : G.muted }}>{g.l}</div>))}</div><div style={rowStyle}><div style={{ flex: 1 }}><label style={labelStyle}>Prenom</label><input data-testid="ben-first-name" value={ben.first_name} onChange={e => setBen({...ben, first_name: e.target.value})} style={inputStyle} placeholder="Prenom" /></div><div style={{ flex: 1 }}><label style={labelStyle}>Nom</label><input data-testid="ben-last-name" value={ben.last_name} onChange={e => setBen({...ben, last_name: e.target.value})} style={inputStyle} placeholder="Nom" /></div></div><div style={{ height: 14 }} /><div style={rowStyle}><div style={{ flex: 1 }}><label style={labelStyle}>Telephone</label><input data-testid="ben-phone" value={ben.phone} onChange={e => setBen({...ben, phone: e.target.value})} style={inputStyle} placeholder="06 12 34 56 78" type="tel" /></div><div style={{ flex: 1 }}><label style={labelStyle}>Date de naissance</label><input value={ben.date_of_birth} onChange={e => setBen({...ben, date_of_birth: e.target.value})} style={{...inputStyle, colorScheme: 'dark'}} type="date" /></div></div><div style={{ height: 14 }} /><label style={labelStyle}>Adresse</label><input value={ben.address} onChange={e => setBen({...ben, address: e.target.value})} style={inputStyle} placeholder="12 rue de la Paix" /><div style={{ height: 14 }} /><div style={rowStyle}><div style={{ flex: 2 }}><label style={labelStyle}>Ville</label><input value={ben.city} onChange={e => setBen({...ben, city: e.target.value})} style={inputStyle} placeholder="Paris" /></div><div style={{ flex: 1 }}><label style={labelStyle}>Code postal</label><input value={ben.postal_code} onChange={e => setBen({...ben, postal_code: e.target.value})} style={inputStyle} placeholder="75001" /></div></div></div>);
+
+      case 4: return (<div><div style={{ fontSize: 20, fontWeight: 800, color: G.white, marginBottom: 6 }}>Acces au logement</div><div style={{ fontSize: 13, color: G.muted, marginBottom: 24 }}>Ces informations permettent aux secours d'intervenir rapidement.</div><div style={rowStyle}><div style={{ flex: 1 }}><label style={labelStyle}>Etage</label><input value={housing.floor} onChange={e => setHousing({...housing, floor: e.target.value})} style={inputStyle} placeholder="RDC, 1er, 2e..." /></div><div style={{ flex: 1 }}><label style={labelStyle}>Porte / Batiment</label><input value={housing.door} onChange={e => setHousing({...housing, door: e.target.value})} style={inputStyle} placeholder="Porte droite, Bat. B..." /></div></div><div style={{ height: 14 }} /><label style={labelStyle}>Code d'acces</label><input value={housing.access_code} onChange={e => setHousing({...housing, access_code: e.target.value})} style={inputStyle} placeholder="1234A ou digicode" /><div style={{ height: 20 }} /><div style={{ padding: 20, borderRadius: G.radius, background: G.card, border: `1px solid ${G.border}`, marginBottom: 14 }}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><div><div style={{ fontSize: 14, fontWeight: 700, color: G.white }}>Coffre a cles</div><div style={{ fontSize: 12, color: G.muted }}>Avez-vous un coffre a cles exterieur ?</div></div><div style={{ display: 'flex', gap: 8 }}>{[{v:true,l:'Oui'},{v:false,l:'Non'}].map(o => (<div key={String(o.v)} onClick={() => setHousing({...housing, key_safe: o.v, key_safe_sell: false})} style={{ padding: '8px 16px', borderRadius: G.pill, background: housing.key_safe === o.v ? 'rgba(124,180,255,0.1)' : 'transparent', border: `1px solid ${housing.key_safe === o.v ? 'rgba(124,180,255,0.3)' : G.border}`, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: housing.key_safe === o.v ? G.accent : G.muted }}>{o.l}</div>))}</div></div></div>{!housing.key_safe && (<div onClick={() => setHousing({...housing, key_safe_sell: !housing.key_safe_sell})} style={{ padding: 16, borderRadius: G.radius, background: housing.key_safe_sell ? 'rgba(16,185,129,0.08)' : G.card, border: `1px solid ${housing.key_safe_sell ? 'rgba(16,185,129,0.2)' : G.border}`, cursor: 'pointer', marginBottom: 14 }}><div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><div style={{ width: 20, height: 20, borderRadius: 4, border: `2px solid ${housing.key_safe_sell ? G.green : G.border}`, background: housing.key_safe_sell ? G.green : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{housing.key_safe_sell && <span style={{ color: '#FFF', fontSize: 12 }}>✓</span>}</div><div><div style={{ fontSize: 14, fontWeight: 600, color: G.white }}>Commander un coffre a cles (29,90 EUR)</div><div style={{ fontSize: 12, color: G.muted }}>Installation facile, securise</div></div></div></div>)}<div style={{ padding: 20, borderRadius: G.radius, background: G.card, border: `1px solid ${G.border}` }}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><div><div style={{ fontSize: 14, fontWeight: 700, color: G.white }}>Presence d'un animal</div><div style={{ fontSize: 12, color: G.muted }}>Important pour les intervenants</div></div><div style={{ display: 'flex', gap: 8 }}>{[{v:true,l:'Oui'},{v:false,l:'Non'}].map(o => (<div key={String(o.v)} onClick={() => setHousing({...housing, animal: o.v, animal_type: o.v ? housing.animal_type : ''})} style={{ padding: '8px 16px', borderRadius: G.pill, background: housing.animal === o.v ? 'rgba(124,180,255,0.1)' : 'transparent', border: `1px solid ${housing.animal === o.v ? 'rgba(124,180,255,0.3)' : G.border}`, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: housing.animal === o.v ? G.accent : G.muted }}>{o.l}</div>))}</div></div>{housing.animal && <div style={{ marginTop: 14 }}><input value={housing.animal_type} onChange={e => setHousing({...housing, animal_type: e.target.value})} style={inputStyle} placeholder="Type d'animal (chien, chat...)" /></div>}</div></div>);
+
+      case 5: return (<div><div style={{ fontSize: 20, fontWeight: 800, color: G.white, marginBottom: 6 }}>Personnes a prevenir</div><div style={{ fontSize: 13, color: G.muted, marginBottom: 24 }}>Ajoutez les gardiens qui seront alertes. Un SMS leur sera envoye pour telecharger l'app Chutex.</div>{guardians.map((g, i) => (<div key={i} style={{ padding: 20, borderRadius: G.radius, background: G.card, border: `1px solid ${G.border}`, marginBottom: 16 }}><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}><div style={{ fontSize: 14, fontWeight: 700, color: G.white }}>Gardien {i + 1}</div>{guardians.length > 1 && <div onClick={() => setGuardians(guardians.filter((_, j) => j !== i))} style={{ fontSize: 12, color: 'rgba(239,68,68,0.7)', cursor: 'pointer' }}>Supprimer</div>}</div><div style={rowStyle}><div style={{ flex: 1 }}><label style={labelStyle}>Prenom</label><input value={g.first_name} onChange={e => { const u = [...guardians]; u[i] = {...u[i], first_name: e.target.value}; setGuardians(u); }} style={inputStyle} placeholder="Prenom" /></div><div style={{ flex: 1 }}><label style={labelStyle}>Nom</label><input value={g.last_name} onChange={e => { const u = [...guardians]; u[i] = {...u[i], last_name: e.target.value}; setGuardians(u); }} style={inputStyle} placeholder="Nom" /></div></div><div style={{ height: 10 }} /><div style={rowStyle}><div style={{ flex: 1 }}><label style={labelStyle}>Telephone</label><input value={g.phone} onChange={e => { const u = [...guardians]; u[i] = {...u[i], phone: e.target.value}; setGuardians(u); }} style={inputStyle} placeholder="06 ..." type="tel" /></div><div style={{ flex: 1 }}><label style={labelStyle}>Email</label><input value={g.email} onChange={e => { const u = [...guardians]; u[i] = {...u[i], email: e.target.value}; setGuardians(u); }} style={inputStyle} placeholder="email@..." /></div></div><div style={{ height: 10 }} /><label style={labelStyle}>Adresse</label><input value={g.address} onChange={e => { const u = [...guardians]; u[i] = {...u[i], address: e.target.value}; setGuardians(u); }} style={inputStyle} placeholder="Adresse" /><div style={{ height: 10 }} /><div style={rowStyle}><div style={{ flex: 2 }}><label style={labelStyle}>Ville</label><input value={g.city} onChange={e => { const u = [...guardians]; u[i] = {...u[i], city: e.target.value}; setGuardians(u); }} style={inputStyle} placeholder="Ville" /></div><div style={{ flex: 1 }}><label style={labelStyle}>Code postal</label><input value={g.postal_code} onChange={e => { const u = [...guardians]; u[i] = {...u[i], postal_code: e.target.value}; setGuardians(u); }} style={inputStyle} placeholder="75001" /></div></div><div style={{ height: 10 }} /><label style={labelStyle}>Lien avec le beneficiaire</label><div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{RELATIONSHIPS.map(r => <div key={r} onClick={() => { const u = [...guardians]; u[i] = {...u[i], relationship: r}; setGuardians(u); }} style={{ padding: '6px 14px', borderRadius: G.pill, background: g.relationship === r ? 'rgba(124,180,255,0.1)' : 'transparent', border: `1px solid ${g.relationship === r ? 'rgba(124,180,255,0.3)' : G.border}`, cursor: 'pointer', fontSize: 12, color: g.relationship === r ? G.accent : G.muted }}>{r}</div>)}</div><div style={{ height: 10 }} /><div style={{ display: 'flex', gap: 12 }}><div onClick={() => { const u = [...guardians]; u[i] = {...u[i], within_30min: !u[i].within_30min}; setGuardians(u); }} style={{ flex: 1, padding: 12, borderRadius: 14, background: g.within_30min ? 'rgba(16,185,129,0.08)' : G.card, border: `1px solid ${g.within_30min ? 'rgba(16,185,129,0.2)' : G.border}`, cursor: 'pointer' }}><div style={{ fontSize: 12, fontWeight: 600, color: g.within_30min ? G.green : G.muted }}>Habite a moins de 30 min</div></div><div onClick={() => { const u = [...guardians]; u[i] = {...u[i], has_keys: !u[i].has_keys}; setGuardians(u); }} style={{ flex: 1, padding: 12, borderRadius: 14, background: g.has_keys ? 'rgba(16,185,129,0.08)' : G.card, border: `1px solid ${g.has_keys ? 'rgba(16,185,129,0.2)' : G.border}`, cursor: 'pointer' }}><div style={{ fontSize: 12, fontWeight: 600, color: g.has_keys ? G.green : G.muted }}>Possede les cles</div></div></div></div>))}<div data-testid="add-guardian-btn" onClick={() => setGuardians([...guardians, { ...EMPTY_GUARDIAN }])} style={{ padding: 14, borderRadius: G.radius, border: `1px dashed ${G.border}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 600, color: G.accent }}>+ Ajouter un gardien</div></div>);
+
+      case 6: return (<div><div style={{ fontSize: 20, fontWeight: 800, color: G.white, marginBottom: 6 }}>Livraison</div><div style={{ fontSize: 13, color: G.muted, marginBottom: 24 }}>Ou souhaitez-vous recevoir {selectedPlan === 'bracelet_gilet' ? 'le bracelet et le gilet' : 'le bracelet'} ?</div><div style={{ padding: 16, borderRadius: G.radius, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', marginBottom: 20, textAlign: 'center' }}><div style={{ fontSize: 13, color: G.green, fontWeight: 600 }}>Livraison gratuite — Estimation : {deliveryDate}</div></div>{[{ type: 'beneficiary', label: `Chez ${ben.first_name || 'le beneficiaire'}`, sub: `${ben.address || ''} ${ben.city || ''}`.trim(), index: 0 }, ...guardians.map((g, i) => ({ type: 'guardian', index: i, label: `Chez ${g.first_name || `Gardien ${i+1}`}`, sub: `${g.address || ''} ${g.city || ''}`.trim() }))].map((opt: any) => (<div key={`${opt.type}-${opt.index}`} onClick={() => setDelivery({ type: opt.type, guardian_index: opt.index })} style={{ padding: 16, borderRadius: G.radius, background: delivery.type === opt.type && delivery.guardian_index === opt.index ? 'rgba(124,180,255,0.08)' : G.card, border: `1px solid ${delivery.type === opt.type && delivery.guardian_index === opt.index ? 'rgba(124,180,255,0.3)' : G.border}`, cursor: 'pointer', marginBottom: 10 }}><div style={{ fontSize: 14, fontWeight: 600, color: G.white }}>{opt.label}</div>{opt.sub && <div style={{ fontSize: 12, color: G.muted, marginTop: 2 }}>{opt.sub}</div>}</div>))}</div>);
+
+      case 7: return (<div><div style={{ fontSize: 20, fontWeight: 800, color: G.white, marginBottom: 6 }}>Paiement & signature</div><div style={{ fontSize: 13, color: G.muted, marginBottom: 24 }}>Choisissez la personne a facturer et signez le contrat.</div><label style={labelStyle}>Personne a facturer</label><div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}><div onClick={() => setBilling({...billing, person: 'beneficiary', guardian_index: 0})} style={{ padding: 12, borderRadius: G.radius, background: billing.person === 'beneficiary' ? 'rgba(124,180,255,0.08)' : G.card, border: `1px solid ${billing.person === 'beneficiary' ? 'rgba(124,180,255,0.3)' : G.border}`, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: billing.person === 'beneficiary' ? G.accent : G.muted }}>{ben.first_name || 'Beneficiaire'}</div>{guardians.map((g, i) => (<div key={i} onClick={() => setBilling({...billing, person: 'guardian', guardian_index: i})} style={{ padding: 12, borderRadius: G.radius, background: billing.person === 'guardian' && billing.guardian_index === i ? 'rgba(124,180,255,0.08)' : G.card, border: `1px solid ${billing.person === 'guardian' && billing.guardian_index === i ? 'rgba(124,180,255,0.3)' : G.border}`, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: billing.person === 'guardian' && billing.guardian_index === i ? G.accent : G.muted }}>{g.first_name || `Gardien ${i+1}`}</div>))}</div><div style={{ padding: 20, borderRadius: G.radius, background: G.card, border: `1px solid ${G.border}`, marginBottom: 24 }}><div style={{ fontSize: 14, fontWeight: 700, color: G.white, marginBottom: 12 }}>Recapitulatif</div><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}><span style={{ fontSize: 13, color: G.muted }}>{plan?.name}</span><span style={{ fontSize: 14, fontWeight: 700, color: G.white }}>{plan?.price.toFixed(2).replace('.', ',')} EUR/mois</span></div><div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ fontSize: 12, color: G.green }}>Apres credit d'impot 50%</span><span style={{ fontSize: 14, fontWeight: 700, color: G.green }}>{plan?.price_after_credit.toFixed(2).replace('.', ',')} EUR/mois</span></div></div><label style={labelStyle}>Signature electronique</label><div style={{ fontSize: 12, color: G.muted, marginBottom: 10, lineHeight: 1.5 }}>En signant, vous acceptez les conditions generales du contrat de teleassistance Chutex Care.</div><input data-testid="signer-name" value={signerName} onChange={e => setSignerName(e.target.value)} style={inputStyle} placeholder="Tapez votre nom complet pour signer" /><div style={{ height: 16 }} />{error && <div style={{ padding: 12, borderRadius: 14, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 16, fontSize: 13, color: '#F87171', textAlign: 'center' }}>{error}</div>}<div data-testid="pay-btn" onClick={() => { if (!signerName.trim()) return setError('Veuillez signer le contrat'); handleCreateAndPay(); }} style={{ padding: 16, borderRadius: G.pill, background: loading ? 'rgba(255,255,255,0.05)' : '#FFF', color: loading ? G.muted : '#111', cursor: loading ? 'wait' : 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, opacity: loading ? 0.5 : 1 }}>{loading ? 'Redirection vers le paiement...' : `Payer ${plan?.price.toFixed(2).replace('.', ',')} EUR/mois`}</div></div>);
+
+      case 8: return (<div style={{ textAlign: 'center' }}><div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}><span style={{ fontSize: 28, color: G.green }}>✓</span></div><div style={{ fontSize: 24, fontWeight: 900, color: G.white, marginBottom: 8 }}>Souscription confirmee !</div><div style={{ fontSize: 14, color: G.muted, lineHeight: 1.6, marginBottom: 32 }}>Votre contrat de teleassistance Chutex Care est actif.<br />{contractNumber && <>Numero : <strong style={{ color: G.white }}>{contractNumber}</strong><br /></>}Un email et SMS de confirmation seront envoyes.</div><div style={{ padding: 20, borderRadius: G.radius, background: G.card, border: `1px solid ${G.border}`, textAlign: 'left', marginBottom: 20 }}><div style={{ fontSize: 14, fontWeight: 700, color: G.white, marginBottom: 12 }}>Prochaines etapes</div>{['Le beneficiaire recevra un SMS pour telecharger l\'app Chutex', 'Les gardiens recevront une invitation par SMS', `Livraison prevue sous 3 jours ouvrables`, 'Un technicien vous contactera pour la mise en service'].map((s, i) => (<div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10 }}><div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(124,180,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: G.accent }}>{i + 1}</div><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>{s}</div></div>))}</div></div>);
+      default: return null;
+    }
+  };
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
-      <View style={s.topBar}>
-        <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}>
-          <Icon name="chevron-back" size={22} color={Colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={s.topTitle}>Mon Abonnement</Text>
-        <View style={{ width: 36 }} />
-      </View>
-
-      <ScrollView contentContainerStyle={s.sc} showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />}>
-
-        {/* Subscription Card */}
-        <View style={[s.subCard, { backgroundColor: isCare ? '#7B1FA2' : hasSubscription ? Colors.primary : Colors.textMuted }]}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={s.subIcon}>
-              <Icon name={hasSubscription ? "shield-checkmark" : "shield-outline"} size={32} color="#111827" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={s.subType}>
-                {isCare ? 'Abonnement Care' : hasSubscription ? 'Abonnement Standard' : 'Aucun abonnement'}
-              </Text>
-              <Text style={s.subDesc}>
-                {isCare ? 'Bracelet + App + Teleassistance IA' : hasSubscription ? 'Bracelet + App complete' : 'Gilet et balance uniquement'}
-              </Text>
-            </View>
-          </View>
-          {isCare && (
-            <View style={s.careFeature}>
-              <Icon name="call" size={16} color="#111827" />
-              <Text style={s.careFeatureT}>Teleassistance IA active</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Guardians */}
-        <View style={s.card}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <Text style={s.sectionTitle}>Mes gardiens</Text>
-            <TouchableOpacity style={s.addGuardianBtn} onPress={() => { setShowAddGuardian(true); setAddResult(null); setGuardianPhone(''); }} data-testid="add-guardian-btn">
-              <Icon name="add" size={16} color="#111827" />
-              <Text style={s.addGuardianBtnT}>Ajouter</Text>
-            </TouchableOpacity>
-          </View>
-
-          {guardians.length === 0 ? (
-            <View style={s.emptyState}>
-              <Icon name="people-outline" size={40} color={Colors.textMuted} />
-              <Text style={s.emptyText}>Aucun gardien configure</Text>
-              <Text style={s.emptyDesc}>Demandez a un proche de s'inscrire en tant que gardien et de vous ajouter.</Text>
-            </View>
-          ) : (
-            guardians.map((g, idx) => (
-              <View key={g.id} style={[s.guardianRow, idx === 0 && { borderColor: Colors.success, borderWidth: 1.5 }]} data-testid={`guardian-${g.id}`}>
-                <View style={[s.orderBadge, idx === 0 && { backgroundColor: Colors.success }]}>
-                  <Text style={s.orderBadgeT}>{idx + 1}</Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.guardianName}>{g.name}</Text>
-                  <Text style={s.guardianPhone}>{g.phone || g.email || 'Pas de telephone'}</Text>
-                  {idx === 0 && <Text style={s.firstGuardian}>Appele en premier</Text>}
-                </View>
-                <View style={{ flexDirection: 'row', gap: 4 }}>
-                  {idx > 0 && (
-                    <TouchableOpacity style={s.orderBtn} onPress={() => moveGuardian(g.id, 'up')} data-testid={`move-up-${g.id}`}>
-                      <Icon name="chevron-up" size={18} color={Colors.primary} />
-                    </TouchableOpacity>
-                  )}
-                  {idx < guardians.length - 1 && (
-                    <TouchableOpacity style={s.orderBtn} onPress={() => moveGuardian(g.id, 'down')} data-testid={`move-down-${g.id}`}>
-                      <Icon name="chevron-down" size={18} color={Colors.primary} />
-                    </TouchableOpacity>
-                  )}
-                  <TouchableOpacity style={[s.orderBtn, { backgroundColor: Colors.destructive + '10' }]} onPress={() => removeGuardian(g.id)} data-testid={`remove-${g.id}`}>
-                    <Icon name="close" size={18} color={Colors.destructive} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))
-          )}
-
-          {isCare && guardians.length > 0 && (
-            <View style={s.protocolInfo}>
-              <Icon name="information-circle" size={16} color={Colors.primary} />
-              <Text style={s.protocolText}>
-                En cas d'alerte, l'IA vous appelle d'abord. Si pas de reponse, elle appelle vos gardiens dans l'ordre ci-dessus.
-              </Text>
-            </View>
-          )}
-        </View>
-
-        {/* Recent Alerts */}
-        <View style={s.card}>
-          <Text style={s.sectionTitle}>Dernieres alertes</Text>
-          {alerts.length === 0 ? (
-            <Text style={s.emptyText}>Aucune alerte recente</Text>
-          ) : (
-            alerts.slice(0, 5).map(a => (
-              <View key={a.id} style={s.alertRow}>
-                <Icon name={a.alert_type === 'sos' ? 'alert-circle' : a.alert_type === 'anomaly' ? 'pulse' : 'warning'} size={18}
-                  color={a.status === 'active' ? Colors.destructive : a.status === 'resolved' ? Colors.success : Colors.textMuted} />
-                <View style={{ flex: 1, marginLeft: 8 }}>
-                  <Text style={s.alertMsg}>{a.message?.substring(0, 60) || a.alert_type}</Text>
-                  <Text style={s.alertDate}>{new Date(a.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
-                </View>
-                <View style={[s.alertStatus, { backgroundColor: a.status === 'active' ? Colors.destructive + '15' : a.status === 'resolved' ? Colors.success + '15' : Colors.textMuted + '15' }]}>
-                  <Text style={[s.alertStatusT, { color: a.status === 'active' ? Colors.destructive : a.status === 'resolved' ? Colors.success : Colors.textMuted }]}>
-                    {a.status === 'active' ? 'Active' : a.status === 'resolved' ? 'Resolue' : a.status}
-                  </Text>
-                </View>
-              </View>
-            ))
-          )}
-        </View>
-
-        {/* SOS Button */}
-        <TouchableOpacity style={s.sosBtn} onPress={async () => {
-          try {
-            await apiFetch('/api/alerts/sos', { method: 'POST' }, token);
-          } catch {}
-        }} data-testid="subscription-sos-btn">
-          <Icon name="alert-circle" size={24} color="#111827" />
-          <Text style={s.sosBtnT}>SOS Urgence</Text>
-        </TouchableOpacity>
-      </ScrollView>
-
-      {/* Add Guardian Modal */}
-      {showAddGuardian && (
-        <View style={s.modalOverlay}>
-          <View style={s.modalContent}>
-            <Text style={s.modalTitle}>Ajouter un gardien</Text>
-            <Text style={s.modalDesc}>Renseignez le numero de telephone de votre proche. S'il a deja un compte, il recevra une notification. Sinon, un SMS d'invitation lui sera envoye.</Text>
-            {Platform.OS === 'web' ? (
-              <div style={{ marginTop: 12, marginBottom: 12 }}>
-                <input
-                  data-testid="guardian-phone-input"
-                  type="tel"
-                  style={{ width: '100%', fontSize: 16, padding: '14px 12px', borderRadius: 12, border: `1.5px solid ${Colors.border}`, outline: 'none', backgroundColor: Colors.subtle, fontFamily: 'inherit', boxSizing: 'border-box' as any }}
-                  placeholder="+33 6 12 34 56 78"
-                  value={guardianPhone}
-                  onChange={(e: any) => setGuardianPhone(e.target.value)}
-                />
-              </div>
-            ) : (
-              <View style={{ marginTop: 12, marginBottom: 12 }}>
-                <View style={{ backgroundColor: Colors.subtle, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, paddingHorizontal: 12 }}>
-                  <TextInput
-                    testID="guardian-phone-input"
-                    style={{ fontSize: 16, paddingVertical: 14, color: Colors.textPrimary }}
-                    placeholder="+33 6 12 34 56 78"
-                    placeholderTextColor={Colors.textMuted}
-                    value={guardianPhone}
-                    onChangeText={setGuardianPhone}
-                    keyboardType="phone-pad"
-                  />
-                </View>
-              </View>
-            )}
-            {addResult && (
-              <View style={[s.resultBox, { backgroundColor: addResult.error ? Colors.destructive + '10' : addResult.linked ? Colors.success + '10' : '#FF9800' + '10' }]}>
-                <Icon name={addResult.error ? "alert-circle" : addResult.linked ? "checkmark-circle" : "send"} size={18} color={addResult.error ? Colors.destructive : addResult.linked ? Colors.success : '#FF9800'} />
-                <Text style={[s.resultText, { color: addResult.error ? Colors.destructive : addResult.linked ? Colors.success : '#FF9800' }]}>
-                  {addResult.error || addResult.message || 'OK'}
-                </Text>
-              </View>
-            )}
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
-              <TouchableOpacity style={s.modalCancelBtn} onPress={() => setShowAddGuardian(false)}>
-                <Text style={s.modalCancelBtnT}>Annuler</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={s.modalConfirmBtn} onPress={addGuardian} disabled={adding || !guardianPhone.trim()} data-testid="confirm-add-guardian">
-                {adding ? <ActivityIndicator color="#111827" size="small" /> : <Text style={s.modalConfirmBtnT}>Ajouter</Text>}
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      )}
-    </SafeAreaView>
+    <div style={{ minHeight: '100dvh', background: G.bg, fontFamily: G.font, color: G.white, display: 'flex', flexDirection: 'column' } as any}>
+      <div style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${G.border}` } as any}>
+        <img src="https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429" alt="Chutex" style={{ height: 32 } as any} />
+        <div style={{ fontSize: 12, color: G.muted }}>Souscription securisee</div>
+      </div>
+      {step < 8 && (<div style={{ padding: '16px 24px', display: 'flex', gap: 4, alignItems: 'center' } as any}>{STEPS.slice(0, 7).map((_, i) => (<div key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: i + 1 <= step ? G.accent : 'rgba(255,255,255,0.08)', transition: 'background 0.3s' } as any} />))}<div style={{ fontSize: 11, color: G.muted, marginLeft: 8, whiteSpace: 'nowrap' } as any}>{step}/7</div></div>)}
+      <div style={{ flex: 1, overflowY: 'auto', padding: 24, maxWidth: 520, width: '100%', margin: '0 auto', boxSizing: 'border-box' } as any}>{renderStep()}</div>
+      {step > 1 && step < 8 && (<div style={{ padding: '16px 24px', borderTop: `1px solid ${G.border}`, display: 'flex', gap: 12, maxWidth: 520, width: '100%', margin: '0 auto', boxSizing: 'border-box' } as any}><div data-testid="back-btn" onClick={() => setStep(step - 1)} style={{ padding: '14px 24px', borderRadius: G.pill, background: G.card, border: `1px solid ${G.border}`, cursor: 'pointer', fontSize: 14, fontWeight: 600, color: G.muted }}>Retour</div>{step < 7 && (<div data-testid="next-btn" onClick={() => canNext() && setStep(step + 1)} style={{ flex: 1, padding: 14, borderRadius: G.pill, background: canNext() ? '#FFF' : 'rgba(255,255,255,0.05)', color: canNext() ? '#111' : G.muted, cursor: canNext() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700 }}>Continuer</div>)}</div>)}
+    </div>
   );
 }
-
-const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.background },
-  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, gap: 8 },
-  backBtn: { width: 36, height: 36, borderRadius: 10, backgroundColor: Colors.subtle, justifyContent: 'center', alignItems: 'center' },
-  topTitle: { flex: 1, fontSize: 18, fontWeight: '700', color: Colors.textPrimary, textAlign: 'center' },
-  sc: { paddingHorizontal: 16, paddingBottom: 40, gap: 14 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  card: { backgroundColor: Colors.subtle, borderRadius: 14, padding: 16 },
-  sectionTitle: { fontSize: 13, fontWeight: '700', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
-  // Subscription card
-  subCard: { borderRadius: 16, padding: 20 },
-  subIcon: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
-  subType: { fontSize: 20, fontWeight: '900', color: '#FFF' },
-  subDesc: { fontSize: 13, color: '#FFF', opacity: 0.8, marginTop: 2 },
-  careFeature: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#F2F4F7', borderRadius: 10, padding: 10, marginTop: 14 },
-  careFeatureT: { fontSize: 13, fontWeight: '700', color: '#FFF' },
-  // Guardians
-  guardianCount: { fontSize: 12, color: Colors.textMuted },
-  guardianRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.paper, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(0,0,0,0.03)' },
-  orderBadge: { width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
-  orderBadgeT: { fontSize: 13, fontWeight: '800', color: '#FFF' },
-  guardianName: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
-  guardianPhone: { fontSize: 12, color: Colors.textMuted, marginTop: 1 },
-  firstGuardian: { fontSize: 10, fontWeight: '700', color: Colors.success, marginTop: 2 },
-  orderBtn: { width: 32, height: 32, borderRadius: 8, backgroundColor: Colors.primary + '10', justifyContent: 'center', alignItems: 'center' },
-  protocolInfo: { flexDirection: 'row', gap: 8, backgroundColor: Colors.primary + '08', borderRadius: 10, padding: 12, marginTop: 8 },
-  protocolText: { flex: 1, fontSize: 12, color: Colors.primary, lineHeight: 18 },
-  // Empty
-  emptyState: { alignItems: 'center', paddingVertical: 20 },
-  emptyText: { fontSize: 14, color: Colors.textMuted, textAlign: 'center', marginTop: 8 },
-  emptyDesc: { fontSize: 12, color: Colors.textMuted, textAlign: 'center', marginTop: 4, lineHeight: 18 },
-  // Alerts
-  alertRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  alertMsg: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
-  alertDate: { fontSize: 11, color: Colors.textMuted, marginTop: 1 },
-  alertStatus: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
-  alertStatusT: { fontSize: 10, fontWeight: '700' },
-  // SOS
-  sosBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: Colors.destructive, borderRadius: 14, paddingVertical: 16 },
-  sosBtnT: { fontSize: 17, fontWeight: '800', color: '#FFF' },
-  addGuardianBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.primary, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 },
-  addGuardianBtnT: { fontSize: 12, fontWeight: '700', color: '#FFF' },
-  modalOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
-  modalContent: { backgroundColor: Colors.background, borderRadius: 16, padding: 20, width: '100%', maxWidth: 400 },
-  modalTitle: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },
-  modalDesc: { fontSize: 13, color: Colors.textMuted, lineHeight: 18, marginTop: 6 },
-  resultBox: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 10, marginBottom: 8 },
-  resultText: { flex: 1, fontSize: 13, fontWeight: '600' },
-  modalCancelBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.subtle, alignItems: 'center' },
-  modalCancelBtnT: { fontSize: 15, fontWeight: '700', color: Colors.textSecondary },
-  modalConfirmBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center' },
-  modalConfirmBtnT: { fontSize: 15, fontWeight: '700', color: '#FFF' },
-});
