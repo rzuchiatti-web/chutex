@@ -16,7 +16,8 @@
         "NSBluetoothAlwaysUsageDescription": "Chutex utilise le Bluetooth pour se connecter a votre bracelet et gilet anti-chute.",
         "NSBluetoothPeripheralUsageDescription": "Chutex utilise le Bluetooth pour se connecter a vos appareils de sante.",
         "UIBackgroundModes": [
-          "bluetooth-central"
+          "bluetooth-central",
+          "remote-notification"
         ],
         "ITSAppUsesNonExemptEncryption": false
       },
