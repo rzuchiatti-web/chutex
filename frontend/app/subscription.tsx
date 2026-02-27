@@ -95,21 +95,49 @@ export default function SubscriptionPage() {
     return () => { style.remove(); };
   }, []);
 
-  const pollPay = async (sid: string, a = 0) => { if (a >= 8) return; try { const r = await fetch(`${API}/api/contract/payment-status/${sid}`); const d = await r.json(); if (d.payment_status === 'paid') return; setTimeout(() => pollPay(sid, a + 1), 2000); } catch {} };
+  const pollPay = async (cid: string, a = 0) => { if (a >= 10) return; try { const r = await fetch(`${API}/api/contract/confirm/${cid}`); const d = await r.json(); if (d.status === 'active') { setPaymentDone(true); setStep(8); return; } setTimeout(() => pollPay(cid, a + 1), 2000); } catch {} };
   const plan = plans.find(p => p.id === selectedPlan);
   const deliveryDate = (() => { const d = new Date(); d.setDate(d.getDate() + 5); while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); })();
 
-  const handlePay = async () => {
+  // Step 7a: Create contract + mount Stripe Elements
+  const handleCreateContract = async () => {
     setLoading(true); setError('');
     try {
+      await fetch(`${API}/api/contract/sign/__pending__`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ signer_name: signerName }) }).catch(() => {});
       const res = await fetch(`${API}/api/contract/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: selectedPlan, subscriber_type: subType, beneficiary: ben, housing, guardians, delivery, billing }) });
       if (!res.ok) throw new Error((await res.json()).detail || 'Erreur');
-      const c = await res.json(); setContractId(c.id); setContractNumber(c.contract_number);
+      const c = await res.json();
+      setContractId(c.id); setContractNumber(c.contract_number); setClientSecret(c.client_secret);
+      // Sign contract
       await fetch(`${API}/api/contract/sign/${c.id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ signer_name: signerName }) });
-      const co = await fetch(`${API}/api/contract/checkout`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contract_id: c.id, origin_url: window.location.origin }) });
-      if (!co.ok) throw new Error((await co.json()).detail || 'Erreur paiement');
-      window.location.href = (await co.json()).checkout_url;
+      // Mount Stripe Elements after a tick
+      setTimeout(() => mountStripeElements(c.client_secret), 300);
     } catch (e: any) { setError(e.message); }
+    setLoading(false);
+  };
+
+  const mountStripeElements = (secret: string) => {
+    const container = document.getElementById('stripe-payment-element');
+    if (!container || !(window as any).Stripe) return;
+    container.innerHTML = '';
+    const pk = STRIPE_PK;
+    const stripeObj = (window as any).Stripe(pk);
+    (window as any)._stripe = stripeObj;
+    const elements = stripeObj.elements({ clientSecret: secret, appearance: { theme: 'flat', variables: { fontFamily: "'Inter', system-ui", colorPrimary: '#7C3AED', borderRadius: '12px' } } });
+    const payEl = elements.create('payment', { layout: 'tabs' });
+    payEl.mount('#stripe-payment-element');
+    (window as any)._stripeElements = elements;
+  };
+
+  const handleConfirmPayment = async () => {
+    setLoading(true); setError('');
+    const stripeObj = (window as any)._stripe;
+    const elements = (window as any)._stripeElements;
+    if (!stripeObj || !elements) { setError('Stripe non charge'); setLoading(false); return; }
+    const { error: stripeError } = await stripeObj.confirmPayment({ elements, confirmParams: { return_url: `${window.location.origin}/subscription?step=confirmation&contract_id=${contractId}` }, redirect: 'if_required' });
+    if (stripeError) { setError(stripeError.message); setLoading(false); return; }
+    // Payment succeeded inline
+    pollPay(contractId);
     setLoading(false);
   };
 
