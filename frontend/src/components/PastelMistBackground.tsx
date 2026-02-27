@@ -461,15 +461,13 @@ export function PastelMistBackground() {
         color: #FFF !important; fill: none !important; stroke: #FFF !important;
       }
       [role="tablist"] ~ div, [role="tabpanel"] { padding-bottom: 80px !important; }
-
-        animation: detailOpen 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-      }
       /* Remove any white padding at top */
       [role="tabpanel"] > div:first-child { padding-top: 0 !important; }
+      [role="tabpanel"] { background: transparent !important; }
       /* Kill ALL page headers/titles from Expo Router */
       header[role="banner"], div[style*="headerTitle"] { display: none !important; }
       /* Full screen - no white borders */
-      #root, #root > div, #root > div > div { min-height: 100dvh !important; background: transparent !important; }
+      #root, #root > div, #root > div > div, #root > div > div > div { min-height: 100dvh !important; background: transparent !important; }
       html, body, #root { margin: 0 !important; padding: 0 !important; background: #0b0f16 !important; overflow-x: hidden !important; }
 
       /* ── GUARDIANS STACK ── */
