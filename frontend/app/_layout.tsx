@@ -1,55 +1,10 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-
-// Error Boundary to catch JS errors and display them instead of crashing
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error: string; stack: string }
-> {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false, error: '', stack: '' };
-  }
-  static getDerivedStateFromError(error: any) {
-    return { hasError: true, error: String(error), stack: error?.stack || '' };
-  }
-  componentDidCatch(error: any, info: any) {
-    console.error('ErrorBoundary caught:', error, info);
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <View style={eb.root}>
-          <StatusBar style="light" />
-          <Text style={eb.title}>Erreur attrapee</Text>
-          <Text style={eb.label}>Build 42 — Error Boundary</Text>
-          <ScrollView style={eb.scroll}>
-            <Text style={eb.err}>{this.state.error}</Text>
-            <Text style={eb.stack}>{this.state.stack}</Text>
-          </ScrollView>
-        </View>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-const eb = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#1a0000', paddingTop: 60, paddingHorizontal: 20 },
-  title: { fontSize: 24, fontWeight: '700', color: '#ff6b6b' },
-  label: { fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 20 },
-  scroll: { flex: 1 },
-  err: { fontSize: 16, color: '#FFF', marginBottom: 12, fontWeight: '600' },
-  stack: { fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 16 },
-});
-
-// ─── Now import the real app ───
 import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { ThemeProvider } from '../src/context/ThemeContext';
 import { I18nProvider } from '../src/context/I18nContext';
-import { ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { PastelMistBackground } from '../src/components/PastelMistBackground';
 
 function RootNav() {
@@ -114,16 +69,14 @@ function RootNav() {
 
 export default function RootLayout() {
   return (
-    <ErrorBoundary>
-      <ThemeProvider>
-        <I18nProvider>
-          <AuthProvider>
-            <PastelMistBackground />
-            <RootNav />
-          </AuthProvider>
-        </I18nProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
+    <ThemeProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <PastelMistBackground />
+          <RootNav />
+        </AuthProvider>
+      </I18nProvider>
+    </ThemeProvider>
   );
 }
 
