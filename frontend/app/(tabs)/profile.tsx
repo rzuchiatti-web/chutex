@@ -115,6 +115,7 @@ export default function ProfileScreen() {
   const [showHelp, setShowHelp] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showNotifPrefs, setShowNotifPrefs] = useState(false);
+  const [showStripeConfig, setShowStripeConfig] = useState(false);
   const [notifPrefs, setNotifPrefs] = useState<any>(null);
   const [savingNotif, setSavingNotif] = useState(false);
   const [showCareDetail, setShowCareDetail] = useState(false);
