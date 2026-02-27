@@ -197,6 +197,7 @@ async def create_contract(data: ContractCreate):
 
 
 # ─── Confirm Payment (after inline payment) ───
+@router.get("/contract/confirm/{contract_id}")
 @router.post("/contract/confirm/{contract_id}")
 async def confirm_contract(contract_id: str):
     contract = await db.contracts.find_one({"id": contract_id}, {"_id": 0})
