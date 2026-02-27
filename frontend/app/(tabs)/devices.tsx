@@ -902,8 +902,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               ))}
               <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Type d'abonnement</div>
               <div style={{ display: 'flex', gap: 10, marginBottom: 20 } as any}>
-                {['standard', 'teleassistance'].map(t => (
-                  <div key={t} onClick={() => setFormData({ ...formData, type: t })} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${formData.type === t ? '#FFF' : 'rgba(255,255,255,0.1)'}`, background: formData.type === t ? 'rgba(255,255,255,0.15)' : 'transparent', color: formData.type === t ? '#FFF' : 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 600, transition: 'all 0.2s' } as any}>{t === 'standard' ? 'Standard' : 'Teleassistance'}</div>
+                {[{k:'bracelet', l:'Bracelet Elio', p:'39,90€/mois'}, {k:'bracelet_gilet', l:'Bracelet + Gilet Elder', p:'79,90€/mois'}].map(t => (
+                  <div key={t.k} onClick={() => setFormData({ ...formData, type: t.k })} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${formData.type === t.k ? '#FFF' : 'rgba(255,255,255,0.1)'}`, background: formData.type === t.k ? 'rgba(255,255,255,0.15)' : 'transparent', color: formData.type === t.k ? '#FFF' : 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 600, transition: 'all 0.2s' } as any}><div>{t.l}</div><div style={{ fontSize: 10, marginTop: 2, color: formData.type === t.k ? '#10B981' : 'rgba(255,255,255,0.3)' }}>{t.p}</div></div>
                 ))}
               </div>
               <div onClick={() => { if (!submitting) submitPrescription(); }} data-testid="submit-prescription-btn" style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: submitting ? 'not-allowed' : 'pointer', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontSize: 15, fontWeight: 700, transition: 'all 0.2s' } as any}
