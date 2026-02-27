@@ -5,60 +5,49 @@ Application de sante preventive "Chutex Care" avec React Native (Expo), FastAPI,
 
 ## Architecture
 - Frontend: React Native (Expo SDK 54) + expo-router
-- Backend: FastAPI (Python)
-- Database: MongoDB
-- Paiement: Stripe (CB + SEPA via emergentintegrations)
+- Backend: FastAPI (Python) + MongoDB
+- Paiement: Stripe natif (abonnements recurrents CB + SEPA)
 - SMS: SMS Mode API
 - Architecture native: New Architecture (Fabric/TurboModules)
 
 ## Fonctionnalites implementees
-- Authentification complete (onboarding, login, register)
-- Glass-morphism UI / Chat IA (GPT-4o)
+- Auth complete / Glass-morphism UI / Chat IA (GPT-4o)
 - Back-office admin / Alertes (Vapi.ai + SMS Mode)
-- Gestion des roles / RGPD
-- Dashboard zero-data fix / Popups appairage
+- Gestion roles / RGPD / Dashboard / Popups appairage
 - **Crash iOS RESOLU** (Build 45)
-- **Landing page souscription teleassistance** (8 etapes + Stripe + SMS)
+- **Landing souscription teleassistance** (8 etapes, Stripe inline, SMS)
 
-## Landing Page Souscription (/subscription)
-Design: Fond blanc, cartes grises, accent violet (#7C3AED)
-- Etape 1: Choix formule avec images produits (bracelet 39.9EUR / bracelet+gilet 79.9EUR)
-- Etape 2: Presentation enrichie (7 fonctionnalites detaillees)
-- Etape 3: Pour soi/pour un proche -> formulaire beneficiaire (champs obligatoires *)
-- Etape 4: Type logement (Appartement/Maison/Residence senior) + adaptif, coffre cles, animal (liste)
-- Etape 5: Gardiens multiples, lien (select), referent administratif, consentement
-- Etape 6: Livraison (chez beneficiaire ou gardien, date estimee)
-- Etape 7: Contrat scrollable + signature electronique + Stripe Checkout
+## Stripe Integration (Vos cles)
+- Abonnements recurrents mensuels (Stripe Subscriptions)
+- Paiement inline (Stripe Elements - CB + SEPA)
+- Gestion echecs: 3 tentatives, suspension apres echec, reactivation auto
+- Webhooks: invoice.payment_succeeded, invoice.payment_failed, customer.subscription.deleted
+- Produits Stripe crees auto: bracelet 39.90EUR/mois, bracelet+gilet 79.90EUR/mois
+
+## Landing Page (/subscription)
+Design blanc/violet, images produits
+- Etape 1: Choix formule (images bracelet/gilet, prix + credit impot 50%)
+- Etape 2: Presentation enrichie (7 fonctionnalites)
+- Etape 3: Pour soi/proche -> formulaire beneficiaire
+- Etape 4: Type logement adaptatif, coffre cles, animal (liste)
+- Etape 5: Gardiens multiples, lien (select), referent admin, consentement
+- Etape 6: Livraison (date estimee)
+- Etape 7: Contrat scrollable + signature + paiement Stripe inline
 - Etape 8: Confirmation
-- Backend: contract_routes.py - Stripe, webhook, correlation prescripteur, SMS auto
-- SMS: Beneficiaire + chaque gardien notifies apres paiement
+- SMS auto au beneficiaire + gardiens apres paiement
 
-## Statut actuel
-- Crash iOS: RESOLU (Build 45 a soumettre TestFlight)
-- Landing souscription: COMPLETE (design blanc/violet, Stripe, SMS)
+## Statut
+- iOS: Build 45 pret (soumettre TestFlight demain)
+- Landing: COMPLETE avec Stripe inline + SMS
 - Modules natifs: Reinstalles (BLE, notifications, biometrie)
 
-## Comptes test
-| Role | Phone | Password |
-|---|---|---|
-| Admin | 600000001 | demo123 |
-| Teleassistance | 477101011 | demo123 |
-
 ## Taches a venir
-1. P1: Soumettre build 45 iOS a TestFlight
-2. P1: Checkup page par page (retours utilisateur)
-3. P1: Deploiement production sous chutex-innovation.com
-4. P2: Audit i18n complet
-
-## Backlog
-- Paiement Stripe inline (Elements) au lieu du redirect
-- Tests materiels BLE
-- UI programmes equipe/groupe
-- Mode hors-ligne intervenants
+1. P1: Soumettre build 45 a TestFlight
+2. P1: Checkup page par page
+3. P1: Deploiement production chutex-innovation.com
+4. P2: Audit i18n
 
 ## Fichiers cles
-- backend/routes/contract_routes.py - API contrats + Stripe + SMS
-- frontend/app/subscription.tsx - Landing page 8 etapes
-- frontend/app/index.tsx - Fix hooks order
-- frontend/app.json - newArchEnabled: true, plugins BLE/notif/biometrie
+- backend/routes/contract_routes.py - Stripe subscriptions + webhooks + SMS
+- frontend/app/subscription.tsx - Landing 8 etapes + Stripe Elements inline
 - backend/services/smsmode_service.py - Service SMS
