@@ -339,6 +339,68 @@ export default function CompanyAgencyScreen() {
         </>)}
       </div>
 
+      {/* ─── POPUP FICHE GARDIEN + AFFILIATION AGENCE ─── */}
+      {selectedGuardian && (
+        <div onClick={() => setSelectedGuardian(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '90%', maxWidth: 400, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Fiche gardien</div>
+              <div onClick={() => setSelectedGuardian(null)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /></div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 } as any}>
+              <div style={{ width: 56, height: 56, borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '2px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: '#10B981' }}>{selectedGuardian.name?.charAt(0)}</span>
+              </div>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{selectedGuardian.name}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{selectedGuardian.phone}</div>
+                {selectedGuardian.profession && <div style={{ fontSize: 11, color: '#A78BFA', marginTop: 2 }}>{selectedGuardian.profession}</div>}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 8, marginBottom: 16 } as any}>
+              {[
+                { icon: 'ri-heart-pulse-line', val: selectedGuardian.professional_beneficiaries || 0, label: 'Beneficiaires', color: '#10B981' },
+                { icon: 'ri-file-text-line', val: selectedGuardian.prescriptions_count || 0, label: 'Prescriptions', color: '#F59E0B' },
+              ].map((s, i) => (
+                <div key={i} style={{ flex: 1, padding: '12px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
+                  <i className={s.icon} style={{ fontSize: 16, color: s.color }} />
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', marginTop: 2 }}>{s.val}</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Affilier a une agence</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 } as any}>
+              <div onClick={async () => {
+                if (selectedGuardian.id) {
+                  try { await apiFetch(`/api/company/prescriber/${selectedGuardian.id}/assign`, { method: 'PUT', body: JSON.stringify({ agency_id: null }) }, token); fetchData(); setSelectedGuardian({...selectedGuardian, agency_name: null}); } catch {}
+                }
+              }} style={{ padding: '10px 14px', borderRadius: 12, background: !selectedGuardian.agency_name ? 'rgba(124,180,255,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${!selectedGuardian.agency_name ? 'rgba(124,180,255,0.3)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 13, color: !selectedGuardian.agency_name ? '#7CB4FF' : 'rgba(255,255,255,0.5)' } as any}>
+                Non affilie
+              </div>
+              {agencies.map((ag: any) => (
+                <div key={ag.id} onClick={async () => {
+                  if (selectedGuardian.id) {
+                    try { await apiFetch(`/api/company/prescriber/${selectedGuardian.id}/assign`, { method: 'PUT', body: JSON.stringify({ agency_id: ag.id }) }, token); fetchData(); setSelectedGuardian({...selectedGuardian, agency_name: ag.name}); } catch {}
+                  }
+                }} style={{ padding: '10px 14px', borderRadius: 12, background: selectedGuardian.agency_name === ag.name ? 'rgba(167,139,250,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${selectedGuardian.agency_name === ag.name ? 'rgba(167,139,250,0.3)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 13, color: selectedGuardian.agency_name === ag.name ? '#A78BFA' : 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <i className="ri-building-line" style={{ fontSize: 14 }} />{ag.name}
+                </div>
+              ))}
+              {agencies.length === 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: 8 }}>Aucune agence creee. Creez-en une d'abord.</div>}
+            </div>
+
+            <div onClick={() => { if (window.confirm(`Retirer ${selectedGuardian.name} de la structure ?`)) { removeGuardian(selectedGuardian.link_id); setSelectedGuardian(null); } }}
+              style={{ padding: '12px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+              <i className="ri-user-unfollow-line" style={{ fontSize: 14 }} />Retirer ce gardien
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ─── POPUP CRÉER AGENCE ─── */}
       {showCreate && (
         <div onClick={() => setShowCreate(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'auto' } as any}>
