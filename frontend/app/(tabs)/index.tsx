@@ -304,15 +304,22 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── 1. ALERTES EN HAUT (toujours visible) ── */}
           <AlertBanner activeAlerts={activeAlerts} />
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
-
-          {/* ── 2. VITALS ── */}
-          <VitalsRow br={br} />
+          {/* ── SUBSCRIPTION BANNER (si pas d'abo bracelet) ── */}
+          <SubscriptionBanner subscription={subscription} />
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
-          {/* ── 3. ACTIVITE + SOMMEIL ── */}
-          <ActivitySleep br={br} sl={sl} />
+          {/* ── 2. VITALS (bloqué sans abo) ── */}
+          <SubscriptionGate subscription={subscription} feature="vitals">
+            <VitalsRow br={br} />
+          </SubscriptionGate>
+
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+
+          {/* ── 3. ACTIVITE + SOMMEIL (bloqué sans abo) ── */}
+          <SubscriptionGate subscription={subscription} feature="health">
+            <ActivitySleep br={br} sl={sl} />
+          </SubscriptionGate>
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
