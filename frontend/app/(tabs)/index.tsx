@@ -58,6 +58,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [programCatalog, setProgramCatalog] = useState<any[]>([]);
   const [showCheckin, setShowCheckin] = useState(false);
   const [checkinMood, setCheckinMood] = useState(3);
+  const [subscription, setSubscription] = useState<any>(null);
   const [checkinNote, setCheckinNote] = useState('');
   const [checkinSending, setCheckinSending] = useState(false);
   const [checkinFeedback, setCheckinFeedback] = useState('');
