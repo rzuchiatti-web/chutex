@@ -414,3 +414,34 @@ async def get_plans():
         {"id": "bracelet", "name": "Bracelet Elio", "description": "Bracelet connecte avec teleassistance 24h/24, 7j/7. Detection de chute automatique, bouton SOS, suivi cardiaque.", "price": 39.90, "price_after_credit": 19.95, "includes": ["Bracelet Elio", "Teleassistance 24/7", "Detection de chute", "Bouton SOS", "Suivi cardiaque"]},
         {"id": "bracelet_gilet", "name": "Bracelet Elio + Gilet Elder", "description": "Protection complete avec bracelet et gilet airbag anti-chute. Teleassistance 24h/24, 7j/7.", "price": 79.90, "price_after_credit": 39.95, "includes": ["Bracelet Elio", "Gilet airbag Elder", "Teleassistance 24/7", "Detection de chute", "Protection airbag", "Bouton SOS", "Suivi cardiaque"]},
     ]
+
+
+
+# ─── Internal Invoices (admin) ───
+@router.get("/admin/internal-invoices")
+async def get_internal_invoices(request: Request):
+    """Get all internal invoices (Chutex ↔ Chutex Care)."""
+    invoices = await db.internal_invoices.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    total_pending = sum(i.get("amount_ttc", 0) for i in invoices if i.get("status") == "pending")
+    total_paid = sum(i.get("amount_ttc", 0) for i in invoices if i.get("status") == "paid")
+    return {
+        "invoices": invoices,
+        "summary": {
+            "total_pending": round(total_pending, 2),
+            "total_paid": round(total_paid, 2),
+            "count": len(invoices),
+        },
+    }
+
+
+@router.post("/admin/internal-invoices/{invoice_id}/mark-paid")
+async def mark_invoice_paid(invoice_id: str):
+    """Mark an internal invoice as paid."""
+    now = datetime.now(timezone.utc).isoformat()
+    result = await db.internal_invoices.update_one(
+        {"id": invoice_id},
+        {"$set": {"status": "paid", "paid_at": now}},
+    )
+    if result.modified_count == 0:
+        raise HTTPException(404, "Facture introuvable")
+    return {"status": "paid", "paid_at": now}
