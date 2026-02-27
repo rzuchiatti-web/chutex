@@ -60,14 +60,22 @@ export default function SubscriptionPage() {
   const [contractRead, setContractRead] = useState(false);
   const [contractId, setContractId] = useState('');
   const [contractNumber, setContractNumber] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
+  const [stripeReady, setStripeReady] = useState(false);
+  const [paymentDone, setPaymentDone] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     fetch(`${API}/api/plans`).then(r => r.json()).then(setPlans).catch(() => {});
-    if (typeof window !== 'undefined') {
-      const p = new URLSearchParams(window.location.search);
-      if (p.get('step') === 'confirmation' && p.get('session_id')) { setStep(8); pollPay(p.get('session_id')!); }
+    // Load Stripe.js
+    if (typeof window !== 'undefined' && !(window as any).Stripe) {
+      const s = document.createElement('script');
+      s.src = 'https://js.stripe.com/v3/';
+      s.onload = () => setStripeReady(true);
+      document.head.appendChild(s);
+    } else if (typeof window !== 'undefined') {
+      setStripeReady(true);
     }
   }, []);
 
