@@ -1,43 +1,40 @@
 # Chutex Care - PRD
 
 ## Probleme original
-Application de sante preventive "Chutex Care" - plateforme complete avec React Native (Expo) frontend, FastAPI backend, MongoDB. Gestion des alertes, surveillance sante, integration materiel BLE, back-office admin.
+Application de sante preventive "Chutex Care" - plateforme complete avec React Native (Expo) frontend, FastAPI backend, MongoDB.
 
 ## Architecture
 - Frontend: React Native (Expo SDK 54) avec expo-router
 - Backend: FastAPI (Python)
 - Database: MongoDB
-- Hebergement preview: Emergent Platform (Kubernetes)
-- Architecture native: **New Architecture** (Fabric/TurboModules) activee
+- Architecture native: **New Architecture** (Fabric/TurboModules)
+- Paiement: Stripe (CB + SEPA)
 
 ## Fonctionnalites implementees
-- Flux d'authentification complet (onboarding, login, register)
-- Glass-morphism UI pour popups et cartes
-- Morning Briefing conditionnel (Nora welcome / resume sante)
-- Chat IA avec OpenAI GPT-4o via Emergent LLM Key
+- Authentification complete (onboarding, login, register)
+- Glass-morphism UI
+- Morning Briefing / Chat IA (GPT-4o)
 - Back-office admin refactore
-- Systeme d'alertes (Vapi.ai + SMS Mode)
+- Alertes (Vapi.ai + SMS Mode)
 - Gestion des roles (Beneficiaire, Gardien, SAAD, Admin, Teleassistance)
-- Pages RGPD / Protection des donnees
-- P0 FIX: Dashboard zero-data pour nouveaux utilisateurs
-- P1: Popups glass appairage integrees au dashboard
-- **P0 FIX: Crash iOS RESOLU** (Feb 2026)
+- RGPD / Protection des donnees
+- Dashboard zero-data fix
+- Popups glass appairage
+- **Crash iOS RESOLU** (Build 45 avec BLE + Notifications + Face ID)
+- **Landing page souscription contrat teleassistance** (8 etapes + Stripe)
 
-## iOS Crash Resolution (Build 44)
-### Causes identifiees et corrigees:
-1. **Reanimated v4 + Old Architecture incompatible**: `newArchEnabled` passe a `true`
-2. **babel.config.js manquant**: Cree avec `babel-preset-expo`
-3. **react-native-worklets manquant**: Ajoute comme dependance explicite
-4. **Violation des Rules of Hooks dans AuthScreen (index.tsx)**: `useRef` appeles apres des `return` conditionnels - deplaces en haut du composant
-5. **selectedPfx non defini**: Corrige avec derivation depuis PREFIXES
-
-### Build History:
-- Build 38: CRASH (Old Arch + Reanimated v4)
-- Build 40: CRASH (New Arch mais hooks bug)
-- Build 41: OK (diagnostic minimal)
-- Build 42: OK (Error Boundary - erreur hooks visible)
-- Build 43: OK (fix hooks - login visible)
-- Build 44: OK (production propre sans Error Boundary)
+## Page Souscription (NOUVEAU - Feb 2026)
+Route: `/subscription` — Landing page multi-etapes pour souscription contrat teleassistance
+- Etape 1: Choix formule (bracelet 39.9 EUR / bracelet+gilet 79.9 EUR + credit impot 50%)
+- Etape 2: Detail du plan choisi
+- Etape 3: Infos beneficiaire (pour soi / pour un proche, genre, nom, tel, adresse)
+- Etape 4: Acces logement (etage, code, coffre a cles, animal)
+- Etape 5: Gardiens (nom, tel, adresse, lien, proximite, cles) + ajout multiple
+- Etape 6: Livraison (chez beneficiaire ou gardien, date estimee)
+- Etape 7: Paiement & signature (choix personne a facturer, signature electronique, Stripe checkout CB/SEPA)
+- Etape 8: Confirmation + prochaines etapes
+- Backend: contract_routes.py (creation contrat, Stripe checkout, webhook, correlation prescripteur)
+- Collections MongoDB: contracts, payment_transactions
 
 ## Comptes de test
 | Role | Phone | Password |
@@ -46,30 +43,26 @@ Application de sante preventive "Chutex Care" - plateforme complete avec React N
 | Teleassistance | 477101011 | demo123 |
 
 ## Statut actuel
-- P0 crash iOS: RESOLU
-- Modules natifs (BLE, notifications, biometrie): NON INSTALLES (a reintegrer)
-- Vapi.ai international: BLOQUE (plan gratuit)
+- Crash iOS: RESOLU (Build 45 pret, TestFlight demain — limite upload Apple)
+- Landing souscription: IMPLEMENTEE (8 etapes + Stripe)
+- Modules natifs: Reinstalles (BLE, notifications, biometrie)
 
-## Taches a venir (priorite)
-1. P0: Reintegrer modules natifs (react-native-ble-plx, expo-notifications, expo-local-authentication)
+## Taches a venir
+1. P1: Soumettre build 45 a TestFlight (demain)
 2. P1: Tests materiel natif (bracelet, balance, gilet)
-3. P1: Audit i18n complet
-4. P2: Page abonnement SAAD
+3. P1: Checkup page par page (retours utilisateur)
+4. P1: Audit i18n complet
+5. P2: SMS automatiques aux gardiens lors souscription
+6. P2: Integration Shopify du bouton "Souscrire" vers la landing
 
 ## Backlog
 - UI programmes d'equipe/groupe
-- Integration Shopify
 - Mode hors-ligne intervenants
 - Fichiers deploiement production
 
-## Integrations tierces
-- Vapi.ai, SMS Mode, Expo EAS Build
-- OpenAI GPT-4o via Emergent LLM Key
-- Materiel: Lefu Smart Scale, J-Style bracelet, Elder S-AIRBAG vest
-
-## Fichiers cles modifies
-- `frontend/app.json` - newArchEnabled: true, buildNumber: 44
-- `frontend/babel.config.js` - NOUVEAU
-- `frontend/package.json` - worklets, babel-preset, cleanup
+## Fichiers cles
+- `backend/routes/contract_routes.py` - API contrats + Stripe
+- `frontend/app/subscription.tsx` - Landing page 8 etapes
 - `frontend/app/index.tsx` - Fix hooks order
-- `frontend/app/_layout.tsx` - Restaure proprement
+- `frontend/app.json` - newArchEnabled: true, plugins BLE/notif/biometrie
+- `frontend/babel.config.js` - babel-preset-expo
