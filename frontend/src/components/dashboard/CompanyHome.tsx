@@ -109,6 +109,44 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
             </div>
           </div>
 
+          {/* Stripe Connect Setup Popup */}
+          {showStripeSetup && (
+            <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } as any}>
+              <div style={{ width: '92%', maxWidth: 400, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
+                <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+                  <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.25)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 } as any}><i className="ri-bank-card-line" style={{ fontSize: 24, color: '#7C3AED' }} /></div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Configurez vos paiements</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Activez Stripe Connect pour recevoir vos commissions automatiquement.</div>
+                </div>
+
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Mode de commissionnement</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 } as any}>
+                  {[
+                    { k: 'oneshot', title: 'Commission unique', sub: '100EUR (Bracelet) / 200EUR (Bracelet + Gilet)', icon: 'ri-coin-line' },
+                    { k: 'monthly', title: 'Commission mensuelle', sub: '8EUR/mois (Bracelet) / 15EUR/mois (Bracelet + Gilet)', icon: 'ri-loop-right-line' },
+                  ].map(o => (
+                    <div key={o.k} onClick={() => setCommissionChoice(o.k)} style={{ padding: '14px 16px', borderRadius: 16, background: commissionChoice === o.k ? 'rgba(124,58,237,0.1)' : 'rgba(255,255,255,0.04)', border: `1.5px solid ${commissionChoice === o.k ? 'rgba(124,58,237,0.4)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                      <div style={{ width: 36, height: 36, borderRadius: 10, background: commissionChoice === o.k ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={o.icon} style={{ fontSize: 18, color: commissionChoice === o.k ? '#7C3AED' : 'rgba(255,255,255,0.3)' }} /></div>
+                      <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{o.title}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{o.sub}</div></div>
+                    </div>
+                  ))}
+                </div>
+
+                <div data-testid="stripe-connect-btn" onClick={async () => {
+                  setStripeLoading(true);
+                  try {
+                    const res = await apiFetch('/api/saad/stripe-onboarding', { method: 'POST', body: JSON.stringify({ saad_id: user.id, company_name: user.structure_name || user.name, email: user.email, commission_type: commissionChoice, refresh_url: window.location.href, return_url: window.location.href }) }, token);
+                    if (res.onboarding_url) window.open(res.onboarding_url, '_blank');
+                    setShowStripeSetup(false);
+                  } catch (e: any) { alert(e.message || 'Erreur'); }
+                  setStripeLoading(false);
+                }} style={{ padding: '15px', borderRadius: 999, background: stripeLoading ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #7C3AED, #6D28D9)', color: '#FFF', cursor: stripeLoading ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, opacity: stripeLoading ? 0.5 : 1, boxShadow: '0 4px 14px rgba(124,58,237,0.3)' } as any}>{stripeLoading ? 'Creation en cours...' : 'Creer mon compte de paiement'}</div>
+
+                <div onClick={() => setShowStripeSetup(false)} style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.3)', cursor: 'pointer' } as any}>Plus tard</div>
+              </div>
+            </div>
+          )}
+
           {/* Invite Guardian Card */}
           <div onClick={() => setShowInviteGuardian(true)} data-testid="invite-guardian-btn" style={{ padding: '14px 16px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.03))', border: '1px solid rgba(16,185,129,0.15)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
             <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-user-add-line" style={{ fontSize: 20, color: '#10B981' }} /></div>
