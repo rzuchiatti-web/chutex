@@ -1591,7 +1591,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
     const pRows = [
       (prescriberProfile.name || selectedPresc.guardian_name) && { icon: 'ri-user-settings-line', label: 'Prescripteur', value: prescriberProfile.name || selectedPresc.guardian_name || selectedPresc.prescriber_name },
       selectedPresc.subscription_type && { icon: 'ri-vip-crown-line', label: 'Abonnement', value: selectedPresc.subscription_type },
-      selectedPresc.commission && { icon: 'ri-money-euro-circle-line', label: 'Commission', value: `${selectedPresc.commission} EUR/mois` },
+      { icon: 'ri-money-euro-circle-line', label: 'Commission', value: `${selectedPresc.commission || getCommission(selectedPresc)} EUR/mois` },
       selectedPresc.created_at && { icon: 'ri-calendar-line', label: 'Date', value: new Date(selectedPresc.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
       selectedPresc.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone beneficiaire', value: selectedPresc.beneficiary_phone, phone: true },
       selectedPresc.beneficiary_email && { icon: 'ri-mail-line', label: 'Email beneficiaire', value: selectedPresc.beneficiary_email },
@@ -1612,7 +1612,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
             <div style={{ width: 56, height: 56, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, border: '3px solid rgba(255,255,255,0.2)' } as any}><span style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>{(selectedPresc.beneficiary_name || '?').charAt(0)}</span></div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{selectedPresc.beneficiary_name}</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginTop: 4 }}>Prescription {selectedPresc.subscription_type || 'Standard'}</div>
-            {selectedPresc.commission && <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', marginTop: 8, letterSpacing: -1 }}>+{selectedPresc.commission} EUR/mois</div>}
+            {(selectedPresc.commission || getCommission(selectedPresc)) && <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', marginTop: 8, letterSpacing: -1 }}>+{selectedPresc.commission || getCommission(selectedPresc)} EUR/mois</div>}
           </div>
           {/* Details */}
           <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
