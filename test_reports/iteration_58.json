@@ -47,7 +47,7 @@
     "BUG 1: Create agency popup has glass effect",
     "BUG 2: Prescriptions section shows +8 EUR for validated bracelet subscriptions",
     "BUG 2: Frontend uses getCommission fallback (8€ bracelet, 15€ bracelet+gilet)",
-    "BUG 3: /guardian-detail?guardianId=bd0838c9-2c77-4397-806f-ab054b23c798 shows Robin ZUCHIATTI data",
+    "BUG 3: /guardian-detail?guardianId=chutex-care-preview shows Robin ZUCHIATTI data",
     "BUG 3: API /api/company/prescriber/{id} returns prescriber object with data",
     "BUG 4: Guardians tab on /company-agency shows agency_name for each guardian",
     "BUG 4: Robin ZUCHIATTI shows 'ABC Domicile Saint etienne' agency affiliation",
