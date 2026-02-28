@@ -162,7 +162,7 @@ REGLES STRICTES:
                 api_key=api_key,
                 session_id=f"cx-{uuid.uuid4().hex[:8]}",
                 system_message=system
-            ).with_model("openai", "gpt-4.1-mini")
+            ).with_model("openai", "gpt-5.2")
 
             prompt = f"Historique recent:\n{history_str}\n\nNouveau message du {'gardien' if is_guardian else 'patient'}: {user_message}"
             r = await chat.send_message(UserMessage(text=prompt))
