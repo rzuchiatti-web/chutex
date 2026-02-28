@@ -272,8 +272,12 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
               <div data-testid="profile-role-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', padding: 3, gap: 2 } as any}>
                 <div onClick={async () => {
                   if (effectiveRole !== 'beneficiary') {
-                    try { const res = await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'beneficiary' }) }, token); await refreshUser(); } catch (e: any) {
-                      if (e.message?.includes('Activez')) setShowActivateBenPopup(true);
+                    try {
+                      await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'beneficiary' }) }, token);
+                      await refreshUser();
+                    } catch (e: any) {
+                      console.log('Switch error:', e.message);
+                      setShowActivateBenPopup(true);
                     }
                   }
                 }} style={{ padding: '7px 16px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease', background: effectiveRole === 'beneficiary' ? '#FFF' : 'transparent', boxShadow: effectiveRole === 'beneficiary' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
