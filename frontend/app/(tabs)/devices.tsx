@@ -1777,7 +1777,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
             <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{prescTab === 'subscribed' ? monthTotal : pendingPrescs.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0)} EUR{commLabel}</div>
             {prescTab === 'subscribed' && (<>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 6 } as any}><i className="ri-calendar-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} /><input type="month" value={selectedMonth} onChange={(e: any) => setSelectedMonth(e.target.value)} style={{ background: 'transparent', border: 'none', color: '#FFF', fontSize: 13, fontWeight: 600, outline: 'none' } as any} /></div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Prochain versement de {subscribedPrescs.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0)} EUR{commLabel} le {nextPayDate}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{isMonthly ? `Prochain versement de ${subscribedPrescs.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0)} EUR/mois le ${nextPayDate}` : `${subscribedPrescs.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0)} EUR de commissions uniques validees`}</div>
             </>)}
             {prescTab === 'pending' && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>En cours de validation</div>}
           </div>
