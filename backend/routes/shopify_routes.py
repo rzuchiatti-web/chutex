@@ -69,17 +69,25 @@ async def shopify_order_paid(request: Request):
     if existing:
         return {"status": "already_processed", "order_id": order_id}
 
-    # Extract product info from line items
+    # Extract product info from line items — only process if contains a bracelet
     line_items = order.get("line_items", [])
+    has_bracelet = False
     product_type = "bracelet"
     product_name = ""
     for item in line_items:
-        product_name = item.get("title", "") or item.get("name", "")
+        title = item.get("title", "") or item.get("name", "")
         sku = (item.get("sku") or "").lower()
-        title_lower = product_name.lower()
-        if "gilet" in title_lower or "vest" in title_lower or "gilet" in sku:
-            product_type = "bracelet_gilet"
+        title_lower = title.lower()
+        if "bracelet" in title_lower or "elio" in title_lower or "bracelet" in sku or "elio" in sku:
+            has_bracelet = True
+            product_name = title
+            if "gilet" in title_lower or "vest" in title_lower or "gilet" in sku:
+                product_type = "bracelet_gilet"
             break
+
+    if not has_bracelet:
+        logger.info(f"[Shopify] Order {order_number}: no bracelet product, skipping")
+        return {"status": "skipped", "reason": "no_bracelet_product"}
 
     # Save Shopify order
     now = datetime.now(timezone.utc).isoformat()
