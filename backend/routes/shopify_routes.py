@@ -1,9 +1,8 @@
 """
 Shopify Webhook Routes
-Handles order.paid webhooks from Shopify to create pending accounts
-and send activation links to customers.
+Flow: Shopify order paid (via Stripe gateway) → create Stripe Subscription → activate account → SMS
 """
-import os, hmac, hashlib, base64, uuid, logging
+import os, hmac, hashlib, base64, uuid, logging, stripe
 from datetime import datetime, timezone
 from fastapi import APIRouter, Request, HTTPException
 from database import db
@@ -12,6 +11,34 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 SHOPIFY_WEBHOOK_SECRET = os.environ.get("SHOPIFY_WEBHOOK_SECRET", "")
+STRIPE_SECRET = os.environ.get("STRIPE_API_KEY", "")
+stripe.api_key = STRIPE_SECRET
+
+# Stripe price IDs for subscriptions (created on first use)
+STRIPE_PRICES = {}
+
+
+async def _ensure_stripe_prices():
+    """Create or retrieve Stripe prices for bracelet subscriptions."""
+    if STRIPE_PRICES.get("bracelet_monthly"):
+        return
+    if not STRIPE_SECRET:
+        return
+    # Search existing prices
+    for price in stripe.Price.list(active=True, limit=50).data:
+        nick = price.get("nickname") or ""
+        if nick == "shopify_bracelet_monthly":
+            STRIPE_PRICES["bracelet_monthly"] = price.id
+        elif nick == "shopify_bracelet_annual":
+            STRIPE_PRICES["bracelet_annual"] = price.id
+    # Create if missing
+    if not STRIPE_PRICES.get("bracelet_monthly"):
+        product = stripe.Product.create(name="Chutex Bracelet Elio - Abonnement", metadata={"source": "shopify"})
+        p = stripe.Price.create(product=product.id, unit_amount=3990, currency="eur", recurring={"interval": "month"}, nickname="shopify_bracelet_monthly")
+        STRIPE_PRICES["bracelet_monthly"] = p.id
+        p2 = stripe.Price.create(product=product.id, unit_amount=39900, currency="eur", recurring={"interval": "year"}, nickname="shopify_bracelet_annual")
+        STRIPE_PRICES["bracelet_annual"] = p2.id
+
 
 async def verify_shopify_webhook(request: Request) -> dict:
     """Verify Shopify webhook HMAC signature and return parsed body."""
@@ -30,8 +57,11 @@ async def verify_shopify_webhook(request: Request) -> dict:
 @router.post("/shopify/webhook/order-paid")
 async def shopify_order_paid(request: Request):
     """
-    Webhook called by Shopify when an order is paid.
-    Creates a pending account and sends activation SMS/email.
+    Webhook: Shopify order paid (Stripe as gateway).
+    1. Filter: only bracelet products
+    2. Create Stripe Customer + Subscription for recurring billing
+    3. Activate account in app
+    4. Send SMS to download app
     """
     try:
         order = await verify_shopify_webhook(request)
@@ -54,26 +84,19 @@ async def shopify_order_paid(request: Request):
     address = shipping.get("address1", "")
     city = shipping.get("city", "")
     postal_code = shipping.get("zip", "")
-
-    if not phone and not email:
-        logger.warning(f"Shopify order {order_number}: no phone or email, skipping")
-        return {"status": "skipped", "reason": "no_contact_info"}
+    full_name = f"{first_name} {last_name}".strip() or "Client"
 
     # Clean phone
-    cleaned_phone = phone.replace(" ", "").replace(".", "").replace("-", "")
+    cleaned_phone = (phone or "").replace(" ", "").replace(".", "").replace("-", "")
     if cleaned_phone.startswith("0") and len(cleaned_phone) >= 10:
         cleaned_phone = "+33" + cleaned_phone[1:]
 
-    # Check if already processed
-    existing = await db.shopify_orders.find_one({"shopify_order_id": str(order_id)}, {"_id": 0})
-    if existing:
-        return {"status": "already_processed", "order_id": order_id}
-
-    # Extract product info from line items — only process if contains a bracelet
+    # Filter: only bracelet products
     line_items = order.get("line_items", [])
     has_bracelet = False
     product_type = "bracelet"
     product_name = ""
+    is_annual = False
     for item in line_items:
         title = item.get("title", "") or item.get("name", "")
         sku = (item.get("sku") or "").lower()
@@ -81,15 +104,88 @@ async def shopify_order_paid(request: Request):
         if "bracelet" in title_lower or "elio" in title_lower or "bracelet" in sku or "elio" in sku:
             has_bracelet = True
             product_name = title
-            if "gilet" in title_lower or "vest" in title_lower or "gilet" in sku:
+            if "annuel" in title_lower or "annual" in title_lower or "an" in sku:
+                is_annual = True
+            if "gilet" in title_lower or "vest" in title_lower:
                 product_type = "bracelet_gilet"
             break
 
     if not has_bracelet:
-        logger.info(f"[Shopify] Order {order_number}: no bracelet product, skipping")
+        logger.info(f"[Shopify] Order {order_number}: no bracelet, skipping")
         return {"status": "skipped", "reason": "no_bracelet_product"}
 
-    # Save Shopify order
+    # Check duplicate
+    existing = await db.shopify_orders.find_one({"shopify_order_id": str(order_id)}, {"_id": 0})
+    if existing:
+        return {"status": "already_processed", "order_id": order_id}
+
+    # === STRIPE: Create Customer + Subscription ===
+    stripe_customer_id = None
+    stripe_subscription_id = None
+    stripe_error = None
+
+    if STRIPE_SECRET and email:
+        try:
+            await _ensure_stripe_prices()
+
+            # Check if Stripe customer already exists
+            existing_customers = stripe.Customer.list(email=email, limit=1)
+            if existing_customers.data:
+                stripe_customer = existing_customers.data[0]
+            else:
+                stripe_customer = stripe.Customer.create(
+                    email=email,
+                    name=full_name,
+                    phone=cleaned_phone or phone,
+                    metadata={"shopify_order": str(order_number), "source": "shopify"},
+                )
+            stripe_customer_id = stripe_customer.id
+
+            # Get payment method from Shopify's Stripe charge
+            # Shopify payments via Stripe gateway create charges — find the latest for this email
+            payment_method = None
+            try:
+                charges = stripe.Charge.list(customer=stripe_customer_id, limit=1)
+                if charges.data and charges.data[0].payment_method:
+                    payment_method = charges.data[0].payment_method
+            except Exception:
+                pass
+
+            # If no payment method from charge, try payment intents
+            if not payment_method:
+                try:
+                    pis = stripe.PaymentIntent.list(customer=stripe_customer_id, limit=1)
+                    if pis.data and pis.data[0].payment_method:
+                        payment_method = pis.data[0].payment_method
+                except Exception:
+                    pass
+
+            # Create subscription
+            price_key = "bracelet_annual" if is_annual else "bracelet_monthly"
+            price_id = STRIPE_PRICES.get(price_key)
+
+            if price_id:
+                sub_params = {
+                    "customer": stripe_customer_id,
+                    "items": [{"price": price_id}],
+                    "metadata": {"shopify_order": str(order_number), "source": "shopify", "product_type": product_type},
+                }
+                if payment_method:
+                    sub_params["default_payment_method"] = payment_method
+                else:
+                    # No payment method yet — create subscription with trial to collect payment later
+                    sub_params["payment_behavior"] = "default_incomplete"
+                    sub_params["payment_settings"] = {"save_default_payment_method": "on_subscription"}
+
+                subscription = stripe.Subscription.create(**sub_params)
+                stripe_subscription_id = subscription.id
+                logger.info(f"[Shopify] Stripe subscription {subscription.id} created for {email}")
+
+        except Exception as e:
+            stripe_error = str(e)
+            logger.error(f"[Shopify] Stripe error for order {order_number}: {e}")
+
+    # === Save order in DB ===
     now = datetime.now(timezone.utc).isoformat()
     shopify_record = {
         "id": str(uuid.uuid4()),
@@ -98,70 +194,68 @@ async def shopify_order_paid(request: Request):
         "customer_name": f"{last_name} {first_name}".strip(),
         "customer_email": email,
         "customer_phone": cleaned_phone,
-        "address": address,
-        "city": city,
-        "postal_code": postal_code,
+        "address": address, "city": city, "postal_code": postal_code,
         "product_type": product_type,
         "product_name": product_name,
+        "is_annual": is_annual,
         "total_price": order.get("total_price", "0"),
         "currency": order.get("currency", "EUR"),
-        "status": "pending_activation",
+        "stripe_customer_id": stripe_customer_id,
+        "stripe_subscription_id": stripe_subscription_id,
+        "stripe_error": stripe_error,
+        "status": "active" if stripe_subscription_id else "pending_activation",
         "created_at": now,
     }
     await db.shopify_orders.insert_one(shopify_record)
 
-    # Send activation SMS
-    subscription_link = "https://saad-guardian-ui.preview.emergentagent.com/subscription"
-    full_name = f"{first_name} {last_name}".strip() or "Client"
+    # === Create subscription in app DB ===
+    if stripe_subscription_id or not stripe_error:
+        phone_for_sub = cleaned_phone or phone
+        if phone_for_sub:
+            await db.subscriptions.update_one(
+                {"beneficiary_phone": phone_for_sub},
+                {"$set": {
+                    "beneficiary_phone": phone_for_sub,
+                    "subscription_type": "bracelet_only",
+                    "status": "active",
+                    "source": "shopify",
+                    "shopify_order_id": str(order_id),
+                    "stripe_subscription_id": stripe_subscription_id,
+                    "created_at": now,
+                    "updated_at": now,
+                }},
+                upsert=True,
+            )
 
+    # === Send SMS ===
+    app_link = "https://apps.apple.com/app/chutex/id6759215592"
     if cleaned_phone:
         try:
             from services.smsmode_service import send_sms
             await send_sms(
                 cleaned_phone,
-                f"Bonjour {full_name}, merci pour votre commande Chutex ! "
-                f"Pour activer votre bracelet et votre abonnement, "
-                f"finalisez votre inscription ici : {subscription_link}"
+                f"Bienvenue chez Chutex {full_name} ! Votre abonnement bracelet est actif. "
+                f"Telechargez l'app pour commencer : {app_link}"
             )
             logger.info(f"[Shopify] SMS sent to {cleaned_phone} for order {order_number}")
         except Exception as e:
-            logger.error(f"[Shopify] SMS error for {cleaned_phone}: {e}")
+            logger.error(f"[Shopify] SMS error: {e}")
 
-    # Send activation email
-    if email:
-        try:
-            from services.smsmode_service import send_email
-            await send_email(
-                email,
-                "Activez votre bracelet Chutex",
-                f"<h2>Bonjour {full_name},</h2>"
-                f"<p>Merci pour votre commande <strong>{product_name}</strong> !</p>"
-                f"<p>Pour activer votre bracelet et profiter de votre abonnement, "
-                f"finalisez votre inscription en cliquant sur le lien ci-dessous :</p>"
-                f"<p><a href='{subscription_link}' style='display:inline-block;padding:14px 28px;"
-                f"background:#111;color:#FFF;border-radius:999px;text-decoration:none;"
-                f"font-weight:bold;'>Activer mon bracelet</a></p>"
-                f"<p>A bientot sur Chutex !</p>"
-            )
-            logger.info(f"[Shopify] Email sent to {email} for order {order_number}")
-        except Exception as e:
-            logger.error(f"[Shopify] Email error for {email}: {e}")
-
-    logger.info(f"[Shopify] Order {order_number} processed: {full_name} ({cleaned_phone}) - {product_type}")
+    logger.info(f"[Shopify] Order {order_number} processed: {full_name} | stripe_sub={stripe_subscription_id}")
 
     return {
         "status": "ok",
         "order_number": str(order_number),
         "customer": full_name,
         "product_type": product_type,
-        "activation_link_sent": bool(cleaned_phone or email),
+        "stripe_subscription_id": stripe_subscription_id,
+        "account_activated": bool(stripe_subscription_id or not stripe_error),
     }
 
 
 @router.get("/shopify/check-order")
 async def check_shopify_order_by_phone(phone: str = ""):
-    """Check if a pending Shopify order exists for this phone number.
-    Used by the subscription landing page to pre-fill customer data."""
+    """Check if a Shopify order exists for this phone number."""
     if not phone:
         return {"found": False}
     cleaned = phone.replace(" ", "").replace(".", "").replace("-", "")
@@ -169,8 +263,7 @@ async def check_shopify_order_by_phone(phone: str = ""):
         cleaned = "+33" + cleaned[1:]
     suffix = cleaned[-9:] if len(cleaned) >= 9 else cleaned
     order = await db.shopify_orders.find_one(
-        {"customer_phone": {"$regex": suffix}, "status": "pending_activation"},
-        {"_id": 0}
+        {"customer_phone": {"$regex": suffix}}, {"_id": 0}
     )
     if not order:
         return {"found": False}
@@ -184,21 +277,12 @@ async def check_shopify_order_by_phone(phone: str = ""):
         "postal_code": order.get("postal_code", ""),
         "product_type": order.get("product_type", "bracelet"),
         "order_number": order.get("order_number", ""),
-        "shopify_order_id": order.get("id", ""),
+        "status": order.get("status", ""),
     }
 
 
 @router.get("/shopify/orders")
 async def list_shopify_orders():
-    """List all Shopify orders (for admin dashboard)."""
+    """List all Shopify orders (admin)."""
     orders = await db.shopify_orders.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return orders
-
-
-@router.get("/shopify/orders/{order_id}")
-async def get_shopify_order(order_id: str):
-    """Get a specific Shopify order."""
-    order = await db.shopify_orders.find_one({"id": order_id}, {"_id": 0})
-    if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
-    return order
