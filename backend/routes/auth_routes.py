@@ -237,4 +237,14 @@ async def activate_guardian_role(data: dict, user=Depends(get_current_user)):
     return {"status": "activated", "message": "Espace gardien active"}
 
 
+@router.post("/auth/activate-beneficiary")
+async def activate_beneficiary_role(data: dict, user=Depends(get_current_user)):
+    """Guardian activates a beneficiary space"""
+    if user.get('has_beneficiary_space') or user.get('role') == 'beneficiary':
+        return {"status": "already_active", "message": "Espace beneficiaire deja actif"}
+    await db.users.update_one({"id": user['id']}, {"$set": {"has_beneficiary_space": True}})
+    return {"status": "activated", "message": "Espace beneficiaire active"}
+
+
+
 
