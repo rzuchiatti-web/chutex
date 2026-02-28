@@ -31,12 +31,21 @@ async def get_my_subscription(user=Depends(get_current_user)):
             sub = await db.subscriptions.find_one(
                 {"beneficiary_phone": normalize_phone(phone), "status": "active"}, {"_id": 0}
             )
+            # Late-link: if found by phone but no beneficiary_id, link it now
+            if sub and not sub.get('beneficiary_id'):
+                await db.subscriptions.update_one(
+                    {"id": sub['id']},
+                    {"$set": {"beneficiary_id": user['id'], "updated_at": datetime.now(timezone.utc).isoformat()}}
+                )
+                sub['beneficiary_id'] = user['id']
     return {
         "has_subscription": sub is not None,
         "subscription": sub,
         "subscription_type": sub.get('subscription_type', 'none') if sub else 'none',
         "can_use_bracelet": sub is not None,
-        "has_teleassistance": sub.get('subscription_type') == 'care' if sub else False,
+        "has_teleassistance": sub.get('subscription_type') in ('care', 'bracelet_gilet') if sub else False,
+        "start_date": sub.get('start_date') or sub.get('created_at') if sub else None,
+        "source": sub.get('source') if sub else None,
     }
 
 
