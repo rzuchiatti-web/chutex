@@ -104,7 +104,9 @@ async def shopify_order_paid(request: Request):
         if "bracelet" in title_lower or "elio" in title_lower or "bracelet" in sku or "elio" in sku:
             has_bracelet = True
             product_name = title
-            if "annuel" in title_lower or "annual" in title_lower or "an" in sku:
+            # Detect annual vs monthly: price >= 200 = annual (249.90), else monthly (24.90)
+            item_price = float(item.get("price", "0") or "0")
+            if item_price >= 200 or "annuel" in title_lower or "annual" in title_lower or "an" in sku:
                 is_annual = True
             if "gilet" in title_lower or "vest" in title_lower:
                 product_type = "bracelet_gilet"
