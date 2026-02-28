@@ -26,6 +26,7 @@ from routes.chat_routes import router as chat_router
 from routes.program_routes import router as program_router
 from routes.rgpd_routes import router as rgpd_router
 from routes.contract_routes import router as contract_router
+from routes.shopify_routes import router as shopify_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -53,6 +54,7 @@ api_router.include_router(chat_router)
 api_router.include_router(program_router)
 api_router.include_router(rgpd_router)
 api_router.include_router(contract_router)
+api_router.include_router(shopify_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
