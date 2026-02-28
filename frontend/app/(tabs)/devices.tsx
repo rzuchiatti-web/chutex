@@ -961,14 +961,17 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 10 }}>Recevra un SMS pour finaliser la souscription</div>
               {[
                 { key: 'guardianName', label: 'Nom de l\'aidant', placeholder: 'Marie Dupont' },
-                { key: 'guardianPhone', label: 'Telephone de l\'aidant', placeholder: '06 98 76 54 32', type: 'tel' },
               ].map(f => (
                 <div key={f.key} style={{ marginBottom: 12 } as any}>
                   <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
-                  <input type={f.type || 'text'} value={(formData as any)[f.key]} onChange={(e: any) => { setFormData({ ...formData, [f.key]: e.target.value }); setFormError(''); }} placeholder={f.placeholder}
+                  <input type="text" value={(formData as any)[f.key]} onChange={(e: any) => { setFormData({ ...formData, [f.key]: e.target.value }); setFormError(''); }} placeholder={f.placeholder}
                     style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
                 </div>
               ))}
+              <div style={{ marginBottom: 12 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Telephone de l'aidant</div>
+                <PhoneInputWithPrefix value={formData.guardianPhone} onChangeText={(v: string) => { setFormData({ ...formData, guardianPhone: v }); setFormError(''); }} prefix={guardianPhonePrefix} onPrefixChange={setGuardianPhonePrefix} placeholder="6 98 76 54 32" />
+              </div>
 
               {/* Notes */}
               <div style={{ marginBottom: 16 } as any}>
