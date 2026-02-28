@@ -40,6 +40,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [sosLoading, setSosLoading] = useState(false);
   const [switching, setSwitching] = useState(false);
   const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
+  const [showConnectDevice, setShowConnectDevice] = useState<string | null>(null);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showAddGuardianPopup, setShowAddGuardianPopup] = useState(false);
   const [inviteGuardPhone, setInviteGuardPhone] = useState('');
