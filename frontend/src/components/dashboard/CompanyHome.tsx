@@ -433,29 +433,29 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
             );
           })()}
 
-          {/* Challenge */}
-          <div style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '20px', marginBottom: 12 } as any}>
-            <img src={BG_IMAGES.gold} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
-                <i className="ri-trophy-line" style={{ fontSize: 22, color: '#FFF' }} />
-                <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>Challenge prescripteurs</div>
+          {/* Classement prescripteurs de la structure */}
+          {ranking.length > 0 && (
+          <div style={{ padding: '18px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                <i className="ri-bar-chart-box-line" style={{ fontSize: 18, color: '#F59E0B' }} />
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>Meilleurs prescripteurs</div>
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginBottom: 14 }}>Classement du mois &mdash; {new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}</div>
-              {ranking.slice(0, 5).map((p: any, i: number) => (
-                <div key={p.id || i} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ cursor: 'pointer' } as any}>
-                  {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 0' } as any} />}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' } as any}>
-                    <div style={{ width: 30, height: 30, borderRadius: 10, background: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>#{i + 1}</span></div>
-                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{p.name}</div></div>
-                    <div style={{ textAlign: 'right' } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{p.prescriptions_count || 0}</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>prescriptions</div></div>
-                  </div>
-                </div>
-              ))}
-              {ranking.length === 0 && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '10px 0' }}>Aucun prescripteur ce mois</div>}
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>{new Date().toLocaleString('fr-FR', { month: 'short' })}</div>
             </div>
+            {ranking.slice(0, 5).map((p: any, i: number) => (
+              <div key={p.id || i} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ cursor: 'pointer' } as any}>
+                {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0' } as any} />}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' } as any}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 11, fontWeight: 800, color: '#FFF' }}>#{i + 1}</span></div>
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{p.name}</div></div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{p.prescriptions_count || 0}</div>
+                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>presc.</div>
+                </div>
+              </div>
+            ))}
           </div>
+          )}
         </div>
       </div>
     );
