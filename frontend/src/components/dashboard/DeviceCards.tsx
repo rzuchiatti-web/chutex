@@ -4,7 +4,7 @@ import { apiFetch } from '../../services/api';
 import { useI18n } from '../../context/I18nContext';
 import { useAuth } from '../../context/AuthContext';
 
-interface Props { br: any; sc: any; vs: any; onStartWeighing?: () => void; weighings?: any[]; onRefresh?: () => void; }
+interface Props { br: any; sc: any; vs: any; onStartWeighing?: () => void; weighings?: any[]; onRefresh?: () => void; subscription?: any; }
 
 const batteryColor = (pct: number) => pct > 50 ? '#10B981' : pct > 25 ? '#F59E0B' : '#EF4444';
 const batteryGrad = (pct: number) => pct > 50 ? 'linear-gradient(90deg, #059669, #10B981)' : pct > 25 ? 'linear-gradient(90deg, #D97706, #F59E0B)' : 'linear-gradient(90deg, #DC2626, #EF4444)';
@@ -27,15 +27,17 @@ const SCALE_STEPS = [
   { icon: 'ri-bluetooth-connect-line', title: 'Montez sur la balance', desc: 'Montez pieds nus sur la balance. Elle s\'allume automatiquement et lance la recherche Bluetooth.', tip: 'Restez immobile pendant la mesure pour un resultat optimal.' },
 ];
 
-export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [], onRefresh }: Props) {
+export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [], onRefresh, subscription }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [pairingDevice, setPairingDevice] = useState<string | null>(null);
   const [pairingStep, setPairingStep] = useState(0);
   const [scanning, setScanning] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [showNoSubPopup, setShowNoSubPopup] = useState(false);
   const router = useRouter();
   const { token } = useAuth();
   const { t } = useI18n();
+  const needsSub = !subscription?.can_use_bracelet;
 
   const devices = [
     { id: 'bracelet', name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, paired: br.paired, color: '#22D3EE', link: 'https://chutex-innovation.com/bracelet-elio', steps: BRACELET_STEPS },
