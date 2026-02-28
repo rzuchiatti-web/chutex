@@ -21,6 +21,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showStripeSetup, setShowStripeSetup] = useState(false);
+  const [showStripeManage, setShowStripeManage] = useState(false);
   const [commissionChoice, setCommissionChoice] = useState(user?.commission_type || 'monthly');
   const [stripeLoading, setStripeLoading] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState<1 | 2>(1);
