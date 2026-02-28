@@ -876,28 +876,39 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           ))}
           {displayedPresc.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-file-text-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>Aucune prescription {prescTab === 'pending' ? 'en cours' : 'validee'}</div></div>}
         </div>
-        {/* POPUP STRUCTURE PRESCRIPTEUR — SANS CARTE, DIRECT SUR BLUR */}
+        {/* POPUP STRUCTURE PRESCRIPTEUR — meme design que Intervenant Care */}
         {showPrescModal && (
           <div onClick={() => setShowPrescModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
             <div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
-              {/* Close */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
                 <div onClick={() => setShowPrescModal(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
               </div>
-              {/* Title */}
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>Structure prescripteur</div>
-              {/* Avatar + Name */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 } as any}>
                 <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(212,132,90,0.15)', border: '1px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 28, color: '#E8A87C' }} /></div>
                 <div><div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{user.prescription_structure || user.structure_name || 'Structure'}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 11, fontWeight: 600, color: '#10B981' }}>Prescripteur actif</span></div></div>
               </div>
-              {/* Info rows — directly on blur */}
               {[
-                user.prescription_structure && { icon: 'ri-building-line', label: 'Structure', value: user.prescription_structure },
+                saadLink?.company_name && { icon: 'ri-building-line', label: 'Structure SAAD', value: saadLink.company_name },
+                saadLink?.agency_name && { icon: 'ri-map-pin-line', label: 'Agence', value: saadLink.agency_name },
+                saadLink?.commission_type && { icon: 'ri-hand-coin-line', label: 'Mode commission', value: saadLink.commission_type === 'oneshot' ? 'Commission unique' : 'Commission mensuelle' },
                 user.phone && { icon: 'ri-phone-line', label: 'Telephone', value: user.phone, phone: true },
                 user.email && { icon: 'ri-mail-line', label: 'Email', value: user.email },
                 user.name && { icon: 'ri-user-line', label: 'Prescripteur', value: user.name },
                 { icon: 'ri-file-text-line', label: 'Prescriptions', value: `${prescriptions.length} prescription(s)` },
+                { icon: 'ri-money-euro-circle-line', label: 'Commission estimee', value: `${allTimeAmount} EUR${commLabelG}` },
+              ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
+                <div key={i}>
+                  <div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: item.phone ? 'pointer' : 'default', padding: '13px 0' } as any}>
+                    <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={item.icon} style={{ fontSize: 15, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.5)' }} /></div>
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 15, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div>
+                  </div>
+                  {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.08)' } as any} />}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
                 { icon: 'ri-money-euro-circle-line', label: 'Commission totale', value: `${prescriptions.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0)} EUR` },
               ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
                 <div key={i}>
