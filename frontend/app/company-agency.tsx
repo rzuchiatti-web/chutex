@@ -71,6 +71,8 @@ export default function CompanyAgencyScreen() {
 
   const inviteGuardian = async () => {
     if (!invitePhone.trim()) return;
+    const phoneClean = invitePhone.trim().replace(/[\s.\-]/g, '');
+    if (phoneClean.length < 10) { setInviteMsg('Erreur : Numero invalide (min 10 chiffres)'); return; }
     setSaving(true); setInviteMsg('');
     try {
       const res = await apiFetch('/api/company/invite-guardian', { method: 'POST', body: JSON.stringify({ phone: invitePhone.trim() }) }, token);
