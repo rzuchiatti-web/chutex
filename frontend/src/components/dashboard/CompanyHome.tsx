@@ -257,13 +257,18 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
           )}
 
           {/* Commission settings card */}
-          <div onClick={() => setShowStripeSetup(true)} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(124,58,237,0.15)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
-            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-bank-card-line" style={{ fontSize: 20, color: '#7C3AED' }} /></div>
-            <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{user.stripe_account_id ? 'Stripe Connect actif' : 'Configurer mes paiements'}</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{user.commission_type === 'oneshot' ? 'Commission unique (100/200EUR)' : 'Commission mensuelle (8/15EUR)'}</div>
+          <div onClick={() => setShowStripeSetup(true)} style={{ padding: '18px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(124,58,237,0.15)', marginBottom: 14, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-bank-card-line" style={{ fontSize: 22, color: '#7C3AED' }} /></div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{user.stripe_account_id ? 'Stripe Connect' : 'Configurer les paiements'}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{user.commission_type === 'oneshot' ? 'Commission unique (100/200 EUR)' : user.commission_type === 'monthly' ? 'Commission mensuelle (8/15 EUR)' : 'Non configure'}</div>
+              </div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: user.stripe_account_id ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' } as any}>
+                <span style={{ width: 5, height: 5, borderRadius: 999, background: user.stripe_account_id ? '#10B981' : '#F59E0B' } as any} />
+                <span style={{ fontSize: 10, fontWeight: 600, color: user.stripe_account_id ? '#10B981' : '#F59E0B' }}>{user.stripe_account_id ? 'Actif' : 'A configurer'}</span>
+              </div>
             </div>
-            <i className="ri-settings-3-line" style={{ fontSize: 18, color: '#7C3AED' }} />
           </div>
 
           {/* Alert card */}
