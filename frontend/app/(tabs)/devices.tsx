@@ -388,6 +388,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ name: '', firstName: '', email: '', phone: '', guardianName: '', guardianPhone: '', type: 'bracelet', notes: '' });
+  const [phonePrefix, setPhonePrefix] = useState('+33');
+  const [guardianPhonePrefix, setGuardianPhonePrefix] = useState('+33');
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [actCode, setActCode] = useState('');
