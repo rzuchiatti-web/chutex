@@ -349,7 +349,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                       <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{totalA}</div>
                       <div>
                         <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Alerte{totalA > 1 ? 's' : ''}</div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{activeAlerts.length} en cours &middot; {resolvedA} r\u00e9solue{resolvedA > 1 ? 's' : ''}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{activeAlerts.length} en cours - {resolvedA} resolue{resolvedA > 1 ? 's' : ''}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
@@ -362,7 +362,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
                       <div style={{ flex: 1 } as any}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
-                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Taux de r\u00e9solution</span>
+                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Taux de resolution</span>
                           <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{resRate}%</span>
                         </div>
                         <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.2)', overflow: 'hidden' } as any}>
@@ -370,7 +370,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: 10 } as any}>
-                        {[{ val: activeAlerts.length, label: 'Actives' }, { val: resolvedA, label: 'R\u00e9solues' }].map((s, i) => (
+                        {[{ val: activeAlerts.length, label: 'Actives' }, { val: resolvedA, label: 'Resolues' }].map((s, i) => (
                           <div key={i} style={{ textAlign: 'center', minWidth: 44 } as any}>
                             <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
                             <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}>{s.label}</div>
@@ -406,7 +406,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                   </div>
                   {intervenants.length > 0 && (<>
                     <div style={{ height: 1, background: 'rgba(255,255,255,0.2)', marginBottom: 14 } as any} />
-                    <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Disponibilit\u00e9 des intervenants</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Disponibilite des intervenants</div>
                     <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
                       {[
                         { val: available, label: 'Disponibles', barColor: '#10B981', pct: (available / ivMax) * 100 },
@@ -458,8 +458,8 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                 <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescriptions</div>
                   <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{currentMonthAmount} EUR{user.commission_type === 'monthly' ? '/mois' : ''}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 2, marginBottom: 2 }}>{user.commission_type === 'oneshot' ? 'Commissions uniques ce mois' : 'Souscriptions valid\u00e9es ce mois'}</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 14 }}>{allTimeValidated} EUR{user.commission_type === 'monthly' ? '/mois' : ''} valid\u00e9s au total {user.commission_type === 'monthly' ? `\u00b7 Versement le ${nextPay}` : ''}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 2, marginBottom: 2 }}>{user.commission_type === 'oneshot' ? 'Commissions uniques ce mois' : 'Souscriptions validees ce mois'}</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 14 }}>{allTimeValidated} EUR{user.commission_type === 'monthly' ? '/mois' : ''} valides au total {user.commission_type === 'monthly' ? `- Versement le ${nextPay}` : ''}</div>
                   <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
                     {[{ val: validatedP.length, label: 'Validees' }, { val: pendingP.length, label: 'En attente' }, { val: prescribers.length, label: 'Prescripteurs' }].map((s, i) => (
                       <div key={i} style={{ flex: 1, textAlign: 'center' } as any}>
