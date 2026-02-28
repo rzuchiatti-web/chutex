@@ -1,28 +1,29 @@
 # Chutex Care - PRD
 
 ## Original Problem Statement
-Application de sante preventive "Chutex Care" - plateforme full-stack React Native (Expo) + FastAPI/MongoDB pour la teleassistance, suivi sante, et gestion SAAD.
+Application de sante preventive "Chutex Care" - plateforme full-stack React Native (Expo) + FastAPI/MongoDB.
 
-## Completed Features (Feb 28, 2026)
+## Completed (Feb 28, 2026)
+### Popup agence glass full-page
+- Popup fond flou scrollable (comme ProfileGlassPopup) au lieu de carte centree
+- 3 stats: Gardiens + Prescripteurs + Intervenants
 
-### Onboarding SAAD (NEW)
-- Popup glass 2 etapes au premier login SAAD (quand `commission_type` non defini)
-- **Step 1**: Bienvenue + choix commission (oneshot 100/200EUR vs mensuelle 8/15EUR) avec simulation financiere
-- **Step 2**: Connexion Stripe Connect pour recevoir les paiements
-- Backend: `PUT /api/company/commission-type` sauvegarde le choix sans Stripe
-- Le choix est modifiable depuis la page profil
+### Onboarding SAAD 2 etapes
+- Step 1: Bienvenue + choix commission avec simulation 12 et 24 mois
+- Step 2: Stripe Connect
+- Backend: PUT /api/company/commission-type
 
-### Bug Fixes (Feb 28, 2026)
-1. Glass popup avec backdrop-filter blur(32px) sur overlay
-2. Commissions affichees correctement (fallback getCommission: 8EUR bracelet, 15EUR bracelet+gilet)
-3. Page detail gardien corrigee (extraction response.prescriber)
-4. Agency/guardian management avec agency_id/agency_name
-5. Bouton Message supprime du detail gardien
+### Simulation 12+24 mois
+- Sur 12 mois: 960 EUR (mensuel) vs 1 000 EUR (unique) 
+- Sur 24 mois: 1 920 EUR (mensuel) vs 1 000 EUR (unique) avec badge "+920 EUR vs unique"
+- Applique sur: onboarding accueil + page profil
+
+### Page profil commission
+- Popup glass full-page identique avec choix commission + simulations + Stripe
 
 ## Upcoming Tasks
 - P0: Soumettre iOS Build 45 sur TestFlight
 - P1: Notifications email (Resend)
-- P2: Tests hardware natifs
 
 ## Test Credentials
 | Role | Phone | Password |
