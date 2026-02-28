@@ -381,14 +381,16 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               <div
                 onClick={async () => {
                   if (!linkPhone.trim() || linkingBen) return;
+                  const phoneClean = linkPhone.trim().replace(/[\s.\-]/g, '');
+                  if (phoneClean.length < 10) { setLinkMessage('Erreur : Numero invalide (min 10 chiffres)'); return; }
                   setLinkingBen(true);
                   setLinkMessage('');
                   try {
                     const res = await apiFetch('/api/guardian/link-with-phone', { method: 'POST', body: JSON.stringify({ phone: linkPhone.trim(), relationship: linkRelationship.trim() }) }, token);
                     setLinkMessage(res.message || 'Demande envoyee avec succes !');
-                    if (res.status === 'pending' || res.status === 'already_linked') {
+                    if (res.status === 'pending' || res.status === 'already_linked' || res.status === 'sms_sent') {
                       fetchData();
-                      setTimeout(() => { setShowAddBenPopup(false); setLinkPhone(''); setLinkRelationship(''); setLinkMessage(''); }, 2000);
+                      setTimeout(() => { setShowAddBenPopup(false); setLinkPhone(''); setLinkRelationship(''); setLinkMessage(''); }, 2500);
                     }
                   } catch (e: any) {
                     setLinkMessage(`Erreur : ${e.message}`);
