@@ -1767,6 +1767,39 @@ export default function TeleconsultScreen() {
     return <GuardianInterventions token={token} user={user} />;
   }
   if (r === 'beneficiary') {
+    if (!user.has_subscription) {
+      if (Platform.OS === 'web') {
+        return (
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, system-ui, sans-serif', padding: 30, textAlign: 'center' } as any}>
+            <div style={{ width: 80, height: 80, borderRadius: 24, background: 'rgba(124,92,255,0.1)', border: '1px solid rgba(124,92,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
+              <i className="ri-shield-star-line" style={{ fontSize: 40, color: '#A78BFA' }} />
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#111', marginBottom: 8 }}>Abonnement requis</div>
+            <div style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6, maxWidth: 340, marginBottom: 24 }}>L'espace teleconsultation necessite un abonnement Chutex Care actif (Bracelet Elio ou Bracelet + Gilet Elder).</div>
+            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(124,92,255,0.06)', border: '1px solid rgba(124,92,255,0.15)', marginBottom: 24, width: '100%', maxWidth: 340 } as any}>
+              {[
+                { icon: 'ri-phone-line', text: 'Plateau d\'ecoute 24h/24, 7j/7' },
+                { icon: 'ri-first-aid-kit-line', text: 'Envoi d\'intervenants a domicile' },
+                { icon: 'ri-map-pin-line', text: 'Suivi GPS en temps reel' },
+                { icon: 'ri-file-text-line', text: 'Rapports d\'intervention' },
+              ].map((f, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none' } as any}>
+                  <i className={f.icon} style={{ fontSize: 16, color: '#A78BFA' }} />
+                  <span style={{ fontSize: 13, color: '#374151' }}>{f.text}</span>
+                </div>
+              ))}
+            </div>
+            <div onClick={() => router.push('/subscription' as any)} style={{ padding: '15px 32px', borderRadius: 999, background: '#111', color: '#FFF', cursor: 'pointer', fontSize: 15, fontWeight: 800 } as any}>Souscrire a Chutex Care</div>
+          </div>
+        );
+      }
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30 }}>
+          <Text style={{ fontSize: 20, fontWeight: '800', color: '#111', marginBottom: 8, textAlign: 'center' }}>Abonnement requis</Text>
+          <Text style={{ fontSize: 14, color: '#6B7280', textAlign: 'center', lineHeight: 22 }}>L'espace teleconsultation necessite un abonnement Chutex Care actif.</Text>
+        </View>
+      );
+    }
     return <BeneficiaryTeleconsult token={token} />;
   }
 
