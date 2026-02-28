@@ -51,7 +51,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
   if (loading) return <FullScreenLoader />;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
   const activeIvs = interventions.filter((iv: any) => ['in_progress', 'en_route', 'pending_acceptance'].includes(iv.status));
-  const BG_DASH = BG_IMAGES.dashboard;
+  const BG_DASH = BG_IMAGES.beneficiary;
   const BG_RED = BG_IMAGES.red;
   const BG_VIOLET = BG_IMAGES.violet;
   const BG_ORANGE = BG_IMAGES.orange;
@@ -60,7 +60,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
     return (
       <div data-testid="company-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_DASH} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.08)', zIndex: 1 } as any} />
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           {/* Header */}
           <div onClick={() => router.push('/company-agency' as any)} style={{ padding: '16px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'pointer' } as any}>
