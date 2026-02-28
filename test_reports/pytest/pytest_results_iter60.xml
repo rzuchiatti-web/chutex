@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="9" time="1.609" timestamp="2026-02-28T23:29:22.776461+00:00" hostname="agent-env-d772843d-6fd3-4f9f-a019-4861fd44e509"><testcase classname="backend.tests.test_subscription_iter60.TestNoSubscriptionUser" name="test_login_success" time="0.443"><failure message="AssertionError: Wrong phone in response&#10;assert '+33600000099' == '0600000099'&#10;  &#10;  - 0600000099&#10;  ? ^&#10;  + +33600000099&#10;  ? ^^^">backend/tests/test_subscription_iter60.py:70: in test_login_success
+    assert data["user"]["phone"] == "0600000099", "Wrong phone in response"
+E   AssertionError: Wrong phone in response
+E   assert '+33600000099' == '0600000099'
+E     
+E     - 0600000099
+E     ? ^
+E     + +33600000099
+E     ? ^^^</failure></testcase><testcase classname="backend.tests.test_subscription_iter60.TestNoSubscriptionUser" name="test_subscription_my_returns_no_subscription" time="0.392" /><testcase classname="backend.tests.test_subscription_iter60.TestLateLinking" name="test_late_linking_by_phone" time="0.016"><failure message="AssertionError: Marie Test user not found in DB&#10;assert None">backend/tests/test_subscription_iter60.py:103: in test_late_linking_by_phone
+    assert user, "Marie Test user not found in DB"
+E   AssertionError: Marie Test user not found in DB
+E   assert None</failure></testcase><testcase classname="backend.tests.test_subscription_iter60.TestSubscriptionTypes" name="test_bracelet_only_no_teleassistance" time="0.003"><failure message="AssertionError: Marie Test user not found&#10;assert None">backend/tests/test_subscription_iter60.py:155: in test_bracelet_only_no_teleassistance
+    assert user, "Marie Test user not found"
+E   AssertionError: Marie Test user not found
+E   assert None</failure></testcase><testcase classname="backend.tests.test_subscription_iter60.TestSubscriptionTypes" name="test_care_subscription_has_teleassistance" time="0.002"><failure message="AssertionError: Marie Test user not found&#10;assert None">backend/tests/test_subscription_iter60.py:195: in test_care_subscription_has_teleassistance
+    assert user, "Marie Test user not found"
+E   AssertionError: Marie Test user not found
+E   assert None</failure></testcase><testcase classname="backend.tests.test_subscription_iter60.TestPhoneNormalization" name="test_lookup_with_0_prefix" time="0.002"><failure message="AssertionError: Marie Test user not found&#10;assert None">backend/tests/test_subscription_iter60.py:238: in test_lookup_with_0_prefix
+    assert user, "Marie Test user not found"
+E   AssertionError: Marie Test user not found
+E   assert None</failure></testcase><testcase classname="backend.tests.test_subscription_iter60.TestAPIEndpoints" name="test_health_check" time="0.118"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">backend/tests/test_subscription_iter60.py:276: in test_health_check
+    assert response.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_subscription_iter60.TestAPIEndpoints" name="test_login_invalid_credentials" time="0.361" /><testcase classname="backend.tests.test_subscription_iter60.TestAPIEndpoints" name="test_subscription_my_unauthorized" time="0.109" /></testsuite></testsuites>
