@@ -67,7 +67,8 @@ class TestNoSubscriptionUser:
         data = response.json()
         assert "token" in data, "No token in login response"
         assert "user" in data, "No user in login response"
-        assert data["user"]["phone"] == "0600000099", "Wrong phone in response"
+        # Phone is stored normalized as +33 format
+        assert data["user"]["phone"] in ["0600000099", "+33600000099"], "Wrong phone in response"
     
     def test_subscription_my_returns_no_subscription(self, api_client):
         """Test /api/subscriptions/my returns has_subscription=false for no-sub user"""
@@ -98,8 +99,8 @@ class TestLateLinking:
     
     def test_late_linking_by_phone(self, api_client, mongo_client, cleanup_test_subscriptions):
         """Test that subscription gets auto-linked when user calls /api/subscriptions/my"""
-        # Get the user ID for Marie Test
-        user = mongo_client.users.find_one({"phone": "0600000099"})
+        # Get the user ID for Marie Test (phone stored as +33 format)
+        user = mongo_client.users.find_one({"phone": "+33600000099"})
         assert user, "Marie Test user not found in DB"
         user_id = user["id"]
         print(f"Found user Marie Test with id: {user_id}")
@@ -150,8 +151,8 @@ class TestSubscriptionTypes:
     
     def test_bracelet_only_no_teleassistance(self, api_client, mongo_client, cleanup_test_subscriptions):
         """Test that bracelet_only subscription returns has_teleassistance=false"""
-        # Get user
-        user = mongo_client.users.find_one({"phone": "0600000099"})
+        # Get user (phone stored as +33 format)
+        user = mongo_client.users.find_one({"phone": "+33600000099"})
         assert user, "Marie Test user not found"
         user_id = user["id"]
         
@@ -190,8 +191,8 @@ class TestSubscriptionTypes:
     
     def test_care_subscription_has_teleassistance(self, api_client, mongo_client, cleanup_test_subscriptions):
         """Test that care subscription returns has_teleassistance=true"""
-        # Get user
-        user = mongo_client.users.find_one({"phone": "0600000099"})
+        # Get user (phone stored as +33 format)
+        user = mongo_client.users.find_one({"phone": "+33600000099"})
         assert user, "Marie Test user not found"
         user_id = user["id"]
         
@@ -234,7 +235,8 @@ class TestPhoneNormalization:
     
     def test_lookup_with_0_prefix(self, api_client, mongo_client, cleanup_test_subscriptions):
         """Test that subscription lookup works with 0600000099 format"""
-        user = mongo_client.users.find_one({"phone": "0600000099"})
+        # Phone is stored as +33 format in DB
+        user = mongo_client.users.find_one({"phone": "+33600000099"})
         assert user, "Marie Test user not found"
         
         # Create subscription with +33 format
@@ -271,9 +273,13 @@ class TestAPIEndpoints:
     """Tests for subscription-related API endpoints"""
     
     def test_health_check(self, api_client):
-        """Test that API is reachable"""
-        response = api_client.get(f"{BASE_URL}/api/health")
-        assert response.status_code == 200
+        """Test that API is reachable - test via auth endpoint"""
+        # No /api/health endpoint, test with login endpoint instead
+        response = api_client.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "0600000099",
+            "password": "test123"
+        })
+        assert response.status_code == 200, f"API unreachable: {response.status_code}"
     
     def test_login_invalid_credentials(self, api_client):
         """Test login with wrong password"""
