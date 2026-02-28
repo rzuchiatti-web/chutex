@@ -112,8 +112,8 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
 
           {/* Stripe Connect Setup Popup */}
           {showStripeSetup && (
-            <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } as any}>
-              <div style={{ width: '92%', maxWidth: 400, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
+            <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.25)' } as any}>
+              <div style={{ width: '92%', maxWidth: 400, padding: '28px 24px', borderRadius: 24, background: 'rgba(15,15,30,0.55)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' } as any}>
                 <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
                   <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.25)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 } as any}><i className="ri-bank-card-line" style={{ fontSize: 24, color: '#7C3AED' }} /></div>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Configurez vos paiements</div>
@@ -170,8 +170,8 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
 
           {/* Invite Guardian Popup */}
           {showInviteGuardian && (
-            <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } as any} onClick={(e: any) => { if (e.target === e.currentTarget) setShowInviteGuardian(false); }}>
-              <div style={{ width: '90%', maxWidth: 380, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
+            <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.25)' } as any} onClick={(e: any) => { if (e.target === e.currentTarget) setShowInviteGuardian(false); }}>
+              <div style={{ width: '90%', maxWidth: 380, padding: '28px 24px', borderRadius: 24, background: 'rgba(15,15,30,0.55)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' } as any}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Inviter un gardien</div>
                   <div onClick={() => setShowInviteGuardian(false)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /></div>
