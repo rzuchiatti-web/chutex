@@ -877,24 +877,81 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             </div>
           )}
 
-          {/* Activate Beneficiary Space Popup */}
+          {/* Activate Beneficiary Space Popup — full registration form */}
           {showActivateBenPopup && (
-            <div onClick={() => setShowActivateBenPopup(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '90%', maxWidth: 380, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
-                <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-user-heart-line" style={{ fontSize: 28, color: '#3B82F6' }} /></div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Activer l'espace beneficiaire</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Vous n'avez pas encore d'espace beneficiaire. Souhaitez-vous l'activer pour suivre votre sante et vos appareils ?</div>
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
+                  <div onClick={() => setShowActivateBenPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
                 </div>
-                <div onClick={async () => {
-                  try {
-                    await apiFetch('/api/auth/activate-beneficiary', { method: 'POST', body: JSON.stringify({}) }, token);
-                    await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'beneficiary' }) }, token);
-                    await refreshUser();
-                    setShowActivateBenPopup(false);
-                  } catch (e: any) { window.alert(e.message || 'Erreur'); }
-                }} style={{ padding: '15px', borderRadius: 999, background: 'linear-gradient(135deg, #3B82F6, #2563EB)', color: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, marginBottom: 10, boxShadow: '0 4px 14px rgba(59,130,246,0.3)' } as any}>Activer et basculer</div>
-                <div onClick={() => setShowActivateBenPopup(false)} style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', padding: 8 } as any}>Annuler</div>
+                <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-user-heart-line" style={{ fontSize: 28, color: '#3B82F6' }} /></div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Devenir beneficiaire</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Remplissez vos informations pour activer le suivi de votre sante</div>
+                </div>
+                {(() => {
+                  const [benForm, setBenForm] = React.useState({ firstName: user.name?.split(' ')[1] || '', lastName: user.name?.split(' ')[0] || '', dob_day: '', dob_month: '', dob_year: '', gender: '', height_cm: '', weight_kg: '', address: user.address || '', postal_code: '', city: '', emergency_name: '', emergency_phone: '' });
+                  const uf = (k: string, v: string) => setBenForm({ ...benForm, [k]: v });
+                  const IST: any = { width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' };
+                  const LBL: any = { fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 };
+                  const [benError, setBenError] = React.useState('');
+                  const [benSaving, setBenSaving] = React.useState(false);
+                  return (<>
+                    {benError && <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', marginBottom: 14, fontSize: 12, color: '#FCA5A5' } as any}>{benError}</div>}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
+                      <div style={{ marginBottom: 12 } as any}><div style={LBL}>Prenom *</div><input value={benForm.firstName} onChange={(e: any) => uf('firstName', e.target.value)} placeholder="Jean" style={IST} /></div>
+                      <div style={{ marginBottom: 12 } as any}><div style={LBL}>Nom *</div><input value={benForm.lastName} onChange={(e: any) => uf('lastName', e.target.value)} placeholder="Dupont" style={IST} /></div>
+                    </div>
+                    <div style={LBL}>Date de naissance *</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr', gap: 8, marginBottom: 12 } as any}>
+                      <select value={benForm.dob_day} onChange={(e: any) => uf('dob_day', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="" style={{ background: '#0a0f1a' }}>Jour</option>{Array.from({ length: 31 }, (_, i) => i + 1).map(d => <option key={d} value={String(d)} style={{ background: '#0a0f1a' }}>{d}</option>)}</select>
+                      <select value={benForm.dob_month} onChange={(e: any) => uf('dob_month', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="" style={{ background: '#0a0f1a' }}>Mois</option>{['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'].map((m, i) => <option key={i} value={String(i + 1)} style={{ background: '#0a0f1a' }}>{m}</option>)}</select>
+                      <select value={benForm.dob_year} onChange={(e: any) => uf('dob_year', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="" style={{ background: '#0a0f1a' }}>Annee</option>{Array.from({ length: 100 }, (_, i) => 2026 - i).map(y => <option key={y} value={String(y)} style={{ background: '#0a0f1a' }}>{y}</option>)}</select>
+                    </div>
+                    <div style={LBL}>Sexe *</div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
+                      {[{ v: 'male', l: 'Homme', ic: 'ri-men-line' }, { v: 'female', l: 'Femme', ic: 'ri-women-line' }].map(g => (
+                        <div key={g.v} onClick={() => uf('gender', g.v)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: benForm.gender === g.v ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.2)', border: `1px solid ${benForm.gender === g.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', textAlign: 'center' } as any}>
+                          <i className={g.ic} style={{ fontSize: 22, color: benForm.gender === g.v ? '#FFF' : 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 4 }} />
+                          <div style={{ fontSize: 12, fontWeight: 700, color: benForm.gender === g.v ? '#FFF' : 'rgba(255,255,255,0.5)' }}>{g.l}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
+                      <div style={{ marginBottom: 12 } as any}><div style={LBL}>Taille</div><select value={benForm.height_cm} onChange={(e: any) => uf('height_cm', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="">cm</option>{Array.from({ length: 61 }, (_, i) => 140 + i).map(h => <option key={h} value={String(h)} style={{ background: '#0a0f1a' }}>{h} cm</option>)}</select></div>
+                      <div style={{ marginBottom: 12 } as any}><div style={LBL}>Poids</div><select value={benForm.weight_kg} onChange={(e: any) => uf('weight_kg', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="">kg</option>{Array.from({ length: 121 }, (_, i) => 30 + i).map(w => <option key={w} value={String(w)} style={{ background: '#0a0f1a' }}>{w} kg</option>)}</select></div>
+                    </div>
+                    <div style={{ marginBottom: 12 } as any}><div style={LBL}>Adresse</div><input value={benForm.address} onChange={(e: any) => uf('address', e.target.value)} placeholder="12 rue de la Paix" style={IST} /></div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
+                      <div style={{ marginBottom: 12 } as any}><div style={LBL}>Code postal</div><input value={benForm.postal_code} onChange={(e: any) => uf('postal_code', e.target.value)} placeholder="75002" style={IST} /></div>
+                      <div style={{ marginBottom: 12 } as any}><div style={LBL}>Ville</div><input value={benForm.city} onChange={(e: any) => uf('city', e.target.value)} placeholder="Paris" style={IST} /></div>
+                    </div>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0 14px' } as any} />
+                    <div style={LBL}>Contact d'urgence</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 } as any}>
+                      <div><input value={benForm.emergency_name} onChange={(e: any) => uf('emergency_name', e.target.value)} placeholder="Nom" style={IST} /></div>
+                      <div><input value={benForm.emergency_phone} onChange={(e: any) => uf('emergency_phone', e.target.value)} placeholder="Telephone" type="tel" style={IST} /></div>
+                    </div>
+                    <div onClick={async () => {
+                      if (!benForm.firstName.trim() || !benForm.lastName.trim()) { setBenError('Prenom et nom sont obligatoires'); return; }
+                      if (!benForm.dob_day || !benForm.dob_month || !benForm.dob_year) { setBenError('La date de naissance est obligatoire'); return; }
+                      if (!benForm.gender) { setBenError('Le sexe est obligatoire'); return; }
+                      setBenSaving(true); setBenError('');
+                      try {
+                        const dob = `${benForm.dob_year}-${benForm.dob_month.padStart(2,'0')}-${benForm.dob_day.padStart(2,'0')}`;
+                        await apiFetch('/api/auth/activate-beneficiary', { method: 'POST', body: JSON.stringify({
+                          name: `${benForm.lastName} ${benForm.firstName}`.trim(),
+                          date_of_birth: dob, gender: benForm.gender, height_cm: benForm.height_cm, weight_kg: benForm.weight_kg,
+                          address: benForm.address, postal_code: benForm.postal_code, city: benForm.city,
+                          emergency_contact_name: benForm.emergency_name, emergency_contact_phone: benForm.emergency_phone,
+                        }) }, token);
+                        await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'beneficiary' }) }, token);
+                        await refreshUser();
+                        setShowActivateBenPopup(false);
+                      } catch (e: any) { setBenError(e.message || 'Erreur'); } finally { setBenSaving(false); }
+                    }} style={{ padding: '17px', borderRadius: 999, background: benSaving ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #3B82F6, #2563EB)', color: '#FFF', cursor: benSaving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, opacity: benSaving ? 0.5 : 1, boxShadow: '0 4px 14px rgba(59,130,246,0.3)' } as any}>{benSaving ? 'Activation...' : 'Activer mon espace beneficiaire'}</div>
+                  </>);
+                })()}
               </div>
             </div>
           )}
