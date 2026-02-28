@@ -222,27 +222,70 @@ function DeviceManagement({ token }: { token: string }) {
         </div>
         {/* No subscription popup */}
         {showNoSubPopup && (
-          <div onClick={() => setShowNoSubPopup(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '90%', maxWidth: 380, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
-              <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-                <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-lock-line" style={{ fontSize: 30, color: '#F59E0B' }} /></div>
-                <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Abonnement requis</div>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Pour associer votre bracelet Elio, vous devez avoir un abonnement actif. Souscrivez sur le site Chutex ou via votre structure SAAD.</div>
+          <div onClick={() => setShowNoSubPopup(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
+                <div onClick={() => setShowNoSubPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
               </div>
-              <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 16 } as any}>
-                {[
-                  { icon: 'ri-shopping-bag-line', text: 'Achetez sur le site chutex.fr' },
-                  { icon: 'ri-building-line', text: 'Ou via une prescription SAAD' },
-                  { icon: 'ri-smartphone-line', text: 'Votre bracelet sera active automatiquement' },
-                ].map((s, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
-                    <i className={s.icon} style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
-                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>{s.text}</span>
+              <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+                <div style={{ width: 72, height: 72, borderRadius: 22, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}><i className="ri-watch-line" style={{ fontSize: 36, color: '#F59E0B' }} /></div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Activez votre bracelet</div>
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Pour associer et utiliser votre bracelet Elio, un abonnement actif est necessaire. Choisissez l'option qui vous convient :</div>
+              </div>
+              {/* Option 1: Bracelet seul (Shopify) */}
+              <div onClick={() => { setShowNoSubPopup(false); if (typeof window !== 'undefined') window.open('https://chutex-innovation.com/products/elio-smart-health-bracelet', '_blank'); }} style={{ padding: '20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 12, cursor: 'pointer', transition: 'all 0.2s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
+                  <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-watch-line" style={{ fontSize: 26, color: '#3B82F6' }} /></div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>Bracelet Elio</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Suivi sante connecte</div>
                   </div>
-                ))}
+                  <div style={{ textAlign: 'right' } as any}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>39,90</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>EUR/mois</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 14 } as any}>
+                  {['Bracelet connecte', 'Suivi cardiaque', 'Detection chute', 'App mobile'].map((f, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' } as any}>
+                      <i className="ri-check-line" style={{ fontSize: 10, color: '#3B82F6' }} />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{f}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div onClick={() => { setShowNoSubPopup(false); if (typeof window !== 'undefined') window.open('https://b7at4t-4z.myshopify.com', '_blank'); }} style={{ padding: '15px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, marginBottom: 10 } as any}>Souscrire sur chutex.fr</div>
-              <div onClick={() => setShowNoSubPopup(false)} style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', padding: 8 } as any}>Fermer</div>
+              {/* Option 2: Contrat Care (landing page) */}
+              <div onClick={() => { setShowNoSubPopup(false); router.push('/subscription' as any); }} style={{ padding: '20px', borderRadius: 22, background: 'linear-gradient(135deg, rgba(124,92,255,0.08), rgba(167,139,250,0.04))', border: '1px solid rgba(124,92,255,0.2)', marginBottom: 12, cursor: 'pointer', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.borderColor = 'rgba(124,92,255,0.4)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.borderColor = 'rgba(124,92,255,0.2)'; }}>
+                <div style={{ position: 'absolute', top: 10, right: 12, padding: '3px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Recommande</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
+                  <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-shield-star-line" style={{ fontSize: 26, color: '#A78BFA' }} /></div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>Chutex Care</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Bracelet + Teleassistance 24/7</div>
+                  </div>
+                  <div style={{ textAlign: 'right' } as any}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>39,90</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>EUR/mois</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 14 } as any}>
+                  {['Tout bracelet Elio', 'Teleassistance 24/7', 'Intervenants domicile', 'Suivi GPS temps reel', 'Rapports intervention'].map((f, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.08)', border: '1px solid rgba(124,92,255,0.15)' } as any}>
+                      <i className="ri-check-line" style={{ fontSize: 10, color: '#A78BFA' }} />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{f}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 8 } as any}>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5 }}>Si vous avez deja souscrit, votre abonnement sera detecte automatiquement a partir de votre numero de telephone.</div>
+              </div>
             </div>
           </div>
         )}
