@@ -248,24 +248,30 @@ async def detach_from_saad(user=Depends(get_current_user)):
 @router.get("/guardian/saad-link")
 async def get_saad_link(user=Depends(get_current_user)):
     """Get the guardian's current SAAD link info including space activation status."""
-    if not user.get('saad_company_id'):
+    company_id = user.get('saad_company_id') or user.get('prescriber_company_id')
+    if not company_id:
         return None
     company = await db.users.find_one(
-        {"id": user['saad_company_id']}, {"_id": 0, "password_hash": 0}
+        {"id": company_id}, {"_id": 0, "password_hash": 0}
     )
     link = await db.saad_guardian_links.find_one(
         {"guardian_id": user['id'], "status": "accepted"}, {"_id": 0}
     )
     if not company:
         return None
+    # Get agency info
+    agency = None
+    if user.get('agency_id'):
+        agency = await db.agencies.find_one({"id": user['agency_id']}, {"_id": 0})
     return {
-        "company_id": user['saad_company_id'],
-        "company_name": user.get('saad_company_name', company.get('structure_name', company.get('name', ''))),
+        "company_id": company_id,
+        "company_name": company.get('structure_name', company.get('name', '')),
         "company_address": company.get('address', ''),
         "company_siret": company.get('siret', ''),
         "link_id": link['id'] if link else None,
-        "linked_since": link['created_at'] if link else None,
-        # Space activation status (True = active, False = deactivated by SAAD)
+        "linked_since": link.get('created_at') if link else None,
+        "agency_name": agency.get('name') if agency else None,
+        "agency_address": agency.get('address') if agency else None,
         "intervenant_active": not (link or {}).get('intervenant_deactivated', False),
         "prescripteur_active": not (link or {}).get('prescripteur_deactivated', False),
     }
