@@ -1770,27 +1770,32 @@ export default function TeleconsultScreen() {
   if (r === 'beneficiary') {
     if (!user.has_subscription) {
       if (Platform.OS === 'web') {
+        const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_9950a869-9419-4e05-9561-f555a2fbd446/artifacts/bg_care_violet.svg';
         return (
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, system-ui, sans-serif', padding: 30, textAlign: 'center' } as any}>
-            <div style={{ width: 80, height: 80, borderRadius: 24, background: 'rgba(124,92,255,0.1)', border: '1px solid rgba(124,92,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
-              <i className="ri-shield-star-line" style={{ fontSize: 40, color: '#A78BFA' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+            <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 1 } as any} />
+            <div style={{ position: 'relative', zIndex: 5, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 30, textAlign: 'center' } as any}>
+              <div style={{ width: 80, height: 80, borderRadius: 24, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+                <i className="ri-shield-star-line" style={{ fontSize: 40, color: '#FFF' }} />
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Abonnement requis</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: 340, marginBottom: 28 }}>L'espace teleconsultation necessite un abonnement Chutex Care actif pour beneficier de la teleassistance 24/7.</div>
+              <div style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 28, width: '100%', maxWidth: 340, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+                {[
+                  { icon: 'ri-phone-line', text: 'Plateau d\'ecoute 24h/24, 7j/7' },
+                  { icon: 'ri-first-aid-kit-line', text: 'Envoi d\'intervenants a domicile' },
+                  { icon: 'ri-map-pin-line', text: 'Suivi GPS en temps reel' },
+                  { icon: 'ri-file-text-line', text: 'Rapports d\'intervention' },
+                ].map((f, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none' } as any}>
+                    <i className={f.icon} style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)' }} />
+                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>{f.text}</span>
+                  </div>
+                ))}
+              </div>
+              <div onClick={() => router.push('/subscription' as any)} style={{ padding: '17px 40px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', fontSize: 16, fontWeight: 800, boxShadow: '0 4px 20px rgba(255,255,255,0.2)' } as any}>Souscrire a Chutex Care</div>
             </div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#111', marginBottom: 8 }}>Abonnement requis</div>
-            <div style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6, maxWidth: 340, marginBottom: 24 }}>L'espace teleconsultation necessite un abonnement Chutex Care actif (Bracelet Elio ou Bracelet + Gilet Elder).</div>
-            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(124,92,255,0.06)', border: '1px solid rgba(124,92,255,0.15)', marginBottom: 24, width: '100%', maxWidth: 340 } as any}>
-              {[
-                { icon: 'ri-phone-line', text: 'Plateau d\'ecoute 24h/24, 7j/7' },
-                { icon: 'ri-first-aid-kit-line', text: 'Envoi d\'intervenants a domicile' },
-                { icon: 'ri-map-pin-line', text: 'Suivi GPS en temps reel' },
-                { icon: 'ri-file-text-line', text: 'Rapports d\'intervention' },
-              ].map((f, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none' } as any}>
-                  <i className={f.icon} style={{ fontSize: 16, color: '#A78BFA' }} />
-                  <span style={{ fontSize: 13, color: '#374151' }}>{f.text}</span>
-                </div>
-              ))}
-            </div>
-            <div onClick={() => router.push('/subscription' as any)} style={{ padding: '15px 32px', borderRadius: 999, background: '#111', color: '#FFF', cursor: 'pointer', fontSize: 15, fontWeight: 800 } as any}>Souscrire a Chutex Care</div>
           </div>
         );
       }
