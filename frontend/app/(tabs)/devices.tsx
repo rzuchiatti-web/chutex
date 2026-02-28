@@ -1516,7 +1516,6 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
 
   /* ─── REWARDS DETAIL: full-screen gold (early return) ─── */
   if (showRewardsDetail && Platform.OS === 'web') {
-    const totalComm = allPrescs.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0);
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_GOLD} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
@@ -1530,7 +1529,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
             <i className="ri-trophy-line" style={{ fontSize: 40, color: '#FFF', display: 'block', marginBottom: 8 }} />
             <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>Challenge du mois</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>{new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}</div>
-            <div style={{ display: 'inline-flex', padding: '6px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', marginTop: 10 } as any}><span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Total: {totalComm} EUR</span></div>
+            <div onClick={() => setShowChallengeExplainer(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', marginTop: 12, cursor: 'pointer' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }} /><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Comment ca marche ?</span></div>
           </div>
           {/* Prizes */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 } as any}>
@@ -1542,9 +1541,9 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
               </div>
             ))}
           </div>
-          {/* Ranking */}
+          {/* Ranking — all Chutex prescribers */}
           <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Classement</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Classement general Chutex</div>
             {prescribers.sort((a: any, b: any) => (b.prescriptions_count || 0) - (a.prescriptions_count || 0)).map((p: any, i: number) => (
               <div key={p.id}>
                 {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0' } as any} />}
@@ -1557,6 +1556,39 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
             ))}
           </div>
         </div>
+        {/* Challenge explainer glass popup */}
+        {showChallengeExplainer && (
+          <div onClick={() => setShowChallengeExplainer(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                <div onClick={() => setShowChallengeExplainer(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+              </div>
+              <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,215,0,0.15)', border: '1px solid rgba(255,215,0,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+                  <i className="ri-trophy-line" style={{ fontSize: 28, color: '#FFD700' }} />
+                </div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Comment ca marche ?</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 6, lineHeight: 1.6 }}>Le challenge concerne tous les prescripteurs Chutex, pas seulement ceux de votre structure.</div>
+              </div>
+              {[
+                { icon: 'ri-file-text-line', title: 'Prescrivez', desc: 'Vos gardiens creent des prescriptions. Quand le beneficiaire souscrit, elle est validee.', color: '#D4845A' },
+                { icon: 'ri-bar-chart-box-line', title: 'Classement general', desc: 'Chaque prescription validee fait monter le prescripteur au classement. Tous les prescripteurs Chutex participent.', color: '#3B82F6' },
+                { icon: 'ri-trophy-line', title: 'Recompenses mensuelles', desc: '1er: 100 EUR, 2eme: 70 EUR, 3eme: 30 EUR. Versement automatique debut du mois suivant.', color: '#FFD700' },
+                { icon: 'ri-refresh-line', title: 'Reinitialisation', desc: 'Le classement repart a zero chaque 1er du mois. Chaque mois est une nouvelle chance.', color: '#10B981' },
+              ].map((s, i) => (
+                <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 16, alignItems: 'flex-start' } as any}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: `${s.color}20`, border: `1px solid ${s.color}35`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className={s.icon} style={{ fontSize: 20, color: s.color }} />
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 3 }}>{s.title}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>{s.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
