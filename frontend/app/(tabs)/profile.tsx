@@ -579,13 +579,13 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                 </div>
                 {/* Details */}
                 {[
+                  subData?.subscription?.contract_number && { icon: 'ri-hashtag', label: 'Numero de contrat', value: subData.subscription.contract_number },
                   { icon: 'ri-shield-check-line', label: 'Type', value: 'Care — Teleassistance 24/7' },
-                  { icon: 'ri-phone-line', label: 'Teleassistance', value: 'Plateau d\'ecoute 24h/24, 7j/7' },
-                  { icon: 'ri-first-aid-kit-line', label: 'Intervention', value: 'Intervenants Care a domicile' },
-                  { icon: 'ri-map-pin-line', label: 'Suivi temps reel', value: 'Geolocalisation des intervenants' },
-                  { icon: 'ri-file-text-line', label: 'Rapports', value: 'Rapports d\'intervention detailles' },
+                  subData?.subscription?.subscription_type && { icon: 'ri-vip-crown-line', label: 'Formule', value: subData.subscription.subscription_type === 'care' ? 'Bracelet Elio + Teleassistance' : subData.subscription.subscription_type },
+                  { icon: 'ri-money-euro-circle-line', label: 'Mensualite', value: '39,90 EUR/mois' },
+                  subData?.subscription?.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone', value: subData.subscription.beneficiary_phone },
                   subData?.subscription?.created_at && { icon: 'ri-calendar-line', label: 'Souscrit le', value: new Date(subData.subscription.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
-                  subData?.subscription?.source && { icon: 'ri-information-line', label: 'Source', value: subData.subscription.source === 'manual' ? 'Activation manuelle' : subData.subscription.source },
+                  subData?.subscription?.source && { icon: 'ri-information-line', label: 'Source', value: subData.subscription.source === 'website_contract' ? 'Souscription en ligne' : subData.subscription.source === 'manual' ? 'Activation manuelle' : subData.subscription.source },
                 ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
                   <div key={i}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0' } as any}>
