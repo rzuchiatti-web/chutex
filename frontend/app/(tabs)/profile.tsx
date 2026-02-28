@@ -514,13 +514,33 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
 
           <ProfileGlassPopup visible={showNotifPrefs} onClose={() => setShowNotifPrefs(false)}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>Notifications</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Preferences</div>
-            {notifPrefs ? ['sos_alerts','fall_detection','health_thresholds','low_battery'].map((key, i, arr) => (
-              <div key={key}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0' } as any}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#FFF', textTransform: 'capitalize' }}>{key.replace(/_/g, ' ')}</span>
-                  <div onClick={() => toggleNotifPref(key, !(notifPrefs[key] ?? true))} style={{ width: 44, height: 24, borderRadius: 12, background: (notifPrefs[key] ?? true) ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)', border: `1px solid ${(notifPrefs[key] ?? true) ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.15)'}`, cursor: 'pointer', position: 'relative', transition: 'all 0.2s' } as any}>
-                    <div style={{ width: 18, height: 18, borderRadius: 9, background: (notifPrefs[key] ?? true) ? '#10B981' : 'rgba(255,255,255,0.4)', position: 'absolute', top: 2, left: (notifPrefs[key] ?? true) ? 22 : 2, transition: 'left 0.2s' } as any} />
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Preferences</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20, lineHeight: 1.5 }}>{effectiveRole === 'prescriber_company' ? 'Choisissez les notifications que vous souhaitez recevoir pour votre structure.' : 'Activez ou desactivez les types de notifications.'}</div>
+            {notifPrefs ? (effectiveRole === 'prescriber_company' ? [
+              { key: 'intervention_new', label: 'Nouvelle intervention Care', desc: 'Quand un intervenant est sollicite', icon: 'ri-first-aid-kit-line', color: '#8B5CF6' },
+              { key: 'intervention_done', label: 'Intervention terminee', desc: 'Quand un intervenant cloture son rapport', icon: 'ri-check-double-line', color: '#10B981' },
+              { key: 'prescription_new', label: 'Nouvelle prescription', desc: 'Quand un gardien cree une prescription', icon: 'ri-file-text-line', color: '#F59E0B' },
+              { key: 'prescription_validated', label: 'Prescription validee', desc: 'Quand un beneficiaire souscrit', icon: 'ri-checkbox-circle-line', color: '#10B981' },
+              { key: 'alert_new', label: 'Nouvelle alerte', desc: 'Quand une alerte est declenchee', icon: 'ri-alarm-warning-line', color: '#EF4444' },
+              { key: 'alert_resolved', label: 'Alerte cloturee', desc: 'Quand une alerte est resolue', icon: 'ri-shield-check-line', color: '#3B82F6' },
+              { key: 'guardian_joined', label: 'Nouveau gardien', desc: 'Un gardien a accepte votre invitation — pensez a l\'affilier a une agence', icon: 'ri-user-add-line', color: '#D4845A' },
+            ] : [
+              { key: 'sos_alerts', label: 'Alertes SOS', desc: 'Bouton SOS et alertes critiques', icon: 'ri-alarm-warning-line', color: '#EF4444' },
+              { key: 'fall_detection', label: 'Detection de chute', desc: 'Alertes automatiques de chute', icon: 'ri-run-line', color: '#F59E0B' },
+              { key: 'health_thresholds', label: 'Seuils de sante', desc: 'Anomalies cardiaques et vitaux', icon: 'ri-heart-pulse-line', color: '#3B82F6' },
+              { key: 'low_battery', label: 'Batterie faible', desc: 'Bracelet ou appareil a recharger', icon: 'ri-battery-low-line', color: '#8B5CF6' },
+            ]).map((item, i, arr) => (
+              <div key={item.key}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0' } as any}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: `${item.color}15`, border: `1px solid ${item.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className={item.icon} style={{ fontSize: 18, color: item.color }} />
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{item.label}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{item.desc}</div>
+                  </div>
+                  <div onClick={() => toggleNotifPref(item.key, !(notifPrefs[item.key] ?? true))} style={{ width: 48, height: 26, borderRadius: 13, background: (notifPrefs[item.key] ?? true) ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)', border: `1px solid ${(notifPrefs[item.key] ?? true) ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', transition: 'all 0.2s', flexShrink: 0 } as any}>
+                    <div style={{ width: 20, height: 20, borderRadius: 10, background: (notifPrefs[item.key] ?? true) ? '#10B981' : 'rgba(255,255,255,0.35)', position: 'absolute', top: 2, left: (notifPrefs[item.key] ?? true) ? 24 : 2, transition: 'left 0.2s' } as any} />
                   </div>
                 </div>
                 {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}
