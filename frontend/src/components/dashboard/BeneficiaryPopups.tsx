@@ -307,11 +307,13 @@ export function AddGuardianPopup({ show, onClose, phone, setPhone, relationship,
         )}
         <div onClick={async () => {
           if (!phone.trim() || isLoading) return;
+          const phoneClean = phone.trim().replace(/[\s.\-]/g, '');
+          if (phoneClean.length < 10) { setMsg('Erreur : Numero invalide (min 10 chiffres)'); return; }
           setIsLoading(true); setMsg('');
           try {
             const res = await apiFetch('/api/beneficiary/invite-guardian', { method: 'POST', body: JSON.stringify({ phone: phone.trim(), relationship: relationship.trim() }) }, token);
             setMsg(res.message || 'Invitation envoyee !');
-            if (res.status !== 'error') { fetchData(); setTimeout(onClose, 2000); }
+            if (res.status !== 'error') { fetchData(); setTimeout(onClose, 2500); }
           } catch (e: any) { setMsg(`Erreur : ${(e as any).message}`); } finally { setIsLoading(false); }
         }} style={{ padding: '14px', borderRadius: 12, textAlign: 'center', cursor: phone.trim() ? 'pointer' : 'not-allowed', background: phone.trim() ? 'linear-gradient(135deg, rgba(14,116,144,0.4), rgba(34,211,238,0.2))' : 'rgba(255,255,255,0.03)', border: `1px solid ${phone.trim() ? 'rgba(34,211,238,0.3)' : 'rgba(255,255,255,0.06)'}`, color: phone.trim() ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
           {isLoading ? 'Envoi...' : <><i className="ri-send-plane-line" style={{ fontSize: 15 }} />Envoyer l'invitation</>}
