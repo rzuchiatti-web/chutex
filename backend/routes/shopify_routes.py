@@ -188,19 +188,6 @@ async def check_shopify_order_by_phone(phone: str = ""):
     }
 
 
-            logger.error(f"[Shopify] Email error for {email}: {e}")
-
-    logger.info(f"[Shopify] Order {order_number} processed: {full_name} ({cleaned_phone}) - {product_type}")
-
-    return {
-        "status": "ok",
-        "order_number": str(order_number),
-        "customer": full_name,
-        "product_type": product_type,
-        "activation_link_sent": bool(cleaned_phone or email),
-    }
-
-
 @router.get("/shopify/orders")
 async def list_shopify_orders():
     """List all Shopify orders (for admin dashboard)."""
