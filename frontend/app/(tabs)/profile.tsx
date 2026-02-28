@@ -893,12 +893,9 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Remplissez vos informations pour activer le suivi de votre sante</div>
                 </div>
                 {(() => {
-                  const [benForm, setBenForm] = React.useState({ firstName: user.name?.split(' ')[1] || '', lastName: user.name?.split(' ')[0] || '', dob_day: '', dob_month: '', dob_year: '', gender: '', height_cm: '', weight_kg: '', address: user.address || '', postal_code: '', city: '', emergency_name: '', emergency_phone: '' });
                   const uf = (k: string, v: string) => setBenForm({ ...benForm, [k]: v });
                   const IST: any = { width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' };
                   const LBL: any = { fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 };
-                  const [benError, setBenError] = React.useState('');
-                  const [benSaving, setBenSaving] = React.useState(false);
                   return (<>
                     {benError && <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', marginBottom: 14, fontSize: 12, color: '#FCA5A5' } as any}>{benError}</div>}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
