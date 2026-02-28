@@ -14,7 +14,7 @@ SAFE_FIELDS = [
     'has_guardian_space', 'has_beneficiary_space', 'avatar_url', 'subscription_type', 'has_subscription',
     'latitude', 'longitude', 'prescriber_company_id', 'agency_id',
     'pacemaker', 'stents', 'thyroid', 'had_avc', 'other_condition', 'surgeries', 'nora_welcome_seen',
-    'activation_code', 'intervention_code', 'stripe_account_id', 'commission_type',
+    'activation_code', 'intervention_code', 'stripe_account_id', 'commission_type', 'onboarding_completed',
 ]
 
 
