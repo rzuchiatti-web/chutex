@@ -229,8 +229,8 @@ function DeviceManagement({ token }: { token: string }) {
               </div>
               <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
                 <div style={{ width: 72, height: 72, borderRadius: 22, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}><i className="ri-watch-line" style={{ fontSize: 36, color: '#F59E0B' }} /></div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Activez votre bracelet</div>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Pour associer et utiliser votre bracelet Elio, un abonnement actif est necessaire. Choisissez l'option qui vous convient :</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Abonnement requis</div>
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Pour associer et utiliser votre bracelet Elio, un abonnement actif est necessaire.</div>
               </div>
               {/* Option 1: Bracelet seul (Shopify) */}
               <div onClick={() => { setShowNoSubPopup(false); if (typeof window !== 'undefined') window.open('https://chutex-innovation.com/products/elio-smart-health-bracelet', '_blank'); }} style={{ padding: '20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 12, cursor: 'pointer', transition: 'all 0.2s' } as any}
@@ -243,7 +243,7 @@ function DeviceManagement({ token }: { token: string }) {
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Suivi sante connecte</div>
                   </div>
                   <div style={{ textAlign: 'right' } as any}>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>39,90</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>24,90</div>
                     <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>EUR/mois</div>
                   </div>
                 </div>
@@ -256,7 +256,7 @@ function DeviceManagement({ token }: { token: string }) {
                   ))}
                 </div>
               </div>
-              {/* Option 2: Contrat Care (landing page) */}
+              {/* Option 2: Contrat Care */}
               <div onClick={() => { setShowNoSubPopup(false); router.push('/subscription' as any); }} style={{ padding: '20px', borderRadius: 22, background: 'linear-gradient(135deg, rgba(124,92,255,0.08), rgba(167,139,250,0.04))', border: '1px solid rgba(124,92,255,0.2)', marginBottom: 12, cursor: 'pointer', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.borderColor = 'rgba(124,92,255,0.4)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.borderColor = 'rgba(124,92,255,0.2)'; }}>
@@ -275,7 +275,7 @@ function DeviceManagement({ token }: { token: string }) {
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 14 } as any}>
-                  {['Tout bracelet Elio', 'Teleassistance 24/7', 'Intervenants domicile', 'Suivi GPS temps reel', 'Rapports intervention'].map((f, i) => (
+                  {['Tout bracelet Elio', 'Teleassistance 24/7', 'Intervenants domicile', 'Suivi GPS', 'Rapports'].map((f, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(124,92,255,0.08)', border: '1px solid rgba(124,92,255,0.15)' } as any}>
                       <i className="ri-check-line" style={{ fontSize: 10, color: '#A78BFA' }} />
                       <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{f}</span>
