@@ -72,39 +72,72 @@ function AnomalyCard({ alert }: { alert: any }) {
 /* ────────────────────────────────────────────────────────────────────
    EXPLAINER PAGE  — "Comprendre les alertes"
    ──────────────────────────────────────────────────────────────────── */
-function ExplainerPage({ onClose }: { onClose: () => void }) {
-  const steps = [
+function ExplainerPage({ onClose, role }: { onClose: () => void; role: string }) {
+  const isSAAD = role === 'prescriber_company';
+
+  const saadSteps = [
+    { icon: 'ri-alarm-warning-line', title: 'Detection de l\'alerte', desc: 'Un beneficiaire de votre structure declenche une alerte (chute, anomalie cardiaque, bouton SOS). Votre tableau de bord SAAD est notifie en temps reel.', color: '#EF4444' },
+    { icon: 'ri-headphone-line', title: 'Prise en charge teleassistance', desc: 'Le plateau Chutex Care appelle immediatement le beneficiaire. En tant que SAAD, vous suivez le statut de l\'alerte en direct sur votre dashboard.', color: '#F59E0B' },
+    { icon: 'ri-user-star-line', title: 'Dispatch intervenant', desc: 'Si une intervention physique est necessaire, un de vos intervenants Care est mobilise. Vous pouvez voir quel intervenant est assigne et suivre son deplacement.', color: '#8B5CF6' },
+    { icon: 'ri-file-text-line', title: 'Rapport et suivi', desc: 'L\'intervenant redige un rapport de cloture. Vous accedez a tous les rapports depuis l\'onglet "Cloturees" pour le suivi qualite et la facturation.', color: '#3B82F6' },
+    { icon: 'ri-bar-chart-box-line', title: 'Statistiques et pilotage', desc: 'Suivez le taux de resolution, le temps moyen d\'intervention et la disponibilite de vos intervenants pour optimiser votre service.', color: '#10B981' },
+  ];
+  const defaultSteps = [
     { icon: 'ri-alarm-warning-line', title: 'Declenchement', desc: 'Une alerte se declenche automatiquement via un appareil connecte (chute, anomalie cardiaque) ou manuellement par le bouton SOS du beneficiaire.', color: '#EF4444' },
-    { icon: 'ri-phone-line', title: 'Appel automatique', desc: 'Le plateau de teleassistance CARE WATCH est immediatement notifie. Un operateur appelle le beneficiaire pour evaluer la situation.', color: '#F59E0B' },
+    { icon: 'ri-phone-line', title: 'Appel automatique', desc: 'Le plateau de teleassistance Chutex Care est immediatement notifie. Un operateur appelle le beneficiaire pour evaluer la situation.', color: '#F59E0B' },
     { icon: 'ri-group-line', title: 'Notification des gardiens', desc: 'Tous les gardiens du beneficiaire recoivent une notification en temps reel avec les details de l\'alerte.', color: '#3B82F6' },
     { icon: 'ri-map-pin-range-line', title: 'Envoi d\'un intervenant', desc: 'Si necessaire, un intervenant Care est envoye sur place. Il peut etre suivi en temps reel sur la carte par les gardiens.', color: '#8B5CF6' },
-    { icon: 'ri-file-text-line', title: 'Rapport de cloture', desc: 'L\'alerte est cloturee avec un rapport detaille : etat du beneficiaire, actions realisees et notes. Le rapport est accessible a tous les gardiens.', color: '#10B981' },
+    { icon: 'ri-file-text-line', title: 'Rapport de cloture', desc: 'L\'alerte est cloturee avec un rapport detaille : etat du beneficiaire, actions realisees et notes.', color: '#10B981' },
   ];
-  const roles = [
-    { icon: 'ri-user-heart-line', role: 'Beneficiaire', actions: ['Declencher un SOS', 'Recevoir l\'appel du plateau', 'Cloturer l\'alerte a tout moment'] },
-    { icon: 'ri-shield-check-line', role: 'Gardien / Prescripteur', actions: ['Recevoir les notifications', 'Intervenir si aucun intervenant assigne', 'Cloturer l\'alerte', 'Suivre l\'intervenant en temps reel'] },
-    { icon: 'ri-first-aid-kit-line', role: 'Intervenant Care', actions: ['Accepter ou refuser une intervention', 'Se rendre sur place', 'Rediger le rapport de cloture'] },
-    { icon: 'ri-headphone-line', role: 'Teleassistance', actions: ['Gerer le flux d\'appels', 'Escalader les situations critiques', 'Coordonner les intervenants'] },
+  const steps = isSAAD ? saadSteps : defaultSteps;
+
+  const saadRoles = [
+    { icon: 'ri-building-line', role: 'Votre role (SAAD)', actions: ['Superviser toutes les alertes de vos beneficiaires', 'Gerer et affecter les intervenants', 'Acceder aux rapports de cloture', 'Piloter le taux de resolution', 'Facturer les interventions'], color: '#D4845A' },
+    { icon: 'ri-user-star-line', role: 'Intervenants', actions: ['Accepter ou refuser une intervention', 'Se deplacer chez le beneficiaire', 'Rediger le rapport d\'intervention', 'Signaler une urgence medicale'], color: '#8B5CF6' },
+    { icon: 'ri-shield-check-line', role: 'Gardiens', actions: ['Recevoir les notifications d\'alerte', 'Suivre l\'intervenant en temps reel', 'Cloturer l\'alerte si necessaire'], color: '#3B82F6' },
+    { icon: 'ri-headphone-line', role: 'Teleassistance', actions: ['Gerer le flux d\'appels entrants', 'Escalader les situations critiques', 'Coordonner avec vos intervenants'], color: '#10B981' },
   ];
+  const defaultRoles = [
+    { icon: 'ri-user-heart-line', role: 'Beneficiaire', actions: ['Declencher un SOS', 'Recevoir l\'appel du plateau', 'Cloturer l\'alerte a tout moment'], color: '#EF4444' },
+    { icon: 'ri-shield-check-line', role: 'Gardien', actions: ['Recevoir les notifications', 'Suivre l\'intervenant en temps reel', 'Cloturer l\'alerte'], color: '#3B82F6' },
+    { icon: 'ri-first-aid-kit-line', role: 'Intervenant Care', actions: ['Accepter une intervention', 'Se rendre sur place', 'Rediger le rapport'], color: '#8B5CF6' },
+    { icon: 'ri-headphone-line', role: 'Teleassistance', actions: ['Gerer le flux d\'appels', 'Escalader les situations critiques', 'Coordonner les intervenants'], color: '#10B981' },
+  ];
+  const roles = isSAAD ? saadRoles : defaultRoles;
+
+  const saadFaq = [
+    { q: 'Comment affecter un intervenant a une alerte ?', a: 'Depuis le detail de l\'alerte, cliquez sur "Assigner un intervenant" pour choisir parmi vos intervenants disponibles.' },
+    { q: 'Comment suivre la performance de mes intervenants ?', a: 'Le dashboard SAAD affiche le taux de resolution, le nombre d\'interventions et la disponibilite de chaque intervenant.' },
+    { q: 'Les gardiens peuvent-ils cloturer une alerte ?', a: 'Oui, les gardiens peuvent cloturer une alerte depuis leur espace. Le rapport sera alors visible dans votre suivi.' },
+    { q: 'Comment facturer les interventions ?', a: 'Chaque alerte cloturee avec intervention genere un rapport exploitable pour la facturation. Exportez-les depuis l\'onglet Cloturees.' },
+  ];
+  const defaultFaq = [
+    { q: 'Que se passe-t-il si je declenche un SOS par erreur ?', a: 'Vous pouvez cloturer l\'alerte immediatement depuis l\'application. Le plateau sera notifie de l\'annulation.' },
+    { q: 'Combien de temps avant l\'arrivee d\'un intervenant ?', a: 'Le delai depend de votre localisation. En zone urbaine, comptez 15 a 30 minutes en moyenne.' },
+    { q: 'Puis-je voir la position de l\'intervenant ?', a: 'Oui, les gardiens peuvent suivre l\'intervenant en temps reel sur la carte de l\'application.' },
+    { q: 'Les alertes sont-elles archivees ?', a: 'Oui, toutes les alertes cloturees restent accessibles avec leur rapport dans l\'onglet "Cloturees".' },
+  ];
+  const faqs = isSAAD ? saadFaq : defaultFaq;
+
   return (
     <div data-testid="comprendre-alertes-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
       <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 1 } as any} />
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, padding: '16px 16px 0', zIndex: 5 } as any}>
         <div data-testid="back-from-explainer" onClick={onClose} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
           <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
         </div>
-        <span style={{ fontSize: 17, fontWeight: 700, color: '#FFF' }}>Comprendre les alertes</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: '#FFF' }}>{isSAAD ? 'Gestion des alertes SAAD' : 'Comprendre les alertes'}</span>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
         <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-          <div style={{ width: 64, height: 64, borderRadius: 999, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
-            <i className="ri-shield-check-line" style={{ fontSize: 32, color: '#FFF' }} />
+          <div style={{ width: 64, height: 64, borderRadius: 999, background: isSAAD ? 'rgba(212,132,90,0.15)' : 'rgba(239,68,68,0.15)', border: `1px solid ${isSAAD ? 'rgba(212,132,90,0.3)' : 'rgba(239,68,68,0.3)'}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+            <i className={isSAAD ? 'ri-building-line' : 'ri-shield-check-line'} style={{ fontSize: 32, color: '#FFF' }} />
           </div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Le processus CARE WATCH</div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, maxWidth: 400, margin: '0 auto' }}>De l'alerte a la resolution, chaque etape est concue pour assurer la securite de vos proches.</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>{isSAAD ? 'Pilotez vos alertes' : 'Le processus Chutex Care'}</div>
+          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, maxWidth: 400, margin: '0 auto' }}>{isSAAD ? 'En tant que SAAD, vous supervisez l\'ensemble du processus d\'alerte de vos beneficiaires, de la detection a la cloture.' : 'De l\'alerte a la resolution, chaque etape est concue pour assurer la securite de vos proches.'}</div>
         </div>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Les 5 etapes</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>{isSAAD ? 'Le processus vu par votre structure' : 'Les 5 etapes'}</div>
         {steps.map((s, i) => (
           <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 16, alignItems: 'flex-start' } as any}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 } as any}>
@@ -119,17 +152,17 @@ function ExplainerPage({ onClose }: { onClose: () => void }) {
             </div>
           </div>
         ))}
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14, marginTop: 12 }}>Roles et permissions</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14, marginTop: 12 }}>{isSAAD ? 'Les acteurs du processus' : 'Roles et permissions'}</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
-          {roles.map((ro, i) => (
-            <div key={i} style={{ padding: '16px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+          {roles.map((ro: any, i: number) => (
+            <div key={i} style={{ padding: '16px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: `1px solid ${(ro.color || '#FFF') + '25'}`, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
-                <i className={ro.icon} style={{ fontSize: 20, color: '#FFF' }} />
+                <i className={ro.icon} style={{ fontSize: 20, color: ro.color || '#FFF' }} />
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{ro.role}</div>
               </div>
-              {ro.actions.map((a, j) => (
+              {ro.actions.map((a: string, j: number) => (
                 <div key={j} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 } as any}>
-                  <i className="ri-check-line" style={{ fontSize: 12, color: '#10B981' }} />
+                  <i className="ri-check-line" style={{ fontSize: 12, color: ro.color || '#10B981' }} />
                   <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>{a}</span>
                 </div>
               ))}
@@ -137,13 +170,8 @@ function ExplainerPage({ onClose }: { onClose: () => void }) {
           ))}
         </div>
         <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14, marginTop: 20 }}>Questions frequentes</div>
-        {[
-          { q: 'Que se passe-t-il si je declenche un SOS par erreur ?', a: 'Vous pouvez cloturer l\'alerte immediatement depuis l\'application. Le plateau sera notifie de l\'annulation.' },
-          { q: 'Combien de temps avant l\'arrivee d\'un intervenant ?', a: 'Le delai depend de votre localisation. En zone urbaine, comptez 15 a 30 minutes en moyenne.' },
-          { q: 'Puis-je voir la position de l\'intervenant ?', a: 'Oui, les gardiens peuvent suivre l\'intervenant en temps reel sur la carte de l\'application.' },
-          { q: 'Les alertes sont-elles archivees ?', a: 'Oui, toutes les alertes cloturees restent accessibles avec leur rapport dans l\'onglet "Cloturees".' },
-        ].map((faq, i) => (
-          <div key={i} style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}>
+        {faqs.map((faq, i) => (
+          <div key={i} style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', marginBottom: 8 } as any}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 6 }}>{faq.q}</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{faq.a}</div>
           </div>
