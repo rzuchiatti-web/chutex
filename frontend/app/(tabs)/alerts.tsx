@@ -728,7 +728,7 @@ export default function AlertsScreen() {
 
   /* ── Web: full-screen sub-pages via early returns ── */
   if (Platform.OS === 'web') {
-    if (showExplainer) return <ExplainerPage onClose={() => setShowExplainer(false)} />;
+    if (showExplainer) return <ExplainerPage onClose={() => setShowExplainer(false)} role={r} />;
     if (selectedAlert) return (
       <AlertDetailWeb
         alert={selectedAlert}
