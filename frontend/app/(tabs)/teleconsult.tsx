@@ -1752,6 +1752,7 @@ function CompanyIntervenants({ token }: { token: string }) {
 export default function TeleconsultScreen() {
   const { user, token } = useAuth();
   const { colors } = useTheme();
+  const router = useRouter();
   
   if (!user || !token) return null;
   const r = user.active_role || user.role;
