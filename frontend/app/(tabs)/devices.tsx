@@ -386,8 +386,9 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', type: 'bracelet', notes: '' });
+  const [formData, setFormData] = useState({ name: '', firstName: '', email: '', phone: '', guardianName: '', guardianPhone: '', type: 'bracelet', notes: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState('');
   const [actCode, setActCode] = useState('');
   const [activating, setActivating] = useState(false);
   const [showPrescModal, setShowPrescModal] = useState(false);
