@@ -10,7 +10,7 @@ import CopilotCard from './CopilotCard';
 import { Card, HeroCard, StatusBadge, PillButton, SectionHeader, LanguageFlagButton } from './SharedUI';
 import { Icon } from '../WebIcon';
 import { ContextualTip, MiniTuto } from '../HelpSystem';
-import { PhoneInputWithPrefix } from '../components/PhoneInputWithPrefix';
+import { PhoneInputWithPrefix } from '../PhoneInputWithPrefix';
 import { CHX, isDarkMode, webShadow, BG_IMAGES } from './constants';
 
 export default function GuardianHome({ token, user }: { token: string; user: any }) {
