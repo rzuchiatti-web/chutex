@@ -513,7 +513,7 @@ async def company_prescribers(user=Depends(get_current_user)):
         {"_id": 0, "password_hash": 0}
     ).to_list(200)
     for p in prescribers:
-        count = await db.prescriptions.count_documents({"prescriber_id": p['id']})
+        count = await db.prescriptions.count_documents({"$or": [{"prescriber_id": p['id']}, {"guardian_id": p['id']}]})
         p['prescriptions_count'] = count
     return prescribers
 
@@ -549,7 +549,7 @@ async def company_ranking(user=Depends(get_current_user)):
         {"_id": 0, "password_hash": 0}
     ).to_list(200)
     for p in prescribers:
-        p['prescriptions_count'] = await db.prescriptions.count_documents({"prescriber_id": p['id']})
+        p['prescriptions_count'] = await db.prescriptions.count_documents({"$or": [{"prescriber_id": p['id']}, {"guardian_id": p['id']}]})
     prescribers.sort(key=lambda x: x.get('prescriptions_count', 0), reverse=True)
     return prescribers
 
