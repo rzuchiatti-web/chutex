@@ -114,6 +114,26 @@ async def shopify_order_paid(request: Request):
         logger.info(f"[Shopify] Order {order_number}: no bracelet, skipping")
         return {"status": "skipped", "reason": "no_bracelet_product"}
 
+    # Extract beneficiary phone from line item properties (custom field on Shopify product page)
+    beneficiary_phone = ""
+    for item in line_items:
+        for prop in item.get("properties", []):
+            prop_name = (prop.get("name") or "").lower()
+            if "beneficiaire" in prop_name or "beneficiary" in prop_name:
+                beneficiary_phone = (prop.get("value") or "").strip()
+                break
+        if beneficiary_phone:
+            break
+
+    # Clean beneficiary phone
+    if beneficiary_phone:
+        beneficiary_phone = beneficiary_phone.replace(" ", "").replace(".", "").replace("-", "")
+        if beneficiary_phone.startswith("0") and len(beneficiary_phone) >= 10:
+            beneficiary_phone = "+33" + beneficiary_phone[1:]
+
+    # The phone to use for the subscription: beneficiary if provided, otherwise buyer
+    subscription_phone = beneficiary_phone or cleaned_phone
+
     # Check duplicate
     existing = await db.shopify_orders.find_one({"shopify_order_id": str(order_id)}, {"_id": 0})
     if existing:
