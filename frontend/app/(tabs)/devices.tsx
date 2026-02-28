@@ -1502,11 +1502,12 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
   const BG_ORANGE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
   const BG_GREEN_P = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
   const BG_BLACK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
+  const getCommission = (p: any) => p.subscription_type === 'bracelet_gilet' ? 15 : 8;
   const allPrescs = dashData?.prescriptions || [];
   const pendingPrescs = allPrescs.filter((p: any) => p.status === 'pending');
   const subscribedPrescs = allPrescs.filter((p: any) => p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created');
   const displayedPrescs = prescTab === 'pending' ? pendingPrescs : subscribedPrescs;
-  const prescTotal = displayedPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+  const prescTotal = displayedPrescs.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0);
 
   const BG_GOLD = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/s2281oc6_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_16_35.png';
 
