@@ -239,10 +239,14 @@ async def activate_guardian_role(data: dict, user=Depends(get_current_user)):
 
 @router.post("/auth/activate-beneficiary")
 async def activate_beneficiary_role(data: dict, user=Depends(get_current_user)):
-    """Guardian activates a beneficiary space"""
+    """Guardian activates a beneficiary space with personal info"""
     if user.get('has_beneficiary_space') or user.get('role') == 'beneficiary':
         return {"status": "already_active", "message": "Espace beneficiaire deja actif"}
-    await db.users.update_one({"id": user['id']}, {"$set": {"has_beneficiary_space": True}})
+    update: dict = {"has_beneficiary_space": True}
+    for key in ['name', 'date_of_birth', 'gender', 'height_cm', 'weight_kg', 'address', 'postal_code', 'city', 'emergency_contact_name', 'emergency_contact_phone']:
+        if data.get(key):
+            update[key] = data[key]
+    await db.users.update_one({"id": user['id']}, {"$set": update})
     return {"status": "activated", "message": "Espace beneficiaire active"}
 
 
