@@ -433,7 +433,10 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
 
           {/* Prescriptions */}
           {(() => {
-            const getCommission = (p: any) => p.subscription_type === 'bracelet_gilet' ? 15 : 8;
+            const getCommission = (p: any) => {
+              if (user.commission_type === 'oneshot') return p.subscription_type === 'bracelet_gilet' ? 200 : 100;
+              return p.subscription_type === 'bracelet_gilet' ? 15 : 8;
+            };
             const validatedP = prescriptions.filter((p: any) => p.status === 'validated' || p.status === 'subscribed');
             const pendingP = prescriptions.filter((p: any) => p.status === 'pending');
             const now2 = new Date();
