@@ -87,6 +87,23 @@ async def create_contract(data: ContractCreate):
     await _ensure_stripe_prices()
     plan = PLANS[data.plan]
     now = datetime.now(timezone.utc).isoformat()
+    ben_phone = normalize_phone(data.beneficiary.get("phone", ""))
+    phone_suffix = ben_phone[-9:] if len(ben_phone) >= 9 else ben_phone
+
+    # Check: already has an active subscription?
+    if phone_suffix:
+        existing_sub = await db.subscriptions.find_one(
+            {"beneficiary_phone": {"$regex": phone_suffix}, "status": "active"}, {"_id": 0}
+        )
+        if existing_sub:
+            raise HTTPException(400, "Ce numero a deja un abonnement actif.")
+
+        existing_active = await db.contracts.find_one(
+            {"beneficiary.phone": {"$regex": phone_suffix}, "status": "active"}, {"_id": 0}
+        )
+        if existing_active:
+            raise HTTPException(400, "Un contrat actif existe deja pour ce numero.")
+
     count = await db.contracts.count_documents({}) + 1
     contract_number = f"CHX-{datetime.now().year}-{count:04d}"
     ben_phone = normalize_phone(data.beneficiary.get("phone", ""))
