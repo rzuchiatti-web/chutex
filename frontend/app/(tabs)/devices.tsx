@@ -1073,7 +1073,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
       {/* Prescription cards */}
       <View>
         {displayedPresc.length > 0 ? displayedPresc.map((p: any) => {
-          const isValidated = p.status === 'subscribed';
+          const isValidated = p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created';
           return Platform.OS === 'web' ? (
             <div key={p.id} onClick={() => { setSelectedPresc(p); }}
               style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px', marginBottom: 12, cursor: 'pointer', minHeight: 90, boxShadow: '0 8px 24px rgba(0,0,0,.12)', transition: 'transform 0.25s ease' } as any}
