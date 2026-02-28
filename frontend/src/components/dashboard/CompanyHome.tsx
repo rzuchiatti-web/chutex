@@ -168,8 +168,8 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
 
                   {/* Simulation */}
                   <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginTop: 16, marginBottom: 24 } as any}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Simulation pour 10 prescriptions bracelet</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Simulation pour 10 prescriptions bracelet</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
                       <div>
                         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{commissionChoice === 'oneshot' ? 'Gain unique' : 'Gain mensuel recurrent'}</div>
                         <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>{commissionChoice === 'oneshot' ? '1 000' : '80'} EUR</div>
@@ -178,6 +178,18 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Sur 12 mois</div>
                         <div style={{ fontSize: 20, fontWeight: 800, color: commissionChoice === 'monthly' ? '#10B981' : '#F59E0B' }}>{commissionChoice === 'oneshot' ? '1 000' : '960'} EUR</div>
                       </div>
+                    </div>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 14 } as any} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                      <div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Sur 24 mois</div>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: commissionChoice === 'monthly' ? '#10B981' : '#F59E0B' }}>{commissionChoice === 'oneshot' ? '1 000' : '1 920'} EUR</div>
+                      </div>
+                      {commissionChoice === 'monthly' && (
+                        <div style={{ padding: '5px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>+920 EUR vs unique</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
