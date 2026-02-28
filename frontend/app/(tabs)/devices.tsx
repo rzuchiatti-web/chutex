@@ -427,16 +427,28 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   };
 
   const submitPrescription = async () => {
-    if (!formData.name || !formData.email) return Alert.alert('Erreur', 'Nom et email requis');
+    setFormError('');
+    // Validations
+    if (!formData.name.trim()) { setFormError('Le nom du beneficiaire est obligatoire'); return; }
+    if (!formData.firstName.trim()) { setFormError('Le prenom du beneficiaire est obligatoire'); return; }
+    const phoneClean = formData.phone.replace(/[\s.\-]/g, '');
+    if (!phoneClean || phoneClean.length < 10) { setFormError('Le numero de telephone du beneficiaire est invalide (min 10 chiffres)'); return; }
+    if (formData.guardianPhone.trim()) {
+      const gPhoneClean = formData.guardianPhone.replace(/[\s.\-]/g, '');
+      if (gPhoneClean.length < 10) { setFormError('Le numero de l\'aidant est invalide (min 10 chiffres)'); return; }
+    }
     setSubmitting(true);
     try {
       await apiFetch('/api/guardian/prescriptions', { method: 'POST', body: JSON.stringify({
-        beneficiary_name: formData.name, beneficiary_email: formData.email, beneficiary_phone: formData.phone,
+        beneficiary_name: formData.name, beneficiary_first_name: formData.firstName,
+        beneficiary_email: formData.email, beneficiary_phone: formData.phone,
+        guardian_contact_name: formData.guardianName, guardian_contact_phone: formData.guardianPhone,
         subscription_type: formData.type, notes: formData.notes,
       }) }, token);
-      setShowForm(false); setFormData({ name: '', email: '', phone: '', type: 'bracelet', notes: '' }); fetchPrescriptions();
-      Alert.alert('Prescription creee');
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSubmitting(false); }
+      setShowForm(false); setFormData({ name: '', firstName: '', email: '', phone: '', guardianName: '', guardianPhone: '', type: 'bracelet', notes: '' }); setFormError(''); fetchPrescriptions();
+      if (Platform.OS === 'web') window.alert('Prescription creee ! Un SMS a ete envoye.');
+      else Alert.alert('Prescription creee');
+    } catch (e: any) { setFormError(e.message || 'Erreur lors de la creation'); } finally { setSubmitting(false); }
   };
 
   const validated = prescriptions.filter((p: any) => p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created');
