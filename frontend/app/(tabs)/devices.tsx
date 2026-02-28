@@ -462,7 +462,13 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
     const d = new Date(p.created_at || p.date || '');
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   });
-  const getCommission = (p: any) => p.subscription_type === 'bracelet_gilet' ? 15 : 8;
+  const saadCommType = saadLink?.commission_type || 'monthly';
+  const isMonthlyG = saadCommType === 'monthly';
+  const commLabelG = isMonthlyG ? '/mois' : '';
+  const getCommission = (p: any) => {
+    if (saadCommType === 'oneshot') return p.subscription_type === 'bracelet_gilet' ? 200 : 100;
+    return p.subscription_type === 'bracelet_gilet' ? 15 : 8;
+  };
   const currentMonthAmount = currentMonthValidated.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0);
   const allTimeAmount = validated.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0);
 
