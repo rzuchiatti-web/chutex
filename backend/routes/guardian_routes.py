@@ -320,6 +320,39 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
         raise HTTPException(status_code=403, detail="Reserve aux gardiens")
     if not user.get('is_prescriber'):
         raise HTTPException(status_code=403, detail="Mode prescripteur non active.")
+
+    # Clean phone number
+    raw_phone = (data.beneficiary_phone or '').strip().replace(' ', '').replace('.', '').replace('-', '')
+    if raw_phone.startswith('0') and len(raw_phone) >= 10:
+        cleaned_phone = '+33' + raw_phone[1:]
+    elif raw_phone.startswith('+'):
+        cleaned_phone = raw_phone
+    else:
+        cleaned_phone = raw_phone
+    phone_suffix = cleaned_phone[-9:] if len(cleaned_phone) >= 9 else cleaned_phone
+
+    # Check: already has an active subscription on this phone?
+    existing_sub = await db.subscriptions.find_one(
+        {"beneficiary_phone": {"$regex": phone_suffix}, "status": "active"}, {"_id": 0}
+    )
+    if existing_sub:
+        raise HTTPException(status_code=400, detail="Ce numero a deja un abonnement actif. Impossible de creer une nouvelle prescription.")
+
+    # Check: already has a pending or validated prescription for this phone?
+    existing_presc = await db.prescriptions.find_one(
+        {"beneficiary_phone": {"$regex": phone_suffix}, "status": {"$in": ["pending", "validated", "subscribed", "contract_created"]}}, {"_id": 0}
+    )
+    if existing_presc:
+        status_label = "en attente" if existing_presc['status'] == 'pending' else "validee"
+        raise HTTPException(status_code=400, detail=f"Une prescription {status_label} existe deja pour ce numero ({existing_presc.get('beneficiary_name', '')}).")
+
+    # Check: already has an active contract?
+    existing_contract = await db.contracts.find_one(
+        {"beneficiary.phone": {"$regex": phone_suffix}, "status": {"$in": ["active", "pending_payment"]}}, {"_id": 0}
+    )
+    if existing_contract:
+        raise HTTPException(status_code=400, detail="Un contrat existe deja pour ce numero. Impossible de creer une nouvelle prescription.")
+
     now = datetime.now(timezone.utc).isoformat()
     structure = user.get('prescriber_structure', 'Chutex')
     # subscription_type is now "bracelet" or "bracelet_gilet" (always Care)
