@@ -140,7 +140,8 @@ async def update_profile(data: dict, user=Depends(get_current_user)):
     for key in ['name', 'phone', 'address', 'postal_code', 'city', 'country', 'date_of_birth', 'gender', 'avatar_url', 'email',
                 'height_cm', 'weight_kg', 'blood_type', 'allergies', 'medical_conditions',
                 'emergency_contact_name', 'emergency_contact_phone', 'doctor_name',
-                'pacemaker', 'stents', 'thyroid', 'had_avc', 'other_condition', 'surgeries', 'nora_welcome_seen']:
+                'pacemaker', 'stents', 'thyroid', 'had_avc', 'other_condition', 'surgeries', 'nora_welcome_seen',
+                'structure_name', 'siret']:
         if key in data:
             update[key] = data[key]
     # Handle boolean fields - never delete data, just toggle status
