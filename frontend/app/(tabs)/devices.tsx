@@ -220,6 +220,32 @@ function DeviceManagement({ token }: { token: string }) {
           )}
 
         </div>
+        {/* No subscription popup */}
+        {showNoSubPopup && (
+          <div onClick={() => setShowNoSubPopup(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '90%', maxWidth: 380, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
+              <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+                <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-lock-line" style={{ fontSize: 30, color: '#F59E0B' }} /></div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Abonnement requis</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Pour associer votre bracelet Elio, vous devez avoir un abonnement actif. Souscrivez sur le site Chutex ou via votre structure SAAD.</div>
+              </div>
+              <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 16 } as any}>
+                {[
+                  { icon: 'ri-shopping-bag-line', text: 'Achetez sur le site chutex.fr' },
+                  { icon: 'ri-building-line', text: 'Ou via une prescription SAAD' },
+                  { icon: 'ri-smartphone-line', text: 'Votre bracelet sera active automatiquement' },
+                ].map((s, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                    <i className={s.icon} style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
+                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>{s.text}</span>
+                  </div>
+                ))}
+              </div>
+              <div onClick={() => { setShowNoSubPopup(false); if (typeof window !== 'undefined') window.open('https://b7at4t-4z.myshopify.com', '_blank'); }} style={{ padding: '15px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, marginBottom: 10 } as any}>Souscrire sur chutex.fr</div>
+              <div onClick={() => setShowNoSubPopup(false)} style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', padding: 8 } as any}>Fermer</div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
