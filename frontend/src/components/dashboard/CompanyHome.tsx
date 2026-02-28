@@ -18,12 +18,6 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
   const [ranking, setRanking] = useState<any[]>([]);
   const [reward, setReward] = useState<any>(null);
   const [agencies, setAgencies] = useState<any[]>([]);
-  const [showInviteGuardian, setShowInviteGuardian] = useState(false);
-  const [invitePhone, setInvitePhone] = useState('');
-  const [inviteMsg, setInviteMsg] = useState('');
-  const [inviteSending, setInviteSending] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [showStripeSetup, setShowStripeSetup] = useState(false);
   const [commissionChoice, setCommissionChoice] = useState(user?.commission_type || 'monthly');
   const [stripeLoading, setStripeLoading] = useState(false);
