@@ -96,8 +96,8 @@ export default function CompanyAgencyScreen() {
     const agGuardians = guardianLinks.filter((gl: any) => gl.agency_name === selectedAgency.name);
     const unaffiliated = guardianLinks.filter((gl: any) => gl.status === 'accepted' && (!gl.agency_name || gl.agency_name === 'Non assigne'));
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any} onClick={() => setSelectedAgency(null)}>
-        <div onClick={(e: any) => e.stopPropagation()} style={{ width: '92%', maxWidth: 420, maxHeight: '85vh', overflowY: 'auto', padding: '28px 24px', borderRadius: 24, background: 'rgba(15,15,30,0.55)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' } as any}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any} onClick={() => setSelectedAgency(null)}>
+        <div onClick={(e: any) => e.stopPropagation()} style={{ width: '92%', maxWidth: 420, maxHeight: '85vh', overflowY: 'auto', padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
             <div>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{selectedAgency.name}</div>
@@ -339,8 +339,8 @@ export default function CompanyAgencyScreen() {
 
       {/* ─── POPUP FICHE GARDIEN + AFFILIATION AGENCE ─── */}
       {selectedGuardian && (
-        <div onClick={() => setSelectedGuardian(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '90%', maxWidth: 400, padding: '28px 24px', borderRadius: 24, background: 'rgba(15,15,30,0.55)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' } as any}>
+        <div onClick={() => setSelectedGuardian(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '90%', maxWidth: 400, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Fiche gardien</div>
               <div onClick={() => setSelectedGuardian(null)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /></div>
@@ -401,8 +401,8 @@ export default function CompanyAgencyScreen() {
 
       {/* ─── POPUP CRÉER AGENCE ─── */}
       {showCreate && (
-        <div onClick={() => setShowCreate(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.25)', overflowY: 'auto' } as any}>
-          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '60px auto 0', padding: '28px 24px', boxSizing: 'border-box', borderRadius: 24, background: 'rgba(15,15,30,0.55)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' } as any}>
+        <div onClick={() => setShowCreate(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
               <div onClick={() => setShowCreate(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                 <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
@@ -426,8 +426,8 @@ export default function CompanyAgencyScreen() {
 
       {/* ─── POPUP INVITER GARDIEN ─── */}
       {showInvite && (
-        <div onClick={() => { setShowInvite(false); setInvitePhone(''); setInviteMsg(''); }} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.25)', overflowY: 'auto' } as any}>
-          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '60px auto 0', padding: '28px 24px', boxSizing: 'border-box', borderRadius: 24, background: 'rgba(15,15,30,0.55)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' } as any}>
+        <div onClick={() => { setShowInvite(false); setInvitePhone(''); setInviteMsg(''); }} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
               <div onClick={() => { setShowInvite(false); setInvitePhone(''); setInviteMsg(''); }} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                 <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
