@@ -1473,6 +1473,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
   const [prescTab, setPrescTab] = useState<'pending' | 'subscribed'>('pending');
   const [showRewardsDetail, setShowRewardsDetail] = useState(false);
   const [showAllPrescribers, setShowAllPrescribers] = useState(false);
+  const [showChallengeExplainer, setShowChallengeExplainer] = useState(false);
   const [search, setSearch] = useState('');
 
   const fetchData = useCallback(async () => {
