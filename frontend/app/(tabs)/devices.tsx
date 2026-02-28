@@ -938,15 +938,22 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               {[
                 { key: 'name', label: 'Nom *', placeholder: 'Dupont', required: true },
                 { key: 'firstName', label: 'Prenom *', placeholder: 'Jean', required: true },
-                { key: 'phone', label: 'Telephone *', placeholder: '06 12 34 56 78', type: 'tel', required: true },
-                { key: 'email', label: 'Email', placeholder: 'jean@email.com', type: 'email' },
               ].map(f => (
                 <div key={f.key} style={{ marginBottom: 12 } as any}>
                   <div style={{ fontSize: 9, fontWeight: 600, color: f.required ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
-                  <input type={f.type || 'text'} value={(formData as any)[f.key]} onChange={(e: any) => { setFormData({ ...formData, [f.key]: e.target.value }); setFormError(''); }} placeholder={f.placeholder}
+                  <input type="text" value={(formData as any)[f.key]} onChange={(e: any) => { setFormData({ ...formData, [f.key]: e.target.value }); setFormError(''); }} placeholder={f.placeholder}
                     style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: `1px solid ${f.required && formError && !(formData as any)[f.key]?.trim() ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.1)'}`, color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
                 </div>
               ))}
+              <div style={{ marginBottom: 12 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Telephone *</div>
+                <PhoneInputWithPrefix value={formData.phone} onChangeText={(v: string) => { setFormData({ ...formData, phone: v }); setFormError(''); }} prefix={phonePrefix} onPrefixChange={setPhonePrefix} placeholder="6 12 34 56 78" error={!!formError && !formData.phone.trim()} />
+              </div>
+              <div style={{ marginBottom: 12 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Email</div>
+                <input type="email" value={formData.email} onChange={(e: any) => { setFormData({ ...formData, email: e.target.value }); setFormError(''); }} placeholder="jean@email.com"
+                  style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+              </div>
 
               {/* Aidant section */}
               <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '16px 0' } as any} />
