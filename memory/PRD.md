@@ -19,22 +19,35 @@ Objectif: transformer l'app en moteur de transformation sante et longevite guide
 
 ## Completed Features
 
-### Feb 28, 2026 - P0 UI Fix (no-subscription users)
-- Page /teleconsult: fond bleu plein ecran avec message "Abonnement requis" pour beneficiaires sans abonnement (position: fixed, BG_BLUE)
-- Page /devices: popup detaillee "Abonnement requis" avec 2 options (Bracelet Elio 24.90 EUR/mois, Chutex Care 39.90 EUR/mois) quand clic sur "Associer" bracelet
-- Resolution du probleme de cache Metro (CI mode) - necessaire de clear cache + restart expo pour appliquer les changements
-- Seeding des appareils pour Marie Test (bracelet, balance, gilet)
-- Tests: 9/9 passes (backend + frontend)
+### Feb 28, 2026 - Infrastructure abonnement/activation (audit complet)
+**Frontend:**
+- Page /teleconsult: fond bleu plein ecran (BG_BLUE, position:fixed) pour beneficiaires sans abonnement
+- Page /devices: popup "Abonnement requis" avec 2 options quand clic "Associer" bracelet
+- Dashboard DeviceCards: bouton "Associer" bracelet verifie l'abonnement, affiche popup si pas d'abo
+- Fix critique: /api/devices/dashboard-summary retournait connected=true et battery hardcodees - corrige pour lire les valeurs reelles de la DB
+- Les appareils non connectes affichent "Non associe" avec bouton Associer
+- Tests: 15/16 passes (backend 9/9 + frontend 6/7, le 7e corrige ensuite)
 
-### Earlier (Previous Sessions)
-- Onboarding SAAD 2 etapes (commission + Stripe Connect)
-- Integration Shopify webhook complete (order -> Stripe subscription)
+**Backend:**
+- Late-linking: /api/subscriptions/my lie automatiquement beneficiary_id quand subscription trouvee par telephone
+- Shopify webhook: lie beneficiary_id a l'utilisateur existant si le telephone correspond
+- Shopify webhook: subscription_type = "care" pour produits bracelet_gilet, "bracelet_only" sinon
+- Shopify webhook: stocke start_date, buyer_name, buyer_email, product_name
+- has_teleassistance = true pour types "care" et "bracelet_gilet"
+- Retourne start_date et source dans /api/subscriptions/my
+
+**Flux d'abonnement verifie:**
+1. Utilisateur cree compte beneficiaire (pas d'abo) -> teleconsult bloque, bracelet bloque
+2. Achat Shopify bracelet -> webhook cree subscription avec phone -> detection automatique au prochain appel /api/subscriptions/my
+3. Achat Shopify Care (bracelet+gilet) -> subscription_type="care" -> teleassistance activee
+4. Late-linking: si abo cree avant le compte, beneficiary_id est lie au premier appel
+
+### Earlier Sessions
+- Onboarding SAAD 2 etapes + Stripe Connect
+- Integration Shopify webhook complete
 - Upgrade Nora IA vers GPT-5.2
 - Profil multi-roles + activation espace beneficiaire
-- Corrections UI/UX SAAD et Guardian (popups glass, navigation, commissions)
-- Composant PhoneInputWithPrefix reutilisable
-- Page prescripteur avec challenge/recompenses
-- Systeme d'alertes et teleassistance IA
+- Corrections UI/UX SAAD et Guardian
 
 ## Upcoming Tasks
 - P0: Soumettre iOS Build 45 sur TestFlight
@@ -46,9 +59,9 @@ Objectif: transformer l'app en moteur de transformation sante et longevite guide
 - UI pour programmes groupe/equipe
 - Mode hors-ligne pour intervenants
 - Preparation deploiement production (Dockerfile, docker-compose)
-- Centraliser logique subscription dans un hook custom (useSubscriptionStatus)
 
 ## Key Technical Notes
-- Metro bundler CI mode: `rm -rf /app/frontend/.metro-cache && sudo supervisorctl restart expo` pour forcer rebuild
-- Supervisor: `expo` (pas `frontend`) pour le service frontend
-- Login API: POST /api/auth/login avec `email` (accepte aussi les numeros de telephone)
+- Metro CI mode: `rm -rf /app/frontend/.metro-cache && sudo supervisorctl restart expo` pour rebuild
+- Supervisor: `expo` pour frontend, `backend` pour backend
+- Login API: POST /api/auth/login avec `email` (accepte aussi telephones)
+- Subscription check: cherche par beneficiary_id puis par beneficiary_phone (normalise)
