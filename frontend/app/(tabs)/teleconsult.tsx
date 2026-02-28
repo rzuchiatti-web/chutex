@@ -1780,7 +1780,7 @@ export default function TeleconsultScreen() {
                 <i className="ri-shield-star-line" style={{ fontSize: 40, color: '#FFF' }} />
               </div>
               <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Abonnement requis</div>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: 340, marginBottom: 28 }}>L'espace teleconsultation necessite un abonnement Chutex Care actif pour beneficier de la teleassistance 24/7.</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: 340, marginBottom: 28 }}>L'espace teleconsultation necessite un abonnement actif pour beneficier de la teleassistance 24/7.</div>
               <div style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 28, width: '100%', maxWidth: 340, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                 {[
                   { icon: 'ri-phone-line', text: 'Plateau d\'ecoute 24h/24, 7j/7' },
@@ -1794,7 +1794,8 @@ export default function TeleconsultScreen() {
                   </div>
                 ))}
               </div>
-              <div onClick={() => router.push('/subscription' as any)} style={{ padding: '17px 40px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', fontSize: 16, fontWeight: 800, boxShadow: '0 4px 20px rgba(255,255,255,0.2)' } as any}>Souscrire a Chutex Care</div>
+              <div onClick={() => router.push('/subscription' as any)} style={{ padding: '17px 40px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', fontSize: 16, fontWeight: 800, boxShadow: '0 4px 20px rgba(255,255,255,0.2)', marginBottom: 12 } as any}>Souscrire un abonnement</div>
+              <div onClick={() => { if (typeof window !== 'undefined') window.open('https://chutex-innovation.com/products/elio-smart-health-bracelet', '_blank'); }} style={{ padding: '15px 40px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', cursor: 'pointer', fontSize: 14, fontWeight: 700 } as any}>Acheter sur chutex-innovation.com</div>
             </div>
           </div>
         );
