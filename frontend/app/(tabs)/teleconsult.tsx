@@ -1753,6 +1753,14 @@ export default function TeleconsultScreen() {
   const { user, token } = useAuth();
   const { colors } = useTheme();
   const router = useRouter();
+  const [subData, setSubData] = useState<any>(null);
+  const [subLoading, setSubLoading] = useState(true);
+
+  useEffect(() => {
+    if (token) {
+      apiFetch('/api/subscriptions/my', {}, token).then(d => { setSubData(d); setSubLoading(false); }).catch(() => setSubLoading(false));
+    }
+  }, [token]);
   
   if (!user || !token) return null;
   const r = user.active_role || user.role;
@@ -1768,7 +1776,9 @@ export default function TeleconsultScreen() {
     return <GuardianInterventions token={token} user={user} />;
   }
   if (r === 'beneficiary') {
-    if (!user.has_subscription) {
+    const hasSubscription = subData?.has_subscription || user.has_subscription;
+    if (subLoading) return null;
+    if (!hasSubscription) {
       if (Platform.OS === 'web') {
         const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_9950a869-9419-4e05-9561-f555a2fbd446/artifacts/bg_care_violet.svg';
         return (
