@@ -101,6 +101,7 @@ export default function ProfileScreen() {
   const [editEmergencyPhone, setEditEmergencyPhone] = useState(user?.emergency_contact_phone || '');
   const [editDoctor, setEditDoctor] = useState(user?.doctor_name || '');
   const [showActivateBenPopup, setShowActivateBenPopup] = useState(false);
+  const [editSiret, setEditSiret] = useState(user?.siret || '');
   const [editStructure, setEditStructure] = useState(user?.structure_name || '');
   const [saving, setSaving] = useState(false);
   const [showPwChange, setShowPwChange] = useState(false);
