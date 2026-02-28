@@ -833,7 +833,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             ) : (
               <div onClick={() => setShowPrescModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', marginBottom: 10 } as any}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.prescription_structure || user.structure_name || 'Structure'}</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {saadLink?.company_name || user.prescription_structure || user.structure_name || 'Structure'}</span>
               </div>
             )}
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescription</div>
