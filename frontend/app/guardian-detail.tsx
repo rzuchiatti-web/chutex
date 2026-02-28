@@ -19,8 +19,14 @@ export default function GuardianDetailScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const guards = await apiFetch('/api/guardians/my', {}, token);
-        setGuardian((guards || []).find((g: any) => g.id === guardianId) || null);
+        // Try beneficiary's guardians first
+        const guards = await apiFetch('/api/guardians/my', {}, token).catch(() => []);
+        let found = (guards || []).find((g: any) => g.id === guardianId);
+        // If not found, try company prescriber endpoint (SAAD view)
+        if (!found) {
+          found = await apiFetch(`/api/company/prescriber/${guardianId}`, {}, token).catch(() => null);
+        }
+        setGuardian(found || null);
       } catch {} finally { setLoading(false); }
     })();
   }, [guardianId, token]);
