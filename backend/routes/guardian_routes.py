@@ -154,7 +154,7 @@ async def invite_guardian(data: dict, user=Depends(get_current_user)):
             try:
                 ben_name = user.get('name', 'Un proche')
                 twilio_client.messages.create(
-                    body=f"{ben_name} souhaite vous ajouter comme gardien sur Chutex, l'application de teleassistance. Inscrivez-vous sur https://chutex-ios-fix.preview.emergentagent.com pour veiller sur votre proche.",
+                    body=f"{ben_name} souhaite vous ajouter comme gardien sur Chutex, l'application de teleassistance. Inscrivez-vous sur https://saad-guardian-ui.preview.emergentagent.com pour veiller sur votre proche.",
                     from_=TWILIO_NUMBER,
                     to=cleaned,
                 )
@@ -346,7 +346,7 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
     await db.prescriptions.insert_one(p)
     # Send SMS to beneficiary with subscription link
     if data.beneficiary_phone:
-        sub_link = "https://chutex-ios-fix.preview.emergentagent.com/subscription"
+        sub_link = "https://saad-guardian-ui.preview.emergentagent.com/subscription"
         await send_sms(
             data.beneficiary_phone,
             f"Bonjour {data.beneficiary_name}, {structure} vous invite a souscrire a la teleassistance Chutex Care. "

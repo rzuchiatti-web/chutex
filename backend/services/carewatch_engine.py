@@ -11,7 +11,7 @@ from services.elevenlabs_service import generate_speech
 from services.carewatch_config import CARE_WATCH_CONFIG, VOICE_SCRIPTS
 
 logger = logging.getLogger(__name__)
-BASE_URL = os.environ.get("APP_URL", "https://chutex-ios-fix.preview.emergentagent.com")
+BASE_URL = os.environ.get("APP_URL", "https://saad-guardian-ui.preview.emergentagent.com")
 
 
 def _pick_script(key: str, **kwargs) -> str:
