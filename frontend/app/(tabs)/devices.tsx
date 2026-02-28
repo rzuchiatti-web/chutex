@@ -1690,6 +1690,8 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
       selectedPresc.created_at && { icon: 'ri-calendar-line', label: 'Date', value: new Date(selectedPresc.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
       selectedPresc.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone beneficiaire', value: selectedPresc.beneficiary_phone, phone: true },
       selectedPresc.beneficiary_email && { icon: 'ri-mail-line', label: 'Email beneficiaire', value: selectedPresc.beneficiary_email },
+      selectedPresc.guardian_contact_name && { icon: 'ri-user-heart-line', label: 'Aidant', value: selectedPresc.guardian_contact_name },
+      selectedPresc.guardian_contact_phone && { icon: 'ri-phone-line', label: 'Telephone aidant', value: selectedPresc.guardian_contact_phone, phone: true },
       selectedPresc.beneficiary_address && { icon: 'ri-map-pin-line', label: 'Adresse', value: selectedPresc.beneficiary_address },
       selectedPresc.structure_name && { icon: 'ri-building-line', label: 'Structure', value: selectedPresc.structure_name },
     ].filter(Boolean);
