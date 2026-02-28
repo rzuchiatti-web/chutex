@@ -457,9 +457,9 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
                 <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescriptions</div>
-                  <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{currentMonthAmount} EUR</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 2, marginBottom: 2 }}>Souscriptions valid\u00e9es ce mois</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 14 }}>{allTimeValidated} EUR valid\u00e9s au total &middot; Versement le {nextPay}</div>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{currentMonthAmount} EUR{user.commission_type === 'monthly' ? '/mois' : ''}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 2, marginBottom: 2 }}>{user.commission_type === 'oneshot' ? 'Commissions uniques ce mois' : 'Souscriptions valid\u00e9es ce mois'}</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 14 }}>{allTimeValidated} EUR{user.commission_type === 'monthly' ? '/mois' : ''} valid\u00e9s au total {user.commission_type === 'monthly' ? `\u00b7 Versement le ${nextPay}` : ''}</div>
                   <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
                     {[{ val: validatedP.length, label: 'Validees' }, { val: pendingP.length, label: 'En attente' }, { val: prescribers.length, label: 'Prescripteurs' }].map((s, i) => (
                       <div key={i} style={{ flex: 1, textAlign: 'center' } as any}>
