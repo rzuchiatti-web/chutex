@@ -268,6 +268,7 @@ async def get_saad_link(user=Depends(get_current_user)):
         "company_name": company.get('structure_name', company.get('name', '')),
         "company_address": company.get('address', ''),
         "company_siret": company.get('siret', ''),
+        "commission_type": company.get('commission_type', 'monthly'),
         "link_id": link['id'] if link else None,
         "linked_since": link.get('created_at') if link else None,
         "agency_name": agency.get('name') if agency else None,
