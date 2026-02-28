@@ -499,10 +499,8 @@ async def link_with_code(data: dict, user=Depends(get_current_user)):
 
 @router.post("/guardian/link-with-phone")
 async def link_with_phone(data: dict, user=Depends(get_current_user)):
-    """Guardian requests to link with a beneficiary by phone number.
-    - If beneficiary exists: sends in-app notification request (pending).
-    - If not found: simulates SMS invitation (logged, no real SMS sent).
-    """
+    """Guardian requests to link with a beneficiary by phone number."""
+    from services.smsmode_service import send_sms
     phone = data.get('phone', '').strip()
     relationship = data.get('relationship', '')
     if not phone:
@@ -510,28 +508,23 @@ async def link_with_phone(data: dict, user=Depends(get_current_user)):
     cleaned = phone.replace(' ', '').replace('.', '').replace('-', '')
     if cleaned.startswith('0') and len(cleaned) >= 10:
         cleaned = '+33' + cleaned[1:]
+    if len(cleaned) < 10:
+        raise HTTPException(status_code=400, detail="Numero de telephone invalide (min 10 chiffres)")
 
     ben = await db.users.find_one({"phone": cleaned, "role": "beneficiary"}, {"_id": 0})
     if not ben and len(cleaned) >= 9:
         ben = await db.users.find_one({"phone": {"$regex": cleaned[-9:]}, "role": "beneficiary"}, {"_id": 0})
 
     if not ben:
-        # Beneficiary not found — simulate SMS invitation
-        logger.info(f"[SMS SIMULE] Invitation envoyee au {cleaned} par {user['name']} (gardien)")
+        # Beneficiary not found — send real SMS invitation
+        await send_sms(cleaned, f"Bonjour, {user['name']} souhaite vous ajouter comme beneficiaire sur Chutex Care. Telechargez l'app : https://apps.apple.com/app/chutex/id6759215592")
+        logger.info(f"[SMS] Invitation beneficiaire envoyee au {cleaned} par {user['name']}")
         await db.sms_invitations.insert_one({
-            "id": str(uuid.uuid4()),
-            "guardian_id": user['id'],
-            "guardian_name": user['name'],
-            "phone": cleaned,
-            "relationship": relationship,
-            "status": "sms_simule",
-            "message": f"Bonjour ! {user['name']} souhaite vous ajouter comme beneficiaire sur Care Watch. Rejoignez l'application pour accepter.",
+            "id": str(uuid.uuid4()), "guardian_id": user['id'], "guardian_name": user['name'],
+            "phone": cleaned, "relationship": relationship, "status": "sms_sent",
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
-        return {
-            "status": "sms_sent",
-            "message": f"Aucun compte trouve pour ce numero. Un SMS d'invitation a ete envoye au {cleaned}.",
-        }
+        return {"status": "sms_sent", "message": f"Aucun compte trouve. Un SMS d'invitation a ete envoye au {phone}."}
 
     if user['id'] in ben.get('guardians', []):
         return {"status": "already_linked", "message": f"Vous etes deja gardien de {ben['name']}"}
