@@ -350,25 +350,23 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                 </div>
 
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Mode de commissionnement</div>
-                {[
-                  { k: 'oneshot', title: 'Commission unique', sub: '100 EUR par bracelet, 200 EUR bracelet + gilet', detail: 'Versement unique a la validation de la souscription', icon: 'ri-coin-line', color: '#F59E0B' },
-                  { k: 'monthly', title: 'Commission mensuelle', sub: '8 EUR/mois par bracelet, 15 EUR/mois bracelet + gilet', detail: 'Versement recurrent chaque mois', icon: 'ri-loop-right-line', color: '#A78BFA' },
-                ].map(o => (
-                  <div key={o.k} onClick={async () => {
-                    try { await apiFetch('/api/company/commission-type', { method: 'PUT', body: JSON.stringify({ commission_type: o.k }) }, token); await refreshUser(); } catch {}
-                  }} style={{ padding: '16px 18px', borderRadius: 20, background: user.commission_type === o.k ? 'rgba(124,58,237,0.08)' : 'rgba(255,255,255,0.03)', border: `1.5px solid ${user.commission_type === o.k ? 'rgba(124,58,237,0.4)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', marginBottom: 10 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                      <div style={{ width: 44, height: 44, borderRadius: 14, background: user.commission_type === o.k ? `${o.color}20` : 'rgba(255,255,255,0.06)', border: `1px solid ${user.commission_type === o.k ? `${o.color}40` : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        <i className={o.icon} style={{ fontSize: 22, color: user.commission_type === o.k ? o.color : 'rgba(255,255,255,0.3)' }} />
-                      </div>
-                      <div style={{ flex: 1 } as any}>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{o.title}</div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 3 }}>{o.sub}</div>
-                      </div>
-                      {user.commission_type === o.k && <i className="ri-checkbox-circle-fill" style={{ fontSize: 22, color: '#7C3AED', flexShrink: 0 }} />}
+
+                {/* Locked commission display */}
+                <div style={{ padding: '18px 20px', borderRadius: 20, background: 'rgba(124,58,237,0.08)', border: '1.5px solid rgba(124,58,237,0.4)', marginBottom: 16 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                    <div style={{ width: 48, height: 48, borderRadius: 14, background: user.commission_type === 'oneshot' ? 'rgba(245,158,11,0.2)' : 'rgba(167,139,250,0.2)', border: `1px solid ${user.commission_type === 'oneshot' ? 'rgba(245,158,11,0.4)' : 'rgba(167,139,250,0.4)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className={user.commission_type === 'oneshot' ? 'ri-coin-line' : 'ri-loop-right-line'} style={{ fontSize: 24, color: user.commission_type === 'oneshot' ? '#F59E0B' : '#A78BFA' }} />
+                    </div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.commission_type === 'oneshot' ? 'Commission unique' : 'Commission mensuelle'}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 3 }}>{user.commission_type === 'oneshot' ? '100 EUR par bracelet, 200 EUR bracelet + gilet' : '8 EUR/mois par bracelet, 15 EUR/mois bracelet + gilet'}</div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(124,58,237,0.15)' } as any}>
+                      <i className="ri-lock-line" style={{ fontSize: 11, color: '#A78BFA' }} />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: '#A78BFA' }}>Verrouille</span>
                     </div>
                   </div>
-                ))}
+                </div>
 
                 {/* Simulation */}
                 <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginTop: 10, marginBottom: 16 } as any}>
