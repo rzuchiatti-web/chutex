@@ -876,6 +876,29 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
               </div>
             </div>
           )}
+
+          {/* Activate Beneficiary Space Popup */}
+          {showActivateBenPopup && (
+            <div onClick={() => setShowActivateBenPopup(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '90%', maxWidth: 380, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
+                <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-user-heart-line" style={{ fontSize: 28, color: '#3B82F6' }} /></div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Activer l'espace beneficiaire</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Vous n'avez pas encore d'espace beneficiaire. Souhaitez-vous l'activer pour suivre votre sante et vos appareils ?</div>
+                </div>
+                <div onClick={async () => {
+                  try {
+                    await apiFetch('/api/auth/activate-beneficiary', { method: 'POST', body: JSON.stringify({}) }, token);
+                    await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'beneficiary' }) }, token);
+                    await refreshUser();
+                    setShowActivateBenPopup(false);
+                  } catch (e: any) { window.alert(e.message || 'Erreur'); }
+                }} style={{ padding: '15px', borderRadius: 999, background: 'linear-gradient(135deg, #3B82F6, #2563EB)', color: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, marginBottom: 10, boxShadow: '0 4px 14px rgba(59,130,246,0.3)' } as any}>Activer et basculer</div>
+                <div onClick={() => setShowActivateBenPopup(false)} style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', padding: 8 } as any}>Annuler</div>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     );
