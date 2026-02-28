@@ -1626,7 +1626,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
     const pRows = [
       (prescriberProfile.name || selectedPresc.guardian_name) && { icon: 'ri-user-settings-line', label: 'Prescripteur', value: prescriberProfile.name || selectedPresc.guardian_name || selectedPresc.prescriber_name },
       selectedPresc.subscription_type && { icon: 'ri-vip-crown-line', label: 'Abonnement', value: selectedPresc.subscription_type },
-      { icon: 'ri-money-euro-circle-line', label: 'Commission', value: `${selectedPresc.commission || getCommission(selectedPresc)} EUR/mois` },
+      { icon: 'ri-money-euro-circle-line', label: 'Commission', value: `${selectedPresc.commission || getCommission(selectedPresc)} EUR${commLabel}` },
       selectedPresc.created_at && { icon: 'ri-calendar-line', label: 'Date', value: new Date(selectedPresc.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
       selectedPresc.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone beneficiaire', value: selectedPresc.beneficiary_phone, phone: true },
       selectedPresc.beneficiary_email && { icon: 'ri-mail-line', label: 'Email beneficiaire', value: selectedPresc.beneficiary_email },
