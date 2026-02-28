@@ -177,11 +177,17 @@ export default function ProfileScreen() {
   const saveProfile = async () => {
     setSaving(true);
     try {
-      const result = await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({
-        name: editName, phone: editPhone, address: editAddress, email: editEmail,
-        date_of_birth: editDob, gender: editGender, height_cm: editHeight, weight_kg: editWeight,
-        emergency_contact_name: editEmergencyName, emergency_contact_phone: editEmergencyPhone, doctor_name: editDoctor,
-      }) }, token);
+      const body: any = { name: editName, phone: editPhone, address: editAddress, email: editEmail };
+      if (effectiveRole === 'prescriber_company') {
+        body.structure_name = editStructure;
+        body.siret = editSiret;
+      } else {
+        body.date_of_birth = editDob; body.gender = editGender;
+        body.height_cm = editHeight; body.weight_kg = editWeight;
+        body.emergency_contact_name = editEmergencyName; body.emergency_contact_phone = editEmergencyPhone;
+        body.doctor_name = editDoctor;
+      }
+      const result = await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify(body) }, token);
       if (result.user) await refreshUser();
       Alert.alert('Profil mis a jour');
       setEditMode(false);
