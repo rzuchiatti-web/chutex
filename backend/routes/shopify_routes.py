@@ -235,21 +235,49 @@ async def shopify_order_paid(request: Request):
     # === Create subscription in app DB (linked to beneficiary phone) ===
     if stripe_subscription_id or not stripe_error:
         if subscription_phone:
+            # Try to find existing user to link by ID
+            import re as re2
+            phone_suffix = subscription_phone[-9:] if len(subscription_phone) >= 9 else subscription_phone
+            existing_user = await db.users.find_one(
+                {"phone": {"$regex": phone_suffix}}, {"_id": 0, "password_hash": 0}
+            )
+            beneficiary_id = existing_user['id'] if existing_user else ""
+
+            # Determine subscription type: bracelet_gilet includes teleassistance
+            sub_type = "care" if product_type == "bracelet_gilet" else "bracelet_only"
+
             await db.subscriptions.update_one(
                 {"beneficiary_phone": subscription_phone},
                 {"$set": {
                     "beneficiary_phone": subscription_phone,
+                    "beneficiary_id": beneficiary_id,
                     "buyer_phone": cleaned_phone,
-                    "subscription_type": "bracelet_only",
+                    "buyer_name": full_name,
+                    "buyer_email": email,
+                    "subscription_type": sub_type,
                     "status": "active",
                     "source": "shopify",
                     "shopify_order_id": str(order_id),
+                    "shopify_order_number": str(order_number),
                     "stripe_subscription_id": stripe_subscription_id,
+                    "product_name": product_name,
+                    "is_annual": is_annual,
+                    "start_date": now,
                     "created_at": now,
                     "updated_at": now,
                 }},
                 upsert=True,
             )
+
+            # Update user record if found
+            if existing_user:
+                await db.users.update_one(
+                    {"id": beneficiary_id},
+                    {"$set": {
+                        "has_subscription": True,
+                        "subscription_type": sub_type,
+                    }}
+                )
 
     # === Send SMS ===
     app_link = "https://apps.apple.com/app/chutex/id6759215592"
