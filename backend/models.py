@@ -57,8 +57,11 @@ class AlertCreate(BaseModel):
 
 class PrescriptionCreate(BaseModel):
     beneficiary_name: str
-    beneficiary_email: str
+    beneficiary_first_name: str = ""
+    beneficiary_email: str = ""
     beneficiary_phone: str
+    guardian_contact_name: str = ""
+    guardian_contact_phone: str = ""
     subscription_type: str
     notes: str = ""
 
