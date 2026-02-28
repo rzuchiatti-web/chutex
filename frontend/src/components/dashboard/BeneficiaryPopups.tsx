@@ -281,7 +281,7 @@ export function AddGuardianPopup({ show, onClose, phone, setPhone, relationship,
         </div>
         <div style={{ marginBottom: 24 } as any}>
           <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numero de telephone</div>
-          <input value={phone} onChange={(e: any) => setPhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" style={{ width: '100%', padding: '14px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+          <PhoneInputWithPrefix value={phone} onChangeText={setPhone} prefix={phonePrefix} onPrefixChange={setPhonePrefix} placeholder="6 12 34 56 78" />
         </div>
         <div style={{ marginBottom: 24 } as any}>
           <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Lien avec le gardien</div>
