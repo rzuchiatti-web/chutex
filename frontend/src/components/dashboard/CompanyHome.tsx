@@ -254,7 +254,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
           )}
 
           {/* Commission settings card */}
-          <div onClick={() => setShowStripeSetup(true)} style={{ padding: '18px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(124,58,237,0.15)', marginBottom: 14, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+          <div onClick={() => user.onboarding_completed || user.commission_type ? setShowStripeManage(true) : setShowStripeSetup(true)} style={{ padding: '18px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(124,58,237,0.15)', marginBottom: 14, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
               <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-bank-card-line" style={{ fontSize: 22, color: '#7C3AED' }} /></div>
               <div style={{ flex: 1 } as any}>
