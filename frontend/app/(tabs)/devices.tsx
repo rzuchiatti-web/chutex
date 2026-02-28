@@ -31,6 +31,7 @@ function DeviceManagement({ token }: { token: string }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [syncingDevice, setSyncingDevice] = useState<string | null>(null);
+  const [showNoSubPopup, setShowNoSubPopup] = useState(false);
   const [vestStatus, setVestStatus] = useState<any>(null);
   const [braceletStatus, setBraceletStatus] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
