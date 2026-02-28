@@ -24,7 +24,13 @@ export default function GuardianDetailScreen() {
         let found = (guards || []).find((g: any) => g.id === guardianId);
         // If not found, try company prescriber endpoint (SAAD view)
         if (!found) {
-          found = await apiFetch(`/api/company/prescriber/${guardianId}`, {}, token).catch(() => null);
+          const res = await apiFetch(`/api/company/prescriber/${guardianId}`, {}, token).catch(() => null);
+          // The company endpoint returns { prescriber: {...}, agency: {...}, ... }
+          if (res?.prescriber) {
+            found = { ...res.prescriber, agency: res.agency, prescriptions: res.prescriptions };
+          } else if (res?.id || res?.name) {
+            found = res;
+          }
         }
         setGuardian(found || null);
       } catch {} finally { setLoading(false); }
