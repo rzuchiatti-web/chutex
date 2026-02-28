@@ -1513,7 +1513,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
 
   /* ─── REWARDS DETAIL: full-screen gold (early return) ─── */
   if (showRewardsDetail && Platform.OS === 'web') {
-    const totalComm = allPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+    const totalComm = allPrescs.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0);
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_GOLD} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
@@ -1664,7 +1664,7 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
     const nextPayDate = `01/${String(nextMonth.getMonth() + 1).padStart(2, '0')}/${nextMonth.getFullYear()}`;
     const monthPrescs = prescTab === 'subscribed' ? subscribedPrescs.filter((p: any) => p.created_at && p.created_at.startsWith(selectedMonth)) : displayedPrescs;
     const filteredPrescs = searchPresc.trim() ? monthPrescs.filter((p: any) => p.beneficiary_name?.toLowerCase().includes(searchPresc.toLowerCase()) || p.prescriber_name?.toLowerCase().includes(searchPresc.toLowerCase())) : monthPrescs;
-    const monthTotal = monthPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+    const monthTotal = monthPrescs.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0);
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <div style={{ position: 'absolute', inset: 0 } as any}><img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} /><div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} /></div>
@@ -1674,10 +1674,10 @@ function CompanyPrescriptionsTab({ token }: { token: string }) {
           <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', marginBottom: 12 } as any}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} /><span style={{ fontSize: 13, fontWeight: 600, color: '#10B981' }}>Actif</span></div>
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Prescriptions</div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{prescTab === 'subscribed' ? monthTotal : pendingPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0)} EUR</div>
+            <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>+{prescTab === 'subscribed' ? monthTotal : pendingPrescs.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0)} EUR</div>
             {prescTab === 'subscribed' && (<>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 6 } as any}><i className="ri-calendar-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} /><input type="month" value={selectedMonth} onChange={(e: any) => setSelectedMonth(e.target.value)} style={{ background: 'transparent', border: 'none', color: '#FFF', fontSize: 13, fontWeight: 600, outline: 'none' } as any} /></div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Prochain versement de {subscribedPrescs.reduce((s: number, p: any) => s + (p.commission || 0), 0)} EUR le {nextPayDate}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Prochain versement de {subscribedPrescs.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0)} EUR le {nextPayDate}</div>
             </>)}
             {prescTab === 'pending' && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>En cours de validation</div>}
           </div>
