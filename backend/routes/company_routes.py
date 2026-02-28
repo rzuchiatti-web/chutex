@@ -563,10 +563,14 @@ async def set_commission_type(data: dict, user=Depends(get_current_user)):
     ct = data.get('commission_type')
     if ct not in ('oneshot', 'monthly'):
         raise HTTPException(status_code=400, detail="commission_type doit etre 'oneshot' ou 'monthly'")
-    await db.users.update_one({"id": user['id']}, {"$set": {
-        "commission_type": ct,
-        "onboarding_completed": True,
-    }})
+    update = {"commission_type": ct, "onboarding_completed": True}
+    # Sync stripe_account_id from saad_stripe if exists
+    stripe_doc = await db.saad_stripe.find_one({"saad_id": user['id']}, {"_id": 0})
+    if stripe_doc and stripe_doc.get('account_id'):
+        update["stripe_account_id"] = stripe_doc["account_id"]
+        # Also update commission_type in saad_stripe
+        await db.saad_stripe.update_one({"saad_id": user['id']}, {"$set": {"commission_type": ct}})
+    await db.users.update_one({"id": user['id']}, {"$set": update})
     return {"status": "ok", "commission_type": ct}
 
 
