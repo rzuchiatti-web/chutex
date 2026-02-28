@@ -1005,7 +1005,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           <div style={{ position: 'relative', zIndex: 2 } as any}>
             <div onClick={() => setShowPrescModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', marginBottom: 10, cursor: 'pointer' } as any}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {user.prescription_structure || user.structure_name || 'Structure'}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {saadLink?.company_name || user.prescription_structure || user.structure_name || 'Structure'}</span>
             </div>
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Prescription</div>
             <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
@@ -1027,7 +1027,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         <View style={{ backgroundColor: '#8B4513', padding: 20, alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 999, paddingVertical: 7, paddingHorizontal: 16, marginBottom: 10 }}>
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />
-            <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Actif - {user.prescription_structure || 'Structure'}</Text>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Actif - {saadLink?.company_name || user.prescription_structure || 'Structure'}</Text>
           </View>
           <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF', marginBottom: 14 }}>Prescription</Text>
           <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 999, padding: 4 }}>
