@@ -748,7 +748,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
   /* ─── DETAIL PAGE: prescription (replaces entire view) ─── */
   if (selectedPresc && Platform.OS === 'web') {
-    const isValidated = selectedPresc.status === 'subscribed';
+    const isValidated = selectedPresc.status === 'subscribed' || selectedPresc.status === 'validated' || selectedPresc.status === 'contract_created';
     const bgImg = isValidated ? BG_GREEN_P : BG_ORANGE;
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
@@ -1684,7 +1684,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
 
   /* ─── DETAIL: prescription (early return) ─── */
   if (selectedPresc && Platform.OS === 'web') {
-    const isValidated = selectedPresc.status === 'subscribed';
+    const isValidated = selectedPresc.status === 'subscribed' || selectedPresc.status === 'validated' || selectedPresc.status === 'contract_created';
     const prescriberProfile = prescribers.find((p: any) => p.id === selectedPresc.guardian_id || p.id === selectedPresc.prescriber_id) || {};
     const pRows = [
       (prescriberProfile.name || selectedPresc.guardian_name) && { icon: 'ri-user-settings-line', label: 'Prescripteur', value: prescriberProfile.name || selectedPresc.guardian_name || selectedPresc.prescriber_name },
