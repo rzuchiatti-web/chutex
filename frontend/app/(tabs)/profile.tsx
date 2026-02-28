@@ -101,7 +101,8 @@ export default function ProfileScreen() {
   const [editEmergencyPhone, setEditEmergencyPhone] = useState(user?.emergency_contact_phone || '');
   const [editDoctor, setEditDoctor] = useState(user?.doctor_name || '');
   const [showActivateBenPopup, setShowActivateBenPopup] = useState(false);
-  const [benForm, setBenForm] = useState({ firstName: '', lastName: '', dob_day: '', dob_month: '', dob_year: '', gender: '', height_cm: '', weight_kg: '', address: '', postal_code: '', city: '', emergency_name: '', emergency_phone: '' });
+  const [benStep, setBenStep] = useState(1);
+  const [benForm, setBenForm] = useState<any>({ firstName: '', lastName: '', dob_day: '', dob_month: '', dob_year: '', gender: '', height_cm: '', weight_kg: '', address: '', postal_code: '', city: '', emergency_name: '', emergency_phone: '', blood_type: '', medical_conditions: [] as string[], allergies: [] as string[], other_condition: '', had_avc: '', pacemaker: '', stents: '', thyroid: '', had_surgery: '', surgeries: [] as any[], family_history: [] as string[] });
   const [benError, setBenError] = useState('');
   const [benSaving, setBenSaving] = useState(false);
   const [editSiret, setEditSiret] = useState(user?.siret || '');
