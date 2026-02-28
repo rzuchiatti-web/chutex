@@ -1461,7 +1461,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
 }
 
 /* ===== COMPANY: PRESCRIPTIONS TAB ===== */
-function CompanyPrescriptionsTab({ token }: { token: string }) {
+function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) {
   const router = useRouter();
   const [dashData, setDashData] = useState<any>(null);
   const [prescribers, setPrescribers] = useState<any[]>([]);
@@ -1834,7 +1834,7 @@ export default function DevicesScreen() {
   // Admin, Company, Teleassistance: full screen web
   if (Platform.OS === 'web') {
     if (r === 'admin') return <AdminPrescripteurs token={token} />;
-    if (r === 'prescriber_company') return <CompanyPrescriptionsTab token={token} />;
+    if (r === 'prescriber_company') return <CompanyPrescriptionsTab token={token} user={user} />;
     if (r === 'teleassistance') return <SubscribersList token={token} />;
   }
 
@@ -1844,7 +1844,7 @@ export default function DevicesScreen() {
         <Text style={[d.title, { color: '#111827' }]}>{r === 'admin' ? 'Prescripteurs' : r === 'prescriber_company' ? 'Prescriptions' : r === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
       </View>
       {r === 'admin' ? <AdminPrescripteurs token={token} />
-        : r === 'prescriber_company' ? <CompanyPrescriptionsTab token={token} />
+        : r === 'prescriber_company' ? <CompanyPrescriptionsTab token={token} user={user} />
         : r === 'teleassistance' ? <SubscribersList token={token} />
         : <DeviceManagement token={token} />}
     </View>
