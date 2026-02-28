@@ -557,6 +557,7 @@ async def get_guardian_requests(user=Depends(get_current_user)):
 @router.post("/beneficiary/invite-guardian")
 async def beneficiary_invite_guardian(data: dict, user=Depends(get_current_user)):
     """Beneficiary invites a guardian by phone number."""
+    from services.smsmode_service import send_sms as sms_send
     phone = data.get('phone', '').strip()
     relationship = data.get('relationship', '')
     if not phone:
@@ -564,12 +565,15 @@ async def beneficiary_invite_guardian(data: dict, user=Depends(get_current_user)
     cleaned = phone.replace(' ', '').replace('.', '').replace('-', '')
     if cleaned.startswith('0') and len(cleaned) >= 10:
         cleaned = '+33' + cleaned[1:]
+    if len(cleaned) < 10:
+        raise HTTPException(status_code=400, detail="Numero de telephone invalide (min 10 chiffres)")
     guardian = await db.users.find_one(
         {"phone": {"$regex": cleaned[-9:]}, "role": "guardian"}, {"_id": 0, "password_hash": 0}
     )
     if not guardian:
-        logger.info(f"[SMS SIMULE] Invitation gardien au {cleaned} par {user['name']}")
-        return {"status": "sms_sent", "message": f"Aucun compte gardien trouve. Un SMS a ete envoye au {cleaned}."}
+        await sms_send(cleaned, f"Bonjour, {user['name']} souhaite vous ajouter comme gardien sur Chutex Care. Telechargez l'app : https://apps.apple.com/app/chutex/id6759215592")
+        logger.info(f"[SMS] Invitation gardien envoyee au {cleaned} par {user['name']}")
+        return {"status": "sms_sent", "message": f"Aucun compte gardien trouve. Un SMS d'invitation a ete envoye au {phone}."}
     if user['id'] in (guardian.get('beneficiaries') or []):
         return {"status": "already_linked", "message": f"{guardian['name']} est deja votre gardien."}
     existing = await db.guardian_requests.find_one(
