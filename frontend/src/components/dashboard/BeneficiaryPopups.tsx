@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { apiFetch } from '../../services/api';
 import { REMINDER_IMAGES } from './constants';
+import { PhoneInputWithPrefix } from '../PhoneInputWithPrefix';
 
 /* ─── NOTIFICATIONS POPUP ─── */
 export function NotificationsPopup({ show, onClose, activeAlerts, guardianRequests, token, onRefresh }: any) {
