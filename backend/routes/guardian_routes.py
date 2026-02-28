@@ -386,8 +386,7 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
             guardian_phone_clean = '+33' + guardian_phone_clean[1:]
         await send_sms(
             guardian_phone_clean,
-            f"Bonjour{(' ' + data.guardian_contact_name) if data.guardian_contact_name else ''}, {structure} a prescrit un abonnement Chutex Care pour {full_name}. "
-            f"Merci de finaliser la souscription ici : {sub_link}"
+            f"{full_name} vous invite a finaliser sa souscription de contrat de teleassistance pour vivre plus sereinement : {sub_link}"
         )
     if data.beneficiary_email:
         await send_email(data.beneficiary_email, f"{structure} vous invite a souscrire a Chutex", f"<h2>Bonjour {full_name}</h2><p>L'entreprise {structure} vous invite.</p>")
