@@ -444,19 +444,30 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
           <ProfileGlassPopup visible={editMode} onClose={() => setEditMode(false)}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>{t('modify_profile')}</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>{user.name}</div>
-            {[
+            {(effectiveRole === 'prescriber_company' ? [
+              { val: editStructure, set: setEditStructure, label: 'Nom de la structure', icon: 'ri-building-line' },
+              { val: editSiret, set: setEditSiret, label: 'SIRET', icon: 'ri-file-text-line' },
+              { val: editName, set: setEditName, label: 'Nom du responsable', icon: 'ri-user-line' },
+              { val: editEmail, set: setEditEmail, label: 'Email', icon: 'ri-mail-line' },
+              { val: editPhone, set: setEditPhone, label: 'Telephone', icon: 'ri-phone-line' },
+              { val: editAddress, set: setEditAddress, label: 'Adresse', icon: 'ri-map-pin-line' },
+            ] : [
               { val: editName, set: setEditName, label: 'Nom complet', icon: 'ri-user-line' },
               { val: editEmail, set: setEditEmail, label: 'Email', icon: 'ri-mail-line' },
               { val: editPhone, set: setEditPhone, label: 'Telephone', icon: 'ri-phone-line' },
               { val: editAddress, set: setEditAddress, label: 'Adresse', icon: 'ri-map-pin-line' },
-              { val: editDob, set: setEditDob, label: 'Date de naissance', icon: 'ri-calendar-line', type: 'date' },
-              { val: editGender, set: setEditGender, label: 'Sexe (M/F)', icon: 'ri-genderless-line' },
-              { val: editHeight, set: setEditHeight, label: 'Taille (cm)', icon: 'ri-ruler-line', type: 'number' },
-              { val: editWeight, set: setEditWeight, label: 'Poids (kg)', icon: 'ri-scales-3-line', type: 'number' },
+              ...(isBen ? [
+                { val: editDob, set: setEditDob, label: 'Date de naissance', icon: 'ri-calendar-line', type: 'date' },
+                { val: editGender, set: setEditGender, label: 'Sexe (M/F)', icon: 'ri-genderless-line' },
+                { val: editHeight, set: setEditHeight, label: 'Taille (cm)', icon: 'ri-ruler-line', type: 'number' },
+                { val: editWeight, set: setEditWeight, label: 'Poids (kg)', icon: 'ri-scales-3-line', type: 'number' },
+              ] : []),
               { val: editEmergencyName, set: setEditEmergencyName, label: 'Contact d\'urgence (nom)', icon: 'ri-alarm-warning-line' },
               { val: editEmergencyPhone, set: setEditEmergencyPhone, label: 'Contact d\'urgence (tel)', icon: 'ri-phone-line' },
-              { val: editDoctor, set: setEditDoctor, label: 'Medecin traitant', icon: 'ri-stethoscope-line' },
-            ].map((f, i) => (
+              ...(isBen ? [
+                { val: editDoctor, set: setEditDoctor, label: 'Medecin traitant', icon: 'ri-stethoscope-line' },
+              ] : []),
+            ]).map((f: any, i: number) => (
               <div key={i} style={{ marginBottom: 12 } as any}>
                 <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
                 <input value={f.val} onChange={(e: any) => f.set(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', color: '#FFF', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
