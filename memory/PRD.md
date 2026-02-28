@@ -3,26 +3,26 @@
 ## Original Problem Statement
 Application de sante preventive "Chutex Care" - plateforme full-stack React Native (Expo) + FastAPI/MongoDB pour la teleassistance, suivi sante, et gestion SAAD.
 
-## Core Architecture
-- **Frontend**: React Native (Expo) for iOS/Android/Web
-- **Backend**: FastAPI + MongoDB
-- **Payments**: Stripe Connect (multi-entity: Chutex, Chutex Care, SAADs)
-- **SMS**: SMSMode for notifications
+## Completed Features (Feb 28, 2026)
 
-## Completed Bug Fixes (Feb 28, 2026)
-1. **Glass popup** - Toutes les popups utilisent `backdrop-filter: blur(32px)` sur l'overlay (fond flou), identique au pattern ProfileGlassPopup
-2. **Commissions SAAD** - Ajout fallback `getCommission()` partout (dashboard, tab prescriptions, detail, cards) → affiche 8EUR/bracelet, 15EUR/bracelet+gilet
-3. **Page detail gardien** - Extraction correcte de `response.prescriber` depuis l'endpoint company
-4. **Gestion agence/gardien** - Backend retourne `agency_id`/`agency_name` pour chaque gardien
-5. **Bouton Message supprime** de la page detail gardien
+### Onboarding SAAD (NEW)
+- Popup glass 2 etapes au premier login SAAD (quand `commission_type` non defini)
+- **Step 1**: Bienvenue + choix commission (oneshot 100/200EUR vs mensuelle 8/15EUR) avec simulation financiere
+- **Step 2**: Connexion Stripe Connect pour recevoir les paiements
+- Backend: `PUT /api/company/commission-type` sauvegarde le choix sans Stripe
+- Le choix est modifiable depuis la page profil
 
-## Glass Popup Pattern (reference: ProfileGlassPopup)
-- **Full-page popups** (create, invite): outer = `backdrop-filter: blur(32px), background: rgba(0,0,0,0.2), overflowY: scroll` / inner = `maxWidth: 400, margin: 0 auto, padding: 40px 28px`
-- **Centered popups** (agency detail, Stripe): outer = `backdrop-filter: blur(24px), background: rgba(0,0,0,0.4), flex center` / inner = card `rgba(20,20,30,0.92)`
+### Bug Fixes (Feb 28, 2026)
+1. Glass popup avec backdrop-filter blur(32px) sur overlay
+2. Commissions affichees correctement (fallback getCommission: 8EUR bracelet, 15EUR bracelet+gilet)
+3. Page detail gardien corrigee (extraction response.prescriber)
+4. Agency/guardian management avec agency_id/agency_name
+5. Bouton Message supprime du detail gardien
 
-## Upcoming Tasks (P0)
-- Finalize SAAD Onboarding Frontend
-- Submit iOS Build 45 to TestFlight
+## Upcoming Tasks
+- P0: Soumettre iOS Build 45 sur TestFlight
+- P1: Notifications email (Resend)
+- P2: Tests hardware natifs
 
 ## Test Credentials
 | Role | Phone | Password |
