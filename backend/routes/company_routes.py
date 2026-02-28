@@ -557,9 +557,12 @@ async def company_ranking(user=Depends(get_current_user)):
 
 @router.put("/company/commission-type")
 async def set_commission_type(data: dict, user=Depends(get_current_user)):
-    """Set the commission preference for a SAAD (without requiring Stripe)."""
+    """Set the commission preference for a SAAD. Once set, cannot be changed."""
     if user.get('role') != 'prescriber_company':
         raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    # Once set, commission_type is locked
+    if user.get('commission_type'):
+        raise HTTPException(status_code=400, detail="Le mode de commissionnement est deja defini et ne peut plus etre modifie.")
     ct = data.get('commission_type')
     if ct not in ('oneshot', 'monthly'):
         raise HTTPException(status_code=400, detail="commission_type doit etre 'oneshot' ou 'monthly'")
