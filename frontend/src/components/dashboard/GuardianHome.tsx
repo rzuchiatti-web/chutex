@@ -73,6 +73,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
   const [showSaadPopup, setShowSaadPopup] = useState(false);
   const [detaching, setDetaching] = useState(false);
   const [linkPhone, setLinkPhone] = useState('');
+  const [linkPrefix, setLinkPrefix] = useState('+33');
   const [linkRelationship, setLinkRelationship] = useState('');
   const [linkingBen, setLinkingBen] = useState(false);
   const [linkMessage, setLinkMessage] = useState('');
@@ -325,7 +326,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                 <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numéro de téléphone</div>
                 <div style={{ position: 'relative' } as any}>
                   <i className="ri-phone-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
-                  <input value={linkPhone} onChange={(e: any) => setLinkPhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" style={{ width: '100%', padding: '15px 16px 15px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                  <PhoneInputWithPrefix value={linkPhone} onChangeText={setLinkPhone} prefix={linkPrefix} onPrefixChange={setLinkPrefix} placeholder="6 12 34 56 78" />
                 </div>
               </div>
               {(() => {
