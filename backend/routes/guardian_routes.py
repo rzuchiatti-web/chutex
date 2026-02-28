@@ -354,38 +354,43 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
         raise HTTPException(status_code=400, detail="Un contrat existe deja pour ce numero. Impossible de creer une nouvelle prescription.")
 
     now = datetime.now(timezone.utc).isoformat()
-    structure = user.get('prescriber_structure', 'Chutex')
-    # subscription_type is now "bracelet" or "bracelet_gilet" (always Care)
+    structure = user.get('prescriber_structure', user.get('structure_name', 'Chutex'))
+    full_name = f"{data.beneficiary_first_name} {data.beneficiary_name}".strip() if data.beneficiary_first_name else data.beneficiary_name
     plan_label = "Bracelet Elio (Chutex Care)" if data.subscription_type == "bracelet" else "Bracelet Elio + Gilet Elder (Chutex Care)"
     price = 39.90 if data.subscription_type == "bracelet" else 79.90
     next_month = (datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)).replace(day=1)
     p = {
         "id": str(uuid.uuid4()), "guardian_id": user['id'], "guardian_name": user['name'],
         "prescriber_structure": structure,
-        "beneficiary_name": data.beneficiary_name, "beneficiary_email": data.beneficiary_email,
-        "beneficiary_phone": data.beneficiary_phone, "subscription_type": data.subscription_type,
+        "beneficiary_name": full_name, "beneficiary_first_name": data.beneficiary_first_name,
+        "beneficiary_email": data.beneficiary_email,
+        "beneficiary_phone": cleaned_phone, "subscription_type": data.subscription_type,
+        "guardian_contact_name": data.guardian_contact_name, "guardian_contact_phone": data.guardian_contact_phone,
         "plan_label": plan_label, "price": price,
         "notes": data.notes, "status": "pending", "beneficiary_id": None, "subscribed_at": None,
         "commission_payment_date": next_month.isoformat(),
-        "tracking_phone": data.beneficiary_phone, "tracking_email": data.beneficiary_email,
+        "tracking_phone": cleaned_phone, "tracking_email": data.beneficiary_email,
         "created_at": now, "notification_sent": True, "notification_type": "sms",
-        "email_content": {
-            "to": data.beneficiary_email,
-            "subject": f"{structure} vous invite a souscrire a Chutex",
-            "body": f"Bonjour {data.beneficiary_name},\n\nL'entreprise {structure} vous invite a souscrire.\n\nPrescrit par : {user['name']} ({structure})",
-            "sent_at": now,
-        },
     }
     await db.prescriptions.insert_one(p)
-    # Send SMS to beneficiary with subscription link
-    if data.beneficiary_phone:
-        sub_link = "https://saad-guardian-ui.preview.emergentagent.com/subscription"
+    # Send SMS to beneficiary
+    sub_link = "https://saad-guardian-ui.preview.emergentagent.com/subscription"
+    await send_sms(
+        cleaned_phone,
+        f"Bonjour {full_name}, {structure} vous invite a souscrire a la teleassistance Chutex Care. Souscrivez ici : {sub_link}"
+    )
+    # Send SMS to guardian/aidant contact if provided
+    if data.guardian_contact_phone and data.guardian_contact_phone.strip():
+        guardian_phone_clean = data.guardian_contact_phone.strip().replace(' ', '').replace('.', '').replace('-', '')
+        if guardian_phone_clean.startswith('0') and len(guardian_phone_clean) >= 10:
+            guardian_phone_clean = '+33' + guardian_phone_clean[1:]
         await send_sms(
-            data.beneficiary_phone,
-            f"Bonjour {data.beneficiary_name}, {structure} vous invite a souscrire a la teleassistance Chutex Care. "
-            f"Souscrivez ici : {sub_link}"
+            guardian_phone_clean,
+            f"Bonjour{(' ' + data.guardian_contact_name) if data.guardian_contact_name else ''}, {structure} a prescrit un abonnement Chutex Care pour {full_name}. "
+            f"Merci de finaliser la souscription ici : {sub_link}"
         )
-    await send_email(data.beneficiary_email, f"{structure} vous invite a souscrire a Chutex", f"<h2>Bonjour {data.beneficiary_name}</h2><p>L'entreprise {structure} vous invite.</p>")
+    if data.beneficiary_email:
+        await send_email(data.beneficiary_email, f"{structure} vous invite a souscrire a Chutex", f"<h2>Bonjour {full_name}</h2><p>L'entreprise {structure} vous invite.</p>")
     return {k: v for k, v in p.items() if k != '_id'}
 
 
