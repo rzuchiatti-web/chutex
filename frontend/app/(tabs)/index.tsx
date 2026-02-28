@@ -769,6 +769,36 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         { label: 'Connecter un appareil', done: false, action: () => router.push('/(tabs)/devices') },
         { label: 'Verifier vos seuils d\'alerte', done: false, action: () => router.push('/(tabs)/health') },
       ]} />
+      {/* Connect Device Glass Popup */}
+      {Platform.OS === 'web' && showConnectDevice && (
+        <div onClick={() => setShowConnectDevice(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '90%', maxWidth: 380, padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
+            <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+              <div style={{ width: 64, height: 64, borderRadius: 20, background: showConnectDevice === 'scale' ? 'rgba(16,185,129,0.15)' : 'rgba(59,130,246,0.15)', border: `1px solid ${showConnectDevice === 'scale' ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)'}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+                <i className={showConnectDevice === 'scale' ? 'ri-scales-3-line' : 'ri-watch-line'} style={{ fontSize: 30, color: showConnectDevice === 'scale' ? '#10B981' : '#3B82F6' }} />
+              </div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{showConnectDevice === 'scale' ? 'Balance non connectee' : 'Bracelet non connecte'}</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Pour acceder a vos donnees de sante, vous devez d'abord associer votre {showConnectDevice === 'scale' ? 'balance connectee' : 'bracelet Elio'} via Bluetooth.</div>
+            </div>
+            <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 16 } as any}>
+              {[
+                { icon: 'ri-bluetooth-line', text: 'Activez le Bluetooth sur votre telephone' },
+                { icon: showConnectDevice === 'scale' ? 'ri-scales-3-line' : 'ri-watch-line', text: `Allumez votre ${showConnectDevice === 'scale' ? 'balance' : 'bracelet'}` },
+                { icon: 'ri-smartphone-line', text: 'Ouvrez l\'app Chutex sur votre iPhone' },
+                { icon: 'ri-link', text: 'Allez dans Appareils > Associer' },
+              ].map((s, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)' }}>{i + 1}</span></div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><i className={s.icon} style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} /><span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>{s.text}</span></div>
+                </div>
+              ))}
+            </div>
+            <div onClick={() => { setShowConnectDevice(null); router.push('/(tabs)/devices' as any); }} style={{ padding: '15px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, marginBottom: 10 } as any}>Aller dans Appareils</div>
+            <div onClick={() => setShowConnectDevice(null)} style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', padding: 8 } as any}>Fermer</div>
+          </div>
+        </div>
+      )}
+
     </ScrollView>
   );
 }
