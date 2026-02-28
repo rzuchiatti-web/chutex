@@ -46,7 +46,7 @@ export default function MorningBriefingScreen() {
     if (started.current || !user) return;
     started.current = true;
     const name = user?.name?.split(' ')[0] || '';
-    const role = user?.role || 'beneficiary';
+    const role = user?.active_role || user?.role || 'beneficiary';
 
     Promise.all([
       apiFetch('/api/health/daily-report', {}, token).catch(() => null),
