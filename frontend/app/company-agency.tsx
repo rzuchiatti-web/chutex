@@ -94,27 +94,29 @@ export default function CompanyAgencyScreen() {
   if (selectedAgency) {
     const agIvs = intervenants.filter((iv: any) => iv.agency_id === selectedAgency.id || iv.agency_name === selectedAgency.name);
     const agGuardians = guardianLinks.filter((gl: any) => gl.agency_name === selectedAgency.name);
+    const agPrescribers = agGuardians.filter((gl: any) => gl.is_prescriber);
     const unaffiliated = guardianLinks.filter((gl: any) => gl.status === 'accepted' && (!gl.agency_name || gl.agency_name === 'Non assigne'));
     return (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any} onClick={() => setSelectedAgency(null)}>
-        <div onClick={(e: any) => e.stopPropagation()} style={{ width: '92%', maxWidth: 420, maxHeight: '85vh', overflowY: 'auto', padding: '28px 24px', borderRadius: 24, background: 'rgba(20,20,30,0.92)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' } as any}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any} onClick={() => setSelectedAgency(null)}>
+        <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
             <div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{selectedAgency.name}</div>
-              {selectedAgency.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{selectedAgency.address}</div>}
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{selectedAgency.name}</div>
+              {selectedAgency.address && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{selectedAgency.address}</div>}
             </div>
-            <div onClick={() => setSelectedAgency(null)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /></div>
+            <div onClick={() => setSelectedAgency(null)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
           </div>
 
           {/* Stats */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 18 } as any}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 20 } as any}>
             {[
               { val: agGuardians.length, label: 'Gardiens', icon: 'ri-shield-user-line', color: '#10B981' },
+              { val: agPrescribers.length, label: 'Prescripteurs', icon: 'ri-file-text-line', color: '#F59E0B' },
               { val: agIvs.length, label: 'Intervenants', icon: 'ri-user-star-line', color: '#A78BFA' },
             ].map((s, i) => (
-              <div key={i} style={{ flex: 1, padding: '13px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
-                <i className={s.icon} style={{ fontSize: 16, color: s.color, display: 'block', marginBottom: 3 }} />
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
+              <div key={i} style={{ flex: 1, padding: '14px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
+                <i className={s.icon} style={{ fontSize: 16, color: s.color, display: 'block', marginBottom: 4 }} />
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
                 <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
               </div>
             ))}
