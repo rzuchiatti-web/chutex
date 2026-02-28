@@ -6,7 +6,7 @@ and send activation links to customers.
 import os, hmac, hashlib, base64, uuid, logging
 from datetime import datetime, timezone
 from fastapi import APIRouter, Request, HTTPException
-from db import db
+from database import db
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
