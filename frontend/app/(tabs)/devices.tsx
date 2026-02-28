@@ -1420,7 +1420,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
                 <Text style={{ fontSize: 12, fontWeight: '500', color: Colors.textSecondary }}>{p.subscription_type}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.success }}>+{p.commission}EUR/mois</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.success }}>+{p.commission || getCommission(p)}EUR{commLabel}</Text>
                   <Icon name="chevron-forward" size={14} color="#888" />
                 </View>
               </View>
@@ -1783,7 +1783,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
                   <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{p.beneficiary_name}</Text>
                   <Text style={{ fontSize: 10, color: '#6B7280' }}>Par: {p.guardian_name}</Text>
                 </View>
-                <Text style={{ fontSize: 14, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission}EUR/mois</Text>
+                <Text style={{ fontSize: 14, fontWeight: '800', color: p.status === 'subscribed' ? '#4CAF50' : '#FF9800' }}>+{p.commission || getCommission(p)}EUR{commLabel}</Text>
                 <Icon name="chevron-forward" size={14} color="#888" />
               </View>
             </View>
