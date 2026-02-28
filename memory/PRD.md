@@ -1,90 +1,73 @@
 # Chutex Care - PRD
 
-## Probleme original
-Application de sante preventive "Chutex Care" avec React Native (Expo), FastAPI, MongoDB.
+## Original Problem Statement
+Application de sante preventive "Chutex Care" - plateforme full-stack React Native (Expo) + FastAPI/MongoDB pour la teleassistance, suivi sante, et gestion SAAD.
 
-## Architecture
-- Frontend: React Native (Expo SDK 54) + expo-router
-- Backend: FastAPI (Python) + MongoDB
-- Paiement: Stripe natif (abonnements recurrents CB + SEPA + Connect)
-- SMS: SMS Mode API
-- Architecture native: New Architecture (Fabric/TurboModules)
+## Core Architecture
+- **Frontend**: React Native (Expo) for iOS/Android/Web
+- **Backend**: FastAPI + MongoDB
+- **Payments**: Stripe Connect (multi-entity: Chutex, Chutex Care, SAADs)
+- **SMS**: SMSMode for notifications
 
-## Accomplissements de cette session
-### iOS
-- Crash iOS RESOLU (builds 40-45) : newArchEnabled true, babel.config.js, react-native-worklets, fix hooks AuthScreen
-- Build 45 complet (BLE + notifications + Face ID) pret a soumettre TestFlight
+## Key Roles
+- **Beneficiary**: elderly person monitored
+- **Guardian**: family member/professional watching over beneficiary
+- **SAAD (prescriber_company)**: professional structure managing guardians and intervenants
+- **Intervenant**: professional who responds to emergencies
+- **Admin**: back-office management
 
-### Stripe & Facturation
-- Stripe Connect active (Chutex plateforme + Chutex Care connected account + SAAD connected accounts)
-- Abonnements recurrents mensuels (Subscriptions API)
-- Paiement inline (Stripe Elements - CB + SEPA)
-- Split automatique : 5EUR Chutex + reste Chutex Care
-- Facture bracelet 130.80EUR TTC auto
-- Commissions SAAD : oneshot (100/200EUR) ou mensuel (8/15EUR) selon plan
-- Gestion impayes (3 tentatives, suspension)
+## Completed Features
+- iOS app crash fixed (New Architecture enabled, Build 45 ready)
+- Subscription landing page (/subscription) with multi-step form
+- Stripe Connect architecture (subscriptions, invoices, transfers)
+- SubscriptionGate component for feature gating
+- SAAD/Guardian account creation and linking
+- 6-digit prescriber and intervention codes
+- Alert management system
+- Admin back-office
+- Glass-morphism UI throughout SAAD/Guardian spaces
 
-### Landing page souscription
-- 8 etapes, design blanc/violet, Stripe inline
-- SMS auto beneficiaire + gardiens
-- Correlation prescripteur automatique
+## Completed Bug Fixes (Feb 28, 2026)
+1. Glass popup effect - All SAAD popups now use proper glass-morphism (overlay rgba(0,0,0,0.25) + card rgba(15,15,30,0.55) with backdrop-filter blur(40px))
+2. Commission display - Added getCommission fallback (8EUR bracelet, 15EUR bracelet+gilet)
+3. Guardian detail page - Fixed prescriber data extraction from company endpoint response
+4. Agency/Guardian management - Backend returns agency_id and agency_name for guardians
+5. Message button removed from guardian detail page
 
-### Espaces SAAD
-- Codes prescripteur/intervention 6 chiffres auto-generes
-- Activation prescripteur auto-lie le gardien a la SAAD
-- Page agence avec onglets Agences + Gardiens
-- Popup Stripe Connect + choix commissionnement
-- Carte SAAD sur dashboard gardien + popup glass
+## Upcoming Tasks (P0)
+- Finalize SAAD Onboarding Frontend (commission choice popup on first login + Stripe Connect)
+- Submit iOS Build 45 to TestFlight
 
-### Blocage bracelet sans abonnement
-- SubscriptionGate + SubscriptionBanner composants
+## Upcoming Tasks (P1)
+- Email notifications (Resend) for subscription flow
+- Full native hardware testing (J-Style bracelet, Lefu Scale, Elder Vest)
 
-## BUGS CONNUS A CORRIGER (priorite)
-1. Popup agence : ne s'ouvre PAS en popup glass - le style `position:fixed` semble ne pas fonctionner dans le contexte tab
-2. Popup Stripe config : meme probleme - pas rendu en glass
-3. Fiche detail gardien (guardian-detail.tsx) : manque les informations complete (coordonnees, prescripteur oui/non, intervenant care oui/non) - affiche page vide/incomplete
-4. Bouton "Message" inutile dans guardian-detail.tsx - a supprimer
-5. Montant prescription validee dans espace SAAD : affiche 0EUR au lieu du montant commission
-6. Fond blanc/gris persistant derriere certaines pages
+## Future Tasks (P2+)
+- EBP accounting integration
+- Team/group programs UI
+- Shopify integration
+- Offline mode for intervenants
+- Production deployment (Dockerfile, docker-compose)
 
-## Comptes test
+## Key API Endpoints
+- POST /api/auth/login - Login (email field accepts phone)
+- GET /api/company/guardians - SAAD guardians with agency info
+- GET /api/company/prescriptions - SAAD prescriptions
+- GET /api/company/prescriber/{id} - Guardian detail from SAAD view
+- GET /api/guardian/saad-link - Guardian's SAAD affiliation info
+- POST /api/contract/create-subscription-intent - Stripe subscription
+- POST /api/company/stripe-onboarding - Stripe Connect for SAAD
+
+## Test Credentials
 | Role | Phone | Password |
-|---|---|---|
-| Admin | 600000001 | demo123 |
-| Teleassistance | 477101011 | demo123 |
-| SAAD | 0477101099 | demo123 |
-| Code prescripteur SAAD | 489912 | - |
-| Code intervention SAAD | 503645 | - |
+|------|-------|----------|
+| SAAD | +33477101099 | demo123 |
+| Guardian | +33651245918 | (user set) |
 
-## Stripe
-- Chutex: acct_1T5OOnLlk70Z9YFU
-- Chutex Care: acct_1T5OfJLqWmsf1vwj
-- SAAD Test Lyon: acct_1T5PLDLfuCwYI3BC (commission mensuelle 8/15EUR)
-
-## Taches a venir
-1. P0: Corriger les 6 bugs ci-dessus
-2. P0: Soumettre build 45 iOS a TestFlight
-3. P1: Checkup page par page
-4. P1: Popup detail commission dans profil SAAD (grille gains par type)
-5. P2: Deploiement production chutex-innovation.com
-6. P2: Audit i18n
-
-## Fichiers cles modifies cette session
-- frontend/app.json - newArchEnabled true, plugins
-- frontend/babel.config.js - NOUVEAU
-- frontend/app/_layout.tsx - fix hooks, routes
-- frontend/app/index.tsx - fix useRef hooks order
-- frontend/app/subscription.tsx - landing 8 etapes Stripe inline
-- frontend/app/(tabs)/devices.tsx - prescriptions bracelet/gilet, commissions
-- frontend/app/(tabs)/profile.tsx - carte Stripe SAAD, badge SAAD
-- frontend/app/(tabs)/health.tsx - redirect agence pour SAAD
-- frontend/app/company-agency.tsx - popup agence + gardiens
-- frontend/src/components/dashboard/CompanyHome.tsx - codes, invitations, Stripe setup
-- frontend/src/components/dashboard/GuardianHome.tsx - carte SAAD
-- frontend/src/components/SubscriptionGate.tsx - NOUVEAU
-- frontend/app/guardian-detail.tsx - fallback company prescriber API
-- backend/routes/contract_routes.py - Stripe subscriptions + Connect + factures + SMS
-- backend/routes/guardian_routes.py - saad-link fix, activate prescriber fix, SMS
-- backend/routes/company_routes.py - prescriptions query fix
-- backend/routes/auth_routes.py - codes 6 chiffres
-- backend/auth.py - SAFE_FIELDS activation/intervention codes
+## Key Files
+- backend/routes/company_routes.py - SAAD logic, agencies, guardians
+- backend/routes/contract_routes.py - Stripe payments
+- frontend/app/company-agency.tsx - Agency management with glass popups
+- frontend/src/components/dashboard/CompanyHome.tsx - SAAD dashboard
+- frontend/app/guardian-detail.tsx - Guardian detail page
+- frontend/src/components/dashboard/GuardianHome.tsx - Guardian dashboard
