@@ -89,10 +89,6 @@ export default function GuardianDetailScreen() {
               <div style={{ fontSize: 11, fontWeight: 700, color: '#38BDF8' }}>Email</div>
             </div>
           )}
-          <div style={{ flex: 1, ...G, padding: '14px', textAlign: 'center', cursor: 'pointer' } as any}>
-            <i className="ri-message-3-line" style={{ fontSize: 20, color: '#A78BFA', display: 'block', marginBottom: 6 }} />
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Message</div>
-          </div>
         </div>
 
         {/* Contact info card */}

@@ -311,6 +311,8 @@ async def company_guardians(user=Depends(get_current_user)):
     links = await db.saad_guardian_links.find(
         {"company_id": user['id']}, {"_id": 0}
     ).sort("created_at", -1).to_list(200)
+    agencies = await db.agencies.find({"company_id": user['id']}, {"_id": 0}).to_list(50)
+    agency_map = {a['id']: a['name'] for a in agencies}
     result = []
     for lk in links:
         if lk.get('guardian_id'):
@@ -320,6 +322,8 @@ async def company_guardians(user=Depends(get_current_user)):
                 pro_bens = await db.guardian_relationships.count_documents(
                     {"guardian_id": g['id'], "relationship_type": "professional"}
                 )
+                ag_id = g.get('agency_id')
+                ag_name = agency_map.get(ag_id, 'Non assigne') if ag_id else 'Non assigne'
                 result.append({
                     "link_id": lk['id'], "status": lk['status'],
                     "id": g['id'], "name": g['name'], "email": g.get('email', ''),
@@ -330,6 +334,8 @@ async def company_guardians(user=Depends(get_current_user)):
                     "is_prescriber": g.get('is_prescriber', False),
                     "intervention_structure": g.get('intervention_structure', g.get('structure_name', '')),
                     "prescriber_structure": g.get('prescriber_structure', ''),
+                    "agency_id": ag_id,
+                    "agency_name": ag_name,
                     "created_at": lk['created_at'],
                 })
                 continue
@@ -337,7 +343,8 @@ async def company_guardians(user=Depends(get_current_user)):
             "link_id": lk['id'], "status": lk['status'],
             "id": None, "name": lk.get('guardian_name') or "Non inscrit",
             "phone": lk.get('guardian_phone', ''), "email": '', "profession": '',
-            "professional_beneficiaries": 0, "created_at": lk['created_at'],
+            "professional_beneficiaries": 0, "agency_id": None, "agency_name": 'Non assigne',
+            "created_at": lk['created_at'],
         })
     return result
 

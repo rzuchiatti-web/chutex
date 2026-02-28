@@ -294,6 +294,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
 
           {/* Prescriptions */}
           {(() => {
+            const getCommission = (p: any) => p.subscription_type === 'bracelet_gilet' ? 15 : 8;
             const validatedP = prescriptions.filter((p: any) => p.status === 'validated' || p.status === 'subscribed');
             const pendingP = prescriptions.filter((p: any) => p.status === 'pending');
             const now2 = new Date();
@@ -301,8 +302,8 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
               const d = new Date(p.created_at || p.date || '');
               return d.getMonth() === now2.getMonth() && d.getFullYear() === now2.getFullYear();
             });
-            const currentMonthAmount = currentMonthValidated.reduce((s: number, p: any) => s + (p.commission || 0), 0);
-            const allTimeValidated = validatedP.reduce((s: number, p: any) => s + (p.commission || 0), 0);
+            const currentMonthAmount = currentMonthValidated.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0);
+            const allTimeValidated = validatedP.reduce((s: number, p: any) => s + (p.commission || getCommission(p)), 0);
             const convRate = prescriptions.length > 0 ? Math.round((validatedP.length / prescriptions.length) * 100) : 0;
             const nextM = new Date(); nextM.setMonth(nextM.getMonth() + 1);
             const nextPay = `01/${String(nextM.getMonth() + 1).padStart(2, '0')}/${nextM.getFullYear()}`;
