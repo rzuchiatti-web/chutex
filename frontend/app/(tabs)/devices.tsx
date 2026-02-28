@@ -895,25 +895,59 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         )}
         {/* GLASS POPUP — Nouvelle prescription (web) */}
         {showForm && (
-          <div onClick={() => setShowForm(false)} data-testid="new-prescription-popup" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+          <div onClick={() => { setShowForm(false); setFormError(''); }} data-testid="new-prescription-popup" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
             <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
-                <div onClick={() => setShowForm(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                <div onClick={() => { setShowForm(false); setFormError(''); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
               </div>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Prescription</div>
               <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 24 }}>Nouvelle prescription</div>
+
+              {/* Error message */}
+              {formError && (
+                <div onClick={() => setFormError('')} style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' } as any}>
+                  <i className="ri-error-warning-line" style={{ fontSize: 16, color: '#EF4444', flexShrink: 0 }} />
+                  <span style={{ fontSize: 13, color: '#FCA5A5', lineHeight: 1.4 }}>{formError}</span>
+                </div>
+              )}
+
+              {/* Beneficiaire section */}
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Beneficiaire</div>
               {[
-                { key: 'name', label: 'Nom du beneficiaire', placeholder: 'Jean Dupont' },
+                { key: 'name', label: 'Nom *', placeholder: 'Dupont', required: true },
+                { key: 'firstName', label: 'Prenom *', placeholder: 'Jean', required: true },
+                { key: 'phone', label: 'Telephone *', placeholder: '06 12 34 56 78', type: 'tel', required: true },
                 { key: 'email', label: 'Email', placeholder: 'jean@email.com', type: 'email' },
-                { key: 'phone', label: 'Telephone', placeholder: '06 12 34 56 78', type: 'tel' },
-                { key: 'notes', label: 'Notes', placeholder: 'Informations supplementaires...' },
+              ].map(f => (
+                <div key={f.key} style={{ marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 9, fontWeight: 600, color: f.required ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
+                  <input type={f.type || 'text'} value={(formData as any)[f.key]} onChange={(e: any) => { setFormData({ ...formData, [f.key]: e.target.value }); setFormError(''); }} placeholder={f.placeholder}
+                    style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: `1px solid ${f.required && formError && !(formData as any)[f.key]?.trim() ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.1)'}`, color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                </div>
+              ))}
+
+              {/* Aidant section */}
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '16px 0' } as any} />
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Aidant / Contact</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 10 }}>Recevra un SMS pour finaliser la souscription</div>
+              {[
+                { key: 'guardianName', label: 'Nom de l\'aidant', placeholder: 'Marie Dupont' },
+                { key: 'guardianPhone', label: 'Telephone de l\'aidant', placeholder: '06 98 76 54 32', type: 'tel' },
               ].map(f => (
                 <div key={f.key} style={{ marginBottom: 12 } as any}>
                   <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
-                  <input type={f.type || 'text'} value={(formData as any)[f.key]} onChange={(e: any) => setFormData({ ...formData, [f.key]: e.target.value })} placeholder={f.placeholder}
+                  <input type={f.type || 'text'} value={(formData as any)[f.key]} onChange={(e: any) => { setFormData({ ...formData, [f.key]: e.target.value }); setFormError(''); }} placeholder={f.placeholder}
                     style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
                 </div>
               ))}
+
+              {/* Notes */}
+              <div style={{ marginBottom: 16 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Notes</div>
+                <input value={formData.notes} onChange={(e: any) => setFormData({ ...formData, notes: e.target.value })} placeholder="Informations supplementaires..."
+                  style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+              </div>
+
               <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Type d'abonnement</div>
               <div style={{ display: 'flex', gap: 10, marginBottom: 20 } as any}>
                 {[{k:'bracelet', l:'Bracelet Elio', p:'39,90€/mois'}, {k:'bracelet_gilet', l:'Bracelet + Gilet Elder', p:'79,90€/mois'}].map(t => (
