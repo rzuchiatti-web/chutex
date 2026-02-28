@@ -101,6 +101,9 @@ export default function ProfileScreen() {
   const [editEmergencyPhone, setEditEmergencyPhone] = useState(user?.emergency_contact_phone || '');
   const [editDoctor, setEditDoctor] = useState(user?.doctor_name || '');
   const [showActivateBenPopup, setShowActivateBenPopup] = useState(false);
+  const [benForm, setBenForm] = useState({ firstName: '', lastName: '', dob_day: '', dob_month: '', dob_year: '', gender: '', height_cm: '', weight_kg: '', address: '', postal_code: '', city: '', emergency_name: '', emergency_phone: '' });
+  const [benError, setBenError] = useState('');
+  const [benSaving, setBenSaving] = useState(false);
   const [editSiret, setEditSiret] = useState(user?.siret || '');
   const [editStructure, setEditStructure] = useState(user?.structure_name || '');
   const [saving, setSaving] = useState(false);
