@@ -183,10 +183,10 @@ function DeviceManagement({ token }: { token: string }) {
                         else if (device.device_type === 'scale') router.push('/scale-detail');
                         else syncDevice(device.device_type);
                       }} style={{
-                        flex: 1, padding: '13px 16px', borderRadius: 999, cursor: needsSub ? 'not-allowed' : 'pointer',
+                        flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer',
                         background: '#FFF', color: '#111',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        fontSize: 14, fontWeight: 700, opacity: needsSub ? 0.4 : 1,
+                        fontSize: 14, fontWeight: 700, opacity: needsSub ? 0.5 : 1,
                       } as any}>
                         <i className="ri-bluetooth-line" style={{ fontSize: 16 }} />
                         Associer
