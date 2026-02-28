@@ -214,6 +214,8 @@ async def shopify_order_paid(request: Request):
         "customer_name": f"{last_name} {first_name}".strip(),
         "customer_email": email,
         "customer_phone": cleaned_phone,
+        "beneficiary_phone": beneficiary_phone,
+        "subscription_phone": subscription_phone,
         "address": address, "city": city, "postal_code": postal_code,
         "product_type": product_type,
         "product_name": product_name,
@@ -228,14 +230,14 @@ async def shopify_order_paid(request: Request):
     }
     await db.shopify_orders.insert_one(shopify_record)
 
-    # === Create subscription in app DB ===
+    # === Create subscription in app DB (linked to beneficiary phone) ===
     if stripe_subscription_id or not stripe_error:
-        phone_for_sub = cleaned_phone or phone
-        if phone_for_sub:
+        if subscription_phone:
             await db.subscriptions.update_one(
-                {"beneficiary_phone": phone_for_sub},
+                {"beneficiary_phone": subscription_phone},
                 {"$set": {
-                    "beneficiary_phone": phone_for_sub,
+                    "beneficiary_phone": subscription_phone,
+                    "buyer_phone": cleaned_phone,
                     "subscription_type": "bracelet_only",
                     "status": "active",
                     "source": "shopify",
