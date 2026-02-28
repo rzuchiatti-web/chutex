@@ -555,6 +555,22 @@ async def company_ranking(user=Depends(get_current_user)):
 
 
 
+@router.put("/company/commission-type")
+async def set_commission_type(data: dict, user=Depends(get_current_user)):
+    """Set the commission preference for a SAAD (without requiring Stripe)."""
+    if user.get('role') != 'prescriber_company':
+        raise HTTPException(status_code=403, detail="Acces entreprise requis")
+    ct = data.get('commission_type')
+    if ct not in ('oneshot', 'monthly'):
+        raise HTTPException(status_code=400, detail="commission_type doit etre 'oneshot' ou 'monthly'")
+    await db.users.update_one({"id": user['id']}, {"$set": {
+        "commission_type": ct,
+        "onboarding_completed": True,
+    }})
+    return {"status": "ok", "commission_type": ct}
+
+
+
 # ==================== REWARDS PROGRAM ====================
 @router.get("/company/rewards/current")
 async def get_current_reward(user=Depends(get_current_user)):
