@@ -145,6 +145,38 @@ async def shopify_order_paid(request: Request):
             )
             logger.info(f"[Shopify] Email sent to {email} for order {order_number}")
         except Exception as e:
+
+
+@router.get("/shopify/check-order")
+async def check_shopify_order_by_phone(phone: str = ""):
+    """Check if a pending Shopify order exists for this phone number.
+    Used by the subscription landing page to pre-fill customer data."""
+    if not phone:
+        return {"found": False}
+    cleaned = phone.replace(" ", "").replace(".", "").replace("-", "")
+    if cleaned.startswith("0") and len(cleaned) >= 10:
+        cleaned = "+33" + cleaned[1:]
+    suffix = cleaned[-9:] if len(cleaned) >= 9 else cleaned
+    order = await db.shopify_orders.find_one(
+        {"customer_phone": {"$regex": suffix}, "status": "pending_activation"},
+        {"_id": 0}
+    )
+    if not order:
+        return {"found": False}
+    return {
+        "found": True,
+        "customer_name": order.get("customer_name", ""),
+        "customer_email": order.get("customer_email", ""),
+        "customer_phone": order.get("customer_phone", ""),
+        "address": order.get("address", ""),
+        "city": order.get("city", ""),
+        "postal_code": order.get("postal_code", ""),
+        "product_type": order.get("product_type", "bracelet"),
+        "order_number": order.get("order_number", ""),
+        "shopify_order_id": order.get("id", ""),
+    }
+
+
             logger.error(f"[Shopify] Email error for {email}: {e}")
 
     logger.info(f"[Shopify] Order {order_number} processed: {full_name} ({cleaned_phone}) - {product_type}")
