@@ -25,8 +25,9 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showStripeSetup, setShowStripeSetup] = useState(false);
-  const [commissionChoice, setCommissionChoice] = useState('monthly');
+  const [commissionChoice, setCommissionChoice] = useState(user?.commission_type || 'monthly');
   const [stripeLoading, setStripeLoading] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState<1 | 2>(1);
 
   const fetchData = useCallback(async () => {
     try {
@@ -48,7 +49,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
   }, [token]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
-  useEffect(() => { if (!loading && !user.stripe_account_id) setShowStripeSetup(true); }, [loading, user.stripe_account_id]);
+  useEffect(() => { if (!loading && !user.onboarding_completed && !user.commission_type) setShowStripeSetup(true); }, [loading, user.onboarding_completed, user.commission_type]);
 
   if (loading) return <FullScreenLoader />;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
