@@ -258,6 +258,8 @@ async def invite_guardian(data: dict, user=Depends(get_current_user)):
     cleaned = phone.replace(' ', '').replace('.', '').replace('-', '')
     if cleaned.startswith('0') and len(cleaned) >= 10:
         cleaned = '+33' + cleaned[1:]
+    if len(cleaned) < 10:
+        raise HTTPException(status_code=400, detail="Numero de telephone invalide (min 10 chiffres)")
 
     # Check existing link
     existing_link = await db.saad_guardian_links.find_one(
