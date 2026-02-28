@@ -176,6 +176,7 @@ function DeviceManagement({ token }: { token: string }) {
                   ) : (
                     <div style={{ display: 'flex', gap: 10 } as any}>
                       <div data-testid={`connect-${device.device_type}-btn`} onClick={() => {
+                        if (needsSub) { setShowNoSubPopup(true); return; }
                         if (isVest) router.push('/vest-connect');
                         else if (isBracelet) syncDevice('bracelet');
                         else if (device.device_type === 'scale') router.push('/scale-detail');
