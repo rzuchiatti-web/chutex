@@ -306,7 +306,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <AlertBanner activeAlerts={activeAlerts} />
 
           {/* ── SUBSCRIPTION BANNER (si pas d'abo bracelet) ── */}
-          <SubscriptionBanner subscription={subscription} />
+          {/* Health data shown even without subscription — values show -- when no data */}
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
