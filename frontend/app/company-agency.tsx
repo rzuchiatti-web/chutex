@@ -3,6 +3,7 @@ import FullScreenLoader from '../src/components/FullScreenLoader';
 import { View, Text, ActivityIndicator, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { PhoneInputWithPrefix } from '../src/components/PhoneInputWithPrefix';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 
@@ -34,6 +35,7 @@ export default function CompanyAgencyScreen() {
   const [selectedGuardian, setSelectedGuardian] = useState<any>(null);
   const [agForm, setAgForm] = useState({ name: '', address: '' });
   const [invitePhone, setInvitePhone] = useState('');
+  const [invitePrefix, setInvitePrefix] = useState('+33');
   const [inviteMsg, setInviteMsg] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -446,7 +448,7 @@ export default function CompanyAgencyScreen() {
               <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numéro de téléphone</div>
               <div style={{ position: 'relative' } as any}>
                 <i className="ri-phone-line" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' } as any} />
-                <input value={invitePhone} onChange={(e: any) => setInvitePhone(e.target.value)} placeholder="06 12 34 56 78" type="tel" onKeyDown={(e: any) => { if (e.key === 'Enter') inviteGuardian(); }} style={{ width: '100%', padding: '14px 16px 14px 42px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 16, fontWeight: 600, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                <PhoneInputWithPrefix value={invitePhone} onChangeText={setInvitePhone} prefix={invitePrefix} onPrefixChange={setInvitePrefix} placeholder="6 12 34 56 78" onSubmit={inviteGuardian} />
               </div>
             </div>
             {inviteMsg && (
