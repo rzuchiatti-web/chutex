@@ -219,7 +219,10 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
             <div onClick={() => setSelected(d.id)} style={{ fontSize: 14, fontWeight: 900, color: batteryColor(d.battery), flexShrink: 0, cursor: 'pointer' }}>{d.battery}%</div>
           ) : (
             <div style={{ display: 'flex', gap: 6, flexShrink: 0 } as any}>
-              <div data-testid={`associate-${d.id}`} onClick={() => startPairing(d.id)} style={{ padding: '6px 14px', borderRadius: 999, background: `${d.color}18`, border: `1px solid ${d.color}30`, cursor: 'pointer', fontSize: 11, fontWeight: 700, color: d.color, transition: 'background 0.2s' } as any}
+              <div data-testid={`associate-${d.id}`} onClick={() => {
+                if (d.id === 'bracelet' && needsSub) { setShowNoSubPopup(true); return; }
+                startPairing(d.id);
+              }} style={{ padding: '6px 14px', borderRadius: 999, background: `${d.color}18`, border: `1px solid ${d.color}30`, cursor: 'pointer', fontSize: 11, fontWeight: 700, color: d.color, transition: 'background 0.2s', opacity: d.id === 'bracelet' && needsSub ? 0.5 : 1 } as any}
                 onMouseEnter={(e: any) => e.currentTarget.style.background = `${d.color}30`}
                 onMouseLeave={(e: any) => e.currentTarget.style.background = `${d.color}18`}
               >Associer</div>
