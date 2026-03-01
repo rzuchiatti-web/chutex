@@ -609,6 +609,7 @@ Genere un bilan medical de fin de programme en JSON. Ton professionnel, pas d'em
             "first_half_mood": first_half_mood, "second_half_mood": second_half_mood,
         },
         "report": ai_report,
+        "health_comparison": health_comparison,
         "checkins": checkins,
     }
 
