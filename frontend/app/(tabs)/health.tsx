@@ -86,6 +86,36 @@ export default function HealthScreen() {
   if (Platform.OS === 'web' && effectiveRole === 'beneficiary') {
     if (reportLoading) return <FullScreenLoader />;
 
+    /* No data — show connect device message */
+    if (report?.no_data) {
+      return (
+        <div data-testid="health-no-data" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
+          <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px', textAlign: 'center' } as any}>
+            <div style={{ width: 80, height: 80, borderRadius: 24, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
+              <i className="ri-heart-pulse-line" style={{ fontSize: 40, color: '#3B82F6' }} />
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>Aucune donnee de sante</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 320, marginBottom: 28 }}>Associez votre bracelet Elio ou votre balance connectee pour commencer a suivre votre sante.</div>
+            <div style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 28, width: '100%', maxWidth: 320, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              {[
+                { icon: 'ri-watch-line', text: 'Bracelet Elio — Rythme cardiaque, SpO2, sommeil' },
+                { icon: 'ri-scales-3-line', text: 'Balance Lefu — Poids, composition corporelle' },
+                { icon: 'ri-shirt-line', text: 'Gilet Elder — Detection de chute, posture' },
+              ].map((f, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                  <i className={f.icon} style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{f.text}</span>
+                </div>
+              ))}
+            </div>
+            <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ padding: '16px 36px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', fontSize: 15, fontWeight: 700 } as any}>Associer un appareil</div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
         <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
