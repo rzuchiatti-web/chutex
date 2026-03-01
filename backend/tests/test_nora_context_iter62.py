@@ -38,7 +38,7 @@ class TestNoraContextNoData:
         
         if login_resp.status_code == 200:
             data = login_resp.json()
-            self.token = data.get("access_token")
+            self.token = data.get("token")  # API returns 'token' not 'access_token'
             self.user = data.get("user", {})
             self.session.headers.update({"Authorization": f"Bearer {self.token}"})
         else:
@@ -176,7 +176,7 @@ class TestNoraChatContextAware:
         
         if login_resp.status_code == 200:
             data = login_resp.json()
-            self.token = data.get("access_token")
+            self.token = data.get("token")  # API returns 'token' not 'access_token'
             self.session.headers.update({"Authorization": f"Bearer {self.token}"})
         else:
             pytest.skip(f"Login failed: {login_resp.status_code}")
@@ -231,7 +231,7 @@ class TestNoraContextWithData:
         
         if login_resp.status_code == 200:
             data = login_resp.json()
-            self.token = data.get("access_token")
+            self.token = data.get("token")  # API returns 'token' not 'access_token'
             self.user = data.get("user", {})
             self.session.headers.update({"Authorization": f"Bearer {self.token}"})
         else:
@@ -280,7 +280,7 @@ class TestNoraContextBuilding:
         
         if login_resp.status_code == 200:
             data = login_resp.json()
-            self.token = data.get("access_token")
+            self.token = data.get("token")  # API returns 'token' not 'access_token'
             self.user_data = data.get("user", {})
             self.session.headers.update({"Authorization": f"Bearer {self.token}"})
         else:
