@@ -106,12 +106,21 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
     : [{ key: 'info', label: 'Abonnement', icon: 'ri-watch-line' }, { key: 'payment', label: 'Paiement', icon: 'ri-bank-card-line' }];
 
   return (
-    <div onClick={onClose} data-testid="subscription-manage-popup" style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: isCare ? 'rgba(88,40,200,0.15)' : 'rgba(20,60,140,0.15)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
-      <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '30px 24px 120px', boxSizing: 'border-box' } as any}>
+    <div data-testid="subscription-manage-page" style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+      {/* Full background */}
+      <img src={isCare ? BG_VIOLET : BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
 
-        {/* Close */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
-          <div onClick={onClose} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+      {/* Scrollable content */}
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '24px 22px 120px', boxSizing: 'border-box' } as any}>
+
+        {/* Back button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 } as any}>
+          <div onClick={onClose} data-testid="sub-back-btn" style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
+          </div>
+          <span style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Mon abonnement</span>
         </div>
 
         {/* Header */}
