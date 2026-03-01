@@ -562,13 +562,14 @@ Reponds UNIQUEMENT en JSON: {{"summary": "phrase medicale factuelle courte", "re
 async def get_daily_report(user=Depends(get_current_user)):
     uid = user['id']
 
+    # Build Nora context first
+    nora_ctx = await build_nora_context(user)
+
     # No devices or no readings = no data
-    has_devices = await db.devices.find_one({"user_id": uid}, {"_id": 0})
-    has_readings = await db.device_readings.find_one({"user_id": uid}, {"_id": 0}) if has_devices else None
-    if not has_devices or not has_readings:
+    if not nora_ctx["has_bracelet"] and not nora_ctx["has_scale"]:
+        ai_no_data = await gen_ai({}, {"score": 0, "status": "Aucune donnee", "subscores": {"cardio": {"score": 0}, "sleep": {"score": 0}, "activity": {"score": 0}, "metabolism": {"score": 0}, "hydration": {"score": 0}}}, nora_ctx)
         return {"no_data": True, "data": {}, "score_info": {"score": 0, "status": "Aucune donnee", "status_color": "#6B7280", "subscores": {}, "lifts": [], "limits": []},
-                "ai_insights": {"hero_line": "Connectez un appareil pour demarrer votre suivi", "priority": "Connecter un bracelet ou une balance", "priority_why": "Sans appareil, Nora ne peut pas analyser vos donnees.",
-                "correlations": [], "whats_good": [], "watch_out": [], "secondary_recs": [], "motivation": "", "score_explain_up": "", "score_explain_down": ""},
+                "ai": ai_no_data,
                 "daily_plan": [], "sparklines": {}, "weighings": []}
 
     bracelet_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
