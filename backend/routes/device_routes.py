@@ -132,7 +132,7 @@ async def get_dashboard_summary(user=Depends(get_current_user)):
         "steps": (3842 + random.randint(0, 500)) if bracelet_dev and bracelet_dev.get("connected") else 0,
         "calories": (154 + random.randint(0, 30)) if bracelet_dev and bracelet_dev.get("connected") else 0,
         "distance_km": round(2.7 + random.random() * 0.5, 1) if bracelet_dev and bracelet_dev.get("connected") else 0,
-        "last_sync": bracelet_dev.get("last_sync") or (now.isoformat() if bracelet_dev and bracelet_dev.get("connected") else None),
+        "last_sync": (bracelet_dev.get("last_sync") if bracelet_dev else None) or (now.isoformat() if bracelet_dev and bracelet_dev.get("connected") else None),
         "heart_rate_history": [
             {"hour": f"{h:02d}h", "value": 68 + int(8 * math.sin(h / 24 * math.pi * 2)) + random.randint(-2, 4)}
             for h in range(max(0, hour - 6), hour + 1)
