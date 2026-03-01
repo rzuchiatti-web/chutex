@@ -167,7 +167,7 @@ class TestProgramActiveEndpoint:
     def setup(self):
         """Login and get token"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": TEST_PHONE,
+            "email": TEST_EMAIL,
             "password": TEST_PASSWORD
         })
         assert response.status_code == 200
@@ -257,7 +257,7 @@ class TestProgramStartWithHealthSnapshot:
     def setup(self):
         """Login and get token"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": TEST_PHONE,
+            "email": TEST_EMAIL,
             "password": TEST_PASSWORD
         })
         assert response.status_code == 200
@@ -302,7 +302,7 @@ class TestCompletionReportWithHealthComparison:
     def setup(self):
         """Login and get token"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": TEST_PHONE,
+            "email": TEST_EMAIL,
             "password": TEST_PASSWORD
         })
         assert response.status_code == 200
@@ -349,7 +349,7 @@ class TestProgramsIntegration:
     def setup(self):
         """Login and get token"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": TEST_PHONE,
+            "email": TEST_EMAIL,
             "password": TEST_PASSWORD
         })
         assert response.status_code == 200
