@@ -105,8 +105,9 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Section "Programmes disponibles" avec effort, difficulte, benefices preview
 
 ## Upcoming Tasks
-- P0: Build iOS TestFlight
-- P1: Tests complets du flux equipe sur device (invitation SMS, notification, accept/reject)
+- 🔴 Frontend : tableau de bord gardien enrichi (resume visuel en 1 coup d'oeil)
+- 🔴 Frontend : ecran intervenant a domicile (vue visite + formulaire observation)
+- 🟠 Build iOS TestFlight
 
 ## Future/Backlog
 - Integration EBP comptable
