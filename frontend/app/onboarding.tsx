@@ -24,18 +24,7 @@ export default function OnboardingScreen() {
   const finish = async () => { await AsyncStorage.setItem('chutex_onboarding_done', 'true'); router.replace('/'); };
 
   if (Platform.OS !== 'web') {
-    const { SafeAreaView } = require('react-native-safe-area-context');
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20, justifyContent: 'center' }}>
-          <Image source={{ uri: LOGO }} style={{ width: 100, height: 26, resizeMode: 'contain', alignSelf: 'center', marginBottom: 20 }} />
-          <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFF', textAlign: 'center', marginBottom: 24 }}>Construire un avenir ou la longevite, la vitalite et la sante sont portees par la prevention.</Text>
-          <TouchableOpacity onPress={finish} style={{ backgroundColor: '#FFF', borderRadius: 9999, paddingVertical: 14, alignItems: 'center' }}>
-            <Text style={{ color: '#111', fontSize: 14, fontWeight: '600' }}>Commencer</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </SafeAreaView>
-    );
+    return <NativePageView path="/onboarding" />;
   }
 
   return (
