@@ -144,6 +144,24 @@ export default function GuardianHome({ token, user }: { token: string; user: any
           </div>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10 }}>Mes beneficiaires</div>
 
+          {/* Quick summary banner */}
+          {bens.length > 0 && (
+            <div data-testid="guardian-summary" style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
+              <div style={{ flex: 1, padding: '14px', borderRadius: 16, background: activeAlerts.length > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${activeAlerts.length > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}`, textAlign: 'center', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+                <div style={{ fontSize: 24, fontWeight: 900, color: activeAlerts.length > 0 ? '#EF4444' : '#10B981' }}>{activeAlerts.length > 0 ? activeAlerts.length : bens.length}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{activeAlerts.length > 0 ? 'Alerte(s) active(s)' : 'Beneficiaire(s) OK'}</div>
+              </div>
+              <div style={{ flex: 1, padding: '14px', borderRadius: 16, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)', textAlign: 'center', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#3B82F6' }}>{bens.length}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Beneficiaire(s)</div>
+              </div>
+              <div style={{ flex: 1, padding: '14px', borderRadius: 16, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.15)', textAlign: 'center', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#A78BFA' }}>{bens.filter((b: any) => b.latest_vitals?.heart_rate).length}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Connecte(s)</div>
+              </div>
+            </div>
+          )}
+
           {/* Language popup glass */}
           {langOpenG && (
             <div onClick={() => setLangOpenG(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
