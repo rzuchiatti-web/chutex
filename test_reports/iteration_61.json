@@ -1,0 +1,122 @@
+{
+  "summary": "Iteration 61 testing complete. All backend and frontend tests PASSED (12/12 backend, 6/6 frontend). Tested Stripe webhook endpoint, subscription API with start_date/source fields, and Profile page subscription cards (Standard=blue, Care=violet) with glass popup details and upgrade banner.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "backend_tests": {
+      "test_file": "/app/backend/tests/test_stripe_webhook_subscription_cards_iter61.py",
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "tests": [
+        "TestStripeWebhook::test_webhook_endpoint_exists_and_returns_ok - PASS",
+        "TestStripeWebhook::test_webhook_invoice_payment_succeeded_event_format - PASS",
+        "TestStripeWebhook::test_webhook_invoice_payment_failed_event_format - PASS",
+        "TestStripeWebhook::test_webhook_subscription_deleted_event_format - PASS",
+        "TestStripeWebhook::test_webhook_subscription_updated_event_format - PASS",
+        "TestSubscriptionMyEndpoint::test_subscription_my_returns_start_date_field - PASS",
+        "TestSubscriptionMyEndpoint::test_subscription_my_returns_source_field - PASS",
+        "TestSubscriptionMyEndpoint::test_subscription_my_fallback_start_date_to_created_at - PASS",
+        "TestSubscriptionCardLogic::test_no_subscription_no_card - PASS",
+        "TestSubscriptionCardLogic::test_bracelet_only_subscription_returns_standard_type - PASS",
+        "TestSubscriptionCardLogic::test_care_subscription_returns_care_type - PASS",
+        "TestSubscriptionDetailPopupData::test_subscription_popup_has_all_required_fields - PASS"
+      ]
+    },
+    "frontend_tests": {
+      "test_1_no_subscription": {
+        "status": "PASS",
+        "description": "Profile page with NO subscription shows NO subscription card",
+        "verified": true
+      },
+      "test_2_standard_subscription": {
+        "status": "PASS",
+        "description": "Profile shows 'Bracelet Elio' card with blue background",
+        "details": {
+          "card_visible": true,
+          "card_background": "blue",
+          "card_title": "Bracelet Elio",
+          "popup_opens": true,
+          "popup_fields": {
+            "type": "Standard — Bracelet Elio",
+            "formule": "Bracelet Elio — Suivi sante",
+            "price": "24,90 EUR/mois",
+            "source": "Achat en ligne (Shopify)",
+            "features": ["Suivi cardiaque en continu", "SpO2 et temperature", "Detection de chute", "Historique de sante", "App mobile dediee"]
+          },
+          "upgrade_banner_visible": true,
+          "upgrade_banner_text": "Passer a Chutex Care"
+        }
+      },
+      "test_3_care_subscription": {
+        "status": "PASS",
+        "description": "Profile shows 'Abonnement Care' card with violet background",
+        "details": {
+          "card_visible": true,
+          "card_background": "violet/purple",
+          "card_title": "Abonnement Care",
+          "popup_opens": true,
+          "popup_fields": {
+            "type": "Care — Teleassistance 24/7",
+            "formule": "Bracelet Elio + Teleassistance",
+            "price": "39,90 EUR/mois",
+            "source": "Souscription en ligne",
+            "features": ["Detection de chute automatique", "Bouton SOS sur bracelet", "Plateau d'ecoute 24/7", "Envoi d'intervenants Care", "Suivi GPS en temps reel", "Notifications aux gardiens", "Rapports de cloture"]
+          },
+          "upgrade_banner_visible": false
+        }
+      }
+    }
+  },
+  "features_verified": [
+    "POST /api/webhook/stripe endpoint exists and returns {status: ok} for all Stripe event types",
+    "Webhook handles invoice.payment_succeeded, invoice.payment_failed, customer.subscription.deleted, customer.subscription.updated",
+    "GET /api/subscriptions/my returns start_date field (or falls back to created_at)",
+    "GET /api/subscriptions/my returns source field",
+    "Profile page with NO subscription shows NO subscription card - PASS",
+    "Profile with standard/bracelet_only subscription shows blue 'Bracelet Elio' card - PASS",
+    "Clicking standard card opens glass popup with details (Type, Formule 24.90 EUR, Source, features) - PASS",
+    "Standard popup shows 'Passer a Chutex Care' upgrade banner - PASS",
+    "Profile with care subscription shows violet 'Abonnement Care' card - PASS",
+    "Clicking care card opens popup with correct details (39.90 EUR, Teleassistance features) - PASS",
+    "Care popup does NOT show upgrade banner - PASS"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_stripe_webhook_subscription_cards_iter61.py",
+    "/app/test_reports/pytest/pytest_results_iter61.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Stripe webhook implementation in contract_routes.py lines 259-380 correctly handles all subscription lifecycle events",
+    "GET /api/subscriptions/my in subscription_routes.py correctly returns start_date and source fields",
+    "Profile subscription cards in profile.tsx correctly render based on subscription_type (standard=blue, care=violet)",
+    "Glass popup correctly shows all required fields and upgrade banner for standard users only"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_stripe_webhook_subscription_cards_iter61.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100% (6/6 tests passed)"
+  },
+  "test_credentials": {
+    "no_subscription_user": {
+      "phone": "0600000099",
+      "password": "test123",
+      "name": "Marie Test",
+      "user_id": "5b9f6c82-c9e2-4202-81de-08c61186071f"
+    }
+  },
+  "seed_data_creation": "Test subscriptions created and cleaned up for Marie Test (phone +33600000099). Standard subscription tested with source=shopify, Care subscription tested with source=website_contract",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All subscription features working correctly. Stripe webhook endpoint handles all 4 event types (payment_succeeded, payment_failed, subscription_deleted, subscription_updated). Profile page subscription cards display correctly based on subscription_type. Glass popup shows all fields including start_date, source, and features list. Upgrade banner only shows for standard users.",
+  "rca_of_the_issue": null
+}
