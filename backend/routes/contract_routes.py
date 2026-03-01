@@ -256,7 +256,7 @@ async def get_contract(contract_id: str):
     return contract
 
 
-# ─── Stripe Webhook (subscriptions) ───
+# ─── Stripe Webhook (subscriptions + contracts) ───
 @router.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
     body = await request.body()
@@ -278,6 +278,7 @@ async def stripe_webhook(request: Request):
     if etype == "invoice.payment_succeeded":
         sub_id = data.get("subscription")
         if sub_id:
+            # Handle contracts collection
             contract = await db.contracts.find_one({"stripe_subscription_id": sub_id})
             if contract and contract.get("status") != "active":
                 await _activate_contract(contract, contract["id"])
@@ -285,30 +286,58 @@ async def stripe_webhook(request: Request):
                 {"stripe_subscription_id": sub_id, "payment_status": "pending"},
                 {"$set": {"payment_status": "paid", "updated_at": now}},
             )
+            # Handle subscriptions collection (Shopify/direct)
+            app_sub = await db.subscriptions.find_one({"stripe_subscription_id": sub_id})
+            if app_sub and app_sub.get("status") != "active":
+                await db.subscriptions.update_one(
+                    {"id": app_sub["id"]},
+                    {"$set": {"status": "active", "updated_at": now}},
+                )
+                # Update user record
+                if app_sub.get("beneficiary_id"):
+                    await db.users.update_one(
+                        {"id": app_sub["beneficiary_id"]},
+                        {"$set": {"has_subscription": True, "subscription_type": app_sub.get("subscription_type", "bracelet_only")}},
+                    )
+                logger.info(f"Subscription {app_sub['id']} reactivated via payment success")
 
     elif etype == "invoice.payment_failed":
         sub_id = data.get("subscription")
         if sub_id:
+            attempt = data.get("attempt_count", 1)
+            # Handle contracts collection
             contract = await db.contracts.find_one({"stripe_subscription_id": sub_id})
             if contract:
-                attempt = data.get("attempt_count", 1)
                 logger.warning(f"Payment failed for {contract.get('contract_number')} (attempt {attempt})")
                 if attempt >= 3:
                     await db.contracts.update_one(
                         {"id": contract["id"]},
                         {"$set": {"status": "payment_failed", "updated_at": now}},
                     )
-                    # Suspend subscription in app
                     ben_phone = contract.get("beneficiary", {}).get("phone", "")
                     if ben_phone:
                         await db.subscriptions.update_one(
                             {"beneficiary_phone": ben_phone, "status": "active"},
                             {"$set": {"status": "suspended", "suspended_reason": "payment_failed", "updated_at": now}},
                         )
+            # Handle subscriptions collection (Shopify/direct)
+            app_sub = await db.subscriptions.find_one({"stripe_subscription_id": sub_id, "status": "active"})
+            if app_sub and attempt >= 3:
+                await db.subscriptions.update_one(
+                    {"id": app_sub["id"]},
+                    {"$set": {"status": "suspended", "suspended_reason": "payment_failed", "updated_at": now}},
+                )
+                if app_sub.get("beneficiary_id"):
+                    await db.users.update_one(
+                        {"id": app_sub["beneficiary_id"]},
+                        {"$set": {"has_subscription": False}},
+                    )
+                logger.warning(f"Subscription {app_sub['id']} suspended after {attempt} failed payments")
 
     elif etype == "customer.subscription.deleted":
         sub_id = data.get("id")
         if sub_id:
+            # Handle contracts collection
             contract = await db.contracts.find_one({"stripe_subscription_id": sub_id})
             if contract:
                 await db.contracts.update_one({"id": contract["id"]}, {"$set": {"status": "cancelled", "updated_at": now}})
@@ -316,8 +345,39 @@ async def stripe_webhook(request: Request):
                 if ben_phone:
                     await db.subscriptions.update_one(
                         {"beneficiary_phone": ben_phone, "status": {"$in": ["active", "suspended"]}},
-                        {"$set": {"status": "cancelled", "updated_at": now}},
+                        {"$set": {"status": "cancelled", "cancelled_at": now, "updated_at": now}},
                     )
+            # Handle subscriptions collection (Shopify/direct)
+            app_sub = await db.subscriptions.find_one({"stripe_subscription_id": sub_id, "status": {"$in": ["active", "suspended"]}})
+            if app_sub:
+                await db.subscriptions.update_one(
+                    {"id": app_sub["id"]},
+                    {"$set": {"status": "cancelled", "cancelled_at": now, "updated_at": now}},
+                )
+                if app_sub.get("beneficiary_id"):
+                    await db.users.update_one(
+                        {"id": app_sub["beneficiary_id"]},
+                        {"$set": {"has_subscription": False, "subscription_type": "none"}},
+                    )
+                logger.info(f"Subscription {app_sub['id']} cancelled via Stripe webhook")
+
+    elif etype == "customer.subscription.updated":
+        sub_id = data.get("id")
+        status = data.get("status")  # active, past_due, canceled, unpaid
+        if sub_id:
+            app_sub = await db.subscriptions.find_one({"stripe_subscription_id": sub_id})
+            if app_sub:
+                new_status = "active" if status == "active" else "suspended" if status in ("past_due", "unpaid") else "cancelled" if status == "canceled" else app_sub.get("status")
+                await db.subscriptions.update_one(
+                    {"id": app_sub["id"]},
+                    {"$set": {"status": new_status, "updated_at": now}},
+                )
+                if app_sub.get("beneficiary_id"):
+                    await db.users.update_one(
+                        {"id": app_sub["beneficiary_id"]},
+                        {"$set": {"has_subscription": new_status == "active", "subscription_type": app_sub.get("subscription_type") if new_status == "active" else "none"}},
+                    )
+                logger.info(f"Subscription {app_sub['id']} updated to {new_status} via Stripe")
 
     return {"status": "ok"}
 
