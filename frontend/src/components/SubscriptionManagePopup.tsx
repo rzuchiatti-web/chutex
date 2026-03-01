@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { apiFetch } from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const BG_BLUE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
 
