@@ -256,7 +256,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 14, lineHeight: 1.5 }}>En cas d'alerte, la teleassistance appellera vos gardiens dans cet ordre.</div>
 
             {guardians.length > 0 ? guardians.map((g: any, i: number) => (
-              <div key={g.id} data-testid={`guardian-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8 } as any}>
+              <div key={g.id} data-testid={`guardian-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8, ...glass } as any}>
                 <div style={{ width: 32, height: 32, borderRadius: 999, background: `${accent}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: accent }}>{i + 1}</div>
                 <div style={{ flex: 1 } as any}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{g.name}</div>
@@ -268,7 +268,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                 </div>
               </div>
             )) : (
-              <div style={{ padding: '20px', borderRadius: 16, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', textAlign: 'center', marginBottom: 12 } as any}>
+              <div style={{ padding: '20px', borderRadius: 16, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', textAlign: 'center', marginBottom: 12, ...glass } as any}>
                 <i className="ri-user-unfollow-line" style={{ fontSize: 28, color: 'rgba(239,68,68,0.4)', display: 'block', marginBottom: 8 }} />
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>Aucun gardien inscrit</div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>Vos contacts d'urgence n'ont pas encore cree leur compte gardien.</div>
@@ -280,7 +280,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
               <div style={{ marginTop: 12 } as any}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>En attente d'inscription</div>
                 {pendingInvites.map((inv: any) => (
-                  <div key={inv.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 8 } as any}>
+                  <div key={inv.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 8, ...glass } as any}>
                     <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-time-line" style={{ fontSize: 14, color: '#F59E0B' }} /></div>
                     <div style={{ flex: 1 } as any}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{inv.guardian_name || inv.guardian_phone}</div>
