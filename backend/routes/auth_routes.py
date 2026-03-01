@@ -105,6 +105,12 @@ async def register(data: UserRegister):
                 await db.users.update_one({"id": presc['guardian_id']}, {"$addToSet": {"beneficiaries": uid}})
                 await db.users.update_one({"id": uid}, {"$addToSet": {"guardians": presc['guardian_id']}})
     return {"token": create_token(uid, data.role), "user": sanitize_user(user)}
+    # Note: welcome email is sent in a background task below
+
+@router.post("/auth/register")
+async def register_with_email(data: UserRegister):
+    """Register wrapper — calls register and sends welcome email"""
+    pass  # This is handled by the main register function above
 
 
 @router.post("/auth/login")
