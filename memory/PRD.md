@@ -105,9 +105,8 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Section "Programmes disponibles" avec effort, difficulte, benefices preview
 
 ## Upcoming Tasks
-- 🔴 Frontend : tableau de bord gardien enrichi (resume visuel en 1 coup d'oeil)
-- 🔴 Frontend : ecran intervenant a domicile (vue visite + formulaire observation)
-- 🟠 Build iOS TestFlight
+- 🔴 Build iOS TestFlight
+- 🟠 Tests complets de toutes les nouvelles fonctionnalites sur device
 
 ## Future/Backlog
 - Integration EBP comptable
