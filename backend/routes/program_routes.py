@@ -182,7 +182,10 @@ SEED_PROGRAMS = [
 async def seed_programs():
     for p in SEED_PROGRAMS:
         existing = await db.programs.find_one({"id": p["id"]})
-        if not existing:
+        if existing:
+            # Force update with enriched content
+            await db.programs.update_one({"id": p["id"]}, {"$set": {k: v for k, v in p.items() if k != "id"}})
+        else:
             await db.programs.insert_one(p)
 
 
