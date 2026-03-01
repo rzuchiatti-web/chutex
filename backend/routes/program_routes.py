@@ -447,6 +447,9 @@ SEED_PROGRAMS = [
         },
     },
 ]
+
+
+@router.on_event("startup")
 async def seed_programs():
     for p in SEED_PROGRAMS:
         existing = await db.programs.find_one({"id": p["id"]})
