@@ -93,6 +93,11 @@ async def cancel_my_subscription(user=Depends(get_current_user)):
     # Update DB
     await db.subscriptions.update_one({"id": sub['id']}, {"$set": {"status": "cancelled", "cancelled_at": now, "updated_at": now}})
     await db.users.update_one({"id": user['id']}, {"$set": {"has_subscription": False, "subscription_type": "none"}})
+    # Send cancellation email
+    if user.get('email'):
+        import asyncio
+        from services.email_service import send_cancellation_email
+        asyncio.create_task(send_cancellation_email(user.get('name', ''), user['email'], sub.get('subscription_type', '')))
     return {"status": "cancelled"}
 
 
