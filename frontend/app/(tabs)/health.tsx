@@ -110,7 +110,7 @@ export default function HealthScreen() {
                 </div>
               ))}
             </div>
-            <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ padding: '16px 36px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', fontSize: 15, fontWeight: 700 } as any}>Associer un appareil</div>
+            <div onClick={() => router.push('/(tabs)' as any)} style={{ padding: '16px 36px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', fontSize: 15, fontWeight: 700 } as any}>Voir mes appareils</div>
           </div>
         </div>
       );

@@ -263,6 +263,7 @@ export function ReminderNotifPopup({ reminderNotif, setReminderNotif, reminderMe
 
 /* ─── ADD GUARDIAN POPUP ─── */
 export function AddGuardianPopup({ show, onClose, phone, setPhone, relationship, setRelationship, msg, setMsg, loading: isLoading, setLoading: setIsLoading, token, fetchData }: any) {
+  const [phonePrefix, setPhonePrefix] = useState('+33');
   if (!show) return null;
   const PROS_G = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide a domicile', 'Professionnel de sante', 'Infirmier(e) liberale', 'Coach sportif', 'Preparateur physique'];
   const PERSO_G = ['Mere', 'Pere', 'Fils', 'Fille', 'Petit-enfant', 'Conjoint(e)', 'Frere', 'Soeur', 'Ami(e)', 'Voisin(e)', 'Autre'];
