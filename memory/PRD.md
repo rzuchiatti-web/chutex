@@ -54,10 +54,28 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 ### Mar 1, 2026 - Emails, Gestion abonnements, Mot de passe oublie
 (sessions precedentes — tout complet)
 
+### Mar 1, 2026 - Mode Equipe + Page Programme Amelioree
+**Backend - Invitation par telephone:**
+- `POST /api/programs/team/invite-by-phone` : Si le telephone correspond a un beneficiaire existant → notification in-app (collection `team_invitations`). Sinon → SMS via SMS Mode.
+- `GET /api/programs/team/invitations` : Liste des invitations en attente
+- `POST /api/programs/team/invitations/{id}/accept` : Accepte et ajoute au team
+- `POST /api/programs/team/invitations/{id}/reject` : Refuse l'invitation
+
+**Frontend - Page programme amelioree (`program-detail.tsx`):**
+- 4 etapes : Presentation → Personnalisation (onboarding) → Invite amis (si equipe) → Lancement
+- Affiche benefices prouves, metriques suivies par Nora, phases progressives, avertissement medical
+- Invite par telephone avec feedback (notification in-app ou SMS)
+
+**Frontend - Dashboard invitations equipe:**
+- Carte d'invitation avec accepter/refuser sur le dashboard
+- Fetch automatique des invitations pending
+
+**Frontend - Catalogue programmes enrichi (`programs.tsx`):**
+- Section "Programmes disponibles" avec effort, difficulte, benefices preview
+
 ## Upcoming Tasks
 - P0: Build iOS TestFlight
-- P1: Mode equipe : invitation par SMS + notification in-app si compte existe
-- P2: Ameliorer la page program-detail.tsx avec les nouveaux champs onboarding interactifs
+- P1: Tests complets du flux equipe sur device (invitation SMS, notification, accept/reject)
 
 ## Future/Backlog
 - Integration EBP comptable
