@@ -142,7 +142,7 @@ class TestTeamInvitationsEndpoint:
         
         login_resp = self.session.post(
             f"{BASE_URL}/api/auth/login",
-            json={"phone": MARIE_PHONE, "password": MARIE_PASSWORD}
+            json={"email": TEST_EMAIL, "password": TEST_PASSWORD}
         )
         if login_resp.status_code == 200:
             self.token = login_resp.json().get("token")
