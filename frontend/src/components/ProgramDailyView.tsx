@@ -544,7 +544,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
                   {/* Before/After */}
                   {r.before_after && (
                     <div style={{ marginBottom: 20 } as any}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 10 }}>Avant / Apres</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 10 }}>Avant / Apres — Humeur</div>
                       <div style={{ display: 'flex', gap: 10 } as any}>
                         <div style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', textAlign: 'center' } as any}>
                           <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(239,68,68,0.6)', textTransform: 'uppercase', marginBottom: 4 }}>Avant</div>
@@ -558,6 +558,28 @@ export default function ProgramDailyView({ token, onStop }: Props) {
                           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>humeur</div>
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {/* Health Data Comparison (before/after) */}
+                  {bilanData.health_comparison && bilanData.health_comparison.length > 0 && (
+                    <div data-testid="health-comparison" style={{ marginBottom: 20 } as any}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 10 }}>Donnees de sante — Avant / Apres</div>
+                      {bilanData.health_comparison.map((hc: any, i: number) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                          <div style={{ flex: 1 } as any}>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{hc.label}</div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{hc.before}{hc.unit ? ` ${hc.unit}` : ''}</span>
+                            <i className="ri-arrow-right-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.15)' }} />
+                            <span style={{ fontSize: 14, fontWeight: 800, color: hc.improved ? '#10B981' : '#F59E0B' }}>{hc.after}{hc.unit ? ` ${hc.unit}` : ''}</span>
+                          </div>
+                          <div style={{ width: 24, height: 24, borderRadius: 8, background: hc.improved ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                            <i className={hc.improved ? 'ri-arrow-up-line' : hc.diff === 0 ? 'ri-equal-line' : 'ri-arrow-down-line'} style={{ fontSize: 14, color: hc.improved ? '#10B981' : '#F59E0B' }} />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
 
