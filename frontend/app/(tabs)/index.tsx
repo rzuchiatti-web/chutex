@@ -44,6 +44,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showAddGuardianPopup, setShowAddGuardianPopup] = useState(false);
   const [teamInvitations, setTeamInvitations] = useState<any[]>([]);
+  const [streakData, setStreakData] = useState<any>(null);
+  const [predictiveAlerts, setPredictiveAlerts] = useState<any[]>([]);
   const [inviteGuardPhone, setInviteGuardPhone] = useState('');
   const [inviteGuardRelationship, setInviteGuardRelationship] = useState('');
   const [inviteGuardMsg, setInviteGuardMsg] = useState('');
