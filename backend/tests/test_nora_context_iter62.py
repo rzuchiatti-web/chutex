@@ -30,9 +30,9 @@ class TestNoraContextNoData:
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
         
-        # Try login with phone number
+        # Try login with phone number (API uses email field for both email and phone)
         login_resp = self.session.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": TEST_USER_PHONE_NO_DATA,
+            "email": TEST_USER_PHONE_NO_DATA,
             "password": TEST_USER_PASSWORD
         })
         
@@ -170,7 +170,7 @@ class TestNoraChatContextAware:
         self.session.headers.update({"Content-Type": "application/json"})
         
         login_resp = self.session.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": TEST_USER_PHONE_NO_DATA,
+            "email": TEST_USER_PHONE_NO_DATA,
             "password": TEST_USER_PASSWORD
         })
         
@@ -225,7 +225,7 @@ class TestNoraContextWithData:
         self.session.headers.update({"Content-Type": "application/json"})
         
         login_resp = self.session.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": SAAD_PHONE,
+            "email": SAAD_PHONE,
             "password": SAAD_PASSWORD
         })
         
@@ -274,7 +274,7 @@ class TestNoraContextBuilding:
         self.session.headers.update({"Content-Type": "application/json"})
         
         login_resp = self.session.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": TEST_USER_PHONE_NO_DATA,
+            "email": TEST_USER_PHONE_NO_DATA,
             "password": TEST_USER_PASSWORD
         })
         
