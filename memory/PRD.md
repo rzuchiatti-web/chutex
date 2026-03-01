@@ -56,9 +56,8 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Upcoming Tasks
 - P0: Build iOS TestFlight
-- P1: Ameliorer l'UI du catalogue programmes (page presentation enrichie)
-- P2: Ajouter bilan avant/apres dans le frontend ProgramDailyView (ecran comparaison)
-- P3: Mode equipe avec invitation SMS + notifications
+- P1: Mode equipe : invitation par SMS + notification in-app si compte existe
+- P2: Ameliorer la page program-detail.tsx avec les nouveaux champs onboarding interactifs
 
 ## Future/Backlog
 - Integration EBP comptable
@@ -67,11 +66,11 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Historique des paiements Stripe
 
 ## Key Files
-- `backend/routes/program_routes.py`: Programmes, check-ins, bilans, equipes
+- `backend/routes/program_routes.py`: Programmes, check-ins, bilans, equipes, snapshot sante
 - `backend/services/nora_context.py`: Contexte IA enrichi
 - `backend/routes/health_report_routes.py`: Rapport sante + analyse par section
 - `backend/routes/chat_routes.py`: Chat Nora
-- `frontend/app/(tabs)/index.tsx`: Dashboard avec carte programme
-- `frontend/src/components/ProgramDailyView.tsx`: Vue quotidienne programme
-- `frontend/app/program-detail.tsx`: Detail programme (presentation)
-- `frontend/app/programs.tsx`: Page programmes catalogue
+- `frontend/app/(tabs)/index.tsx`: Dashboard avec carte programme + mission du jour + equipe
+- `frontend/src/components/ProgramDailyView.tsx`: Vue quotidienne avec science, equipe, bilan avant/apres
+- `frontend/app/program-detail.tsx`: Detail programme (presentation + onboarding)
+- `frontend/app/programs.tsx`: Page programmes avec catalogue enrichi
