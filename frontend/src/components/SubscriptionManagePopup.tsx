@@ -159,7 +159,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
             ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
               <div key={i}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 0' } as any}>
-                  <div style={{ width: 34, height: 34, borderRadius: 10, background: `${accent}15`, border: `1px solid ${accent}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <div style={{ width: 34, height: 34, borderRadius: 10, background: `${accent}15`, border: `1px solid ${accent}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, ...glass } as any}>
                     <i className={item.icon} style={{ fontSize: 15, color: accent }} />
                   </div>
                   <div style={{ flex: 1 } as any}>
