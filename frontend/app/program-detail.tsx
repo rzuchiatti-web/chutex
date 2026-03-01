@@ -26,7 +26,8 @@ export default function ProgramDetailScreen() {
     if (id) apiFetch(`/api/programs/detail/${id}`, {}, token).then(setProgram).catch(() => {});
   }, [id]);
 
-  if (Platform.OS !== 'web' || !program) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0f1a' }}><Text style={{ color: '#FFF' }}>Chargement...</Text></View>;
+  if (Platform.OS !== 'web') return <NativePageView path={`/program-detail?id=${id}`} />;
+  if (!program) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0f1a' }}><Text style={{ color: '#FFF' }}>Chargement...</Text></View>;
 
   const clr = program.color || '#A78BFA';
   const hasOnboarding = (program.onboarding_fields || []).length > 0;
