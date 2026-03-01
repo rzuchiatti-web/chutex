@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Platform, Image, ScrollView } from 'react
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LanguagePicker from '../src/components/LanguagePicker';
+import NativePageView from '../src/components/NativePageView';
 
 const LOGO = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
 
