@@ -93,7 +93,7 @@ class TestTeamInviteByPhone:
         # Now try inviting with Marie's own phone (should return already_member)
         invite_resp = self.session.post(
             f"{BASE_URL}/api/programs/team/invite-by-phone",
-            json={"phone": MARIE_PHONE, "team_id": team_id}
+            json={"phone": TEST_EMAIL, "team_id": team_id}
         )
         print(f"Invite self response: {invite_resp.status_code} - {invite_resp.text}")
         assert invite_resp.status_code == 200
