@@ -180,6 +180,12 @@ export default function MorningBriefingScreen() {
           <div style={{ fontSize: 15, fontWeight: 600, color: '#FFF', lineHeight: 1.55, whiteSpace: 'pre-wrap', maxWidth: 300, margin: '0 auto' }}>
             {text}<span style={{ opacity: done ? 0 : 1, transition: 'opacity 0.3s', color: 'rgba(255,255,255,0.3)' }}>|</span>
           </div>
+          {done && (
+            <div data-testid="tts-button" onClick={playBriefingAudio} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 999, background: audioPlaying ? 'rgba(167,139,250,0.2)' : 'rgba(255,255,255,0.08)', border: `1px solid ${audioPlaying ? 'rgba(167,139,250,0.4)' : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', marginTop: 14, transition: 'all 0.2s' } as any}>
+              <i className={audioLoading ? 'ri-loader-4-line' : audioPlaying ? 'ri-pause-line' : 'ri-volume-up-line'} style={{ fontSize: 16, color: audioPlaying ? '#A78BFA' : 'rgba(255,255,255,0.5)' }} />
+              <span style={{ fontSize: 12, fontWeight: 600, color: audioPlaying ? '#A78BFA' : 'rgba(255,255,255,0.5)' }}>{audioLoading ? 'Chargement...' : audioPlaying ? 'Pause' : 'Ecouter Nora'}</span>
+            </div>
+          )}
         </div>
 
         {visibleObjs >= 1 && (
