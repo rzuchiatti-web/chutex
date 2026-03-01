@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 MJ_PUBLIC = os.environ.get("MJ_APIKEY_PUBLIC", "")
 MJ_PRIVATE = os.environ.get("MJ_APIKEY_PRIVATE", "")
-MJ_SENDER = os.environ.get("MJ_SENDER_EMAIL", "noreply@chutex-innovation.com")
+MJ_SENDER = os.environ.get("MJ_SENDER_EMAIL", "contact@chutex-innovation.com")
 MJ_SENDER_NAME = os.environ.get("MJ_SENDER_NAME", "Chutex Care")
 
 LOGO_URL = "https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429"
