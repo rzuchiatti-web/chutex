@@ -503,7 +503,7 @@ async def stop_program(user=Depends(get_current_user)):
 
 @router.get("/programs/completion-report/{enrollment_id}")
 async def get_completion_report(enrollment_id: str, user=Depends(get_current_user)):
-    """Generate a comprehensive before/after completion report"""
+    """Generate a comprehensive before/after completion report with health data comparison"""
     enrollment = await db.program_enrollments.find_one(
         {"id": enrollment_id, "user_id": user['id']}, {"_id": 0}
     )
@@ -530,6 +530,43 @@ async def get_completion_report(enrollment_id: str, user=Depends(get_current_use
     mid = len(moods) // 2
     first_half_mood = round(sum(moods[:mid]) / max(len(moods[:mid]), 1), 1) if moods else 0
     second_half_mood = round(sum(moods[mid:]) / max(len(moods[mid:]), 1), 1) if moods else 0
+
+    # Before/After health data comparison
+    snapshot_start = enrollment.get("health_snapshot_start", {})
+    snapshot_end = await _capture_health_snapshot(user['id'])
+    
+    # Build health comparison
+    tracked_metrics = program.get("tracked_metrics", [])
+    health_comparison = []
+    metric_labels = {
+        "sleep_quality": {"label": "Qualite du sommeil", "unit": "%", "better": "higher"},
+        "sleep_duration_min": {"label": "Duree du sommeil", "unit": "min", "better": "higher"},
+        "deep_sleep_min": {"label": "Sommeil profond", "unit": "min", "better": "higher"},
+        "heart_rate": {"label": "Frequence cardiaque", "unit": "bpm", "better": "lower"},
+        "hrv": {"label": "Variabilite cardiaque", "unit": "ms", "better": "higher"},
+        "stress_level": {"label": "Niveau de stress", "unit": "/100", "better": "lower"},
+        "steps": {"label": "Pas quotidiens", "unit": "pas", "better": "higher"},
+        "calories": {"label": "Calories", "unit": "kcal", "better": "higher"},
+        "weight": {"label": "Poids", "unit": "kg", "better": "lower"},
+        "body_fat_pct": {"label": "Masse grasse", "unit": "%", "better": "lower"},
+        "muscle_pct": {"label": "Masse musculaire", "unit": "%", "better": "higher"},
+        "blood_pressure": {"label": "Tension", "unit": "mmHg", "better": "lower"},
+        "recovery_score": {"label": "Recuperation", "unit": "/100", "better": "higher"},
+    }
+    for mk in tracked_metrics:
+        meta = metric_labels.get(mk, {"label": mk, "unit": "", "better": "higher"})
+        before_val = snapshot_start.get(mk)
+        after_val = snapshot_end.get(mk)
+        if before_val is not None and after_val is not None:
+            if isinstance(before_val, dict):
+                continue  # Skip complex types like blood_pressure for now
+            diff = round(after_val - before_val, 1)
+            improved = (diff > 0 and meta["better"] == "higher") or (diff < 0 and meta["better"] == "lower")
+            health_comparison.append({
+                "metric": mk, "label": meta["label"], "unit": meta["unit"],
+                "before": before_val, "after": after_val,
+                "diff": diff, "improved": improved,
+            })
 
     # Generate AI completion report
     ai_report = None
