@@ -499,3 +499,68 @@ async def get_visit_history(beneficiary_id: str, user=Depends(get_current_user))
         {"beneficiary_id": beneficiary_id}, {"_id": 0}
     ).sort("created_at", -1).to_list(50)
     return observations
+
+
+# ═══════════════════════════════════════════
+#  6. NORA VOCALE (TTS)
+# ═══════════════════════════════════════════
+
+@router.post("/nora/speak")
+async def nora_text_to_speech(data: dict, user=Depends(get_current_user)):
+    """Convert Nora's text to speech audio using OpenAI TTS. Returns MP3 audio."""
+    text = data.get("text", "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Texte requis")
+
+    if len(text) > 4096:
+        text = text[:4096]
+
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="Service TTS non configure")
+
+    try:
+        from emergentintegrations.llm.openai import OpenAITextToSpeech
+        tts = OpenAITextToSpeech(api_key=api_key)
+        audio_bytes = await tts.generate_speech(
+            text=text,
+            model="tts-1",
+            voice="nova",  # Warm, clear female voice — fits Nora
+            speed=0.95,  # Slightly slower for elderly users
+            response_format="mp3",
+        )
+        return Response(content=audio_bytes, media_type="audio/mpeg", headers={"Content-Disposition": "inline; filename=nora.mp3"})
+    except Exception as e:
+        print(f"TTS error: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors de la generation audio")
+
+
+@router.post("/nora/speak-briefing")
+async def nora_speak_briefing(user=Depends(get_current_user)):
+    """Generate morning briefing text then convert to speech"""
+    # Get briefing text
+    briefing = await get_morning_briefing(user=user)
+    text = briefing.get("nora_message", "")
+    if briefing.get("objectives"):
+        text += " Vos objectifs pour aujourd'hui : "
+        for obj in briefing["objectives"][:4]:
+            text += f"{obj.get('label', '')} : {obj.get('value', '')}. "
+
+    if not text.strip():
+        text = "Bonjour, bienvenue dans votre journee."
+
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="Service TTS non configure")
+
+    try:
+        from emergentintegrations.llm.openai import OpenAITextToSpeech
+        tts = OpenAITextToSpeech(api_key=api_key)
+        audio_bytes = await tts.generate_speech(
+            text=text, model="tts-1", voice="nova", speed=0.95, response_format="mp3",
+        )
+        return Response(content=audio_bytes, media_type="audio/mpeg", headers={"Content-Disposition": "inline; filename=nora-briefing.mp3"})
+    except Exception as e:
+        print(f"TTS briefing error: {e}")
+        raise HTTPException(status_code=500, detail="Erreur generation audio")
+
