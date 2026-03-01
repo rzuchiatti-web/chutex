@@ -109,6 +109,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         if (cat?.programs) setProgramCatalog(cat.programs);
         // Fetch team invitations
         apiFetch('/api/programs/team/invitations', {}, token).then(inv => { if (Array.isArray(inv)) setTeamInvitations(inv); }).catch(() => {});
+        // Daily checkin + streak + predictive alerts
+        apiFetch('/api/nora/checkin-daily', { method: 'POST' }, token).then(s => { if (s) setStreakData(s); }).catch(() => {});
+        apiFetch('/api/nora/predictive-check', {}, token).then(p => { if (p?.alerts) setPredictiveAlerts(p.alerts); }).catch(() => {});
       } catch {}
     } catch {} finally { setLoading(false); setRefreshing(false); }
     // Fetch alerts separately to ensure it always runs
