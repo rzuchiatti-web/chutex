@@ -581,19 +581,19 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             )) : <div style={{ textAlign: 'center', padding: '30px 0' } as any}><i className="ri-loader-4-line" style={{ fontSize: 24, color: 'rgba(255,255,255,0.3)' }} /></div>}
           </ProfileGlassPopup>
 
-          {/* CARE SUBSCRIPTION DETAIL POPUP */}
+          {/* SUBSCRIPTION DETAIL POPUP (Care + Standard) */}
           {showCareDetail && (
-            <div onClick={() => setShowCareDetail(false)} data-testid="care-detail-popup" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(88,40,200,0.15)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+            <div onClick={() => setShowCareDetail(false)} data-testid="subscription-detail-popup" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: subData?.subscription_type === 'care' ? 'rgba(88,40,200,0.15)' : 'rgba(20,60,140,0.15)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
               <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
                   <div onClick={() => setShowCareDetail(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
                 </div>
                 {/* Header */}
                 <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-                  <div style={{ width: 72, height: 72, borderRadius: 22, background: 'linear-gradient(135deg, rgba(124,92,255,0.3), rgba(139,92,246,0.2))', border: '1px solid rgba(124,92,255,0.4)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
-                    <i className="ri-shield-star-line" style={{ fontSize: 36, color: '#A78BFA' }} />
+                  <div style={{ width: 72, height: 72, borderRadius: 22, background: subData?.subscription_type === 'care' ? 'linear-gradient(135deg, rgba(124,92,255,0.3), rgba(139,92,246,0.2))' : 'linear-gradient(135deg, rgba(59,130,246,0.3), rgba(34,211,238,0.2))', border: `1px solid ${subData?.subscription_type === 'care' ? 'rgba(124,92,255,0.4)' : 'rgba(59,130,246,0.4)'}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+                    <i className={subData?.subscription_type === 'care' ? 'ri-shield-star-line' : 'ri-watch-line'} style={{ fontSize: 36, color: subData?.subscription_type === 'care' ? '#A78BFA' : '#3B82F6' }} />
                   </div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>Abonnement Care</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF' }}>{subData?.subscription_type === 'care' ? 'Abonnement Care' : 'Bracelet Elio'}</div>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', marginTop: 10 } as any}>
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
                     <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
@@ -602,17 +602,19 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                 {/* Details */}
                 {[
                   subData?.subscription?.contract_number && { icon: 'ri-hashtag', label: 'Numero de contrat', value: subData.subscription.contract_number },
-                  { icon: 'ri-shield-check-line', label: 'Type', value: 'Care — Teleassistance 24/7' },
-                  subData?.subscription?.subscription_type && { icon: 'ri-vip-crown-line', label: 'Formule', value: subData.subscription.subscription_type === 'care' ? 'Bracelet Elio + Teleassistance' : subData.subscription.subscription_type },
-                  { icon: 'ri-money-euro-circle-line', label: 'Mensualite', value: '39,90 EUR/mois' },
-                  subData?.subscription?.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone', value: subData.subscription.beneficiary_phone },
-                  subData?.subscription?.created_at && { icon: 'ri-calendar-line', label: 'Souscrit le', value: new Date(subData.subscription.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
-                  subData?.subscription?.source && { icon: 'ri-information-line', label: 'Source', value: subData.subscription.source === 'website_contract' ? 'Souscription en ligne' : subData.subscription.source === 'manual' ? 'Activation manuelle' : subData.subscription.source },
-                ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
+                  { icon: 'ri-shield-check-line', label: 'Type', value: subData?.subscription_type === 'care' ? 'Care — Teleassistance 24/7' : 'Standard — Bracelet Elio' },
+                  subData?.subscription?.subscription_type && { icon: 'ri-vip-crown-line', label: 'Formule', value: subData.subscription.subscription_type === 'care' ? 'Bracelet Elio + Teleassistance' : 'Bracelet Elio — Suivi sante' },
+                  { icon: 'ri-money-euro-circle-line', label: 'Mensualite', value: subData?.subscription_type === 'care' ? '39,90 EUR/mois' : '24,90 EUR/mois' },
+                  subData?.subscription?.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone beneficiaire', value: subData.subscription.beneficiary_phone },
+                  (subData?.start_date || subData?.subscription?.created_at) && { icon: 'ri-calendar-line', label: 'Souscrit le', value: new Date(subData.start_date || subData.subscription.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
+                  subData?.source && { icon: 'ri-information-line', label: 'Source', value: subData.source === 'shopify' ? 'Achat en ligne (Shopify)' : subData.source === 'website_contract' ? 'Souscription en ligne' : subData.source === 'manual' ? 'Activation manuelle' : subData.source },
+                ].filter(Boolean).map((item: any, i: number, arr: any[]) => {
+                  const accent = subData?.subscription_type === 'care' ? '#A78BFA' : '#3B82F6';
+                  return (
                   <div key={i}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0' } as any}>
-                      <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(124,92,255,0.12)', border: '1px solid rgba(124,92,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        <i className={item.icon} style={{ fontSize: 16, color: '#A78BFA' }} />
+                      <div style={{ width: 36, height: 36, borderRadius: 12, background: `${accent}15`, border: `1px solid ${accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                        <i className={item.icon} style={{ fontSize: 16, color: accent }} />
                       </div>
                       <div style={{ flex: 1 } as any}>
                         <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>{item.label}</div>
@@ -621,17 +623,43 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                     </div>
                     {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}
                   </div>
-                ))}
+                  );
+                })}
                 {/* Included features */}
-                <div style={{ marginTop: 20, padding: '16px 18px', borderRadius: 18, background: 'rgba(124,92,255,0.08)', border: '1px solid rgba(124,92,255,0.15)' } as any}>
+                {(() => {
+                  const accent = subData?.subscription_type === 'care' ? '#A78BFA' : '#3B82F6';
+                  const features = subData?.subscription_type === 'care'
+                    ? ['Detection de chute automatique', 'Bouton SOS sur bracelet', 'Plateau d\'ecoute 24/7', 'Envoi d\'intervenants Care', 'Suivi GPS en temps reel', 'Notifications aux gardiens', 'Rapports de cloture']
+                    : ['Suivi cardiaque en continu', 'SpO2 et temperature', 'Detection de chute', 'Historique de sante', 'App mobile dediee'];
+                  return (
+                <div style={{ marginTop: 20, padding: '16px 18px', borderRadius: 18, background: `${accent}0C`, border: `1px solid ${accent}20` } as any}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>Inclus dans votre abonnement</div>
-                  {['Detection de chute automatique', 'Bouton SOS sur bracelet', 'Plateau d\'ecoute 24/7', 'Envoi d\'intervenants Care', 'Suivi GPS en temps reel', 'Notifications aux gardiens', 'Rapports de cloture'].map((f, i) => (
+                  {features.map((f, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 } as any}>
-                      <i className="ri-check-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                      <i className="ri-check-line" style={{ fontSize: 14, color: accent }} />
                       <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>{f}</span>
                     </div>
                   ))}
                 </div>
+                  );
+                })()}
+                {/* Upgrade banner for standard users */}
+                {subData?.subscription_type !== 'care' && (
+                  <div onClick={() => { setShowCareDetail(false); router.push('/subscription' as any); }} style={{ marginTop: 16, padding: '18px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(124,92,255,0.12), rgba(167,139,250,0.06))', border: '1px solid rgba(124,92,255,0.25)', cursor: 'pointer', transition: 'border-color 0.2s' } as any}
+                    onMouseEnter={(e: any) => e.currentTarget.style.borderColor = 'rgba(124,92,255,0.5)'}
+                    onMouseLeave={(e: any) => e.currentTarget.style.borderColor = 'rgba(124,92,255,0.25)'}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                      <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,92,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                        <i className="ri-arrow-up-circle-line" style={{ fontSize: 22, color: '#A78BFA' }} />
+                      </div>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Passer a Chutex Care</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Ajoutez la teleassistance 24/7 pour 15 EUR/mois de plus</div>
+                      </div>
+                      <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#A78BFA' }} />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
