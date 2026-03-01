@@ -14,8 +14,8 @@ import os
 
 BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://real-time-wellness.preview.emergentagent.com').rstrip('/')
 
-# Test user credentials
-TEST_PHONE = "0600000099"
+# Test user credentials - API uses email field for both email and phone
+TEST_EMAIL = "0600000099"  # Phone number used as email field
 TEST_PASSWORD = "test123"
 
 
@@ -24,9 +24,9 @@ class TestProgramsCatalogEndpoint:
     
     @pytest.fixture(autouse=True)
     def setup(self):
-        """Login and get token"""
+        """Login and get token - API uses email field for phone numbers"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": TEST_PHONE,
+            "email": TEST_EMAIL,
             "password": TEST_PASSWORD
         })
         assert response.status_code == 200, f"Login failed: {response.text}"
