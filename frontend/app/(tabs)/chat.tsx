@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiFetch } from '../../src/services/api';
+import NativePageView from '../../src/components/NativePageView';
 import { useRouter } from 'expo-router';
 
 const PROG_IMAGES: any = {
