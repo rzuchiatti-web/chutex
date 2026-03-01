@@ -322,25 +322,51 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── 4. PROGRAMME EN COURS (si actif, avant Nora) ── */}
           {activeProgram?.active && (
-            <div data-testid="active-program-card" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: `1px solid ${activeProgram.program.color}25`, padding: '16px 18px', marginBottom: 16, cursor: 'pointer', transition: 'transform 0.2s', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}
-              onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
-              <div style={{ marginBottom: 10 } as any}>
-                <span style={{ display: 'inline-flex', padding: '4px 10px', borderRadius: 999, background: `${activeProgram.program.color}15`, border: `1px solid ${activeProgram.program.color}25`, fontSize: 9, fontWeight: 700, color: activeProgram.program.color, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('program_running')}</span>
-              </div>
+            <div data-testid="active-program-card" style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: `1px solid ${activeProgram.program.color}20`, padding: '18px', marginBottom: 16, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: `${activeProgram.program.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className={activeProgram.program.icon} style={{ fontSize: 20, color: activeProgram.program.color }} />
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: `${activeProgram.program.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className={activeProgram.program.icon} style={{ fontSize: 22, color: activeProgram.program.color }} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{activeProgram.program.title}</div>
-                  <div style={{ fontSize: 10, color: activeProgram.program.color, fontWeight: 600 }}>Jour {activeProgram.current_day}/{activeProgram.program.duration_days}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{activeProgram.program.title}</div>
+                  <div style={{ fontSize: 11, color: activeProgram.program.color, fontWeight: 600 }}>{activeProgram.current_phase?.name || 'Phase en cours'} · Jour {activeProgram.current_day}/{activeProgram.program.duration_days}</div>
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: activeProgram.program.color }}>{activeProgram.progress_pct}%</div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: activeProgram.program.color }}>{activeProgram.progress_pct}%</div>
               </div>
-              <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-                <div style={{ height: 4, borderRadius: 2, width: `${activeProgram.progress_pct}%`, background: activeProgram.program.color, transition: 'width 0.5s' } as any} />
+              {/* Progress bar */}
+              <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 12 } as any}>
+                <div style={{ height: 6, borderRadius: 3, width: `${activeProgram.progress_pct}%`, background: `linear-gradient(90deg, ${activeProgram.program.color}80, ${activeProgram.program.color})`, transition: 'width 0.5s' } as any} />
               </div>
+              {/* Today's mission */}
+              {activeProgram.today_tasks && (
+                <div onClick={() => router.push('/programs' as any)} style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', marginBottom: activeProgram.team ? 10 : 0 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
+                    <i className="ri-focus-3-line" style={{ fontSize: 12, color: activeProgram.program.color }} />
+                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Mission du jour</span>
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{activeProgram.today_tasks.focus}</div>
+                  {activeProgram.today_tasks.tasks && (
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{activeProgram.today_tasks.tasks.length} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider'}</div>
+                  )}
+                </div>
+              )}
+              {/* Team members progress */}
+              {activeProgram.team && activeProgram.team.members && activeProgram.team.members.length > 1 && (
+                <div style={{ padding: '10px 14px', borderRadius: 14, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.12)' } as any}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(167,139,250,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Equipe</div>
+                  <div style={{ display: 'flex', gap: 8 } as any}>
+                    {activeProgram.team.members.map((m: any, i: number) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                        <div style={{ width: 28, height: 28, borderRadius: 8, background: m.checked_in_today ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${m.checked_in_today ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                          {m.checked_in_today ? <i className="ri-check-line" style={{ fontSize: 14, color: '#10B981' }} /> : <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>{m.name?.charAt(0)}</span>}
+                        </div>
+                        <span style={{ fontSize: 10, color: m.is_me ? '#A78BFA' : 'rgba(255,255,255,0.4)', fontWeight: m.is_me ? 700 : 400 }}>{m.is_me ? 'Moi' : m.name?.split(' ')[0]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
