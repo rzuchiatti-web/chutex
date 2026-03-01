@@ -114,7 +114,7 @@ export default function AuthScreen() {
               </button>
             </form>
 
-            <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); }} style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: 'rgba(255,255,255,0.4)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
+            <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); setForgotStep(0); setForgotCode(''); setForgotNewPw(''); }} style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: 'rgba(255,255,255,0.4)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
 
             <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '24px 0 20px' } as any} />
 
@@ -130,23 +130,72 @@ export default function AuthScreen() {
                     <div onClick={() => setShowForgot(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
                   </div>
                   <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-                    <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
-                      <i className="ri-lock-unlock-line" style={{ fontSize: 28, color: '#F59E0B' }} />
+                    <div style={{ width: 56, height: 56, borderRadius: 16, background: forgotStep === 2 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', border: `1px solid ${forgotStep === 2 ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)'}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+                      <i className={forgotStep === 0 ? 'ri-lock-unlock-line' : forgotStep === 1 ? 'ri-shield-keyhole-line' : 'ri-check-line'} style={{ fontSize: 28, color: forgotStep === 2 ? '#10B981' : '#F59E0B' }} />
                     </div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Mot de passe oublie</div>
-                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>Entrez votre numero de telephone pour recevoir un lien de reinitialisation par SMS.</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{forgotStep === 0 ? 'Mot de passe oublie' : forgotStep === 1 ? 'Code de verification' : 'Nouveau mot de passe'}</div>
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{forgotStep === 0 ? 'Entrez votre numero pour recevoir un code par SMS.' : forgotStep === 1 ? 'Entrez le code a 6 chiffres recu par SMS.' : 'Choisissez votre nouveau mot de passe.'}</div>
+                    {/* Step dots */}
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 14 } as any}>
+                      {[0, 1, 2].map(s => <div key={s} style={{ width: s <= forgotStep ? 20 : 8, height: 6, borderRadius: 3, background: s <= forgotStep ? '#F59E0B' : 'rgba(255,255,255,0.1)', transition: 'all 0.3s' }} />)}
+                    </div>
                   </div>
-                  <div style={{ marginBottom: 16 } as any}>
-                    <div style={{ display: 'flex', gap: 8 } as any}>
-                      <div style={{ ...INPUT, padding: '13px 12px', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 } as any}>
-                        <span style={{ fontSize: 16 }}>{selectedPfx.flag}</span>
-                        <span style={{ fontSize: 13, color: '#FFF', fontWeight: 600 }}>{prefix}</span>
+                  {forgotMsg && <div style={{ padding: '12px 16px', borderRadius: 999, background: forgotMsg.includes('succes') || forgotMsg.includes('envoye') ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${forgotMsg.includes('succes') || forgotMsg.includes('envoye') ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}`, marginBottom: 14, fontSize: 13, color: forgotMsg.includes('succes') || forgotMsg.includes('envoye') ? '#10B981' : '#F87171', textAlign: 'center' } as any}>{forgotMsg}</div>}
+                  {/* Step 0: Phone */}
+                  {forgotStep === 0 && (
+                    <div>
+                      <div style={{ display: 'flex', gap: 8, marginBottom: 16 } as any}>
+                        <div style={{ ...INPUT, padding: '13px 12px', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 } as any}>
+                          <span style={{ fontSize: 16 }}>{selectedPfx.flag}</span>
+                          <span style={{ fontSize: 13, color: '#FFF', fontWeight: 600 }}>{prefix}</span>
+                        </div>
+                        <input type="tel" placeholder="06 12 34 56 78" value={forgotPhone} onChange={(e: any) => setForgotPhone(e.target.value)} style={{ ...INPUT, flex: 1, width: 'auto' }} />
                       </div>
-                      <input type="tel" placeholder="06 12 34 56 78" value={forgotPhone} onChange={(e: any) => setForgotPhone(e.target.value)} style={{ ...INPUT, flex: 1, width: 'auto' }} />
+                      <div data-testid="forgot-send-btn" onClick={async () => {
+                        if (!forgotPhone.trim()) return setForgotMsg('Veuillez entrer votre numero.');
+                        setForgotLoading(true); setForgotMsg('');
+                        try {
+                          await apiFetch('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ phone: forgotPhone.trim() }) });
+                          setForgotMsg('Code envoye par SMS !');
+                          setForgotStep(1);
+                        } catch (e: any) { setForgotMsg(e.message || 'Erreur'); }
+                        finally { setForgotLoading(false); }
+                      }} style={{ padding: '16px', borderRadius: 999, background: forgotPhone.trim() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotPhone.trim() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: forgotPhone.trim() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotPhone.trim() ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>{forgotLoading ? 'Envoi...' : 'Recevoir le code'}</div>
                     </div>
-                  </div>
-                  {forgotMsg && <div style={{ padding: '12px 16px', borderRadius: 999, background: forgotMsg.includes('envoye') ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${forgotMsg.includes('envoye') ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}`, marginBottom: 14, fontSize: 13, color: forgotMsg.includes('envoye') ? '#10B981' : '#F87171', textAlign: 'center' } as any}>{forgotMsg}</div>}
-                  <div onClick={() => { if (!forgotPhone.trim()) return setForgotMsg('Veuillez entrer votre numero.'); setForgotMsg('Un SMS de reinitialisation a ete envoye.'); }} style={{ padding: '16px', borderRadius: 999, background: forgotPhone.trim() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotPhone.trim() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: forgotPhone.trim() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotPhone.trim() ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>Envoyer le lien</div>
+                  )}
+                  {/* Step 1: Code */}
+                  {forgotStep === 1 && (
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 20 } as any}>
+                        {[0,1,2,3,4,5].map(i => (
+                          <input key={i} id={`fc-${i}`} type="text" inputMode="numeric" maxLength={1}
+                            value={forgotCode[i] || ''}
+                            onChange={(e: any) => { const v = e.target.value.replace(/[^0-9]/g, ''); const arr = forgotCode.split(''); arr[i] = v; const nc = arr.join('').slice(0,6); setForgotCode(nc); if (v && i < 5) { const n = document.getElementById(`fc-${i+1}`); if (n) (n as HTMLInputElement).focus(); } }}
+                            onKeyDown={(e: any) => { if (e.key === 'Backspace' && !forgotCode[i] && i > 0) { const p = document.getElementById(`fc-${i-1}`); if (p) (p as HTMLInputElement).focus(); } }}
+                            style={{ width: 46, height: 46, borderRadius: '50%', textAlign: 'center', fontSize: 20, fontWeight: 700, color: '#FFF', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', outline: 'none', fontFamily: 'inherit' } as any}
+                          />
+                        ))}
+                      </div>
+                      <div data-testid="forgot-verify-btn" onClick={() => { if (forgotCode.length === 6) { setForgotMsg(''); setForgotStep(2); } else { setForgotMsg('Entrez le code a 6 chiffres.'); } }} style={{ padding: '16px', borderRadius: 999, background: forgotCode.length === 6 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotCode.length === 6 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: forgotCode.length === 6 ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotCode.length === 6 ? '#FFF' : 'rgba(255,255,255,0.2)', marginBottom: 12 } as any}>Verifier le code</div>
+                      <div onClick={async () => { setForgotLoading(true); try { await apiFetch('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ phone: forgotPhone.trim() }) }); setForgotMsg('Nouveau code envoye !'); } catch {} finally { setForgotLoading(false); } }} style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.35)', cursor: 'pointer' } as any}>{forgotLoading ? 'Envoi...' : 'Renvoyer le code'}</div>
+                    </div>
+                  )}
+                  {/* Step 2: New password */}
+                  {forgotStep === 2 && (
+                    <div>
+                      <input type="password" placeholder="Nouveau mot de passe" value={forgotNewPw} onChange={(e: any) => setForgotNewPw(e.target.value)} style={{ ...INPUT, marginBottom: 16 }} />
+                      <div data-testid="forgot-reset-btn" onClick={async () => {
+                        if (forgotNewPw.length < 4) return setForgotMsg('Le mot de passe doit contenir au moins 4 caracteres.');
+                        setForgotLoading(true); setForgotMsg('');
+                        try {
+                          await apiFetch('/api/auth/reset-password', { method: 'POST', body: JSON.stringify({ phone: forgotPhone.trim(), code: forgotCode, new_password: forgotNewPw }) });
+                          setForgotMsg('Mot de passe reinitialise avec succes !');
+                          setTimeout(() => { setShowForgot(false); }, 2000);
+                        } catch (e: any) { setForgotMsg(e.message || 'Erreur — verifiez votre code.'); setForgotStep(1); setForgotCode(''); }
+                        finally { setForgotLoading(false); }
+                      }} style={{ padding: '16px', borderRadius: 999, background: forgotNewPw.length >= 4 ? '#FFF' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotNewPw.length >= 4 ? '#FFF' : 'rgba(255,255,255,0.06)'}`, cursor: forgotNewPw.length >= 4 ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotNewPw.length >= 4 ? '#0a0a1a' : 'rgba(255,255,255,0.2)' } as any}>{forgotLoading ? 'Reinitialisation...' : 'Changer le mot de passe'}</div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
