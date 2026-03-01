@@ -316,46 +316,60 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
           </div>
         </GlassOverlay>
       )}
-      {/* ──── No Subscription Popup (bracelet) ──── */}
+      {/* ──── No Subscription Popup (bracelet) — landing page style ──── */}
       {showNoSubPopup && (
         <GlassOverlay onClose={() => setShowNoSubPopup(false)}>
-          <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-            <div style={{ width: 72, height: 72, borderRadius: 22, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}><i className="ri-watch-line" style={{ fontSize: 36, color: '#F59E0B' }} /></div>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Abonnement requis</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Pour associer et utiliser votre bracelet Elio, un abonnement actif est necessaire.</div>
+          <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Abonnement requis</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>Pour associer votre bracelet Elio, choisissez votre formule.</div>
           </div>
-          <div onClick={() => { setShowNoSubPopup(false); if (typeof window !== 'undefined') window.open('https://chutex-innovation.com/products/elio-smart-health-bracelet', '_blank'); }} style={{ padding: '20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 12, cursor: 'pointer', transition: 'all 0.2s' } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
-              <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-watch-line" style={{ fontSize: 26, color: '#3B82F6' }} /></div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>Bracelet Elio</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Suivi sante connecte</div>
+
+          {/* Standard Card */}
+          <div onClick={() => { setShowNoSubPopup(false); if (typeof window !== 'undefined') window.open('https://chutex-innovation.com/products/elio-smart-health-bracelet', '_blank'); }}
+            style={{ padding: '20px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 14, cursor: 'pointer', transition: 'border-color 0.2s', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}
+            onMouseEnter={(e: any) => e.currentTarget.style.borderColor = 'rgba(59,130,246,0.4)'}
+            onMouseLeave={(e: any) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center' } as any}>
+              <div style={{ width: 72, height: 72, borderRadius: 16, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="" style={{ width: 56, height: 56, objectFit: 'contain' } as any} />
               </div>
-              <div style={{ textAlign: 'right' } as any}>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>24,90</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>EUR/mois</div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Bracelet Elio</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Suivi cardiaque, SpO2, temperature, detection de chute.</div>
               </div>
             </div>
+            <div style={{ marginTop: 14, display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
+              <span style={{ fontSize: 28, fontWeight: 900, color: '#3B82F6' }}>24,90</span>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>EUR/mois</span>
+            </div>
+            <div style={{ fontSize: 12, color: '#10B981', marginTop: 4 }}>soit 12,45 EUR apres credit d'impot*</div>
           </div>
-          <div onClick={() => { setShowNoSubPopup(false); router.push('/subscription' as any); }} style={{ padding: '20px', borderRadius: 22, background: 'linear-gradient(135deg, rgba(124,92,255,0.08), rgba(167,139,250,0.04))', border: '1px solid rgba(124,92,255,0.2)', marginBottom: 12, cursor: 'pointer', position: 'relative', overflow: 'hidden' } as any}>
-            <div style={{ position: 'absolute', top: 10, right: 12, padding: '3px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
+
+          {/* Care Card */}
+          <div onClick={() => { setShowNoSubPopup(false); router.push('/subscription' as any); }}
+            style={{ padding: '20px', borderRadius: 20, background: 'linear-gradient(135deg, rgba(124,92,255,0.1), rgba(167,139,250,0.04))', border: '1px solid rgba(124,92,255,0.25)', marginBottom: 14, cursor: 'pointer', position: 'relative', transition: 'border-color 0.2s', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}
+            onMouseEnter={(e: any) => e.currentTarget.style.borderColor = 'rgba(124,92,255,0.5)'}
+            onMouseLeave={(e: any) => e.currentTarget.style.borderColor = 'rgba(124,92,255,0.25)'}>
+            <div style={{ position: 'absolute', top: 12, right: 14, padding: '4px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
               <span style={{ fontSize: 9, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Recommande</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
-              <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-shield-star-line" style={{ fontSize: 26, color: '#A78BFA' }} /></div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>Chutex Care</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Bracelet + Teleassistance 24/7</div>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center' } as any}>
+              <div style={{ width: 72, height: 72, borderRadius: 16, background: 'rgba(124,92,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="" style={{ width: 56, height: 56, objectFit: 'contain' } as any} />
               </div>
-              <div style={{ textAlign: 'right' } as any}>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>39,90</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>EUR/mois</div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Chutex Care</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Bracelet connecte avec teleassistance 24h/24, 7j/7. Detection de chute, bouton SOS.</div>
               </div>
             </div>
+            <div style={{ marginTop: 14, display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
+              <span style={{ fontSize: 28, fontWeight: 900, color: '#A78BFA' }}>39,90</span>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>EUR/mois</span>
+            </div>
+            <div style={{ fontSize: 12, color: '#10B981', marginTop: 4 }}>soit 19,95 EUR apres credit d'impot*</div>
           </div>
-          <div style={{ textAlign: 'center', marginTop: 8 } as any}>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5 }}>Si vous avez deja souscrit, votre abonnement sera detecte automatiquement a partir de votre numero de telephone.</div>
-          </div>
+
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', textAlign: 'center', lineHeight: 1.5, marginTop: 4 }}>*Credit d'impot de 50% au titre des services a la personne (art. 199 sexdecies du CGI).<br/>Si vous avez deja souscrit, votre abonnement sera detecte automatiquement.</div>
         </GlassOverlay>
       )}
     </>
