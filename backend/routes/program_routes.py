@@ -169,44 +169,49 @@ async def get_daily_feedback(user=Depends(get_current_user)):
     if not program:
         return {"has_feedback": False}
 
-    # Get bracelet data
-    bracelet = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
-    sleep_data = await db.device_readings.find_one(
-        {"user_id": uid, "device_type": "bracelet", "data.sleep": {"$exists": True}},
-        {"_id": 0}, sort=[("timestamp", -1)]
-    )
-    # Get health summary
-    summary = await db.health_summary_cache.find_one({"user_id": uid}, {"_id": 0})
+    # Build enriched context using Nora
+    from services.nora_context import build_nora_context, format_nora_context_for_prompt
+    nora_ctx = await build_nora_context(user)
+    user_context = format_nora_context_for_prompt(nora_ctx)
 
-    # Build context
+    # Build program-specific context
     ctx_parts = [f"Programme: {program.get('title','')}, Jour {enrollment.get('current_day', 1)}/{program.get('duration_days', 21)}."]
-    if summary:
-        ctx_parts.append(f"Score sante: {summary.get('score', '?')}/100.")
-    if bracelet:
-        hr = bracelet.get("last_heart_rate", 0)
-        if hr: ctx_parts.append(f"FC repos: {hr}bpm.")
-        steps = bracelet.get("last_steps", 0)
-        if steps: ctx_parts.append(f"Pas: {steps}.")
-    if sleep_data and sleep_data.get("data", {}).get("sleep"):
-        sl = sleep_data["data"]["sleep"]
-        ctx_parts.append(f"Sommeil: duree {sl.get('sleep_duration', 0)}h, qualite {sl.get('sleep_quality', 0)}%, profond {sl.get('deep_minutes', 0)}min.")
 
     # Onboarding context
     onb = enrollment.get("onboarding", {})
     if onb.get("goal"): ctx_parts.append(f"Objectif: {onb['goal']}.")
     if onb.get("wake_time"): ctx_parts.append(f"Reveil cible: {onb['wake_time']}.")
 
-    ctx = " ".join(ctx_parts)
+    program_ctx = " ".join(ctx_parts)
+    has_data = nora_ctx.get("has_any_data", False)
+
     feedback = ""
     api_key = os.environ.get("EMERGENT_LLM_KEY")
     if api_key:
         try:
             from emergentintegrations.llm.chat import LlmChat, UserMessage
-            prompt = f"""Medecin specialiste du sommeil. Donnees: {ctx}
-Genere un feedback quotidien en JSON: {{"message": "2-3 phrases medicalement pertinentes sur la qualite du sommeil et l'etat physiologique du jour, en vouvoyant le patient", "mood_indicator": "good/neutral/warning", "tip": "1 recommandation medicale concrete et courte"}}"""
-            chat = LlmChat(api_key=api_key, session_id=f"fb-{uuid.uuid4().hex[:6]}",
-                           system_message="Medecin du sommeil. JSON uniquement. Pas d'emoji. Ton professionnel.").with_model("openai", "gpt-5.2")
             import json
+
+            if has_data:
+                prompt = f"""Medecin specialiste du sommeil et de la longevite. Contexte patient et programme:
+
+PATIENT:
+{user_context}
+
+PROGRAMME EN COURS: {program_ctx}
+
+Genere un feedback quotidien personnalise en JSON. Base-toi UNIQUEMENT sur les donnees reelles du patient. Vouvoyez le patient. Pas d'emoji.
+{{"message": "2-3 phrases medicalement pertinentes basees sur les donnees reelles, adaptees au jour du programme et a l'age du patient", "mood_indicator": "good/neutral/warning", "tip": "1 recommandation concrete et scientifiquement prouvee pour ameliorer le sommeil, adaptee au profil du patient"}}"""
+            else:
+                prompt = f"""Medecin specialiste du sommeil. Le patient suit le programme "{program.get('title','')}" (jour {enrollment.get('current_day', 1)}/{program.get('duration_days', 21)}) mais n'a PAS encore de donnees de sante mesurees.
+
+PATIENT: {nora_ctx['user_profile'].get('name', 'Patient')}, {nora_ctx.get('age', '?')} ans.
+
+Genere un feedback qui reconnait l'absence de donnees et encourage a connecter les appareils. JSON uniquement. Vouvoyez. Pas d'emoji.
+{{"message": "2 phrases: reconnaitre l'absence de donnees + encourager la mesure", "mood_indicator": "neutral", "tip": "1 conseil pour le programme du jour, meme sans donnees"}}"""
+
+            chat = LlmChat(api_key=api_key, session_id=f"fb-{uuid.uuid4().hex[:6]}",
+                           system_message="Medecin du sommeil et longevite. JSON uniquement. Pas d'emoji. Ton professionnel.").with_model("openai", "gpt-5.2")
             r = (await chat.send_message(UserMessage(text=prompt))).strip()
             if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
             if r.endswith("```"): r = r[:-3]
@@ -215,7 +220,10 @@ Genere un feedback quotidien en JSON: {{"message": "2-3 phrases medicalement per
             print(f"Daily feedback AI err: {e}")
 
     if not feedback:
-        feedback = {"message": "Continue tes efforts, chaque jour compte pour ameliorer ton sommeil.", "mood_indicator": "neutral", "tip": "Garde un horaire de reveil regulier."}
+        if has_data:
+            feedback = {"message": "Votre regularite dans le programme est essentielle pour observer des ameliorations mesurables.", "mood_indicator": "neutral", "tip": "Maintenez un horaire de coucher regulier ce soir."}
+        else:
+            feedback = {"message": "Connectez votre bracelet Elio pour que Nora puisse analyser votre sommeil et personnaliser vos recommandations.", "mood_indicator": "neutral", "tip": "Appliquez les conseils du programme meme sans donnees — les benefices viendront."}
 
     return {"has_feedback": True, "feedback": feedback}
 
