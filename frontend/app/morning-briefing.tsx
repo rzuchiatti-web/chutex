@@ -147,6 +147,23 @@ export default function MorningBriefingScreen() {
     }
   };
 
+  const playBriefingAudio = async () => {
+    if (audioPlaying && audioRef.current) { audioRef.current.pause(); audioRef.current = null; setAudioPlaying(false); return; }
+    setAudioLoading(true);
+    try {
+      const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+      const res = await fetch(`${backendUrl}/api/nora/speak-briefing`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+      if (!res.ok) throw new Error('TTS error');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => { setAudioPlaying(false); audioRef.current = null; };
+      audio.play();
+      setAudioPlaying(true);
+    } catch { } finally { setAudioLoading(false); }
+  };
+
   if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF' }}>Briefing</Text></View>;
 
   const VIDEO = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/ufilgqml_banner_mobile_chat_ia_bakcground.mp4';
