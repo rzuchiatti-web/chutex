@@ -375,7 +375,8 @@ async def get_health_summary(user=Depends(get_current_user)):
 
     # No devices = no data
     has_devices = await db.devices.find_one({"user_id": uid}, {"_id": 0})
-    if not has_devices:
+    has_readings = await db.device_readings.find_one({"user_id": uid}, {"_id": 0}) if has_devices else None
+    if not has_devices or not has_readings:
         return {"user_id": uid, "score": 0, "status": "Aucune donnee", "status_color": "#6B7280",
                 "summary": "Connectez un appareil pour commencer votre suivi sante.",
                 "recommendation": "Rendez-vous dans Appareils pour connecter votre bracelet ou votre balance.",
