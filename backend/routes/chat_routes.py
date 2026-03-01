@@ -120,7 +120,9 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
             alert_summary = ", ".join(f"{a.get('message','')} ({a.get('beneficiary_name','')})" for a in alerts)
             health_ctx += f"\nAlertes en cours: {alert_summary}."
     else:
-        health_ctx = await build_health_context(user)
+        # Use the enriched Nora context for beneficiaries
+        nora_ctx = await build_nora_context(user)
+        health_ctx = format_nora_context_for_prompt(nora_ctx)
 
     # Get recent chat history for context (last 10 messages from today only)
     today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
