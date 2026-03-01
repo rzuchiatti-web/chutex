@@ -138,7 +138,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 4, padding: 3, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 20 } as any}>
+        <div style={{ display: 'flex', gap: 4, padding: 3, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 20, ...glass } as any}>
           {tabs.map((t: any) => (
             <div key={t.key} data-testid={`tab-${t.key}`} onClick={() => setTab(t.key)} style={{ flex: 1, padding: '10px 6px', borderRadius: 11, cursor: 'pointer', textAlign: 'center', background: tab === t.key ? 'rgba(255,255,255,0.1)' : 'transparent', transition: 'background 0.2s' } as any}>
               <i className={t.icon} style={{ fontSize: 14, color: tab === t.key ? '#FFF' : 'rgba(255,255,255,0.35)', display: 'block', marginBottom: 3 }} />
