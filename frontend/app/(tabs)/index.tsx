@@ -313,6 +313,46 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── 1. ALERTES EN HAUT (toujours visible) ── */}
           <AlertBanner activeAlerts={activeAlerts} />
 
+          {/* ── PREDICTIVE ALERTS (Nora) ── */}
+          {predictiveAlerts.length > 0 && (
+            <div data-testid="predictive-alerts" style={{ marginBottom: 12 } as any}>
+              {predictiveAlerts.map((a: any) => (
+                <div key={a.id} style={{ padding: '14px 16px', borderRadius: 16, background: a.severity === 'warning' ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.06)', border: `1px solid ${a.severity === 'warning' ? 'rgba(245,158,11,0.2)' : 'rgba(139,92,246,0.15)'}`, marginBottom: 8, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 } as any}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: `${a.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className={a.icon} style={{ fontSize: 16, color: a.color }} />
+                    </div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{a.title}</div>
+                    </div>
+                    <div onClick={async () => { try { await apiFetch(`/api/nora/predictive-alerts/${a.id}/dismiss`, { method: 'POST' }, token); setPredictiveAlerts(prev => prev.filter(p => p.id !== a.id)); } catch {} }} style={{ padding: '4px 8px', borderRadius: 8, cursor: 'pointer', fontSize: 10, color: 'rgba(255,255,255,0.3)' } as any}>
+                      <i className="ri-close-line" style={{ fontSize: 14 }} />
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5, marginBottom: 6 }}>{a.message}</div>
+                  <div style={{ fontSize: 11, color: a.color, fontWeight: 600 }}>{a.recommendation}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── STREAK ── */}
+          {streakData && streakData.streak > 0 && (
+            <div data-testid="streak-card" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 12, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                <i className="ri-fire-fill" style={{ fontSize: 24, color: streakData.streak >= 7 ? '#F59E0B' : 'rgba(245,158,11,0.5)' }} />
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{streakData.streak}</div>
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>jour{streakData.streak > 1 ? 's' : ''} consecutif{streakData.streak > 1 ? 's' : ''}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Record: {streakData.max_streak} jours · {streakData.total_days} jours total</div>
+              </div>
+              {streakData.new_badges?.length > 0 && (
+                <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', fontSize: 10, fontWeight: 700, color: '#F59E0B' }}>Nouveau badge !</div>
+              )}
+            </div>
+          )}
+
           {/* ── SUBSCRIPTION BANNER (si pas d'abo bracelet) ── */}
           {/* Health data shown even without subscription — values show -- when no data */}
 
