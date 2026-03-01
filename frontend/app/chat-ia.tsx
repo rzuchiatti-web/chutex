@@ -19,6 +19,7 @@ function TypewriterText({ text, speed = 18, onDone }: { text: string; speed?: nu
 }
 
 import { useI18n } from '../src/context/I18nContext';
+import NativePageView from '../src/components/NativePageView';
 
 export default function ChatIAScreen() {
   const { user, token } = useAuth();
@@ -63,7 +64,7 @@ export default function ChatIAScreen() {
     } finally { setSending(false); }
   };
 
-  if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF' }}>Chat</Text></View>;
+  if (Platform.OS !== 'web') return <NativePageView path="/chat-ia" />;
 
   const hasMessages = messages.length > 0;
   const { t } = useI18n();

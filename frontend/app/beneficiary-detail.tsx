@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import NativePageView from '../src/components/NativePageView';
 
 const BG   = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
 const BG_GREEN = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
@@ -111,7 +112,7 @@ export default function BeneficiaryDetailScreen() {
 
   if (loading) return <FullScreenLoader />;
   if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.5)' }}>Bénéficiaire non trouvé</Text></SafeAreaView>;
-  if (Platform.OS !== 'web') return <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF', padding: 20 }}>{data.name}</Text></SafeAreaView>;
+  if (Platform.OS !== 'web') return <NativePageView path="/beneficiary-detail" />;
 
   const v = data.latest_vitals || {};
   const activeAlerts = alerts.filter((a: any) => a.status === 'active' || a.status === 'pending');

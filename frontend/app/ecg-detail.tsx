@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
+import NativePageView from '../src/components/NativePageView';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 
@@ -61,7 +62,7 @@ export default function ECGDetailScreen() {
     })();
   }, [id, token]);
 
-  if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF' }}>Web uniquement</Text></View>;
+  if (Platform.OS !== 'web') return <NativePageView path="/ecg-detail" />;
   if (loading) return <FullScreenLoader />;
 
   const iv = ecg?.intervals || {};

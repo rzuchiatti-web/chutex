@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import NativePageView from '../src/components/NativePageView';
 
 const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
 
@@ -24,7 +25,7 @@ export default function CompanyIntervenantDetailScreen() {
 
   if (loading) return <FullScreenLoader />;
   if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.5)' }}>Intervenant non trouve</Text></SafeAreaView>;
-  if (Platform.OS !== 'web') return <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF', padding: 20 }}>{data.intervenant?.name || 'Intervenant'}</Text></SafeAreaView>;
+  if (Platform.OS !== 'web') return <NativePageView path="/company-intervenant-detail" />;
 
   const p = data.intervenant || data;
   const interventions = data.interventions || [];

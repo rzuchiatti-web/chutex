@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import NativePageView from '../src/components/NativePageView';
 
 export default function MorningBriefingScreen() {
   const { user, token } = useAuth();
@@ -164,7 +165,7 @@ export default function MorningBriefingScreen() {
     } catch { } finally { setAudioLoading(false); }
   };
 
-  if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF' }}>Briefing</Text></View>;
+  if (Platform.OS !== 'web') return <NativePageView path="/morning-briefing" />;
 
   const VIDEO = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/ufilgqml_banner_mobile_chat_ia_bakcground.mp4';
 

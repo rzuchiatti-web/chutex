@@ -3,6 +3,7 @@ import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import NativePageView from '../src/components/NativePageView';
 
 export default function IntervenantVisitScreen() {
   const { user, token } = useAuth();
@@ -33,7 +34,7 @@ export default function IntervenantVisitScreen() {
     } catch {} finally { setSaving(false); }
   };
 
-  if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#0a0f1a', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Visite</Text></View>;
+  if (Platform.OS !== 'web') return <NativePageView path="/intervenant-visit" />;
   if (loading) return <div style={{ position: 'absolute', inset: 0, background: '#0a0f1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif', color: 'rgba(255,255,255,0.3)' } as any}>Chargement...</div>;
   if (!visitData) return <div style={{ position: 'absolute', inset: 0, background: '#0a0f1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif', color: '#EF4444' } as any}>Acces refuse ou beneficiaire introuvable</div>;
 

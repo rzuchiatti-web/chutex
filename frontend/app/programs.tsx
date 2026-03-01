@@ -3,6 +3,7 @@ import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter } from 'expo-router';
+import NativePageView from '../src/components/NativePageView';
 
 export default function ProgramsScreen() {
   const { user, token } = useAuth();
@@ -40,7 +41,7 @@ export default function ProgramsScreen() {
     } catch {} finally { setLoading(false); }
   };
 
-  if (Platform.OS !== 'web') return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0b0f16' }}><Text style={{ color: '#FFF' }}>Programmes</Text></View>;
+  if (Platform.OS !== 'web') return <NativePageView path="/programs" />;
 
   const prog = activeProgram?.program;
   const earnedBadges = badges?.badges?.filter((b: any) => b.unlocked) || [];

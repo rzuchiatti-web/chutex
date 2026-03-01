@@ -16,6 +16,7 @@ import MedicalStep from '../src/components/register/MedicalStep';
 import AntecedentsStep from '../src/components/register/AntecedentsStep';
 import GuardianInfoStep from '../src/components/register/GuardianInfoStep';
 import NoraPresentationStep from '../src/components/register/NoraPresentationStep';
+import NativePageView from '../src/components/NativePageView';
 
 // Steps: 0=role, 1=RGPD, 2=phone/pass (or SAAD form), 3=SMS verify, 4+=info steps
 // Beneficiary: 0,1,2,3,4(info),5(medical),6(antecedents) = 6 steps
@@ -133,7 +134,7 @@ export default function RegisterScreen() {
   const isLastStep = (role === 'beneficiary' && step === BEN_STEPS) || (role === 'guardian' && step === GUARD_STEPS) || (role === 'prescriber_company' && step === SAAD_STEPS);
   const isVerifyStep = step === 3;
 
-  if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Web uniquement</Text></View>;
+  if (Platform.OS !== 'web') return <NativePageView path="/register" />;
 
   if (showNora) {
     const userName = role === 'prescriber_company' ? form.saad_director_name : `${form.firstName} ${form.name}`.trim();

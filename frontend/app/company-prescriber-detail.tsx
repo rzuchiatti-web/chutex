@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import NativePageView from '../src/components/NativePageView';
 
 const BG_ORANGE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 
@@ -24,7 +25,7 @@ export default function CompanyPrescriberDetailScreen() {
 
   if (loading) return <FullScreenLoader />;
   if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.5)' }}>Prescripteur non trouve</Text></SafeAreaView>;
-  if (Platform.OS !== 'web') return <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF', padding: 20 }}>{data.prescriber?.name || 'Prescripteur'}</Text></SafeAreaView>;
+  if (Platform.OS !== 'web') return <NativePageView path="/company-prescriber-detail" />;
 
   const p = data.prescriber || data;
   const prescriptions = data.prescriptions || [];

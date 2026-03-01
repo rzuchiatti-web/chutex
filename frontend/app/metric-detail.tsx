@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
+import NativePageView from '../src/components/NativePageView';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 const G: any = { borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
@@ -134,7 +135,7 @@ export default function MetricDetailScreen() {
   useEffect(() => { load(range); }, [key, token]);
   const changeRange = (r: string) => { setRange(r); setSel(null); load(r); };
 
-  if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF' }}>Web uniquement</Text></View>;
+  if (Platform.OS !== 'web') return <NativePageView path="/metric-detail" />;
   if (loading) return <FullScreenLoader />;
 
   const m = data?.meta || {};

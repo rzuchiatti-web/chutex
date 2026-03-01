@@ -4,12 +4,13 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import NoraPresentationStep from '../src/components/register/NoraPresentationStep';
+import NativePageView from '../src/components/NativePageView';
 
 export default function NoraWelcomeScreen() {
   const router = useRouter();
   const { user, token } = useAuth();
 
-  if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF' }}>Nora</Text></View>;
+  if (Platform.OS !== 'web') return <NativePageView path="/nora-welcome" />;
 
   const role = user?.role || 'beneficiary';
   const name = user?.name || '';

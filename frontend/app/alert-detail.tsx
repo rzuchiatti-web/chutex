@@ -11,6 +11,7 @@ import GuardiansCard from '../src/components/alert/GuardiansCard';
 import IntervenantCard from '../src/components/alert/IntervenantCard';
 import AlertTimeline from '../src/components/alert/AlertTimeline';
 import ReportModal from '../src/components/alert/ReportModal';
+import NativePageView from '../src/components/NativePageView';
 
 const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 const G: any = { borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
@@ -35,9 +36,7 @@ export default function AlertDetailScreen() {
   useEffect(() => { load(); }, [load]);
   useEffect(() => { const t = setInterval(load, 8000); return () => clearInterval(t); }, [load]);
 
-  if (Platform.OS !== 'web') return <View style={{ flex: 1, backgroundColor: '#000' }}><Text style={{ color: '#FFF', padding: 20 }}>Web uniquement</Text></View>;
-  if (loading) return <FullScreenLoader />;
-  if (!data?.alert) return <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.3)' }}>Alerte non trouvee</Text></View>;
+  if (Platform.OS !== 'web') return <NativePageView path="/alert-detail" />;
 
   const a = data.alert;
   const ben = data.beneficiary || {};
