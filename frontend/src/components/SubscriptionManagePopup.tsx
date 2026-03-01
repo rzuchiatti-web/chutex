@@ -171,7 +171,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
               </div>
             ))}
             {/* Features */}
-            <div style={{ marginTop: 16, padding: '14px 16px', borderRadius: 16, background: `${accent}0C`, border: `1px solid ${accent}18` } as any}>
+            <div style={{ marginTop: 16, padding: '14px 16px', borderRadius: 16, background: `${accent}0C`, border: `1px solid ${accent}18`, ...glass } as any}>
               <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Inclus</div>
               {(isCare
                 ? ['Detection de chute', 'Bouton SOS', 'Plateau d\'ecoute 24/7', 'Intervenants Care', 'Suivi GPS', 'Notifications gardiens', 'Rapports']
@@ -185,7 +185,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
             </div>
             {/* Upgrade for standard */}
             {!isCare && (
-              <div onClick={() => { onClose(); router.push('/subscription' as any); }} style={{ marginTop: 14, padding: '16px', borderRadius: 16, background: 'rgba(124,92,255,0.1)', border: '1px solid rgba(124,92,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+              <div onClick={() => { onClose(); router.push('/subscription' as any); }} style={{ marginTop: 14, padding: '16px', borderRadius: 16, background: 'rgba(124,92,255,0.1)', border: '1px solid rgba(124,92,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, ...glass } as any}>
                 <i className="ri-arrow-up-circle-line" style={{ fontSize: 20, color: '#A78BFA' }} />
                 <div style={{ flex: 1 } as any}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Passer a Chutex Care</div>
@@ -220,7 +220,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
             ))}
 
             {/* Key Box Code - special highlight */}
-            <div style={{ marginTop: 6, padding: '16px', borderRadius: 16, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' } as any}>
+            <div style={{ marginTop: 6, padding: '16px', borderRadius: 16, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', ...glass } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
                 <i className="ri-key-2-line" style={{ fontSize: 16, color: '#F59E0B' }} />
                 <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>Code boite a cles</span>
