@@ -9,6 +9,8 @@ import { PREFIXES } from '../src/components/register/RegisterUI';
 import { PrefixPicker } from '../src/components/GlassPickers';
 import LanguagePicker from '../src/components/LanguagePicker';
 
+import NativePageView from '../src/components/NativePageView';
+
 const INPUT = { padding: '13px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any;
 
 export default function AuthScreen() {
