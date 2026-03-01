@@ -584,13 +584,23 @@ async def beneficiary_invite_guardian(data: dict, user=Depends(get_current_user)
     PROS = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide a domicile', 'Professionnel de sante',
             'Infirmier(e) liberale', 'Coach sportif', 'Preparateur physique']
     req_id = str(uuid.uuid4())
+    now_ts = datetime.now(timezone.utc).isoformat()
     await db.guardian_requests.insert_one({
         "id": req_id, "guardian_id": guardian['id'], "guardian_name": guardian['name'],
         "guardian_phone": guardian.get('phone', ''), "guardian_email": guardian.get('email', ''),
         "beneficiary_id": user['id'], "beneficiary_name": user['name'],
         "relationship": relationship, "relationship_type": 'professional' if relationship in PROS else 'personal',
         "method": "beneficiary_invite", "status": "pending",
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": now_ts,
+    })
+    # Also create guardian_invitation so guardian sees it in their invitations list
+    await db.guardian_invitations.insert_one({
+        "id": str(uuid.uuid4()),
+        "beneficiary_id": user['id'], "beneficiary_name": user['name'],
+        "guardian_id": guardian['id'], "guardian_name": guardian['name'],
+        "guardian_phone": guardian.get('phone', ''),
+        "relationship": relationship, "status": "pending",
+        "created_at": now_ts,
     })
     return {"status": "pending", "message": f"Invitation envoyee a {guardian['name']}. Il recevra une notification.", "request_id": req_id}
 
