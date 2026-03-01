@@ -201,16 +201,18 @@ async def get_section_analysis(section: str, user=Depends(get_current_user)):
     if not has_devices:
         return {"section": section, "no_data": True, "analysis": "Connectez un appareil pour obtenir une analyse de cette section."}
 
-    bracelet = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
-    scale = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
+    bracelet_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
+    scale_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
     d = gen_data()
-    if bracelet and bracelet.get("last_heart_rate", 0) > 0:
-        d["heart_rate"] = bracelet.get("last_heart_rate", d["heart_rate"])
-        d["spo2"] = bracelet.get("last_spo2", d["spo2"])
-        d["steps"] = bracelet.get("last_steps", d["steps"])
-    if scale and scale.get("weight", 0) > 0:
-        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct"]:
-            if k in scale: d[k] = scale[k]
+    if bracelet_reading and bracelet_reading.get("data"):
+        rd = bracelet_reading["data"]
+        for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv"]:
+            if rd.get(k): d[k] = rd[k]
+        if rd.get("blood_pressure"): d["blood_pressure"] = rd["blood_pressure"]
+    if scale_reading and scale_reading.get("data"):
+        sd = scale_reading["data"]
+        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg"]:
+            if sd.get(k): d[k] = sd[k]
 
     section_data = {
         "cardio": f"FC {d['heart_rate']}bpm, HRV {d['hrv']}ms, SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}mmHg, Temp {d['temperature']}°C.",
@@ -459,16 +461,18 @@ async def get_daily_report(user=Depends(get_current_user)):
                 "correlations": [], "whats_good": [], "watch_out": [], "secondary_recs": [], "motivation": "", "score_explain_up": "", "score_explain_down": ""},
                 "daily_plan": [], "sparklines": {}, "weighings": []}
 
-    bracelet = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
-    scale = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
+    bracelet_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
+    scale_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
     d = gen_data()
-    if bracelet and bracelet.get("last_heart_rate", 0) > 0:
-        d["heart_rate"] = bracelet.get("last_heart_rate", d["heart_rate"])
-        d["spo2"] = bracelet.get("last_spo2", d["spo2"])
-        d["steps"] = bracelet.get("last_steps", d["steps"])
-    if scale and scale.get("weight", 0) > 0:
-        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct"]:
-            if k in scale: d[k] = scale[k]
+    if bracelet_reading and bracelet_reading.get("data"):
+        rd = bracelet_reading["data"]
+        for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv"]:
+            if rd.get(k): d[k] = rd[k]
+        if rd.get("blood_pressure"): d["blood_pressure"] = rd["blood_pressure"]
+    if scale_reading and scale_reading.get("data"):
+        sd = scale_reading["data"]
+        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg"]:
+            if sd.get(k): d[k] = sd[k]
 
     si = compute_subscores(d)
     ai = await gen_ai(d, si)
