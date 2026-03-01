@@ -1,0 +1,56 @@
+{
+  "summary": "Tested enriched programs feature for iteration 63. All 18 backend tests pass. The programs catalog returns 3 programs (sleep-21, tension-14, activity-30) with benefits, data_used, medical_disclaimer, onboarding_fields, tracked_metrics. Sleep program day 1 mission references Walker 2017 study. Frontend UI testing was limited due to complex onboarding flow requiring swipe gestures.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Onboarding navigation",
+        "issue": "Complex onboarding slide navigation requires swipe/drag gestures that are difficult to automate with Playwright. Manual testing needed for full UI verification.",
+        "affected_selectors": ["onboarding slides"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration63_programs_enriched.py",
+    "/app/test_reports/pytest/pytest_results_iter63.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Backend program_routes.py lines 12-179: SEED_PROGRAMS correctly defined with all enriched fields (benefits, data_used, medical_disclaimer, onboarding_fields, tracked_metrics)",
+    "Backend program_routes.py line 48: Sleep program day 1 mission includes 'Walker, 2017' study reference",
+    "Backend program_routes.py lines 283-316: start_program correctly calls _capture_health_snapshot and saves health_snapshot_start in enrollment",
+    "Backend program_routes.py lines 569-599: completion-report correctly builds health_comparison array from tracked_metrics",
+    "Frontend index.tsx lines 324-371: Active program card correctly shows today's mission and team progress with proper data-testid attributes"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration63_programs_enriched.py"
+  ],
+  "success_rate": {
+    "backend": "100% (18/18 tests passed)",
+    "frontend": "Code review verified - UI testing limited by onboarding flow"
+  },
+  "test_credentials": {
+    "beneficiary": "phone=0600000099, password=test123 (Marie Test)"
+  },
+  "seed_data_creation": "None - used existing test users and seed programs",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend programs API fully working. All 3 programs have enriched content (benefits, data_used, medical_disclaimer, onboarding_fields, tracked_metrics). Sleep program daily missions include scientific study references. The /api/programs/active endpoint returns today_tasks with mission field. The dashboard active program card (data-testid='active-program-card') shows 'Mission du jour' section and team members progress. Login flow: onboarding slides -> phone 600000099 -> password test123 -> Se connecter. User Marie Test has active sleep program enrollment.",
+  "verified_features": [
+    "GET /api/programs/catalog returns 3 programs with benefits, data_used, medical_disclaimer, onboarding_fields, tracked_metrics",
+    "GET /api/programs/detail/prog-sleep-21 returns full sleep program with enriched content",
+    "GET /api/programs/detail/prog-tension-14 returns tension program with enriched content",
+    "GET /api/programs/detail/prog-activity-30 returns activity program with enriched content",
+    "POST /api/programs/start/{id} saves health_snapshot_start in enrollment",
+    "GET /api/programs/active returns today_tasks with mission field and team info",
+    "GET /api/programs/completion-report/{id} returns health_comparison array",
+    "Sleep program day 1 mission references Walker 2017 study (verified via code review and API test)",
+    "Dashboard active program card code verified with data-testid='active-program-card' and 'Mission du jour' label"
+  ],
+  "rca_of_the_issue": null
+}
