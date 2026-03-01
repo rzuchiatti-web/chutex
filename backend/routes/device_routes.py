@@ -157,7 +157,7 @@ async def get_dashboard_summary(user=Depends(get_current_user)):
     scale = {
         "connected": sc_connected,
         "battery": scale_dev.get("battery", 0) if scale_dev else 0,
-        "name": "Balance Lefu",
+        "name": "Balance Vita",
         "weight": sc_data.get("weight", 0),
         "bmi": sc_data.get("bmi", 0),
         "body_fat": sc_data.get("body_fat_pct", sc_data.get("body_fat", 0)),
