@@ -403,6 +403,34 @@ async def get_active_program(user=Depends(get_current_user), day: int = 0):
             current_phase = phase
             break
 
+    # Team info if in a team
+    team = await db.team_programs.find_one(
+        {"members.user_id": user['id'], "program_id": program["id"], "status": {"$in": ["waiting", "active"]}}, {"_id": 0}
+    )
+    team_info = None
+    if team:
+        today_str_team = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        team_members = []
+        for m in team.get("members", []):
+            # Get today's checkin for each member
+            m_checkin = await db.program_checkins.find_one(
+                {"user_id": m["user_id"], "date": today_str_team}, {"_id": 0}
+            )
+            team_members.append({
+                "name": m["name"],
+                "user_id": m["user_id"],
+                "is_me": m["user_id"] == user['id'],
+                "checked_in_today": bool(m_checkin),
+                "tasks_done_today": len(m_checkin.get("tasks_done", [])) if m_checkin else 0,
+                "mood_today": m_checkin.get("mood") if m_checkin else None,
+            })
+        team_info = {
+            "team_id": team["id"],
+            "invite_code": team["invite_code"],
+            "members": team_members,
+            "members_count": len(team_members),
+        }
+
     return {
         "active": True,
         "enrollment_id": enrollment["id"],
@@ -421,6 +449,7 @@ async def get_active_program(user=Depends(get_current_user), day: int = 0):
         "streak": streak,
         "progress_pct": round((current_day / program["duration_days"]) * 100),
         "started_at": enrollment["started_at"],
+        "team": team_info,
     }
 
 
