@@ -17,12 +17,14 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
-### Mar 1, 2026 - Ecosysteme Programmes Prevention (Phase 1 & 2)
-
-**3 programmes enrichis scientifiquement:**
-- "21 jours pour mieux dormir" — base sur la chronobiologie (Walker 2017, Cajochen 2011, Haghayegh 2019, etc.)
-- "14 jours pour stabiliser sa tension" — regime DASH, recommandations OMS/AHA
-- "30 jours pour bouger plus" — recommandations OMS seniors, etudes Stanford/NASA
+### Mar 1, 2026 - 6 Programmes de Prevention Scientifiques
+**6 programmes complets bases sur des etudes scientifiques :**
+1. "21 jours pour mieux dormir" (sommeil) — Walker 2017, Cajochen 2011, Haghayegh 2019
+2. "14 jours pour stabiliser sa tension" (cardiovasculaire) — DASH, OMS/AHA, PREDIMED
+3. "30 jours pour bouger plus" (activite) — OMS seniors, Stanford 2020, NASA
+4. "21 jours pour mieux manger" (nutrition) — PREDIMED 2013, NutriNet-Sante, Buettner 2012 (Zones Bleues)
+5. "21 jours pour prevenir les chutes" (equilibre) — Sherrington 2019, HAS, protocole Cawthorne-Cooksey
+6. "21 jours pour apaiser l'esprit" (bien-etre) — HeartMath 2009, Holzel 2011, Goyal 2014
 
 **Chaque programme inclut:**
 - `benefits` (5 benefices prouves)
