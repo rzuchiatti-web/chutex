@@ -142,51 +142,103 @@ def compute_daily_plan(d, score_info):
     return plan
 
 
-async def gen_ai(d, si):
+async def gen_ai(d, si, nora_ctx=None):
+    """Generate AI analysis. Context-aware: coherent with or without data."""
     api_key = os.environ.get("EMERGENT_LLM_KEY")
+    has_real_data = nora_ctx and nora_ctx.get("has_any_data", False) if nora_ctx else (d.get("heart_rate", 0) > 0 or d.get("weight", 0) > 0)
+
     if not api_key:
-        return _fb()
+        return _fb(has_real_data, nora_ctx)
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        sh, sm = d["sleep_duration_min"] // 60, d["sleep_duration_min"] % 60
-        prompt = f"""Medecin specialiste. Analyse et reponds UNIQUEMENT en JSON (pas de markdown).
+        import json
 
-DONNEES: Score {si['score']}/100 ({si['status']}). Sous-scores: Cardio {si['subscores']['cardio']['score']}, Sommeil {si['subscores']['sleep']['score']}, Activite {si['subscores']['activity']['score']}, Metabolisme {si['subscores']['metabolism']['score']}, Hydratation {si['subscores']['hydration']['score']}.
-FC {d['heart_rate']}bpm (HRV {d['hrv']}ms), SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}, VO2max {d['vo2_max']}, Stress {d['stress_level']}/100, Recup {d['recovery_score']}/100.
+        # Build enriched context string
+        user_context = format_nora_context_for_prompt(nora_ctx) if nora_ctx else ""
+
+        if has_real_data:
+            sh, sm = d["sleep_duration_min"] // 60, d["sleep_duration_min"] % 60
+            data_block = f"""DONNEES MESUREES: Score {si['score']}/100 ({si['status']}). Sous-scores: Cardio {si['subscores']['cardio']['score']}, Sommeil {si['subscores']['sleep']['score']}, Activite {si['subscores']['activity']['score']}, Metabolisme {si['subscores']['metabolism']['score']}, Hydratation {si['subscores']['hydration']['score']}.
+FC {d['heart_rate']}bpm (HRV {d['hrv']}ms), SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}, Temp {d['temperature']}C.
 Sommeil {sh}h{sm:02d} (qualite {d['sleep_quality']}%, {d['sleep_interruptions']} interruptions).
-{d['steps']} pas, {d['calories']}kcal. Poids {d['weight']}kg (hier {d['weight_prev']}), IMC {d['bmi']}, Age corp {d['body_age']} ans.
-Graisse {d['body_fat_pct']}% (hier {d['body_fat_prev']}%), Muscle {d['muscle_pct']}% (hier {d['muscle_prev']}%), Eau {d['water_pct']}%, Visc {d['visceral_fat']}, Ratio TH {d['waist_hip_ratio']}.
-Apport reco {d['recommended_calories']}kcal, Metabolisme basal {d['basal_metabolism']}kcal.
+{d['steps']} pas, {d['calories']}kcal. Poids {d['weight']}kg, IMC {d['bmi']}, Age corp {d['body_age']} ans.
+Graisse {d['body_fat_pct']}%, Muscle {d['muscle_pct']}%, Eau {d['water_pct']}%, Graisse visc {d['visceral_fat']}."""
+        else:
+            data_block = "AUCUNE DONNEE DE SANTE DISPONIBLE. Les appareils ne sont pas connectes ou n'ont pas encore transmis de donnees."
 
-CONSIGNES: Vouvoiement. Ton medical, professionnel et factuel. Pas d'emoji. Pas d'encouragement excessif. Analyse rigoureuse des correlations entre les donnees. Mettez en evidence les points d'attention medicaux.
+        prompt = f"""Tu es Nora, medecin IA specialiste en prevention et longevite. Analyse et reponds UNIQUEMENT en JSON.
+
+CONTEXTE PATIENT:
+{user_context}
+
+{data_block}
+
+{APP_SERVICES_KNOWLEDGE}
+
+CONSIGNES STRICTES:
+- Vouvoiement obligatoire
+- Ton medical, professionnel et factuel. Pas d'emoji. Pas d'encouragement excessif
+- Si AUCUNE DONNEE n'est disponible:
+  * hero_line doit indiquer clairement l'absence de donnees
+  * correlations DOIT etre un tableau VIDE []
+  * whats_good DOIT etre un tableau VIDE []
+  * watch_out DOIT etre un tableau VIDE []
+  * priority doit recommander de connecter un appareil ou realiser une mesure
+  * secondary_recs doit recommander les services Chutex adaptes au profil (age, pathologies)
+- Si des DONNEES existent:
+  * Analyse rigoureuse basee UNIQUEMENT sur les valeurs mesurees
+  * Correlations entre 2+ donnees mesurees
+  * Recommandations concretes et actionnables pour la longevite
+  * Integre les recommandations d'appareils/services manquants si pertinent
+  * Si l'utilisateur a +70 ans, privilegie la prevention des chutes, la sarcopenie, l'hydratation
 
 JSON:
-{{"hero_line": "1 phrase factuelle resume (max 12 mots, pas d'emoji)", "priority": "1 recommandation medicale prioritaire concrete", "priority_why": "justification medicale en 1 phrase", "correlations": ["correlation medicale 1 entre 2+ donnees", "correlation 2", "correlation 3"], "whats_good": ["indicateur positif 1", "indicateur positif 2"], "watch_out": ["point de vigilance medical"], "secondary_recs": ["recommandation 2", "recommandation 3", "recommandation 4"], "motivation": "1 phrase sobre de conclusion medicale", "score_explain_up": "facteurs positifs du score", "score_explain_down": "facteurs limitants du score"}}"""
+{{"hero_line": "1 phrase factuelle resume (max 12 mots)", "priority": "1 recommandation prioritaire concrete", "priority_why": "justification en 1 phrase", "correlations": ["correlation 1", "correlation 2", "correlation 3"], "whats_good": ["point positif 1", "point positif 2"], "watch_out": ["point de vigilance 1"], "secondary_recs": ["recommandation 2", "recommandation 3", "recommandation 4"], "motivation": "1 phrase sobre de conclusion", "score_explain_up": "facteurs positifs", "score_explain_down": "facteurs limitants"}}"""
 
         chat = LlmChat(api_key=api_key, session_id=f"h-{uuid.uuid4().hex[:8]}",
-                       system_message="Medecin. JSON uniquement. Pas d'emoji. Ton professionnel.").with_model("openai", "gpt-5.2")
+                       system_message="Nora, medecin IA Chutex. JSON uniquement. Pas d'emoji. Professionnel. Prevention et longevite.").with_model("openai", "gpt-5.2")
         r = await chat.send_message(UserMessage(text=prompt))
-        import json
         c = r.strip()
         if c.startswith("```"): c = c.split("\n", 1)[1] if "\n" in c else c[3:]
         if c.endswith("```"): c = c[:-3]
         return json.loads(c.strip())
     except Exception as e:
         print(f"AI err: {e}")
-        return _fb()
+        return _fb(has_real_data, nora_ctx)
 
 
-def _fb():
+def _fb(has_data=True, nora_ctx=None):
+    """Coherent fallback: empty sections when no data, real recommendations when data exists."""
+    if not has_data:
+        recs = ["Connectez votre bracelet Elio pour demarrer le suivi cardiaque et du sommeil"]
+        if nora_ctx:
+            if not nora_ctx.get("has_scale"):
+                recs.append("La Balance Vita vous permettra une analyse complete de votre composition corporelle")
+            age = nora_ctx.get("age")
+            if age and age >= 75:
+                recs.append("A votre age, l'abonnement Chutex Care avec teleassistance 24/7 est fortement recommande")
+        return {
+            "hero_line": "Aucune donnee de sante disponible",
+            "priority": "Connectez un appareil pour demarrer votre suivi personnalise.",
+            "priority_why": "Sans donnees, Nora ne peut pas analyser votre etat de sante.",
+            "correlations": [],
+            "whats_good": [],
+            "watch_out": [],
+            "secondary_recs": recs,
+            "motivation": "",
+            "score_explain_up": "",
+            "score_explain_down": "Aucune donnee collectee",
+        }
     return {
-        "hero_line": "Tes constantes sont stables, continue comme ca !",
-        "priority": "Augmente tes pas de 500 aujourd'hui.",
-        "priority_why": "Ton activite est un peu basse par rapport a ta recuperation.",
-        "correlations": ["Ton bon sommeil favorise une FC stable", "L'activite aide a maintenir ton poids"],
-        "whats_good": ["FC au repos saine", "Hydratation correcte"],
-        "watch_out": ["Augmente legerement ton activite"],
-        "secondary_recs": ["Bois 1.5L d'eau", "Couche-toi avant 23h", "10 min d'etirements"],
-        "motivation": "Chaque petit pas compte !",
-        "score_explain_up": "Cardio et sommeil sont tes points forts",
+        "hero_line": "Vos constantes sont stables.",
+        "priority": "Augmentez vos pas de 500 aujourd'hui.",
+        "priority_why": "Votre activite est un peu basse par rapport a votre recuperation.",
+        "correlations": ["Un bon sommeil favorise une frequence cardiaque stable", "L'activite reguliere contribue au maintien du poids"],
+        "whats_good": ["Frequence cardiaque au repos dans les normes", "Hydratation correcte"],
+        "watch_out": ["Augmentez legerement votre activite physique quotidienne"],
+        "secondary_recs": ["Buvez 1,5L d'eau par jour", "Couchez-vous avant 23h", "10 minutes d'etirements le matin"],
+        "motivation": "La regularite est la cle de la prevention.",
+        "score_explain_up": "Cardio et sommeil sont vos points forts",
         "score_explain_down": "L'activite pourrait etre amelioree",
     }
 
