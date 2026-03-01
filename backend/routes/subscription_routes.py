@@ -49,6 +49,115 @@ async def get_my_subscription(user=Depends(get_current_user)):
     }
 
 
+# ==================== SUBSCRIPTION SELF-MANAGEMENT ====================
+@router.put("/subscriptions/my/update-info")
+async def update_subscription_info(data: dict, user=Depends(get_current_user)):
+    """Update housing/logistics info on active subscription"""
+    sub = await db.subscriptions.find_one(
+        {"$or": [{"beneficiary_id": user['id']}, {"beneficiary_phone": normalize_phone(user.get('phone', ''))}], "status": "active"}, {"_id": 0}
+    )
+    if not sub:
+        raise HTTPException(status_code=404, detail="Aucun abonnement actif")
+    allowed = ['address', 'postal_code', 'city', 'floor', 'digicode', 'interphone', 'key_box_code', 'housing_notes']
+    update = {k: v for k, v in data.items() if k in allowed}
+    update['updated_at'] = datetime.now(timezone.utc).isoformat()
+    await db.subscriptions.update_one({"id": sub['id']}, {"$set": update})
+    # Also update user profile with address info
+    user_update = {}
+    if 'address' in data: user_update['address'] = data['address']
+    if 'postal_code' in data: user_update['postal_code'] = data['postal_code']
+    if 'city' in data: user_update['city'] = data['city']
+    if user_update:
+        await db.users.update_one({"id": user['id']}, {"$set": user_update})
+    return {"status": "updated"}
+
+
+@router.post("/subscriptions/my/cancel")
+async def cancel_my_subscription(user=Depends(get_current_user)):
+    """Cancel user's active subscription"""
+    import os, stripe as stripe_lib
+    stripe_lib.api_key = os.environ.get("STRIPE_API_KEY", "")
+
+    sub = await db.subscriptions.find_one(
+        {"$or": [{"beneficiary_id": user['id']}, {"beneficiary_phone": normalize_phone(user.get('phone', ''))}], "status": "active"}, {"_id": 0}
+    )
+    if not sub:
+        raise HTTPException(status_code=404, detail="Aucun abonnement actif")
+    now = datetime.now(timezone.utc).isoformat()
+    # Cancel on Stripe if subscription ID exists
+    if sub.get('stripe_subscription_id') and stripe_lib.api_key:
+        try:
+            stripe_lib.Subscription.cancel(sub['stripe_subscription_id'])
+        except Exception as e:
+            logger.warning(f"Stripe cancel error: {e}")
+    # Update DB
+    await db.subscriptions.update_one({"id": sub['id']}, {"$set": {"status": "cancelled", "cancelled_at": now, "updated_at": now}})
+    await db.users.update_one({"id": user['id']}, {"$set": {"has_subscription": False, "subscription_type": "none"}})
+    return {"status": "cancelled"}
+
+
+@router.post("/subscriptions/my/billing-portal")
+async def get_billing_portal(data: dict, user=Depends(get_current_user)):
+    """Create a Stripe billing portal session for the user"""
+    import os, stripe as stripe_lib
+    stripe_lib.api_key = os.environ.get("STRIPE_API_KEY", "")
+
+    sub = await db.subscriptions.find_one(
+        {"$or": [{"beneficiary_id": user['id']}, {"beneficiary_phone": normalize_phone(user.get('phone', ''))}], "status": "active"}, {"_id": 0}
+    )
+    if not sub or not sub.get('stripe_subscription_id'):
+        raise HTTPException(status_code=404, detail="Aucun abonnement Stripe actif")
+    # Find the Stripe customer
+    try:
+        stripe_sub = stripe_lib.Subscription.retrieve(sub['stripe_subscription_id'])
+        customer_id = stripe_sub.customer
+        session = stripe_lib.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=data.get('return_url', 'https://chutex-care-preview.preview.emergentagent.com/profile'),
+        )
+        return {"url": session.url}
+    except Exception as e:
+        logger.error(f"Billing portal error: {e}")
+        raise HTTPException(status_code=500, detail="Impossible de creer la session de paiement")
+
+
+@router.get("/guardians/pending-invites")
+async def get_pending_guardian_invites(user=Depends(get_current_user)):
+    """Get pending guardian invitations sent by this beneficiary"""
+    invites = await db.guardian_invitations.find(
+        {"beneficiary_id": user['id'], "status": {"$in": ["pending", "sms_sent"]}}, {"_id": 0}
+    ).sort("created_at", -1).to_list(20)
+    return invites
+
+
+@router.post("/guardians/resend-invite")
+async def resend_guardian_invite(data: dict, user=Depends(get_current_user)):
+    """Resend SMS invitation to a pending guardian"""
+    phone = data.get('phone', '').strip()
+    if not phone:
+        raise HTTPException(status_code=400, detail="Numero requis")
+    cleaned = re.sub(r'[\s\-\.\(\)]', '', phone)
+    if cleaned.startswith('0') and len(cleaned) == 10:
+        cleaned = '+33' + cleaned[1:]
+    try:
+        from services.smsmode_service import send_sms
+        ben_name = user.get('name', 'Un proche')
+        await send_sms(
+            cleaned,
+            f"{ben_name} souhaite vous ajouter comme gardien sur Chutex Care. Inscrivez-vous sur https://apps.apple.com/app/chutex/id6759215592"
+        )
+        now = datetime.now(timezone.utc).isoformat()
+        await db.guardian_invitations.update_one(
+            {"beneficiary_id": user['id'], "guardian_phone": {"$regex": cleaned[-9:]}},
+            {"$set": {"status": "sms_sent", "last_sent_at": now}},
+        )
+        return {"status": "sent"}
+    except Exception as e:
+        logger.error(f"Resend invite error: {e}")
+        raise HTTPException(status_code=500, detail="Erreur envoi SMS")
+
+
+
 @router.get("/subscriptions/check/{user_id}")
 async def check_subscription(user_id: str, user=Depends(get_current_user)):
     """Check subscription status for a given user (admin/teleassistance)"""
