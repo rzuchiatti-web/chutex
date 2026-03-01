@@ -3,6 +3,7 @@ import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import NativePageView from '../src/components/NativePageView';
 
 export default function ProgramDetailScreen() {
   const { user, token } = useAuth();
