@@ -311,7 +311,15 @@ export default function HealthDetailScreen() {
         })()}
 
         {/* Nora Analysis for this section */}
-        {(sectionAi || report?.ai) && (
+        {(sectionAi || report?.ai) && (() => {
+          const ai = sectionAi || report?.ai;
+          const hasCorrelations = ai?.correlations?.length > 0;
+          const hasGood = ai?.whats_good?.length > 0;
+          const hasWatch = ai?.watch_out?.length > 0;
+          const isNoData = sectionAi?.no_data === true;
+          const recommendation = sectionAi?.recommendation || '';
+
+          return (
           <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '20px', paddingTop: metricId !== 'sleep' ? 60 : 20, marginBottom: 16, position: 'relative', zIndex: 1 } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 } as any}>
               <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.2)', border: '1px solid rgba(167,139,250,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 14, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
@@ -320,16 +328,30 @@ export default function HealthDetailScreen() {
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{sec.title}</div>
               </div>
             </div>
-            {(sectionAi || report?.ai)?.correlations?.filter((_: any, i: number) => i < 3).map((c: string, i: number) => (
+
+            {/* No data state: show recommendation instead of empty sections */}
+            {isNoData && recommendation && (
+              <div style={{ padding: '14px', borderRadius: 14, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)', marginBottom: 10 } as any}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 } as any}>
+                  <i className="ri-information-line" style={{ fontSize: 16, color: '#3B82F6', marginTop: 2, flexShrink: 0 }} />
+                  <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>{recommendation}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Correlations — only show if there are actual correlations */}
+            {hasCorrelations && ai.correlations.filter((_: any, i: number) => i < 3).map((c: string, i: number) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
                 <i className="ri-links-line" style={{ fontSize: 14, color: '#A78BFA', marginTop: 2, flexShrink: 0 }} />
                 <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>{c}</span>
               </div>
             ))}
-            {(sectionAi || report?.ai)?.whats_good?.length > 0 && (
+
+            {/* Points forts — only show if data exists and there are actual good points */}
+            {hasGood && (
               <div style={{ marginTop: 14, padding: '14px', borderRadius: 14, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)' } as any}>
                 <div style={{ fontSize: 12, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Points forts</div>
-                {(sectionAi || report?.ai)?.whats_good?.slice(0, 3).map((g: string, i: number) => (
+                {ai.whats_good.slice(0, 3).map((g: string, i: number) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '5px 0' } as any}>
                     <i className="ri-checkbox-circle-line" style={{ fontSize: 14, color: '#10B981', marginTop: 2, flexShrink: 0 }} />
                     <span style={{ fontSize: 13, color: '#FFF', lineHeight: 1.6, opacity: 0.8 }}>{g}</span>
@@ -337,10 +359,12 @@ export default function HealthDetailScreen() {
                 ))}
               </div>
             )}
-            {(sectionAi || report?.ai)?.watch_out?.length > 0 && (
+
+            {/* A surveiller — only show if data exists and there are actual watch points */}
+            {hasWatch && (
               <div style={{ marginTop: 10, padding: '14px', borderRadius: 14, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' } as any}>
                 <div style={{ fontSize: 12, fontWeight: 800, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>A surveiller</div>
-                {(sectionAi || report?.ai)?.watch_out?.slice(0, 3).map((w: string, i: number) => (
+                {ai.watch_out.slice(0, 3).map((w: string, i: number) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '5px 0' } as any}>
                     <i className="ri-error-warning-line" style={{ fontSize: 14, color: '#F59E0B', marginTop: 2, flexShrink: 0 }} />
                     <span style={{ fontSize: 13, color: '#FFF', lineHeight: 1.6, opacity: 0.8 }}>{w}</span>
@@ -348,8 +372,19 @@ export default function HealthDetailScreen() {
                 ))}
               </div>
             )}
+
+            {/* Non-no-data recommendation */}
+            {!isNoData && recommendation && (
+              <div style={{ marginTop: 10, padding: '14px', borderRadius: 14, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.15)' } as any}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 } as any}>
+                  <i className="ri-lightbulb-line" style={{ fontSize: 14, color: '#A78BFA', marginTop: 2, flexShrink: 0 }} />
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>{recommendation}</span>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+          );
+        })()}
 
         {/* Metrics list */}
         {sec.metrics.map((m) => {
