@@ -319,15 +319,30 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             </div>
           </div>
 
-          {/* Care subscription card — beneficiary only */}
-          {isBen && user.has_subscription && (
-            <div onClick={() => { setShowCareDetail(true); if (!subData) apiFetch('/api/subscriptions/my', {}, token).then(setSubData).catch(() => {}); }} data-testid="care-subscription-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s' } as any}
+          {/* Subscription card — beneficiary only */}
+          {isBen && subData?.has_subscription && subData?.subscription_type === 'care' && (
+            <div onClick={() => setShowCareDetail(true)} data-testid="care-subscription-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.01)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = 'scale(1)'; }}>
               <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 22 } as any} />
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', borderRadius: 22 } as any} />
               <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', padding: '0 22px' } as any}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>Abonnement Care</div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.25)', border: '1px solid rgba(16,185,129,0.4)' } as any}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
+                </div>
+              </div>
+            </div>
+          )}
+          {isBen && subData?.has_subscription && subData?.subscription_type !== 'care' && (
+            <div onClick={() => setShowCareDetail(true)} data-testid="standard-subscription-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.01)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = 'scale(1)'; }}>
+              <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 22 } as any} />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', borderRadius: 22 } as any} />
+              <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', padding: '0 22px' } as any}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>Bracelet Elio</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.25)', border: '1px solid rgba(16,185,129,0.4)' } as any}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
