@@ -454,9 +454,10 @@ Reponds UNIQUEMENT en JSON: {{"summary": "phrase medicale factuelle courte", "re
 async def get_daily_report(user=Depends(get_current_user)):
     uid = user['id']
 
-    # No devices = no data
+    # No devices or no readings = no data
     has_devices = await db.devices.find_one({"user_id": uid}, {"_id": 0})
-    if not has_devices:
+    has_readings = await db.device_readings.find_one({"user_id": uid}, {"_id": 0}) if has_devices else None
+    if not has_devices or not has_readings:
         return {"no_data": True, "data": {}, "score_info": {"score": 0, "status": "Aucune donnee", "status_color": "#6B7280", "subscores": {}, "lifts": [], "limits": []},
                 "ai_insights": {"hero_line": "Connectez un appareil pour demarrer votre suivi", "priority": "Connecter un bracelet ou une balance", "priority_why": "Sans appareil, Nora ne peut pas analyser vos donnees.",
                 "correlations": [], "whats_good": [], "watch_out": [], "secondary_recs": [], "motivation": "", "score_explain_up": "", "score_explain_down": ""},
