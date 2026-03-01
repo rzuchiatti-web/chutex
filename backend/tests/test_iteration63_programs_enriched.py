@@ -229,9 +229,9 @@ class TestSleepProgramScientificContent:
         response = requests.get(f"{BASE_URL}/api/programs/detail/prog-sleep-21")
         assert response.status_code == 200
         
-        # Login to test day 1 via active endpoint
+        # Login to test day 1 via active endpoint - API uses email field for phone
         login_resp = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "phone": TEST_PHONE,
+            "email": TEST_EMAIL,
             "password": TEST_PASSWORD
         })
         assert login_resp.status_code == 200
