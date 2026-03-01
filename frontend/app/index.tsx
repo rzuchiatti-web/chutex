@@ -207,24 +207,33 @@ export default function AuthScreen() {
   }
 
   /* NATIVE */
-  const { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView } = require('react-native');
+  const { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView, Image } = require('react-native');
   const { SafeAreaView } = require('react-native-safe-area-context');
+  const { LinearGradient } = require('expo-linear-gradient');
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A1A' }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }} keyboardShouldPersistTaps="always">
-          <Text style={{ fontSize: 28, fontWeight: '800', color: '#FFF', textAlign: 'center', marginBottom: 40 }}>Connexion</Text>
-          {error ? <View style={{ backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 14, padding: 12, marginBottom: 20 }}><Text style={{ fontSize: 13, color: '#F87171' }}>{error}</Text></View> : null}
+          {/* Logo */}
+          <View style={{ alignItems: 'center', marginBottom: 32 }}>
+            <Image source={{ uri: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429' }} style={{ width: 140, height: 48, resizeMode: 'contain' }} />
+          </View>
+          <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF', textAlign: 'center', marginBottom: 6 }}>Connexion</Text>
+          <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 32 }}>Accedez a votre espace sante</Text>
+          {error ? <View style={{ backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 999, padding: 12, marginBottom: 20 }}><Text style={{ fontSize: 13, color: '#F87171', textAlign: 'center' }}>{error}</Text></View> : null}
           <TextInput defaultValue="" onChangeText={(t: string) => phoneRef.current = t} placeholder="06 12 34 56 78" placeholderTextColor="rgba(255,255,255,0.2)" keyboardType="phone-pad"
-            style={{ fontSize: 15, padding: 16, borderRadius: 9999, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', color: '#FFF', marginBottom: 16 }} />
+            style={{ fontSize: 15, padding: 16, borderRadius: 9999, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', color: '#FFF', marginBottom: 16 }} />
           <TextInput defaultValue="" onChangeText={(t: string) => passwordRef.current = t} placeholder="Mot de passe" placeholderTextColor="rgba(255,255,255,0.2)" secureTextEntry
-            style={{ fontSize: 15, padding: 16, borderRadius: 9999, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', color: '#FFF', marginBottom: 24 }} />
+            style={{ fontSize: 15, padding: 16, borderRadius: 9999, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', color: '#FFF', marginBottom: 24 }} />
           <TouchableOpacity disabled={submitting} onPress={async () => {
             setError(''); const ph = phoneRef.current.trim(); const pw = passwordRef.current;
             if (!ph || !pw) return setError('Telephone et mot de passe requis'); setSubmitting(true);
             try { let id = ph.replace(/\s/g, ''); if (id.startsWith('0')) id = '+33' + id.substring(1); await login(id, pw); router.replace('/(tabs)'); } catch (e: any) { setError(e.message); } finally { setSubmitting(false); }
-          }} style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 9999, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' }}>
-            {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '700' }}>Se connecter</Text>}
+          }} style={{ backgroundColor: '#FFF', borderRadius: 9999, paddingVertical: 16, alignItems: 'center' }}>
+            {submitting ? <ActivityIndicator color="#111" /> : <Text style={{ color: '#111', fontSize: 15, fontWeight: '800' }}>Se connecter</Text>}
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/register' as any)} style={{ marginTop: 20, alignItems: 'center' }}>
+            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>Pas encore de compte ? <Text style={{ color: '#FFF', fontWeight: '700' }}>S'inscrire</Text></Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
