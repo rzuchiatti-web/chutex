@@ -15,11 +15,10 @@ import os
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://real-time-wellness.preview.emergentagent.com").rstrip("/")
 
-# Test credentials
-MARIE_PHONE = "0600000099"  # Existing beneficiary
-MARIE_PASSWORD = "test123"
+# Test credentials - API uses email field for both email and phone numbers
+TEST_EMAIL = "0600000099"  # Marie Test's phone (used as email field)
+TEST_PASSWORD = "test123"
 ROBIN_PHONE = "+33651245918"  # Guardian, not beneficiary
-ROBIN_PASSWORD = "robin123"
 
 
 class TestTeamInviteByPhone:
@@ -31,10 +30,10 @@ class TestTeamInviteByPhone:
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
         
-        # Login as Marie Test
+        # Login as Marie Test - API uses email field for phone numbers
         login_resp = self.session.post(
             f"{BASE_URL}/api/auth/login",
-            json={"phone": MARIE_PHONE, "password": MARIE_PASSWORD}
+            json={"email": TEST_EMAIL, "password": TEST_PASSWORD}
         )
         if login_resp.status_code == 200:
             self.token = login_resp.json().get("token")
