@@ -941,3 +941,130 @@ async def get_active_team(user=Depends(get_current_user)):
         "members": members_progress,
     }
 
+
+
+@router.post("/programs/team/invite-by-phone")
+async def invite_to_team_by_phone(data: dict, user=Depends(get_current_user)):
+    """Invite someone to a team program by phone number.
+    If the phone belongs to an existing beneficiary → in-app notification.
+    If not → send SMS invitation."""
+    phone = data.get("phone", "").strip()
+    team_id = data.get("team_id", "").strip()
+    if not phone or not team_id:
+        raise HTTPException(status_code=400, detail="phone et team_id requis")
+
+    team = await db.team_programs.find_one({"id": team_id}, {"_id": 0})
+    if not team:
+        raise HTTPException(status_code=404, detail="Equipe non trouvee")
+    if team.get("created_by") != user['id']:
+        # Allow any member to invite
+        member_ids = [m["user_id"] for m in team.get("members", [])]
+        if user['id'] not in member_ids:
+            raise HTTPException(status_code=403, detail="Vous ne faites pas partie de cette equipe")
+
+    # Normalize phone
+    cleaned = phone.replace("+", "").replace(" ", "").replace("-", "")
+    if cleaned.startswith("0") and len(cleaned) == 10:
+        cleaned = "33" + cleaned[1:]
+    if not cleaned.startswith("33"):
+        cleaned = "33" + cleaned
+
+    # Check if phone belongs to an existing beneficiary
+    phone_variants = [f"+{cleaned}", cleaned, f"0{cleaned[2:]}" if cleaned.startswith("33") else cleaned]
+    existing_user = None
+    for pv in phone_variants:
+        existing_user = await db.users.find_one({"phone": pv, "role": "beneficiary"}, {"_id": 0})
+        if existing_user:
+            break
+
+    program = await db.programs.find_one({"id": team["program_id"]}, {"_id": 0})
+    program_title = program.get("title", "Programme") if program else "Programme"
+
+    if existing_user:
+        # Check if already a member
+        member_ids = [m["user_id"] for m in team.get("members", [])]
+        if existing_user['id'] in member_ids:
+            return {"status": "already_member", "message": f"{existing_user.get('name', 'Cet utilisateur')} fait deja partie de l'equipe."}
+
+        # Create in-app notification
+        invite_id = str(uuid.uuid4())
+        await db.team_invitations.insert_one({
+            "id": invite_id,
+            "team_id": team_id,
+            "invite_code": team["invite_code"],
+            "inviter_id": user['id'],
+            "inviter_name": user.get("name", ""),
+            "invitee_id": existing_user['id'],
+            "invitee_phone": phone,
+            "program_id": team["program_id"],
+            "program_title": program_title,
+            "status": "pending",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        return {
+            "status": "notification_sent",
+            "method": "in_app",
+            "message": f"Invitation envoyee a {existing_user.get('name', 'l utilisateur')}. Il/elle recevra une notification dans l'application.",
+            "invitee_name": existing_user.get("name", ""),
+        }
+    else:
+        # Send SMS
+        from services.smsmode_service import send_sms
+        sms_text = f"{user.get('name', 'Un ami')} vous invite a faire le programme '{program_title}' ensemble sur Chutex. Code equipe: {team['invite_code']}. Telechargez l'app Chutex pour rejoindre."
+        sms_sent = await send_sms(cleaned, sms_text)
+        return {
+            "status": "sms_sent" if sms_sent else "sms_failed",
+            "method": "sms",
+            "message": f"SMS d'invitation envoye au {phone}." if sms_sent else "Impossible d'envoyer le SMS. Partagez le code manuellement.",
+            "invite_code": team["invite_code"],
+        }
+
+
+@router.get("/programs/team/invitations")
+async def get_team_invitations(user=Depends(get_current_user)):
+    """Get pending team program invitations for the current user"""
+    invitations = await db.team_invitations.find(
+        {"invitee_id": user['id'], "status": "pending"}, {"_id": 0}
+    ).to_list(20)
+    return invitations
+
+
+@router.post("/programs/team/invitations/{invite_id}/accept")
+async def accept_team_invitation(invite_id: str, user=Depends(get_current_user)):
+    """Accept a team program invitation"""
+    invite = await db.team_invitations.find_one({"id": invite_id, "invitee_id": user['id']}, {"_id": 0})
+    if not invite:
+        raise HTTPException(status_code=404, detail="Invitation non trouvee")
+
+    team = await db.team_programs.find_one({"id": invite["team_id"]}, {"_id": 0})
+    if not team:
+        raise HTTPException(status_code=404, detail="Equipe non trouvee")
+
+    # Add user to team
+    member_ids = [m["user_id"] for m in team.get("members", [])]
+    if user['id'] not in member_ids:
+        await db.team_programs.update_one(
+            {"id": team["id"]},
+            {"$push": {"members": {"user_id": user['id'], "name": user.get("name", ""), "joined_at": datetime.now(timezone.utc).isoformat(), "enrollment_id": None}}}
+        )
+
+    # Mark invitation as accepted
+    await db.team_invitations.update_one({"id": invite_id}, {"$set": {"status": "accepted"}})
+
+    program = await db.programs.find_one({"id": team["program_id"]}, {"_id": 0})
+    return {
+        "status": "joined",
+        "team_id": team["id"],
+        "invite_code": team["invite_code"],
+        "program_title": program.get("title", "") if program else "",
+    }
+
+
+@router.post("/programs/team/invitations/{invite_id}/reject")
+async def reject_team_invitation(invite_id: str, user=Depends(get_current_user)):
+    """Reject a team program invitation"""
+    await db.team_invitations.update_one(
+        {"id": invite_id, "invitee_id": user['id']},
+        {"$set": {"status": "rejected"}}
+    )
+    return {"status": "rejected"}
