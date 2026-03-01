@@ -262,108 +262,67 @@ JSON:
 
 @router.get("/health/metric-history/{key}")
 async def get_metric_history(key: str, period: str = "7j", user=Depends(get_current_user)):
-    """History for a specific metric with range support: 24h, 7j, 30j, 90j"""
-    import math
+    """History for a specific metric from REAL device_readings"""
     from datetime import timedelta
     now = datetime.now(timezone.utc)
+    uid = user['id']
 
-    # Determine days and granularity
-    is_hourly = period == "24h"
     days = {"24h": 1, "7j": 7, "30j": 30, "90j": 90}.get(period, 7)
-    points = 24 if is_hourly else days
+    since = (now - timedelta(days=days)).isoformat()
+
+    # Determine device type for this metric
+    bracelet_keys = {"heart_rate", "hrv", "spo2", "blood_pressure", "temperature", "stress_level", "recovery_score", "steps", "calories", "distance_km", "sleep_quality", "sleep_duration_min", "vo2_max", "glycemia"}
+    scale_keys = {"weight", "body_fat_pct", "muscle_pct", "water_pct", "bone_mass_kg", "visceral_fat", "bmi", "body_age", "protein_pct", "skeletal_muscle_pct", "basal_metabolism", "recommended_calories", "waist_hip_ratio", "ideal_weight"}
+    device_type = "bracelet" if key in bracelet_keys or key in ("bp_systolic", "bp_diastolic") else "scale" if key in scale_keys else "bracelet"
+
+    readings = await db.device_readings.find(
+        {"user_id": uid, "device_type": device_type, "timestamp": {"$gte": since}}, {"_id": 0}
+    ).sort("timestamp", 1).to_list(200)
+
     history = []
-
-    generators = {
-        "heart_rate": lambda i: 68 + int(6 * math.sin(i / 7 * math.pi)) + random.randint(-3, 3),
-        "hrv": lambda i: 42 + int(5 * math.sin(i / 10 * math.pi)) + random.randint(-3, 3),
-        "spo2": lambda i: random.choice([96, 97, 97, 98, 98, 99]),
-        "bp_systolic": lambda i: 122 + int(4 * math.sin(i / 8 * math.pi)) + random.randint(-3, 3),
-        "bp_diastolic": lambda i: 76 + int(3 * math.sin(i / 8 * math.pi)) + random.randint(-2, 2),
-        "temperature": lambda i: round(36.5 + 0.3 * math.sin(i / 5 * math.pi) + random.uniform(-0.1, 0.1), 1),
-        "vo2_max": lambda i: round(29 + 0.5 * i / max(points, 1) + random.uniform(-0.5, 0.5), 1),
-        "glycemia": lambda i: round(0.98 + 0.08 * math.sin(i / 6 * math.pi) + random.uniform(-0.03, 0.03), 2),
-        "stress_level": lambda i: max(10, min(80, 35 + int(10 * math.sin(i / 5 * math.pi)) + random.randint(-5, 5))),
-        "recovery_score": lambda i: max(50, min(100, 80 + int(8 * math.sin(i / 6 * math.pi)) + random.randint(-4, 4))),
-        "steps": lambda i: max(500, 4000 + int(2000 * math.sin(i / 4 * math.pi)) + random.randint(-500, 500)),
-        "calories": lambda i: max(50, 160 + int(60 * math.sin(i / 4 * math.pi)) + random.randint(-20, 20)),
-        "distance_km": lambda i: round(max(0.3, 2.8 + 1.2 * math.sin(i / 4 * math.pi) + random.uniform(-0.3, 0.3)), 1),
-        "weight": lambda i: round(72.8 - 0.015 * i + random.uniform(-0.2, 0.2), 1),
-        "body_fat_pct": lambda i: round(22.8 - 0.02 * i + random.uniform(-0.2, 0.2), 1),
-        "muscle_pct": lambda i: round(33.2 + 0.015 * i + random.uniform(-0.15, 0.15), 1),
-        "water_pct": lambda i: round(54.8 + 0.5 * math.sin(i / 7 * math.pi) + random.uniform(-0.2, 0.2), 1),
-        "visceral_fat": lambda i: random.choice([8, 9, 9, 9, 10]),
-        "bone_mass_kg": lambda i: round(3.05 + random.uniform(-0.05, 0.05), 2),
-        "sleep_quality": lambda i: max(50, min(100, 80 + int(8 * math.sin(i / 5 * math.pi)) + random.randint(-5, 5))),
-        "temperature": lambda i: round(36.5 + 0.3 * math.sin(i / 5 * math.pi) + random.uniform(-0.1, 0.1), 1),
-        "basal_metabolism": lambda i: random.randint(1480, 1620),
-        "recommended_calories": lambda i: random.randint(1850, 2150),
-        "bmi": lambda i: round(24.2 - 0.01 * i + random.uniform(-0.1, 0.1), 1),
-    }
-
-    gen = generators.get(key, lambda i: round(50 + 10 * math.sin(i / 5 * math.pi) + random.uniform(-2, 2), 1))
-
-    # Special: blood_pressure generates systolic+diastolic pairs
     is_bp = key == "blood_pressure"
-    gen_sys = generators.get("bp_systolic", gen)
-    gen_dia = generators.get("bp_diastolic", gen)
-
-    import builtins
-    for i in builtins.range(points):
-        if is_hourly:
-            dt = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(hours=i)
-            label = dt.strftime("%Hh")
-        else:
-            dt = now - timedelta(days=points - 1 - i)
-            label = dt.strftime("%d/%m")
-
+    for r in readings:
+        data = r.get("data", {})
+        ts = r.get("timestamp", "")
         if is_bp:
-            s = gen_sys(i)
-            d_val = gen_dia(i)
-            entry = {"date": dt.isoformat() if is_hourly else dt.strftime("%Y-%m-%d"), "label": label, "value": s, "systolic": s, "diastolic": d_val}
+            bp = data.get("blood_pressure", {})
+            if bp.get("systolic"):
+                history.append({"date": ts[:10], "label": ts[5:10].replace("-", "/"), "value": bp["systolic"], "systolic": bp["systolic"], "diastolic": bp.get("diastolic", 0)})
         else:
-            entry = {"date": dt.isoformat() if is_hourly else dt.strftime("%Y-%m-%d"), "label": label, "value": gen(i)}
-        history.append(entry)
+            val = data.get(key, 0)
+            if val:
+                history.append({"date": ts[:10], "label": ts[5:10].replace("-", "/"), "value": val})
 
     vals = [h["value"] for h in history]
     avg = round(sum(vals) / len(vals), 1) if vals else 0
     mn_val, mx_val = (min(vals), max(vals)) if vals else (0, 0)
     trend = round(vals[-1] - vals[0], 1) if len(vals) >= 2 else 0
 
-    # Metric meta
+    # Metric meta (same as before)
     meta = {
-        "heart_rate": {"title": "Frequence cardiaque", "unit": "bpm", "graph_type": "ecg", "normal_min": 60, "normal_max": 80, "color": "#EF4444", "explain": "Le pouls au repos mesure le nombre de battements par minute. Un rythme entre 60 et 80 bpm est considere comme sain pour un adulte. Une frequence plus basse peut indiquer une bonne condition physique. Une frequence elevee au repos peut etre liee au stress, a la deshydratation ou a un manque de sommeil."},
-        "hrv": {"title": "Variabilite cardiaque", "unit": "ms", "graph_type": "scatter", "normal_min": 30, "normal_max": 60, "color": "#A78BFA", "explain": "La variabilite de frequence cardiaque (HRV) mesure l'intervalle entre chaque battement. Plus elle est elevee, meilleure est votre capacite d'adaptation au stress. C'est un marqueur cle de recuperation et de sante globale."},
-        "spo2": {"title": "Saturation en oxygene", "unit": "%", "graph_type": "area_threshold", "normal_min": 95, "normal_max": 100, "color": "#38BDF8", "explain": "Le SpO2 mesure le pourcentage d'hemoglobine saturee en oxygene dans le sang. Au-dessus de 95% est normal. En dessous de 92% necessite une attention medicale."},
-        "stress_level": {"title": "Niveau de stress", "unit": "/100", "graph_type": "area_gradient", "normal_min": 0, "normal_max": 40, "color": "#F59E0B", "explain": "Score de stress mesure par le bracelet via l'analyse du HRV. En dessous de 40 indique un etat detendu. Au-dessus de 60, votre corps est en tension et la recuperation est compromise."},
-        "recovery_score": {"title": "Score de recuperation", "unit": "/100", "graph_type": "area_gradient", "normal_min": 70, "normal_max": 100, "color": "#10B981", "explain": "Capacite de votre corps a recuperer apres l'effort et le stress quotidien. Au-dessus de 70 est favorable. Ce score est influence par le sommeil, le stress et l'activite physique."},
-        "steps": {"title": "Nombre de pas", "unit": "pas", "graph_type": "bars", "normal_min": 4000, "normal_max": 10000, "color": "#10B981", "explain": "L'objectif recommande est de 6000 a 10000 pas par jour. La marche reguliere ameliore la sante cardiovasculaire, le metabolisme et reduit le stress."},
-        "calories": {"title": "Depense energetique", "unit": "kcal", "graph_type": "bars", "normal_min": 100, "normal_max": 400, "color": "#F59E0B", "explain": "Calories brulees par l'activite physique. Ce chiffre s'ajoute au metabolisme de base pour calculer votre depense totale."},
-        "weight": {"title": "Poids", "unit": "kg", "graph_type": "smooth_curve", "color": "#A78BFA", "explain": "Votre poids est une donnee globale. Il est important de le croiser avec la composition corporelle (graisse, muscle, eau) pour comprendre les variations. Le poids seul ne reflète pas votre sante."},
-        "body_fat_pct": {"title": "Pourcentage de graisse", "unit": "%", "graph_type": "smooth_curve", "color": "#F59E0B", "explain": "Part de graisse dans votre corps. Normal : 15-25% pour un homme, 20-30% pour une femme. Au-dela, le risque cardiovasculaire et metabolique augmente."},
-        "muscle_pct": {"title": "Masse musculaire", "unit": "%", "graph_type": "smooth_curve", "color": "#10B981", "explain": "La masse musculaire est essentielle pour le metabolisme, l'equilibre et la mobilite. Un pourcentage eleve indique un bon etat physique general."},
-        "water_pct": {"title": "Taux d'hydratation", "unit": "%", "graph_type": "bars_threshold", "normal_min": 50, "normal_max": 65, "color": "#38BDF8", "explain": "Pourcentage d'eau dans votre corps. Normal entre 50 et 65%. L'hydratation impacte l'energie, la recuperation, la concentration et la sante renale."},
-        "sleep_quality": {"title": "Qualite du sommeil", "unit": "%", "graph_type": "area_gradient", "normal_min": 75, "normal_max": 100, "color": "#A78BFA", "explain": "Score base sur la duree, les cycles de sommeil et les interruptions. Au-dessus de 80% indique un sommeil reparateur."},
-        "sleep_duration_min": {"title": "Duree du sommeil", "unit": "min", "graph_type": "hypnogram", "color": "#6D28D9", "explain": "Duree totale du sommeil. 7 a 9 heures sont recommandees. Le sommeil est compose de phases profondes (recuperation physique), legeres et paradoxales (REM, memoire et emotions)."},
-        "temperature": {"title": "Temperature corporelle", "unit": "°C", "graph_type": "smooth_curve", "normal_min": 36.3, "normal_max": 37.5, "color": "#F59E0B", "explain": "La temperature corporelle varie naturellement au cours de la journee. Une augmentation peut indiquer une inflammation, une infection ou un effort physique intense."},
-        "glycemia": {"title": "Glycemie", "unit": "g/L", "graph_type": "smooth_curve", "normal_min": 0.7, "normal_max": 1.1, "color": "#F59E0B", "explain": "Taux de glucose dans le sang. A jeun, une glycemie entre 0.7 et 1.1 g/L est normale. Au-dessus de 1.26 a jeun peut indiquer un diabete."},
-        "bmi": {"title": "Indice de masse corporelle", "unit": "", "graph_type": "smooth_curve", "color": "#38BDF8", "explain": "Rapport poids/taille. Normal entre 18.5 et 25. Au-dessus de 25 : surpoids. L'IMC est un indicateur general, a croiser avec la composition corporelle."},
-        "blood_pressure": {"title": "Pression arterielle", "unit": "mmHg", "graph_type": "bp_dual", "normal_min": 90, "normal_max": 140, "color": "#8B5CF6", "explain": "La tension arterielle mesure la force exercee par le sang sur les parois des arteres. Systolique (pression haute lors de la contraction) et diastolique (pression basse au repos). Normale autour de 120/80 mmHg. Au-dessus de 140/90 : hypertension."},
-        "distance_km": {"title": "Distance parcourue", "unit": "km", "graph_type": "bars", "normal_min": 2, "normal_max": 8, "color": "#10B981", "explain": "Distance totale estimee a partir du nombre de pas et de votre taille."},
-        "visceral_fat": {"title": "Graisse viscerale", "unit": "", "graph_type": "smooth_curve", "normal_min": 1, "normal_max": 10, "color": "#F97316", "explain": "Graisse accumulee autour des organes internes. Un indice inferieur a 10 est sain."},
-        "bone_mass_kg": {"title": "Masse osseuse", "unit": "kg", "graph_type": "smooth_curve", "normal_min": 2.5, "normal_max": 4, "color": "#A78BFA", "explain": "Poids total de vos mineraux osseux. Important pour prevenir l'osteoporose."},
-        "protein_pct": {"title": "Taux de proteine", "unit": "%", "graph_type": "smooth_curve", "normal_min": 14, "normal_max": 20, "color": "#10B981", "explain": "Pourcentage de proteines dans le corps. Important pour la reparation et la construction musculaire."},
-        "skeletal_muscle_pct": {"title": "Muscle squelettique", "unit": "%", "graph_type": "smooth_curve", "normal_min": 25, "normal_max": 40, "color": "#10B981", "explain": "Muscles attaches aux os responsables du mouvement. Un bon indicateur de force et de mobilite."},
-        "basal_metabolism": {"title": "Metabolisme de base", "unit": "kcal", "graph_type": "smooth_curve", "normal_min": 1300, "normal_max": 2000, "color": "#F59E0B", "explain": "Energie depensee au repos pour maintenir les fonctions vitales. Plus il est eleve, plus vous brulez de calories."},
-        "recommended_calories": {"title": "Apport calorique recommande", "unit": "kcal", "graph_type": "smooth_curve", "normal_min": 1800, "normal_max": 2400, "color": "#F59E0B", "explain": "Calories a consommer par jour pour maintenir votre poids actuel."},
-        "waist_hip_ratio": {"title": "Ratio taille-hanche", "unit": "", "graph_type": "smooth_curve", "normal_min": 0.7, "normal_max": 0.9, "color": "#F97316", "explain": "Indicateur de repartition des graisses. Inferieur a 0.90 (homme) ou 0.85 (femme) est ideal."},
-        "body_age": {"title": "Age corporel", "unit": "ans", "graph_type": "smooth_curve", "color": "#A78BFA", "explain": "Age biologique estime base sur votre composition corporelle et vos constantes."},
-        "ideal_weight": {"title": "Poids ideal", "unit": "kg", "graph_type": "smooth_curve", "color": "#A78BFA", "explain": "Poids optimal calcule selon votre taille et votre morphologie."},
+        "heart_rate": {"title": "Frequence cardiaque", "unit": "bpm", "graph_type": "ecg", "normal_min": 60, "normal_max": 80, "color": "#EF4444", "explain": "Le pouls au repos entre 60 et 80 bpm est sain."},
+        "hrv": {"title": "Variabilite cardiaque", "unit": "ms", "graph_type": "scatter", "normal_min": 30, "normal_max": 60, "color": "#A78BFA", "explain": "Plus le HRV est eleve, meilleure est votre recuperation."},
+        "spo2": {"title": "Saturation en oxygene", "unit": "%", "graph_type": "area_threshold", "normal_min": 95, "normal_max": 100, "color": "#38BDF8", "explain": "Au-dessus de 95% est normal."},
+        "stress_level": {"title": "Niveau de stress", "unit": "/100", "graph_type": "area_gradient", "normal_min": 0, "normal_max": 40, "color": "#F59E0B", "explain": "En dessous de 40 indique un etat detendu."},
+        "recovery_score": {"title": "Score de recuperation", "unit": "/100", "graph_type": "area_gradient", "normal_min": 70, "normal_max": 100, "color": "#10B981", "explain": "Au-dessus de 70 est favorable."},
+        "steps": {"title": "Nombre de pas", "unit": "pas", "graph_type": "bars", "normal_min": 4000, "normal_max": 10000, "color": "#10B981", "explain": "6000 a 10000 pas par jour recommandes."},
+        "calories": {"title": "Depense energetique", "unit": "kcal", "graph_type": "bars", "normal_min": 100, "normal_max": 400, "color": "#F59E0B", "explain": "Calories brulees par l'activite."},
+        "weight": {"title": "Poids", "unit": "kg", "graph_type": "smooth_curve", "color": "#A78BFA", "explain": "A croiser avec la composition corporelle."},
+        "body_fat_pct": {"title": "Pourcentage de graisse", "unit": "%", "graph_type": "smooth_curve", "color": "#F59E0B", "explain": "Normal : 15-25% homme, 20-30% femme."},
+        "muscle_pct": {"title": "Masse musculaire", "unit": "%", "graph_type": "smooth_curve", "color": "#10B981", "explain": "Essentielle pour le metabolisme et la mobilite."},
+        "water_pct": {"title": "Taux d'hydratation", "unit": "%", "graph_type": "bars_threshold", "normal_min": 50, "normal_max": 65, "color": "#38BDF8", "explain": "Normal entre 50 et 65%."},
+        "sleep_quality": {"title": "Qualite du sommeil", "unit": "%", "graph_type": "area_gradient", "normal_min": 75, "normal_max": 100, "color": "#A78BFA", "explain": "Au-dessus de 80% est reparateur."},
+        "temperature": {"title": "Temperature corporelle", "unit": "°C", "graph_type": "smooth_curve", "normal_min": 36.3, "normal_max": 37.5, "color": "#F59E0B", "explain": "Varie naturellement au cours de la journee."},
+        "blood_pressure": {"title": "Pression arterielle", "unit": "mmHg", "graph_type": "bp_dual", "normal_min": 90, "normal_max": 140, "color": "#8B5CF6", "explain": "Normale autour de 120/80 mmHg."},
+        "bmi": {"title": "Indice de masse corporelle", "unit": "", "graph_type": "smooth_curve", "color": "#38BDF8", "explain": "Normal entre 18.5 et 25."},
+        "visceral_fat": {"title": "Graisse viscerale", "unit": "", "graph_type": "smooth_curve", "normal_min": 1, "normal_max": 10, "color": "#F97316", "explain": "Indice inferieur a 10 est sain."},
+        "bone_mass_kg": {"title": "Masse osseuse", "unit": "kg", "graph_type": "smooth_curve", "normal_min": 2.5, "normal_max": 4, "color": "#A78BFA", "explain": "Important pour prevenir l'osteoporose."},
+        "body_age": {"title": "Age corporel", "unit": "ans", "graph_type": "smooth_curve", "color": "#A78BFA", "explain": "Age biologique estime."},
     }
-
-    m = meta.get(key, {"title": key.replace("_", " ").title(), "unit": "", "graph_type": "smooth_curve", "color": "#A78BFA", "explain": "Donnee de sante mesuree par vos appareils connectes."})
+    m = meta.get(key, {"title": key.replace("_", " ").title(), "unit": "", "graph_type": "smooth_curve", "color": "#A78BFA", "explain": "Donnee mesuree par vos appareils."})
 
     return {
-        "key": key, "meta": m, "history": history,
+        "key": key, "meta": m, "history": history, "no_data": len(history) == 0,
         "stats": {"avg": avg, "min": mn_val, "max": mx_val, "trend": trend, "count": len(vals)},
     }
 
