@@ -586,7 +586,7 @@ async def get_daily_report(user=Depends(get_current_user)):
             if sd.get(k): d[k] = sd[k]
 
     si = compute_subscores(d)
-    ai = await gen_ai(d, si)
+    ai = await gen_ai(d, si, nora_ctx)
     plan = compute_daily_plan(d, si)
 
     # Build sparklines from REAL 7-day reading history
