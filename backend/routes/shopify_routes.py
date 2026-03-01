@@ -293,6 +293,15 @@ async def shopify_order_paid(request: Request):
         except Exception as e:
             logger.error(f"[Shopify] SMS error: {e}")
 
+    # === Send confirmation email ===
+    if email:
+        try:
+            from services.email_service import send_subscription_confirmation
+            import asyncio
+            asyncio.create_task(send_subscription_confirmation(full_name, email, sub_type, subscription_phone, "shopify"))
+        except Exception as e:
+            logger.error(f"[Shopify] Email error: {e}")
+
     logger.info(f"[Shopify] Order {order_number} processed: {full_name} | stripe_sub={stripe_subscription_id}")
 
     return {
