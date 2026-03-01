@@ -137,15 +137,26 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
           </div>
         </div>
 
-        {/* Tabs — pill style */}
-        <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 20, ...glass } as any}>
-          {tabs.map((t: any) => (
-            <div key={t.key} data-testid={`tab-${t.key}`} onClick={() => setTab(t.key)} style={{ padding: '10px 18px', borderRadius: 999, cursor: 'pointer', background: tab === t.key ? '#FFF' : 'transparent', color: tab === t.key ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 } as any}>
-              <i className={t.icon} style={{ fontSize: 13, color: tab === t.key ? '#111' : 'rgba(255,255,255,0.4)' }} />
-              {t.label}
-            </div>
-          ))}
-        </div>
+        {/* Tabs — pill style 2x2 grid for 4 tabs, inline for 2 */}
+        {tabs.length <= 2 ? (
+          <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 20, ...glass } as any}>
+            {tabs.map((t: any) => (
+              <div key={t.key} data-testid={`tab-${t.key}`} onClick={() => setTab(t.key)} style={{ padding: '10px 22px', borderRadius: 999, cursor: 'pointer', background: tab === t.key ? '#FFF' : 'transparent', color: tab === t.key ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                <i className={t.icon} style={{ fontSize: 14, color: tab === t.key ? '#111' : 'rgba(255,255,255,0.4)' }} />
+                {t.label}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, padding: 4, borderRadius: 16, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 20, ...glass } as any}>
+            {tabs.map((t: any) => (
+              <div key={t.key} data-testid={`tab-${t.key}`} onClick={() => setTab(t.key)} style={{ padding: '10px 12px', borderRadius: 12, cursor: 'pointer', background: tab === t.key ? '#FFF' : 'transparent', color: tab === t.key ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                <i className={t.icon} style={{ fontSize: 14, color: tab === t.key ? '#111' : 'rgba(255,255,255,0.4)' }} />
+                {t.label}
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* === TAB: INFO === */}
         {tab === 'info' && (
