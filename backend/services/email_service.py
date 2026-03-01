@@ -319,3 +319,76 @@ async def send_cancellation_email(name: str, email: str, sub_type: str):
     """
     html = _base_template(content)
     _send(email, name, f"Confirmation de resiliation — {plan_name}", html)
+
+
+
+async def send_weekly_report_email(name: str, email: str, report_data: dict):
+    """Email hebdomadaire Nora — resume sante de la semaine"""
+    score = report_data.get("score", 0)
+    status = report_data.get("status", "")
+    score_color = "#10B981" if score >= 80 else "#F59E0B" if score >= 60 else "#EF4444"
+    trends = report_data.get("trends", [])
+    program = report_data.get("program", {})
+    alerts_summary = report_data.get("alerts_summary", "Aucune alerte cette semaine.")
+    nora_advice = report_data.get("nora_advice", "Continuez vos bonnes habitudes.")
+    streak = report_data.get("streak", 0)
+
+    trends_html = ""
+    for t in trends[:5]:
+        arrow = "&#x2191;" if t.get("trend") == "up" else "&#x2193;" if t.get("trend") == "down" else "&#x2192;"
+        trend_color = "#10B981" if t.get("good") else "#F59E0B" if t.get("trend") == "stable" else "#EF4444"
+        trends_html += f"""<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+          <span style="font-size:13px;color:rgba(255,255,255,0.6);">{t.get('label','')}</span>
+          <span style="font-size:14px;font-weight:700;color:{trend_color};">{t.get('value','')} {arrow}</span>
+        </div>"""
+
+    program_html = ""
+    if program.get("title"):
+        program_html = f"""<div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:16px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:10px;font-weight:700;color:#A78BFA;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Programme en cours</div>
+          <div style="font-size:15px;font-weight:800;color:#ffffff;">{program['title']}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);">Jour {program.get('day','-')}/{program.get('total','-')} — {program.get('phase','')}</div>
+          <div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.06);margin-top:10px;overflow:hidden;">
+            <div style="height:6px;border-radius:3px;width:{program.get('progress',0)}%;background:#A78BFA;"></div>
+          </div>
+        </div>"""
+
+    content = f"""
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="width:64px;height:64px;border-radius:20px;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">
+        <span style="font-size:14px;font-weight:900;color:#A78BFA;">N</span>
+      </div>
+      <h1 style="font-size:22px;font-weight:800;color:#ffffff;margin:0 0 4px;">Votre bilan hebdomadaire</h1>
+      <p style="font-size:13px;color:rgba(255,255,255,0.4);margin:0;">par Nora, votre assistante sante IA</p>
+    </div>
+
+    <!-- Score -->
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:48px;font-weight:900;color:{score_color};line-height:1;">{score}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:4px;">Score sante /100 — {status}</div>
+      {f'<div style="margin-top:8px;font-size:12px;color:#F59E0B;">Streak: {streak} jours consecutifs</div>' if streak > 0 else ''}
+    </div>
+
+    <!-- Tendances -->
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:20px;">
+      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Tendances de la semaine</div>
+      {trends_html}
+    </div>
+
+    {program_html}
+
+    <!-- Nora advice -->
+    <div style="background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.15);border-radius:16px;padding:16px;margin-bottom:20px;">
+      <div style="font-size:10px;font-weight:700;color:#A78BFA;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Conseil de Nora</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;">{nora_advice}</div>
+    </div>
+
+    <!-- Alerts -->
+    <div style="font-size:12px;color:rgba(255,255,255,0.3);text-align:center;margin-bottom:24px;">{alerts_summary}</div>
+
+    <div style="text-align:center;">
+      <a href="{APP_URL}" style="display:inline-block;padding:14px 32px;border-radius:999px;background:#ffffff;color:#0a0a1a;font-size:14px;font-weight:700;text-decoration:none;">Ouvrir l'application</a>
+    </div>
+    """
+    html = _base_template(content, "Votre bilan sante de la semaine par Nora")
+    _send(email, name, f"Bilan sante — Score {score}/100 — {status}", html)
