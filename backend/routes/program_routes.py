@@ -281,7 +281,7 @@ Genere un feedback qui reconnait l'absence de donnees et encourage a connecter l
 
 @router.post("/programs/start/{program_id}")
 async def start_program(program_id: str, data: dict = {}, user=Depends(get_current_user)):
-    """Start a program with optional onboarding data"""
+    """Start a program with optional onboarding data + save health snapshot"""
     program = await db.programs.find_one({"id": program_id}, {"_id": 0})
     if not program:
         raise HTTPException(status_code=404, detail="Programme non trouve")
@@ -291,6 +291,9 @@ async def start_program(program_id: str, data: dict = {}, user=Depends(get_curre
     )
     if active:
         raise HTTPException(status_code=400, detail="Vous avez deja un programme actif. Terminez-le d'abord.")
+
+    # Capture health snapshot at start
+    snapshot = await _capture_health_snapshot(user['id'])
 
     enrollment_id = str(uuid.uuid4())
     enrollment = {
@@ -305,10 +308,32 @@ async def start_program(program_id: str, data: dict = {}, user=Depends(get_curre
         "checkins": [],
         "mode": data.get("mode", "solo"),
         "onboarding": data.get("onboarding", {}),
+        "health_snapshot_start": snapshot,
     }
     await db.program_enrollments.insert_one(enrollment)
     enrollment.pop("_id", None)
     return {"status": "started", "enrollment": enrollment}
+
+
+async def _capture_health_snapshot(user_id: str) -> dict:
+    """Capture current health metrics for before/after comparison."""
+    snapshot = {"captured_at": datetime.now(timezone.utc).isoformat()}
+    bracelet = await db.device_readings.find_one(
+        {"user_id": user_id, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    scale = await db.device_readings.find_one(
+        {"user_id": user_id, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    if bracelet and bracelet.get("data"):
+        bd = bracelet["data"]
+        for k in ["heart_rate", "hrv", "spo2", "steps", "calories", "stress_level", "recovery_score", "sleep_quality", "temperature"]:
+            if bd.get(k): snapshot[k] = bd[k]
+        if bd.get("blood_pressure"): snapshot["blood_pressure"] = bd["blood_pressure"]
+    if scale and scale.get("data"):
+        sd = scale["data"]
+        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age"]:
+            if sd.get(k): snapshot[k] = sd[k]
+    return snapshot
 
 
 @router.get("/programs/active")
