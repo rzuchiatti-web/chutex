@@ -1,5 +1,9 @@
 """
 Chutex Care — Advanced features routes
+Weekly reports, predictive alerts, streaks, enhanced morning briefing, intervenant mode, Nora TTS
+"""
+"""
+Chutex Care — Advanced features routes
 Weekly reports, predictive alerts, streaks, enhanced morning briefing, intervenant mode
 """
 from fastapi import APIRouter, Depends, HTTPException
