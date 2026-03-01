@@ -246,71 +246,167 @@ def _fb(has_data=True, nora_ctx=None):
 
 @router.get("/health/section-analysis/{section}")
 async def get_section_analysis(section: str, user=Depends(get_current_user)):
-    """Get Nora AI analysis specific to a health section"""
+    """Get Nora AI analysis specific to a health section — coherent with or without data"""
     uid = user['id']
 
-    # No devices = no analysis
-    has_devices = await db.devices.find_one({"user_id": uid}, {"_id": 0})
-    if not has_devices:
-        return {"section": section, "no_data": True, "analysis": "Connectez un appareil pour obtenir une analyse de cette section."}
+    # Build full Nora context
+    nora_ctx = await build_nora_context(user)
 
+    # No devices at all
+    if not nora_ctx["has_bracelet"] and not nora_ctx["has_scale"]:
+        recs = _no_data_section_recs(section, nora_ctx)
+        return {
+            "section": section, "no_data": True,
+            "correlations": [],
+            "whats_good": [],
+            "watch_out": [],
+            "recommendation": recs,
+        }
+
+    # Determine if we have relevant data for this section
+    hd = nora_ctx["health_data"]
+    bracelet_sections = {"cardio", "sleep", "activity"}
+    scale_sections = {"metabolism", "composition"}
+
+    has_relevant_data = False
+    if section in bracelet_sections and hd["has_bracelet_data"]:
+        has_relevant_data = True
+    elif section in scale_sections and hd["has_scale_data"]:
+        has_relevant_data = True
+    elif hd["has_bracelet_data"] or hd["has_scale_data"]:
+        has_relevant_data = True  # cross-section data available
+
+    if not has_relevant_data:
+        recs = _no_data_section_recs(section, nora_ctx)
+        return {
+            "section": section, "no_data": True,
+            "correlations": [],
+            "whats_good": [],
+            "watch_out": [],
+            "recommendation": recs,
+        }
+
+    # We have data — build section-specific data string
     bracelet_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
     scale_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
     d = gen_data()
     if bracelet_reading and bracelet_reading.get("data"):
         rd = bracelet_reading["data"]
-        for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv"]:
+        for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv", "stress_level", "recovery_score", "sleep_quality", "sleep_duration_min", "deep_sleep_min", "light_sleep_min", "rem_sleep_min", "sleep_interruptions"]:
             if rd.get(k): d[k] = rd[k]
         if rd.get("blood_pressure"): d["blood_pressure"] = rd["blood_pressure"]
+        if rd.get("sleep"): 
+            sl = rd["sleep"]
+            for k in ["sleep_quality", "sleep_duration", "deep_minutes", "light_minutes", "rem_minutes"]:
+                if sl.get(k): d[k.replace("sleep_duration", "sleep_duration_min").replace("deep_minutes", "deep_sleep_min").replace("light_minutes", "light_sleep_min").replace("rem_minutes", "rem_sleep_min")] = sl[k]
     if scale_reading and scale_reading.get("data"):
         sd = scale_reading["data"]
-        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg"]:
+        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg", "basal_metabolism", "recommended_calories", "waist_hip_ratio", "ideal_weight", "protein_pct", "skeletal_muscle_pct"]:
             if sd.get(k): d[k] = sd[k]
 
     section_data = {
-        "cardio": f"FC {d['heart_rate']}bpm, HRV {d['hrv']}ms, SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}mmHg, Temp {d['temperature']}°C.",
-        "metabolism": f"Glycemie {d['glycemia']}g/L, IMC {d['bmi']}, Graisse viscerale {d['visceral_fat']}, Metabolisme basal {d['basal_metabolism']}kcal, Ratio TH {d['waist_hip_ratio']}, Age corp {d['body_age']} ans, Poids ideal ~{d.get('ideal_weight', 70)}kg, Apport reco {d['recommended_calories']}kcal.",
-        "activity": f"{d['steps']} pas, {d['calories']}kcal depenses, VO2max {d['vo2_max']}ml/kg/min, Stress {d['stress_level']}/100, Recup {d['recovery_score']}/100, Distance ~{round(d['steps']*0.0007,1)}km.",
-        "composition": f"Poids {d['weight']}kg, Graisse {d['body_fat_pct']}%, Muscle {d['muscle_pct']}%, Eau {d['water_pct']}%, Os {d.get('bone_mass_kg',3.1)}kg, Proteine {d.get('protein_pct',16.5)}%, Muscle squelettique {d.get('skeletal_muscle_pct', d['muscle_pct']-5)}%, Graisse sous-cut {round(d['body_fat_pct']-4,1)}%, Graisse tronc {round(d['body_fat_pct']*0.4*d['weight']/100,1)}kg.",
+        "cardio": f"FC {d['heart_rate']}bpm, HRV {d['hrv']}ms, SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}mmHg, Temp {d['temperature']}C.",
+        "metabolism": f"IMC {d['bmi']}, Graisse viscerale {d['visceral_fat']}, Metabolisme basal {d['basal_metabolism']}kcal, Ratio TH {d['waist_hip_ratio']}, Age corp {d['body_age']} ans, Poids ideal ~{d.get('ideal_weight', 0)}kg, Apport reco {d['recommended_calories']}kcal.",
+        "activity": f"{d['steps']} pas, {d['calories']}kcal depenses, Stress {d['stress_level']}/100, Recup {d['recovery_score']}/100, Distance ~{round(d['steps']*0.0007,1)}km.",
+        "composition": f"Poids {d['weight']}kg, Graisse {d['body_fat_pct']}%, Muscle {d['muscle_pct']}%, Eau {d['water_pct']}%, Os {d.get('bone_mass_kg',0)}kg, Proteine {d.get('protein_pct',0)}%, Muscle squelettique {d.get('skeletal_muscle_pct', 0)}%.",
         "sleep": f"Duree {d['sleep_duration_min']}min, Qualite {d['sleep_quality']}%, Profond {d['deep_sleep_min']}min, Leger {d['light_sleep_min']}min, REM {d['rem_sleep_min']}min, Interruptions {d['sleep_interruptions']}.",
     }
-    section_names = {"cardio": "Sante cardiaque", "metabolism": "Sante metabolique", "activity": "Sante physique", "composition": "Composition corporelle", "sleep": "Sommeil"}
+    section_names = {"cardio": "Sante cardiaque", "metabolism": "Sante metabolique", "activity": "Sante physique et activite", "composition": "Composition corporelle", "sleep": "Sommeil"}
+    user_context = format_nora_context_for_prompt(nora_ctx)
 
     api_key = os.environ.get("EMERGENT_LLM_KEY")
     if not api_key:
-        fb = {
-            "cardio": {"correlations": ["Votre FC au repos et votre HRV indiquent un bon equilibre du systeme nerveux autonome", "La SpO2 stable confirme une bonne oxygenation tissulaire"], "whats_good": ["Rythme cardiaque au repos dans la norme", "Saturation en oxygene optimale"], "watch_out": ["Surveillez votre tension arterielle regulierement"]},
-            "metabolism": {"correlations": ["Votre IMC et votre graisse viscerale sont lies a votre risque metabolique", "Le metabolisme basal determine vos besoins caloriques quotidiens"], "whats_good": ["Glycemie dans les normes", "Age corporel inferieur a l'age reel"], "watch_out": ["Maintenez un apport calorique adapte a votre depense"]},
-            "activity": {"correlations": ["Votre niveau d'activite impacte directement votre score de recuperation", "Le VO2max est correle a votre endurance cardiovasculaire"], "whats_good": ["Depense energetique reguliere", "Score de recuperation satisfaisant"], "watch_out": ["Augmentez progressivement votre nombre de pas quotidien"]},
-            "composition": {"correlations": ["Le ratio graisse/muscle influence votre metabolisme de base", "L'hydratation impacte la precision des mesures de composition corporelle"], "whats_good": ["Masse musculaire dans les normes", "Hydratation correcte"], "watch_out": ["Surveillez l'evolution de la graisse viscerale"]},
-            "sleep": {"correlations": ["La qualite du sommeil profond influence votre recuperation physique", "Les interruptions de sommeil impactent votre HRV du lendemain"], "whats_good": ["Duree de sommeil suffisante", "Proportion de sommeil profond adequate"], "watch_out": ["Limitez les interruptions nocturnes"]},
-        }
-        return fb.get(section, fb["cardio"])
+        return _section_fallback_with_data(section)
 
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        data_str = section_data.get(section, section_data["cardio"])
+        import json
+        data_str = section_data.get(section, section_data.get("cardio", ""))
         sec_name = section_names.get(section, "Sante")
-        prompt = f"""Medecin specialiste en {sec_name}. Analyse UNIQUEMENT les donnees de la section {sec_name} ci-dessous et reponds en JSON.
+
+        # Check if all key values are 0 (device connected but no real measurement)
+        values_are_zero = all(v == 0 or v == "0" for v in [d.get("heart_rate", 0), d.get("spo2", 0), d.get("steps", 0), d.get("weight", 0)])
+
+        prompt = f"""Tu es Nora, medecin IA specialiste en {sec_name}, prevention et longevite. Analyse les donnees ci-dessous. JSON uniquement.
+
+CONTEXTE PATIENT:
+{user_context}
 
 DONNEES {sec_name.upper()}: {data_str}
 
-Analyse UNIQUEMENT ces donnees. Ne parle pas des autres sections. Sois precis et factuel.
+{APP_SERVICES_KNOWLEDGE}
+
+CONSIGNES:
+- Analyse UNIQUEMENT les donnees de cette section
+- Vouvoiement, ton medical professionnel, pas d'emoji
+- Si les valeurs sont toutes a 0, cela signifie que l'appareil n'a pas encore transmis de donnees reelles. Dans ce cas:
+  * correlations = []
+  * whats_good = []
+  * watch_out = []
+  Ajoute une "recommendation" expliquant comment obtenir ces donnees
+- Si des valeurs reelles existent (non-zero):
+  * Donne 2-3 correlations medicales entre donnees mesurees
+  * Points positifs UNIQUEMENT si justifies par les donnees
+  * Points de vigilance UNIQUEMENT si justifies
+  * Integre conseils de longevite et prevention adaptes a l'age du patient
+  * Si un service Chutex peut aider, mentionne-le naturellement
 
 JSON:
-{{"correlations": ["correlation medicale 1 entre 2+ donnees de cette section", "correlation 2", "correlation 3"], "whats_good": ["point positif 1 specifique a cette section", "point positif 2"], "watch_out": ["point de vigilance 1 specifique", "point de vigilance 2"]}}"""
+{{"correlations": ["..."], "whats_good": ["..."], "watch_out": ["..."], "recommendation": "conseil ou recommandation adapte au profil"}}"""
 
         chat = LlmChat(api_key=api_key, session_id=f"sa-{uuid.uuid4().hex[:8]}",
-                       system_message="Medecin. JSON uniquement. Analyse une seule section. Pas d'emoji.").with_model("openai", "gpt-5.2")
+                       system_message="Nora, medecin IA Chutex. JSON uniquement. Prevention et longevite. Pas d'emoji.").with_model("openai", "gpt-5.2")
         r = await chat.send_message(UserMessage(text=prompt))
-        import json
         c = r.strip()
         if c.startswith("```"): c = c.split("\n", 1)[1] if "\n" in c else c[3:]
         if c.endswith("```"): c = c[:-3]
-        return json.loads(c.strip())
+        result = json.loads(c.strip())
+        result["section"] = section
+        result["no_data"] = False
+        return result
     except Exception as e:
         print(f"Section AI err: {e}")
-        return {"correlations": ["Analyse en cours..."], "whats_good": ["Donnees collectees"], "watch_out": ["Consultez regulierement"]}
+        return _section_fallback_with_data(section)
+
+
+def _no_data_section_recs(section: str, nora_ctx: dict) -> str:
+    """Generate a coherent recommendation when no data is available for a section."""
+    section_device = {
+        "cardio": "bracelet Elio", "sleep": "bracelet Elio",
+        "activity": "bracelet Elio", "metabolism": "balance Vita",
+        "composition": "balance Vita",
+    }
+    device = section_device.get(section, "appareil")
+
+    base = f"Pour analyser cette section, connectez votre {device} et effectuez une mesure."
+    extras = []
+
+    if not nora_ctx.get("has_bracelet") and section in ("cardio", "sleep", "activity"):
+        extras.append("Le Bracelet Elio mesure la frequence cardiaque, le sommeil, la SpO2 et l'activite physique.")
+    if not nora_ctx.get("has_scale") and section in ("metabolism", "composition"):
+        extras.append("La Balance Vita (8 electrodes) analyse la composition corporelle complete : poids, masse grasse, masse musculaire, hydratation, age corporel.")
+
+    age = nora_ctx.get("age")
+    if age and age >= 70:
+        extras.append("A votre age, un suivi regulier de ces parametres est particulierement important pour la prevention.")
+
+    return base + " " + " ".join(extras)
+
+
+def _section_fallback_with_data(section: str) -> dict:
+    """Fallback analysis when AI is unavailable but data exists."""
+    fb = {
+        "cardio": {"correlations": ["La frequence cardiaque au repos et la variabilite cardiaque refletent l'equilibre du systeme nerveux autonome", "La saturation en oxygene stable confirme une bonne oxygenation"], "whats_good": ["Parametres cardiaques dans les normes"], "watch_out": ["Surveillez votre tension arterielle regulierement"]},
+        "metabolism": {"correlations": ["L'IMC et la graisse viscerale sont lies au risque metabolique", "Le metabolisme basal determine vos besoins caloriques"], "whats_good": ["Suivi metabolique en cours"], "watch_out": ["Maintenez un apport calorique adapte"]},
+        "activity": {"correlations": ["Le niveau d'activite impacte directement le score de recuperation", "L'activite reguliere contribue a la longevite"], "whats_good": ["Suivi d'activite actif"], "watch_out": ["Augmentez progressivement votre nombre de pas"]},
+        "composition": {"correlations": ["Le ratio graisse/muscle influence le metabolisme de base", "L'hydratation impacte la precision des mesures"], "whats_good": ["Donnees de composition corporelle disponibles"], "watch_out": ["Surveillez l'evolution de la graisse viscerale"]},
+        "sleep": {"correlations": ["La qualite du sommeil profond influence la recuperation physique", "Les interruptions impactent la variabilite cardiaque"], "whats_good": ["Suivi du sommeil actif"], "watch_out": ["Limitez les interruptions nocturnes"]},
+    }
+    result = fb.get(section, fb["cardio"])
+    result["section"] = section
+    result["no_data"] = False
+    result["recommendation"] = ""
+    return result
 
 
 @router.get("/health/metric-history/{key}")
