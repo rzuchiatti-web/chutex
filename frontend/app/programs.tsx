@@ -215,6 +215,46 @@ export default function ProgramsScreen() {
           </div>
         )}
 
+        {/* ── PROGRAMME CATALOG ── */}
+        <div style={{ marginBottom: 20 } as any}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>{activeProgram?.active ? 'Autres programmes' : 'Programmes disponibles'}</div>
+          {catalog.filter((p: any) => !activeProgram?.active || p.id !== activeProgram?.program?.id).map((p: any) => (
+            <div key={p.id} data-testid={`catalog-${p.id}`} onClick={() => router.push({ pathname: '/program-detail' as any, params: { id: p.id } })}
+              style={{ padding: '18px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: `1px solid ${p.color}15`, marginBottom: 10, cursor: 'pointer', transition: 'transform 0.15s, background 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.transform = ''; }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 } as any}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: `${p.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className={p.icon} style={{ fontSize: 24, color: p.color }} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{p.title}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{p.subtitle}</div>
+                </div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} />
+              </div>
+              {/* Meta pills */}
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 } as any}>
+                <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.06)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.45)' }}>{p.duration_days} jours</span>
+                {p.effort && <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.06)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.45)' }}>{p.effort}</span>}
+                {p.difficulty && <span style={{ padding: '4px 10px', borderRadius: 99, background: `${p.color}10`, border: `1px solid ${p.color}20`, fontSize: 10, fontWeight: 600, color: p.color }}>{p.difficulty}</span>}
+              </div>
+              {/* Benefits preview */}
+              {p.benefits && p.benefits.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 } as any}>
+                  {p.benefits.slice(0, 2).map((b: string, i: number) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                      <i className="ri-check-line" style={{ fontSize: 12, color: p.color, flexShrink: 0 }} />
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.3 }}>{b}</span>
+                    </div>
+                  ))}
+                  {p.benefits.length > 2 && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginLeft: 18 }}>+{p.benefits.length - 2} autres benefices</span>}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
         {/* ── TEAM PROGRAMS ── */}
         <div style={{ marginBottom: 20 } as any}>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Programme en equipe</div>
