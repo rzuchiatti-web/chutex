@@ -202,7 +202,16 @@ export default function ProgramDailyView({ token, onStop }: Props) {
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8 }}>Mission du jour</div>
         </div>
         <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 8, lineHeight: 1.3 }}>{tt.focus}</div>
-        {tt.mission && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 12 }}>{tt.mission}</div>}
+        {/* Science mission text */}
+        {tt.mission && (
+          <div style={{ padding: '12px 14px', borderRadius: 14, background: `${clr}06`, border: `1px solid ${clr}12`, marginBottom: 12 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
+              <i className="ri-microscope-line" style={{ fontSize: 12, color: clr }} />
+              <span style={{ fontSize: 9, fontWeight: 700, color: clr, textTransform: 'uppercase', letterSpacing: 0.5 }}>Base scientifique</span>
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>{tt.mission}</div>
+          </div>
+        )}
 
         {/* Tasks checklist */}
         {tt.tasks && (
