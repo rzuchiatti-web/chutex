@@ -53,14 +53,14 @@ def gen_data():
         "basal_metabolism": 0,
         "waist_hip_ratio": 0,
         "waist_hip_status": "--",
-        "left_arm_fat_pct": round(20 + random.random() * 4, 1),
-        "right_arm_fat_pct": round(20 + random.random() * 4, 1),
-        "left_arm_muscle_pct": round(32 + random.random() * 3, 1),
-        "right_arm_muscle_pct": round(32 + random.random() * 3, 1),
-        "left_leg_fat_pct": round(24 + random.random() * 4, 1),
-        "right_leg_fat_pct": round(24 + random.random() * 4, 1),
-        "left_leg_muscle_kg": round(8 + random.random(), 1),
-        "right_leg_muscle_kg": round(8 + random.random(), 1),
+        "left_arm_fat_pct": 0,
+        "right_arm_fat_pct": 0,
+        "left_arm_muscle_pct": 0,
+        "right_arm_muscle_pct": 0,
+        "left_leg_fat_pct": 0,
+        "right_leg_fat_pct": 0,
+        "left_leg_muscle_kg": 0,
+        "right_leg_muscle_kg": 0,
     }
 
 
