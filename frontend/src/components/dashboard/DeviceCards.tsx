@@ -218,17 +218,13 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
           {d.paired ? (
             <div onClick={() => setSelected(d.id)} style={{ fontSize: 14, fontWeight: 900, color: batteryColor(d.battery), flexShrink: 0, cursor: 'pointer' }}>{d.battery}%</div>
           ) : (
-            <div style={{ display: 'flex', gap: 6, flexShrink: 0 } as any}>
+            <div style={{ flexShrink: 0 } as any}>
               <div data-testid={`associate-${d.id}`} onClick={() => {
                 if (d.id === 'bracelet' && needsSub) { setShowNoSubPopup(true); return; }
                 if (d.id === 'scale') { onStartWeighing?.(); return; }
                 startPairing(d.id);
               }} style={{ padding: '6px 14px', borderRadius: 999, background: '#FFF', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#111', transition: 'opacity 0.2s', opacity: d.id === 'bracelet' && needsSub ? 0.5 : 1 } as any}
               >{d.id === 'scale' ? 'Nouvelle pesee' : 'Associer'}</div>
-              <div data-testid={`discover-${d.id}`} onClick={(e: any) => { e.stopPropagation(); window.open(d.link, '_blank'); }} style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', transition: 'background 0.2s' } as any}
-                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
-                onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
-              >Decouvrir</div>
             </div>
           )}
         </div>
