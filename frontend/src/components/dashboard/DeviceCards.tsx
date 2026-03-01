@@ -292,7 +292,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
         <GlassOverlay onClose={() => setSelected(null)}>
           <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
             <img src={devices[1].img} alt="" style={{ width: 100, height: 100, objectFit: 'contain', margin: '0 auto 14px', display: 'block' } as any} />
-            <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Balance Lefu</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Balance Vita</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Balance 8 electrodes — composition corporelle complete</div>
           </div>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Dernieres pesees</div>
