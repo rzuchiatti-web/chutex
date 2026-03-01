@@ -163,7 +163,7 @@ JSON:
 {{"hero_line": "1 phrase factuelle resume (max 12 mots, pas d'emoji)", "priority": "1 recommandation medicale prioritaire concrete", "priority_why": "justification medicale en 1 phrase", "correlations": ["correlation medicale 1 entre 2+ donnees", "correlation 2", "correlation 3"], "whats_good": ["indicateur positif 1", "indicateur positif 2"], "watch_out": ["point de vigilance medical"], "secondary_recs": ["recommandation 2", "recommandation 3", "recommandation 4"], "motivation": "1 phrase sobre de conclusion medicale", "score_explain_up": "facteurs positifs du score", "score_explain_down": "facteurs limitants du score"}}"""
 
         chat = LlmChat(api_key=api_key, session_id=f"h-{uuid.uuid4().hex[:8]}",
-                       system_message="Medecin. JSON uniquement. Pas d'emoji. Ton professionnel.").with_model("openai", "gpt-4.1-mini")
+                       system_message="Medecin. JSON uniquement. Pas d'emoji. Ton professionnel.").with_model("openai", "gpt-5.2")
         r = await chat.send_message(UserMessage(text=prompt))
         import json
         c = r.strip()
@@ -248,7 +248,7 @@ JSON:
 {{"correlations": ["correlation medicale 1 entre 2+ donnees de cette section", "correlation 2", "correlation 3"], "whats_good": ["point positif 1 specifique a cette section", "point positif 2"], "watch_out": ["point de vigilance 1 specifique", "point de vigilance 2"]}}"""
 
         chat = LlmChat(api_key=api_key, session_id=f"sa-{uuid.uuid4().hex[:8]}",
-                       system_message="Medecin. JSON uniquement. Analyse une seule section. Pas d'emoji.").with_model("openai", "gpt-4.1-mini")
+                       system_message="Medecin. JSON uniquement. Analyse une seule section. Pas d'emoji.").with_model("openai", "gpt-5.2")
         r = await chat.send_message(UserMessage(text=prompt))
         import json
         c = r.strip()
@@ -365,7 +365,7 @@ async def get_health_summary(user=Depends(get_current_user)):
 Score global: {si['score']}/100 ({si['status']}). FC {d['heart_rate']}bpm, SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}, Stress {d['stress_level']}/100, Recup {d['recovery_score']}/100, Sommeil qualite {d['sleep_quality']}%, {d['steps']} pas.
 Reponds UNIQUEMENT en JSON: {{"summary": "phrase medicale factuelle courte", "recommendation": "une recommandation medicale concrete"}}"""
             chat = LlmChat(api_key=api_key, session_id=f"sum-{uuid.uuid4().hex[:8]}",
-                           system_message="Medecin. JSON uniquement. Pas d'emoji.").with_model("openai", "gpt-4.1-mini")
+                           system_message="Medecin. JSON uniquement. Pas d'emoji.").with_model("openai", "gpt-5.2")
             r = await chat.send_message(UserMessage(text=prompt))
             import json
             c = r.strip()

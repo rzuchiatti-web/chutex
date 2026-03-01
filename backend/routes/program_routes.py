@@ -205,7 +205,7 @@ async def get_daily_feedback(user=Depends(get_current_user)):
             prompt = f"""Medecin specialiste du sommeil. Donnees: {ctx}
 Genere un feedback quotidien en JSON: {{"message": "2-3 phrases medicalement pertinentes sur la qualite du sommeil et l'etat physiologique du jour, en vouvoyant le patient", "mood_indicator": "good/neutral/warning", "tip": "1 recommandation medicale concrete et courte"}}"""
             chat = LlmChat(api_key=api_key, session_id=f"fb-{uuid.uuid4().hex[:6]}",
-                           system_message="Medecin du sommeil. JSON uniquement. Pas d'emoji. Ton professionnel.").with_model("openai", "gpt-4.1-mini")
+                           system_message="Medecin du sommeil. JSON uniquement. Pas d'emoji. Ton professionnel.").with_model("openai", "gpt-5.2")
             import json
             r = (await chat.send_message(UserMessage(text=prompt))).strip()
             if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
@@ -394,7 +394,7 @@ async def program_checkin(data: dict, user=Depends(get_current_user)):
 Humeur: {data.get('mood', 3)}/5. Note: {data.get('note', 'aucune')}. Taches completees: {data.get('tasks_done', [])}.
 Genere UNE phrase factuelle et medicalement pertinente (max 20 mots). Vouvoyez le patient. Pas d'emoji. Pas d'encouragement excessif."""
             chat = LlmChat(api_key=api_key, session_id=f"fb-{uuid.uuid4().hex[:6]}",
-                           system_message="Medecin. 1 phrase courte, professionnelle. Pas d'emoji.").with_model("openai", "gpt-4.1-mini")
+                           system_message="Medecin. 1 phrase courte, professionnelle. Pas d'emoji.").with_model("openai", "gpt-5.2")
             feedback = (await chat.send_message(UserMessage(text=prompt))).strip()
         except Exception as e:
             print(f"Checkin AI error: {e}")
@@ -460,7 +460,7 @@ Notes des check-ins: {'; '.join(c.get('note', '') for c in checkins[-5:] if c.ge
 Genere un bilan medical de fin de programme en JSON. Ton professionnel, pas d'emoji, vouvoyez le patient:
 {{"title": "titre sobre et factuel", "summary": "3-4 phrases de bilan medical objectif avec les resultats mesurables", "achievements": ["resultat 1", "resultat 2", "resultat 3"], "before_after": {{"mood": {{"before": {first_half_mood}, "after": {second_half_mood}}}, "regularity": {{"before": "debut", "after": "{completed_days} jours"}}}}, "next_steps": ["recommandation medicale 1", "recommandation 2"], "celebration": "phrase de conclusion professionnelle"}}"""
             chat = LlmChat(api_key=api_key, session_id=f"cr-{uuid.uuid4().hex[:6]}",
-                           system_message="Medecin. JSON uniquement. Pas d'emoji. Ton medical professionnel.").with_model("openai", "gpt-4.1-mini")
+                           system_message="Medecin. JSON uniquement. Pas d'emoji. Ton medical professionnel.").with_model("openai", "gpt-5.2")
             r = (await chat.send_message(UserMessage(text=prompt))).strip()
             if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
             if r.endswith("```"): r = r[:-3]
@@ -576,7 +576,7 @@ async def get_weekly_report(user=Depends(get_current_user)):
 Donnees: {checkins_this} check-ins cette semaine (vs {checkins_last} la semaine derniere). Humeur moyenne: {avg_mood_this}/5 (vs {avg_mood_last}/5). {program_info} {health_info}
 JSON: {{"title": "titre factuel du bilan", "summary": "2-3 phrases d'analyse medicale objective", "wins": ["point positif mesurable 1", "point positif 2"], "improvements": ["axe d'amelioration medical"], "next_week_goal": "objectif concret et mesurable pour la semaine prochaine", "motivation": "rappel professionnel sobre"}}"""
             chat = LlmChat(api_key=api_key, session_id=f"wr-{uuid.uuid4().hex[:6]}",
-                           system_message="Medecin. JSON uniquement. Pas d'emoji. Vouvoyez.").with_model("openai", "gpt-4.1-mini")
+                           system_message="Medecin. JSON uniquement. Pas d'emoji. Vouvoyez.").with_model("openai", "gpt-5.2")
             import json
             r = (await chat.send_message(UserMessage(text=prompt))).strip()
             if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
