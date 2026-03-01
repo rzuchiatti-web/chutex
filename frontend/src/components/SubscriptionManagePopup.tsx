@@ -346,6 +346,8 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
             )}
           </div>
         )}
+
+        </div>
       </div>
     </div>
   );
