@@ -209,7 +209,6 @@ export default function AuthScreen() {
   /* NATIVE */
   const { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView, Image } = require('react-native');
   const { SafeAreaView } = require('react-native-safe-area-context');
-  const { LinearGradient } = require('expo-linear-gradient');
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A1A' }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
