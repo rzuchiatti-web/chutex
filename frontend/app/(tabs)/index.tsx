@@ -323,6 +323,36 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
+          {/* ── TEAM INVITATIONS ── */}
+          {teamInvitations.length > 0 && teamInvitations.map((inv: any) => (
+            <div key={inv.id} data-testid={`team-invite-${inv.id}`} style={{ borderRadius: 18, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.2)', padding: '16px 18px', marginBottom: 12 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-team-line" style={{ fontSize: 20, color: '#A78BFA' }} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Invitation programme en equipe</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{inv.inviter_name} vous invite a faire "{inv.program_title}" ensemble</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 8 } as any}>
+                <div data-testid={`accept-team-${inv.id}`} onClick={async () => {
+                  try {
+                    await apiFetch(`/api/programs/team/invitations/${inv.id}/accept`, { method: 'POST' }, token);
+                    setTeamInvitations(prev => prev.filter(i => i.id !== inv.id));
+                    fetchData();
+                  } catch {}
+                }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
+                <div onClick={async () => {
+                  try {
+                    await apiFetch(`/api/programs/team/invitations/${inv.id}/reject`, { method: 'POST' }, token);
+                    setTeamInvitations(prev => prev.filter(i => i.id !== inv.id));
+                  } catch {}
+                }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)' } as any}>Refuser</div>
+              </div>
+            </div>
+          ))}
+
           {/* ── 4. PROGRAMME EN COURS (si actif, avant Nora) ── */}
           {activeProgram?.active && (
             <div data-testid="active-program-card" style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: `1px solid ${activeProgram.program.color}20`, padding: '18px', marginBottom: 16, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
