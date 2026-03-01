@@ -54,6 +54,74 @@ async def verify_code(data: dict):
     return {"status": "verified", "message": "Telephone verifie"}
 
 
+@router.post("/auth/forgot-password")
+async def forgot_password(data: dict):
+    """Send a password reset code via SMS to the user's phone."""
+    import re
+    phone = data.get("phone", "").strip()
+    if not phone or len(phone) < 6:
+        raise HTTPException(status_code=400, detail="Numero de telephone invalide")
+    cleaned = re.sub(r'[\s\-\.\(\)]', '', phone)
+    if cleaned.startswith('0') and len(cleaned) == 10:
+        cleaned = '+33' + cleaned[1:]
+    # Check user exists
+    user = await db.users.find_one({"phone": {"$regex": cleaned[-9:]}}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="Aucun compte associe a ce numero")
+    code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    await db.verification_codes.delete_many({"phone": cleaned, "type": "reset"})
+    await db.verification_codes.insert_one({
+        "phone": cleaned, "code": code, "type": "reset",
+        "user_id": user['id'],
+        "created_at": datetime.now(timezone.utc),
+        "expires_at": datetime.now(timezone.utc) + timedelta(minutes=10),
+    })
+    try:
+        from services.smsmode_service import send_sms
+        sent = await send_sms(cleaned, f"Chutex Care — Code de reinitialisation : {code}")
+        if not sent:
+            return {"status": "sent", "message": "Code envoye (mode dev)", "dev_code": code}
+    except Exception:
+        return {"status": "sent", "message": "Code envoye (mode dev)", "dev_code": code}
+    return {"status": "sent", "message": "Code envoye par SMS"}
+
+
+@router.post("/auth/reset-password")
+async def reset_password(data: dict):
+    """Verify reset code and set new password."""
+    import re
+    phone = data.get("phone", "").strip()
+    code = data.get("code", "").strip()
+    new_password = data.get("new_password", "").strip()
+    if not phone or not code or not new_password:
+        raise HTTPException(status_code=400, detail="Telephone, code et nouveau mot de passe requis")
+    if len(new_password) < 4:
+        raise HTTPException(status_code=400, detail="Le mot de passe doit contenir au moins 4 caracteres")
+    cleaned = re.sub(r'[\s\-\.\(\)]', '', phone)
+    if cleaned.startswith('0') and len(cleaned) == 10:
+        cleaned = '+33' + cleaned[1:]
+    record = await db.verification_codes.find_one({"phone": cleaned, "code": code, "type": "reset"}, {"_id": 0})
+    if not record:
+        raise HTTPException(status_code=400, detail="Code incorrect")
+    if record.get("expires_at"):
+        exp = record["expires_at"]
+        now = datetime.now(timezone.utc)
+        if exp.tzinfo is None:
+            exp = exp.replace(tzinfo=timezone.utc)
+        if exp < now:
+            raise HTTPException(status_code=400, detail="Code expire, renvoyez un nouveau code")
+    user_id = record.get("user_id", "")
+    if not user_id:
+        user = await db.users.find_one({"phone": {"$regex": cleaned[-9:]}}, {"_id": 0})
+        if not user:
+            raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+        user_id = user['id']
+    await db.users.update_one({"id": user_id}, {"$set": {"password_hash": hash_password(new_password)}})
+    await db.verification_codes.delete_many({"phone": cleaned, "type": "reset"})
+    return {"status": "ok", "message": "Mot de passe reinitialise avec succes"}
+
+
+
 @router.post("/auth/register")
 async def register(data: UserRegister):
     if await db.users.find_one({"$or": [{"email": data.email}, {"phone": data.phone}]}, {"_id": 0}):
