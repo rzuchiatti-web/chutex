@@ -105,6 +105,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           if (prog.active && !prog.today_checkin) setShowCheckin(true);
         }
         if (cat?.programs) setProgramCatalog(cat.programs);
+        // Fetch team invitations
+        apiFetch('/api/programs/team/invitations', {}, token).then(inv => { if (Array.isArray(inv)) setTeamInvitations(inv); }).catch(() => {});
       } catch {}
     } catch {} finally { setLoading(false); setRefreshing(false); }
     // Fetch alerts separately to ensure it always runs
