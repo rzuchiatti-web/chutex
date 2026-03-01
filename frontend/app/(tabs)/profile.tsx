@@ -1,5 +1,6 @@
 import { Icon, MCIcon } from '../../src/components/WebIcon';
 import FullScreenLoader from '../../src/components/FullScreenLoader';
+import SubscriptionManagePopup from '../../src/components/SubscriptionManagePopup';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Platform, Image, Modal, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
