@@ -110,86 +110,100 @@ async def get_latest_readings(user=Depends(get_current_user)):
 
 @router.get("/devices/dashboard-summary")
 async def get_dashboard_summary(user=Depends(get_current_user)):
-    """Comprehensive device summary with simulated data for demo purposes"""
+    """Device summary using REAL data from device_readings. No simulation."""
     uid = user['id']
     bracelet_dev = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
     scale_dev = await db.devices.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0})
     vest_dev = await db.devices.find_one({"user_id": uid, "device_type": "vest"}, {"_id": 0})
 
-    import math
     now = datetime.now(timezone.utc)
-    hour = now.hour
-    base_hr = 68 + int(8 * math.sin(hour / 24 * math.pi * 2))
+
+    # Get last REAL readings from DB
+    last_bracelet_reading = await db.device_readings.find_one(
+        {"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    last_scale_reading = await db.device_readings.find_one(
+        {"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    last_vest_reading = await db.device_readings.find_one(
+        {"user_id": uid, "device_type": "vest"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+
+    br_data = (last_bracelet_reading or {}).get("data", {}) if last_bracelet_reading else {}
+    sc_data = (last_scale_reading or {}).get("data", {}) if last_scale_reading else {}
+    vs_data = (last_vest_reading or {}).get("data", {}) if last_vest_reading else {}
+    br_connected = bracelet_dev.get("connected", False) if bracelet_dev else False
+    sc_connected = scale_dev.get("connected", False) if scale_dev else False
+    vs_connected = vest_dev.get("connected", False) if vest_dev else False
+    has_br_data = bool(br_data) or br_connected
+    has_sc_data = bool(sc_data) or sc_connected
 
     bracelet = {
-        "connected": bracelet_dev.get("connected", False) if bracelet_dev else False,
+        "connected": br_connected,
         "battery": bracelet_dev.get("battery", 0) if bracelet_dev else 0,
         "name": "Bracelet Elio",
-        "heart_rate": base_hr + random.randint(-3, 3) if bracelet_dev and bracelet_dev.get("connected") else 0,
-        "spo2": random.choice([96, 97, 97, 98, 98, 99]) if bracelet_dev and bracelet_dev.get("connected") else 0,
-        "blood_pressure": {"systolic": 125 + random.randint(-5, 5), "diastolic": 78 + random.randint(-3, 3)} if bracelet_dev and bracelet_dev.get("connected") else {"systolic": 0, "diastolic": 0},
-        "temperature": round(36.4 + random.random() * 0.5, 1) if bracelet_dev and bracelet_dev.get("connected") else 0,
-        "steps": (3842 + random.randint(0, 500)) if bracelet_dev and bracelet_dev.get("connected") else 0,
-        "calories": (154 + random.randint(0, 30)) if bracelet_dev and bracelet_dev.get("connected") else 0,
-        "distance_km": round(2.7 + random.random() * 0.5, 1) if bracelet_dev and bracelet_dev.get("connected") else 0,
-        "last_sync": (bracelet_dev.get("last_sync") if bracelet_dev else None) or (now.isoformat() if bracelet_dev and bracelet_dev.get("connected") else None),
-        "heart_rate_history": [
-            {"hour": f"{h:02d}h", "value": 68 + int(8 * math.sin(h / 24 * math.pi * 2)) + random.randint(-2, 4)}
-            for h in range(max(0, hour - 6), hour + 1)
-        ] if bracelet_dev and bracelet_dev.get("connected") else [],
-        "paired": bracelet_dev.get("connected", False) or (bracelet_dev.get("battery", 0) > 0) if bracelet_dev else False,
+        "heart_rate": br_data.get("heart_rate", 0),
+        "spo2": br_data.get("spo2", 0),
+        "blood_pressure": br_data.get("blood_pressure", {"systolic": 0, "diastolic": 0}),
+        "temperature": br_data.get("temperature", 0),
+        "steps": br_data.get("steps", 0),
+        "calories": br_data.get("calories", 0),
+        "distance_km": br_data.get("distance_km", 0),
+        "last_sync": (bracelet_dev.get("last_sync") if bracelet_dev else None) or (last_bracelet_reading.get("timestamp") if last_bracelet_reading else None),
+        "heart_rate_history": br_data.get("heart_rate_history", []),
+        "paired": br_connected or (bracelet_dev.get("battery", 0) > 0 if bracelet_dev else False),
     }
-    if bracelet_dev and bracelet_dev.get('last_heart_rate', 0) > 0:
-        bracelet["heart_rate"] = bracelet_dev.get('last_heart_rate', bracelet["heart_rate"])
-        bracelet["spo2"] = bracelet_dev.get('last_spo2', bracelet["spo2"])
-        bracelet["steps"] = bracelet_dev.get('last_steps', bracelet["steps"])
-        bracelet["battery"] = bracelet_dev.get('battery', bracelet["battery"])
 
     scale = {
-        "connected": scale_dev.get("connected", False) if scale_dev else False,
+        "connected": sc_connected,
         "battery": scale_dev.get("battery", 0) if scale_dev else 0,
         "name": "Balance Lefu",
-        "weight": round(72.4 + random.random() * 0.3, 1) if scale_dev and scale_dev.get("connected") else 0,
-        "bmi": round(24.1 + random.random() * 0.2, 1) if scale_dev and scale_dev.get("connected") else 0,
-        "body_fat": round(22.3 + random.random() * 0.5, 1) if scale_dev and scale_dev.get("connected") else 0,
-        "muscle_mass": round(33.8 + random.random() * 0.3, 1) if scale_dev and scale_dev.get("connected") else 0,
-        "water_pct": round(55.2 + random.random() * 0.5, 1) if scale_dev and scale_dev.get("connected") else 0,
-        "bone_mass": round(3.1 + random.random() * 0.1, 1) if scale_dev and scale_dev.get("connected") else 0,
-        "visceral_fat": random.choice([8, 9, 9, 10]) if scale_dev and scale_dev.get("connected") else 0,
-        "metabolic_age": random.choice([62, 63, 64]) if scale_dev and scale_dev.get("connected") else 0,
-        "last_sync": (scale_dev.get("last_sync") if scale_dev else None) or (now.isoformat() if scale_dev and scale_dev.get("connected") else None),
-        "weight_history": [
-            {"date": f"{d} fev", "value": round(72.4 + random.random() * 0.8 - 0.4, 1)}
-            for d in range(13, 20)
-        ] if scale_dev and scale_dev.get("connected") else [],
-        "paired": scale_dev.get("connected", False) or (scale_dev.get("battery", 0) > 0) if scale_dev else False,
+        "weight": sc_data.get("weight", 0),
+        "bmi": sc_data.get("bmi", 0),
+        "body_fat": sc_data.get("body_fat_pct", sc_data.get("body_fat", 0)),
+        "muscle_mass": sc_data.get("muscle_pct", sc_data.get("muscle_mass", 0)),
+        "water_pct": sc_data.get("water_pct", 0),
+        "bone_mass": sc_data.get("bone_mass_kg", sc_data.get("bone_mass", 0)),
+        "visceral_fat": sc_data.get("visceral_fat", 0),
+        "metabolic_age": sc_data.get("body_age", sc_data.get("metabolic_age", 0)),
+        "last_sync": (scale_dev.get("last_sync") if scale_dev else None) or (last_scale_reading.get("timestamp") if last_scale_reading else None),
+        "weight_history": [],
+        "paired": sc_connected or (scale_dev.get("battery", 0) > 0 if scale_dev else False),
     }
+
+    # Build weight history from real readings
+    scale_readings = await db.device_readings.find(
+        {"user_id": uid, "device_type": "scale"}, {"_id": 0}
+    ).sort("timestamp", -1).to_list(10)
+    if scale_readings:
+        scale["weight_history"] = [
+            {"date": r.get("timestamp", "")[:10], "value": r.get("data", {}).get("weight", 0)}
+            for r in reversed(scale_readings) if r.get("data", {}).get("weight", 0) > 0
+        ]
 
     vest = {
-        "connected": vest_dev.get("connected", False) if vest_dev else False,
+        "connected": vs_connected,
         "battery": vest_dev.get("battery", 0) if vest_dev else 0,
         "name": "Gilet Elder",
-        "fall_detected": False, "posture_score": random.choice([82, 85, 87, 90]) if vest_dev and vest_dev.get("connected") else 0,
-        "chest_temp": round(36.5 + random.random() * 0.3, 1) if vest_dev and vest_dev.get("connected") else 0,
-        "impact_events_today": 0, "wearing_hours_today": round(4.5 + random.random() * 2, 1) if vest_dev and vest_dev.get("connected") else 0,
-        "last_fall_check": now.isoformat() if vest_dev and vest_dev.get("connected") else None,
-        "last_sync": (vest_dev.get("last_sync") if vest_dev else None) or (now.isoformat() if vest_dev and vest_dev.get("connected") else None),
+        "fall_detected": vs_data.get("fall_detected", False),
+        "posture_score": vs_data.get("posture_score", 0),
+        "chest_temp": vs_data.get("chest_temp", 0),
+        "impact_events_today": vs_data.get("impact_events_today", 0),
+        "wearing_hours_today": vs_data.get("wearing_hours_today", 0),
+        "last_fall_check": vs_data.get("last_fall_check", None),
+        "last_sync": (vest_dev.get("last_sync") if vest_dev else None) or (last_vest_reading.get("timestamp") if last_vest_reading else None),
         "alerts_today": 0,
-        "paired": vest_dev.get("connected", False) or (vest_dev.get("battery", 0) > 0) if vest_dev else False,
+        "paired": vs_connected or (vest_dev.get("battery", 0) > 0 if vest_dev else False),
     }
 
-    if bracelet_dev:
-        sleep = {
-            "duration": "7h 23min", "quality": 82,
-            "deep": "2h 10min", "light": "4h 05min", "rem": "1h 08min",
-            "deep_pct": 30, "light_pct": 55, "rem_pct": 15,
-            "bedtime": "22:45", "wakeup": "06:08",
-        }
-    else:
-        sleep = None
+    # Sleep from real bracelet data only
+    sleep = None
+    if last_bracelet_reading and br_data.get("sleep"):
+        sleep = br_data["sleep"]
 
     return {
         "bracelet": bracelet, "scale": scale, "vest": vest, "sleep": sleep,
+        "has_data": has_br_data or has_sc_data,
         "last_updated": now.isoformat(),
     }
 
