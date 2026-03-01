@@ -163,6 +163,13 @@ export default function ProfileScreen() {
   const [showFaceId, setShowFaceId] = useState(false);
   const [subData, setSubData] = useState<any>(null);
 
+  // Fetch subscription data on mount for beneficiary users
+  useEffect(() => {
+    if (token && (user?.role === 'beneficiary' || user?.active_role === 'beneficiary')) {
+      apiFetch('/api/subscriptions/my', {}, token).then(setSubData).catch(() => {});
+    }
+  }, [token, user?.role, user?.active_role]);
+
   const fetchNotifPrefs = useCallback(async () => {
     try { setNotifPrefs(await apiFetch('/api/push/preferences', {}, token)); } catch {}
   }, [token]);
