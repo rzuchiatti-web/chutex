@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../src/context/AuthContext';
+import { apiFetch } from '../src/services/api';
 import { PREFIXES } from '../src/components/register/RegisterUI';
 import { PrefixPicker } from '../src/components/GlassPickers';
 import LanguagePicker from '../src/components/LanguagePicker';
