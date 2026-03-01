@@ -105,6 +105,8 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
     ? [{ key: 'info', label: 'Abonnement', icon: 'ri-shield-star-line' }, { key: 'housing', label: 'Logement', icon: 'ri-home-4-line' }, { key: 'guardians', label: 'Gardiens', icon: 'ri-group-line' }, { key: 'payment', label: 'Paiement', icon: 'ri-bank-card-line' }]
     : [{ key: 'info', label: 'Abonnement', icon: 'ri-watch-line' }, { key: 'payment', label: 'Paiement', icon: 'ri-bank-card-line' }];
 
+  const glass = { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
+
   return (
     <div data-testid="subscription-manage-page" style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
       {/* Full background */}
