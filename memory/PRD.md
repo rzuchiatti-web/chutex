@@ -17,15 +17,16 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
-### Mar 1, 2026 - 7 Programmes de Prevention Scientifiques
-**7 programmes complets bases sur des etudes scientifiques :**
+### Mar 1, 2026 - 8 Programmes de Prevention Scientifiques
+**8 programmes complets bases sur des etudes scientifiques :**
 1. "21 jours pour mieux dormir" (sommeil) — Walker 2017, Cajochen 2011, Haghayegh 2019
 2. "14 jours pour stabiliser sa tension" (cardiovasculaire) — DASH, OMS/AHA, PREDIMED
 3. "30 jours pour bouger plus" (activite) — OMS seniors, Stanford 2020, NASA
-4. "21 jours pour mieux manger" (nutrition) — PREDIMED 2013, NutriNet-Sante, Buettner 2012 (Zones Bleues)
-5. "21 jours pour prevenir les chutes" (equilibre) — Sherrington 2019, HAS, protocole Cawthorne-Cooksey
+4. "21 jours pour mieux manger" (nutrition) — PREDIMED 2013, NutriNet-Sante, Buettner 2012
+5. "21 jours pour prevenir les chutes" (equilibre) — Sherrington 2019, HAS, Cawthorne-Cooksey
 6. "21 jours pour apaiser l'esprit" (bien-etre) — HeartMath 2009, Holzel 2011, Goyal 2014
-7. "14 jours pour booster sa memoire" (cognitif) — ACTIVE Ball 2002, Jaeggi 2008, MIND Diet Morris 2015
+7. "14 jours pour booster sa memoire" (cognitif) — ACTIVE Ball 2002, Jaeggi 2008, MIND Diet
+8. "21 jours pour renforcer son coeur" (cardio-endurance) — AHA 2018, Wisloff 2007, Huang 2016
 
 **Chaque programme inclut:**
 - `benefits` (5 benefices prouves)
