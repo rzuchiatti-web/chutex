@@ -9,8 +9,11 @@ export default function MorningBriefingScreen() {
   const [visibleObjs, setVisibleObjs] = useState(0);
   const [done, setDone] = useState(false);
   const [objectives, setObjectives] = useState<any[]>([]);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
   const started = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const NORA_CONTENT: Record<string, { greeting: string; features: { icon: string; color: string; label: string; value: string; detail: string }[] }> = {
     beneficiary: {
