@@ -157,7 +157,7 @@ async def get_dashboard_summary(user=Depends(get_current_user)):
         "bone_mass": round(3.1 + random.random() * 0.1, 1) if scale_dev and scale_dev.get("connected") else 0,
         "visceral_fat": random.choice([8, 9, 9, 10]) if scale_dev and scale_dev.get("connected") else 0,
         "metabolic_age": random.choice([62, 63, 64]) if scale_dev and scale_dev.get("connected") else 0,
-        "last_sync": scale_dev.get("last_sync") or (now.isoformat() if scale_dev and scale_dev.get("connected") else None),
+        "last_sync": (scale_dev.get("last_sync") if scale_dev else None) or (now.isoformat() if scale_dev and scale_dev.get("connected") else None),
         "weight_history": [
             {"date": f"{d} fev", "value": round(72.4 + random.random() * 0.8 - 0.4, 1)}
             for d in range(13, 20)
@@ -173,7 +173,7 @@ async def get_dashboard_summary(user=Depends(get_current_user)):
         "chest_temp": round(36.5 + random.random() * 0.3, 1) if vest_dev and vest_dev.get("connected") else 0,
         "impact_events_today": 0, "wearing_hours_today": round(4.5 + random.random() * 2, 1) if vest_dev and vest_dev.get("connected") else 0,
         "last_fall_check": now.isoformat() if vest_dev and vest_dev.get("connected") else None,
-        "last_sync": vest_dev.get("last_sync") or (now.isoformat() if vest_dev and vest_dev.get("connected") else None),
+        "last_sync": (vest_dev.get("last_sync") if vest_dev else None) or (now.isoformat() if vest_dev and vest_dev.get("connected") else None),
         "alerts_today": 0,
         "paired": vest_dev.get("connected", False) or (vest_dev.get("battery", 0) > 0) if vest_dev else False,
     }
