@@ -43,6 +43,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [showConnectDevice, setShowConnectDevice] = useState<string | null>(null);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showAddGuardianPopup, setShowAddGuardianPopup] = useState(false);
+  const [teamInvitations, setTeamInvitations] = useState<any[]>([]);
   const [inviteGuardPhone, setInviteGuardPhone] = useState('');
   const [inviteGuardRelationship, setInviteGuardRelationship] = useState('');
   const [inviteGuardMsg, setInviteGuardMsg] = useState('');
