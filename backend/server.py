@@ -56,6 +56,7 @@ api_router.include_router(program_router)
 api_router.include_router(rgpd_router)
 api_router.include_router(contract_router)
 api_router.include_router(shopify_router)
+api_router.include_router(advanced_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
