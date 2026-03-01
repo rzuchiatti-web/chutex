@@ -181,6 +181,32 @@ export default function ProgramDailyView({ token, onStop }: Props) {
         </div>
       </div>
 
+      {/* ── TEAM PROGRESS (if in team) ── */}
+      {data.team && data.team.members && data.team.members.length > 1 && (
+        <div data-testid="team-progress" style={{ padding: '14px 18px', borderRadius: 18, background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 14 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+            <i className="ri-team-line" style={{ fontSize: 16, color: '#A78BFA' }} />
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.6)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Equipe · {data.team.members.length} membres</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>Code: {data.team.invite_code}</span>
+          </div>
+          {data.team.members.map((m: any, i: number) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: m.checked_in_today ? 'rgba(16,185,129,0.15)' : m.is_me ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${m.checked_in_today ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                {m.checked_in_today ? <i className="ri-check-line" style={{ fontSize: 16, color: '#10B981' }} /> : <span style={{ fontSize: 12, fontWeight: 700, color: m.is_me ? '#A78BFA' : 'rgba(255,255,255,0.3)' }}>{m.name?.charAt(0)}</span>}
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{m.name} {m.is_me ? '(vous)' : ''}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>
+                  {m.checked_in_today ? `${m.tasks_done_today} tache${m.tasks_done_today > 1 ? 's' : ''} validee${m.tasks_done_today > 1 ? 's' : ''}` : 'Pas encore valide'}
+                  {m.mood_today ? ` · Humeur ${m.mood_today}/5` : ''}
+                </div>
+              </div>
+              {m.checked_in_today && <i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: '#10B981' }} />}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ── BILAN DAY BANNER ── */}
       {isBilanDay && (
         <div onClick={() => loadBilan(cd === dur ? 'completion' : 'weekly')} data-testid="bilan-banner" style={{ padding: '14px 18px', borderRadius: 16, background: `linear-gradient(135deg, ${clr}18, ${clr}08)`, border: `1px solid ${clr}30`, marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
