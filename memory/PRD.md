@@ -60,7 +60,32 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 ### Mar 1, 2026 - Emails, Gestion abonnements, Mot de passe oublie
 (sessions precedentes — tout complet)
 
-### Mar 1, 2026 - Mode Equipe + Page Programme Amelioree
+### Mar 1, 2026 - Fonctionnalites Avancees (Impact Immediat + Premium)
+**1. Rapport hebdomadaire email Nora** (`POST /api/nora/send-weekly-report`):
+- Score sante, tendances 7j, programme en cours, streak, alertes, conseil Nora IA
+- Email envoye au beneficiaire ET aux gardiens via Mailjet
+
+**2. Morning Briefing enrichi** (`GET /api/nora/morning-briefing`):
+- Nora genere un briefing personnalise avec donnees reelles, programme du jour, objectifs IA
+- Alertes predictives integrees
+
+**3. Streaks & Recompenses** (`POST /api/nora/checkin-daily`, `GET /api/nora/streak`):
+- Streak quotidien avec badges (7j, 14j, 30j, 60j, 100j)
+- Persistance en base, max streak, total jours
+
+**4. Nora Vocale TTS** (`POST /api/nora/speak`, `POST /api/nora/speak-briefing`):
+- Text-to-Speech via OpenAI TTS (voix Nova, vitesse 0.95 pour seniors)
+- Briefing du matin en audio MP3
+
+**5. Alertes Predictives** (`GET /api/nora/predictive-check`):
+- Analyse des tendances 7 jours : FC repos, HRV, sommeil, stress, activite
+- Alertes proactives AVANT que le probleme survienne
+- Types : heart_rate_rising, hrv_declining, sleep_declining, stress_rising, activity_declining
+
+**6. Mode Intervenant a Domicile** (`GET /api/intervenant/visit/{id}`, `POST /api/intervenant/visit/{id}/observation`):
+- Vue beneficiaire complete pour les intervenants en visite
+- Ajout d'observations (etat general, mobilite, humeur, appetit, douleur, traitements)
+- Option "Alerter le medecin" qui cree une alerte automatique
 **Backend - Invitation par telephone:**
 - `POST /api/programs/team/invite-by-phone` : Si le telephone correspond a un beneficiaire existant → notification in-app (collection `team_invitations`). Sinon → SMS via SMS Mode.
 - `GET /api/programs/team/invitations` : Liste des invitations en attente
