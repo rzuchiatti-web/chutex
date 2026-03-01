@@ -306,7 +306,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
         {tab === 'payment' && (
           <div>
             {/* Billing portal */}
-            <div data-testid="billing-portal-btn" onClick={openBillingPortal} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+            <div data-testid="billing-portal-btn" onClick={openBillingPortal} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, ...glass } as any}>
               <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-bank-card-line" style={{ fontSize: 20, color: '#3B82F6' }} /></div>
               <div style={{ flex: 1 } as any}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Moyen de paiement</div>
@@ -316,7 +316,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
             </div>
 
             {/* Subscription info */}
-            <div style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 } as any}>
+            <div style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, ...glass } as any}>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Recapitulatif</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{isCare ? 'Chutex Care' : 'Bracelet Elio'}</span>
@@ -335,7 +335,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                 Resilier mon abonnement
               </div>
             ) : (
-              <div style={{ marginTop: 20, padding: '18px', borderRadius: 16, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' } as any}>
+              <div style={{ marginTop: 20, padding: '18px', borderRadius: 16, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', ...glass } as any}>
                 <div style={{ fontSize: 15, fontWeight: 800, color: '#EF4444', marginBottom: 8 }}>Confirmer la resiliation ?</div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 14 }}>
                   {isCare ? 'Vous perdrez l\'acces a la teleassistance 24/7, au suivi GPS et aux intervenants Care.' : 'Vous ne pourrez plus utiliser votre bracelet Elio ni acceder a vos donnees de sante.'}
