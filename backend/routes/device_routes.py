@@ -41,16 +41,16 @@ async def sync_device(data: DeviceSyncRequest, user=Depends(get_current_user)):
                 detail="Abonnement requis pour utiliser le bracelet Elio. Veuillez souscrire a un abonnement Standard ou Care."
             )
 
-    generators = {
-        "bracelet": lambda: generate_bracelet_data(data.data if data.data else None),
-        "scale": lambda: generate_scale_data(data.data if data.data else None),
-        "vest": generate_vest_data,
-    }
-    device_data = generators.get(data.device_type, lambda: data.data)()
+    # Store REAL data sent by BLE device — no simulation
+    device_data = data.data if data.data else {}
     now = datetime.now(timezone.utc).isoformat()
-    batt = random.randint(20, 100)
-    await db.devices.update_one({"user_id": user['id'], "device_type": data.device_type}, {"$set": {"connected": True, "last_sync": now, "battery": batt}})
-    await db.device_readings.insert_one({"id": str(uuid.uuid4()), "user_id": user['id'], "device_type": data.device_type, "data": device_data, "timestamp": now})
+    # Only update battery if provided in data, otherwise keep existing
+    update_fields: dict = {"connected": True, "last_sync": now}
+    if device_data.get("battery"):
+        update_fields["battery"] = device_data["battery"]
+    await db.devices.update_one({"user_id": user['id'], "device_type": data.device_type}, {"$set": update_fields})
+    if device_data:
+        await db.device_readings.insert_one({"id": str(uuid.uuid4()), "user_id": user['id'], "device_type": data.device_type, "data": device_data, "timestamp": now})
     anomalies = check_anomalies(data.device_type, device_data)
     for an in anomalies:
         alert_id = str(uuid.uuid4())

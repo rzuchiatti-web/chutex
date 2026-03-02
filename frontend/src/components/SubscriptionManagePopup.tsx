@@ -103,8 +103,8 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
 
   const sub = subData?.subscription;
   const tabs = isCare
-    ? [{ key: 'info', label: 'Abonnement', icon: 'ri-shield-star-line' }, { key: 'housing', label: 'Logement', icon: 'ri-home-4-line' }, { key: 'guardians', label: 'Gardiens', icon: 'ri-group-line' }, { key: 'payment', label: 'Paiement', icon: 'ri-bank-card-line' }]
-    : [{ key: 'info', label: 'Abonnement', icon: 'ri-watch-line' }, { key: 'payment', label: 'Paiement', icon: 'ri-bank-card-line' }];
+    ? [{ key: 'info', label: 'Abonnement', icon: 'ri-shield-star-line' }, { key: 'contract', label: 'Contrat', icon: 'ri-file-text-line' }, { key: 'housing', label: 'Logement', icon: 'ri-home-4-line' }, { key: 'guardians', label: 'Gardiens', icon: 'ri-group-line' }, { key: 'payment', label: 'Paiement', icon: 'ri-bank-card-line' }]
+    : [{ key: 'info', label: 'Abonnement', icon: 'ri-watch-line' }, { key: 'contract', label: 'Contrat', icon: 'ri-file-text-line' }, { key: 'payment', label: 'Paiement', icon: 'ri-bank-card-line' }];
 
   const glass = { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 
@@ -213,6 +213,63 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#A78BFA' }} />
               </div>
             )}
+          </div>
+        )}
+
+        {/* === TAB: CONTRACT (PDF) === */}
+        {tab === 'contract' && (
+          <div>
+            <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+              <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+                <i className="ri-file-text-line" style={{ fontSize: 32, color: '#3B82F6' }} />
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Votre contrat</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Consultez les conditions de votre abonnement Chutex Care</div>
+            </div>
+
+            {subData?.contract?.contract_number && (
+              <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, ...glass } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>N° contrat</span>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF', fontFamily: 'monospace' }}>{subData.contract.contract_number}</span>
+                </div>
+              </div>
+            )}
+
+            {subData?.contract?.contract_pdf_url ? (
+              <div data-testid="view-contract-pdf" onClick={() => window.open(subData.contract.contract_pdf_url, '_blank')} style={{ padding: '18px', borderRadius: 16, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12, ...glass } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-file-pdf-2-line" style={{ fontSize: 22, color: '#3B82F6' }} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Telecharger le contrat PDF</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Conditions generales et particulieres</div>
+                </div>
+                <i className="ri-download-2-line" style={{ fontSize: 18, color: '#3B82F6' }} />
+              </div>
+            ) : (
+              <div style={{ padding: '20px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', textAlign: 'center', marginBottom: 12, ...glass } as any}>
+                <i className="ri-time-line" style={{ fontSize: 28, color: 'rgba(245,158,11,0.5)', display: 'block', marginBottom: 8 }} />
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>Contrat en cours de generation</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>Votre contrat PDF sera disponible prochainement. Vous recevrez un email lorsqu'il sera pret.</div>
+              </div>
+            )}
+
+            {/* Contract key info summary */}
+            <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', ...glass } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rappel des conditions</div>
+              {[
+                'Contrat a duree indeterminee, resiliable a tout moment avec 30 jours de preavis.',
+                'Les equipements restent la propriete de Chutex Innovation et doivent etre restitues en cas de resiliation.',
+                'Le service ouvre droit a un credit d\'impot de 50% au titre des services a la personne (art. 199 sexdecies du CGI).',
+                'Support : contact@chutex-innovation.com',
+              ].map((r, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 } as any}>
+                  <i className="ri-checkbox-circle-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.2)', marginTop: 1, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>{r}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
