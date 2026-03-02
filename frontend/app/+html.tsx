@@ -16,19 +16,14 @@ export default function Root({ children }: PropsWithChildren) {
         <style dangerouslySetInnerHTML={{ __html: `
           html, body { margin: 0; padding: 0; background: #0A0A1A; overflow: hidden; height: 100%; }
           #root { height: 100%; }
-          /* Safe area padding for iOS status bar — applied globally */
-          .safe-area-top { padding-top: env(safe-area-inset-top, 44px); }
-          /* Global safe area class for all page containers */
-          [data-safe-area="true"] { padding-top: env(safe-area-inset-top, 44px) !important; }
-          /* Fix for ALL absolute/fixed positioned full-screen pages */
-          [style*="position: absolute"][style*="top: 0"],
-          [style*="position:absolute"][style*="top:0"],
-          [style*="position: fixed"][style*="top: 0"],
-          [style*="position:fixed"][style*="top:0"] {
-            padding-top: env(safe-area-inset-top, 44px) !important;
-          }
+          /* Global safe area — adds 52px padding top to ALL full-screen containers on iOS */
+          body { padding-top: env(safe-area-inset-top, 0px) !important; padding-top: constant(safe-area-inset-top, 0px) !important; }
           /* Ensure scrollability */
           * { -webkit-overflow-scrolling: touch; }
+          /* Force padding on all absolute/fixed positioned pages */
+          @supports (padding-top: env(safe-area-inset-top)) {
+            body { padding-top: env(safe-area-inset-top) !important; }
+          }
         `}} />
       </head>
       <body>{children}</body>
