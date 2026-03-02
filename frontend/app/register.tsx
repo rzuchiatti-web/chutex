@@ -134,6 +134,31 @@ export default function RegisterScreen() {
   const isLastStep = (role === 'beneficiary' && step === BEN_STEPS) || (role === 'guardian' && step === GUARD_STEPS) || (role === 'prescriber_company' && step === SAAD_STEPS);
   const isVerifyStep = step === 3;
 
+  // After phone verification (step 3 → 4), check for contract pre-fill
+  useEffect(() => {
+    if (step === 4 && role === 'beneficiary' && phoneVerified) {
+      const ph = getFullPhone();
+      apiFetch(`/api/auth/contract-prefill/${encodeURIComponent(ph)}`).then((res: any) => {
+        if (res?.has_contract && res?.prefill) {
+          const pf = res.prefill;
+          setForm((prev: any) => ({
+            ...prev,
+            firstName: pf.first_name || prev.firstName,
+            name: pf.last_name || prev.name,
+            gender: pf.gender || prev.gender,
+            address: pf.address || prev.address,
+            city: pf.city || prev.city,
+            postal_code: pf.postal_code || prev.postal_code,
+            ...(pf.date_of_birth ? (() => {
+              const parts = pf.date_of_birth.split('-');
+              return parts.length === 3 ? { dob_year: parts[0], dob_month: parts[1], dob_day: parts[2] } : {};
+            })() : {}),
+          }));
+        }
+      }).catch(() => {});
+    }
+  }, [step, phoneVerified]);
+
   if (Platform.OS !== 'web') return <NativePageView path="/register" />;
 
   if (showNora) {
