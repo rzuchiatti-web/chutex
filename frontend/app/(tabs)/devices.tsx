@@ -143,8 +143,8 @@ function DeviceManagement({ token }: { token: string }) {
 
                 {/* Info */}
                 <div style={{ padding: '0 20px 20px' } as any}>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{getDeviceName(device.device_type)}</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 16 }}>{getDeviceDesc(device.device_type)}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{getDeviceName(dt)}</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 16 }}>{getDeviceDesc(dt)}</div>
 
                   {/* Buttons: battery bar if associated, else Associer + Decouvrir */}
                   {isAssociated ? (
@@ -175,12 +175,12 @@ function DeviceManagement({ token }: { token: string }) {
                     </div>
                   ) : (
                     <div style={{ display: 'flex', gap: 10 } as any}>
-                      <div data-testid={`connect-${device.device_type}-btn`} onClick={() => {
+                      <div data-testid={`connect-${dt}-btn`} onClick={() => {
                         if (needsSub) { setShowNoSubPopup(true); return; }
                         if (isVest) router.push('/vest-connect');
                         else if (isBracelet) syncDevice('bracelet');
-                        else if (device.device_type === 'scale') router.push('/scale-detail');
-                        else syncDevice(device.device_type);
+                        else if (dt === 'scale') syncDevice('scale');
+                        else syncDevice(dt);
                       }} style={{
                         flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer',
                         background: '#FFF', color: '#111',
