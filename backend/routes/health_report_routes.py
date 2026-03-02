@@ -569,7 +569,8 @@ async def get_daily_report(user=Depends(get_current_user)):
     nora_ctx = await build_nora_context(user)
 
     # No devices or no readings = no data
-    if not nora_ctx["has_bracelet"] and not nora_ctx["has_scale"]:
+    has_any_readings = await db.device_readings.find_one({"user_id": uid}, {"_id": 0})
+    if not has_any_readings:
         ai_no_data = await gen_ai({}, {"score": 0, "status": "Aucune donnee", "subscores": {"cardio": {"score": 0}, "sleep": {"score": 0}, "activity": {"score": 0}, "metabolism": {"score": 0}, "hydration": {"score": 0}}}, nora_ctx)
         return {"no_data": True, "data": {}, "score_info": {"score": 0, "status": "Aucune donnee", "status_color": "#6B7280", "subscores": {}, "lifts": [], "limits": []},
                 "ai": ai_no_data,
@@ -626,8 +627,8 @@ async def get_daily_report(user=Depends(get_current_user)):
                 "status": sd.get("health_evaluation", "--"),
             })
 
-    # Analysis phase (7-day onboarding)
-    first_device = await db.devices.find_one({"user_id": uid}, {"_id": 0}, sort=[("created_at", 1)])
+    # Analysis phase (7-day onboarding) — only if device was RECENTLY created
+    first_device = await db.devices.find_one({"user_id": uid, "removed": {"$ne": True}}, {"_id": 0}, sort=[("created_at", 1)])
     analysis_phase = None
     if first_device and first_device.get("created_at"):
         try:
@@ -647,9 +648,6 @@ async def get_daily_report(user=Depends(get_current_user)):
                 analysis_phase = {"day": day, "total": 7, "message": messages.get(day, "Analyse en cours"), "progress_pct": round((day / 7) * 100)}
         except:
             pass
-    # Demo fallback: always show analysis phase for demo
-    if analysis_phase is None:
-        analysis_phase = {"day": 5, "total": 7, "message": "Correlation des donnees", "progress_pct": 71}
 
     return {
         "score": si["score"], "status": si["status"], "status_color": si["status_color"],
