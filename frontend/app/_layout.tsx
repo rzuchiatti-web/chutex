@@ -4,10 +4,75 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { ThemeProvider } from '../src/context/ThemeContext';
 import { I18nProvider } from '../src/context/I18nContext';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform, Image } from 'react-native';
 import { PastelMistBackground } from '../src/components/PastelMistBackground';
 
+/**
+ * On iOS: render the entire app as a single full-screen WebView
+ * This ensures 100% parity with the web preview
+ */
+function NativeFullApp() {
+  const WebView = require('react-native-webview').default;
+  const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+
+  return (
+    <View style={{ flex: 1, backgroundColor: '#0A0A1A' }}>
+      <StatusBar style="light" translucent={true} />
+      <WebView
+        source={{ uri: backendUrl }}
+        style={{ flex: 1, backgroundColor: 'transparent' }}
+        startInLoadingState={true}
+        renderLoading={() => (
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
+            <Image
+              source={{ uri: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429' }}
+              style={{ width: 120, height: 40, resizeMode: 'contain', marginBottom: 20 }}
+            />
+            <ActivityIndicator size="large" color="#A78BFA" />
+            <View style={{ marginTop: 16 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ width: 28, height: 28, borderRadius: 9, backgroundColor: 'rgba(167,139,250,0.15)', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
+                  <Image
+                    source={{ uri: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429' }}
+                    style={{ width: 14, height: 14, resizeMode: 'contain', tintColor: '#A78BFA' }}
+                  />
+                </View>
+                <View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {[0, 1, 2].map(i => (
+                      <View key={i} style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: '#A78BFA', marginHorizontal: 2, opacity: 0.4 }} />
+                    ))}
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+        allowsBackForwardNavigationGestures={true}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        sharedCookiesEnabled={true}
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback={true}
+        scrollEnabled={true}
+        bounces={false}
+        overScrollMode="never"
+        decelerationRate="normal"
+        contentMode="mobile"
+        allowsFullscreenVideo={true}
+        automaticallyAdjustContentInsets={false}
+        contentInsetAdjustmentBehavior="never"
+      />
+    </View>
+  );
+}
+
 function RootNav() {
+  // On native (iOS), render full-screen WebView — same as web preview
+  if (Platform.OS !== 'web') {
+    return <NativeFullApp />;
+  }
+
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -70,6 +135,11 @@ function RootNav() {
 }
 
 export default function RootLayout() {
+  // On native, no need for providers — WebView handles everything
+  if (Platform.OS !== 'web') {
+    return <NativeFullApp />;
+  }
+
   return (
     <ThemeProvider>
       <I18nProvider>
