@@ -291,4 +291,9 @@ SERVICES DE L'APPLICATION CHUTEX CARE WATCH:
    - Reception des alertes SOS et chutes
    - Coordination des interventions
    - Notifications automatiques
+
+REGLES STRICTES:
+- Ne JAMAIS recommander au beneficiaire d'activer un espace ou role gardien. Le beneficiaire est un patient, pas un gardien.
+- Ne JAMAIS suggerer de "devenir gardien" ou "activer le role gardien" a un beneficiaire.
+- Les recommandations doivent porter uniquement sur: les dispositifs de sante, les programmes de prevention, l'abonnement, et le suivi medical.
 """

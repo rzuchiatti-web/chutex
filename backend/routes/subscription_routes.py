@@ -111,10 +111,15 @@ async def cancel_my_subscription(user=Depends(get_current_user)):
     if not sub:
         raise HTTPException(status_code=404, detail="Aucun abonnement actif")
     now = datetime.now(timezone.utc).isoformat()
-    # Cancel on Stripe if subscription ID exists
-    if sub.get('stripe_subscription_id') and stripe_lib.api_key:
+    # Cancel on Stripe if subscription ID exists (check both sub and contract)
+    stripe_sub_id = sub.get('stripe_subscription_id')
+    if not stripe_sub_id and sub.get('contract_id'):
+        contract = await db.contracts.find_one({"id": sub['contract_id']}, {"_id": 0})
+        if contract:
+            stripe_sub_id = contract.get('stripe_subscription_id')
+    if stripe_sub_id and stripe_lib.api_key:
         try:
-            stripe_lib.Subscription.cancel(sub['stripe_subscription_id'])
+            stripe_lib.Subscription.cancel(stripe_sub_id)
         except Exception as e:
             logger.warning(f"Stripe cancel error: {e}")
     # Update DB
@@ -137,11 +142,19 @@ async def get_billing_portal(data: dict, user=Depends(get_current_user)):
     sub = await db.subscriptions.find_one(
         {"$or": [{"beneficiary_id": user['id']}, {"beneficiary_phone": normalize_phone(user.get('phone', ''))}], "status": "active"}, {"_id": 0}
     )
-    if not sub or not sub.get('stripe_subscription_id'):
+    if not sub:
+        raise HTTPException(status_code=404, detail="Aucun abonnement Stripe actif")
+    # Get stripe_subscription_id from sub or from linked contract
+    stripe_sub_id = sub.get('stripe_subscription_id')
+    if not stripe_sub_id and sub.get('contract_id'):
+        contract = await db.contracts.find_one({"id": sub['contract_id']}, {"_id": 0})
+        if contract:
+            stripe_sub_id = contract.get('stripe_subscription_id')
+    if not stripe_sub_id:
         raise HTTPException(status_code=404, detail="Aucun abonnement Stripe actif")
     # Find the Stripe customer
     try:
-        stripe_sub = stripe_lib.Subscription.retrieve(sub['stripe_subscription_id'])
+        stripe_sub = stripe_lib.Subscription.retrieve(stripe_sub_id)
         customer_id = stripe_sub.customer
         session = stripe_lib.billing_portal.Session.create(
             customer=customer_id,

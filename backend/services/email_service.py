@@ -308,9 +308,14 @@ async def send_cancellation_email(name: str, email: str, sub_type: str):
       <p style="font-size:14px;color:rgba(255,255,255,0.5);margin:0;line-height:1.6;">Votre abonnement {plan_name} a ete resilie.</p>
     </div>
 
+    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:16px;padding:20px;margin-bottom:24px;">
+      <p style="font-size:14px;font-weight:700;color:#EF4444;margin:0 0 10px;">Retour du materiel obligatoire</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.6);margin:0 0 8px;line-height:1.6;">Conformement aux conditions generales, vous devez retourner l'ensemble du materiel (bracelet, gilet, balance) sous <strong style="color:#FFF;">30 jours ouvrables</strong> a compter de la date de resiliation.</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.6);margin:0;line-height:1.6;">Merci d'envoyer le numero de suivi du colis a : <strong style="color:#F59E0B;">contact@chutex-innovation.com</strong></p>
+    </div>
+
     <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;margin-bottom:24px;">
-      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin:0 0 12px;line-height:1.6;">Nous sommes desoles de vous voir partir. Si vous changez d'avis, vous pouvez re-souscrire a tout moment depuis l'application.</p>
-      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin:0;line-height:1.6;">Votre bracelet Elio restera fonctionnel mais les donnees ne seront plus synchronisees.</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin:0 0 12px;line-height:1.6;">Si vous changez d'avis, vous pouvez re-souscrire a tout moment depuis l'application ou sur chutex-innovation.com.</p>
     </div>
 
     <div style="text-align:center;">
