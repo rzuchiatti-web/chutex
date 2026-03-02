@@ -13,10 +13,17 @@ export const apiFetch = async (
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-  const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Erreur serveur' }));
-    throw new Error(error.detail || `Erreur ${response.status}`);
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Erreur serveur' }));
+      throw new Error(error.detail || `Erreur ${response.status}`);
+    }
+    return response.json();
+  } catch (e: any) {
+    if (e.message && (e.message.includes('Failed to fetch') || e.message.includes('Network') || e.message.includes('fetch'))) {
+      throw new Error('Erreur de connexion au serveur. Verifiez votre connexion internet.');
+    }
+    throw e;
   }
-  return response.json();
 };

@@ -89,6 +89,9 @@ async def get_contract_prefill(phone: str):
             "postal_code": ben.get("postal_code", ""),
         },
     }
+
+
+@router.post("/auth/forgot-password")
 async def forgot_password(data: dict):
     """Send a password reset code via SMS to the user's phone."""
     import re
