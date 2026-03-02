@@ -296,6 +296,7 @@ export default function ProgramDetailScreen() {
           </>
         )}
       </div>
+      </div>
     </div>
   );
 }
