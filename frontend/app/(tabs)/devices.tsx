@@ -104,13 +104,48 @@ function DeviceManagement({ token }: { token: string }) {
   };
   const closePairing = () => { setPairingDevice(null); setPairingStep(0); setBleStatus('idle'); setBleError(''); };
 
-  /* ── Real BLE scan: Web Bluetooth OR native bridge via postMessage ── */
+  /* ── BLE helpers ── */
+  const readBatteryLevel = async (server: any): Promise<number> => {
+    try {
+      const battSvc = await server.getPrimaryService('battery_service');
+      const battChar = await battSvc.getCharacteristic('battery_level');
+      const val = await battChar.readValue();
+      return val.getUint8(0);
+    } catch { return 0; }
+  };
+
+  const parseBraceletResponse = (dv: DataView) => {
+    const cmd = dv.getUint8(0);
+    const result: Record<string, any> = { cmd };
+    if (cmd === 0x09) {
+      result.steps = dv.getUint8(1) | (dv.getUint8(2) << 8) | (dv.getUint8(3) << 16) | (dv.getUint8(4) << 24);
+      result.calories = ((dv.getUint8(5) | (dv.getUint8(6) << 8) | (dv.getUint8(7) << 16) | (dv.getUint8(8) << 24)) / 100);
+      result.heart_rate = dv.getUint8(13);
+    } else if (cmd === 0x28) {
+      result.heart_rate = dv.getUint8(2);
+      result.spo2 = dv.getUint8(3);
+      result.hrv = dv.getUint8(4);
+      result.stress = dv.getUint8(5);
+      result.systolic = dv.getUint8(6);
+      result.diastolic = dv.getUint8(7);
+      result.temperature = (dv.getUint8(8) | (dv.getUint8(9) << 8)) / 10;
+    } else if (cmd === 0x0D) {
+      result.battery = dv.getUint8(1);
+    }
+    return result;
+  };
+
+  const buildBraceletCmd = (cmd: number, payload: number[] = []) => {
+    const pkt = [cmd, ...payload, ...new Array(14 - payload.length).fill(0)];
+    pkt.push(pkt.reduce((s, b) => s + b, 0) & 0xFF);
+    return new Uint8Array(pkt);
+  };
+
+  /* ── Real BLE scan: Web Bluetooth OR native bridge ── */
   const launchBleScan = async (deviceType: string) => {
     setBleStatus('scanning'); setBleError('');
 
-    // Check if Web Bluetooth is available (Chrome desktop)
     const hasWebBle = Platform.OS === 'web' && 'bluetooth' in navigator;
-    // Check if running inside native WebView (ReactNativeWebView bridge available)
     const hasNativeBridge = typeof (window as any).ReactNativeWebView?.postMessage === 'function';
 
     if (!hasWebBle && !hasNativeBridge) {
@@ -119,35 +154,36 @@ function DeviceManagement({ token }: { token: string }) {
       return;
     }
 
-    // ── Native WebView bridge (iOS/Android app) ──
+    // ── Native WebView bridge ──
     if (hasNativeBridge) {
       setBleError('Recherche de votre appareil...');
-      // Listen for native BLE result
       const handler = async (e: any) => {
         window.removeEventListener('ble_result', handler);
         const detail = e.detail || {};
         if (detail.error) {
           setBleStatus('error'); setBleError(detail.error);
         } else if (detail.success) {
-          // Register device in backend
           await apiFetch('/api/devices/associate', { method: 'POST', body: JSON.stringify({ device_type: deviceType, mac_address: detail.id || '' }) }, token).catch(() => {});
-          await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: {} }) }, token).catch(() => {});
+          const syncData: any = {};
+          if (detail.battery) syncData.battery = detail.battery;
+          await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: syncData }) }, token).catch(() => {});
           setBleStatus('connected'); setBleError('');
-          setBleVitals({ name: detail.name || DEVICE_META[deviceType].name, id: detail.id || '' });
+          setBleVitals({ name: detail.name || DEVICE_META[deviceType].name, id: detail.id || '', battery: detail.battery || 0 });
           fetchDevices();
         }
       };
       window.addEventListener('ble_result', handler);
       (window as any).ReactNativeWebView.postMessage(JSON.stringify({ action: `ble_scan_${deviceType}` }));
-      // Timeout safety
       setTimeout(() => { window.removeEventListener('ble_result', handler); }, 25000);
       return;
     }
 
-    // ── Web Bluetooth (Chrome desktop) ──
+    // ── Web Bluetooth (Chrome) ──
     try {
       const nav = navigator as any;
       const BLE_SVC = '0000fff0-0000-1000-8000-00805f9b34fb';
+      const BLE_NOTIFY = '0000fff6-0000-1000-8000-00805f9b34fb';
+      const BLE_WRITE = '0000fff7-0000-1000-8000-00805f9b34fb';
       const VEST_SVCS = ['0000ffe0-0000-1000-8000-00805f9b34fb','6e400001-b5a3-f393-e0a9-e50e24dcca9e'];
       const opts = deviceType === 'bracelet'
         ? [BLE_SVC,'generic_access','heart_rate','battery_service','0000ffe0-0000-1000-8000-00805f9b34fb','0000ffc0-0000-1000-8000-00805f9b34fb','6e400001-b5a3-f393-e0a9-e50e24dcca9e','0000180d-0000-1000-8000-00805f9b34fb','0000180f-0000-1000-8000-00805f9b34fb']
@@ -155,19 +191,167 @@ function DeviceManagement({ token }: { token: string }) {
       const bd = await nav.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: opts });
       setBleError(`Connexion a ${bd.name || 'appareil'}...`);
       const server = await bd.gatt.connect();
-      let found = false;
-      const tryUuids = deviceType === 'bracelet' ? [BLE_SVC,'0000ffe0-0000-1000-8000-00805f9b34fb','0000ffc0-0000-1000-8000-00805f9b34fb','0000180d-0000-1000-8000-00805f9b34fb'] : VEST_SVCS;
-      for (const uuid of tryUuids) {
-        try { const svc = await server.getPrimaryService(uuid); const chars = await svc.getCharacteristics(); for (const c of chars) { if (c.properties.notify || c.properties.indicate) { await c.startNotifications(); found = true; break; } } if (found) break; } catch {}
+
+      // Read battery
+      const battery = await readBatteryLevel(server);
+
+      // For bracelet: set up data monitoring and send commands
+      const collectedData: Record<string, any> = { battery };
+      if (deviceType === 'bracelet') {
+        // Find notify + write characteristics
+        let notifyChar: any = null, writeChar: any = null;
+        for (const uuid of [BLE_SVC, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb']) {
+          try {
+            const svc = await server.getPrimaryService(uuid);
+            const chars = await svc.getCharacteristics();
+            for (const c of chars) {
+              if ((c.properties.notify || c.properties.indicate) && !notifyChar) notifyChar = c;
+              if ((c.properties.write || c.properties.writeWithoutResponse) && !writeChar) writeChar = c;
+            }
+            if (notifyChar) break;
+          } catch {}
+        }
+        if (notifyChar) {
+          await notifyChar.startNotifications();
+          notifyChar.addEventListener('characteristicvaluechanged', (event: any) => {
+            const parsed = parseBraceletResponse(event.target.value);
+            if (parsed.battery) collectedData.battery = parsed.battery;
+            if (parsed.heart_rate && parsed.heart_rate > 0 && parsed.heart_rate < 255) collectedData.heart_rate = parsed.heart_rate;
+            if (parsed.spo2 && parsed.spo2 > 0) collectedData.spo2 = parsed.spo2;
+            if (parsed.temperature && parsed.temperature > 30) collectedData.temperature = parsed.temperature;
+            if (parsed.steps) collectedData.steps = parsed.steps;
+            if (parsed.systolic) { collectedData.blood_pressure = { systolic: parsed.systolic, diastolic: parsed.diastolic || 0 }; }
+            if (parsed.stress) collectedData.stress_level = parsed.stress;
+            if (parsed.hrv) collectedData.hrv = parsed.hrv;
+            if (parsed.calories) collectedData.calories = parsed.calories;
+            // Push to backend each time
+            apiFetch('/api/bracelet/push', { method: 'POST', body: JSON.stringify({ parsed, raw_hex: '', device_id: bd.id || '' }) }, token).catch(() => {});
+          });
+          // Send commands to read stored data
+          if (writeChar) {
+            const send = async (cmd: number, payload: number[] = []) => { try { await writeChar.writeValue(buildBraceletCmd(cmd, payload)); } catch {} };
+            const now = new Date();
+            await send(0x01, [now.getFullYear() & 0xFF, (now.getFullYear() >> 8) & 0xFF, now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]);
+            setTimeout(() => send(0x0D), 500); // battery
+            setTimeout(() => send(0x52, [0]), 1000); // steps
+            setTimeout(() => send(0x28, [1, 1]), 1500); // HRV/BP
+            setTimeout(() => send(0x28, [3, 1]), 2000); // SpO2
+            setTimeout(() => send(0x09, [1, 1]), 2500); // realtime
+          }
+        }
+      } else {
+        // Vest: just find and start notifications
+        for (const uuid of VEST_SVCS) {
+          try { const svc = await server.getPrimaryService(uuid); const chars = await svc.getCharacteristics(); for (const c of chars) { if (c.properties.notify || c.properties.indicate) { await c.startNotifications(); break; } } break; } catch {}
+        }
       }
+
+      // Register + sync with real data
       await apiFetch('/api/devices/associate', { method: 'POST', body: JSON.stringify({ device_type: deviceType, mac_address: bd.id || '' }) }, token);
-      await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: {} }) }, token).catch(() => {});
+      await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: collectedData }) }, token).catch(() => {});
       setBleStatus('connected'); setBleError('');
-      setBleVitals({ name: bd.name || DEVICE_META[deviceType].name, id: bd.id || '' });
+      setBleVitals({ name: bd.name || DEVICE_META[deviceType].name, id: bd.id || '', battery });
       fetchDevices();
+
+      // Keep collecting data for 30s after connection
+      if (deviceType === 'bracelet') {
+        setTimeout(async () => {
+          if (Object.keys(collectedData).length > 1) {
+            await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: 'bracelet', data: collectedData }) }, token).catch(() => {});
+            fetchDevices();
+          }
+        }, 30000);
+      }
     } catch (e: any) {
       if (e.name === 'NotFoundError' || e.message?.includes('cancelled')) { setBleStatus('idle'); setBleError(''); }
       else { setBleStatus('error'); setBleError(e.message || 'Erreur Bluetooth'); }
+    }
+  };
+
+  /* ── Web Bluetooth Scale (Lefu/QN-Scale) ── */
+  const launchScaleWeighing = async () => {
+    setShowWeighing(false); // close WeighingFlow UI
+    setBleStatus('scanning'); setBleError('');
+    setPairingDevice('scale');
+
+    const hasWebBle = Platform.OS === 'web' && 'bluetooth' in navigator;
+    if (!hasWebBle) {
+      setBleStatus('error'); setBleError('Bluetooth non disponible pour la balance.');
+      return;
+    }
+    try {
+      const nav = navigator as any;
+      const SCALE_SVCS = ['0000fff0-0000-1000-8000-00805f9b34fb', '0000ffe0-0000-1000-8000-00805f9b34fb'];
+      const bd = await nav.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: SCALE_SVCS });
+      setBleError(`Connexion a ${bd.name || 'balance'}...`);
+      const server = await bd.gatt.connect();
+
+      let weightReceived = false;
+      let lastWeight = 0;
+      let lastImpedance = 0;
+
+      // Monitor all services for weight data
+      for (const svcUuid of SCALE_SVCS) {
+        try {
+          const svc = await server.getPrimaryService(svcUuid);
+          const chars = await svc.getCharacteristics();
+          for (const c of chars) {
+            if (c.properties.notify || c.properties.indicate) {
+              await c.startNotifications();
+              c.addEventListener('characteristicvaluechanged', (event: any) => {
+                const dv = event.target.value as DataView;
+                const bytes = new Uint8Array(dv.buffer);
+                if (bytes.length < 4) return;
+                // Parse weight from various byte positions
+                let weight = 0;
+                if (bytes.length >= 17) weight = ((bytes[15] << 8) | bytes[16]) / 100;
+                else if (bytes.length >= 5) weight = ((bytes[3] << 8) | bytes[4]) / 100;
+                else if (bytes.length >= 3) weight = ((bytes[1] << 8) | bytes[2]) / 100;
+                // Fallback: scan all positions
+                if (weight < 2 || weight > 300) {
+                  for (let i = 0; i <= bytes.length - 2; i++) {
+                    const w = ((bytes[i] << 8) | bytes[i + 1]) / 100;
+                    if (w >= 20 && w <= 250) { weight = w; break; }
+                  }
+                }
+                if (weight >= 2 && weight <= 300) {
+                  lastWeight = Math.round(weight * 100) / 100;
+                  // Impedance
+                  if (bytes.length >= 19) {
+                    const imp = (bytes[17] << 8) | bytes[18];
+                    if (imp >= 100 && imp <= 2000) lastImpedance = imp;
+                  }
+                  weightReceived = true;
+                  setBleError(`Poids: ${lastWeight} kg`);
+                }
+              });
+            }
+          }
+        } catch {}
+      }
+
+      // Wait for stable reading (15s)
+      await new Promise(r => setTimeout(r, 15000));
+
+      if (weightReceived && lastWeight > 0) {
+        // Send to backend
+        const res = await apiFetch('/api/devices/scale/ble-measurement', {
+          method: 'POST',
+          body: JSON.stringify({ weight: lastWeight, impedance: lastImpedance }),
+        }, token);
+        // Associate scale
+        await apiFetch('/api/devices/associate', { method: 'POST', body: JSON.stringify({ device_type: 'scale', mac_address: bd.id || '' }) }, token).catch(() => {});
+        setBleStatus('connected'); setBleError('');
+        setBleVitals({ name: bd.name || 'Balance Vita', id: bd.id || '', weight: lastWeight, bmi: res?.bmi || 0, body_fat_pct: res?.body_fat_pct || 0 });
+        fetchDevices();
+      } else {
+        setBleStatus('error'); setBleError('Aucune mesure recue. Montez sur la balance pieds nus.');
+      }
+      // Disconnect
+      try { bd.gatt.disconnect(); } catch {}
+    } catch (e: any) {
+      if (e.name === 'NotFoundError' || e.message?.includes('cancelled')) { setBleStatus('idle'); setBleError(''); setPairingDevice(null); }
+      else { setBleStatus('error'); setBleError(e.message || 'Erreur Bluetooth balance'); }
     }
   };
 
@@ -219,7 +403,7 @@ function DeviceManagement({ token }: { token: string }) {
                       </>}
                       <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
                         {dt === 'bracelet' && <><div data-testid="bracelet-ecg-btn" onClick={() => router.push('/ecg' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#F97316' } as any}><i className="ri-pulse-line" style={{ fontSize: 14 }} />ECG</div></>}
-                        {dt === 'scale' && <><div data-testid="scale-weigh-btn" onClick={() => setShowWeighing(true)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-scales-3-line" style={{ fontSize: 14 }} />Nouvelle pesee</div>{hasWeighings && <div data-testid="scale-history-btn" onClick={() => setSelectedDevice('scale')} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}><i className="ri-history-line" style={{ fontSize: 14 }} />Pesees</div>}</>}
+                        {dt === 'scale' && <><div data-testid="scale-weigh-btn" onClick={() => launchScaleWeighing()} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-scales-3-line" style={{ fontSize: 14 }} />Nouvelle pesee</div>{hasWeighings && <div data-testid="scale-history-btn" onClick={() => setSelectedDevice('scale')} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}><i className="ri-history-line" style={{ fontSize: 14 }} />Pesees</div>}</>}
                         {dt === 'vest' && <div data-testid="vest-status" style={{ flex: 1, padding: '11px 14px', borderRadius: 999, background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-shield-check-line" style={{ fontSize: 14 }} />{realConnected ? 'Protection active' : 'En veille'}</div>}
                         <div data-testid={`detail-${dt}-btn`} onClick={() => setSelectedDevice(dt)} style={{ padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}><i className="ri-information-line" style={{ fontSize: 14 }} /></div>
                       </div>
@@ -248,7 +432,7 @@ function DeviceManagement({ token }: { token: string }) {
             <div style={{ padding: '14px 18px', borderRadius: 16, background: `${meta.color}08`, border: `1px solid ${meta.color}18`, marginBottom: 28, textAlign: 'left' } as any}><div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}><i className="ri-information-line" style={{ fontSize: 16, color: meta.color, flexShrink: 0 }} /><span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{cur.tip}</span></div></div>
             <div style={{ display: 'flex', gap: 10 } as any}>
               {pairingStep > 0 && <div onClick={() => setPairingStep(pairingStep - 1)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Retour</div>}
-              <div onClick={() => { if (!isLast) { setPairingStep(pairingStep + 1); return; } if (pairingDevice === 'scale') { closePairing(); setShowWeighing(true); } else launchBleScan(pairingDevice); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: isLast ? `linear-gradient(135deg, ${meta.color}CC, ${meta.color})` : '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: isLast ? '#FFF' : '#111', boxShadow: isLast ? `0 4px 20px ${meta.color}40` : 'none' } as any}>{isLast ? "Lancer l'appairage" : 'Suivant'}</div>
+              <div onClick={() => { if (!isLast) { setPairingStep(pairingStep + 1); return; } if (pairingDevice === 'scale') { closePairing(); launchScaleWeighing(); } else launchBleScan(pairingDevice); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: isLast ? `linear-gradient(135deg, ${meta.color}CC, ${meta.color})` : '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: isLast ? '#FFF' : '#111', boxShadow: isLast ? `0 4px 20px ${meta.color}40` : 'none' } as any}>{isLast ? "Lancer l'appairage" : 'Suivant'}</div>
             </div>
           </div></GlassOverlay>); })()}
 
@@ -290,8 +474,8 @@ function DeviceManagement({ token }: { token: string }) {
           {device.battery > 0 && <div style={{ padding:'4px 16px',borderRadius:16,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)',marginBottom:16 } as any}><div style={{ fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.3)',textTransform:'uppercase',letterSpacing:0.5,padding:'10px 0 4px' }}>Batterie</div><div style={{ display:'flex',alignItems:'center',gap:10,padding:'12px 0' } as any}><div style={{ flex:1,height:8,borderRadius:4,background:'rgba(255,255,255,0.06)',overflow:'hidden' } as any}><div style={{ height:8,borderRadius:4,width:`${device.battery}%`,background:device.battery>50?'linear-gradient(90deg,#059669,#10B981)':device.battery>25?'linear-gradient(90deg,#D97706,#F59E0B)':'linear-gradient(90deg,#DC2626,#EF4444)' } as any} /></div><span style={{ fontSize:14,fontWeight:900,color:device.battery>50?'#10B981':device.battery>25?'#F59E0B':'#EF4444',minWidth:40,textAlign:'right' }}>{device.battery}%</span></div></div>}
           {selectedDevice === 'scale' && weighings.length > 0 && <div style={{ marginBottom: 16 } as any}><div style={{ fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.3)',textTransform:'uppercase',letterSpacing:1,marginBottom:8 }}>Dernieres pesees</div>{weighings.slice(0,5).map((w: any,i: number) => <div key={i} style={{ display:'flex',alignItems:'center',gap:12,padding:'10px 14px',borderRadius:14,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)',marginBottom:6 } as any}><div style={{ flex:1 } as any}><div style={{ fontSize:16,fontWeight:800,color:'#FFF' }}>{w.weight} kg</div><div style={{ fontSize:10,color:'rgba(255,255,255,0.3)' }}>{new Date(w.timestamp||w.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>{w.bmi>0&&<span style={{ fontSize:11,color:'rgba(255,255,255,0.35)' }}>IMC {w.bmi}</span>}</div>)}</div>}
           <div style={{ display:'flex',gap:8,marginBottom:12 } as any}>
-            {selectedDevice === 'bracelet' && <><div onClick={() => { setSelectedDevice(null); router.push('/ecg' as any); }} style={{ flex:1,padding:'14px',borderRadius:999,background:'rgba(249,115,22,0.1)',border:'1px solid rgba(249,115,22,0.2)',cursor:'pointer',textAlign:'center',fontSize:13,fontWeight:700,color:'#F97316' } as any}><i className="ri-pulse-line" style={{ marginRight:6 }} />ECG</div><div onClick={() => syncDevice('bracelet')} style={{ flex:1,padding:'14px',borderRadius:999,background:`${meta.color}18`,border:`1px solid ${meta.color}30`,cursor:'pointer',textAlign:'center',fontSize:13,fontWeight:700,color:meta.color } as any}><i className="ri-refresh-line" style={{ marginRight:6 }} />Synchroniser</div></>}
-            {selectedDevice === 'scale' && <div onClick={() => { setSelectedDevice(null); setShowWeighing(true); }} style={{ flex:1,padding:'14px',borderRadius:999,background:`${meta.color}18`,border:`1px solid ${meta.color}30`,cursor:'pointer',textAlign:'center',fontSize:13,fontWeight:700,color:meta.color } as any}><i className="ri-scales-3-line" style={{ marginRight:6 }} />Nouvelle pesee</div>}
+            {selectedDevice === 'bracelet' && <><div onClick={() => { setSelectedDevice(null); router.push('/ecg' as any); }} style={{ flex:1,padding:'14px',borderRadius:999,background:'rgba(249,115,22,0.1)',border:'1px solid rgba(249,115,22,0.2)',cursor:'pointer',textAlign:'center',fontSize:13,fontWeight:700,color:'#F97316' } as any}><i className="ri-pulse-line" style={{ marginRight:6 }} />ECG</div><div onClick={() => { setSelectedDevice(null); launchBleScan('bracelet'); }} style={{ flex:1,padding:'14px',borderRadius:999,background:`${meta.color}18`,border:`1px solid ${meta.color}30`,cursor:'pointer',textAlign:'center',fontSize:13,fontWeight:700,color:meta.color } as any}><i className="ri-refresh-line" style={{ marginRight:6 }} />Synchroniser</div></>}
+            {selectedDevice === 'scale' && <div onClick={() => { setSelectedDevice(null); launchScaleWeighing(); }} style={{ flex:1,padding:'14px',borderRadius:999,background:`${meta.color}18`,border:`1px solid ${meta.color}30`,cursor:'pointer',textAlign:'center',fontSize:13,fontWeight:700,color:meta.color } as any}><i className="ri-scales-3-line" style={{ marginRight:6 }} />Nouvelle pesee</div>}
           </div>
           <div onClick={() => removeDevice(device.id)} style={{ padding:'12px',borderRadius:999,background:'rgba(239,68,68,0.06)',border:'1px solid rgba(239,68,68,0.12)',cursor:'pointer',textAlign:'center',fontSize:12,fontWeight:600,color:'rgba(239,68,68,0.5)' } as any}>{removing ? 'Suppression...' : "Supprimer l'appareil"}</div>
           </GlassOverlay>); })()}
