@@ -161,13 +161,20 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
         {/* === TAB: INFO === */}
         {tab === 'info' && (
           <div>
-            {[
-              { icon: 'ri-shield-check-line', label: 'Type', value: isCare ? 'Care — Teleassistance 24/7' : 'Standard — Bracelet Elio' },
-              { icon: 'ri-money-euro-circle-line', label: 'Mensualite', value: isCare ? '39,90 EUR/mois' : '24,90 EUR/mois' },
-              sub?.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone', value: sub.beneficiary_phone },
-              (subData?.start_date || sub?.created_at) && { icon: 'ri-calendar-line', label: 'Souscrit le', value: new Date(subData.start_date || sub.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
-              subData?.source && { icon: 'ri-information-line', label: 'Source', value: subData.source === 'shopify' ? 'Achat en ligne (Shopify)' : subData.source === 'website_contract' ? 'Souscription en ligne' : subData.source === 'manual' ? 'Activation manuelle' : subData.source },
-            ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
+            {(() => {
+              const ct = subData?.contract || {};
+              const planLabel = ct.plan_label || (isCare ? 'Care — Teleassistance 24/7' : 'Standard — Bracelet Elio');
+              const price = ct.price_monthly || (isCare ? 39.90 : 24.90);
+              const priceCredit = ct.price_after_credit;
+              return [
+                { icon: 'ri-shield-check-line', label: 'Formule', value: planLabel },
+                { icon: 'ri-money-euro-circle-line', label: 'Mensualite', value: `${price.toFixed(2).replace('.', ',')} EUR/mois${priceCredit ? ` (${priceCredit.toFixed(2).replace('.', ',')} EUR apres credit d'impot)` : ''}` },
+                ct.contract_number && { icon: 'ri-file-text-line', label: 'N° contrat', value: ct.contract_number },
+                sub?.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone', value: sub.beneficiary_phone },
+                (subData?.start_date || sub?.created_at) && { icon: 'ri-calendar-line', label: 'Souscrit le', value: new Date(subData.start_date || sub.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
+                subData?.source && { icon: 'ri-information-line', label: 'Source', value: subData.source === 'shopify' ? 'Achat en ligne (Shopify)' : subData.source === 'website_contract' ? 'Souscription en ligne' : subData.source === 'manual' ? 'Activation manuelle' : subData.source },
+              ].filter(Boolean);
+            })().map((item: any, i: number, arr: any[]) => (
               <div key={i}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 0' } as any}>
                   <div style={{ width: 34, height: 34, borderRadius: 10, background: `${accent}15`, border: `1px solid ${accent}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, ...glass } as any}>
