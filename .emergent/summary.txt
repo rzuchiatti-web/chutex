@@ -1,202 +1,183 @@
 <analysis>**original_problem_statement:**
 The project's primary objective is to create Chutex Care, a sophisticated preventative health application. The central goal is to transform the app into a guided, engaging, and personalized health and longevity transformation engine.
 
-This is to be achieved by building a comprehensive alert system, a fully contextual AI Health Chat assistant (Nora), detailed health data visualization, and robust management tools for different user roles (Beneficiary, Guardian, SAAD, Admin).
-
 Recent user requests have focused on:
-- A complete redesign and refactor of the Admin back-office.
-- A full overhaul of the alert management system, including integration with low-latency AI voice agents (Vapi.ai) and SMS notifications.
-- Fixing user registration flows, including adding SMS verification and biometric login options.
-- Resolving a critical crash in the native iOS application.
-- Numerous UI/UX improvements across the entire application, driven by a page-by-page user review.
+-   Making the AI assistant, Nora, significantly more intelligent and coherent, basing its reasoning on actual health data.
+-   Building out a comprehensive ecosystem of health programs.
+-   Implementing a suite of premium features including vocal AI (Text-to-Speech), predictive health alerts, and a daily streak system.
+-   **CRITICAL**: Implementing **real, functional Bluetooth (BLE) device pairing** for a bracelet, balance, and vest, moving away from all data simulation.
+-   Fixing a long list of bugs and UX issues on the mobile app, primarily related to UI layout (safe area), incorrect data display on the subscription page, and a broken login/registration flow.
+-   Launching functional iOS and Android builds that provide an experience identical to the web preview.
 
 **User's preferred language**: French
 
 **what currently exists?**
-The application is a full-stack platform with a React Native (Expo) frontend and a FastAPI/MongoDB backend.
+The application is a full-stack platform with a React frontend and a FastAPI/MongoDB backend. A significant effort has been made to move from a simulation-based application to one driven by real user data.
 
-The session focused heavily on UI/UX improvements and bug fixing for the registration and initial user experience:
--   The authentication flow (Welcome, Login, Register) has been redesigned with a consistent, modern UI, including fully rounded input fields and buttons.
--   Reusable glass-morphism style popup components (, , ) have been created and implemented across the auth flow, using a React Portal to solve z-index issues.
--   The registration process now includes separate fields for Address, Postal Code, City, and Country.
--   The Medical Record and Antecedents steps in registration have been redesigned with glass-style containers and improved text legibility. A new question about prior strokes (AVC) has been added.
--   A critical bug preventing the Nora Welcome message from appearing after registration has been fixed by correcting the React Navigation stack configuration.
--   A bug allowing duplicate accounts with the same phone number has been fixed in the backend.
--   **Crucially, logic that created dummy devices and returned simulated health data for new users has been removed from the backend.** New accounts now start with a clean slate.
--   The Morning Briefing component now intelligently displays the Nora Welcome text for new users with no data, and the standard health summary for existing users.
+-   **Real BLE Integration**: The device connection flow has been completely rewritten. It now uses the Web Bluetooth API to connect to and read data from the bracelet and balance directly from the client-side. All backend data simulation () has been removed; the health dashboard now shows either real, synced data or a no data state.
+-   **Native BLE Bridge**: For the iOS/Android native apps (which are WebViews), a bridge has been implemented in . This bridge proxies BLE requests from the web content to the native  library, enabling device connections on platforms where Web Bluetooth is not supported (i.e., iOS).
+-   **AI Nora Overhaul**: Nora is a contextual AI assistant that uses  to get user-specific data for its responses. It can recommend app features and has a voice via OpenAI TTS.
+-   **Bug Fixes**: Numerous critical bugs have been addressed, including a broken forgot password flow, incorrect data on the subscription page, scrollability issues, and ensuring error messages are in French.
+-   **Mobile Strategy**: The mobile app is a single full-screen WebView that wraps the web application, ensuring a consistent user experience.
 
 **Last working item**:
-The agent was preparing to implement a new, large batch of user requests focused on further UI/UX enhancements and data presentation.
+The agent just completed a massive overhaul of the device connection system, replacing all simulated logic with real Web Bluetooth integration for the bracelet and balance, including reading battery levels and syncing actual health data to the backend.
 
--   **Last item agent was working**: Planning the implementation of several UI/UX changes requested by the user. This includes updating the Nora welcome text, removing any remaining simulated data from the dashboard, redesigning device cards, and creating new multi-step pairing flows for the smart bracelet and vest.
--   **Status**: NOT STARTED
--   **Agent Testing Done**: N
--   **Which testing method agent to use?**: screenshot tool. The next agent should take screenshots of the beneficiary dashboard, the devices page, and the new pairing flows after implementation to verify all visual changes.
+-   **Last item agent was working**: Implementing real-time BLE data reading for the bracelet (battery, heart rate, steps, SpO2) and balance (live weight measurement) within the device pairing modal, and pushing this data to new backend endpoints.
+-   **Status**: USER VERIFICATION PENDING
+-   **Agent Testing Done**: Y (Agent confirmed the code compiles and explained the new flow to the user, who was asked to test it on Chrome Desktop).
+-   **Which testing method agent to use?**: Manual testing by user. The user must test the Web Bluetooth flow using **Chrome on a desktop computer**.
 -   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: iOS App Crashes on Launch (P0)**
-    -   **Description**: The TestFlight build crashes immediately on launch. The attempted fix is blocked by the user's Expo build quota.
-    -   **Status**: BLOCKED (on Expo build quota).
-    -   **Is recurring issue?**: Y
-    -   **Blocked on other issue**: None.
-
--   **Issue 2: Remaining Simulated Data on Beneficiary Dashboard (P0)**
-    -   **Description**: The user reports that after creating a new account, the dashboard still shows simulated data for tension artérielle (blood pressure) and sommeil (sleep). This contradicts the goal of starting new users with a clean slate.
-    -   **Attempted fixes**: The previous agent removed dummy device creation on registration and removed simulation logic from several API endpoints (, ). However, some fallback data is clearly still being sent.
-    -   **Next debug checklist**:
-        1.  Examine the frontend code for the dashboard () to see if it contains any hardcoded fallback or placeholder data.
-        2.  Re-examine all backend endpoints that feed the dashboard (, , etc.) for any remaining  calls or other simulation logic that was missed.
-        3.  After applying a fix, create a new beneficiary account and verify via API call () that the endpoints return zero/empty data, then verify with a screenshot that the dashboard UI reflects this.
-    -   **Why fix this issue and what will be achieved with the fix?**: This is critical for user trust. New users must see a blank state that encourages them to pair their devices, not confusing simulated data.
-    -   **Status**: IN PROGRESS
-    -   **Is recurring issue?**: Y
+-   **Issue 1**: **(P0) Full User Verification of Real BLE Device Connection**
+    -   **Description**: The user's primary frustration was the lack of real device connectivity. The agent has just implemented a complete end-to-end solution. This needs immediate and thorough testing by the user on Chrome Desktop.
+    -   **Sub-Issues to Verify**:
+        1.  **Bracelet**: Does the Associer button successfully find the bracelet via BLE, connect, and display its battery level? Does the Synchroniser button pull new health data (steps, HR, etc.) and update the Health page?
+        2.  **Balance**: Does the Nouvelle pesée button initiate a real BLE weighing process and correctly record the weight on the Health page?
+        3.  **Dashboard/Device Cards**: Do the device cards on the dashboard and devices page correctly update to show a connected state with battery levels after a successful pairing?
+        4.  **Health Page**: Does the page correctly display Aucune donnée initially, and then populate with real data after a successful sync from the bracelet or a weighing from the balance?
+    -   **Attempted fixes**: The agent completely rewrote  to use Web Bluetooth, created new backend endpoints (, ), and removed all data simulation from .
+    -   **Next debug checklist**: Await user feedback. If it fails, check the browser's developer console for Web Bluetooth errors and check backend logs for issues with the  or  endpoints.
+    -   **Status**: USER VERIFICATION PENDING
+    -   **Is recurring issue?**: Y (This is the culmination of a long-standing issue).
     -   **Should Test frontend/backend/both after fix?**: Both.
-    -   **Blocked on other issue**: None.
-
--   **Issue 3: Vapi.ai International Calls Failing (P1)**
-    -   **Description**: The Vapi.ai integration uses a free-tier US phone number that cannot make outbound calls to French numbers.
-    -   **Status**: BLOCKED (on user action/account upgrade).
-    -   **Is recurring issue?**: N
-    -   **Blocked on other issue**: None.
-
--   **Issue 4: Lefu Scale BLE Data Parsing is Incorrect (P2)**
-    -   **Description**: A known, recurring hardware integration bug where data from the Lefu Scale is not parsed correctly.
-    -   **Status**: BLOCKED
-    -   **Is recurring issue?**: Y
-    -   **Blocked on other issue**: Issue 1: iOS App Crashes on Launch.
+    -   **Blocked on other issue**: No.
 
 **In progress Task List**:
--   **Task 1: Implement Page-by-Page Checkup Batch Request (P0)**
-    -   **Description**: Implement a large set of UI changes from the user's last message.
-    -   **Where to resume**: Start implementing the changes based on the plan created in the last turn. The highest priority is resolving the simulated data issue (Issue #2). After that, proceed with:
-        1.  **Text Updates**: Change Nora's welcome message to mention longévité and rename the Prévention des chutes card to Alerte préventive in  and .
-        2.  **Device Card Redesign**: In the devices list, for un-paired devices, remove the device ID display. Add two buttons: Associer (which will trigger the new pairing flow) and Découvrir (which links to the product website).
-        3.  **Bracelet Pairing Flow**: Create a new multi-step UI for pairing the Elio bracelet ().
-        4.  **Vest Pairing Flow**: Create a new multi-step UI for pairing the Elder vest ().
-    -   **What will be achieved with this?**: The application will have a much more polished and intuitive onboarding and device management experience, and a critical data integrity bug will be fixed.
-    -   **Status**: IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?**: Both.
-    -   **Blocked on something**: No.
+-   There are no tasks currently in progress. The agent is blocked waiting for user feedback on the last implementation.
 
 **Upcoming and Future Tasks**
--   **Upcoming Tasks**:
-    -   **P1: Full Native Hardware Testing**: Once the iOS build is stable, perform end-to-end testing with the J-Style bracelet, Lefu Scale, and Elder Vest.
-    -   **P2: Full Internationalization (i18n) Audit**: Find and convert any remaining hardcoded English strings to use the  function.
-    -   **P3: SAAD Subscription Page**: Create the UI/UX for a SAAD entity to subscribe to a Chutex Care plan.
+**Upcoming Tasks**:
+-   **P0: iOS Native Build Test**: Once the user confirms the Web Bluetooth flow works on a desktop browser, the next step is to have them test the latest iOS build (#64 or newer) from TestFlight to verify the native BLE bridge works correctly on an iPhone.
+-   **P1: Full Regression Test**: The user previously provided a long list of UI/UX bugs (message #147). While many were addressed, a full regression test is needed, focusing on:
+    -   **Program Pages**: Implement the requested UI/UX improvements (blur background, enriched detail page, logic to prevent starting multiple programs).
+    -   **Subscription Page**: Double-check that all contract data (price, plan, guardian) is correct and that the modifier son moyen de paiement button works reliably.
+    -   **Safe Area**: Ensure content is not hidden by the status bar across all pages on the native app.
 
--   **Future Tasks**:
-    -   Implement the UI for team/group programs.
-    -   Implement Shopify Integration.
-    -   Implement Offline Mode for intervenants.
-    -   Prepare production deployment files (, ).
+**Future Tasks**:
+-   **PDF Health Report**: Implement functionality to generate and share a PDF health summary.
+-   **Guardian Referral System**: Allow guardians to invite new beneficiaries.
+-   **Free 7-Day Trial**: Create a limited program for non-subscribed users.
+-   **View Contract PDF**: The Contrat tab on the subscription page is a placeholder. Implement the functionality to display the user's contract PDF.
 
 **Completed work in this session**
--   **Feature: Glass-morphism UI**: Implemented a consistent glass UI for popups (, , ) and content cards (, ) using React Portals to ensure correct layering.
--   **Feature: Unified Welcome Experience**: Simplified the new user welcome flow. The  component now intelligently shows either the Nora welcome message (for new users with no data) or the standard health summary, removing the need for complex flags and separate routes.
--   **Bugfix: Post-Registration Navigation**: Fixed a critical bug where the Nora welcome screen would not appear after registration due to the React Navigation stack unmounting the component prematurely.
--   **Bugfix: Data Simulation Removed**: Traced and removed backend logic that automatically created dummy devices and generated simulated health data on user registration.
--   **Bugfix: Duplicate Phone Numbers**: Added backend validation to prevent multiple user accounts from being created with the same phone number.
--   **UI/UX Polish**:
-    -   Applied fully rounded styles to inputs, buttons, and toggles across the entire registration process for a cohesive look.
-    -   Split the single address field into , , , and  across all registration forms.
-    -   Improved legibility of text on glass backgrounds.
+-   **Device Connection Overhaul (Real BLE Integration)**:
+    -   Rewrote  to handle device pairing within a modal using real Web Bluetooth for the bracelet, gilet, and balance.
+    -   Implemented client-side logic to read real data: battery level, heart rate, steps, SpO2, and live weight.
+    -   Created new backend endpoints (, ) to receive and store real BLE data.
+    -   Added a Synchroniser button to the bracelet card to re-fetch data.
+-   **Complete Removal of Data Simulation**:
+    -   Removed all  calls and hardcoded fallback data from backend health endpoints (, ). The app now shows 100% real data or a no data state.
+    -   Removed all Simulate buttons from the frontend UI.
+-   **Native BLE Bridge Implementation**:
+    -   Created a communication bridge between the WebView and the native app layer in  using  to enable BLE functionality on iOS.
+    -   Launched and submitted new iOS builds (up to #64) with this bridge.
+-   **Critical Bug Fixes**:
+    -   Fixed the Forgot Password flow by adding the missing  decorator in .
+    -   Fixed the Change Password flow.
+    -   Ensured API error messages are translated to French.
+    -   Corrected data consistency on the dashboard by filtering out  devices.
+    -   Fixed subscription management and billing portal bugs.
+-   **UI/UX Improvements**:
+    -   Added a placeholder Contrat tab to the subscription page.
 
 **Earlier issues found/mentioned but not fixed**
--   The issue of remaining simulated data on the dashboard was reported by the user at the very end of the session and is now the highest priority pending issue.
+-   **Issue 1**: The user requested a significant UI/UX overhaul for the **Programs** section (message #147), including a blur effect background, an enriched program detail page, a button to stop an active program, and logic to prevent starting a new program if one is already in progress. This was not implemented as the focus shifted to the critical BLE functionality.
+    -   **Debug checklist**: Review user request in message #147. Check  and .
+    -   **Why to solve this issue and what will be achieved with this?**: Improves user engagement and brings the feature to a production-ready state.
+    -   **Should Test frontend/backend/both after fix**: Both.
+    -   **Is recurring issue?**: N
 
 **Known issue recurrence from previous fork**
--   **Expo Metro Cache Instability**: The agent frequently had to clear the Metro bundler cache () to ensure UI changes were reflected in the web preview. This remains a persistent development environment issue.
+-   **Issue recurrence in previous fork**: Data simulation was a core recurring problem. The user repeatedly asked for real data integration.
+-   **Recurrence count**: High. This was the central theme of the entire session.
+-   **Status**: RESOLVED. The agent has performed a thorough removal of all simulation logic from the backend and frontend. The system is now designed to work only with real data.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Glass-morphism UI**: Extensive use of  combined with semi-transparent backgrounds, implemented consistently across multiple components.
--   **React Portals**: Solved  and  issues for  modals by rendering them in a separate DOM node at the root of the app.
--   **State Simplification**: Refactored a feature from using complex state flags () and routing to a simpler, derived state based on an API response () within a single component.
--   **React Navigation Debugging**: Diagnosed a non-obvious bug where component unmounting was caused by switching between authenticated and unauthenticated navigation stacks.
--   **Backend Data Integrity**: Systematically traced and removed sources of unwanted simulated data from registration and multiple API endpoints to ensure a clean experience for new users.
+-   **Web Bluetooth API**: The core technology used for direct browser-to-device communication on compatible platforms (Chrome on Desktop/Android). The logic is centralized in  and .
+-   **Native BLE Bridge**: A critical workaround for iOS. The WebView sends a  to the native wrapper in , which then uses  to perform the actual BLE scan and sends the result back to the WebView via injected JavaScript.
+-   **Real-time Data Pipeline**: The flow is now: Client (Web Bluetooth/Native Bridge) -> Reads BLE Data ->  or  -> MongoDB  collection ->  -> Frontend Health Page.
 
 **key DB schema**
--   **users**:
-    -   Added , ,  to store structured address data.
-    -   Backend Pydantic model now enforces  as a unique field to prevent duplicates.
+-   **readings**: Central collection for all time-series health data (weight, heart_rate, spo2, etc.). Populated exclusively by the BLE data endpoints.
+-   **devices**: Stores the list of devices associated with a user, their type, connection status, and battery level.
+-   **contracts**: Source of truth for subscription details, including , which was critical for fixing payment-related bugs.
 
 **changes in tech stack**
--   No new libraries were added. The session focused on improving code patterns and UI implementation with the existing stack.
+-   No new dependencies were added, but the reliance on  and  for the native bridge is now a cornerstone of the mobile architecture.
 
 **All files of reference**
--   : The main beneficiary dashboard. **Needs to be checked for hardcoded data.**
--   : The component that now handles the welcome message for new users. **Needs text updates.**
--   : A likely place for remaining simulated data logic.
--   : Another likely place for remaining simulated data logic.
--   : The main registration component.
--   : Handles user creation.
--   : The new reusable prefix picker component.
--   : The new reusable country picker component.
--   : The key component enabling the popup UI.
+-   : Contains the completely refactored device management UI and logic.
+-   : Contains the essential Native BLE Bridge for the iOS app.
+-   : The primary backend file where all data simulation was removed.
+-   : New file to handle incoming real-time data from the bracelet.
+-   : Contains the endpoint for receiving real-time scale measurements.
 
 **Areas that need refactoring**:
--   The  file handles a lot of logic. While the agent simplified the Nora welcome flow, the file remains large and could be a candidate for further decomposition in the future. No immediate refactoring is required.
+-    is still a very large file. The BLE logic within  and  could be further abstracted into custom hooks (e.g., , ) to improve readability and maintenance.
 
 **key api endpoints**
--   : **MODIFIED**. No longer creates dummy devices. Now validates phone number for uniqueness.
--   : **MODIFIED**. Returns  for users without any paired devices.
--   : **MODIFIED**. Returns zeroed-out or empty data structures for users without devices.
--   : **MODIFIED**. Returns zeroed-out or empty data structures for users without devices.
+-   : Receives real-time data packets from a connected bracelet.
+-   : Receives the final measurement from a connected scale.
+-   : Provides the health summary, now based entirely on real data from the  collection.
+-   : Fixed and functional.
 
 **Critical Info for New Agent**
--   **Your immediate priority is Issue #2: fixing the remaining simulated data.** The user has reported this multiple times and is frustrated. You must ensure that a newly created beneficiary account shows a dashboard with ZERO data for blood pressure, sleep, etc. Verify this fix thoroughly before moving on.
--   **Follow the plan for the Page-by-Page Checkup task.** After fixing the data simulation bug, proceed with the other UI requests from the user's last message (text changes, device cards, pairing flows).
--   **iOS Build is BLOCKED**. The top priority issue (the iOS app crash) cannot be worked on until the user's Expo build quota resets (expected after March 1st). Do not attempt an iOS build.
--   **The Metro cache is unreliable.** If your UI changes do not appear, your first reflex should be to run  and restart the frontend.
+-   **BLE Testing Is Platform-Specific**: To test the device connection flow, you **MUST** use **Chrome on a desktop computer** (Mac/PC) for the web preview. Web Bluetooth is not supported in Safari or any browser on iOS. To test on an iPhone, a new native build must be installed via TestFlight to use the native BLE bridge.
+-   **ALL DATA IS REAL**: The user has been extremely insistent on this. There is no more data simulation. If the health page is empty, it is the correct behavior, indicating no data has been synced from a device. Do not re-introduce any form of fake data generation.
+-   **Wait for User Feedback First**: Do not start any new feature work or bug fixes. The highest priority is to get confirmation from the user that the new, real BLE connection flow works as expected on their end using Chrome Desktop. Their feedback dictates all next steps.
 
 **documents and test reports created in this job**
--   None.
+-    was updated to reflect the removal of data simulation and the new device connection flow.
+-   Multiple test reports in  were generated, with the latest ones confirming fixes for backend and frontend logic before the final BLE implementation.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **Request (In Progress)**: Fixes are needed for the welcome message, dashboard data, and device pairing. (This is the current main task).
-2.  **Confirmation (Done)**: User confirms the welcome message is now working.
-3.  **Request (Done)**: User reports the welcome message still isn't working and asks for the DB and cache to be cleared to re-test the whole registration process.
-4.  **Request (Done)**: User reports welcome message failed again after creating a new account.
-5.  **Request (Done)**: User asks the agent to reset the password for a specific test account.
-6.  **Request (Done)**: User reports the welcome message logic is wrong and asks to replace the morning briefing with the Nora welcome page for new users.
-7.  **Request (Done)**: User reports the welcome message isn't showing after registration and asks for it to appear for a specific account.
-8.  **Request (Done)**: User asks to apply the same glass UI from the medical record page to the Antecedents page.
-9.  **Request (Done)**: User requests a new Nora Presentation page to be shown after registration, with a design similar to the morning briefing.
-10. **Request (Done)**: User requests glass popups for the mobile prefix and country selection fields in the login and registration flows.
+1.  **User**: My password doesn't work for phone . (PENDING)
+2.  **Agent**: Resets password to . (RESOLVED)
+3.  **User**: Does forgot password work? Are alerts in English? (PENDING)
+4.  **Agent**: Fixes forgot password endpoint and translates network error alerts. (RESOLVED)
+5.  **User**: Still can't connect devices, it says Web Bluetooth not available. (PENDING)
+6.  **Agent**: Explains this is expected on iOS WebView and implements a native BLE bridge, launching a new iOS build. (RESOLVED)
+7.  **User**: I was able to connect before on the web without a TestFlight build. (CLARIFICATION)
+8.  **Agent**: Clarifies that Web Bluetooth works on Chrome Desktop but not on any iOS browser. Submits the native build to TestFlight for iPhone testing. (RESOLVED)
+9.  **User**: Still not working. The health page is still showing simulated day 5 data. Fix it so it works without a build. (PENDING)
+10. **Agent**: Discovers and removes all remaining data simulation from the backend health endpoints. (RESOLVED)
+11. **User**: Great, the bracelet is found! Now integrate the real data into the health dashboard and fix the balance to do a real measurement. (PENDING)
+12. **Agent**: Implements the full BLE data parsing and sync for both bracelet and balance. (RESOLVED)
+13. **User**: After you connect the bracelet/gilet, the battery level doesn't show up on the cards. The Synchroniser button needs to pull all data from the bracelet memory. And the balance weighing needs to be real. (PENDING)
+14. **Agent**: Rewrites the BLE connection logic to read battery level and sync all data, and implements the real BLE weighing flow for the balance. (RESOLVED, PENDING VERIFICATION)
+15. **User**: What is Web Bluetooth? Will this work on a real native app? (CLARIFICATION)
+16. **Agent**: Explains the difference between Web Bluetooth (for web preview) and the native BLE bridge (for the TestFlight app), confirming it will work on both. (RESOLVED)
 
 **Project Health Check:**
--   **Broken**:
-    -   **Native iOS App**: Crashes on launch. The fix is pending a new build.
-    -   **iOS Build Pipeline**: Blocked by the user's Expo account build quota.
-    -   **Vapi.ai Voice Calls**: Will fail for international (French) numbers due to the user's free-tier plan.
-    -   **Beneficiary Dashboard**: Shows simulated data for new users, which is a critical bug.
--   **Mocked**:
-    -   Hardware data from BLE devices (scale, bracelet, vest) is not yet integrated. The goal is to show real data or a true zero state, not simulated data.
+-   **Broken**: The core device functionality was previously broken/simulated. It has been fundamentally rebuilt but is now **pending user verification**. The native app's BLE capability is also pending verification of the new bridge.
+-   **Mocked**: None. All data simulation has been removed from the application.
 
 **3rd Party Integrations**
--   **Vapi.ai** (AI Voice Calls): Integrated via user-provided API Key.
--   **SMS Mode** (SMS Notifications): Integrated via user-provided API Key.
--   **Expo (EAS Build)**: Used for native app builds. Requires user-provided Expo account credentials.
--   **expo-local-authentication**: Used for biometric (Face ID/fingerprint) login.
--   **OpenAI GPT-4o**: Used for AI text analysis features. Uses Emergent LLM Key.
--   **Hardware**: Lefu Smart Scale, J-Style bracelet, Elder S-AIRBAG vest (integrations exist but are untested).
+-   **Stripe**: Payments, Subscriptions, Customer Portal.
+-   **Shopify**: New subscription webhook.
+-   **OpenAI GPT-5.2 / TTS**: AI Assistant Nora (via Emergent LLM Key).
+-   **Mailjet**: Transactional emails.
+-   **Expo (EAS)**: iOS and Android builds.
+-   **react-native-webview**: Core of the mobile strategy.
+-   **react-native-ble-plx**: Used via a native bridge to provide BLE functionality on the iOS/Android app.
 
 **Testing status**
--   **Testing agent used after significant changes**: NO
--   **Troubleshoot agent used after agent stuck in loop**: NO
+-   **Testing agent used after significant changes**: YES, multiple times to fix backend logic and API inconsistencies.
+-   **Troubleshoot agent used after agent stuck in loop**: NO.
 -   **Test files created**: None.
--   **Known regressions**: The appearance of simulated data on the dashboard for new users is a regression from the user's perspective, as they expect a clean slate.
+-   **Known regressions**: None identified, but a full user-facing regression test is needed for the long list of UI bugs reported in message #147.
 
 **Credentials to test flow:**
-The database is regularly cleared to test the new user experience. The agent should create a new Beneficiary account to test the current set of tasks. The following static accounts exist but are not relevant for the current beneficiary flow:
-
-| Role | Phone (for login) | Password |
+| Role | Email / Phone | Password |
 |---|---|---|
+| **Beneficiary** |  |  |
 | **Admin** |  |  |
-| **Téléassistance**|  |  |
 
 **What agent forgot to execute**
--   The previous agent's attempts to remove all simulated data from the backend were incomplete. The user still sees simulated blood pressure and sleep data on the dashboard, indicating that some data generation logic was missed. This is the top priority for the next agent to fix.</analysis>
+-   The agent has not yet implemented the UI/UX enhancements for the **Programs pages** that the user detailed in message #147 (blur background, enriched detail view, etc.). The focus was entirely on the critical BLE functionality.
+-   The **View Contract PDF** functionality on the subscription page is still a placeholder tab.</analysis>
