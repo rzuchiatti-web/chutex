@@ -83,8 +83,11 @@ export default function ProgramDetailScreen() {
   };
 
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: "'Inter', system-ui, sans-serif", background: '#0a0f1a', overflowY: 'auto' } as any}>
-      <div style={{ maxWidth: 420, margin: '0 auto', padding: '20px 20px 100px' } as any}>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
+      <img src={BG_IMAGES.beneficiary} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
+      <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+      <div style={{ maxWidth: 420, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 44px) + 10px) 20px 100px' } as any}>
         {/* Back */}
         <div onClick={() => step > 0 && step !== 2 ? setStep(step - 1) : step === 2 ? router.replace('/programs' as any) : router.back()} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 20 } as any}>
           <i className={step === 2 ? "ri-close-line" : "ri-arrow-left-line"} style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
