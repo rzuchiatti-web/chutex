@@ -97,7 +97,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                 <div style={{ fontSize: 16, fontWeight: 900, color: '#F59E0B', fontFamily: 'monospace', letterSpacing: 1 }}>{user.activation_code || '--'}</div>
                 <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>A partager avec vos gardiens</div>
               </div>
-              {user.activation_code && <div onClick={() => { navigator.clipboard?.writeText(user.activation_code); }} style={{ width: 38, borderRadius: 12, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-file-copy-line" style={{ fontSize: 16, color: '#F59E0B' }} /></div>}
+              
             </div>
             <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(139,92,246,0.15)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', display: 'flex', alignItems: 'stretch', gap: 10 } as any}>
               <div style={{ flex: 1 } as any}>
@@ -108,7 +108,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                 <div style={{ fontSize: 16, fontWeight: 900, color: '#8B5CF6', fontFamily: 'monospace', letterSpacing: 1 }}>{user.intervention_code || '--'}</div>
                 <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Pour l'espace intervenant Care</div>
               </div>
-              {user.intervention_code && <div onClick={() => { navigator.clipboard?.writeText(user.intervention_code); }} style={{ width: 38, borderRadius: 12, background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-file-copy-line" style={{ fontSize: 16, color: '#8B5CF6' }} /></div>}
+              
             </div>
           </div>
 
