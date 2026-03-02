@@ -38,6 +38,32 @@ async def get_my_subscription(user=Depends(get_current_user)):
                     {"$set": {"beneficiary_id": user['id'], "updated_at": datetime.now(timezone.utc).isoformat()}}
                 )
                 sub['beneficiary_id'] = user['id']
+    # Enrich with contract data if available
+    contract = None
+    if sub and sub.get('contract_id'):
+        contract = await db.contracts.find_one({"id": sub['contract_id']}, {"_id": 0})
+    elif sub:
+        # Try to find contract by phone
+        phone = user.get('phone', '')
+        if phone:
+            contract = await db.contracts.find_one({"beneficiary.phone": phone, "status": "active"}, {"_id": 0})
+            if not contract:
+                contract = await db.contracts.find_one({"beneficiary.phone": normalize_phone(phone), "status": "active"}, {"_id": 0})
+
+    contract_info = {}
+    if contract:
+        contract_info = {
+            "contract_number": contract.get("contract_number", ""),
+            "plan": contract.get("plan", ""),
+            "plan_label": contract.get("plan_label", ""),
+            "price_monthly": contract.get("price_monthly", 0),
+            "price_after_credit": contract.get("price_after_credit", 0),
+            "housing": contract.get("housing", {}),
+            "delivery": contract.get("delivery", {}),
+            "contract_guardians": contract.get("guardians", []),
+            "stripe_subscription_id": contract.get("stripe_subscription_id", ""),
+        }
+
     return {
         "has_subscription": sub is not None,
         "subscription": sub,
@@ -46,6 +72,7 @@ async def get_my_subscription(user=Depends(get_current_user)):
         "has_teleassistance": sub.get('subscription_type') in ('care', 'bracelet_gilet') if sub else False,
         "start_date": sub.get('start_date') or sub.get('created_at') if sub else None,
         "source": sub.get('source') if sub else None,
+        "contract": contract_info,
     }
 
 
