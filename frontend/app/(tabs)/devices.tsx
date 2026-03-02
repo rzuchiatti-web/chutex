@@ -94,20 +94,19 @@ function DeviceManagement({ token }: { token: string }) {
         {/* Content */}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
 
-          {/* Product cards — sorted: associated first */}
-          {[...devices].sort((a, b) => {
-            const aActive = (a.device_type === 'vest' ? vestStatus?.connected : a.device_type === 'bracelet' ? braceletStatus?.connected : a.connected) || a.battery > 0;
-            const bActive = (b.device_type === 'vest' ? vestStatus?.connected : b.device_type === 'bracelet' ? braceletStatus?.connected : b.connected) || b.battery > 0;
-            return (bActive ? 1 : 0) - (aActive ? 1 : 0);
-          }).map((device) => {
-            const isVest = device.device_type === 'vest';
-            const isBracelet = device.device_type === 'bracelet';
-            const vestConnected = isVest && vestStatus?.connected;
-            const braceletConnected = isBracelet && braceletStatus?.connected;
-            const realBattery = isVest ? (vestStatus?.battery || device.battery) : isBracelet ? (braceletStatus?.battery || device.battery) : device.battery;
-            const realConnected = isVest ? vestConnected : isBracelet ? braceletConnected : device.connected;
-            const needsSub = isBracelet && !subscription?.can_use_bracelet;
-            const isAssociated = realConnected || realBattery > 0;
+          {/* Product cards — always show all 3 devices, even if not paired yet */}
+          {(() => {
+            const allTypes = ['bracelet', 'scale', 'vest'];
+            const deviceMap: Record<string, any> = {};
+            devices.forEach(d => { deviceMap[d.device_type] = d; });
+            return allTypes.map(dt => {
+              const device = deviceMap[dt];
+              const isVest = dt === 'vest';
+              const isBracelet = dt === 'bracelet';
+              const realBattery = device ? (isVest ? (vestStatus?.battery || device.battery) : isBracelet ? (braceletStatus?.battery || device.battery) : device.battery) : 0;
+              const realConnected = device ? (isVest ? vestStatus?.connected : isBracelet ? braceletStatus?.connected : device.connected) : false;
+              const needsSub = isBracelet && !subscription?.can_use_bracelet;
+              const isAssociated = device && (realConnected || realBattery > 0);
 
             return (
               <div key={device.id} data-testid={`device-card-${device.device_type}`} style={{
