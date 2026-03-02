@@ -114,6 +114,14 @@ async def build_nora_context(user: dict) -> dict:
     if not sub or sub.get("status") != "active":
         recs.append("RECOMMANDER_ABONNEMENT: L'utilisateur n'a pas d'abonnement actif. Explique les offres : Standard (Bracelet Elio, 24.90EUR/mois) pour le suivi sante, ou Care (39.90EUR/mois) pour la teleassistance 24/7.")
 
+    # No scale → recommend for complete body analysis
+    if not ctx["has_scale"]:
+        recs.append("RECOMMANDER_BALANCE: L'utilisateur n'a pas de balance connectee. Recommande la Balance Vita (8 electrodes) pour une analyse complete de la composition corporelle (poids, masse grasse, masse musculaire, hydratation, age corporel).")
+
+    # No bracelet
+    if not ctx["has_bracelet"]:
+        recs.append("RECOMMANDER_BRACELET: L'utilisateur n'a pas de bracelet Elio. C'est l'appareil principal pour le suivi cardiaque, SpO2, sommeil, activite et temperature.")
+
     # No active program and has data → recommend starting one
     if not ctx["active_program"] and ctx["has_any_data"]:
         recs.append("RECOMMANDER_PROGRAMME: L'utilisateur n'a pas de programme actif. Selon ses donnees, propose un programme adapte : '21 jours pour mieux dormir' (sommeil), '14 jours pour stabiliser sa tension' (cardiovasculaire), ou '30 jours pour bouger plus' (activite).")
