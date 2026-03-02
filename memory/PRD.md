@@ -17,23 +17,24 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
-### Mar 2, 2026 - Refactoring Page Dispositifs + Correctifs Critiques
-**Correctifs:**
+### Mar 2, 2026 - Refactoring Page Dispositifs + Appairage BLE Reel
+**Correctifs critiques:**
 - Corrige erreur login `Invalid salt` - reinitialisation des comptes admin/test
-- Nouveau endpoint `POST /api/devices/associate` : cree un nouvel appareil pour l'utilisateur (verifie abonnement pour bracelet)
-- `GET /api/devices` filtre maintenant les appareils supprimes (`removed: true`)
-- `DeviceCards.tsx` (dashboard) utilise maintenant `/api/devices/associate` au lieu de scan vide
+- Endpoint `POST /api/devices/associate` ne genere plus de fausses donnees (connected=false, battery=0)
+- `GET /api/devices` filtre les appareils supprimes
 
 **Refactoring page dispositifs (`devices.tsx`):**
-- Integration du flux d'appairage etape par etape (pairing flow) directement dans la page Dispositifs
-- Configuration des etapes pour chaque appareil (BRACELET_STEPS, VEST_STEPS, SCALE_STEPS)
-- Composant `GlassOverlay` reutilisable pour les popups
-- Bouton "Associer" lance le flux d'appairage guide au lieu d'appeler directement `sync`
-- Animation de scan Bluetooth avec feedback visuel
-- Popup de succes "Appareil associe !" apres association reussie
-- Popup de detail d'appareil avec batterie, derniere synchro, option supprimer
-- Boutons Synchroniser et Details pour les appareils deja associes
-- Popup abonnement requis pour le bracelet sans abonnement
+- Bouton "Associer" → flux d'appairage guide etape par etape → "Lancer l'appairage" redirige vers la VRAIE page BLE:
+  - Bracelet → `/bracelet-connect` (Web Bluetooth / react-native-ble-plx)
+  - Gilet Elder → `/vest-connect` (BLE reel)
+  - Balance Vita → `/scale-detail` (pesee BLE reelle)
+- Bracelet associe : boutons "ECG" (→ `/ecg`) et "Connexion" (→ `/bracelet-connect`)
+- Balance associee : bouton "Nouvelle pesee" (→ `/scale-detail`)
+- Gilet associe : bouton "Connexion" (→ `/vest-connect`)
+- PAS de header collant — le titre scrolle avec le contenu
+- Bouton "Supprimer" UNIQUEMENT dans le popup details glass (pas sur la carte)
+- Plus aucune donnee simulee — tout passe par le vrai BLE
+- Dashboard `DeviceCards.tsx` redirige aussi vers les pages BLE reelles
 
 ### Mar 1, 2026 - 10 Programmes de Prevention Scientifiques
 **10 programmes complets bases sur des etudes scientifiques:**
