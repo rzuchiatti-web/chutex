@@ -108,10 +108,10 @@ async def associate_device(data: dict, user=Depends(get_current_user)):
         {"user_id": uid, "device_type": device_type, "removed": {"$ne": True}}, {"_id": 0}
     )
     if existing:
-        # Re-activate
+        # Re-activate (keep real battery/connected state, just mark as non-removed)
         await db.devices.update_one(
             {"user_id": uid, "device_type": device_type, "removed": {"$ne": True}},
-            {"$set": {"connected": True, "battery": random.randint(60, 95), "last_sync": datetime.now(timezone.utc).isoformat()}}
+            {"$set": {"last_sync": datetime.now(timezone.utc).isoformat()}}
         )
         updated = await db.devices.find_one(
             {"user_id": uid, "device_type": device_type, "removed": {"$ne": True}}, {"_id": 0}
@@ -166,9 +166,9 @@ async def get_latest_readings(user=Depends(get_current_user)):
 async def get_dashboard_summary(user=Depends(get_current_user)):
     """Device summary using REAL data from device_readings. No simulation."""
     uid = user['id']
-    bracelet_dev = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
-    scale_dev = await db.devices.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0})
-    vest_dev = await db.devices.find_one({"user_id": uid, "device_type": "vest"}, {"_id": 0})
+    bracelet_dev = await db.devices.find_one({"user_id": uid, "device_type": "bracelet", "removed": {"$ne": True}}, {"_id": 0})
+    scale_dev = await db.devices.find_one({"user_id": uid, "device_type": "scale", "removed": {"$ne": True}}, {"_id": 0})
+    vest_dev = await db.devices.find_one({"user_id": uid, "device_type": "vest", "removed": {"$ne": True}}, {"_id": 0})
 
     now = datetime.now(timezone.utc)
 
