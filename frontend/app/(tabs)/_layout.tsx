@@ -120,10 +120,12 @@ export default function TabLayout() {
         tabBarIcon: ({ color, size, focused }) => isWebBen
           ? <TabIcon focused={focused} svgIcon={<StethIcon size={22} color={focused ? '#FFF' : 'rgba(255,255,255,0.35)'} />} />
           : (isAdmin || isCompany) ? <Icon name="medkit-outline" size={size} color={color} /> : isG ? <Icon name="tab-intervention" size={size} color={color} /> : <Icon name={isTA ? 'headset-outline' : 'videocam-outline'} size={size} color={color} />,
+        href: isBen ? null : undefined,
       }} />
       <Tabs.Screen name="devices" options={{
-        tabBarIcon: ({ color, size }) => isCompany ? <Icon name="document-text-outline" size={size} color={color} /> : isG ? <Icon name="document-text-outline" size={size} color={color} /> : <MCIcon name="bluetooth-connect" size={size} color={color} />,
-        href: isBen ? null : undefined,
+        tabBarIcon: ({ color, size, focused }) => isWebBen
+          ? <TabIcon icon="ri-bluetooth-connect-line" focused={focused} />
+          : isCompany ? <Icon name="document-text-outline" size={size} color={color} /> : isG ? <Icon name="document-text-outline" size={size} color={color} /> : <MCIcon name="bluetooth-connect" size={size} color={color} />,
       }} />
       <Tabs.Screen name="profile" options={{
         tabBarIcon: ({ color, size, focused }) => isWebBen
