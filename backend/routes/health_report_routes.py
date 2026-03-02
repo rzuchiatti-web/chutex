@@ -691,8 +691,16 @@ async def generate_health_report_pdf(period: str = "30j", user=Depends(get_curre
     from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
     import io
 
-    # Gather data
+    # Gather data from real readings only
     d = gen_data()
+    br = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
+    sc = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
+    if br and br.get("data"):
+        for k, v in br["data"].items():
+            if v and k in d: d[k] = v
+    if sc and sc.get("data"):
+        for k, v in sc["data"].items():
+            if v and k in d: d[k] = v
     si = compute_subscores(d)
     ai = await gen_ai(d, si)
 
@@ -701,28 +709,34 @@ async def generate_health_report_pdf(period: str = "30j", user=Depends(get_curre
     now = datetime.now(timezone.utc)
     start_date = now - __import__('datetime').timedelta(days=days)
 
-    # Generate metric histories for the report
+    # Get real metric histories from device_readings
     metrics_for_report = ["heart_rate", "spo2", "blood_pressure", "temperature", "steps", "weight", "sleep_quality", "stress_level"]
     metric_data = {}
+    all_readings = await db.device_readings.find(
+        {"user_id": uid, "timestamp": {"$gte": start_date.isoformat()}}, {"_id": 0}
+    ).sort("timestamp", 1).to_list(500)
     for mk in metrics_for_report:
-        gen_func = {
-            "heart_rate": lambda i: 68 + int(6 * math.sin(i / 7 * math.pi)) + random.randint(-3, 3),
-            "spo2": lambda i: random.choice([96, 97, 97, 98, 98, 99]),
-            "temperature": lambda i: round(36.5 + 0.3 * math.sin(i / 5 * math.pi) + random.uniform(-0.1, 0.1), 1),
-            "steps": lambda i: max(500, 4000 + int(2000 * math.sin(i / 4 * math.pi)) + random.randint(-500, 500)),
-            "weight": lambda i: round(72.8 - 0.015 * i + random.uniform(-0.2, 0.2), 1),
-            "sleep_quality": lambda i: max(50, min(100, 80 + int(8 * math.sin(i / 5 * math.pi)) + random.randint(-5, 5))),
-            "stress_level": lambda i: max(10, min(80, 35 + int(10 * math.sin(i / 5 * math.pi)) + random.randint(-5, 5))),
-        }.get(mk, lambda i: round(50 + 10 * math.sin(i / 5 * math.pi), 1))
-
-        vals = [gen_func(i) for i in range(days)]
-
+        vals = []
+        for r in all_readings:
+            rd = r.get("data", {})
+            if mk == "blood_pressure":
+                bp = rd.get("blood_pressure")
+                if bp and bp.get("systolic"): vals.append(bp)
+            else:
+                v = rd.get(mk)
+                if v: vals.append(v)
         if mk == "blood_pressure":
-            sys_vals = [122 + int(4 * math.sin(i / 8 * math.pi)) + random.randint(-3, 3) for i in range(days)]
-            dia_vals = [76 + int(3 * math.sin(i / 8 * math.pi)) + random.randint(-2, 2) for i in range(days)]
-            metric_data[mk] = {"avg": f"{round(sum(sys_vals)/len(sys_vals))}/{round(sum(dia_vals)/len(dia_vals))}", "min": f"{min(sys_vals)}/{min(dia_vals)}", "max": f"{max(sys_vals)}/{max(dia_vals)}", "last": f"{sys_vals[-1]}/{dia_vals[-1]}"}
+            if vals:
+                sys_vals = [v["systolic"] for v in vals]
+                dia_vals = [v["diastolic"] for v in vals]
+                metric_data[mk] = {"avg": f"{round(sum(sys_vals)/len(sys_vals))}/{round(sum(dia_vals)/len(dia_vals))}", "min": f"{min(sys_vals)}/{min(dia_vals)}", "max": f"{max(sys_vals)}/{max(dia_vals)}", "last": f"{sys_vals[-1]}/{dia_vals[-1]}"}
+            else:
+                metric_data[mk] = {"avg": "--", "min": "--", "max": "--", "last": "--"}
         else:
-            metric_data[mk] = {"avg": round(sum(vals) / len(vals), 1), "min": round(min(vals), 1), "max": round(max(vals), 1), "last": vals[-1]}
+            if vals:
+                metric_data[mk] = {"avg": round(sum(vals) / len(vals), 1), "min": round(min(vals), 1), "max": round(max(vals), 1), "last": vals[-1]}
+            else:
+                metric_data[mk] = {"avg": 0, "min": 0, "max": 0, "last": 0}
 
     # Build PDF
     buf = io.BytesIO()

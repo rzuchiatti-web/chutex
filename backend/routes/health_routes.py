@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone, timedelta
-import random
 
 from database import db
 from auth import get_current_user
@@ -17,17 +16,8 @@ async def get_health_history(metric_id: str, user=Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Metrique non trouvee")
     readings = await db.device_readings.find({"user_id": user['id'], "device_type": dt}, {"_id": 0}).sort("timestamp", -1).to_list(30)
     history = [{"value": r['data'].get(metric_id), "date": r['timestamp']} for r in reversed(readings) if r['data'].get(metric_id) is not None]
-    if len(history) < 7:
-        sim = BRACELET_SIM if dt == "bracelet" else SCALE_SIM
-        lo, hi = sim[metric_id]
-        now = datetime.now(timezone.utc)
-        # Only fill synthetic data if user has at least one device of this type
-        dev = await db.devices.find_one({"user_id": user['id'], "device_type": dt}, {"_id": 0})
-        if dev:
-            syn = [{"value": round(random.uniform(lo, hi), 1) if isinstance(lo, float) else random.randint(lo, hi), "date": (now - timedelta(days=i)).isoformat()} for i in range(7, 0, -1)]
-            history = (syn[:7 - len(history)] + history) if history else syn
-        elif not history:
-            return {"metric_id": metric_id, "history": [], "stats": {"current": 0, "average": 0, "min": 0, "max": 0}}
+    if not history:
+        return {"metric_id": metric_id, "history": [], "stats": {"current": 0, "average": 0, "min": 0, "max": 0}}
     vals = [h['value'] for h in history]
     return {
         "metric_id": metric_id, "history": history[-7:],
@@ -75,7 +65,7 @@ async def delete_threshold(metric_id: str, user=Depends(get_current_user)):
 
 @router.get("/health/sleep")
 async def get_sleep_data(user=Depends(get_current_user)):
-    """Get sleep hypnogram data - real bracelet data first, then simulated"""
+    """Get sleep hypnogram data - real bracelet data only"""
     # Try to find real sleep data from bracelet (cmd 0x53)
     real_sleep = await db.device_readings.find(
         {"user_id": user['id'], "device_type": "bracelet", "data.cmd": 0x53, "data.sleep_stages": {"$exists": True, "$ne": []}},
@@ -152,20 +142,5 @@ async def get_sleep_history(user=Depends(get_current_user)):
             "awake": s.get('awake_minutes', 0),
         })
     if len(history) < 7:
-        # Only generate simulated sleep if user has a bracelet
-        bracelet = await db.devices.find_one({"user_id": user['id'], "device_type": "bracelet"}, {"_id": 0})
-        if bracelet:
-            from utils import generate_sleep_hypnogram
-            now = datetime.now(timezone.utc)
-            for i in range(7 - len(history), 0, -1):
-                s = generate_sleep_hypnogram()
-                history.insert(0, {
-                    "date": (now - timedelta(days=i)).isoformat(),
-                    "duration": s['sleep_duration'],
-                    "quality": s['sleep_quality'],
-                    "deep": s['deep_minutes'],
-                    "light": s['light_minutes'],
-                    "rem": s['rem_minutes'],
-                    "awake": s['awake_minutes'],
-                })
+        pass  # No simulated data — only real bracelet data
     return history[-7:]
