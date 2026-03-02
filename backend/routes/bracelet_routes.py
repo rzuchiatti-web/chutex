@@ -132,7 +132,7 @@ async def push_bracelet_data(request_body: dict, user=Depends(get_current_user))
         update_fields['last_stress'] = parsed['stress']
 
     await db.devices.update_one(
-        {"user_id": user['id'], "device_type": "bracelet"},
+        {"user_id": user['id'], "device_type": "bracelet", "removed": {"$ne": True}},
         {"$set": update_fields}
     )
 

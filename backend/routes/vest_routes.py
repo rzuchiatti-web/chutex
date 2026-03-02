@@ -81,7 +81,7 @@ async def push_vest_data(request_body: dict, user=Depends(get_current_user)):
         await db.device_readings.insert_one(reading)
         # Update device status
         await db.devices.update_one(
-            {"user_id": user['id'], "device_type": "vest"},
+            {"user_id": user['id'], "device_type": "vest", "removed": {"$ne": True}},
             {"$set": {
                 "connected": True,
                 "last_sync": now,
