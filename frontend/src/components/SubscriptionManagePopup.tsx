@@ -286,11 +286,25 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                   {i < guardians.length - 1 && <div onClick={() => moveGuardian(i, 1)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-down-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} /></div>}
                 </div>
               </div>
-            )) : (
+            )) : (subData?.contract?.contract_guardians || []).length > 0 ? (
+              <>
+                <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.7)', marginBottom: 10, lineHeight: 1.5 }}>Les gardiens renseignes lors de la souscription apparaissent ci-dessous. Ils doivent creer leur compte dans l'application pour etre actifs.</div>
+                {(subData.contract.contract_guardians || []).map((cg: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 8, ...glass } as any}>
+                    <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-time-line" style={{ fontSize: 14, color: '#F59E0B' }} /></div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{cg.first_name} {cg.last_name}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{cg.phone} · {cg.relationship || 'Gardien'}</div>
+                    </div>
+                    <div style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', fontSize: 9, fontWeight: 700, color: '#F59E0B' }}>En attente</div>
+                  </div>
+                ))}
+              </>
+            ) : (
               <div style={{ padding: '20px', borderRadius: 16, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', textAlign: 'center', marginBottom: 12, ...glass } as any}>
                 <i className="ri-user-unfollow-line" style={{ fontSize: 28, color: 'rgba(239,68,68,0.4)', display: 'block', marginBottom: 8 }} />
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>Aucun gardien inscrit</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>Vos contacts d'urgence n'ont pas encore cree leur compte gardien.</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>Ajoutez un gardien pour activer les alertes d'urgence.</div>
               </div>
             )}
 
