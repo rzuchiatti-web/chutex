@@ -200,8 +200,15 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
 
   return (
     <>
-      <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>{t('devices_connected')}</div>
-      {devices.map((d) => (
+      {connectedDevices.length > 0 && <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>{t('devices_connected')}</div>}
+      {connectedDevices.length === 0 && (
+        <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px dashed rgba(255,255,255,0.15)', marginBottom: 12, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+          <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-bluetooth-connect-line" style={{ fontSize: 22, color: '#3B82F6' }} /></div>
+          <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Connecter un appareil</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Bracelet, balance ou gilet</div></div>
+          <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.2)' }} />
+        </div>
+      )}
+      {connectedDevices.map((d) => (
         <div key={d.id} data-testid={`device-card-${d.id}`} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 0.2s' } as any}>
           <img src={d.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
           <div style={{ flex: 1, minWidth: 0 } as any}>
