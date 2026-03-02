@@ -109,7 +109,7 @@ function DeviceManagement({ token }: { token: string }) {
               const isAssociated = device && (realConnected || realBattery > 0);
 
             return (
-              <div key={device.id} data-testid={`device-card-${device.device_type}`} style={{
+              <div key={dt} data-testid={`device-card-${dt}`} style={{
                 borderRadius: 24, marginBottom: 16, overflow: 'hidden',
                 background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
                 backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
@@ -117,15 +117,15 @@ function DeviceManagement({ token }: { token: string }) {
 
                 {/* Product image + status/delete overlays */}
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 20px', minHeight: 180 } as any}>
-                  <img src={getDeviceImg(device.device_type)} alt={getDeviceName(device.device_type)} style={{
+                  <img src={getDeviceImg(dt)} alt={getDeviceName(dt)} style={{
                     height: 150, width: 'auto', maxWidth: '80%', objectFit: 'contain',
                     filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))',
                   } as any} />
                   {/* Delete button — top-left (only if associated) */}
-                  {isAssociated && (
-                    <div data-testid={`remove-${device.device_type}-btn`} onClick={(e: any) => {
+                  {isAssociated && device && (
+                    <div data-testid={`remove-${dt}-btn`} onClick={(e: any) => {
                       e.stopPropagation();
-                      if (window.confirm(`Dissocier ${getDeviceName(device.device_type)} ?\n\nCette action supprimera le lien avec cet appareil.`)) {
+                      if (window.confirm(`Dissocier ${getDeviceName(dt)} ?\n\nCette action supprimera le lien avec cet appareil.`)) {
                         apiFetch(`/api/devices/${device.id}/remove`, { method: 'DELETE' }, token).then(() => fetchDevices()).catch(() => fetchDevices());
                       }
                     }} style={{ position: 'absolute', top: 12, left: 12, width: 34, height: 34, borderRadius: 999, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}>
