@@ -22,6 +22,7 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Corrige erreur login `Invalid salt` - reinitialisation des comptes admin/test
 - Endpoint `POST /api/devices/associate` ne genere plus de fausses donnees (connected=false, battery=0)
 - `GET /api/devices` filtre les appareils supprimes
+- `GET /api/devices/dashboard-summary` filtre aussi les appareils supprimes (coherence)
 
 **Refactoring page dispositifs (`devices.tsx`):**
 - Bouton "Associer" → flux d'appairage guide etape par etape → "Lancer l'appairage" redirige vers la VRAIE page BLE:
@@ -35,6 +36,25 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Bouton "Supprimer" UNIQUEMENT dans le popup details glass (pas sur la carte)
 - Plus aucune donnee simulee — tout passe par le vrai BLE
 - Dashboard `DeviceCards.tsx` redirige aussi vers les pages BLE reelles
+
+### Mar 2, 2026 - Correctifs Page Abonnement + Nora + Sante
+**Page abonnement (SubscriptionManagePopup):**
+- Header affiche le vrai nom du plan du contrat (ex: "Bracelet Elio + Gilet Elder — Teleassistance 24/7")
+- Prix correct 79.90€ affiche partout (onglet Info + Paiement)
+- Onglet Logement pre-rempli depuis les donnees du contrat (type, etage, porte, code, animal)
+- Onglet Gardiens affiche Franck ZUCHIATTI avec statut "En attente"
+- Bouton "Moyen de paiement" fonctionne (Stripe billing portal via contract stripe_subscription_id)
+- Message resiliation: retour materiel 30 jours + email contact@chutex-innovation.com
+
+**Email resiliation:**
+- Inclut retour materiel obligatoire sous 30 jours ouvrables
+- Mentionne l'adresse email contact@chutex-innovation.com pour envoyer le suivi
+
+**Nora IA:**
+- Regles strictes: ne JAMAIS recommander d'activer le role gardien aux beneficiaires
+
+**Page sante (sans donnees):**
+- Page maintenant scrollable (overflow: auto au lieu de hidden)
 
 ### Mar 1, 2026 - 10 Programmes de Prevention Scientifiques
 **10 programmes complets bases sur des etudes scientifiques:**
