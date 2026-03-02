@@ -171,50 +171,50 @@ export default function CompanyAgencyScreen() {
       <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
 
-      {/* ── Header ── */}
-      <div style={{ position: 'relative', zIndex: 5, padding: '22px 20px 14px', textAlign: 'center' } as any}>
-        <div onClick={() => router.back()} style={{ position: 'absolute', left: 20, top: 24, width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-          <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
-        </div>
+      {/* ── Scrollable content (header + body) ── */}
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '22px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-        {/* Structure logo + name */}
-        <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', border: '2px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' } as any}>
-          <i className="ri-building-line" style={{ fontSize: 24, color: '#D4845A' }} />
-        </div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{u?.structure_name || u?.name || 'Structure'}</div>
-        {u?.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 2 }}>{u.address}</div>}
-        {u?.siret && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>SIRET : {u.siret}</div>}
+        {/* ── Header (scrolls with content) ── */}
+        <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
+          <div onClick={() => router.back()} style={{ position: 'absolute', left: 20, top: 24, width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
+          </div>
 
-        {/* Stats row */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-          {[
-            { val: agencies.length, label: 'Agences', color: '#D4845A' },
-            { val: intervenants.length, label: 'Intervenants', color: '#A78BFA' },
-            { val: acceptedGuardians, label: 'Gardiens', color: '#10B981' },
-          ].map((s, i) => (
-            <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: s.color }}>{s.val}</div>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
+          {/* Structure logo + name */}
+          <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', border: '2px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' } as any}>
+            <i className="ri-building-line" style={{ fontSize: 24, color: '#D4845A' }} />
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{u?.structure_name || u?.name || 'Structure'}</div>
+          {u?.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 2 }}>{u.address}</div>}
+          {u?.siret && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>SIRET : {u.siret}</div>}
 
-        {/* Tabs */}
-        <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
-          {([
-            { k: 'agencies', label: `Agences (${agencies.length})`, icon: 'ri-building-line' },
-            { k: 'guardians', label: `Gardiens (${guardianLinks.length})`, icon: 'ri-shield-user-line', badge: pendingGuardians },
-          ] as const).map(t => (
-            <div key={t.k} onClick={() => setTab(t.k)} style={{ padding: '8px 14px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 700, background: tab === t.k ? '#FFF' : 'transparent', color: tab === t.k ? '#111' : 'rgba(255,255,255,0.7)', transition: 'all 0.2s', position: 'relative', whiteSpace: 'nowrap' } as any}>
-              <i className={t.icon} style={{ marginRight: 4 }} />{t.label}
-              {(t as any).badge > 0 && <span style={{ position: 'absolute', top: 1, right: 1, width: 14, height: 14, borderRadius: 999, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 800, color: '#FFF' } as any}>{(t as any).badge}</span>}
-            </div>
-          ))}
-        </div>
-      </div>
+          {/* Stats row */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
+            {[
+              { val: agencies.length, label: 'Agences', color: '#D4845A' },
+              { val: intervenants.length, label: 'Intervenants', color: '#A78BFA' },
+              { val: acceptedGuardians, label: 'Gardiens', color: '#10B981' },
+            ].map((s, i) => (
+              <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: s.color }}>{s.val}</div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
 
-      {/* ── Content ── */}
-      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '8px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+          {/* Tabs */}
+          <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
+            {([
+              { k: 'agencies', label: `Agences (${agencies.length})`, icon: 'ri-building-line' },
+              { k: 'guardians', label: `Gardiens (${guardianLinks.length})`, icon: 'ri-shield-user-line', badge: pendingGuardians },
+            ] as const).map(t => (
+              <div key={t.k} onClick={() => setTab(t.k)} style={{ padding: '8px 14px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 700, background: tab === t.k ? '#FFF' : 'transparent', color: tab === t.k ? '#111' : 'rgba(255,255,255,0.7)', transition: 'all 0.2s', position: 'relative', whiteSpace: 'nowrap' } as any}>
+                <i className={t.icon} style={{ marginRight: 4 }} />{t.label}
+                {(t as any).badge > 0 && <span style={{ position: 'absolute', top: 1, right: 1, width: 14, height: 14, borderRadius: 999, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 800, color: '#FFF' } as any}>{(t as any).badge}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Invite Guardian Card */}
         <div onClick={() => setShowInvite(true)} style={{ padding: '14px 16px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.03))', border: '1px solid rgba(16,185,129,0.15)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
@@ -311,7 +311,7 @@ export default function CompanyAgencyScreen() {
         {/* ── TAB GARDIENS ── */}
         {tab === 'guardians' && (<>
           {guardianLinks.map((gl: any) => (
-            <GCard key={gl.link_id} onClick={() => gl.status === 'accepted' && gl.id && router.push({ pathname: '/guardian-detail', params: { guardianId: gl.id } })}>
+            <GCard key={gl.link_id} onClick={() => gl.id ? setSelectedGuardian(gl) : undefined}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
                 <div style={{ width: 46, height: 46, borderRadius: 999, background: gl.status === 'accepted' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: gl.status === 'accepted' ? '1px solid rgba(16,185,129,0.3)' : 'none' } as any}>
                   {gl.id
