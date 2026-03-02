@@ -21,6 +21,7 @@ import { apiFetch } from '../../src/services/api';
 import { Colors } from '../../src/constants/colors';
 import { useTheme } from '../../src/context/ThemeContext';
 import { PageExplainer } from '../../src/components/HelpSystem';
+import WeighingFlow from '../../src/components/dashboard/WeighingFlow';
 
 /* ===== PAIRING STEPS CONFIG ===== */
 const BRACELET_STEPS = [
@@ -71,115 +72,78 @@ function DeviceManagement({ token }: { token: string }) {
   const [showNoSubPopup, setShowNoSubPopup] = useState(false);
   const [subscription, setSubscription] = useState<any>(null);
   const [weighings, setWeighings] = useState<any[]>([]);
-  // Pairing flow
+  const [showWeighing, setShowWeighing] = useState(false);
   const [pairingDevice, setPairingDevice] = useState<string | null>(null);
   const [pairingStep, setPairingStep] = useState(0);
   const [bleStatus, setBleStatus] = useState<'idle'|'scanning'|'connected'|'error'>('idle');
   const [bleError, setBleError] = useState('');
   const [bleVitals, setBleVitals] = useState<any>({});
-  // Detail popup
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [removing, setRemoving] = useState(false);
+  const [dashData, setDashData] = useState<any>(null);
 
   const fetchDevices = useCallback(async () => {
     try {
-      const [devs, sub, w] = await Promise.all([
+      const [devs, sub, w, dd] = await Promise.all([
         apiFetch('/api/devices', {}, token),
         apiFetch('/api/subscriptions/my', {}, token).catch(() => null),
         apiFetch('/api/devices/scale/history', {}, token).catch(() => []),
+        apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
       ]);
-      setDevices(devs);
-      setSubscription(sub);
+      setDevices(devs); setSubscription(sub);
       setWeighings(Array.isArray(w) ? w : []);
+      setDashData(dd);
     } catch (e) { console.error(e); } finally { setLoading(false); }
   }, [token]);
 
   useEffect(() => { fetchDevices(); }, [fetchDevices]);
 
-  const startPairing = (deviceType: string) => {
-    if (deviceType === 'bracelet' && !subscription?.can_use_bracelet) { setShowNoSubPopup(true); return; }
-    setPairingDevice(deviceType);
-    setPairingStep(0);
-    setBleStatus('idle');
-    setBleError('');
-    setBleVitals({});
+  const startPairing = (dt: string) => {
+    if (dt === 'bracelet' && !subscription?.can_use_bracelet) { setShowNoSubPopup(true); return; }
+    setPairingDevice(dt); setPairingStep(0); setBleStatus('idle'); setBleError('');
   };
   const closePairing = () => { setPairingDevice(null); setPairingStep(0); setBleStatus('idle'); setBleError(''); };
 
-  /* ── Real BLE scanning for bracelet/vest ── */
+  /* ── Real Web Bluetooth scan (bracelet/vest) — stays in popup ── */
   const launchBleScan = async (deviceType: string) => {
-    setBleStatus('scanning');
-    setBleError('');
+    setBleStatus('scanning'); setBleError('');
     if (Platform.OS !== 'web' || !('bluetooth' in navigator)) {
-      // On native or no Web Bluetooth → navigate to dedicated page
-      closePairing();
-      if (deviceType === 'bracelet') router.push('/bracelet-connect' as any);
-      else if (deviceType === 'vest') router.push('/vest-connect' as any);
+      setBleStatus('error'); setBleError('Web Bluetooth non disponible. Utilisez l\'application native.');
       return;
     }
     try {
       const nav = navigator as any;
-      const BLE_SERVICE = '0000fff0-0000-1000-8000-00805f9b34fb';
-      const VEST_SERVICES = ['0000ffe0-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e'];
-      const optServices = deviceType === 'bracelet'
-        ? [BLE_SERVICE, 'generic_access', 'heart_rate', 'battery_service', '0000ffe0-0000-1000-8000-00805f9b34fb', '0000fee7-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0000180d-0000-1000-8000-00805f9b34fb', '0000180f-0000-1000-8000-00805f9b34fb']
-        : VEST_SERVICES;
-      const bd = await nav.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: optServices });
+      const BLE_SVC = '0000fff0-0000-1000-8000-00805f9b34fb';
+      const VEST_SVCS = ['0000ffe0-0000-1000-8000-00805f9b34fb','6e400001-b5a3-f393-e0a9-e50e24dcca9e'];
+      const opts = deviceType === 'bracelet'
+        ? [BLE_SVC,'generic_access','heart_rate','battery_service','0000ffe0-0000-1000-8000-00805f9b34fb','0000ffc0-0000-1000-8000-00805f9b34fb','6e400001-b5a3-f393-e0a9-e50e24dcca9e','0000180d-0000-1000-8000-00805f9b34fb','0000180f-0000-1000-8000-00805f9b34fb']
+        : VEST_SVCS;
+      const bd = await nav.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: opts });
       setBleError(`Connexion a ${bd.name || 'appareil'}...`);
       const server = await bd.gatt.connect();
-      // Try to find notify characteristic
       let found = false;
-      const tryUuids = deviceType === 'bracelet'
-        ? [BLE_SERVICE, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb', '0000180d-0000-1000-8000-00805f9b34fb']
-        : VEST_SERVICES.map(s => s);
+      const tryUuids = deviceType === 'bracelet' ? [BLE_SVC,'0000ffe0-0000-1000-8000-00805f9b34fb','0000ffc0-0000-1000-8000-00805f9b34fb','0000180d-0000-1000-8000-00805f9b34fb'] : VEST_SVCS;
       for (const uuid of tryUuids) {
-        try {
-          const svc = await server.getPrimaryService(uuid);
-          const chars = await svc.getCharacteristics();
-          for (const c of chars) {
-            if (c.properties.notify || c.properties.indicate) {
-              await c.startNotifications();
-              found = true;
-              break;
-            }
-          }
-          if (found) break;
-        } catch {}
+        try { const svc = await server.getPrimaryService(uuid); const chars = await svc.getCharacteristics(); for (const c of chars) { if (c.properties.notify || c.properties.indicate) { await c.startNotifications(); found = true; break; } } if (found) break; } catch {}
       }
-      // Register device in backend
       await apiFetch('/api/devices/associate', { method: 'POST', body: JSON.stringify({ device_type: deviceType, mac_address: bd.id || '' }) }, token);
-      // Mark connected
       await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: {} }) }, token).catch(() => {});
-      setBleStatus('connected');
-      setBleError('');
-      setBleVitals({ name: bd.name || (deviceType === 'bracelet' ? 'Bracelet Elio' : 'Gilet Elder'), id: bd.id || '', battery: 0 });
+      setBleStatus('connected'); setBleError('');
+      setBleVitals({ name: bd.name || DEVICE_META[deviceType].name, id: bd.id || '' });
       fetchDevices();
     } catch (e: any) {
-      if (e.name === 'NotFoundError' || e.message?.includes('cancelled')) {
-        setBleStatus('idle');
-        setBleError('Recherche annulee');
-      } else {
-        setBleStatus('error');
-        setBleError(e.message || 'Erreur Bluetooth');
-      }
+      if (e.name === 'NotFoundError' || e.message?.includes('cancelled')) { setBleStatus('idle'); setBleError(''); }
+      else { setBleStatus('error'); setBleError(e.message || 'Erreur Bluetooth'); }
     }
   };
 
   const removeDevice = async (deviceId: string) => {
     setRemoving(true);
-    try {
-      await apiFetch(`/api/devices/${deviceId}/remove`, { method: 'DELETE' }, token);
-      setSelectedDevice(null);
-      fetchDevices();
-    } catch {} finally { setRemoving(false); }
+    try { await apiFetch(`/api/devices/${deviceId}/remove`, { method: 'DELETE' }, token); setSelectedDevice(null); fetchDevices(); } catch {} finally { setRemoving(false); }
   };
 
   const syncDevice = async (deviceType: string) => {
-    try {
-      await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: {} }) }, token);
-      fetchDevices();
-      if (Platform.OS === 'web') window.alert('Synchronise !');
-    } catch (e: any) { if (Platform.OS === 'web') window.alert(e.message || 'Erreur'); }
+    try { await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: {} }) }, token); fetchDevices(); window.alert('Synchronise !'); } catch (e: any) { window.alert(e.message || 'Erreur'); }
   };
 
   if (loading) return <FullScreenLoader />;
@@ -199,59 +163,37 @@ function DeviceManagement({ token }: { token: string }) {
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Gerez vos dispositifs de sante Chutex</div>
           </div>
           {allTypes.map(dt => {
-            const meta = DEVICE_META[dt];
-            const device = deviceMap[dt];
+            const meta = DEVICE_META[dt]; const device = deviceMap[dt];
             const isAssociated = device && (device.connected || device.battery > 0);
-            const realBattery = device?.battery || 0;
-            const realConnected = device?.connected || false;
+            const realBattery = device?.battery || 0; const realConnected = device?.connected || false;
             const needsSub = dt === 'bracelet' && !subscription?.can_use_bracelet;
             const hasWeighings = dt === 'scale' && weighings.length > 0;
             return (
               <div key={dt} data-testid={`device-card-${dt}`} style={{ borderRadius: 24, marginBottom: 16, overflow: 'hidden', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 20px', minHeight: 180, cursor: isAssociated ? 'pointer' : 'default' } as any} onClick={() => isAssociated && setSelectedDevice(dt)}>
                   <img src={meta.img} alt={meta.name} style={{ height: 150, width: 'auto', maxWidth: '80%', objectFit: 'contain', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))' } as any} />
-                  {isAssociated && (
-                    <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: realConnected ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)', border: `1px solid ${realConnected ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}` } as any}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: realConnected ? '#10B981' : 'rgba(255,255,255,0.3)' } as any} />
-                      <span style={{ fontSize: 10, fontWeight: 600, color: realConnected ? '#10B981' : 'rgba(255,255,255,0.5)' }}>{realConnected ? 'Connecte' : 'Associe'}</span>
-                    </div>
-                  )}
+                  {isAssociated && <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: realConnected ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)', border: `1px solid ${realConnected ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}` } as any}><span style={{ width: 6, height: 6, borderRadius: '50%', background: realConnected ? '#10B981' : 'rgba(255,255,255,0.3)' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: realConnected ? '#10B981' : 'rgba(255,255,255,0.5)' }}>{realConnected ? 'Connecte' : 'Associe'}</span></div>}
                 </div>
                 <div style={{ padding: '0 20px 20px' } as any}>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{meta.name}</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 16 }}>{meta.desc}</div>
                   {isAssociated ? (
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}><i className="ri-battery-line" style={{ fontSize: 14, marginRight: 6 }} />Batterie</span>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: realBattery > 50 ? '#10B981' : realBattery > 20 ? '#F59E0B' : '#EF4444' }}>{realBattery}%</span>
-                      </div>
-                      <div style={{ height: 14, borderRadius: 7, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' } as any}>
-                        <div style={{ height: '100%', borderRadius: 7, width: `${Math.max(4, realBattery)}%`, background: realBattery > 50 ? 'linear-gradient(90deg, #059669, #10B981, #34D399)' : realBattery > 20 ? 'linear-gradient(90deg, #D97706, #F59E0B, #FBBF24)' : 'linear-gradient(90deg, #DC2626, #EF4444, #F87171)', transition: 'width 1s' } as any} />
-                      </div>
+                      {realBattery > 0 && <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}><i className="ri-battery-line" style={{ fontSize: 14, marginRight: 6 }} />Batterie</span><span style={{ fontSize: 14, fontWeight: 800, color: realBattery > 50 ? '#10B981' : realBattery > 20 ? '#F59E0B' : '#EF4444' }}>{realBattery}%</span></div>
+                        <div style={{ height: 14, borderRadius: 7, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' } as any}><div style={{ height: '100%', borderRadius: 7, width: `${Math.max(4, realBattery)}%`, background: realBattery > 50 ? 'linear-gradient(90deg, #059669, #10B981)' : realBattery > 20 ? 'linear-gradient(90deg, #D97706, #F59E0B)' : 'linear-gradient(90deg, #DC2626, #EF4444)' } as any} /></div>
+                      </>}
                       <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
-                        {dt === 'bracelet' && (<>
-                          <div data-testid="bracelet-ecg-btn" onClick={() => router.push('/ecg' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#F97316' } as any}><i className="ri-pulse-line" style={{ fontSize: 14 }} />ECG</div>
-                          <div data-testid="bracelet-connect-btn" onClick={() => router.push('/bracelet-connect' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-bluetooth-connect-line" style={{ fontSize: 14 }} />Connexion</div>
-                        </>)}
-                        {dt === 'scale' && (<>
-                          <div data-testid="scale-weigh-btn" onClick={() => router.push('/scale-detail' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-scales-3-line" style={{ fontSize: 14 }} />Nouvelle pesee</div>
-                          {hasWeighings && (
-                            <div data-testid="scale-history-btn" onClick={() => setSelectedDevice('scale')} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}><i className="ri-history-line" style={{ fontSize: 14 }} />Pesees</div>
-                          )}
-                        </>)}
-                        {dt === 'vest' && (
-                          <div data-testid="vest-connect-btn" onClick={() => router.push('/vest-connect' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-bluetooth-connect-line" style={{ fontSize: 14 }} />Connexion</div>
-                        )}
+                        {dt === 'bracelet' && <><div data-testid="bracelet-ecg-btn" onClick={() => router.push('/ecg' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#F97316' } as any}><i className="ri-pulse-line" style={{ fontSize: 14 }} />ECG</div></>}
+                        {dt === 'scale' && <><div data-testid="scale-weigh-btn" onClick={() => setShowWeighing(true)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-scales-3-line" style={{ fontSize: 14 }} />Nouvelle pesee</div>{hasWeighings && <div data-testid="scale-history-btn" onClick={() => setSelectedDevice('scale')} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}><i className="ri-history-line" style={{ fontSize: 14 }} />Pesees</div>}</>}
+                        {dt === 'vest' && <div data-testid="vest-status" style={{ flex: 1, padding: '11px 14px', borderRadius: 999, background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-shield-check-line" style={{ fontSize: 14 }} />{realConnected ? 'Protection active' : 'En veille'}</div>}
                         <div data-testid={`detail-${dt}-btn`} onClick={() => setSelectedDevice(dt)} style={{ padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}><i className="ri-information-line" style={{ fontSize: 14 }} /></div>
                       </div>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', gap: 10 } as any}>
-                      <div data-testid={`connect-${dt}-btn`} onClick={() => startPairing(dt)} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: '#FFF', color: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700, opacity: needsSub ? 0.5 : 1 } as any}>
-                        <i className="ri-bluetooth-line" style={{ fontSize: 16 }} />{dt === 'scale' ? 'Nouvelle pesee' : 'Associer'}
-                      </div>
-                      <div onClick={() => { if (typeof window !== 'undefined') window.open(meta.link, '_blank'); }} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 600 } as any}><i className="ri-external-link-line" style={{ fontSize: 14 }} />Decouvrir</div>
+                      <div data-testid={`connect-${dt}-btn`} onClick={() => startPairing(dt)} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: '#FFF', color: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700, opacity: needsSub ? 0.5 : 1 } as any}><i className="ri-bluetooth-line" style={{ fontSize: 16 }} />{dt === 'scale' ? 'Nouvelle pesee' : 'Associer'}</div>
+                      <div onClick={() => window.open(meta.link, '_blank')} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 600 } as any}><i className="ri-external-link-line" style={{ fontSize: 14 }} />Decouvrir</div>
                     </div>
                   )}
                 </div>
@@ -260,43 +202,34 @@ function DeviceManagement({ token }: { token: string }) {
           })}
         </div>
 
-        {/* ── Pairing Flow Popup ── */}
-        {pairingDevice && bleStatus === 'idle' && (() => { const meta = DEVICE_META[pairingDevice]; const steps = meta.steps; const current = steps[pairingStep]; const isLast = pairingStep === steps.length - 1; return (
-          <GlassOverlay onClose={closePairing}><div data-testid={`pairing-popup-${pairingDevice}`} style={{ textAlign: 'center' } as any}>
+        {/* ── Pairing Steps Popup ── */}
+        {pairingDevice && bleStatus === 'idle' && (() => { const meta = DEVICE_META[pairingDevice]; const steps = meta.steps; const cur = steps[pairingStep]; const isLast = pairingStep === steps.length - 1; return (
+          <GlassOverlay onClose={closePairing}><div style={{ textAlign: 'center' } as any}>
             <img src={meta.img} alt="" style={{ width: 100, height: 100, objectFit: 'contain', margin: '0 auto 20px', display: 'block', filter: `drop-shadow(0 8px 24px ${meta.color}30)` } as any} />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 28 } as any}>{steps.map((_: any, i: number) => (<div key={i} style={{ height: 4, borderRadius: 2, width: i === pairingStep ? 24 : 12, background: i === pairingStep ? meta.color : i < pairingStep ? `${meta.color}66` : 'rgba(255,255,255,0.1)', transition: 'all 0.3s' } as any} />))}</div>
-            <div style={{ width: 52, height: 52, borderRadius: 14, background: `${meta.color}15`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' } as any}><i className={current.icon} style={{ fontSize: 24, color: meta.color }} /></div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 28 } as any}>{steps.map((_: any, i: number) => <div key={i} style={{ height: 4, borderRadius: 2, width: i === pairingStep ? 24 : 12, background: i === pairingStep ? meta.color : i < pairingStep ? `${meta.color}66` : 'rgba(255,255,255,0.1)' } as any} />)}</div>
+            <div style={{ width: 52, height: 52, borderRadius: 14, background: `${meta.color}15`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' } as any}><i className={cur.icon} style={{ fontSize: 24, color: meta.color }} /></div>
             <div style={{ fontSize: 10, fontWeight: 700, color: `${meta.color}80`, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Etape {pairingStep + 1}/{steps.length}</div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>{current.title}</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, maxWidth: 300, margin: '0 auto 24px' }}>{current.desc}</div>
-            <div style={{ padding: '14px 18px', borderRadius: 16, background: `${meta.color}08`, border: `1px solid ${meta.color}18`, marginBottom: 28, textAlign: 'left' } as any}><div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}><i className="ri-information-line" style={{ fontSize: 16, color: meta.color, flexShrink: 0 }} /><span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{current.tip}</span></div></div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>{cur.title}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, maxWidth: 300, margin: '0 auto 24px' }}>{cur.desc}</div>
+            <div style={{ padding: '14px 18px', borderRadius: 16, background: `${meta.color}08`, border: `1px solid ${meta.color}18`, marginBottom: 28, textAlign: 'left' } as any}><div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}><i className="ri-information-line" style={{ fontSize: 16, color: meta.color, flexShrink: 0 }} /><span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{cur.tip}</span></div></div>
             <div style={{ display: 'flex', gap: 10 } as any}>
-              {pairingStep > 0 && (<div data-testid="pairing-prev" onClick={() => setPairingStep(pairingStep - 1)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Retour</div>)}
-              <div data-testid="pairing-next" onClick={() => {
-                if (isLast) {
-                  if (pairingDevice === 'scale') { closePairing(); router.push('/scale-detail' as any); }
-                  else launchBleScan(pairingDevice);
-                } else setPairingStep(pairingStep + 1);
-              }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: isLast ? `linear-gradient(135deg, ${meta.color}CC, ${meta.color})` : '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: isLast ? '#FFF' : '#111', boxShadow: isLast ? `0 4px 20px ${meta.color}40` : 'none' } as any}>{"Lancer l'appairage" === '' ? '' : isLast ? "Lancer l'appairage" : 'Suivant'}</div>
+              {pairingStep > 0 && <div onClick={() => setPairingStep(pairingStep - 1)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Retour</div>}
+              <div onClick={() => { if (!isLast) { setPairingStep(pairingStep + 1); return; } if (pairingDevice === 'scale') { closePairing(); setShowWeighing(true); } else launchBleScan(pairingDevice); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: isLast ? `linear-gradient(135deg, ${meta.color}CC, ${meta.color})` : '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: isLast ? '#FFF' : '#111', boxShadow: isLast ? `0 4px 20px ${meta.color}40` : 'none' } as any}>{isLast ? "Lancer l'appairage" : 'Suivant'}</div>
             </div>
           </div></GlassOverlay>); })()}
 
-        {/* ── BLE Scanning Popup ── */}
+        {/* ── BLE Scanning (bracelet/vest) ── */}
         {pairingDevice && bleStatus === 'scanning' && (() => { const meta = DEVICE_META[pairingDevice]; return (
           <GlassOverlay onClose={closePairing}><div style={{ textAlign: 'center' } as any}>
             <img src={meta.img} alt="" style={{ width: 80, height: 80, objectFit: 'contain', margin: '0 auto 20px', display: 'block' } as any} />
-            <div style={{ position: 'relative', width: 80, height: 80, margin: '0 auto 24px' } as any}>
-              <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `2px solid ${meta.color}`, opacity: 0.3, animation: 'pulseRing 1.5s ease-out infinite' } as any} />
-              <div style={{ position: 'absolute', inset: 8, borderRadius: '50%', border: `2px solid ${meta.color}`, opacity: 0.3, animation: 'pulseRing 1.5s ease-out infinite 0.5s' } as any} />
-              <div style={{ position: 'absolute', inset: 16, borderRadius: '50%', background: `${meta.color}15`, border: `2px solid ${meta.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-bluetooth-connect-line" style={{ fontSize: 22, color: meta.color, animation: 'spin 2s linear infinite' }} /></div>
-            </div>
+            <div style={{ position: 'relative', width: 80, height: 80, margin: '0 auto 24px' } as any}><div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `2px solid ${meta.color}`, opacity: 0.3, animation: 'pulseRing 1.5s ease-out infinite' } as any} /><div style={{ position: 'absolute', inset: 8, borderRadius: '50%', border: `2px solid ${meta.color}`, opacity: 0.3, animation: 'pulseRing 1.5s ease-out infinite 0.5s' } as any} /><div style={{ position: 'absolute', inset: 16, borderRadius: '50%', background: `${meta.color}15`, border: `2px solid ${meta.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-bluetooth-connect-line" style={{ fontSize: 22, color: meta.color, animation: 'spin 2s linear infinite' }} /></div></div>
             <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Recherche en cours...</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Selectionnez votre {meta.name} dans la popup Bluetooth</div>
             {bleError && <div style={{ fontSize: 12, color: '#F59E0B', marginBottom: 16 }}>{bleError}</div>}
             <div onClick={closePairing} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler</div>
           </div></GlassOverlay>); })()}
 
-        {/* ── BLE Connected Success ── */}
+        {/* ── BLE Connected ── */}
         {pairingDevice && bleStatus === 'connected' && (() => { const meta = DEVICE_META[pairingDevice]; return (
           <GlassOverlay onClose={closePairing}><div style={{ textAlign: 'center' } as any}>
             <div style={{ width: 80, height: 80, borderRadius: 999, background: `${meta.color}20`, border: `2px solid ${meta.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' } as any}><i className="ri-check-line" style={{ fontSize: 40, color: meta.color }} /></div>
@@ -311,74 +244,33 @@ function DeviceManagement({ token }: { token: string }) {
           <GlassOverlay onClose={closePairing}><div style={{ textAlign: 'center' } as any}>
             <div style={{ width: 80, height: 80, borderRadius: 999, background: 'rgba(239,68,68,0.15)', border: '2px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' } as any}><i className="ri-error-warning-line" style={{ fontSize: 40, color: '#EF4444' }} /></div>
             <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Erreur de connexion</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>{bleError || 'Impossible de se connecter'}</div>
-            <div style={{ display: 'flex', gap: 10 } as any}>
-              <div onClick={closePairing} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Fermer</div>
-              <div onClick={() => launchBleScan(pairingDevice)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#111' } as any}>Reessayer</div>
-            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>{bleError}</div>
+            <div style={{ display: 'flex', gap: 10 } as any}><div onClick={closePairing} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Fermer</div><div onClick={() => launchBleScan(pairingDevice)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#111' } as any}>Reessayer</div></div>
           </div></GlassOverlay>); })()}
 
         {/* ── Device Detail Popup ── */}
         {selectedDevice && deviceMap[selectedDevice] && (() => { const meta = DEVICE_META[selectedDevice]; const device = deviceMap[selectedDevice]; return (
-          <GlassOverlay onClose={() => setSelectedDevice(null)}><div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-            <img src={meta.img} alt="" style={{ width: 100, height: 100, objectFit: 'contain', margin: '0 auto 14px', display: 'block' } as any} />
-            <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{meta.name}</div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 16px', borderRadius: 999, background: device.connected ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${device.connected ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}` } as any}><span style={{ width: 7, height: 7, borderRadius: 4, background: device.connected ? '#10B981' : '#EF4444' } as any} /><span style={{ fontSize: 12, fontWeight: 700, color: device.connected ? '#10B981' : '#EF4444' }}>{device.connected ? 'Actif' : 'Inactif'}</span></div>
+          <GlassOverlay onClose={() => setSelectedDevice(null)}>
+          <div style={{ textAlign: 'center', marginBottom: 20 } as any}><img src={meta.img} alt="" style={{ width: 100, height: 100, objectFit: 'contain', margin: '0 auto 14px', display: 'block' } as any} /><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{meta.name}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 16px', borderRadius: 999, background: device.connected ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${device.connected ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}` } as any}><span style={{ width: 7, height: 7, borderRadius: 4, background: device.connected ? '#10B981' : '#EF4444' } as any} /><span style={{ fontSize: 12, fontWeight: 700, color: device.connected ? '#10B981' : '#EF4444' }}>{device.connected ? 'Actif' : 'Inactif'}</span></div></div>
+          <div style={{ padding: '4px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 12 } as any}>{[['Nom', meta.name],['Derniere sync.', device.last_sync ? new Date(device.last_sync).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '--']].map(([l,v]) => <div key={l} style={{ display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 0',borderBottom:'1px solid rgba(255,255,255,0.04)' } as any}><span style={{ fontSize:12,color:'rgba(255,255,255,0.4)' }}>{l}</span><span style={{ fontSize:13,fontWeight:700,color:'#FFF' }}>{v}</span></div>)}</div>
+          {device.battery > 0 && <div style={{ padding:'4px 16px',borderRadius:16,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)',marginBottom:16 } as any}><div style={{ fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.3)',textTransform:'uppercase',letterSpacing:0.5,padding:'10px 0 4px' }}>Batterie</div><div style={{ display:'flex',alignItems:'center',gap:10,padding:'12px 0' } as any}><div style={{ flex:1,height:8,borderRadius:4,background:'rgba(255,255,255,0.06)',overflow:'hidden' } as any}><div style={{ height:8,borderRadius:4,width:`${device.battery}%`,background:device.battery>50?'linear-gradient(90deg,#059669,#10B981)':device.battery>25?'linear-gradient(90deg,#D97706,#F59E0B)':'linear-gradient(90deg,#DC2626,#EF4444)' } as any} /></div><span style={{ fontSize:14,fontWeight:900,color:device.battery>50?'#10B981':device.battery>25?'#F59E0B':'#EF4444',minWidth:40,textAlign:'right' }}>{device.battery}%</span></div></div>}
+          {selectedDevice === 'scale' && weighings.length > 0 && <div style={{ marginBottom: 16 } as any}><div style={{ fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.3)',textTransform:'uppercase',letterSpacing:1,marginBottom:8 }}>Dernieres pesees</div>{weighings.slice(0,5).map((w: any,i: number) => <div key={i} style={{ display:'flex',alignItems:'center',gap:12,padding:'10px 14px',borderRadius:14,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)',marginBottom:6 } as any}><div style={{ flex:1 } as any}><div style={{ fontSize:16,fontWeight:800,color:'#FFF' }}>{w.weight} kg</div><div style={{ fontSize:10,color:'rgba(255,255,255,0.3)' }}>{new Date(w.timestamp||w.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>{w.bmi>0&&<span style={{ fontSize:11,color:'rgba(255,255,255,0.35)' }}>IMC {w.bmi}</span>}</div>)}</div>}
+          <div style={{ display:'flex',gap:8,marginBottom:12 } as any}>
+            {selectedDevice === 'bracelet' && <><div onClick={() => { setSelectedDevice(null); router.push('/ecg' as any); }} style={{ flex:1,padding:'14px',borderRadius:999,background:'rgba(249,115,22,0.1)',border:'1px solid rgba(249,115,22,0.2)',cursor:'pointer',textAlign:'center',fontSize:13,fontWeight:700,color:'#F97316' } as any}><i className="ri-pulse-line" style={{ marginRight:6 }} />ECG</div><div onClick={() => syncDevice('bracelet')} style={{ flex:1,padding:'14px',borderRadius:999,background:`${meta.color}18`,border:`1px solid ${meta.color}30`,cursor:'pointer',textAlign:'center',fontSize:13,fontWeight:700,color:meta.color } as any}><i className="ri-refresh-line" style={{ marginRight:6 }} />Synchroniser</div></>}
+            {selectedDevice === 'scale' && <div onClick={() => { setSelectedDevice(null); setShowWeighing(true); }} style={{ flex:1,padding:'14px',borderRadius:999,background:`${meta.color}18`,border:`1px solid ${meta.color}30`,cursor:'pointer',textAlign:'center',fontSize:13,fontWeight:700,color:meta.color } as any}><i className="ri-scales-3-line" style={{ marginRight:6 }} />Nouvelle pesee</div>}
           </div>
-          <div style={{ padding: '4px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 12 } as any}>
-            {[['Nom', meta.name], ['Derniere connexion', device.last_sync ? new Date(device.last_sync).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '--']].map(([label, val]) => (<div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}><span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{label}</span><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{val}</span></div>))}
-          </div>
-          {device.battery > 0 && <div style={{ padding: '4px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 16 } as any}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, padding: '10px 0 4px' }}>Batterie</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0' } as any}><div style={{ flex: 1, height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}><div style={{ height: 8, borderRadius: 4, width: `${device.battery}%`, background: device.battery > 50 ? 'linear-gradient(90deg, #059669, #10B981)' : device.battery > 25 ? 'linear-gradient(90deg, #D97706, #F59E0B)' : 'linear-gradient(90deg, #DC2626, #EF4444)' } as any} /></div><span style={{ fontSize: 14, fontWeight: 900, color: device.battery > 50 ? '#10B981' : device.battery > 25 ? '#F59E0B' : '#EF4444', minWidth: 40, textAlign: 'right' }}>{device.battery}%</span></div>
-          </div>}
-          {/* Scale: weighing history */}
-          {selectedDevice === 'scale' && weighings.length > 0 && (
-            <div style={{ marginBottom: 16 } as any}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, padding: '0 4px' }}>Dernieres pesees</div>
-              {weighings.slice(0, 5).map((w: any, i: number) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 6 } as any}>
-                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{w.weight} kg</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{new Date(w.timestamp || w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div></div>
-                  {w.bmi > 0 && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>IMC {w.bmi}</span>}
-                </div>
-              ))}
-            </div>
-          )}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
-            {selectedDevice === 'bracelet' && (<>
-              <div onClick={() => { setSelectedDevice(null); router.push('/ecg' as any); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#F97316' } as any}><i className="ri-pulse-line" style={{ marginRight: 6 }} />ECG</div>
-              <div onClick={() => syncDevice('bracelet')} style={{ flex: 1, padding: '14px', borderRadius: 999, background: `${meta.color}18`, border: `1px solid ${meta.color}30`, cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-refresh-line" style={{ marginRight: 6 }} />Synchroniser</div>
-            </>)}
-            {selectedDevice === 'scale' && (
-              <div onClick={() => { setSelectedDevice(null); router.push('/scale-detail' as any); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: `${meta.color}18`, border: `1px solid ${meta.color}30`, cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-scales-3-line" style={{ marginRight: 6 }} />Nouvelle pesee</div>
-            )}
-            {selectedDevice === 'vest' && (
-              <div onClick={() => { setSelectedDevice(null); router.push('/vest-connect' as any); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: `${meta.color}18`, border: `1px solid ${meta.color}30`, cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-bluetooth-connect-line" style={{ marginRight: 6 }} />Connexion</div>
-            )}
-          </div>
-          <div data-testid={`remove-device-${selectedDevice}`} onClick={() => removeDevice(device.id)} style={{ padding: '12px', borderRadius: 999, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'rgba(239,68,68,0.5)' } as any}>{removing ? 'Suppression...' : "Supprimer l'appareil"}</div>
+          <div onClick={() => removeDevice(device.id)} style={{ padding:'12px',borderRadius:999,background:'rgba(239,68,68,0.06)',border:'1px solid rgba(239,68,68,0.12)',cursor:'pointer',textAlign:'center',fontSize:12,fontWeight:600,color:'rgba(239,68,68,0.5)' } as any}>{removing ? 'Suppression...' : "Supprimer l'appareil"}</div>
           </GlassOverlay>); })()}
 
         {/* ── No Subscription Popup ── */}
-        {showNoSubPopup && (
-          <GlassOverlay onClose={() => setShowNoSubPopup(false)}>
-            <div style={{ textAlign: 'center', marginBottom: 24 } as any}><div style={{ width: 72, height: 72, borderRadius: 22, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}><i className="ri-watch-line" style={{ fontSize: 36, color: '#F59E0B' }} /></div><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Abonnement requis</div><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>Pour associer votre bracelet Elio, choisissez votre formule.</div></div>
-            <div onClick={() => { setShowNoSubPopup(false); if (typeof window !== 'undefined') window.open('https://chutex-innovation.com/products/elio-smart-health-bracelet', '_blank'); }} style={{ padding: '20px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 14, cursor: 'pointer' } as any}><div style={{ display: 'flex', gap: 16, alignItems: 'center' } as any}><div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-watch-line" style={{ fontSize: 26, color: '#3B82F6' }} /></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>Bracelet Elio</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Suivi sante connecte</div></div><div style={{ textAlign: 'right' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>24,90</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>EUR/mois</div></div></div></div>
-            <div onClick={() => { setShowNoSubPopup(false); router.push('/subscription' as any); }} style={{ padding: '20px', borderRadius: 20, background: 'linear-gradient(135deg, rgba(124,92,255,0.1), rgba(167,139,250,0.04))', border: '1px solid rgba(124,92,255,0.25)', marginBottom: 14, cursor: 'pointer', position: 'relative' } as any}><div style={{ position: 'absolute', top: 10, right: 12, padding: '3px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#10B981', textTransform: 'uppercase' }}>Recommande</span></div><div style={{ display: 'flex', gap: 16, alignItems: 'center' } as any}><div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(124,92,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-shield-star-line" style={{ fontSize: 26, color: '#A78BFA' }} /></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>Chutex Care</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Bracelet + Teleassistance 24/7</div></div><div style={{ textAlign: 'right' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>39,90</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>EUR/mois</div></div></div></div>
-          </GlassOverlay>
-        )}
+        {showNoSubPopup && <GlassOverlay onClose={() => setShowNoSubPopup(false)}><div style={{ textAlign:'center',marginBottom:24 } as any}><div style={{ width:72,height:72,borderRadius:22,background:'rgba(245,158,11,0.12)',border:'1px solid rgba(245,158,11,0.25)',display:'inline-flex',alignItems:'center',justifyContent:'center',marginBottom:16 } as any}><i className="ri-watch-line" style={{ fontSize:36,color:'#F59E0B' }} /></div><div style={{ fontSize:22,fontWeight:900,color:'#FFF',marginBottom:8 }}>Abonnement requis</div><div style={{ fontSize:13,color:'rgba(255,255,255,0.45)',lineHeight:1.6 }}>Pour associer votre bracelet Elio, choisissez votre formule.</div></div><div onClick={() => { setShowNoSubPopup(false); window.open('https://chutex-innovation.com/products/elio-smart-health-bracelet','_blank'); }} style={{ padding:'20px',borderRadius:20,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',marginBottom:14,cursor:'pointer' } as any}><div style={{ display:'flex',gap:16,alignItems:'center' } as any}><div style={{ width:52,height:52,borderRadius:16,background:'rgba(59,130,246,0.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0 } as any}><i className="ri-watch-line" style={{ fontSize:26,color:'#3B82F6' }} /></div><div style={{ flex:1 } as any}><div style={{ fontSize:16,fontWeight:800,color:'#FFF',marginBottom:3 }}>Bracelet Elio</div><div style={{ fontSize:12,color:'rgba(255,255,255,0.45)' }}>24,90 EUR/mois</div></div></div></div><div onClick={() => { setShowNoSubPopup(false); router.push('/subscription' as any); }} style={{ padding:'20px',borderRadius:20,background:'linear-gradient(135deg,rgba(124,92,255,0.1),rgba(167,139,250,0.04))',border:'1px solid rgba(124,92,255,0.25)',marginBottom:14,cursor:'pointer',position:'relative' } as any}><div style={{ position:'absolute',top:10,right:12,padding:'3px 10px',borderRadius:999,background:'rgba(16,185,129,0.15)',border:'1px solid rgba(16,185,129,0.25)' } as any}><span style={{ fontSize:9,fontWeight:700,color:'#10B981',textTransform:'uppercase' }}>Recommande</span></div><div style={{ display:'flex',gap:16,alignItems:'center' } as any}><div style={{ width:52,height:52,borderRadius:16,background:'rgba(124,92,255,0.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0 } as any}><i className="ri-shield-star-line" style={{ fontSize:26,color:'#A78BFA' }} /></div><div style={{ flex:1 } as any}><div style={{ fontSize:16,fontWeight:800,color:'#FFF',marginBottom:3 }}>Chutex Care</div><div style={{ fontSize:12,color:'rgba(255,255,255,0.45)' }}>39,90 EUR/mois</div></div></div></div></GlassOverlay>}
+
+        {/* ── WeighingFlow (balance) ── */}
+        {showWeighing && <WeighingFlow onClose={() => { setShowWeighing(false); fetchDevices(); }} d={dashData?.scale || {}} weighings={weighings} />}
       </div>
     );
   }
-  /* ── Native fallback ── */
-  return (
-    <ScrollView style={d.sv} contentContainerStyle={d.sc} showsVerticalScrollIndicator={false}>
-      {allTypes.map(dt => {
-        const meta = DEVICE_META[dt]; const device = deviceMap[dt]; const isAssociated = device && (device.connected || device.battery > 0);
-        return (<View key={dt} style={d.deviceCard} testID={`device-card-${dt}`}><View style={d.deviceHeader}><View style={d.deviceIconBg}><MCIcon name={(dt === 'bracelet' ? 'watch' : dt === 'scale' ? 'scale-bathroom' : 'tshirt-crew') as any} size={24} color={Colors.textPrimary} /></View><View style={d.deviceInfo}><Text style={d.deviceName}>{meta.name}</Text><View style={d.deviceMeta}><View style={[d.connDot, { backgroundColor: isAssociated ? Colors.success : Colors.textMuted }]} /><Text style={[d.connText, { color: isAssociated ? Colors.success : Colors.textMuted }]}>{isAssociated ? 'Connecte' : 'Non associe'}</Text></View></View>{isAssociated && <Text style={d.batteryT}>{device?.battery || 0}%</Text>}</View><TouchableOpacity style={d.syncBtn} onPress={() => { if (dt === 'bracelet') router.push('/bracelet-connect' as any); else if (dt === 'vest') router.push('/vest-connect' as any); else router.push('/scale-detail' as any); }}><Icon name="bluetooth" size={16} color={isAssociated ? Colors.success : Colors.primary} /><Text style={d.syncBtnText}>{isAssociated ? (dt === 'scale' ? 'Nouvelle pesee' : 'Connexion BLE') : (dt === 'scale' ? 'Nouvelle pesee' : 'Associer')}</Text></TouchableOpacity></View>);
-      })}
-    </ScrollView>
-  );
+  return (<ScrollView style={d.sv} contentContainerStyle={d.sc} showsVerticalScrollIndicator={false}>{allTypes.map(dt => { const meta = DEVICE_META[dt]; const device = deviceMap[dt]; const isA = device && (device.connected || device.battery > 0); return (<View key={dt} style={d.deviceCard} testID={`device-card-${dt}`}><View style={d.deviceHeader}><View style={d.deviceIconBg}><MCIcon name={(dt==='bracelet'?'watch':dt==='scale'?'scale-bathroom':'tshirt-crew') as any} size={24} color={Colors.textPrimary} /></View><View style={d.deviceInfo}><Text style={d.deviceName}>{meta.name}</Text></View>{isA && <Text style={d.batteryT}>{device?.battery||0}%</Text>}</View><TouchableOpacity style={d.syncBtn} onPress={() => startPairing(dt)}><Icon name="bluetooth" size={16} color={isA?Colors.success:Colors.primary} /><Text style={d.syncBtnText}>{isA?(dt==='scale'?'Nouvelle pesee':'Connexion'):(dt==='scale'?'Nouvelle pesee':'Associer')}</Text></TouchableOpacity></View>); })}</ScrollView>);
 }
 
 /* ===== REWARDS CARD FOR PRESCRIBERS ===== */
