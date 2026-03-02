@@ -1,6 +1,7 @@
 import { Icon, MCIcon } from '../../src/components/WebIcon';
 import FullScreenLoader from '../../src/components/FullScreenLoader';
 import SubscriptionManagePopup from '../../src/components/SubscriptionManagePopup';
+import { GuardianActivationPopup } from '../../src/components/dashboard/BeneficiaryPopups';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Platform, Image, Modal, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -163,6 +164,23 @@ export default function ProfileScreen() {
   const [medSaved, setMedSaved] = useState(false);
   const [showFaceId, setShowFaceId] = useState(false);
   const [subData, setSubData] = useState<any>(null);
+  const [showGuardianActivation, setShowGuardianActivation] = useState(false);
+  const [guardianActivationStep, setGuardianActivationStep] = useState(0);
+  const [alertSms, setAlertSms] = useState(true);
+  const [alertEmail, setAlertEmail] = useState(true);
+  const [activatingGuardian, setActivatingGuardian] = useState(false);
+
+  const activateGuardianMode = async () => {
+    setActivatingGuardian(true);
+    try {
+      await apiFetch('/api/auth/activate-guardian', { method: 'POST', body: JSON.stringify({
+        guardian_type: 'particular', alert_sms: alertSms, alert_email: alertEmail,
+      }) }, token);
+      await refreshUser();
+      setShowGuardianActivation(false);
+      Alert.alert('Espace gardien active', 'Vous pouvez maintenant basculer vers votre espace gardien.');
+    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
+  };
 
   // Fetch subscription data on mount for beneficiary users
   useEffect(() => {
@@ -302,7 +320,12 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                 </div>
                 <div onClick={async () => {
                   if (effectiveRole !== 'guardian') {
-                    try { await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'guardian' }) }, token); await refreshUser(); } catch {}
+                    if (user.has_guardian_space) {
+                      try { await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'guardian' }) }, token); await refreshUser(); } catch (e: any) { Alert.alert('Erreur', e.message); }
+                    } else {
+                      setShowGuardianActivation(true);
+                      setGuardianActivationStep(0);
+                    }
                   }
                 }} style={{ padding: '7px 16px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease', background: effectiveRole === 'guardian' ? '#FFF' : 'transparent', boxShadow: effectiveRole === 'guardian' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: effectiveRole === 'guardian' ? '#111' : 'rgba(255,255,255,0.5)' }}>Gardien</span>
@@ -959,6 +982,8 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
               </div>
             </div>
           )}
+
+          <GuardianActivationPopup show={showGuardianActivation} onClose={() => setShowGuardianActivation(false)} step={guardianActivationStep} setStep={setGuardianActivationStep} alertSms={alertSms} setAlertSms={setAlertSms} alertEmail={alertEmail} setAlertEmail={setAlertEmail} activating={activatingGuardian} onActivate={activateGuardianMode} />
 
         </div>
       </div>

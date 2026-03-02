@@ -17,6 +17,11 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
+### Mar 2, 2026 - Fix Switch Beneficiaire/Gardien
+- Corrige le switch de role sur la page profil (catch {} silencieux remplace par verification has_guardian_space + popup activation)
+- Import GuardianActivationPopup dans profile.tsx
+- Bug fix: KeyError water_pct dans health_report_routes.py (ligne 108)
+
 ### Mar 2, 2026 - Nettoyage complet base de donnees
 - Toutes les collections videes (users, devices, subscriptions, contracts, readings, etc.)
 - Seuls les programmes (10), codes activation (3) et codes intervention (3) recrees
