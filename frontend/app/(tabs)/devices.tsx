@@ -207,9 +207,9 @@ function DeviceManagement({ token }: { token: string }) {
                 </div>
               </div>
             );
-          })}
+          })})()}
 
-          {/* Empty state */}
+          {/* Empty state — hidden since we always show 3 cards now */}
           {devices.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px 20px' } as any}>
               <i className="ri-bluetooth-connect-line" style={{ fontSize: 40, color: 'rgba(255,255,255,0.25)' }} />
