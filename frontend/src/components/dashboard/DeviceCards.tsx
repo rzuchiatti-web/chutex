@@ -45,8 +45,11 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
     { id: 'vest', name: 'Elder', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, paired: vs.paired, color: '#10B981', link: 'https://chutex-innovation.com/gilet-elder', steps: VEST_STEPS },
   ];
 
-  // Only show connected/paired devices on dashboard — others go to devices page
-  const connectedDevices = devices.filter(d => d.connected || d.paired);
+  // Only show connected/paired devices on dashboard — balance only if has weighings
+  const connectedDevices = devices.filter(d => {
+    if (d.id === 'scale') return (d.connected || d.paired) && weighings.length > 0;
+    return d.connected || d.paired;
+  });
 
   const getDevice = (id: string) => devices.find(d => d.id === id)!;
   const lastSync = (ts: string) => ts ? new Date(ts).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '--';

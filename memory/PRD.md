@@ -85,9 +85,9 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Invitation equipe programme par telephone
 
 ## Upcoming Tasks
-- Bouton "Modifier moyen de paiement" sur la page abonnement (non fonctionnel)
-- Verification builds mobiles (iOS #60, Android)
-- Email rapport hebdomadaire automatise (cron)
+- Safe area : marge en haut du telephone sur toutes les pages
+- Page programmes : fond dashboard + blur, detail enrichi, bloquer si pas de bracelet
+- Face ID/biometrie sans TestFlight
 
 ## Future/Backlog
 - Systeme de parrainage gardien

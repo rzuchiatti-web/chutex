@@ -208,8 +208,16 @@ export default function ProfileScreen() {
   };
 
   const changePassword = async () => {
-    if (!newPw || newPw.length < 6) return Alert.alert('Erreur', 'Min. 6 caracteres');
-    try { await apiFetch('/api/auth/change-password', { method: 'PUT', body: JSON.stringify({ old_password: oldPw, new_password: newPw }) }, token); Alert.alert('Mot de passe modifie'); setShowPwChange(false); setOldPw(''); setNewPw(''); } catch (e: any) { Alert.alert('Erreur', e.message); }
+    if (!newPw || newPw.length < 6) { if (Platform.OS === 'web') window.alert('Min. 6 caracteres'); else Alert.alert('Erreur', 'Min. 6 caracteres'); return; }
+    try {
+      await apiFetch('/api/auth/change-password', { method: 'PUT', body: JSON.stringify({ old_password: oldPw, new_password: newPw }) }, token);
+      if (Platform.OS === 'web') window.alert('Mot de passe modifie avec succes');
+      else Alert.alert('Mot de passe modifie');
+      setShowPwChange(false); setOldPw(''); setNewPw('');
+    } catch (e: any) {
+      if (Platform.OS === 'web') window.alert(e.message || 'Erreur');
+      else Alert.alert('Erreur', e.message);
+    }
   };
 
   const sendContactForm = async () => {
