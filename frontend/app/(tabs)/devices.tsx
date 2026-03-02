@@ -87,7 +87,7 @@ function DeviceManagement({ token }: { token: string }) {
 
         {/* Header — no subscription pill */}
         <div style={{ position: 'relative', padding: '28px 20px 16px', zIndex: 5, textAlign: 'center' } as any}>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Appareils connectes</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Dispositifs connectes</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Gerez vos dispositifs de sante Chutex</div>
         </div>
 
