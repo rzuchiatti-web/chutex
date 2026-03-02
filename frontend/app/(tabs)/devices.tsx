@@ -215,7 +215,7 @@ function DeviceManagement({ token }: { token: string }) {
           await notifyChar.startNotifications();
           notifyChar.addEventListener('characteristicvaluechanged', (event: any) => {
             const parsed = parseBraceletResponse(event.target.value);
-            if (parsed.battery) collectedData.battery = parsed.battery;
+            if (parsed.battery && parsed.battery > 0) { collectedData.battery = parsed.battery; setBleVitals(prev => ({ ...prev, battery: parsed.battery })); }
             if (parsed.heart_rate && parsed.heart_rate > 0 && parsed.heart_rate < 255) collectedData.heart_rate = parsed.heart_rate;
             if (parsed.spo2 && parsed.spo2 > 0) collectedData.spo2 = parsed.spo2;
             if (parsed.temperature && parsed.temperature > 30) collectedData.temperature = parsed.temperature;
@@ -240,10 +240,71 @@ function DeviceManagement({ token }: { token: string }) {
           }
         }
       } else {
-        // Vest: just find and start notifications
+        // Vest: parse text-based protocol @&key=value&...#
+        let vestBuffer = '';
+        const parseVestPacket = (raw: string) => {
+          const data: Record<string, any> = {};
+          let cleaned = raw.trim();
+          if (cleaned.startsWith('@')) cleaned = cleaned.substring(1);
+          if (cleaned.endsWith('#')) cleaned = cleaned.slice(0, -1);
+          cleaned.split('&').forEach(part => {
+            if (part.includes('=')) {
+              const [key, val] = part.split('=', 2);
+              if (!key) return;
+              if (['bat','csq','step','no','sos','fault','type','mod','firstflag','secondflag','lac','cid','accx','accy','accz','gyrox','gyroy','gyroz','roll'].includes(key)) {
+                data[key] = parseInt(val) || 0;
+              } else if (['latt','lng'].includes(key)) {
+                data[key] = parseFloat(val) || 0;
+              } else {
+                data[key] = val;
+              }
+            }
+          });
+          return data;
+        };
+
         for (const uuid of VEST_SVCS) {
-          try { const svc = await server.getPrimaryService(uuid); const chars = await svc.getCharacteristics(); for (const c of chars) { if (c.properties.notify || c.properties.indicate) { await c.startNotifications(); break; } } break; } catch {}
+          try {
+            const svc = await server.getPrimaryService(uuid);
+            const chars = await svc.getCharacteristics();
+            for (const c of chars) {
+              if (c.properties.notify || c.properties.indicate) {
+                await c.startNotifications();
+                c.addEventListener('characteristicvaluechanged', (event: any) => {
+                  const dv = event.target.value;
+                  // Decode bytes to string
+                  let text = '';
+                  for (let i = 0; i < dv.byteLength; i++) text += String.fromCharCode(dv.getUint8(i));
+                  vestBuffer += text;
+                  // Process complete packets (between @ and #)
+                  while (vestBuffer.includes('@') && vestBuffer.includes('#')) {
+                    const start = vestBuffer.indexOf('@');
+                    const end = vestBuffer.indexOf('#', start);
+                    if (end === -1) break;
+                    const packet = vestBuffer.substring(start, end + 1);
+                    vestBuffer = vestBuffer.substring(end + 1);
+                    const parsed = parseVestPacket(packet);
+                    if (parsed.bat) { collectedData.battery = parsed.bat; setBleVitals((prev: any) => ({ ...prev, battery: parsed.bat })); }
+                    // Push to backend
+                    apiFetch('/api/vest/push', { method: 'POST', body: JSON.stringify({ raw: packet, parsed, device_id: bd.id || '' }) }, token).then(res => {
+                      if (res?.alert === 'sos') setBleError('ALERTE SOS DETECTEE !');
+                    }).catch(() => {});
+                  }
+                });
+                break;
+              }
+            }
+            break;
+          } catch {}
         }
+        // Also try to read battery via standard BLE service
+        try {
+          const battSvc = await server.getPrimaryService('battery_service');
+          const battChar = await battSvc.getCharacteristic('battery_level');
+          const val = await battChar.readValue();
+          const bat = val.getUint8(0);
+          if (bat > 0) collectedData.battery = bat;
+        } catch {}
       }
 
       // Register + sync with real data

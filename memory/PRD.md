@@ -17,6 +17,12 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
+### Mar 2, 2026 - BLE Gilet + Bracelet + Suppression Simulation
+- Gilet: parsing protocole texte S-AIRBAG (@&type=1&bat=28&...#), batterie, detection chute (type=2&sos=1) -> alerte + escalade gardiens
+- Bracelet: fix batterie (setBleVitals dynamique quand cmd 0x0D arrive)
+- Suppression TOTALE simulation: health_routes.py (historique), health_report_routes.py (rapport PDF), caches vides
+- 24.7C = donnee REELLE bracelet (temp ambiante, pas portee)
+
 ### Mar 2, 2026 - Fix Switch Beneficiaire/Gardien
 - Corrige le switch de role sur la page profil (catch {} silencieux remplace par verification has_guardian_space + popup activation)
 - Import GuardianActivationPopup dans profile.tsx
