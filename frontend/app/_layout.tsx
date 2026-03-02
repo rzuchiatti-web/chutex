@@ -13,56 +13,40 @@ import { PastelMistBackground } from '../src/components/PastelMistBackground';
  */
 function NativeFullApp() {
   const WebView = require('react-native-webview').default;
+  const { SafeAreaView } = require('react-native-safe-area-context');
   const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0A0A1A' }}>
       <StatusBar style="light" translucent={true} />
-      <WebView
-        source={{ uri: backendUrl }}
-        style={{ flex: 1, backgroundColor: 'transparent' }}
-        startInLoadingState={true}
-        renderLoading={() => (
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
-            <Image
-              source={{ uri: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429' }}
-              style={{ width: 120, height: 40, resizeMode: 'contain', marginBottom: 20 }}
-            />
-            <ActivityIndicator size="large" color="#A78BFA" />
-            <View style={{ marginTop: 16 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{ width: 28, height: 28, borderRadius: 9, backgroundColor: 'rgba(167,139,250,0.15)', justifyContent: 'center', alignItems: 'center', marginRight: 8 }}>
-                  <Image
-                    source={{ uri: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429' }}
-                    style={{ width: 14, height: 14, resizeMode: 'contain', tintColor: '#A78BFA' }}
-                  />
-                </View>
-                <View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    {[0, 1, 2].map(i => (
-                      <View key={i} style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: '#A78BFA', marginHorizontal: 2, opacity: 0.4 }} />
-                    ))}
-                  </View>
-                </View>
-              </View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A1A' }} edges={['top']}>
+        <WebView
+          source={{ uri: backendUrl }}
+          style={{ flex: 1, backgroundColor: 'transparent' }}
+          startInLoadingState={true}
+          renderLoading={() => (
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
+              <Image
+                source={{ uri: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429' }}
+                style={{ width: 120, height: 40, resizeMode: 'contain', marginBottom: 20 }}
+              />
+              <ActivityIndicator size="large" color="#A78BFA" />
             </View>
-          </View>
-        )}
-        allowsBackForwardNavigationGestures={true}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        sharedCookiesEnabled={true}
-        mediaPlaybackRequiresUserAction={false}
-        allowsInlineMediaPlayback={true}
-        scrollEnabled={true}
-        bounces={false}
-        overScrollMode="never"
-        decelerationRate="normal"
-        contentMode="mobile"
-        allowsFullscreenVideo={true}
-        automaticallyAdjustContentInsets={false}
-        contentInsetAdjustmentBehavior="never"
-      />
+          )}
+          allowsBackForwardNavigationGestures={true}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          sharedCookiesEnabled={true}
+          mediaPlaybackRequiresUserAction={false}
+          allowsInlineMediaPlayback={true}
+          scrollEnabled={true}
+          bounces={false}
+          overScrollMode="never"
+          decelerationRate="normal"
+          contentMode="mobile"
+          allowsFullscreenVideo={true}
+        />
+      </SafeAreaView>
     </View>
   );
 }
