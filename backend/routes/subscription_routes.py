@@ -145,7 +145,7 @@ async def get_billing_portal(data: dict, user=Depends(get_current_user)):
         customer_id = stripe_sub.customer
         session = stripe_lib.billing_portal.Session.create(
             customer=customer_id,
-            return_url=data.get('return_url', 'https://real-time-wellness.preview.emergentagent.com/profile'),
+            return_url=data.get('return_url', 'https://health-guardian-42.preview.emergentagent.com/profile'),
         )
         return {"url": session.url}
     except Exception as e:
