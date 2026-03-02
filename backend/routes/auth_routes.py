@@ -54,7 +54,41 @@ async def verify_code(data: dict):
     return {"status": "verified", "message": "Telephone verifie"}
 
 
-@router.post("/auth/forgot-password")
+@router.get("/auth/contract-prefill/{phone}")
+async def get_contract_prefill(phone: str):
+    """Check if a phone number has an active contract and return pre-fill data for registration."""
+    import re
+    cleaned = re.sub(r'[\s\-\.\(\)]', '', phone)
+    if cleaned.startswith('0') and len(cleaned) == 10:
+        cleaned = '+33' + cleaned[1:]
+
+    # Search contract by beneficiary phone
+    contract = None
+    for variant in [cleaned, f"+{cleaned}" if not cleaned.startswith('+') else cleaned, "0" + cleaned[-9:]]:
+        contract = await db.contracts.find_one(
+            {"beneficiary.phone": variant, "status": "active"}, {"_id": 0}
+        )
+        if contract:
+            break
+
+    if not contract:
+        return {"has_contract": False}
+
+    ben = contract.get("beneficiary", {})
+    return {
+        "has_contract": True,
+        "subscription_type": "care" if "gilet" in contract.get("plan", "") else "standard",
+        "plan_label": contract.get("plan_label", ""),
+        "prefill": {
+            "first_name": ben.get("first_name", ""),
+            "last_name": ben.get("last_name", ""),
+            "date_of_birth": ben.get("date_of_birth", ""),
+            "gender": ben.get("gender", ""),
+            "address": ben.get("address", ""),
+            "city": ben.get("city", ""),
+            "postal_code": ben.get("postal_code", ""),
+        },
+    }
 async def forgot_password(data: dict):
     """Send a password reset code via SMS to the user's phone."""
     import re
