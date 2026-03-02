@@ -89,7 +89,7 @@ export default function ProgramDetailScreen() {
       <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
       <div style={{ maxWidth: 420, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 44px) + 10px) 20px 100px' } as any}>
         {/* Back */}
-        <div onClick={() => step > 0 && step !== 2 ? setStep(step - 1) : step === 2 ? router.replace('/programs' as any) : router.back()} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 20 } as any}>
+        <div onClick={() => step > 0 && step !== 2 ? setStep(step - 1) : step === 2 ? router.replace('/programs' as any) : router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 20 } as any}>
           <i className={step === 2 ? "ri-close-line" : "ri-arrow-left-line"} style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
         </div>
 
