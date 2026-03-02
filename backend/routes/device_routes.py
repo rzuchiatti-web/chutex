@@ -44,31 +44,30 @@ async def sync_device(data: DeviceSyncRequest, user=Depends(get_current_user)):
     # Store REAL data sent by BLE device — no simulation
     device_data = data.data if data.data else {}
     now = datetime.now(timezone.utc).isoformat()
-    # Only update battery if provided in data, otherwise keep existing
     update_fields: dict = {"connected": True, "last_sync": now}
     if device_data.get("battery"):
         update_fields["battery"] = device_data["battery"]
     await db.devices.update_one({"user_id": user['id'], "device_type": data.device_type}, {"$set": update_fields})
     if device_data:
         await db.device_readings.insert_one({"id": str(uuid.uuid4()), "user_id": user['id'], "device_type": data.device_type, "data": device_data, "timestamp": now})
-    anomalies = check_anomalies(data.device_type, device_data)
-    for an in anomalies:
-        alert_id = str(uuid.uuid4())
-        await db.alerts.insert_one({
-            "id": alert_id, "beneficiary_id": user['id'], "beneficiary_name": user['name'],
-            "alert_type": "anomaly", "severity": an['severity'], "message": an['message'], "device_type": data.device_type,
-            "status": "active", "created_at": now, "resolved_at": None, "resolved_by": None, "teleassistance_status": "pending",
-        })
-        # Push notification for health threshold anomalies
-        guardians = await db.users.find({"beneficiaries": user['id']}, {"_id": 0, "id": 1}).to_list(20)
-        guardian_ids = [g['id'] for g in guardians]
-        if guardian_ids:
-            asyncio.create_task(notify_health_threshold(user['name'], an.get('metric', data.device_type), an.get('value', 0), guardian_ids))
-    
-    # Low battery notification
-    if batt <= 20:
+    # Check anomalies on real data only
+    anomalies = []
+    if device_data:
+        anomalies = check_anomalies(data.device_type, device_data)
+        for an in anomalies:
+            alert_id = str(uuid.uuid4())
+            await db.alerts.insert_one({
+                "id": alert_id, "beneficiary_id": user['id'], "beneficiary_name": user['name'],
+                "alert_type": "anomaly", "severity": an['severity'], "message": an['message'], "device_type": data.device_type,
+                "status": "active", "created_at": now, "resolved_at": None, "resolved_by": None, "teleassistance_status": "pending",
+            })
+            guardians = await db.users.find({"beneficiaries": user['id']}, {"_id": 0, "id": 1}).to_list(20)
+            guardian_ids = [g['id'] for g in guardians]
+            if guardian_ids:
+                asyncio.create_task(notify_health_threshold(user['name'], an.get('metric', data.device_type), an.get('value', 0), guardian_ids))
+    batt = device_data.get("battery", 0) if device_data else 0
+    if batt and batt <= 20:
         asyncio.create_task(notify_low_battery(user['id'], data.device_type, batt))
-    
     return {"status": "synced", "data": device_data, "anomalies": anomalies, "battery": batt, "timestamp": now}
 
 

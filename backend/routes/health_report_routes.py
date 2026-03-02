@@ -69,39 +69,40 @@ def gen_data():
 
 def compute_subscores(d):
     def clamp(v): return max(0, min(100, v))
+    def g(k, default=0): return d.get(k, default)
     cardio = 100
-    if d["heart_rate"] < 55 or d["heart_rate"] > 100: cardio -= 25
-    elif d["heart_rate"] < 60 or d["heart_rate"] > 90: cardio -= 10
-    if d["spo2"] < 95: cardio -= 25
-    elif d["spo2"] < 97: cardio -= 10
-    bp = d["blood_pressure"]
-    if bp["systolic"] > 140: cardio -= 20
-    elif bp["systolic"] > 130: cardio -= 8
-    if d["hrv"] < 25: cardio -= 15
+    if g("heart_rate") < 55 or g("heart_rate") > 100: cardio -= 25
+    elif g("heart_rate") < 60 or g("heart_rate") > 90: cardio -= 10
+    if g("spo2") < 95: cardio -= 25
+    elif g("spo2") < 97: cardio -= 10
+    bp = g("blood_pressure", {"systolic": 0, "diastolic": 0})
+    if bp.get("systolic", 0) > 140: cardio -= 20
+    elif bp.get("systolic", 0) > 130: cardio -= 8
+    if g("hrv") < 25: cardio -= 15
 
     sleep = 100
-    if d["sleep_quality"] < 60: sleep -= 30
-    elif d["sleep_quality"] < 75: sleep -= 10
-    if d["sleep_duration_min"] < 360: sleep -= 20
-    elif d["sleep_duration_min"] < 420: sleep -= 5
-    if d["sleep_interruptions"] > 4: sleep -= 15
-    if d["stress_level"] > 60: sleep -= 15
-    elif d["stress_level"] > 40: sleep -= 5
+    if g("sleep_quality") < 60: sleep -= 30
+    elif g("sleep_quality") < 75: sleep -= 10
+    if g("sleep_duration_min") < 360: sleep -= 20
+    elif g("sleep_duration_min") < 420: sleep -= 5
+    if g("sleep_interruptions") > 4: sleep -= 15
+    if g("stress_level") > 60: sleep -= 15
+    elif g("stress_level") > 40: sleep -= 5
 
     activity = 100
-    if d["steps"] < 2000: activity -= 30
-    elif d["steps"] < 4000: activity -= 10
-    elif d["steps"] < 6000: activity -= 3
-    if d["calories"] < 100: activity -= 10
+    if g("steps") < 2000: activity -= 30
+    elif g("steps") < 4000: activity -= 10
+    elif g("steps") < 6000: activity -= 3
+    if g("calories") < 100: activity -= 10
 
     metabolism = 100
-    if d["bmi"] > 30: metabolism -= 25
-    elif d["bmi"] > 25: metabolism -= 8
-    if d["body_fat_pct"] > 30: metabolism -= 20
-    elif d["body_fat_pct"] > 25: metabolism -= 8
-    if d["visceral_fat"] > 12: metabolism -= 20
-    elif d["visceral_fat"] > 10: metabolism -= 8
-    if d["muscle_pct"] < 28: metabolism -= 10
+    if g("bmi") > 30: metabolism -= 25
+    elif g("bmi") > 25: metabolism -= 8
+    if g("body_fat_pct") > 30: metabolism -= 20
+    elif g("body_fat_pct") > 25: metabolism -= 8
+    if g("visceral_fat") > 12: metabolism -= 20
+    elif g("visceral_fat") > 10: metabolism -= 8
+    if g("muscle_pct") < 28: metabolism -= 10
 
     hydration = 100
     if d["water_pct"] < 45: hydration -= 30
@@ -128,20 +129,22 @@ def compute_subscores(d):
 
 def compute_daily_plan(d, score_info):
     plan = []
-    plan.append({"key": "calories", "label": "Apport calorique", "value": f"{d['recommended_calories']}", "unit": "kcal", "status": "objectif", "icon": "ri-fire-line", "color": "#F59E0B",
-                 "detail": f"Ton metabolisme de base est de {d['basal_metabolism']} kcal. Avec ton activite, vise {d['recommended_calories']} kcal aujourd'hui."})
-    step_goal = 6000 if d["recovery_score"] >= 70 else 4000
-    plan.append({"key": "steps", "label": "Objectif pas", "value": f"{step_goal}", "unit": "pas", "status": "en cours" if d["steps"] < step_goal else "atteint",
-                 "progress": min(100, round(d["steps"] / step_goal * 100)), "icon": "ri-footprint-line", "color": "#10B981",
-                 "detail": f"Tu es a {d['steps']} pas. Objectif adapte a ta recuperation ({d['recovery_score']}/100)."})
-    water_goal = 1.5 if d["water_pct"] >= 55 else 2.0
-    plan.append({"key": "hydration", "label": "Hydratation", "value": f"{water_goal}L", "unit": "minimum", "status": "priorite" if d["water_pct"] < 55 else "OK",
+    g = lambda k, default=0: d.get(k, default)
+    rec_cal = g("recommended_calories", g("basal_metabolism", 1500))
+    plan.append({"key": "calories", "label": "Apport calorique", "value": f"{rec_cal}", "unit": "kcal", "status": "objectif", "icon": "ri-fire-line", "color": "#F59E0B",
+                 "detail": f"Ton metabolisme de base est de {g('basal_metabolism', 1500)} kcal. Vise {rec_cal} kcal aujourd'hui."})
+    step_goal = 6000 if g("recovery_score") >= 70 else 4000
+    plan.append({"key": "steps", "label": "Objectif pas", "value": f"{step_goal}", "unit": "pas", "status": "en cours" if g("steps") < step_goal else "atteint",
+                 "progress": min(100, round(g("steps") / max(1, step_goal) * 100)), "icon": "ri-footprint-line", "color": "#10B981",
+                 "detail": f"Tu es a {g('steps')} pas. Objectif adapte a ta recuperation ({g('recovery_score')}/100)."})
+    water_goal = 1.5 if g("water_pct") >= 55 else 2.0
+    plan.append({"key": "hydration", "label": "Hydratation", "value": f"{water_goal}L", "unit": "minimum", "status": "priorite" if g("water_pct") < 55 else "OK",
                  "icon": "ri-drop-line", "color": "#38BDF8",
-                 "detail": f"Ton taux d'hydratation est de {d['water_pct']}%. {'Augmente ta consommation d eau.' if d['water_pct'] < 55 else 'Continue a bien t hydrater.'}"})
-    bed = "22:30" if d["sleep_quality"] < 80 else "23:00"
+                 "detail": f"Ton taux d'hydratation est de {g('water_pct')}%."})
+    bed = "22:30" if g("sleep_quality") < 80 else "23:00"
     plan.append({"key": "sleep", "label": "Coucher conseille", "value": bed, "unit": "", "status": "conseil",
                  "icon": "ri-moon-line", "color": "#A78BFA",
-                 "detail": f"Qualite de sommeil hier: {d['sleep_quality']}%. {'Un coucher plus tot ameliorera ta recuperation.' if d['sleep_quality'] < 80 else 'Ton sommeil est bon, maintiens ce rythme.'}"})
+                 "detail": f"Qualite de sommeil hier: {g('sleep_quality')}%."})
     return plan
 
 
@@ -503,10 +506,17 @@ async def get_health_summary(user=Depends(get_current_user)):
         except:
             pass
 
-    d = gen_data()
+    # Build data from real readings only
+    d = {"heart_rate": 0, "spo2": 0, "blood_pressure": {"systolic": 0, "diastolic": 0}, "temperature": 0, "steps": 0, "stress_level": 0, "recovery_score": 0, "sleep_quality": 0, "weight": 0}
+    br = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
+    sc = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
+    if br and br.get("data"):
+        for k, v in br["data"].items():
+            if v: d[k] = v
+    if sc and sc.get("data"):
+        for k, v in sc["data"].items():
+            if v: d[k] = v
     si = compute_subscores(d)
-
-    # Try LLM for a quick summary
     summary_sentence = ""
     recommendation = ""
     api_key = os.environ.get("EMERGENT_LLM_KEY")
@@ -578,10 +588,20 @@ async def get_daily_report(user=Depends(get_current_user)):
 
     bracelet_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
     scale_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
-    d = gen_data()
+    # Start with empty data — only real readings populate it
+    d = {
+        "heart_rate": 0, "heart_rate_prev": 0, "hrv": 0, "spo2": 0,
+        "blood_pressure": {"systolic": 0, "diastolic": 0},
+        "temperature": 0, "steps": 0, "calories": 0, "distance_km": 0,
+        "sleep_quality": 0, "sleep_duration": 0, "sleep_deep_pct": 0, "sleep_rem_pct": 0,
+        "sleep_duration_min": 0, "sleep_interruptions": 0,
+        "stress_level": 0, "recovery_score": 0,
+        "weight": 0, "bmi": 0, "body_fat_pct": 0, "muscle_pct": 0,
+        "water_pct": 0, "visceral_fat": 0, "body_age": 0, "bone_mass_kg": 0,
+    }
     if bracelet_reading and bracelet_reading.get("data"):
         rd = bracelet_reading["data"]
-        for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv"]:
+        for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv", "stress_level", "recovery_score", "sleep_quality", "sleep_duration", "sleep_deep_pct", "sleep_rem_pct"]:
             if rd.get(k): d[k] = rd[k]
         if rd.get("blood_pressure"): d["blood_pressure"] = rd["blood_pressure"]
     if scale_reading and scale_reading.get("data"):
