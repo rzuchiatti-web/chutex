@@ -348,19 +348,44 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
               <i className="ri-external-link-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
             </div>
 
-            {/* Subscription info */}
-            <div style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, ...glass } as any}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Recapitulatif</div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{isCare ? 'Chutex Care' : 'Bracelet Elio'}</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{isCare ? '39,90' : '24,90'} EUR</span>
-              </div>
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0' } as any} />
-              <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Total mensuel</span>
-                <span style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{isCare ? '39,90' : '24,90'} EUR</span>
-              </div>
-            </div>
+            {/* Subscription info — use contract data */}
+            {(() => {
+              const ct = subData?.contract || {};
+              const price = ct.price_monthly || (isCare ? 39.90 : 24.90);
+              const priceCredit = ct.price_after_credit;
+              const planLabel = ct.plan_label || (isCare ? 'Chutex Care' : 'Bracelet Elio');
+              return (
+                <div style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, ...glass } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Recapitulatif</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{planLabel}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{price.toFixed(2).replace('.', ',')} EUR</span>
+                  </div>
+                  {priceCredit && (
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                        <span style={{ fontSize: 12, color: 'rgba(16,185,129,0.6)' }}>Credit d'impot 50%</span>
+                        <span style={{ fontSize: 12, color: '#10B981' }}>-{(price - priceCredit).toFixed(2).replace('.', ',')} EUR</span>
+                      </div>
+                      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0' } as any} />
+                      <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Apres credit d'impot</span>
+                        <span style={{ fontSize: 15, fontWeight: 900, color: '#10B981' }}>{priceCredit.toFixed(2).replace('.', ',')} EUR/mois</span>
+                      </div>
+                    </>
+                  )}
+                  {!priceCredit && (
+                    <>
+                      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0' } as any} />
+                      <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Total mensuel</span>
+                        <span style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{price.toFixed(2).replace('.', ',')} EUR</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Cancel */}
             {!showCancel ? (
@@ -370,8 +395,11 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
             ) : (
               <div style={{ marginTop: 20, padding: '18px', borderRadius: 16, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', ...glass } as any}>
                 <div style={{ fontSize: 15, fontWeight: 800, color: '#EF4444', marginBottom: 8 }}>Confirmer la resiliation ?</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 14 }}>
-                  {isCare ? 'Vous perdrez l\'acces a la teleassistance 24/7, au suivi GPS et aux intervenants Care.' : 'Vous ne pourrez plus utiliser votre bracelet Elio ni acceder a vos donnees de sante.'}
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 14 }}>
+                  En resiliant votre abonnement :<br/>
+                  - Vous devez retourner le materiel sous 30 jours ouvrables<br/>
+                  - Envoyez le numero de suivi a : <span style={{ color: '#F59E0B', fontWeight: 700 }}>contact@chutex-innovation.com</span><br/>
+                  {isCare ? '- Vous perdrez l\'acces a la teleassistance 24/7, au suivi GPS et aux intervenants Care' : '- Vous ne pourrez plus utiliser votre bracelet Elio ni acceder a vos donnees de sante'}
                 </div>
                 <div style={{ display: 'flex', gap: 10 } as any}>
                   <div onClick={() => setShowCancel(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>Annuler</div>
