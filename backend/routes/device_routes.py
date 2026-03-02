@@ -75,7 +75,74 @@ async def sync_device(data: DeviceSyncRequest, user=Depends(get_current_user)):
 @router.get("/devices")
 async def get_devices(user=Depends(get_current_user)):
     uid = user.get('beneficiaries', []) if user['role'] == 'guardian' else [user['id']]
-    return await db.devices.find({"user_id": {"$in": uid}}, {"_id": 0}).to_list(100)
+    return await db.devices.find(
+        {"user_id": {"$in": uid}, "removed": {"$ne": True}}, {"_id": 0}
+    ).to_list(100)
+
+
+@router.post("/devices/associate")
+async def associate_device(data: dict, user=Depends(get_current_user)):
+    """Associate/pair a new device for the user. Creates the device record."""
+    device_type = data.get("device_type", "")
+    if device_type not in ("bracelet", "scale", "vest"):
+        raise HTTPException(status_code=400, detail="Type d'appareil invalide")
+
+    uid = user["id"]
+
+    # Check subscription for bracelet
+    if device_type == "bracelet":
+        sub = await db.subscriptions.find_one(
+            {"beneficiary_id": uid, "status": "active"}, {"_id": 0}
+        )
+        if not sub:
+            phone = user.get("phone", "")
+            if phone:
+                sub = await db.subscriptions.find_one(
+                    {"beneficiary_phone": normalize_phone(phone), "status": "active"}, {"_id": 0}
+                )
+            if not sub:
+                raise HTTPException(status_code=403, detail="Abonnement requis pour le bracelet Elio")
+
+    # Check if already associated (non-removed)
+    existing = await db.devices.find_one(
+        {"user_id": uid, "device_type": device_type, "removed": {"$ne": True}}, {"_id": 0}
+    )
+    if existing:
+        # Re-activate
+        await db.devices.update_one(
+            {"user_id": uid, "device_type": device_type, "removed": {"$ne": True}},
+            {"$set": {"connected": True, "battery": random.randint(60, 95), "last_sync": datetime.now(timezone.utc).isoformat()}}
+        )
+        updated = await db.devices.find_one(
+            {"user_id": uid, "device_type": device_type, "removed": {"$ne": True}}, {"_id": 0}
+        )
+        return {"status": "reconnected", "device": updated}
+
+    names = {"bracelet": "Bracelet Elio", "scale": "Balance Vita", "vest": "Gilet Elder"}
+    now = datetime.now(timezone.utc).isoformat()
+    device = {
+        "id": str(uuid.uuid4()), "user_id": uid, "device_type": device_type,
+        "name": names.get(device_type, device_type), "connected": True,
+        "battery": random.randint(60, 95), "last_sync": now,
+        "firmware_version": "1.0", "mac_address": data.get("mac_address", ""),
+    }
+    await db.devices.insert_one(device)
+    device.pop("_id", None)
+
+    # Generate initial reading data
+    generators = {
+        "bracelet": lambda: generate_bracelet_data(None),
+        "scale": lambda: generate_scale_data(None),
+        "vest": generate_vest_data,
+    }
+    device_data = generators.get(device_type, lambda: {})()
+    if device_data:
+        await db.device_readings.insert_one({
+            "id": str(uuid.uuid4()), "user_id": uid,
+            "device_type": device_type, "data": device_data, "timestamp": now,
+        })
+
+    return {"status": "associated", "device": device}
 
 
 @router.delete("/devices/{device_id}/remove")

@@ -72,10 +72,24 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
     setScanning(false);
   };
 
-  const launchScan = () => {
+  const launchScan = async () => {
     setScanning(true);
-    // On real device, BLE scanning would start here
-    // On web, we show an animation
+    if (!pairingDevice) return;
+    try {
+      await apiFetch('/api/devices/associate', {
+        method: 'POST',
+        body: JSON.stringify({ device_type: pairingDevice }),
+      }, token);
+      // Simulate BLE scan delay
+      await new Promise(r => setTimeout(r, 2500));
+      setScanning(false);
+      closePairing();
+      onRefresh?.();
+    } catch (e: any) {
+      setScanning(false);
+      closePairing();
+      if (typeof window !== 'undefined') window.alert(e.message || 'Erreur lors de l\'association');
+    }
   };
 
   const InfoRow = ({ label, val }: { label: string; val: string }) => (
