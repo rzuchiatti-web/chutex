@@ -38,20 +38,21 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
     ]);
     setGuardians(Array.isArray(g) ? g : []);
     setPendingInvites(Array.isArray(inv) ? inv : []);
-    // Load housing from subscription
+    // Load housing: first from subscription, then from contract
     const sub = subData?.subscription;
-    if (sub) {
-      setHousing({
-        address: sub.address || user?.address || '',
-        postal_code: sub.postal_code || user?.postal_code || '',
-        city: sub.city || user?.city || '',
-        floor: sub.floor || '',
-        digicode: sub.digicode || '',
-        interphone: sub.interphone || '',
-        key_box_code: sub.key_box_code || '',
-        housing_notes: sub.housing_notes || '',
-      });
-    }
+    const ct = subData?.contract;
+    const ctHousing = ct?.housing || {};
+    const ctBen = ct?.beneficiary || {};
+    setHousing({
+      address: sub?.address || ctBen?.address || user?.address || '',
+      postal_code: sub?.postal_code || ctBen?.postal_code || user?.postal_code || '',
+      city: sub?.city || ctBen?.city || user?.city || '',
+      floor: sub?.floor || ctHousing?.floor || '',
+      digicode: sub?.digicode || ctHousing?.access_code || ctHousing?.digicode || '',
+      interphone: sub?.interphone || ctHousing?.door || '',
+      key_box_code: sub?.key_box_code || '',
+      housing_notes: sub?.housing_notes || (ctHousing?.animal ? `Animal: ${ctHousing.animal}${ctHousing.animal_type ? ' (' + ctHousing.animal_type + ')' : ''}` : ''),
+    });
   }, [token, subData]);
 
   useEffect(() => { if (show) fetchData(); }, [show, fetchData]);
