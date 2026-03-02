@@ -11,11 +11,16 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 ## Test Credentials
 | Role | Phone/Email | Password |
 |------|-------------|----------|
-| Admin | admin@chutex.fr | demo123 |
-| Beneficiaire (Robin) | +33651245918 | test123 |
-| Teleassistance | plateau@chutex.fr | demo123 |
+| (Aucun compte - base videe le 2 mars 2026) | | |
+| Codes activation: PRESC-DOC-01, PRESC-INF-01, PRESC-SAAD-01 | | |
+| Codes intervention: CARE-STETI-01, CARE-PARIS-01, CARE-LYON-01 | | |
 
 ## Completed Features
+
+### Mar 2, 2026 - Nettoyage complet base de donnees
+- Toutes les collections videes (users, devices, subscriptions, contracts, readings, etc.)
+- Seuls les programmes (10), codes activation (3) et codes intervention (3) recrees
+- Bug fix: KeyError water_pct dans health_report_routes.py (ligne 108) - utilisait d["water_pct"] au lieu de g("water_pct")
 
 ### Mar 2, 2026 - Refactoring Page Dispositifs + Appairage BLE Reel
 **Correctifs critiques:**
@@ -25,39 +30,19 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - `GET /api/devices/dashboard-summary` filtre aussi les appareils supprimes (coherence)
 
 **Refactoring page dispositifs (`devices.tsx`):**
-- Bouton "Associer" → flux d'appairage guide etape par etape → "Lancer l'appairage" redirige vers la VRAIE page BLE:
-  - Bracelet → `/bracelet-connect` (Web Bluetooth / react-native-ble-plx)
-  - Gilet Elder → `/vest-connect` (BLE reel)
-  - Balance Vita → `/scale-detail` (pesee BLE reelle)
-- Bracelet associe : boutons "ECG" (→ `/ecg`) et "Connexion" (→ `/bracelet-connect`)
-- Balance associee : bouton "Nouvelle pesee" (→ `/scale-detail`)
-- Gilet associe : bouton "Connexion" (→ `/vest-connect`)
-- PAS de header collant — le titre scrolle avec le contenu
-- Bouton "Supprimer" UNIQUEMENT dans le popup details glass (pas sur la carte)
-- Plus aucune donnee simulee — tout passe par le vrai BLE
-- Dashboard `DeviceCards.tsx` redirige aussi vers les pages BLE reelles
+- Bouton "Associer" -> flux d'appairage guide etape par etape -> "Lancer l'appairage" redirige vers la VRAIE page BLE
+- Bracelet/Balance/Gilet: connexion BLE reelle via Web Bluetooth + bridge natif iOS
+- PAS de header collant -- le titre scrolle avec le contenu
+- Plus aucune donnee simulee -- tout passe par le vrai BLE
 
 ### Mar 2, 2026 - Correctifs Page Abonnement + Nora + Sante
-**Page abonnement (SubscriptionManagePopup):**
-- Header affiche le vrai nom du plan du contrat (ex: "Bracelet Elio + Gilet Elder — Teleassistance 24/7")
-- Prix correct 79.90€ affiche partout (onglet Info + Paiement)
-- Onglet Logement pre-rempli depuis les donnees du contrat (type, etage, porte, code, animal)
-- Onglet Gardiens affiche Franck ZUCHIATTI avec statut "En attente"
-- Bouton "Moyen de paiement" fonctionne (Stripe billing portal via contract stripe_subscription_id)
-- Message resiliation: retour materiel 30 jours + email contact@chutex-innovation.com
-
-**Email resiliation:**
-- Inclut retour materiel obligatoire sous 30 jours ouvrables
-- Mentionne l'adresse email contact@chutex-innovation.com pour envoyer le suivi
-
-**Nora IA:**
-- Regles strictes: ne JAMAIS recommander d'activer le role gardien aux beneficiaires
-
-**Page sante (sans donnees):**
-- Page maintenant scrollable (overflow: auto au lieu de hidden)
+- Header affiche le vrai nom du plan du contrat
+- Prix correct 79.90 EUR affiche partout
+- Onglet Logement pre-rempli depuis les donnees du contrat
+- Onglet Gardiens affiche gardiens avec statut
+- Bouton "Moyen de paiement" fonctionne (Stripe billing portal)
 
 ### Mar 1, 2026 - 10 Programmes de Prevention Scientifiques
-**10 programmes complets bases sur des etudes scientifiques:**
 1. "21 jours pour mieux dormir" (sommeil)
 2. "14 jours pour stabiliser sa tension" (cardiovasculaire)
 3. "30 jours pour bouger plus" (activite)
@@ -73,7 +58,6 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Service nora_context.py avec contexte utilisateur complet
 - Reponses coherentes sans donnees (tableaux vides)
 - Chat enrichi avec connaissance des services Chutex
-- Recommandations intelligentes (age, abonnement, appareils)
 
 ### Mar 1, 2026 - Fonctionnalites Avancees
 - Rapport hebdomadaire email Nora
@@ -82,25 +66,28 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Nora Vocale TTS
 - Alertes Predictives
 - Mode Intervenant a Domicile
-- Invitation equipe programme par telephone
 
 ## Upcoming Tasks
-- Safe area : marge en haut du telephone sur toutes les pages
-- Page programmes : fond dashboard + blur, detail enrichi, bloquer si pas de bracelet
-- Face ID/biometrie sans TestFlight
+- P0: Test complet par l'utilisateur (inscription, BLE, sante, dashboard)
+- P1: Ameliorations UI/UX Programmes (blur, detail enrichi, bloquer si programme actif)
+- P1: Safe area sur toutes les pages mobile
+- P2: Regression complete UI/UX
 
 ## Future/Backlog
-- Systeme de parrainage gardien
 - Rapport PDF sante partageable
+- Systeme de parrainage gardien
 - Programme d'essai gratuit 7 jours
+- Vue contrat PDF sur page abonnement
+- Face ID/biometrie
 - Integration EBP comptable
 - Mode hors-ligne intervenants
 - Deploiement production
 
 ## Key Files
-- `backend/routes/device_routes.py`: Endpoints dispositifs (associate, sync, remove, dashboard-summary)
-- `frontend/app/(tabs)/devices.tsx`: Page dispositifs avec flux d'appairage
-- `frontend/src/components/dashboard/DeviceCards.tsx`: Cartes dispositifs dashboard
+- `backend/routes/device_routes.py`: Endpoints dispositifs
+- `backend/routes/health_report_routes.py`: Rapport sante (bug fix water_pct)
+- `backend/routes/bracelet_routes.py`: Donnees BLE bracelet
+- `frontend/src/pages/devices.tsx`: Page dispositifs avec BLE reel
+- `frontend/app/_layout.tsx`: Bridge BLE natif iOS
 - `backend/services/nora_context.py`: Contexte IA enrichi
-- `backend/routes/program_routes.py`: Programmes sante
-- `frontend/app/(tabs)/index.tsx`: Dashboard beneficiaire
+- `backend/routes/program_routes.py`: Programmes sante + seed

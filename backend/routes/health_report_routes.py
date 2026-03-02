@@ -105,9 +105,9 @@ def compute_subscores(d):
     if g("muscle_pct") < 28: metabolism -= 10
 
     hydration = 100
-    if d["water_pct"] < 45: hydration -= 30
-    elif d["water_pct"] < 50: hydration -= 15
-    elif d["water_pct"] < 55: hydration -= 5
+    if g("water_pct") < 45: hydration -= 30
+    elif g("water_pct") < 50: hydration -= 15
+    elif g("water_pct") < 55: hydration -= 5
 
     subs = {
         "cardio": {"score": clamp(cardio), "label": "Coeur", "icon": "ri-heart-pulse-line", "color": "#EF4444"},
