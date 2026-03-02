@@ -190,7 +190,7 @@ function DeviceManagement({ token }: { token: string }) {
                         <i className="ri-bluetooth-line" style={{ fontSize: 16 }} />
                         Associer
                       </div>
-                      <div onClick={() => { if (typeof window !== 'undefined') window.open(getDeviceLink(device.device_type), '_blank'); }} style={{
+                      <div onClick={() => { if (typeof window !== 'undefined') window.open(getDeviceLink(dt), '_blank'); }} style={{
                         flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer',
                         background: 'transparent', border: '1px solid rgba(255,255,255,0.15)',
                         color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
