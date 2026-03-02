@@ -207,7 +207,8 @@ function DeviceManagement({ token }: { token: string }) {
                 </div>
               </div>
             );
-          })})()}
+          });
+          })()}
 
           {/* Empty state — hidden since we always show 3 cards now */}
           {devices.length === 0 && (
