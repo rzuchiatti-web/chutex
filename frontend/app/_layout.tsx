@@ -14,16 +14,75 @@ import { PastelMistBackground } from '../src/components/PastelMistBackground';
 function NativeFullApp() {
   const WebView = require('react-native-webview').default;
   const { SafeAreaView } = require('react-native-safe-area-context');
+  const { PermissionsAndroid } = require('react-native');
   const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+  const webViewRef = React.useRef<any>(null);
+
+  const handleMessage = async (event: any) => {
+    try {
+      const msg = JSON.parse(event.nativeEvent.data);
+      if (msg.action === 'ble_scan_bracelet' || msg.action === 'ble_scan_vest') {
+        const isBracelet = msg.action === 'ble_scan_bracelet';
+        // Request permissions on Android
+        if (Platform.OS === 'android') {
+          try {
+            await PermissionsAndroid.requestMultiple([
+              PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+              PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+              PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            ]);
+          } catch {}
+        }
+        // Import BLE
+        let BleManager: any;
+        try { BleManager = require('react-native-ble-plx').BleManager; } catch { 
+          webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'BLE non disponible sur cet appareil'}}));true;`);
+          return;
+        }
+        const manager = new BleManager();
+        let found = false;
+        const nameFilter = isBracelet ? ['2208', 'J22', 'JStyle', 'Elio'] : ['Elder', 'AIRBAG', 'Gilet', 'Airbag'];
+        manager.startDeviceScan(null, null, async (error: any, device: any) => {
+          if (error) {
+            webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'${error.message?.replace(/'/g, '')}'}}));true;`);
+            return;
+          }
+          if (!device) return;
+          const name = device.name || device.localName || '';
+          if (nameFilter.some((f: string) => name.includes(f))) {
+            if (found) return;
+            found = true;
+            manager.stopDeviceScan();
+            try {
+              const connected = await device.connect();
+              await connected.discoverAllServicesAndCharacteristics();
+              webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{success:true,name:'${(name || '').replace(/'/g, '')}',id:'${(device.id || '').replace(/'/g, '')}'}}));true;`);
+            } catch (e: any) {
+              webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Connexion echouee: ${(e.message || '').replace(/'/g, '')}'}}));true;`);
+            }
+          }
+        });
+        // Timeout 20s
+        setTimeout(() => {
+          if (!found) {
+            manager.stopDeviceScan();
+            webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Appareil non trouve. Verifiez qu\\'il est allume et a proximite.'}}));true;`);
+          }
+        }, 20000);
+      }
+    } catch {}
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0A0A1A' }}>
       <StatusBar style="light" translucent={true} />
       <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A1A' }} edges={['top']}>
         <WebView
+          ref={webViewRef}
           source={{ uri: backendUrl }}
           style={{ flex: 1, backgroundColor: 'transparent' }}
           startInLoadingState={true}
+          onMessage={handleMessage}
           renderLoading={() => (
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
               <Image

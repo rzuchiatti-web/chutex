@@ -104,13 +104,47 @@ function DeviceManagement({ token }: { token: string }) {
   };
   const closePairing = () => { setPairingDevice(null); setPairingStep(0); setBleStatus('idle'); setBleError(''); };
 
-  /* ── Real Web Bluetooth scan (bracelet/vest) — stays in popup ── */
+  /* ── Real BLE scan: Web Bluetooth OR native bridge via postMessage ── */
   const launchBleScan = async (deviceType: string) => {
     setBleStatus('scanning'); setBleError('');
-    if (Platform.OS !== 'web' || !('bluetooth' in navigator)) {
-      setBleStatus('error'); setBleError('Web Bluetooth non disponible. Utilisez l\'application native.');
+
+    // Check if Web Bluetooth is available (Chrome desktop)
+    const hasWebBle = Platform.OS === 'web' && 'bluetooth' in navigator;
+    // Check if running inside native WebView (ReactNativeWebView bridge available)
+    const hasNativeBridge = typeof (window as any).ReactNativeWebView?.postMessage === 'function';
+
+    if (!hasWebBle && !hasNativeBridge) {
+      setBleStatus('error');
+      setBleError('Bluetooth non disponible. Verifiez que le Bluetooth est active sur votre appareil.');
       return;
     }
+
+    // ── Native WebView bridge (iOS/Android app) ──
+    if (hasNativeBridge) {
+      setBleError('Recherche de votre appareil...');
+      // Listen for native BLE result
+      const handler = async (e: any) => {
+        window.removeEventListener('ble_result', handler);
+        const detail = e.detail || {};
+        if (detail.error) {
+          setBleStatus('error'); setBleError(detail.error);
+        } else if (detail.success) {
+          // Register device in backend
+          await apiFetch('/api/devices/associate', { method: 'POST', body: JSON.stringify({ device_type: deviceType, mac_address: detail.id || '' }) }, token).catch(() => {});
+          await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: deviceType, data: {} }) }, token).catch(() => {});
+          setBleStatus('connected'); setBleError('');
+          setBleVitals({ name: detail.name || DEVICE_META[deviceType].name, id: detail.id || '' });
+          fetchDevices();
+        }
+      };
+      window.addEventListener('ble_result', handler);
+      (window as any).ReactNativeWebView.postMessage(JSON.stringify({ action: `ble_scan_${deviceType}` }));
+      // Timeout safety
+      setTimeout(() => { window.removeEventListener('ble_result', handler); }, 25000);
+      return;
+    }
+
+    // ── Web Bluetooth (Chrome desktop) ──
     try {
       const nav = navigator as any;
       const BLE_SVC = '0000fff0-0000-1000-8000-00805f9b34fb';
