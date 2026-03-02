@@ -10,7 +10,7 @@ type Plan = { id: string; name: string; description: string; price: number; pric
 type Guardian = { first_name: string; last_name: string; phone: string; email: string; address: string; city: string; postal_code: string; within_30min: boolean; has_keys: boolean; relationship: string; is_admin_ref: boolean };
 
 const EMPTY_G: Guardian = { first_name: '', last_name: '', phone: '', email: '', address: '', city: '', postal_code: '', within_30min: false, has_keys: false, relationship: '', is_admin_ref: false };
-const RELS = ['Fils/Fille', 'Conjoint(e)', 'Petit-fils/Petite-fille', 'Frere/Soeur', 'Neveu/Niece', 'Ami(e)', 'Voisin(e)', 'Aide a domicile', 'Autre'];
+const RELS = ['Fils/Fille', 'Pere/Mere', 'Conjoint(e)', 'Petit-fils/Petite-fille', 'Frere/Soeur', 'Neveu/Niece', 'Ami(e)', 'Voisin(e)', 'Aide a domicile', 'Autre'];
 const ANIMALS = ['Chien', 'Chat', 'Oiseau', 'Autre'];
 const HOUSING_TYPES = ['Appartement', 'Maison', 'Residence senior'];
 
