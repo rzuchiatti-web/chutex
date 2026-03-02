@@ -75,21 +75,12 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
   const launchScan = async () => {
     setScanning(true);
     if (!pairingDevice) return;
-    try {
-      await apiFetch('/api/devices/associate', {
-        method: 'POST',
-        body: JSON.stringify({ device_type: pairingDevice }),
-      }, token);
-      // Simulate BLE scan delay
-      await new Promise(r => setTimeout(r, 2500));
-      setScanning(false);
-      closePairing();
-      onRefresh?.();
-    } catch (e: any) {
-      setScanning(false);
-      closePairing();
-      if (typeof window !== 'undefined') window.alert(e.message || 'Erreur lors de l\'association');
-    }
+    // Close the pairing popup and navigate to the real BLE connection page
+    closePairing();
+    setScanning(false);
+    if (pairingDevice === 'bracelet') router.push('/bracelet-connect' as any);
+    else if (pairingDevice === 'vest') router.push('/vest-connect' as any);
+    else if (pairingDevice === 'scale') { onStartWeighing?.(); }
   };
 
   const InfoRow = ({ label, val }: { label: string; val: string }) => (
@@ -205,7 +196,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
             <div data-testid="pairing-next" onClick={() => isLast ? launchScan() : setPairingStep(pairingStep + 1)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: isLast ? `linear-gradient(135deg, ${dev.color}CC, ${dev.color})` : '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: isLast ? '#FFF' : '#111', boxShadow: isLast ? `0 4px 20px ${dev.color}40` : 'none', transition: 'transform 0.2s' } as any}
               onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-1px)'}
               onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}
-            >{isLast ? 'Lancer le scan' : 'Suivant'}</div>
+            >{isLast ? "Lancer l'appairage" : 'Suivant'}</div>
           </div>
         </div>
       </GlassOverlay>

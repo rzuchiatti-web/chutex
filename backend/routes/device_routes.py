@@ -122,25 +122,12 @@ async def associate_device(data: dict, user=Depends(get_current_user)):
     now = datetime.now(timezone.utc).isoformat()
     device = {
         "id": str(uuid.uuid4()), "user_id": uid, "device_type": device_type,
-        "name": names.get(device_type, device_type), "connected": True,
-        "battery": random.randint(60, 95), "last_sync": now,
+        "name": names.get(device_type, device_type), "connected": False,
+        "battery": 0, "last_sync": now,
         "firmware_version": "1.0", "mac_address": data.get("mac_address", ""),
     }
     await db.devices.insert_one(device)
     device.pop("_id", None)
-
-    # Generate initial reading data
-    generators = {
-        "bracelet": lambda: generate_bracelet_data(None),
-        "scale": lambda: generate_scale_data(None),
-        "vest": generate_vest_data,
-    }
-    device_data = generators.get(device_type, lambda: {})()
-    if device_data:
-        await db.device_readings.insert_one({
-            "id": str(uuid.uuid4()), "user_id": uid,
-            "device_type": device_type, "data": device_data, "timestamp": now,
-        })
 
     return {"status": "associated", "device": device}
 
