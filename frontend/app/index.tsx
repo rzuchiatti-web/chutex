@@ -186,7 +186,7 @@ export default function AuthScreen() {
                   {/* Step 2: New password */}
                   {forgotStep === 2 && (
                     <div>
-                      <input type="password" placeholder="Nouveau mot de passe" value={forgotNewPw} onChange={(e: any) => setForgotNewPw(e.target.value)} style={{ ...INPUT, marginBottom: 16 }} />
+                      <input type="password" placeholder="Nouveau mot de passe" value={forgotNewPw} onChange={(e: any) => setForgotNewPw(e.target.value)} style={{ ...INPUT, width: '100%', marginBottom: 16 }} />
                       <div data-testid="forgot-reset-btn" onClick={async () => {
                         if (forgotNewPw.length < 4) return setForgotMsg('Le mot de passe doit contenir au moins 4 caracteres.');
                         setForgotLoading(true); setForgotMsg('');
