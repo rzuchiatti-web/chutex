@@ -665,10 +665,13 @@ async def get_sent_emails(user=Depends(get_current_user)):
 # ==================== GEOFENCING ====================
 @router.post("/geofence")
 async def create_geofence(data: GeofenceCreate, user=Depends(get_current_user)):
+    radius_raw = data.radius_m if data.radius_m is not None else 500
+    radius_m = max(50, min(float(radius_raw), 10000))
     gf = {
         "id": str(uuid.uuid4()), "user_id": user['id'], "name": data.name,
-        "latitude": data.latitude, "longitude": data.longitude, "radius_m": data.radius_m,
+        "latitude": data.latitude, "longitude": data.longitude, "radius_m": radius_m,
         "active": data.active, "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.geofences.insert_one(gf)
     return {k: v for k, v in gf.items() if k != '_id'}
@@ -682,9 +685,47 @@ async def get_geofences(user=Depends(get_current_user)):
 @router.put("/geofence/{gid}/toggle")
 async def toggle_geofence(gid: str, user=Depends(get_current_user)):
     gf = await db.geofences.find_one({"id": gid, "user_id": user['id']}, {"_id": 0})
-    if gf:
-        await db.geofences.update_one({"id": gid}, {"$set": {"active": not gf.get('active', True)}})
-    return {"status": "toggled"}
+    if not gf:
+        raise HTTPException(status_code=404, detail="Zone non trouvee")
+    new_active = not gf.get('active', True)
+    await db.geofences.update_one(
+        {"id": gid, "user_id": user['id']},
+        {"$set": {"active": new_active, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    return {"status": "toggled", "active": new_active}
+
+
+@router.put("/geofence/{gid}")
+async def update_geofence(gid: str, data: dict, user=Depends(get_current_user)):
+    gf = await db.geofences.find_one({"id": gid, "user_id": user['id']}, {"_id": 0})
+    if not gf:
+        raise HTTPException(status_code=404, detail="Zone non trouvee")
+
+    update = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    if "name" in data and data.get("name"):
+        update["name"] = str(data.get("name")).strip()
+    if "latitude" in data:
+        try:
+            update["latitude"] = float(data.get("latitude"))
+        except Exception:
+            raise HTTPException(status_code=400, detail="Latitude invalide")
+    if "longitude" in data:
+        try:
+            update["longitude"] = float(data.get("longitude"))
+        except Exception:
+            raise HTTPException(status_code=400, detail="Longitude invalide")
+    radius_value = data.get("radius_m", data.get("radius_meters"))
+    if radius_value is not None:
+        try:
+            update["radius_m"] = max(50, min(float(radius_value), 10000))
+        except Exception:
+            raise HTTPException(status_code=400, detail="Rayon invalide")
+    if "active" in data:
+        update["active"] = bool(data.get("active"))
+
+    await db.geofences.update_one({"id": gid, "user_id": user['id']}, {"$set": update})
+    updated = await db.geofences.find_one({"id": gid, "user_id": user['id']}, {"_id": 0})
+    return updated
 
 
 @router.delete("/geofence/{gid}")
@@ -697,20 +738,20 @@ async def delete_geofence(gid: str, user=Depends(get_current_user)):
 async def check_geofence(user=Depends(get_current_user)):
     loc = await db.locations.find_one({"user_id": user['id']}, {"_id": 0})
     if not loc:
-        return {"status": "no_location", "violations": []}
+        return {"status": "no_location", "in_zone": False, "violations": [], "total_fences": 0}
     fences = await db.geofences.find({"user_id": user['id'], "active": True}, {"_id": 0}).to_list(50)
     violations = []
     for f in fences:
         dist = _haversine(loc['latitude'], loc['longitude'], f['latitude'], f['longitude'])
         if dist > f['radius_m']:
-            violations.append({"fence_name": f['name'], "distance_m": round(dist), "radius_m": f['radius_m']})
+            violations.append({"fence_name": f['name'], "zone_name": f['name'], "distance_m": round(dist), "radius_m": f['radius_m']})
             await db.alerts.insert_one({
                 "id": str(uuid.uuid4()), "beneficiary_id": user['id'], "beneficiary_name": user['name'],
                 "alert_type": "geofence", "severity": "medium", "message": f"Sortie de zone: {f['name']} ({round(dist)}m / {f['radius_m']}m)",
                 "device_type": "gps", "status": "active", "created_at": datetime.now(timezone.utc).isoformat(),
                 "resolved_at": None, "resolved_by": None, "teleassistance_status": "pending",
             })
-    return {"status": "checked", "violations": violations, "total_fences": len(fences)}
+    return {"status": "checked", "in_zone": len(violations) == 0, "violations": violations, "total_fences": len(fences)}
 
 
 def _haversine(lat1, lon1, lat2, lon2):

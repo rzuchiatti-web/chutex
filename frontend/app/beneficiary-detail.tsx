@@ -13,7 +13,8 @@ const IMG_SCALE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4
 const IMG_VEST = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg';
 
 export default function BeneficiaryDetailScreen() {
-  const { beneficiaryId } = useLocalSearchParams<{ beneficiaryId: string }>();
+  const { beneficiaryId } = useLocalSearchParams<{ beneficiaryId: string | string[] }>();
+  const bid = Array.isArray(beneficiaryId) ? beneficiaryId[0] : beneficiaryId;
   const { token, user } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
@@ -21,36 +22,51 @@ export default function BeneficiaryDetailScreen() {
   const [devices, setDevices] = useState<any>(null);
   const [noraAnalysis, setNoraAnalysis] = useState('');
   const [subInfo, setSubInfo] = useState<any>(null);
+  const [geoZones, setGeoZones] = useState<any[]>([]);
+  const [geoLocation, setGeoLocation] = useState<any>(null);
+  const [geoLoading, setGeoLoading] = useState(true);
+  const [geoBusyId, setGeoBusyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchAll = useCallback(async () => {
+    if (!bid) {
+      setLoading(false);
+      setGeoLoading(false);
+      return;
+    }
     try {
-      const [bens, alts, devs] = await Promise.all([
+      const [bens, alts, devs, geo] = await Promise.all([
         apiFetch('/api/guardian/beneficiaries', {}, token).catch(() => []),
-        apiFetch(`/api/guardian/beneficiary/${beneficiaryId}/alerts`, {}, token).catch(() => []),
-        apiFetch(`/api/guardian/beneficiary/${beneficiaryId}/devices`, {}, token).catch(() => null),
+        apiFetch(`/api/guardian/beneficiary/${bid}/alerts`, {}, token).catch(() => []),
+        apiFetch(`/api/guardian/beneficiary/${bid}/devices`, {}, token).catch(() => null),
+        apiFetch(`/api/guardian/beneficiary/${bid}/geofence`, {}, token).catch(() => null),
       ]);
-      const ben = (bens || []).find((b: any) => b.id === beneficiaryId) || null;
+      const ben = (bens || []).find((b: any) => b.id === bid) || null;
       setData(ben);
       setAlerts(Array.isArray(alts) ? alts : []);
       setDevices(devs);
+      setGeoZones(Array.isArray(geo?.zones) ? geo.zones : []);
+      setGeoLocation(geo?.current_location || null);
+      setGeoLoading(false);
       // Fetch Nora analysis + subscription
       if (ben) {
-        apiFetch(`/api/guardian/beneficiary/${beneficiaryId}/ai-report`, {}, token)
+        apiFetch(`/api/guardian/beneficiary/${bid}/ai-report`, {}, token)
           .then((r: any) => setNoraAnalysis(r?.summary || r?.report || ''))
           .catch(() => setNoraAnalysis(''));
-        apiFetch(`/api/guardian/beneficiary/${beneficiaryId}/subscription`, {}, token)
+        apiFetch(`/api/guardian/beneficiary/${bid}/subscription`, {}, token)
           .then((r: any) => setSubInfo(r))
           .catch(() => {});
       }
-    } catch {} finally { setLoading(false); }
-  }, [beneficiaryId, token]);
+    } catch {
+      setGeoLoading(false);
+    } finally { setLoading(false); }
+  }, [bid, token]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
   if (loading) return <FullScreenLoader />;
   if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.5)' }}>Beneficiaire non trouve</Text></SafeAreaView>;
-  if (Platform.OS !== 'web') return <NativePageView path="/beneficiary-detail" />;
+  if (Platform.OS !== 'web') return <NativePageView path={`/beneficiary-detail?beneficiaryId=${bid || ''}`} />;
 
   const v = data.latest_vitals || {};
   const activeAlerts = alerts.filter((a: any) => a.status === 'active' || a.status === 'pending');
@@ -95,6 +111,60 @@ export default function BeneficiaryDetailScreen() {
     { label: 'Sommeil', val: v.sleep_quality, unit: '%', icon: 'ri-moon-line', color: '#A78BFA' },
   ].filter(m => m.val && m.val !== 0);
 
+  const refreshGeofences = async () => {
+    try {
+      setGeoLoading(true);
+      const geo = await apiFetch(`/api/guardian/beneficiary/${bid}/geofence`, {}, token);
+      setGeoZones(Array.isArray(geo?.zones) ? geo.zones : []);
+      setGeoLocation(geo?.current_location || null);
+    } catch {
+    } finally {
+      setGeoLoading(false);
+    }
+  };
+
+  const toggleGeoZone = async (zoneId: string) => {
+    setGeoBusyId(zoneId);
+    try {
+      const r = await apiFetch(`/api/guardian/beneficiary/${bid}/geofence/${zoneId}/toggle`, { method: 'PUT' }, token);
+      setGeoZones(prev => prev.map((z: any) => z.id === zoneId ? { ...z, active: r?.active ?? !z.active } : z));
+    } catch {
+    } finally {
+      setGeoBusyId(null);
+    }
+  };
+
+  const deleteGeoZone = async (zoneId: string) => {
+    const ok = typeof window !== 'undefined' ? window.confirm('Supprimer cette safe zone ?') : true;
+    if (!ok) return;
+    setGeoBusyId(zoneId);
+    try {
+      await apiFetch(`/api/guardian/beneficiary/${bid}/geofence/${zoneId}`, { method: 'DELETE' }, token);
+      setGeoZones(prev => prev.filter((z: any) => z.id !== zoneId));
+    } catch {
+    } finally {
+      setGeoBusyId(null);
+    }
+  };
+
+  const createZoneFromCurrentLocation = async () => {
+    if (geoLocation?.latitude == null || geoLocation?.longitude == null) return;
+    setGeoBusyId('create-from-location');
+    try {
+      const payload = {
+        name: `Zone ${geoZones.length + 1}`,
+        latitude: Number(geoLocation.latitude),
+        longitude: Number(geoLocation.longitude),
+        radius_m: 500,
+      };
+      const created = await apiFetch(`/api/guardian/beneficiary/${bid}/geofence`, { method: 'POST', body: JSON.stringify(payload) }, token);
+      setGeoZones(prev => [created, ...prev]);
+    } catch {
+    } finally {
+      setGeoBusyId(null);
+    }
+  };
+
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
       <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
@@ -104,7 +174,7 @@ export default function BeneficiaryDetailScreen() {
 
         {/* ── HEADER ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 } as any}>
-          <div onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
+          <div data-testid="beneficiary-detail-back-button" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
             <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
           </div>
           <div style={{ width: 52, height: 52, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)' } as any}>
@@ -126,7 +196,7 @@ export default function BeneficiaryDetailScreen() {
 
         {/* ── ALERTE ACTIVE ── */}
         {activeAlerts.length > 0 && (
-          <div onClick={() => router.push({ pathname: '/(tabs)/alerts', params: { preselect: activeAlerts[0].id } })} style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+          <div data-testid="beneficiary-active-alert-card" onClick={() => router.push({ pathname: '/(tabs)/alerts', params: { preselect: activeAlerts[0].id } })} style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
               <i className="ri-alarm-warning-line" style={{ fontSize: 18, color: '#EF4444' }} />
             </div>
@@ -153,7 +223,7 @@ export default function BeneficiaryDetailScreen() {
 
         {/* ── DISPOSITIFS ── */}
         <SectionTitle icon="ri-bluetooth-connect-line" label="Dispositifs" color="#22D3EE" />
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' } as any}>
           {devList.map((dev, i) => {
             const isVest = dev.type === 'vest';
             const vestAct = isVest && dev.d?.last_sync && (Date.now() - new Date(dev.d.last_sync).getTime()) < 30000;
@@ -162,7 +232,7 @@ export default function BeneficiaryDetailScreen() {
             const statusColor = !dev.d ? '#6B7280' : isVest ? (vestAct ? '#10B981' : '#F59E0B') : (dev.d?.connected ? '#10B981' : '#6B7280');
             const bat = dev.d?.battery_level ?? 0;
             return (
-              <div key={i} style={{ flex: 1, padding: '12px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
+              <div key={i} data-testid={`beneficiary-device-card-${dev.type}`} style={{ flex: '1 1 120px', minWidth: 110, padding: '12px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
                 <img src={dev.img} alt="" style={{ width: 36, height: 36, objectFit: 'contain', margin: '0 auto 6px', display: 'block', opacity: dev.d ? 1 : 0.25 } as any} />
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{dev.label}</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 7px', borderRadius: 99, background: `${statusColor}18` } as any}>
@@ -174,6 +244,55 @@ export default function BeneficiaryDetailScreen() {
             );
           })}
         </div>
+
+        <SectionTitle icon="ri-shield-check-line" label="Safe zones" color="#34D399" />
+        <GlassCard>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10, flexWrap: 'wrap' } as any}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>
+              {geoLoading ? 'Chargement...' : `${geoZones.length} zone(s) configuree(s)`}
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' } as any}>
+              <div data-testid="beneficiary-safezone-refresh-btn" onClick={refreshGeofences} style={{ padding: '7px 10px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>
+                Actualiser
+              </div>
+              <div data-testid="beneficiary-safezone-open-manager-btn" onClick={() => router.push({ pathname: '/geofencing' as any, params: { beneficiaryId: bid } })} style={{ padding: '7px 10px', borderRadius: 999, cursor: 'pointer', background: 'rgba(16,185,129,0.14)', border: '1px solid rgba(16,185,129,0.28)', fontSize: 11, fontWeight: 700, color: '#34D399' } as any}>
+                Gerer
+              </div>
+            </div>
+          </div>
+
+          <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 10 } as any}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginBottom: 4 }}>Position beneficiaire</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>
+              {geoLocation?.latitude != null && geoLocation?.longitude != null
+                ? `${Number(geoLocation.latitude).toFixed(5)}, ${Number(geoLocation.longitude).toFixed(5)}${geoLocation?.updated_at ? ` · MAJ ${new Date(geoLocation.updated_at).toLocaleString('fr-FR')}` : ''}`
+                : 'Aucune localisation recente'}
+            </div>
+            <div data-testid="beneficiary-safezone-create-from-location-btn" onClick={createZoneFromCurrentLocation} style={{ marginTop: 8, display: 'inline-flex', padding: '6px 10px', borderRadius: 999, cursor: geoLocation?.latitude != null ? 'pointer' : 'not-allowed', background: geoLocation?.latitude != null ? 'rgba(59,130,246,0.14)' : 'rgba(107,114,128,0.12)', border: geoLocation?.latitude != null ? '1px solid rgba(59,130,246,0.32)' : '1px solid rgba(107,114,128,0.3)', fontSize: 10, fontWeight: 700, color: geoLocation?.latitude != null ? '#60A5FA' : '#9CA3AF', opacity: geoBusyId === 'create-from-location' ? 0.5 : 1 } as any}>
+              Definir une zone depuis cette localisation
+            </div>
+          </div>
+
+          {geoZones.slice(0, 3).map((zone: any) => (
+            <div key={zone.id} data-testid={`beneficiary-safezone-row-${zone.id}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' } as any}>
+              <div style={{ width: 8, height: 8, borderRadius: 99, background: zone.active ? '#10B981' : '#F59E0B' } as any} />
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{zone.name}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)' }}>{Math.round(Number(zone.radius_m || 0))}m · {Number(zone.latitude).toFixed(4)}, {Number(zone.longitude).toFixed(4)}</div>
+              </div>
+              <div data-testid={`beneficiary-safezone-toggle-btn-${zone.id}`} onClick={() => toggleGeoZone(zone.id)} style={{ padding: '5px 8px', borderRadius: 999, cursor: geoBusyId === zone.id ? 'wait' : 'pointer', background: zone.active ? 'rgba(16,185,129,0.14)' : 'rgba(245,158,11,0.14)', fontSize: 10, fontWeight: 700, color: zone.active ? '#34D399' : '#F59E0B', opacity: geoBusyId === zone.id ? 0.5 : 1 } as any}>
+                {zone.active ? 'Active' : 'Veille'}
+              </div>
+              <div data-testid={`beneficiary-safezone-delete-btn-${zone.id}`} onClick={() => deleteGeoZone(zone.id)} style={{ padding: '5px 7px', borderRadius: 999, cursor: geoBusyId === zone.id ? 'wait' : 'pointer', background: 'rgba(239,68,68,0.12)', fontSize: 10, fontWeight: 700, color: '#F87171', opacity: geoBusyId === zone.id ? 0.5 : 1 } as any}>
+                Suppr.
+              </div>
+            </div>
+          ))}
+
+          {!geoLoading && geoZones.length === 0 && (
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', textAlign: 'center', padding: '8px 0' } as any}>Aucune safe zone. Utilisez "Definir une zone" ou "Gerer".</div>
+          )}
+        </GlassCard>
 
         {/* ── ABONNEMENT + GARDIENS ── */}
         {subInfo?.subscription && (<>
@@ -225,7 +344,7 @@ export default function BeneficiaryDetailScreen() {
         {/* ── DONNEES DE SANTE ── */}
         {metrics.length > 0 && (<>
           <SectionTitle icon="ri-heart-pulse-line" label="Donnees de sante" color="#EF4444" />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 4 } as any}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8, marginBottom: 4 } as any}>
             {metrics.map((m, i) => (
               <div key={i} style={{ padding: '12px 10px', borderRadius: 16, background: `${m.color}08`, border: `1px solid ${m.color}18` } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 } as any}>

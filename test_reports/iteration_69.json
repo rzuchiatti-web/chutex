@@ -1,0 +1,71 @@
+{
+  "summary": "Iteration 69 - Guardian Safe Zone CRUD Testing. Backend: 11/11 tests PASSED. Frontend: Geofencing page works in self-mode but FAILS to detect beneficiaryId query param for guardian mode due to Expo Router useLocalSearchParams() limitation on web.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Guardian mode geofencing",
+        "issue": "useLocalSearchParams() does not detect ?beneficiaryId= query param when navigating directly to URL on web. Page shows 'Zones de securite' (self-mode) instead of 'Safe zones beneficiaire' (guardian mode)",
+        "affected_selectors": ["[data-testid='beneficiary-location-card']", "[data-testid='refresh-beneficiary-location-btn']", "[data-testid='use-beneficiary-location-btn']"],
+        "root_cause": "Known Expo Router issue - useLocalSearchParams() fails to read query params on direct URL navigation on web",
+        "potential_fix": "Use useGlobalSearchParams() or manually parse window.location.search on Platform.OS === 'web'"
+      },
+      {
+        "flow": "Beneficiary detail safe zones section",
+        "issue": "Safe zones section (lines 248-295 in beneficiary-detail.tsx) NOT visible on beneficiary detail page during testing - section may not be rendering or is conditionally hidden",
+        "affected_selectors": ["[data-testid='beneficiary-safezone-refresh-btn']", "[data-testid='beneficiary-safezone-open-manager-btn']", "[data-testid='beneficiary-safezone-create-from-location-btn']"]
+      }
+    ],
+    "design_issues": [
+      {"screen": "Console", "issues": ["props.pointerEvents deprecated", "shadow* style props deprecated"]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_guardian_geofence_iter69.py",
+    "/app/test_reports/pytest/pytest_results_iter69.xml"
+  ],
+  "action_items": [
+    "FIX: geofencing.tsx - Replace useLocalSearchParams with useGlobalSearchParams or add web fallback to parse window.location.search for beneficiaryId",
+    "VERIFY: beneficiary-detail.tsx - Safe zones section (lines 248-295) not rendering on page - check if component renders correctly and data-testid attributes are present"
+  ],
+  "critical_code_review_comments": [
+    "Backend guardian geofence endpoints (guardian_routes.py lines 682-799) work correctly - CRUD + toggle + check all functioning",
+    "geofencing.tsx line 16: useLocalSearchParams<{ beneficiaryId?: string }>() does NOT work for direct URL navigation on web - known Expo Router bug",
+    "beneficiary-detail.tsx lines 248-295: Safe zones section code exists but UI not visible during testing - needs investigation"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_guardian_geofence_iter69.py"
+  ],
+  "success_rate": {"backend": "100% (11/11)", "frontend": "60%"},
+  "test_credentials": {
+    "guardian": "0612345678 / test123 (Claire Martin)",
+    "beneficiary_id": "495e5e38-3591-474b-abe5-c932574bb609 (Josette Zuchiatti)"
+  },
+  "seed_data_creation": "Test zones created and cleaned up via API tests",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Guardian geofence API endpoints fully working (tested 11 scenarios). Frontend issue: useLocalSearchParams() not reading query params on web - geofencing page opens in self-mode instead of guardian mode. Also beneficiary-detail.tsx Safe zones section not visible in UI despite code existing at lines 248-295.",
+  "verified_features": {
+    "Backend guardian geofence GET": "PASS - Returns zones + current_location",
+    "Backend guardian geofence POST": "PASS - Creates zone with correct data",
+    "Backend guardian geofence PUT": "PASS - Updates zone name/radius/coords",
+    "Backend guardian geofence toggle": "PASS - Toggles active state",
+    "Backend guardian geofence DELETE": "PASS - Removes zone",
+    "Backend guardian geofence check": "PASS - Returns in_zone/violations",
+    "Backend permission check": "PASS - Denies access to unlinked beneficiary",
+    "Frontend geofencing self-mode": "PASS - Zone CRUD working",
+    "Frontend geofencing guardian-mode": "FAIL - beneficiaryId param not detected",
+    "Frontend beneficiary-detail safe zones": "FAIL - Section not visible",
+    "Mobile UX": "PASS - No horizontal overflow"
+  },
+  "rca_of_the_issue": {
+    "issue": "useLocalSearchParams() not detecting beneficiaryId on web",
+    "reproduction": "Navigate directly to /geofencing?beneficiaryId=xxx - isGuardianMode is false",
+    "root_cause": "Expo Router known issue with useLocalSearchParams and query params on web (GitHub #29716)",
+    "mitigation": "Add Platform.OS === 'web' check and parse window.location.search manually, OR use useGlobalSearchParams()"
+  }
+}

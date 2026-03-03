@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone, timedelta
-import uuid, random, logging, os
+import uuid
+import logging
+import os
+import math
 
 from database import db, EMERGENT_LLM_KEY, twilio_client, TWILIO_NUMBER
 from auth import get_current_user, sanitize_user, get_effective_role
@@ -14,6 +17,32 @@ from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+async def _ensure_guardian_access_to_beneficiary(bid: str, user: dict) -> dict:
+    eff = get_effective_role(user)
+    if eff != 'guardian':
+        raise HTTPException(status_code=403, detail="Reserve aux gardiens")
+
+    guardian_doc = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    beneficiary_ids = guardian_doc.get('beneficiaries', []) if guardian_doc else user.get('beneficiaries', [])
+    if bid not in beneficiary_ids:
+        raise HTTPException(status_code=403, detail="Non autorise")
+
+    ben = await db.users.find_one({"id": bid}, {"_id": 0, "password_hash": 0})
+    if not ben:
+        raise HTTPException(status_code=404, detail="Beneficiaire non trouve")
+    return ben
+
+
+def _distance_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    r = 6371000
+    p1 = math.radians(lat1)
+    p2 = math.radians(lat2)
+    dp = math.radians(lat2 - lat1)
+    dl = math.radians(lon2 - lon1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return r * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
 @router.post("/guardian/link")
@@ -645,9 +674,129 @@ async def guardian_map(user=Depends(get_current_user)):
             ac = await db.alerts.count_documents({"beneficiary_id": bid, "status": "active"})
             result.append({
                 "id": b['id'], "name": b['name'], "active_alerts": ac,
-                "location": loc if loc else {"latitude": 48.8566 + random.uniform(-0.05, 0.05), "longitude": 2.3522 + random.uniform(-0.05, 0.05), "updated_at": datetime.now(timezone.utc).isoformat()},
+                "location": loc,
             })
     return result
+
+
+@router.get("/guardian/beneficiary/{bid}/geofence")
+async def guardian_get_geofences(bid: str, user=Depends(get_current_user)):
+    await _ensure_guardian_access_to_beneficiary(bid, user)
+    zones = await db.geofences.find({"user_id": bid}, {"_id": 0}).to_list(100)
+    location = await db.locations.find_one({"user_id": bid}, {"_id": 0})
+    return {"beneficiary_id": bid, "zones": zones, "current_location": location}
+
+
+@router.post("/guardian/beneficiary/{bid}/geofence")
+async def guardian_create_geofence(bid: str, data: dict, user=Depends(get_current_user)):
+    await _ensure_guardian_access_to_beneficiary(bid, user)
+
+    name = (data.get("name") or "Zone de securite").strip()
+    try:
+        latitude = float(data.get("latitude"))
+        longitude = float(data.get("longitude"))
+        radius_m = float(data.get("radius_m", 500) or 500)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Coordonnees ou rayon invalides")
+
+    zone = {
+        "id": str(uuid.uuid4()),
+        "user_id": bid,
+        "name": name,
+        "latitude": latitude,
+        "longitude": longitude,
+        "radius_m": max(50, min(radius_m, 10000)),
+        "active": bool(data.get("active", True)),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "updated_by_guardian_id": user['id'],
+    }
+    await db.geofences.insert_one(zone)
+    return {k: v for k, v in zone.items() if k != "_id"}
+
+
+@router.put("/guardian/beneficiary/{bid}/geofence/{gid}")
+async def guardian_update_geofence(bid: str, gid: str, data: dict, user=Depends(get_current_user)):
+    await _ensure_guardian_access_to_beneficiary(bid, user)
+    existing = await db.geofences.find_one({"id": gid, "user_id": bid}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Zone non trouvee")
+
+    update = {"updated_at": datetime.now(timezone.utc).isoformat(), "updated_by_guardian_id": user['id']}
+    if "name" in data and data.get("name"):
+        update["name"] = str(data.get("name")).strip()
+
+    if "latitude" in data:
+        try:
+            update["latitude"] = float(data.get("latitude"))
+        except Exception:
+            raise HTTPException(status_code=400, detail="Latitude invalide")
+    if "longitude" in data:
+        try:
+            update["longitude"] = float(data.get("longitude"))
+        except Exception:
+            raise HTTPException(status_code=400, detail="Longitude invalide")
+    if "radius_m" in data:
+        try:
+            update["radius_m"] = max(50, min(float(data.get("radius_m")), 10000))
+        except Exception:
+            raise HTTPException(status_code=400, detail="Rayon invalide")
+    if "active" in data:
+        update["active"] = bool(data.get("active"))
+
+    await db.geofences.update_one({"id": gid, "user_id": bid}, {"$set": update})
+    updated = await db.geofences.find_one({"id": gid, "user_id": bid}, {"_id": 0})
+    return updated
+
+
+@router.put("/guardian/beneficiary/{bid}/geofence/{gid}/toggle")
+async def guardian_toggle_geofence(bid: str, gid: str, user=Depends(get_current_user)):
+    await _ensure_guardian_access_to_beneficiary(bid, user)
+    zone = await db.geofences.find_one({"id": gid, "user_id": bid}, {"_id": 0})
+    if not zone:
+        raise HTTPException(status_code=404, detail="Zone non trouvee")
+    new_active = not zone.get("active", True)
+    await db.geofences.update_one(
+        {"id": gid, "user_id": bid},
+        {"$set": {"active": new_active, "updated_at": datetime.now(timezone.utc).isoformat(), "updated_by_guardian_id": user['id']}}
+    )
+    return {"status": "toggled", "active": new_active}
+
+
+@router.delete("/guardian/beneficiary/{bid}/geofence/{gid}")
+async def guardian_delete_geofence(bid: str, gid: str, user=Depends(get_current_user)):
+    await _ensure_guardian_access_to_beneficiary(bid, user)
+    await db.geofences.delete_one({"id": gid, "user_id": bid})
+    return {"status": "deleted"}
+
+
+@router.post("/guardian/beneficiary/{bid}/geofence/check")
+async def guardian_check_geofence(bid: str, user=Depends(get_current_user)):
+    await _ensure_guardian_access_to_beneficiary(bid, user)
+    location = await db.locations.find_one({"user_id": bid}, {"_id": 0})
+    if not location:
+        return {"status": "no_location", "beneficiary_id": bid, "in_zone": False, "violations": [], "total_fences": 0}
+
+    fences = await db.geofences.find({"user_id": bid, "active": True}, {"_id": 0}).to_list(100)
+    violations = []
+    for fence in fences:
+        dist = _distance_m(location['latitude'], location['longitude'], fence['latitude'], fence['longitude'])
+        if dist > fence['radius_m']:
+            violations.append({
+                "zone_id": fence['id'],
+                "zone_name": fence['name'],
+                "distance_m": round(dist),
+                "radius_m": fence['radius_m'],
+            })
+
+    return {
+        "status": "checked",
+        "beneficiary_id": bid,
+        "in_zone": len(violations) == 0,
+        "violations": violations,
+        "total_fences": len(fences),
+        "location": {"latitude": location.get("latitude"), "longitude": location.get("longitude"), "updated_at": location.get("updated_at")},
+    }
 
 
 @router.delete("/guardian/beneficiary/{bid}/unlink")
