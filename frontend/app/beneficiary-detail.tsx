@@ -173,6 +173,7 @@ export default function BeneficiaryDetailScreen() {
   const ageYears = data.date_of_birth ? Math.floor((Date.now() - new Date(data.date_of_birth).getTime()) / 31557600000) : null;
   const genderLabel = data.gender === 'male' ? 'Homme' : data.gender === 'female' ? 'Femme' : (data.gender || 'N/A');
   const addressDisplay = [data.address, data.postal_code, data.city].filter(Boolean).join(' ') || 'Adresse non renseignee';
+  const profileWeight = data.weight_kg || (d.weight && d.weight > 0 ? d.weight : null);
 
   const getGuardianContractDetails = (guardian: any) => {
     const contractGuardians = Array.isArray(contract?.guardians) ? contract.guardians : [];
@@ -273,31 +274,15 @@ export default function BeneficiaryDetailScreen() {
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch', width: '100%', maxWidth: 1200, margin: '0 auto' } as any}>
 
         {/* ── HEADER ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 } as any}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 } as any}>
           <div data-testid="beneficiary-detail-back-button" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
             <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
           </div>
-          <div style={{ width: 52, height: 52, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)' } as any}>
-            <span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{data.name?.charAt(0)?.toUpperCase()}</span>
-          </div>
-          <div style={{ flex: 1 } as any}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' } as any}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }} data-testid="beneficiary-firstname-value">{firstName}</div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: 'rgba(255,255,255,0.9)' }} data-testid="beneficiary-lastname-value">{lastName}</div>
-            </div>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 } as any}>
-              <span data-testid="beneficiary-age-badge" style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(59,130,246,0.18)', border: '1px solid rgba(59,130,246,0.35)', fontSize: 10, fontWeight: 700, color: '#93C5FD' }}>{ageYears != null ? `${ageYears} ans` : 'Age N/A'}</span>
-              <span data-testid="beneficiary-gender-badge" style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(167,139,250,0.18)', border: '1px solid rgba(167,139,250,0.35)', fontSize: 10, fontWeight: 700, color: '#C4B5FD' }}>{genderLabel}</span>
-            </div>
-            <div data-testid="beneficiary-address-value" style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4, lineHeight: 1.5 }}><i className="ri-map-pin-line" style={{ fontSize: 11, marginRight: 4, color: '#F59E0B' }} />{addressDisplay}</div>
-          </div>
-          {data.phone && (
-            <a href={`tel:${data.phone}`} style={{ textDecoration: 'none' }}>
-              <div style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                <i className="ri-phone-line" style={{ fontSize: 18, color: '#10B981' }} />
-              </div>
-            </a>
-          )}
+        </div>
+
+        <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+          <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', lineHeight: 1.05 }} data-testid="beneficiary-firstname-value">{firstName}</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: 'rgba(255,255,255,0.92)', lineHeight: 1.1 }} data-testid="beneficiary-lastname-value">{lastName}</div>
         </div>
 
         {/* ── ALERTE ACTIVE ── */}
@@ -348,19 +333,20 @@ export default function BeneficiaryDetailScreen() {
           )}
         </GlassCard>
 
-        {/* ── DOSSIER MEDICAL ── */}
-        <SectionTitle icon="ri-file-medical-line" label="Dossier medical" color="#A78BFA" />
+        {/* ── PROFIL + DOSSIER MEDICAL ── */}
+        <SectionTitle icon="ri-file-medical-line" label="Profil & Dossier medical" color="#A78BFA" />
         <GlassCard>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 } as any}>
             {[
-              data.blood_type && { label: 'Groupe sanguin', val: data.blood_type, color: '#EF4444' },
-              data.date_of_birth && { label: 'Date de naissance', val: (() => { try { const d = new Date(data.date_of_birth); return isNaN(d.getTime()) ? data.date_of_birth : d.toLocaleDateString('fr-FR'); } catch { return data.date_of_birth; } })(), color: '#FFF' },
-              data.gender && { label: 'Genre', val: data.gender === 'male' ? 'Homme' : data.gender === 'female' ? 'Femme' : data.gender, color: '#FFF' },
-              (data.height_cm || data.weight_kg) && { label: 'Taille / Poids', val: [data.height_cm && `${data.height_cm} cm`, data.weight_kg && `${data.weight_kg} kg`].filter(Boolean).join(' · '), color: '#FFF' },
+              { label: 'Adresse', val: addressDisplay, color: '#FFF', testid: 'beneficiary-profile-address-value' },
+              { label: 'Age', val: ageYears != null ? `${ageYears} ans` : 'N/A', color: '#FFF', testid: 'beneficiary-profile-age-value' },
+              { label: 'Genre', val: genderLabel, color: '#FFF', testid: 'beneficiary-profile-gender-value' },
+              data.blood_type && { label: 'Groupe sanguin', val: data.blood_type, color: '#EF4444', testid: 'beneficiary-profile-blood-value' },
+              (data.height_cm || profileWeight) && { label: 'Taille / Poids', val: [data.height_cm && `${data.height_cm} cm`, profileWeight && `${profileWeight} kg`].filter(Boolean).join(' · '), color: '#FFF', testid: 'beneficiary-profile-size-weight-value' },
             ].filter(Boolean).map((item: any, i: number) => (
               <div key={i} style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
                 <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 3 }}>{item.label}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: item.color }}>{item.val}</div>
+                <div data-testid={item.testid} style={{ fontSize: 13, fontWeight: 700, color: item.color }}>{item.val}</div>
               </div>
             ))}
           </div>
