@@ -188,6 +188,15 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Validation qualite:
   - testing agent `iteration_77` = **frontend 100%** (6/6 exigences validees).
 
+### Mise a jour — Mar 3, 2026 (Passage pixel-perfect final)
+- Finition visuelle de `beneficiary-detail`:
+  - Espacements/alignements harmonises
+  - Hierarchie typo ajustee
+  - Rayons/bordures unifies
+  - Animations d'ouverture subtiles sur popups (`beneficiary-popup-in`)
+- Validation qualite:
+  - testing agent `iteration_78` = **frontend 100%** (6/6, desktop + tablet, no overflow).
+
 ## Upcoming Tasks
 - P0: validation utilisateur en conditions reelles BLE (bracelet/gilet/balance) sur appareils physiques
 - P1: test iOS TestFlight complet du bridge BLE natif
