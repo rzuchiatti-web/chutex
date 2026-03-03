@@ -224,8 +224,8 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
             {d.paired ? (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
-                  <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : '#EF4444' } as any} />
-                  <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : '#EF4444' }}>{d.connected ? 'Connecte' : 'Deconnecte'}</span>
+                  <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' } as any} />
+                  <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' }}>{d.connected ? (d.id === 'vest' ? 'En marche' : 'Connecte') : (d.id === 'vest' ? 'En veille' : 'Deconnecte')}</span>
                 </div>
                 <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: 4, borderRadius: 2, width: `${d.battery}%`, background: batteryGrad(d.battery) } as any} /></div>
               </>
