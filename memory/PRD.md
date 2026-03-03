@@ -173,6 +173,14 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Carte contrat de la fiche beneficiaire alignee visuellement sur la carte abonnement du profil beneficiaire (image de fond + overlay sombre + pill statut).
 - Validation qualite: testing agent `iteration_75` = **frontend 100%**, aucune anomalie.
 
+### Mise a jour — Mar 3, 2026 (Ajustements layout finaux fiche beneficiaire)
+- Ajustements UX demandes:
+  - En tete plus lisible avec **prenom + nom + age + genre + adresse**.
+  - Section dispositifs sans effet "carte dans carte" (mini-cartes directes, sans wrapper externe).
+  - Carte contrat deplacee **tout en bas** de la page et sans wrapper externe.
+- Validation qualite:
+  - testing agent `iteration_76` = **frontend 100%** (ordre, structure, popups, carte contrat, no regression).
+
 ## Upcoming Tasks
 - P0: validation utilisateur en conditions reelles BLE (bracelet/gilet/balance) sur appareils physiques
 - P1: test iOS TestFlight complet du bridge BLE natif
