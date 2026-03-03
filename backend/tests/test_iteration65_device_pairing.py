@@ -13,9 +13,9 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://chutex-ble-test.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://nora-health.preview.emergentagent.com')
 if not BASE_URL:
-    BASE_URL = 'https://chutex-ble-test.preview.emergentagent.com'
+    BASE_URL = 'https://nora-health.preview.emergentagent.com'
 BASE_URL = BASE_URL.rstrip('/')
 
 

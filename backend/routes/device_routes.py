@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone
-import uuid, random, re, asyncio
+import uuid, re, asyncio
 
 from database import db
 from auth import get_current_user
 from models import DeviceSyncRequest
-from utils import generate_bracelet_data, generate_scale_data, generate_vest_data, check_anomalies
+from utils import check_anomalies
 from routes.push_routes import notify_low_battery, notify_health_threshold
 
 router = APIRouter()
@@ -382,39 +382,6 @@ async def get_scale_history(user=Depends(get_current_user)):
         {"_id": 0}
     ).sort("timestamp", -1).to_list(90)
     return readings
-
-
-@router.post("/devices/scale/seed-history")
-async def seed_scale_history(user=Depends(get_current_user)):
-    """Seed demo scale history data for the user"""
-    uid = user['id']
-    existing = await db.device_readings.count_documents({"user_id": uid, "device_type": "scale"})
-    if existing >= 10:
-        return {"status": "already_seeded", "count": existing}
-    base_weight = 72.5
-    import math
-    for i in range(30):
-        day_offset = 29 - i
-        from datetime import timedelta
-        ts = (datetime.now(timezone.utc) - timedelta(days=day_offset)).isoformat()
-        w = base_weight + math.sin(i * 0.3) * 1.5 - i * 0.05 + random.uniform(-0.3, 0.3)
-        w = round(w, 1)
-        fat = round(22.5 + math.sin(i * 0.2) * 1.2 - i * 0.03 + random.uniform(-0.3, 0.3), 1)
-        muscle = round(35.2 + i * 0.02 + random.uniform(-0.2, 0.2), 1)
-        reading = {
-            "id": str(uuid.uuid4()), "user_id": uid, "device_type": "scale", "timestamp": ts,
-            "weight": w, "bmi": round(w / (1.75 ** 2), 1),
-            "body_fat_pct": fat, "muscle_mass": muscle,
-            "bone_mass": round(3.1 + random.uniform(-0.1, 0.1), 1),
-            "hydration_pct": round(55.0 + random.uniform(-1, 1), 1),
-            "visceral_fat": round(8 + random.uniform(-0.5, 0.5), 1),
-            "basal_metabolism": round(1650 + random.uniform(-30, 30)),
-            "body_age": 48 + random.randint(-2, 2),
-            "protein_pct": round(17.0 + random.uniform(-0.5, 0.5), 1),
-            "health_score": round(75 + random.uniform(-3, 3)),
-        }
-        await db.device_readings.insert_one(reading)
-    return {"status": "seeded", "count": 30}
 
 
 @router.post("/devices/scale/link")

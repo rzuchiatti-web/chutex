@@ -1,7 +1,12 @@
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 import uuid, logging, os, re, stripe
+from io import BytesIO
+
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
 
 from database import db
 from services.smsmode_service import send_sms
@@ -29,6 +34,119 @@ def normalize_phone(phone: str) -> str:
     if cleaned.startswith('0') and len(cleaned) == 10:
         cleaned = '+33' + cleaned[1:]
     return cleaned
+
+
+def _draw_wrapped_text(pdf: canvas.Canvas, text: str, x: float, y: float, max_width: float, line_height: float = 14):
+    current_y = y
+    for paragraph in text.split("\n"):
+        words = paragraph.split()
+        if not words:
+            current_y -= line_height
+            continue
+        line = ""
+        for word in words:
+            candidate = f"{line} {word}".strip()
+            if pdf.stringWidth(candidate, "Helvetica", 10) <= max_width:
+                line = candidate
+            else:
+                pdf.drawString(x, current_y, line)
+                current_y -= line_height
+                line = word
+        if line:
+            pdf.drawString(x, current_y, line)
+            current_y -= line_height
+    return current_y
+
+
+def _build_contract_pdf_bytes(contract: dict | None = None) -> bytes:
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    left = 42
+    top = height - 52
+
+    pdf.setTitle("Contrat Chutex Care")
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(left, top, "Contrat de teleassistance Chutex Care")
+
+    pdf.setFont("Helvetica", 10)
+    top -= 24
+    generated_on = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M UTC")
+    pdf.drawString(left, top, f"Document genere le {generated_on}")
+
+    if contract:
+        top -= 18
+        pdf.setFont("Helvetica-Bold", 11)
+        pdf.drawString(left, top, "Informations du contrat")
+        pdf.setFont("Helvetica", 10)
+        top -= 14
+        beneficiary = contract.get("beneficiary", {})
+        guardians = contract.get("guardians", [])
+        billing = contract.get("billing", {})
+        details = [
+            f"Numero de contrat : {contract.get('contract_number', '-')}",
+            f"Formule : {contract.get('plan_label', contract.get('plan', '-'))}",
+            f"Prix mensuel : {contract.get('price_monthly', '-')} EUR",
+            f"Beneficiaire : {beneficiary.get('first_name', '')} {beneficiary.get('last_name', '')}".strip(),
+            f"Telephone beneficiaire : {beneficiary.get('phone', '-')}",
+            f"Adresse beneficiaire : {beneficiary.get('address', '')} {beneficiary.get('postal_code', '')} {beneficiary.get('city', '')}".strip(),
+            f"Nombre de gardiens designes : {len(guardians)}",
+            f"Facturation : {billing.get('person', 'guardian')}",
+            f"Statut : {contract.get('status', '-')}",
+        ]
+        for line in details:
+            if top < 110:
+                pdf.showPage()
+                top = height - 60
+                pdf.setFont("Helvetica", 10)
+            pdf.drawString(left, top, line)
+            top -= 14
+
+    terms = """Article 1 - Objet
+Le present contrat encadre la mise a disposition du service Chutex Care de teleassistance 24/7 et des equipements connectes associes.
+
+Article 2 - Duree et resiliation
+Le contrat est sans engagement et peut etre resilie par l'une ou l'autre des parties avec preavis de 30 jours.
+
+Article 3 - Service
+Le service comprend la gestion des alertes, la tentative de contact, puis l'alerte des proches et/ou des secours en cas de besoin.
+
+Article 4 - Equipements
+Les equipements fournis restent la propriete de Chutex Innovation et doivent etre utilises conformement aux consignes.
+
+Article 5 - Donnees
+Les donnees personnelles et de sante sont traitees selon le RGPD et strictement pour la fourniture du service.
+
+Article 6 - Limitation de responsabilite
+Chutex Innovation met en oeuvre tous les moyens raisonnables de continuite de service, hors cas de force majeure."""
+
+    if top < 180:
+        pdf.showPage()
+        top = height - 60
+
+    pdf.setFont("Helvetica-Bold", 11)
+    pdf.drawString(left, top, "Conditions essentielles")
+    top -= 16
+    pdf.setFont("Helvetica", 10)
+    top = _draw_wrapped_text(pdf, terms, left, top, width - (left * 2), 14)
+
+    if contract and contract.get("signature", {}).get("signed"):
+        if top < 100:
+            pdf.showPage()
+            top = height - 70
+        signature = contract.get("signature", {})
+        pdf.setFont("Helvetica-Bold", 11)
+        pdf.drawString(left, top, "Signature")
+        top -= 14
+        pdf.setFont("Helvetica", 10)
+        pdf.drawString(left, top, f"Signe par : {signature.get('signer_name', '-')}")
+        top -= 14
+        pdf.drawString(left, top, f"Date de signature : {signature.get('signed_at', '-')}")
+
+    pdf.showPage()
+    pdf.save()
+    buffer.seek(0)
+    return buffer.getvalue()
 
 
 async def _ensure_stripe_prices():
@@ -254,6 +372,31 @@ async def get_contract(contract_id: str):
     if not contract:
         raise HTTPException(404, "Contrat introuvable")
     return contract
+
+
+@router.get("/contract/template/pdf")
+async def get_contract_template_pdf():
+    pdf_bytes = _build_contract_pdf_bytes(None)
+    return StreamingResponse(
+        BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'inline; filename="contrat-chutex-template.pdf"'},
+    )
+
+
+@router.get("/contract/{contract_id}/pdf")
+async def get_contract_pdf(contract_id: str):
+    contract = await db.contracts.find_one({"id": contract_id}, {"_id": 0})
+    if not contract:
+        raise HTTPException(404, "Contrat introuvable")
+
+    pdf_bytes = _build_contract_pdf_bytes(contract)
+    safe_number = contract.get("contract_number", contract_id)
+    return StreamingResponse(
+        BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="contrat-{safe_number}.pdf"'},
+    )
 
 
 # ─── Stripe Webhook (subscriptions + contracts) ───
@@ -573,8 +716,8 @@ async def create_saad_stripe_account(request: Request):
         # Regenerate onboarding link
         link = stripe.AccountLink.create(
             account=existing["account_id"],
-            refresh_url=body.get("refresh_url", "https://chutex-ble-test.preview.emergentagent.com"),
-            return_url=body.get("return_url", "https://chutex-ble-test.preview.emergentagent.com"),
+            refresh_url=body.get("refresh_url", "https://nora-health.preview.emergentagent.com"),
+            return_url=body.get("return_url", "https://nora-health.preview.emergentagent.com"),
             type="account_onboarding",
         )
         return {"account_id": existing["account_id"], "onboarding_url": link.url, "already_exists": True}
@@ -592,8 +735,8 @@ async def create_saad_stripe_account(request: Request):
 
     link = stripe.AccountLink.create(
         account=account.id,
-        refresh_url=body.get("refresh_url", "https://chutex-ble-test.preview.emergentagent.com"),
-        return_url=body.get("return_url", "https://chutex-ble-test.preview.emergentagent.com"),
+        refresh_url=body.get("refresh_url", "https://nora-health.preview.emergentagent.com"),
+        return_url=body.get("return_url", "https://nora-health.preview.emergentagent.com"),
         type="account_onboarding",
     )
 

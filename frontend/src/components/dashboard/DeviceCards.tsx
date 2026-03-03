@@ -102,12 +102,17 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
     </div>
   );
 
-  const StatusPill = ({ connected }: { connected: boolean }) => (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 16px', borderRadius: 999, background: connected ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${connected ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}` } as any}>
-      <span style={{ width: 7, height: 7, borderRadius: 4, background: connected ? '#10B981' : '#EF4444' } as any} />
-      <span style={{ fontSize: 12, fontWeight: 700, color: connected ? '#10B981' : '#EF4444' }}>{connected ? 'Actif' : 'Inactif'}</span>
-    </div>
-  );
+  const StatusPill = ({ connected, isVest = false }: { connected: boolean; isVest?: boolean }) => {
+    const inactiveColor = isVest ? '#F59E0B' : '#EF4444';
+    const inactiveBg = isVest ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
+    const inactiveBorder = isVest ? 'rgba(245,158,11,0.2)' : 'rgba(239,68,68,0.2)';
+    return (
+      <div data-testid={isVest ? 'vest-status-pill' : 'device-status-pill'} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 16px', borderRadius: 999, background: connected ? 'rgba(16,185,129,0.12)' : inactiveBg, border: `1px solid ${connected ? 'rgba(16,185,129,0.2)' : inactiveBorder}` } as any}>
+        <span style={{ width: 7, height: 7, borderRadius: 4, background: connected ? '#10B981' : inactiveColor } as any} />
+        <span style={{ fontSize: 12, fontWeight: 700, color: connected ? '#10B981' : inactiveColor }}>{connected ? (isVest ? 'En marche' : 'Actif') : (isVest ? 'En veille' : 'Inactif')}</span>
+      </div>
+    );
+  };
 
   /* ──── Glass overlay wrapper ──── */
   const GlassOverlay = ({ children, onClose }: { children: React.ReactNode; onClose: () => void }) => (
@@ -287,7 +292,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
           <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
             <img src={devices[2].img} alt="" style={{ width: 100, height: 100, objectFit: 'contain', margin: '0 auto 14px', display: 'block' } as any} />
             <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Elder</div>
-            <StatusPill connected={vs.connected} />
+            <StatusPill connected={vs.connected} isVest />
           </div>
           <div style={{ padding: '4px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 12 } as any}>
             <InfoRow label="Nom" val="Elder" />

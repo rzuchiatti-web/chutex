@@ -67,6 +67,11 @@ export default function SubscriptionPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const openContractPdf = () => {
+    const pdfUrl = contractId ? `${API}/api/contract/${contractId}/pdf` : `${API}/api/contract/template/pdf`;
+    if (typeof window !== 'undefined') window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+  };
+
   useEffect(() => {
     fetch(`${API}/api/plans`).then(r => r.json()).then(setPlans).catch(() => {});
     fetch(`${API}/api/stripe/config`).then(r => r.json()).then(d => { STRIPE_PK = d.publishable_key; }).catch(() => {});
@@ -286,7 +291,12 @@ export default function SubscriptionPage() {
         <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>Contrat & Paiement</div>
         <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Lisez le contrat, signez et payez directement.</div>
         <div style={{ background: C.card, borderRadius: C.r, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 8 }}>Contrat de teleassistance</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Contrat de teleassistance</div>
+            <div data-testid="view-contract-pdf-button" onClick={openContractPdf} style={{ padding: '7px 12px', borderRadius: 999, border: `1px solid ${V}30`, background: '#FFF', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: V }}>
+              <i className="ri-file-pdf-line" style={{ marginRight: 5 }} />Voir PDF
+            </div>
+          </div>
           <div style={{ height: 180, overflowY: 'auto', padding: 14, background: '#FFF', borderRadius: 10, border: `1px solid ${C.border}`, fontSize: 12, color: C.muted, lineHeight: 1.7, whiteSpace: 'pre-wrap' } as any} onScroll={(e: any) => { if (e.target.scrollTop + e.target.clientHeight >= e.target.scrollHeight - 20) setContractRead(true); }}>{CONTRACT_TEXT}</div>
           {!contractRead && <div style={{ fontSize: 11, color: V, marginTop: 6, textAlign: 'center' }}>Faites defiler pour lire l'integralite du contrat</div>}
         </div>
@@ -318,6 +328,9 @@ export default function SubscriptionPage() {
         <div style={{ width: 64, height: 64, borderRadius: '50%', background: `${C.green}15`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}><span style={{ fontSize: 28, color: C.green }}>✓</span></div>
         <div style={{ fontSize: 24, fontWeight: 900, color: C.text, marginBottom: 6 }}>Souscription confirmee !</div>
         <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6, marginBottom: 28 }}>Votre contrat est actif.{contractNumber && <> N° <strong style={{ color: C.text }}>{contractNumber}</strong></>}</div>
+        <div data-testid="download-signed-contract-button" onClick={openContractPdf} style={{ display: 'inline-flex', padding: '10px 14px', borderRadius: 999, background: '#FFF', border: `1px solid ${V}30`, cursor: 'pointer', fontSize: 12, fontWeight: 700, color: V, marginBottom: 16 }}>
+          <i className="ri-download-2-line" style={{ marginRight: 6 }} />Telecharger le contrat PDF
+        </div>
         <div style={{ background: C.card, borderRadius: C.r, padding: 20, textAlign: 'left' }}>
           <div style={{ fontSize: 14, fontWeight: 800, color: C.text, marginBottom: 14 }}>Prochaines etapes</div>
           {['SMS envoye au beneficiaire pour telecharger l\'app', 'Invitations envoyees aux gardiens', `Livraison prevue le ${deliveryDate}`, 'Un technicien vous contactera pour la mise en service'].map((s,i) => (

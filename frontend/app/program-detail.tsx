@@ -7,10 +7,12 @@ import NativePageView from '../src/components/NativePageView';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
 
 export default function ProgramDetailScreen() {
-  const { user, token } = useAuth();
+  const { token } = useAuth();
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const programId = Array.isArray(id) ? id[0] : id;
   const [program, setProgram] = useState<any>(null);
+  const [activeProgram, setActiveProgram] = useState<any>(null);
   const [step, setStep] = useState(0); // 0=presentation, 1=onboarding, 2=invite, 3=ready
   const [mode, setMode] = useState('solo');
   const [onboarding, setOnboarding] = useState<any>({});
@@ -25,8 +27,15 @@ export default function ProgramDetailScreen() {
   const [invitedFriends, setInvitedFriends] = useState<any[]>([]);
 
   useEffect(() => {
-    if (id) apiFetch(`/api/programs/detail/${id}`, {}, token).then(setProgram).catch(() => {});
-  }, [id]);
+    if (!programId) return;
+    Promise.all([
+      apiFetch(`/api/programs/detail/${programId}`, {}, token).catch(() => null),
+      apiFetch('/api/programs/active', {}, token).catch(() => null),
+    ]).then(([detail, active]) => {
+      if (detail) setProgram(detail);
+      if (active) setActiveProgram(active);
+    });
+  }, [programId, token]);
 
   if (Platform.OS !== 'web') return <NativePageView path={`/program-detail?id=${id}`} />;
   if (!program) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0f1a' }}><Text style={{ color: '#FFF' }}>Chargement...</Text></View>;
@@ -34,28 +43,38 @@ export default function ProgramDetailScreen() {
   const clr = program.color || '#A78BFA';
   const hasOnboarding = (program.onboarding_fields || []).length > 0;
 
+  const hasActiveConflict = !!activeProgram?.active && activeProgram?.program?.id !== programId;
+
   const createTeamAndStart = async () => {
+    if (hasActiveConflict) {
+      setError('Vous avez deja un programme actif. Terminez-le avant d en lancer un nouveau.');
+      return;
+    }
     setStarting(true); setError('');
     try {
       // Create team first
       const startDate = new Date().toISOString().split('T')[0];
       const teamRes = await apiFetch(`/api/programs/team/create`, {
         method: 'POST',
-        body: JSON.stringify({ program_id: id, start_date: startDate }),
+        body: JSON.stringify({ program_id: programId, start_date: startDate }),
       }, token);
       setTeamId(teamRes.team_id);
       setInviteCode(teamRes.invite_code);
       // Now start the program
-      await apiFetch(`/api/programs/start/${id}`, { method: 'POST', body: JSON.stringify({ mode, onboarding }) }, token);
+      await apiFetch(`/api/programs/start/${programId}`, { method: 'POST', body: JSON.stringify({ mode, onboarding }) }, token);
       // Go to invite step
       setStep(2);
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setStarting(false); }
   };
 
   const startSolo = async () => {
+    if (hasActiveConflict) {
+      setError('Vous avez deja un programme actif. Terminez-le avant d en lancer un nouveau.');
+      return;
+    }
     setStarting(true); setError('');
     try {
-      await apiFetch(`/api/programs/start/${id}`, { method: 'POST', body: JSON.stringify({ mode: 'solo', onboarding }) }, token);
+      await apiFetch(`/api/programs/start/${programId}`, { method: 'POST', body: JSON.stringify({ mode: 'solo', onboarding }) }, token);
       router.replace('/programs' as any);
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setStarting(false); }
   };
@@ -82,14 +101,31 @@ export default function ProgramDetailScreen() {
     recovery_score: 'ri-battery-charge-line',
   };
 
+  const metricLabels: Record<string, string> = {
+    sleep_quality: 'Qualite du sommeil',
+    sleep_duration_min: 'Duree de sommeil',
+    deep_sleep_min: 'Sommeil profond',
+    heart_rate: 'Frequence cardiaque',
+    hrv: 'HRV',
+    stress_level: 'Stress',
+    blood_pressure: 'Tension arterielle',
+    steps: 'Pas quotidiens',
+    calories: 'Depense calorique',
+    weight: 'Poids',
+    body_fat_pct: 'Masse grasse',
+    muscle_pct: 'Masse musculaire',
+    recovery_score: 'Recuperation',
+  };
+
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
       <img src={BG_IMAGES.beneficiary} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.88))', zIndex: 1 } as any} />
+      <div style={{ position: 'absolute', top: -130, right: -80, width: 280, height: 280, borderRadius: 999, background: `radial-gradient(circle, ${clr}33, transparent 70%)`, zIndex: 2 } as any} />
       <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
       <div style={{ maxWidth: 420, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 44px) + 10px) 20px 100px' } as any}>
         {/* Back */}
-        <div onClick={() => step > 0 && step !== 2 ? setStep(step - 1) : step === 2 ? router.replace('/programs' as any) : router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 20 } as any}>
+        <div data-testid="program-detail-back-button" onClick={() => step > 0 && step !== 2 ? setStep(step - 1) : step === 2 ? router.replace('/programs' as any) : router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 20 } as any}>
           <i className={step === 2 ? "ri-close-line" : "ri-arrow-left-line"} style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
         </div>
 
@@ -108,8 +144,40 @@ export default function ProgramDetailScreen() {
                 {program.difficulty && <span style={{ padding: '5px 12px', borderRadius: 99, background: `${clr}10`, border: `1px solid ${clr}20`, fontSize: 11, fontWeight: 600, color: clr }}>{program.difficulty}</span>}
               </div>
             </div>
+
+            {hasActiveConflict && (
+              <div data-testid="program-active-conflict-warning" style={{ padding: '14px 16px', borderRadius: 14, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.22)', marginBottom: 18 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#FCA5A5', marginBottom: 5 }}>Un autre programme est deja actif</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, marginBottom: 10 }}>
+                  Terminez ou arretez le programme en cours pour lancer celui-ci.
+                </div>
+                <div data-testid="go-to-active-programs-button" onClick={() => router.replace('/programs' as any)} style={{ display: 'inline-flex', padding: '8px 12px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)', fontSize: 11, fontWeight: 700, color: '#FFF', cursor: 'pointer' } as any}>
+                  Voir mon programme actif
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 18 } as any}>
+              <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' } as any}>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>Duree</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{program.duration_days} jours</div>
+              </div>
+              <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' } as any}>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>Categorie</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', textTransform: 'capitalize' }}>{program.category || 'Sante'}</div>
+              </div>
+            </div>
+
             {/* Description */}
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, marginBottom: 24 } as any}>{program.description}</div>
+
+            {program.benefits?.[0] && (
+              <div style={{ padding: '12px 14px', borderRadius: 14, background: `${clr}10`, border: `1px solid ${clr}24`, marginBottom: 22 } as any}>
+                <div style={{ fontSize: 10, fontWeight: 800, color: clr, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Science en bref</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.62)', lineHeight: 1.55 }}>{program.benefits[0]}</div>
+              </div>
+            )}
+
             {/* Benefits */}
             {(program.benefits || []).length > 0 && (
               <div style={{ marginBottom: 24 } as any}>
@@ -130,7 +198,7 @@ export default function ProgramDetailScreen() {
                   {program.tracked_metrics.map((m: string, i: number) => (
                     <div key={i} style={{ padding: '6px 12px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 5 } as any}>
                       <i className={metricIcons[m] || 'ri-bar-chart-line'} style={{ fontSize: 12, color: clr }} />
-                      {(program.data_used || [])[i] || m.replace(/_/g, ' ')}
+                      {metricLabels[m] || m.replace(/_/g, ' ')}
                     </div>
                   ))}
                 </div>
@@ -152,10 +220,25 @@ export default function ProgramDetailScreen() {
             {/* Disclaimer */}
             {program.medical_disclaimer && <div style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)', fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 24 } as any}><i className="ri-stethoscope-line" style={{ marginRight: 6, color: '#F59E0B' }} />{program.medical_disclaimer}</div>}
             {/* CTA */}
-            <div onClick={() => setStep(hasOnboarding ? 1 : 3)} data-testid="start-solo-btn" style={{ padding: '16px', borderRadius: 16, textAlign: 'center', cursor: 'pointer', background: `linear-gradient(135deg, ${clr}30, ${clr}15)`, border: `1px solid ${clr}35`, fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 10 } as any}>Commencer seul</div>
-            <div onClick={() => { setMode('duo'); setStep(hasOnboarding ? 1 : 3); }} data-testid="start-team-btn" style={{ padding: '14px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.2)', fontSize: 13, fontWeight: 700, color: '#A78BFA', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+            <div onClick={() => {
+              if (hasActiveConflict) {
+                setError('Vous avez deja un programme actif.');
+                return;
+              }
+              setMode('solo');
+              setStep(hasOnboarding ? 1 : 3);
+            }} data-testid="start-solo-btn" style={{ padding: '16px', borderRadius: 16, textAlign: 'center', cursor: hasActiveConflict ? 'not-allowed' : 'pointer', background: `linear-gradient(135deg, ${clr}30, ${clr}15)`, border: `1px solid ${clr}35`, fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 10, opacity: hasActiveConflict ? 0.45 : 1 } as any}>Commencer seul</div>
+            <div onClick={() => {
+              if (hasActiveConflict) {
+                setError('Vous avez deja un programme actif.');
+                return;
+              }
+              setMode('duo');
+              setStep(hasOnboarding ? 1 : 3);
+            }} data-testid="start-team-btn" style={{ padding: '14px', borderRadius: 14, textAlign: 'center', cursor: hasActiveConflict ? 'not-allowed' : 'pointer', background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.2)', fontSize: 13, fontWeight: 700, color: '#A78BFA', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: hasActiveConflict ? 0.45 : 1 } as any}>
               <i className="ri-team-line" style={{ fontSize: 18 }} />Le faire avec un ami
             </div>
+            {error && <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: 12, color: '#FCA5A5', marginTop: 10, textAlign: 'center' } as any}>{error}</div>}
           </>
         )}
 
@@ -194,7 +277,13 @@ export default function ProgramDetailScreen() {
                 )}
               </div>
             ))}
-            <div onClick={() => setStep(3)} style={{ marginTop: 10, padding: '16px', borderRadius: 16, textAlign: 'center', cursor: 'pointer', background: `linear-gradient(135deg, ${clr}30, ${clr}15)`, border: `1px solid ${clr}35`, fontSize: 15, fontWeight: 800, color: '#FFF' } as any}>Suivant</div>
+            <div onClick={() => {
+              if (hasActiveConflict) {
+                setError('Vous avez deja un programme actif.');
+                return;
+              }
+              setStep(3);
+            }} style={{ marginTop: 10, padding: '16px', borderRadius: 16, textAlign: 'center', cursor: hasActiveConflict ? 'not-allowed' : 'pointer', background: `linear-gradient(135deg, ${clr}30, ${clr}15)`, border: `1px solid ${clr}35`, fontSize: 15, fontWeight: 800, color: '#FFF', opacity: hasActiveConflict ? 0.45 : 1 } as any}>Suivant</div>
           </>
         )}
 
@@ -290,7 +379,13 @@ export default function ProgramDetailScreen() {
               ))}
             </div>
             {error && <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: 12, color: '#EF4444', marginBottom: 16, textAlign: 'center' } as any}>{error}</div>}
-            <div data-testid="launch-program-btn" onClick={mode !== 'solo' ? createTeamAndStart : startSolo} style={{ padding: '16px', borderRadius: 16, textAlign: 'center', cursor: starting ? 'wait' : 'pointer', background: `linear-gradient(135deg, ${clr}35, ${clr}18)`, border: `1px solid ${clr}40`, fontSize: 16, fontWeight: 900, color: '#FFF', boxShadow: `0 4px 20px ${clr}20` } as any}>
+            <div data-testid="launch-program-btn" onClick={() => {
+              if (hasActiveConflict) {
+                setError('Vous avez deja un programme actif.');
+                return;
+              }
+              mode !== 'solo' ? createTeamAndStart() : startSolo();
+            }} style={{ padding: '16px', borderRadius: 16, textAlign: 'center', cursor: starting || hasActiveConflict ? 'not-allowed' : 'pointer', background: `linear-gradient(135deg, ${clr}35, ${clr}18)`, border: `1px solid ${clr}40`, fontSize: 16, fontWeight: 900, color: '#FFF', boxShadow: `0 4px 20px ${clr}20`, opacity: hasActiveConflict ? 0.45 : 1 } as any}>
               {starting ? 'Lancement...' : mode !== 'solo' ? 'Creer l\'equipe et commencer' : 'Lancer le programme'}
             </div>
           </>

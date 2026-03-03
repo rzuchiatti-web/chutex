@@ -83,12 +83,13 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [dd, rem, guards, greqs, hs] = await Promise.all([
+      const [dd, rem, guards, greqs, hs, scaleHistory] = await Promise.all([
         apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
         apiFetch('/api/reminders', {}, token).catch(() => []),
         apiFetch('/api/guardians/my', {}, token).catch(() => []),
         apiFetch('/api/beneficiary/guardian-requests', {}, token).catch(() => []),
         apiFetch('/api/health/summary', {}, token).catch(() => null),
+        apiFetch('/api/devices/scale/history', {}, token).catch(() => []),
       ]);
       setDashData(dd);
       setReminders(rem);
@@ -96,7 +97,25 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       setGuardianRequests(Array.isArray(greqs) ? greqs : []);
       if (hs) setHealthSummary(hs);
       apiFetch('/api/subscriptions/my', {}, token).then(setSubscription).catch(() => {});
-      if (report?.weighings) setWeighings(report.weighings);
+      if (Array.isArray(scaleHistory)) {
+        const mapped = scaleHistory
+          .map((r: any) => {
+            const data = r?.data || r;
+            return {
+              id: r?.id || '',
+              date: r?.timestamp || r?.date || r?.created_at || '',
+              weight: data?.weight || 0,
+              bmi: data?.bmi || 0,
+              body_fat_pct: data?.body_fat_pct || 0,
+              muscle_pct: data?.muscle_pct || 0,
+              water_pct: data?.water_pct || 0,
+              status: data?.health_evaluation || '--',
+            };
+          })
+          .filter((w: any) => w.weight > 0)
+          .slice(0, 20);
+        setWeighings(mapped);
+      }
       try {
         const [prog, cat] = await Promise.all([
           apiFetch('/api/programs/active', {}, token).catch(() => null),

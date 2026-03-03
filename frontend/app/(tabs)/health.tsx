@@ -74,20 +74,34 @@ export default function HealthScreen() {
 
   const d = report?.data || {};
   const ai = report?.ai || {};
-  const score = report?.score ?? 0;
   const status = report?.status || '';
   const statusColor = report?.status_color || 'rgba(255,255,255,0.3)';
   const subs = report?.subscores || {};
   const plan = report?.daily_plan || [];
   const weighings = report?.weighings || [];
   const analysisPhase = report?.analysis_phase || null;
+  const hasHeartRate = Number(d.heart_rate || 0) > 0;
+  const hasSpo2 = Number(d.spo2 || 0) > 0;
+  const hasBloodPressure = Number(d.blood_pressure?.systolic || 0) > 0 && Number(d.blood_pressure?.diastolic || 0) > 0;
+  const hasValidTemp = Number(d.temperature || 0) >= 34 && Number(d.temperature || 0) <= 42;
+  const hasMeaningfulVitals = hasHeartRate || hasSpo2 || hasBloodPressure || hasValidTemp;
+  const hasBodyAge = Number(d.body_age || 0) > 0;
+  const hasWeightData = weighings.length > 0 || Number(d.weight || 0) > 0;
+  const hasAnyHealthData = hasMeaningfulVitals || hasBodyAge || hasWeightData;
+  const filteredPlan = (Array.isArray(plan) ? plan : []).filter((p: any) => {
+    if (p.key === 'steps') return Number(d.steps || 0) > 0;
+    if (p.key === 'hydration') return Number(d.water_pct || 0) > 0;
+    if (p.key === 'sleep') return Number(d.sleep_quality || 0) > 0 || Number(d.sleep_duration_min || 0) > 0;
+    if (p.key === 'calories') return Number(d.calories || 0) > 0;
+    return p?.value != null && `${p.value}` !== '' && `${p.value}` !== '0';
+  });
 
   /* ─── WEB BENEFICIARY VIEW ─── */
   if (Platform.OS === 'web' && effectiveRole === 'beneficiary') {
     if (reportLoading) return <FullScreenLoader />;
 
     /* No data — show connect device message + Nora recommendations */
-    if (report?.no_data) {
+    if (report?.no_data || !hasAnyHealthData) {
       const noDataAi = report?.ai;
       const noDataRecs = noDataAi?.secondary_recs || [];
       return (
@@ -131,7 +145,16 @@ export default function HealthScreen() {
           <AnalysisPhase analysisPhase={analysisPhase} showInfo={showAnalysisInfo} setShowInfo={setShowAnalysisInfo} progressBg={PROGRESS_BG} />
 
           {/* 1. Hero BioAge */}
-          {!analysisPhase && <HeroScore bioAge={d.body_age || 0} realAge={user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} />}
+          {!analysisPhase && (hasMeaningfulVitals || hasBodyAge) ? (
+            <HeroScore bioAge={d.body_age || 0} realAge={user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} />
+          ) : (
+            <div data-testid="health-score-unavailable" style={{ padding: '18px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.22)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#FCD34D', marginBottom: 6 }}>Score Nora indisponible</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55 }}>
+                Nous avons besoin de mesures physiologiques valides (bracelet Elio) pour calculer un score fiable.
+              </div>
+            </div>
+          )}
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
@@ -140,7 +163,7 @@ export default function HealthScreen() {
           {/* 3. Daily Objectives — no card wrapper */}
           <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Objectifs journaliers</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 } as any}>
-            {plan.map((p: any) => (
+            {filteredPlan.map((p: any) => (
               <div key={p.key} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}><i className={p.icon} style={{ fontSize: 14, color: p.color }} /><span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{p.status || p.label}</span></div>
                 <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{p.value} <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{p.unit}</span></div>
@@ -148,6 +171,11 @@ export default function HealthScreen() {
                 {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', marginTop: 6, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${p.progress}%`, background: p.color } as any} /></div>}
               </div>
             ))}
+            {filteredPlan.length === 0 && (
+              <div data-testid="health-plan-unavailable" style={{ gridColumn: '1 / -1', padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.45)', fontSize: 12, lineHeight: 1.5 } as any}>
+                Aucun objectif personnalise pour le moment. Connectez le bracelet pour generer un plan base sur vos donnees reelles.
+              </div>
+            )}
           </div>
           {/* 3b moved after sections */}
 
@@ -156,10 +184,44 @@ export default function HealthScreen() {
           {/* 4. Vitals Row — same design as dashboard */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
             {[
-              { val: d.heart_rate || 72, unit: 'bpm', label: 'Rythme cardiaque', status: 'Au repos', icon: 'ri-heart-pulse-line', color: '#EF4444', key: 'heart_rate' },
-              { val: `${d.spo2 || 97}`, unit: '%', label: 'Saturation O2', status: 'Normal', icon: 'ri-drop-line', color: '#6366F1', key: 'spo2' },
-              { val: `${d.blood_pressure?.systolic || 125}/${d.blood_pressure?.diastolic || 78}`, unit: 'mmHg', label: 'Pression arterielle', status: 'Stable', icon: 'ri-water-flash-line', color: '#8B5CF6', key: 'blood_pressure' },
-              { val: `${d.temperature || 36.6}`, unit: '°C', label: 'Temperature', status: 'Normale', icon: 'ri-temp-hot-line', color: '#F59E0B', key: 'temperature' },
+              {
+                val: d.heart_rate > 0 ? d.heart_rate : '--',
+                unit: 'bpm',
+                label: 'Rythme cardiaque',
+                status: d.heart_rate > 0 ? 'Mesure recente' : 'Aucune donnee',
+                icon: 'ri-heart-pulse-line',
+                color: '#EF4444',
+                key: 'heart_rate',
+              },
+              {
+                val: d.spo2 > 0 ? `${d.spo2}` : '--',
+                unit: '%',
+                label: 'Saturation O2',
+                status: d.spo2 > 0 ? 'Mesure recente' : 'Aucune donnee',
+                icon: 'ri-drop-line',
+                color: '#6366F1',
+                key: 'spo2',
+              },
+              {
+                val: d.blood_pressure?.systolic > 0 && d.blood_pressure?.diastolic > 0
+                  ? `${d.blood_pressure.systolic}/${d.blood_pressure.diastolic}`
+                  : '--/--',
+                unit: 'mmHg',
+                label: 'Pression arterielle',
+                status: d.blood_pressure?.systolic > 0 ? 'Mesure recente' : 'Aucune donnee',
+                icon: 'ri-water-flash-line',
+                color: '#8B5CF6',
+                key: 'blood_pressure',
+              },
+              {
+                val: d.temperature > 0 ? `${d.temperature}` : '--',
+                unit: '°C',
+                label: 'Temperature',
+                status: d.temperature > 0 ? 'Mesure recente' : 'Aucune donnee',
+                icon: 'ri-temp-hot-line',
+                color: '#F59E0B',
+                key: 'temperature',
+              },
             ].map((v, i) => (
               <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '12px 14px 10px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', transition: 'transform 0.15s, background 0.15s' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
