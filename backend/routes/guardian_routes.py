@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone, timedelta
-import uuid, random, logging
+import uuid, random, logging, os
 
 from database import db, EMERGENT_LLM_KEY, twilio_client, TWILIO_NUMBER
 from auth import get_current_user, sanitize_user, get_effective_role
@@ -486,19 +486,30 @@ async def guardian_beneficiary_vitals_history(bid: str, limit: int = 20, user=De
 
 @router.get("/guardian/beneficiary/{bid}/ai-report")
 async def guardian_beneficiary_ai_report(bid: str, user=Depends(get_current_user)):
-    """Get latest AI health report for a beneficiary"""
-    report = await db.health_reports.find_one(
-        {"user_id": bid}, {"_id": 0}
-    )
-    if report:
-        return {"recommendation": report.get('report', ''), "generated_at": report.get('generated_at', '')}
-    # Try to get from beneficiary's AI recommendations
-    rec = await db.ai_recommendations.find_one(
-        {"user_id": bid}, {"_id": 0}
-    )
-    if rec:
-        return {"recommendation": rec.get('recommendation', ''), "generated_at": rec.get('created_at', '')}
-    return None
+    """Get a short AI health summary for a beneficiary"""
+    ben = await db.users.find_one({"id": bid}, {"_id": 0, "password_hash": 0})
+    if not ben:
+        return None
+    # Get latest device data
+    br = await db.device_readings.find_one({"user_id": bid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
+    sc = await db.device_readings.find_one({"user_id": bid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
+    devs = await db.devices.find({"user_id": bid, "removed": {"$ne": True}}, {"_id": 0}).to_list(5)
+    dev_info = ", ".join([f"{d['device_type']}(bat:{d.get('battery',0)}%)" for d in devs]) or "aucun appareil"
+    br_data = (br or {}).get("data", {})
+    sc_data = (sc or {}).get("data", {})
+    data_str = f"FC:{br_data.get('heart_rate',0)}bpm SpO2:{br_data.get('spo2',0)}% Temp:{br_data.get('temperature',0)} Pas:{br_data.get('steps',0)} Poids:{sc_data.get('weight',0)}kg"
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if not api_key:
+        return {"summary": f"{ben['name']}, {ben.get('medical_conditions','aucune pathologie connue')}. Appareils: {dev_info}."}
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        prompt = f"Resume en 2 phrases max l'etat de sante de {ben['name']} ({ben.get('gender','')}, {ben.get('date_of_birth','')}). Pathologies: {ben.get('medical_conditions','aucune')}. Donnees: {data_str}. Appareils: {dev_info}. Sois factuel, pas d'emoji."
+        chat = LlmChat(api_key=api_key, session_id=f"guard-{bid[:8]}",
+                       system_message="Medecin. 2 phrases max. Factuel.").with_model("openai", "gpt-5.2")
+        r = await chat.send_message(UserMessage(text=prompt))
+        return {"summary": r.strip()}
+    except Exception as e:
+        return {"summary": f"{ben['name']}. Appareils: {dev_info}."}
 
 
 @router.get("/guardian/beneficiary/{bid}/devices")
@@ -515,7 +526,8 @@ async def guardian_beneficiary_devices(bid: str, user=Depends(get_current_user))
             if dev.get('last_sync'):
                 try:
                     ls = datetime.fromisoformat(dev['last_sync'].replace('Z', '+00:00'))
-                    is_connected = (now - ls).total_seconds() < 120
+                    threshold = 30 if dt == 'vest' else 120
+                    is_connected = (now - ls).total_seconds() < threshold
                 except: pass
             result[dt] = {
                 "connected": is_connected,

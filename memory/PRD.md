@@ -17,6 +17,14 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
+### Mar 3, 2026 - Refonte fiche beneficiaire gardien + Dispositifs
+- Refonte complete beneficiary-detail.tsx : header compact, analyse Nora IA, 3 cartes dispositifs, grille sante 3 colonnes (toutes metriques), dossier medical, localisation, historique alertes
+- Graph BPM/ECG supprime, donnees simulees supprimees
+- Badge gilet : seuil 30s partout (backend + frontend) pour "En marche" / "En veille"
+- DeviceCards dashboard : gilet affiche "En marche" (vert) / "En veille" (orange)
+- Popup detail : statut gilet + ID MAC + bouton Synchroniser
+- Endpoint guardian AI report genere analyse Nora en temps reel via GPT-5.2
+
 ### Mar 2, 2026 - BLE Gilet + Bracelet + Suppression Simulation
 - Gilet: parsing protocole texte S-AIRBAG (@&type=1&bat=28&...#), batterie, detection chute (type=2&sos=1) -> alerte + escalade gardiens
 - Bracelet: fix batterie (setBleVitals dynamique quand cmd 0x0D arrive)
