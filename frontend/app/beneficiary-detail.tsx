@@ -52,6 +52,8 @@ export default function BeneficiaryDetailScreen() {
   const [geoFormLng, setGeoFormLng] = useState('');
   const [geoFormRadius, setGeoFormRadius] = useState('500');
   const [geoFormSaving, setGeoFormSaving] = useState(false);
+  const [selectedGuardian, setSelectedGuardian] = useState<any | null>(null);
+  const [showContractPopup, setShowContractPopup] = useState(false);
   const [resolvedBid, setResolvedBid] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -163,6 +165,31 @@ export default function BeneficiaryDetailScreen() {
     { label: 'Poids', val: v.weight, unit: 'kg', icon: 'ri-scales-3-line', color: '#3B82F6' },
     { label: 'Sommeil', val: v.sleep_quality, unit: '%', icon: 'ri-moon-line', color: '#A78BFA' },
   ].filter(m => m.val && m.val !== 0);
+
+  const guardiansList = Array.isArray(subInfo?.guardians) ? subInfo.guardians : [];
+  const subscription = subInfo?.subscription || null;
+  const contract = subInfo?.contract || null;
+  const hasActiveContract = subscription?.status === 'active';
+
+  const getGuardianContractDetails = (guardian: any) => {
+    const contractGuardians = Array.isArray(contract?.guardians) ? contract.guardians : [];
+    const normalize = (value: string) => (value || '').replace(/\D/g, '');
+    return contractGuardians.find((g: any) => normalize(g.phone || '') === normalize(guardian?.phone || '')) || null;
+  };
+
+  const getGuardianActivity = (guardian: any) => {
+    const related = alerts.filter((a: any) =>
+      a?.resolved_by === guardian?.id ||
+      a?.acknowledged_by === guardian?.id ||
+      a?.assigned_to === guardian?.id
+    );
+    const latest = related.sort((a: any, b: any) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime())[0];
+    return {
+      count: related.length,
+      lastActionAt: latest?.updated_at || latest?.created_at || null,
+      recentAlerts: related.slice(0, 4),
+    };
+  };
 
   const refreshGeofences = async () => {
     if (!activeBid) return;
@@ -291,30 +318,110 @@ export default function BeneficiaryDetailScreen() {
           </GlassCard>
         )}
 
+        {/* ── CONSTANTES VITALES ── */}
+        <SectionTitle icon="ri-heart-pulse-line" label="Constantes vitales" color="#EF4444" />
+        <GlassCard>
+          {metrics.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8 } as any}>
+              {metrics.map((m, i) => (
+                <div key={i} data-testid={`beneficiary-vital-card-${m.label.toLowerCase().replace(/\s+/g, '-')}`} style={{ padding: '12px 10px', borderRadius: 16, background: `${m.color}08`, border: `1px solid ${m.color}18` } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 } as any}>
+                    <i className={m.icon} style={{ fontSize: 12, color: m.color }} />
+                    <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.3 }}>{m.label}</span>
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: m.color, lineHeight: 1 }}>{m.val}</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginTop: 2, fontWeight: 600 }}>{m.unit}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div data-testid="beneficiary-vitals-empty" style={{ textAlign: 'center', padding: '20px 0', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Aucune constante disponible</div>
+          )}
+        </GlassCard>
+
+        {/* ── DOSSIER MEDICAL ── */}
+        <SectionTitle icon="ri-file-medical-line" label="Dossier medical" color="#A78BFA" />
+        <GlassCard>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 } as any}>
+            {[
+              data.blood_type && { label: 'Groupe sanguin', val: data.blood_type, color: '#EF4444' },
+              data.date_of_birth && { label: 'Date de naissance', val: (() => { try { const d = new Date(data.date_of_birth); return isNaN(d.getTime()) ? data.date_of_birth : d.toLocaleDateString('fr-FR'); } catch { return data.date_of_birth; } })(), color: '#FFF' },
+              data.gender && { label: 'Genre', val: data.gender === 'male' ? 'Homme' : data.gender === 'female' ? 'Femme' : data.gender, color: '#FFF' },
+              (data.height_cm || data.weight_kg) && { label: 'Taille / Poids', val: [data.height_cm && `${data.height_cm} cm`, data.weight_kg && `${data.weight_kg} kg`].filter(Boolean).join(' · '), color: '#FFF' },
+            ].filter(Boolean).map((item: any, i: number) => (
+              <div key={i} style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
+                <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 3 }}>{item.label}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: item.color }}>{item.val}</div>
+              </div>
+            ))}
+          </div>
+          {data.medical_conditions && <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 6 } as any}><div style={{ fontSize: 8, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 3 }}>Pathologies</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.5 }}>{data.medical_conditions}</div></div>}
+          {data.allergies && <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 6 } as any}><div style={{ fontSize: 8, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', marginBottom: 3 }}>Allergies</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.5 }}>{data.allergies}</div></div>}
+        </GlassCard>
+
         {/* ── DISPOSITIFS ── */}
         <SectionTitle icon="ri-bluetooth-connect-line" label="Dispositifs" color="#22D3EE" />
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' } as any}>
-          {devList.map((dev, i) => {
-            const isVest = dev.type === 'vest';
-            const vestAct = isVest && dev.d?.last_sync && (Date.now() - new Date(dev.d.last_sync).getTime()) < 30000;
-            const isActive = isVest ? vestAct : dev.d?.connected;
-            const statusLabel = !dev.d ? 'Non associe' : isVest ? (vestAct ? 'Actif' : 'Veille') : (dev.d?.connected ? 'OK' : 'Off');
-            const statusColor = !dev.d ? '#6B7280' : isVest ? (vestAct ? '#10B981' : '#F59E0B') : (dev.d?.connected ? '#10B981' : '#6B7280');
-            const bat = dev.d?.battery_level ?? 0;
-            return (
-              <div key={i} data-testid={`beneficiary-device-card-${dev.type}`} style={{ flex: '1 1 120px', minWidth: 110, padding: '12px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
-                <img src={dev.img} alt="" style={{ width: 36, height: 36, objectFit: 'contain', margin: '0 auto 6px', display: 'block', opacity: dev.d ? 1 : 0.25 } as any} />
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{dev.label}</div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 7px', borderRadius: 99, background: `${statusColor}18` } as any}>
-                  <span style={{ width: 4, height: 4, borderRadius: 99, background: statusColor } as any} />
-                  <span style={{ fontSize: 8, fontWeight: 700, color: statusColor }}>{statusLabel}</span>
+        <GlassCard>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' } as any}>
+            {devList.map((dev, i) => {
+              const isVest = dev.type === 'vest';
+              const vestAct = isVest && dev.d?.last_sync && (Date.now() - new Date(dev.d.last_sync).getTime()) < 30000;
+              const statusLabel = !dev.d ? 'Non associe' : isVest ? (vestAct ? 'Actif' : 'Veille') : (dev.d?.connected ? 'OK' : 'Off');
+              const statusColor = !dev.d ? '#6B7280' : isVest ? (vestAct ? '#10B981' : '#F59E0B') : (dev.d?.connected ? '#10B981' : '#6B7280');
+              const bat = dev.d?.battery_level ?? 0;
+              return (
+                <div key={i} data-testid={`beneficiary-device-card-${dev.type}`} style={{ flex: '1 1 120px', minWidth: 110, padding: '12px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
+                  <img src={dev.img} alt="" style={{ width: 36, height: 36, objectFit: 'contain', margin: '0 auto 6px', display: 'block', opacity: dev.d ? 1 : 0.25 } as any} />
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{dev.label}</div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 7px', borderRadius: 99, background: `${statusColor}18` } as any}>
+                    <span style={{ width: 4, height: 4, borderRadius: 99, background: statusColor } as any} />
+                    <span style={{ fontSize: 8, fontWeight: 700, color: statusColor }}>{statusLabel}</span>
+                  </div>
+                  {bat > 0 && <div style={{ fontSize: 10, fontWeight: 700, color: bat > 30 ? '#10B981' : '#EF4444', marginTop: 4 }}>{bat}%</div>}
                 </div>
-                {bat > 0 && <div style={{ fontSize: 10, fontWeight: 700, color: bat > 30 ? '#10B981' : '#EF4444', marginTop: 4 }}>{bat}%</div>}
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </GlassCard>
 
+        {/* ── GARDIENS ── */}
+        <SectionTitle icon="ri-team-line" label="Liste des gardiens" color="#34D399" />
+        <GlassCard>
+          {guardiansList.length > 0 ? guardiansList.map((g: any, i: number) => (
+            <div key={g.id || i} data-testid={`beneficiary-guardian-card-${g.id || i}`} onClick={() => setSelectedGuardian(g)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 0', borderBottom: i < guardiansList.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' } as any}>
+              <div style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(52,211,153,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#34D399' }}>{g.name?.charAt(0)}</span>
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{g.name}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{g.relationship || g.guardian_type || 'Gardien'}{g.phone ? ` · ${g.phone}` : ''}</div>
+              </div>
+              <i className="ri-arrow-right-s-line" style={{ color: 'rgba(255,255,255,0.35)' }} />
+            </div>
+          )) : (
+            <div data-testid="beneficiary-guardians-empty" style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)', padding: '10px 0' } as any}>Aucun gardien associe</div>
+          )}
+        </GlassCard>
+
+        {/* ── CONTRAT ── */}
+        <SectionTitle icon="ri-shield-star-line" label="Contrat" color="#7C3AED" />
+        <GlassCard>
+          <div data-testid="beneficiary-contract-card" onClick={() => subscription && setShowContractPopup(true)} style={{ padding: '12px 14px', borderRadius: 14, background: hasActiveContract ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.05)', border: hasActiveContract ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(255,255,255,0.1)', cursor: subscription ? 'pointer' : 'default' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 } as any}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }} data-testid="beneficiary-contract-status-title">
+                  {hasActiveContract ? `Contrat ${subscription?.subscription_type === 'care' ? 'Care' : 'Standard'} actif` : 'Aucun contrat actif'}
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 4 }} data-testid="beneficiary-contract-status-subtitle">
+                  {subscription ? 'Touchez pour voir les details de souscription et paiement.' : 'Aucune souscription enregistree.'}
+                </div>
+              </div>
+              {subscription && <i className="ri-arrow-right-s-line" style={{ color: 'rgba(255,255,255,0.35)', fontSize: 18 }} />}
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* ── SAFE ZONES ── */}
         <SectionTitle icon="ri-shield-check-line" label="Safe zones" color="#34D399" />
         <GlassCard>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 8, marginBottom: 10 } as any}>
@@ -371,108 +478,6 @@ export default function BeneficiaryDetailScreen() {
           )}
         </GlassCard>
 
-        {/* ── ABONNEMENT + GARDIENS ── */}
-        {subInfo?.subscription && (<>
-          <Sep />
-          <SectionTitle icon="ri-shield-star-line" label="Abonnement Care" color="#7C3AED" />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                <i className="ri-shield-star-line" style={{ fontSize: 20, color: '#A78BFA' }} />
-              </div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{subInfo.contract?.plan_label || (subInfo.subscription?.subscription_type === 'care' ? 'Chutex Care' : 'Standard')}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{subInfo.contract?.contract_number || ''}</div>
-              </div>
-              <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.2)' } as any}>
-                <span style={{ fontSize: 9, fontWeight: 700, color: '#10B981' }}>Actif</span>
-              </div>
-            </div>
-            {subInfo.contract?.price_monthly && (
-              <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
-                <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                  <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Mensuel</div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{subInfo.contract.price_monthly} EUR</div>
-                </div>
-                {subInfo.contract.price_after_credit && (
-                  <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(16,185,129,0.06)', textAlign: 'center' } as any}>
-                    <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(16,185,129,0.5)', textTransform: 'uppercase', marginBottom: 2 }}>Apres credit impot</div>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#10B981' }}>{subInfo.contract.price_after_credit} EUR</div>
-                  </div>
-                )}
-              </div>
-            )}
-            {subInfo.guardians && subInfo.guardians.length > 0 && (<>
-              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8, marginTop: 4 }}>Gardiens ({subInfo.guardians.length})</div>
-              {subInfo.guardians.map((g: any, i: number) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: i < subInfo.guardians.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' } as any}>
-                  <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#10B981' }}>{g.name?.charAt(0)}</span>
-                  </div>
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{g.name}</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{g.relationship || g.guardian_type || 'Gardien'}{g.phone ? ` · ${g.phone}` : ''}</div>
-                  </div>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA', padding: '2px 8px', borderRadius: 99, background: 'rgba(167,139,250,0.1)' }}>#{i + 1}</div>
-                </div>
-              ))}
-            </>)}
-        </>)}
-
-        {/* ── DONNEES DE SANTE ── */}
-        {metrics.length > 0 && (<>
-          <SectionTitle icon="ri-heart-pulse-line" label="Donnees de sante" color="#EF4444" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8, marginBottom: 4 } as any}>
-            {metrics.map((m, i) => (
-              <div key={i} style={{ padding: '12px 10px', borderRadius: 16, background: `${m.color}08`, border: `1px solid ${m.color}18` } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 } as any}>
-                  <i className={m.icon} style={{ fontSize: 12, color: m.color }} />
-                  <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.3 }}>{m.label}</span>
-                </div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: m.color, lineHeight: 1 }}>{m.val}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginTop: 2, fontWeight: 600 }}>{m.unit}</div>
-              </div>
-            ))}
-          </div>
-          {metrics.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>Aucune donnee de sante disponible</div>}
-        </>)}
-
-        {/* ── DOSSIER MEDICAL ── */}
-        <Sep />
-        <SectionTitle icon="ri-file-medical-line" label="Dossier medical" color="#A78BFA" />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 } as any}>
-            {[
-              data.blood_type && { label: 'Groupe sanguin', val: data.blood_type, color: '#EF4444' },
-              data.date_of_birth && { label: 'Date de naissance', val: (() => { try { const d = new Date(data.date_of_birth); return isNaN(d.getTime()) ? data.date_of_birth : d.toLocaleDateString('fr-FR'); } catch { return data.date_of_birth; } })(), color: '#FFF' },
-              data.gender && { label: 'Genre', val: data.gender === 'male' ? 'Homme' : data.gender === 'female' ? 'Femme' : data.gender, color: '#FFF' },
-              (data.height_cm || data.weight_kg) && { label: 'Taille / Poids', val: [data.height_cm && `${data.height_cm} cm`, data.weight_kg && `${data.weight_kg} kg`].filter(Boolean).join(' · '), color: '#FFF' },
-            ].filter(Boolean).map((item: any, i: number) => (
-              <div key={i} style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
-                <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 3 }}>{item.label}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: item.color }}>{item.val}</div>
-              </div>
-            ))}
-          </div>
-          {data.medical_conditions && <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 6 } as any}><div style={{ fontSize: 8, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 3 }}>Pathologies</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.5 }}>{data.medical_conditions}</div></div>}
-          {data.allergies && <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 6 } as any}><div style={{ fontSize: 8, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', marginBottom: 3 }}>Allergies</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.5 }}>{data.allergies}</div></div>}
-          {(data.doctor_name || data.emergency_contact_name) && (
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 10, marginTop: 6 } as any}>
-              {data.doctor_name && <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 } as any}><i className="ri-stethoscope-line" style={{ fontSize: 14, color: '#A78BFA', flexShrink: 0 }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Medecin traitant</div><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{data.doctor_name}</div></div></div>}
-              {data.emergency_contact_name && <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}><i className="ri-shield-user-line" style={{ fontSize: 14, color: '#EF4444', flexShrink: 0 }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Contact urgence</div><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{data.emergency_contact_name}</div></div>{data.emergency_contact_phone && <a href={`tel:${data.emergency_contact_phone}`} style={{ textDecoration: 'none' }}><div style={{ width: 30, height: 30, borderRadius: 999, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-phone-line" style={{ fontSize: 13, color: '#10B981' }} /></div></a>}</div>}
-            </div>
-          )}
-
-        {/* ── LOCALISATION ── */}
-        <Sep />
-        <SectionTitle icon="ri-map-pin-line" label="Localisation" color="#F59E0B" />
-        {data.latitude && data.longitude ? (
-          <div style={{ borderRadius: 16, overflow: 'hidden', position: 'relative', height: 160, marginBottom: 4 } as any}>
-            <iframe title="map" src={`https://www.openstreetmap.org/export/embed.html?bbox=${data.longitude - 0.01},${data.latitude - 0.01},${data.longitude + 0.01},${data.latitude + 0.01}&layer=mapnik&marker=${data.latitude},${data.longitude}`} style={{ width: '100%', height: '100%', border: 'none' } as any} />
-            {data.address && <div style={{ position: 'absolute', bottom: 6, left: 6, right: 6, padding: '6px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)', fontSize: 10, color: '#FFF', fontWeight: 600 } as any}><i className="ri-map-pin-fill" style={{ color: '#EF4444', marginRight: 4, fontSize: 11 }} />{data.address}</div>}
-          </div>
-        ) : (
-          <div style={{ padding: '16px', textAlign: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: 14 } as any}><i className="ri-map-pin-off-line" style={{ fontSize: 24, color: 'rgba(255,255,255,0.12)' }} /><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>Localisation non disponible</div></div>
-        )}
-
         {/* ── HISTORIQUE ALERTES ── */}
         {historyAlerts.length > 0 && (<>
           <Sep />
@@ -492,6 +497,70 @@ export default function BeneficiaryDetailScreen() {
             </div>
           ))}
         </>)}
+
+        {selectedGuardian && (() => {
+          const activity = getGuardianActivity(selectedGuardian);
+          const extra = getGuardianContractDetails(selectedGuardian);
+          return (
+            <div data-testid="guardian-detail-modal" style={{ position: 'fixed', inset: 0, zIndex: 1190, background: 'rgba(2,6,23,0.62)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12 } as any}>
+              <div style={{ width: '100%', maxWidth: 460, borderRadius: 20, background: 'rgba(15,23,42,0.84)', border: '1px solid rgba(255,255,255,0.16)', boxShadow: '0 24px 70px rgba(0,0,0,0.4)', padding: 16 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+                  <div>
+                    <div data-testid="guardian-detail-name" style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{selectedGuardian.name}</div>
+                    <div data-testid="guardian-detail-role" style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{selectedGuardian.relationship || selectedGuardian.guardian_type || 'Gardien'}</div>
+                  </div>
+                  <div data-testid="guardian-detail-close-btn" onClick={() => setSelectedGuardian(null)} style={{ width: 30, height: 30, borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-close-line" style={{ color: '#FFF' }} /></div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 } as any}>
+                  <div style={{ padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginBottom: 3 }}>Telephone</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="guardian-detail-phone">{selectedGuardian.phone || 'N/A'}</div>
+                  </div>
+                  <div style={{ padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginBottom: 3 }}>Type</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="guardian-detail-type">{selectedGuardian.guardian_type || 'particular'}</div>
+                  </div>
+                </div>
+
+                {extra?.email && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 6 }} data-testid="guardian-detail-email">Email: {extra.email}</div>}
+                {extra?.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 8 }} data-testid="guardian-detail-address">Adresse: {extra.address}{extra.city ? `, ${extra.city}` : ''}{extra.postal_code ? ` ${extra.postal_code}` : ''}</div>}
+
+                <div style={{ marginTop: 10, padding: '10px 12px', borderRadius: 12, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.22)' } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: '#A5B4FC', textTransform: 'uppercase', marginBottom: 6 }}>Historique d activite</div>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 8 } as any}>
+                    <div style={{ flex: 1, fontSize: 11, color: 'rgba(255,255,255,0.7)' }} data-testid="guardian-detail-activity-count">Actions: {activity.count}</div>
+                    <div style={{ flex: 1, fontSize: 11, color: 'rgba(255,255,255,0.7)' }} data-testid="guardian-detail-last-action">Derniere: {activity.lastActionAt ? new Date(activity.lastActionAt).toLocaleString('fr-FR') : 'Aucune'}</div>
+                  </div>
+                  {activity.recentAlerts.length > 0 ? activity.recentAlerts.map((a: any) => (
+                    <div key={a.id} style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }} data-testid={`guardian-detail-activity-item-${a.id}`}>{a.message || a.alert_type} · {new Date(a.created_at).toLocaleDateString('fr-FR')}</div>
+                  )) : <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }} data-testid="guardian-detail-activity-empty">Aucune action enregistree pour ce gardien.</div>}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {showContractPopup && subscription && (
+          <div data-testid="contract-detail-modal" style={{ position: 'fixed', inset: 0, zIndex: 1185, background: 'rgba(2,6,23,0.62)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12 } as any}>
+            <div style={{ width: '100%', maxWidth: 470, borderRadius: 20, background: 'rgba(15,23,42,0.84)', border: '1px solid rgba(255,255,255,0.16)', boxShadow: '0 24px 70px rgba(0,0,0,0.4)', padding: 16 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }} data-testid="contract-detail-title">Contrat {subscription.subscription_type === 'care' ? 'Care' : 'Standard'}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }} data-testid="contract-detail-status">Statut: {subscription.status || 'N/A'}</div>
+                </div>
+                <div data-testid="contract-detail-close-btn" onClick={() => setShowContractPopup(false)} style={{ width: 30, height: 30, borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-close-line" style={{ color: '#FFF' }} /></div>
+              </div>
+
+              <div style={{ display: 'grid', gap: 8 } as any}>
+                <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Date de souscription</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-created-at">{subscription.created_at ? new Date(subscription.created_at).toLocaleDateString('fr-FR') : 'N/A'}</div></div>
+                <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Offre</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-plan">{contract?.plan_label || (subscription.subscription_type === 'care' ? 'Chutex Care' : 'Standard')}</div></div>
+                <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Paiement</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-payment">{contract?.price_monthly ? `${contract.price_monthly} EUR / mois` : 'N/A'}</div></div>
+                <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Numero contrat</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-number">{contract?.contract_number || 'N/A'}</div></div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {geoFormOpen && (
           <div data-testid="safezone-form-modal" style={{ position: 'fixed', inset: 0, zIndex: 1200, background: 'rgba(2,6,23,0.62)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12 } as any}>
