@@ -494,6 +494,16 @@ async def ble_scale_measurement(body: dict, user=Depends(get_current_user)):
         "basal_metabolism": body_data.get('basal_metabolism', 0), "body_age": body_data.get('body_age', 0),
         "protein_pct": body_data.get('protein_pct', 0), "health_score": body_data.get('health_score', 0),
         "impedance": impedance, "source": "ble",
+        "data": {
+            "weight": body_data.get('weight', weight),
+            "bmi": body_data.get('bmi', 0), "body_fat_pct": body_data.get('body_fat_pct', 0),
+            "muscle_pct": round(body_data.get('muscle_mass', 0) / max(weight, 1) * 100, 1) if weight > 0 else 0,
+            "water_pct": body_data.get('hydration_pct', 0), "visceral_fat": body_data.get('visceral_fat', 0),
+            "body_age": body_data.get('body_age', 0), "bone_mass_kg": body_data.get('bone_mass', 0),
+            "basal_metabolism": body_data.get('basal_metabolism', 0),
+            "protein_pct": body_data.get('protein_pct', 0),
+            "health_score_balance": body_data.get('health_score', 0),
+        },
     }
     await db.device_readings.insert_one(measurement)
     # Update device last_sync
