@@ -183,7 +183,7 @@ async def invite_guardian(data: dict, user=Depends(get_current_user)):
             try:
                 ben_name = user.get('name', 'Un proche')
                 twilio_client.messages.create(
-                    body=f"{ben_name} souhaite vous ajouter comme gardien sur Chutex, l'application de teleassistance. Inscrivez-vous sur https://nora-health.preview.emergentagent.com pour veiller sur votre proche.",
+                    body=f"{ben_name} souhaite vous ajouter comme gardien sur Chutex, l'application de teleassistance. Inscrivez-vous sur https://nora-health-ai-1.preview.emergentagent.com pour veiller sur votre proche.",
                     from_=TWILIO_NUMBER,
                     to=cleaned,
                 )
@@ -404,7 +404,7 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
     }
     await db.prescriptions.insert_one(p)
     # Send SMS to beneficiary
-    sub_link = "https://nora-health.preview.emergentagent.com/subscription"
+    sub_link = "https://nora-health-ai-1.preview.emergentagent.com/subscription"
     await send_sms(
         cleaned_phone,
         f"Bonjour {full_name}, {structure} vous invite a souscrire a la teleassistance Chutex Care. Souscrivez ici : {sub_link}"

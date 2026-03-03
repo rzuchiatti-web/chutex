@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://nora-health.preview.emergentagent.com")
+BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://nora-health-ai-1.preview.emergentagent.com")
 
 class TestAuthEndpoints:
     """Test authentication endpoints for login/register flow"""
