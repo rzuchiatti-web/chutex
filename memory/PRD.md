@@ -19,6 +19,14 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
+### Mar 3, 2026 - Refactoring devices.tsx en composants modulaires
+- **Refactoring complet** de `devices.tsx` (2338 → 1772 lignes, -566 lignes)
+- **Hooks extraits**: `useDeviceData.ts` (fetch devices, subscription, pesees, sync/remove), `useBleConnection.ts` (logique BLE, scan, appairage)
+- **Composants extraits**: `DeviceCard.tsx` (carte individuelle par appareil), `PairingOverlays.tsx` (popups etapes/scan/connecte/erreur), `DeviceDetailPopup.tsx` (popup detail), `NoSubscriptionPopup.tsx`, `GlassOverlay.tsx`, `constants.ts`
+- **DeviceManagement.tsx**: Conteneur leger qui compose hooks + composants
+- **Aucun changement fonctionnel** - le comportement et l'UI sont identiques
+- Tests: iteration_81 - Frontend 10/10 (100%)
+
 ### Mar 3, 2026 - Push Notifications + Refonte Programmes
 - **Push Notifications**: Ajout `notify_geofence_exit` pour alertes safe zone + dispatch aux gardiens
 - **Push Preferences**: Ajout `geofence_alerts` aux preferences push (true par defaut)
