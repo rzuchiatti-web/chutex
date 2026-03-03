@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { ThemeProvider } from '../src/context/ThemeContext';
 import { I18nProvider } from '../src/context/I18nContext';
-import { View, ActivityIndicator, StyleSheet, Platform, Image } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform, Image, Text, TouchableOpacity } from 'react-native';
 import { PastelMistBackground } from '../src/components/PastelMistBackground';
+import { ensureFirstLaunchLocationPermission, openSystemLocationSettings, requestLocationPermission } from '../src/services/locationPermissions';
 
 /**
  * On iOS: render the entire app as a single full-screen WebView
@@ -16,7 +17,29 @@ function NativeFullApp() {
   const { SafeAreaView } = require('react-native-safe-area-context');
   const { PermissionsAndroid } = require('react-native');
   const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || '';
-  const webViewRef = React.useRef<any>(null);
+  const webViewRef = useRef<any>(null);
+  const [showLocationGuide, setShowLocationGuide] = useState(false);
+  const [locationGuideMsg, setLocationGuideMsg] = useState('');
+  const [locationRetrying, setLocationRetrying] = useState(false);
+
+  useEffect(() => {
+    const bootstrapLocationPermission = async () => {
+      const result = await ensureFirstLaunchLocationPermission();
+      if (!result.granted) {
+        setLocationGuideMsg(result.message);
+        setShowLocationGuide(true);
+      }
+    };
+    bootstrapLocationPermission();
+  }, []);
+
+  const retryLocationPermission = async () => {
+    setLocationRetrying(true);
+    const result = await requestLocationPermission();
+    setLocationGuideMsg(result.message);
+    setShowLocationGuide(!result.granted);
+    setLocationRetrying(false);
+  };
 
   const handleMessage = async (event: any) => {
     try {
@@ -105,8 +128,71 @@ function NativeFullApp() {
           contentMode="mobile"
           allowsFullscreenVideo={true}
         />
+
+        {showLocationGuide && (
+          <View style={st.locationGuideOverlay}>
+            <View style={st.locationGuideCard}>
+              <Text style={st.locationGuideTitle} testID="native-location-guide-title">Activer la localisation</Text>
+              <Text style={st.locationGuideText} testID="native-location-guide-text">
+                {locationGuideMsg || 'Choisissez "Toujours" pour que les safe zones fonctionnent en continu.'}
+              </Text>
+              <View style={st.locationGuideActions}>
+                <TouchableOpacity testID="native-location-open-settings-button" style={st.locationGuideSecondaryBtn} onPress={() => openSystemLocationSettings()}>
+                  <Text style={st.locationGuideSecondaryBtnText}>Ouvrir Reglages</Text>
+                </TouchableOpacity>
+                <TouchableOpacity testID="native-location-retry-button" style={st.locationGuidePrimaryBtn} onPress={retryLocationPermission}>
+                  <Text style={st.locationGuidePrimaryBtnText}>{locationRetrying ? 'Verification...' : 'Reessayer'}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </View>
+  );
+}
+
+function WebLocationPermissionGate() {
+  const [visible, setVisible] = useState(false);
+  const [message, setMessage] = useState('');
+  const [retrying, setRetrying] = useState(false);
+
+  useEffect(() => {
+    const checkWebPermission = async () => {
+      const result = await ensureFirstLaunchLocationPermission();
+      if (!result.granted) {
+        setMessage(result.message);
+        setVisible(true);
+      }
+    };
+    checkWebPermission();
+  }, []);
+
+  const retry = async () => {
+    setRetrying(true);
+    const result = await requestLocationPermission();
+    setMessage(result.message);
+    setVisible(!result.granted);
+    setRetrying(false);
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div data-testid="web-location-permission-guide" style={{ position: 'fixed', right: 16, bottom: 16, zIndex: 9999, width: 340, maxWidth: 'calc(100vw - 24px)', borderRadius: 18, background: 'rgba(15,23,42,0.78)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: '0 12px 40px rgba(0,0,0,0.35)', padding: 14, fontFamily: "'Inter', system-ui, sans-serif" } as any}>
+      <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 6 }} data-testid="web-location-permission-guide-title">Activer la localisation</div>
+      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.72)', lineHeight: 1.5, marginBottom: 10 }} data-testid="web-location-permission-guide-text">
+        {message || 'Autorisez la localisation pour les safe zones et le suivi SOS.'}
+      </div>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' } as any}>
+        <div data-testid="web-location-open-settings-button" onClick={() => openSystemLocationSettings()} style={{ flex: 1, minWidth: 130, textAlign: 'center', borderRadius: 999, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.08)', color: '#FFF', fontSize: 12, fontWeight: 700, padding: '9px 12px', cursor: 'pointer' } as any}>
+          Ouvrir Reglages
+        </div>
+        <div data-testid="web-location-retry-button" onClick={retry} style={{ flex: 1, minWidth: 130, textAlign: 'center', borderRadius: 999, border: '1px solid rgba(16,185,129,0.35)', background: 'rgba(16,185,129,0.22)', color: '#34D399', fontSize: 12, fontWeight: 800, padding: '9px 12px', cursor: 'pointer', opacity: retrying ? 0.6 : 1 } as any}>
+          {retrying ? 'Verification...' : 'Reessayer'}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -188,6 +274,7 @@ export default function RootLayout() {
       <I18nProvider>
         <AuthProvider>
           <PastelMistBackground />
+          <WebLocationPermissionGate />
           <RootNav />
         </AuthProvider>
       </I18nProvider>
@@ -197,4 +284,63 @@ export default function RootLayout() {
 
 const st = StyleSheet.create({
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
+  locationGuideOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: 16,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  locationGuideCard: {
+    borderRadius: 18,
+    backgroundColor: 'rgba(15,23,42,0.88)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+    padding: 14,
+  },
+  locationGuideTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginBottom: 6,
+  },
+  locationGuideText: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: 'rgba(255,255,255,0.75)',
+    marginBottom: 10,
+  },
+  locationGuideActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  locationGuideSecondaryBtn: {
+    flex: 1,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  locationGuideSecondaryBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  locationGuidePrimaryBtn: {
+    flex: 1,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(16,185,129,0.3)',
+    backgroundColor: 'rgba(16,185,129,0.2)',
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  locationGuidePrimaryBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#34D399',
+  },
 });

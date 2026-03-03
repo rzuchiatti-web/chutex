@@ -45,6 +45,15 @@ export default function BeneficiaryDetailScreen() {
   const [geoLocation, setGeoLocation] = useState<any>(null);
   const [geoLoading, setGeoLoading] = useState(true);
   const [geoBusyId, setGeoBusyId] = useState<string | null>(null);
+  const [showGeoManager, setShowGeoManager] = useState(false);
+  const [geoFormOpen, setGeoFormOpen] = useState(false);
+  const [geoEditingId, setGeoEditingId] = useState<string | null>(null);
+  const [geoFormName, setGeoFormName] = useState('');
+  const [geoFormLat, setGeoFormLat] = useState('');
+  const [geoFormLng, setGeoFormLng] = useState('');
+  const [geoFormRadius, setGeoFormRadius] = useState('500');
+  const [geoFormSaving, setGeoFormSaving] = useState(false);
+  const [geoCheckResult, setGeoCheckResult] = useState<any>(null);
   const [resolvedBid, setResolvedBid] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -202,6 +211,79 @@ export default function BeneficiaryDetailScreen() {
     }
   };
 
+  const openGeoManager = () => {
+    setGeoCheckResult(null);
+    setGeoFormOpen(false);
+    setGeoEditingId(null);
+    setShowGeoManager(true);
+  };
+
+  const startGeoCreate = () => {
+    setGeoEditingId(null);
+    setGeoFormName(`Zone ${geoZones.length + 1}`);
+    setGeoFormLat(geoLocation?.latitude != null ? String(geoLocation.latitude) : '');
+    setGeoFormLng(geoLocation?.longitude != null ? String(geoLocation.longitude) : '');
+    setGeoFormRadius('500');
+    setGeoFormOpen(true);
+  };
+
+  const startGeoEdit = (zone: any) => {
+    setGeoEditingId(zone.id);
+    setGeoFormName(zone.name || 'Zone');
+    setGeoFormLat(zone.latitude != null ? String(zone.latitude) : '');
+    setGeoFormLng(zone.longitude != null ? String(zone.longitude) : '');
+    setGeoFormRadius(String(zone.radius_m ?? zone.radius_meters ?? 500));
+    setGeoFormOpen(true);
+  };
+
+  const useBeneficiaryLocationInForm = () => {
+    if (geoLocation?.latitude == null || geoLocation?.longitude == null) return;
+    setGeoFormLat(String(geoLocation.latitude));
+    setGeoFormLng(String(geoLocation.longitude));
+  };
+
+  const saveGeoForm = async () => {
+    if (!activeBid) return;
+    const latitude = parseFloat(geoFormLat);
+    const longitude = parseFloat(geoFormLng);
+    const radius_m = parseFloat(geoFormRadius);
+    if (!geoFormName.trim()) return;
+    if (Number.isNaN(latitude) || Number.isNaN(longitude)) return;
+    if (Number.isNaN(radius_m) || radius_m < 50) return;
+
+    setGeoFormSaving(true);
+    try {
+      const payload = {
+        name: geoFormName.trim(),
+        latitude,
+        longitude,
+        radius_m,
+      };
+      if (geoEditingId) {
+        const updated = await apiFetch(`/api/guardian/beneficiary/${activeBid}/geofence/${geoEditingId}`, { method: 'PUT', body: JSON.stringify(payload) }, token);
+        setGeoZones(prev => prev.map((z: any) => z.id === geoEditingId ? updated : z));
+      } else {
+        const created = await apiFetch(`/api/guardian/beneficiary/${activeBid}/geofence`, { method: 'POST', body: JSON.stringify(payload) }, token);
+        setGeoZones(prev => [created, ...prev]);
+      }
+      setGeoFormOpen(false);
+      setGeoEditingId(null);
+    } catch {
+    } finally {
+      setGeoFormSaving(false);
+    }
+  };
+
+  const runGeoCheck = async () => {
+    if (!activeBid) return;
+    try {
+      const result = await apiFetch(`/api/guardian/beneficiary/${activeBid}/geofence/check`, { method: 'POST' }, token);
+      setGeoCheckResult(result);
+      if (result?.location) setGeoLocation(result.location);
+    } catch {
+    }
+  };
+
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
       <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
@@ -292,7 +374,7 @@ export default function BeneficiaryDetailScreen() {
               <div data-testid="beneficiary-safezone-refresh-btn" onClick={refreshGeofences} style={{ padding: '7px 10px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>
                 Actualiser
               </div>
-              <div data-testid="beneficiary-safezone-open-manager-btn" onClick={() => router.push({ pathname: '/geofencing' as any, params: { beneficiaryId: activeBid } })} style={{ padding: '7px 10px', borderRadius: 999, cursor: 'pointer', background: 'rgba(16,185,129,0.14)', border: '1px solid rgba(16,185,129,0.28)', fontSize: 11, fontWeight: 700, color: '#34D399' } as any}>
+              <div data-testid="beneficiary-safezone-open-manager-btn" onClick={openGeoManager} style={{ padding: '7px 10px', borderRadius: 999, cursor: 'pointer', background: 'rgba(16,185,129,0.14)', border: '1px solid rgba(16,185,129,0.28)', fontSize: 11, fontWeight: 700, color: '#34D399' } as any}>
                 Gerer
               </div>
             </div>
@@ -452,6 +534,84 @@ export default function BeneficiaryDetailScreen() {
             </div>
           ))}
         </>)}
+
+        {showGeoManager && (
+          <div data-testid="safezone-manager-modal" style={{ position: 'fixed', inset: 0, zIndex: 1200, background: 'rgba(2,6,23,0.62)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12 } as any}>
+            <div style={{ width: '100%', maxWidth: 760, maxHeight: '86vh', overflowY: 'auto', borderRadius: 22, background: 'rgba(15,23,42,0.84)', border: '1px solid rgba(255,255,255,0.16)', boxShadow: '0 24px 70px rgba(0,0,0,0.4)', padding: 16 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 } as any}>
+                <div>
+                  <div style={{ fontSize: 17, fontWeight: 900, color: '#FFF' }} data-testid="safezone-manager-title">Gestion Safe Zones</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 3 }} data-testid="safezone-manager-subtitle">Creation, edition, activation et verification en temps reel</div>
+                </div>
+                <div data-testid="safezone-manager-close-btn" onClick={() => setShowGeoManager(false)} style={{ width: 34, height: 34, borderRadius: 999, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)' } as any}>
+                  <i className="ri-close-line" style={{ color: '#FFF', fontSize: 18 }} />
+                </div>
+              </div>
+
+              <div data-testid="safezone-manager-location-card" style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12 } as any}>
+                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>Localisation beneficiaire</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }} data-testid="safezone-manager-location-value">
+                  {geoLocation?.latitude != null && geoLocation?.longitude != null
+                    ? `${Number(geoLocation.latitude).toFixed(5)}, ${Number(geoLocation.longitude).toFixed(5)}${geoLocation?.updated_at ? ` · MAJ ${new Date(geoLocation.updated_at).toLocaleString('fr-FR')}` : ''}`
+                    : 'Localisation non disponible. Le beneficiaire doit accepter la localisation (Toujours).'}
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 } as any}>
+                  <div data-testid="safezone-manager-refresh-btn" onClick={refreshGeofences} style={{ padding: '7px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700, color: '#FFF', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' } as any}>Actualiser</div>
+                  <div data-testid="safezone-manager-check-btn" onClick={runGeoCheck} style={{ padding: '7px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700, color: '#111827', background: '#FCD34D', border: '1px solid rgba(252,211,77,0.65)', cursor: 'pointer' } as any}>Verifier zone</div>
+                  <div data-testid="safezone-manager-add-btn" onClick={startGeoCreate} style={{ padding: '7px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700, color: '#34D399', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', cursor: 'pointer' } as any}>Ajouter une zone</div>
+                </div>
+              </div>
+
+              {geoCheckResult && (
+                <div data-testid="safezone-manager-check-result" style={{ padding: '10px 12px', borderRadius: 12, marginBottom: 12, background: geoCheckResult?.in_zone ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${geoCheckResult?.in_zone ? 'rgba(16,185,129,0.26)' : 'rgba(239,68,68,0.26)'}` } as any}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: geoCheckResult?.in_zone ? '#34D399' : '#F87171', marginBottom: 4 }}>
+                    {geoCheckResult?.in_zone ? 'Beneficiaire dans la zone securisee' : 'Beneficiaire hors zone'}
+                  </div>
+                  {!geoCheckResult?.in_zone && (
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.62)' }}>
+                      {(geoCheckResult?.violations || []).map((v: any) => `${v.zone_name || v.fence_name}: ${v.distance_m}m`).join(' · ')}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {geoFormOpen && (
+                <div data-testid="safezone-manager-form" style={{ padding: 12, borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF', marginBottom: 10 }} data-testid="safezone-manager-form-title">{geoEditingId ? 'Modifier la zone' : 'Nouvelle zone'}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 8 } as any}>
+                    <input data-testid="safezone-form-name-input" value={geoFormName} onChange={(e: any) => setGeoFormName(e.target.value)} placeholder="Nom" style={{ padding: '11px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', color: '#FFF' } as any} />
+                    <input data-testid="safezone-form-lat-input" value={geoFormLat} onChange={(e: any) => setGeoFormLat(e.target.value)} placeholder="Latitude" style={{ padding: '11px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', color: '#FFF' } as any} />
+                    <input data-testid="safezone-form-lng-input" value={geoFormLng} onChange={(e: any) => setGeoFormLng(e.target.value)} placeholder="Longitude" style={{ padding: '11px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', color: '#FFF' } as any} />
+                    <input data-testid="safezone-form-radius-input" value={geoFormRadius} onChange={(e: any) => setGeoFormRadius(e.target.value)} placeholder="Rayon (m)" style={{ padding: '11px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', color: '#FFF' } as any} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 } as any}>
+                    <div data-testid="safezone-form-use-location-btn" onClick={useBeneficiaryLocationInForm} style={{ padding: '7px 11px', borderRadius: 999, cursor: geoLocation?.latitude != null ? 'pointer' : 'not-allowed', background: geoLocation?.latitude != null ? 'rgba(59,130,246,0.18)' : 'rgba(107,114,128,0.12)', border: geoLocation?.latitude != null ? '1px solid rgba(59,130,246,0.3)' : '1px solid rgba(107,114,128,0.3)', fontSize: 11, fontWeight: 700, color: geoLocation?.latitude != null ? '#93C5FD' : '#9CA3AF' } as any}>Utiliser localisation beneficiaire</div>
+                    <div data-testid="safezone-form-cancel-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ padding: '7px 11px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>Annuler</div>
+                    <div data-testid="safezone-form-save-btn" onClick={saveGeoForm} style={{ padding: '7px 11px', borderRadius: 999, cursor: geoFormSaving ? 'wait' : 'pointer', background: 'rgba(16,185,129,0.22)', border: '1px solid rgba(16,185,129,0.35)', fontSize: 11, fontWeight: 800, color: '#34D399', opacity: geoFormSaving ? 0.6 : 1 } as any}>{geoFormSaving ? 'Enregistrement...' : 'Enregistrer'}</div>
+                  </div>
+                </div>
+              )}
+
+              <div data-testid="safezone-manager-zone-list" style={{ display: 'flex', flexDirection: 'column', gap: 8 } as any}>
+                {geoZones.map((zone: any) => (
+                  <div key={zone.id} data-testid={`safezone-manager-zone-row-${zone.id}`} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                    <div style={{ width: 9, height: 9, borderRadius: 99, background: zone.active ? '#10B981' : '#F59E0B' } as any} />
+                    <div style={{ flex: 1, minWidth: 180 } as any}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }} data-testid={`safezone-manager-zone-name-${zone.id}`}>{zone.name}</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }} data-testid={`safezone-manager-zone-meta-${zone.id}`}>{Math.round(Number(zone.radius_m || 0))}m · {Number(zone.latitude).toFixed(4)}, {Number(zone.longitude).toFixed(4)}</div>
+                    </div>
+                    <div data-testid={`safezone-manager-zone-edit-btn-${zone.id}`} onClick={() => startGeoEdit(zone)} style={{ padding: '5px 8px', borderRadius: 999, cursor: 'pointer', background: 'rgba(59,130,246,0.16)', color: '#93C5FD', fontSize: 10, fontWeight: 700 } as any}>Editer</div>
+                    <div data-testid={`safezone-manager-zone-toggle-btn-${zone.id}`} onClick={() => toggleGeoZone(zone.id)} style={{ padding: '5px 8px', borderRadius: 999, cursor: geoBusyId === zone.id ? 'wait' : 'pointer', background: zone.active ? 'rgba(16,185,129,0.14)' : 'rgba(245,158,11,0.14)', color: zone.active ? '#34D399' : '#F59E0B', fontSize: 10, fontWeight: 700, opacity: geoBusyId === zone.id ? 0.6 : 1 } as any}>{zone.active ? 'Active' : 'Veille'}</div>
+                    <div data-testid={`safezone-manager-zone-delete-btn-${zone.id}`} onClick={() => deleteGeoZone(zone.id)} style={{ padding: '5px 8px', borderRadius: 999, cursor: geoBusyId === zone.id ? 'wait' : 'pointer', background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', fontSize: 10, fontWeight: 700, opacity: geoBusyId === zone.id ? 0.6 : 1 } as any}>Supprimer</div>
+                  </div>
+                ))}
+                {!geoLoading && geoZones.length === 0 && (
+                  <div data-testid="safezone-manager-empty-state" style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.5)', padding: '12px 0' } as any}>Aucune zone configuree.</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

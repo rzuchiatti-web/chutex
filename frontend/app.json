@@ -15,9 +15,13 @@
       "infoPlist": {
         "NSBluetoothAlwaysUsageDescription": "Chutex utilise le Bluetooth pour se connecter a votre bracelet et gilet anti-chute.",
         "NSBluetoothPeripheralUsageDescription": "Chutex utilise le Bluetooth pour se connecter a vos appareils de sante.",
+        "NSLocationWhenInUseUsageDescription": "Chutex utilise votre localisation pour la securite des safe zones et les alertes SOS.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Chutex utilise la localisation en continu pour detecter les sorties de safe zone et proteger vos proches.",
+        "NSLocationAlwaysUsageDescription": "Chutex utilise la localisation en continu pour la surveillance des zones de securite.",
         "NSFaceIDUsageDescription": "Chutex utilise Face ID pour une connexion securisee a votre espace sante.",
         "UIBackgroundModes": [
           "bluetooth-central",
+          "location",
           "remote-notification"
         ],
         "ITSAppUsesNonExemptEncryption": false
@@ -37,7 +41,8 @@
         "android.permission.BLUETOOTH_CONNECT",
         "android.permission.BLUETOOTH_SCAN",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.ACCESS_COARSE_LOCATION"
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION"
       ]
     },
     "web": {

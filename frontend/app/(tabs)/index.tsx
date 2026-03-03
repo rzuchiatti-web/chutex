@@ -81,6 +81,35 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     ])).start();
   }, []);
 
+  const syncBeneficiaryLocation = useCallback(async () => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) return;
+    try {
+      const pos: any = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 12000,
+          maximumAge: 0,
+        });
+      });
+      const latitude = pos?.coords?.latitude;
+      const longitude = pos?.coords?.longitude;
+      if (typeof latitude === 'number' && typeof longitude === 'number') {
+        await apiFetch('/api/location/update', {
+          method: 'POST',
+          body: JSON.stringify({ latitude, longitude }),
+        }, token);
+      }
+    } catch {
+      // Permission refusee ou geolocalisation indisponible
+    }
+  }, [token]);
+
+  useEffect(() => {
+    syncBeneficiaryLocation();
+    const intervalId = setInterval(() => { syncBeneficiaryLocation(); }, 60000);
+    return () => clearInterval(intervalId);
+  }, [syncBeneficiaryLocation]);
+
   const fetchData = useCallback(async () => {
     try {
       const [dd, rem, guards, greqs, hs, scaleHistory] = await Promise.all([
