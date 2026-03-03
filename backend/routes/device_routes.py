@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone
-import uuid, re, asyncio
+import uuid
+import re
+import asyncio
 
 from database import db
 from auth import get_current_user
@@ -147,7 +149,7 @@ async def associate_device(data: dict, user=Depends(get_current_user)):
 @router.delete("/devices/{device_id}/remove")
 async def remove_device(device_id: str, user=Depends(get_current_user)):
     """Remove/dissociate a device"""
-    result = await db.devices.update_one({"id": device_id}, {"$set": {"connected": False, "battery": 0, "removed": True}})
+    await db.devices.update_one({"id": device_id}, {"$set": {"connected": False, "battery": 0, "removed": True}})
     return {"status": "removed"}
 
 
@@ -382,6 +384,12 @@ async def get_scale_history(user=Depends(get_current_user)):
         {"_id": 0}
     ).sort("timestamp", -1).to_list(90)
     return readings
+
+
+@router.get("/scale/history")
+async def get_scale_history_alias(user=Depends(get_current_user)):
+    """Backward-compatible alias for legacy clients."""
+    return await get_scale_history(user)
 
 
 @router.post("/devices/scale/link")

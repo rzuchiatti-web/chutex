@@ -2,7 +2,11 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
-import uuid, logging, os, re, stripe
+import uuid
+import logging
+import os
+import re
+import stripe
 from io import BytesIO
 
 from reportlab.lib.pagesizes import A4
@@ -403,7 +407,6 @@ async def get_contract_pdf(contract_id: str):
 @router.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
     body = await request.body()
-    sig = request.headers.get("Stripe-Signature", "")
     now = datetime.now(timezone.utc).isoformat()
 
     try:

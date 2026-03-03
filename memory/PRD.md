@@ -86,27 +86,52 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Alertes Predictives
 - Mode Intervenant a Domicile
 
+## Mise a jour — Mar 3, 2026 (Fork continuation)
+### Livrables completes (P0 + P1 + P2 partiel)
+- **P0 Sante**: suppression d'affichages perçus comme simules sur la page Sante.
+  - Les vitaux absents s'affichent en `--` / `Aucune donnee`.
+  - Le score Nora est masque si les mesures physiologiques valides sont insuffisantes.
+  - Les objectifs journaliers sont filtres pour n'afficher que des objectifs bases sur donnees reelles.
+- **P0 Pesée balance**: validation du flux pesée reelle + mapping historique corrige sur dashboard (`/api/devices/scale/history` -> format UI).
+- **P1 Badge gilet**: harmonisation du badge **En veille** en orange dans les cartes dispositifs (dashboard/details).
+- **P2 Programmes (UI/UX + logique)**:
+  - Refonte visuelle page `/programs` (glass/blur, hero, filtres categorie, etat lock).
+  - Logique explicite "un seul programme actif" visible et bloquante dans le catalogue.
+  - Enrichissement `/program-detail` (warning conflit programme actif, contenus enrichis, CTA bloques si conflit).
+- **P2 Contrat PDF (abonnement)**:
+  - Backend: nouveaux endpoints PDF fonctionnels:
+    - `GET /api/contract/template/pdf`
+    - `GET /api/contract/{contract_id}/pdf`
+  - Frontend subscription: bouton **Voir PDF** (et telechargement contrat en confirmation).
+- **Suppression simulation**: endpoint de seed demo balance retire (`/api/devices/scale/seed-history`) pour eviter toute recurrence de donnees factices.
+
 ## Upcoming Tasks
-- P0: Test complet par l'utilisateur (inscription, BLE, sante, dashboard)
-- P1: Ameliorations UI/UX Programmes (blur, detail enrichi, bloquer si programme actif)
-- P1: Safe area sur toutes les pages mobile
-- P2: Regression complete UI/UX
+- P0: validation utilisateur en conditions reelles BLE (bracelet/gilet/balance) sur appareils physiques
+- P1: regression mobile UX (safe-area + continuity iOS/Android)
+- P1: test iOS TestFlight complet du bridge BLE natif
+- P2: regression UI globale roles gardien/SAAD/admin
 
 ## Future/Backlog
-- Rapport PDF sante partageable
 - Systeme de parrainage gardien
 - Programme d'essai gratuit 7 jours
-- Vue contrat PDF sur page abonnement
-- Face ID/biometrie
+- Face ID / biometrie
 - Integration EBP comptable
 - Mode hors-ligne intervenants
 - Deploiement production
 
+> Decision produit: **Rapport PDF sante partageable retire du scope** (demande utilisateur explicite).
+
 ## Key Files
 - `backend/routes/device_routes.py`: Endpoints dispositifs
-- `backend/routes/health_report_routes.py`: Rapport sante (bug fix water_pct)
+- `backend/routes/health_report_routes.py`: Rapport sante
+- `backend/routes/contract_routes.py`: Contrat + export PDF template/signe
 - `backend/routes/bracelet_routes.py`: Donnees BLE bracelet
-- `frontend/src/pages/devices.tsx`: Page dispositifs avec BLE reel
+- `frontend/app/(tabs)/devices.tsx`: Page dispositifs avec BLE reel
+- `frontend/src/components/dashboard/DeviceCards.tsx`: Badges statut dispositifs dashboard
+- `frontend/app/(tabs)/health.tsx`: Vue sante (no fake data rendering)
+- `frontend/app/programs.tsx`: Catalogue programmes refondu
+- `frontend/app/program-detail.tsx`: Detail programme enrichi + lock programme actif
+- `frontend/app/subscription.tsx`: Contrat & paiement avec ouverture PDF
 - `frontend/app/_layout.tsx`: Bridge BLE natif iOS
 - `backend/services/nora_context.py`: Contexte IA enrichi
 - `backend/routes/program_routes.py`: Programmes sante + seed
