@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import { View, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useGlobalSearchParams, useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
@@ -13,8 +13,27 @@ const IMG_SCALE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4
 const IMG_VEST = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg';
 
 export default function BeneficiaryDetailScreen() {
-  const { beneficiaryId } = useLocalSearchParams<{ beneficiaryId: string | string[] }>();
-  const bid = Array.isArray(beneficiaryId) ? beneficiaryId[0] : beneficiaryId;
+  const localParams = useLocalSearchParams<{ beneficiaryId: string | string[] }>();
+  const globalParams = useGlobalSearchParams<{ beneficiaryId?: string | string[] }>();
+  const webBeneficiaryId = (() => {
+    try {
+      if (typeof window !== 'undefined' && window.location?.search) {
+        return new URLSearchParams(window.location.search).get('beneficiaryId') || '';
+      }
+      if (typeof globalThis !== 'undefined' && (globalThis as any)?.location?.search) {
+        return new URLSearchParams((globalThis as any).location.search).get('beneficiaryId') || '';
+      }
+    } catch {
+      return '';
+    }
+    return '';
+  })();
+  const normalizeBid = (value?: string) => (value || '').split('&')[0].split('#')[0].trim();
+  const localBeneficiaryIdRaw = Array.isArray(localParams?.beneficiaryId) ? localParams.beneficiaryId[0] : localParams?.beneficiaryId;
+  const globalBeneficiaryIdRaw = Array.isArray(globalParams?.beneficiaryId) ? globalParams.beneficiaryId[0] : globalParams?.beneficiaryId;
+  const localBeneficiaryId = normalizeBid(localBeneficiaryIdRaw);
+  const globalBeneficiaryId = normalizeBid(globalBeneficiaryIdRaw);
+  const bid = localBeneficiaryId || globalBeneficiaryId || normalizeBid(webBeneficiaryId) || '';
   const { token, user } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
@@ -26,22 +45,36 @@ export default function BeneficiaryDetailScreen() {
   const [geoLocation, setGeoLocation] = useState<any>(null);
   const [geoLoading, setGeoLoading] = useState(true);
   const [geoBusyId, setGeoBusyId] = useState<string | null>(null);
+  const [resolvedBid, setResolvedBid] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const activeBid = resolvedBid || bid;
+
   const fetchAll = useCallback(async () => {
-    if (!bid) {
-      setLoading(false);
-      setGeoLoading(false);
-      return;
-    }
     try {
-      const [bens, alts, devs, geo] = await Promise.all([
-        apiFetch('/api/guardian/beneficiaries', {}, token).catch(() => []),
-        apiFetch(`/api/guardian/beneficiary/${bid}/alerts`, {}, token).catch(() => []),
-        apiFetch(`/api/guardian/beneficiary/${bid}/devices`, {}, token).catch(() => null),
-        apiFetch(`/api/guardian/beneficiary/${bid}/geofence`, {}, token).catch(() => null),
+      const bens = await apiFetch('/api/guardian/beneficiaries', {}, token).catch(() => []);
+      const fallbackBid = Array.isArray(bens) && bens.length > 0 ? bens[0].id : '';
+      const targetBid = bid || fallbackBid;
+      if (!targetBid) {
+        setData(null);
+        setAlerts([]);
+        setDevices(null);
+        setGeoZones([]);
+        setGeoLocation(null);
+        setGeoLoading(false);
+        setResolvedBid('');
+        return;
+      }
+
+      setResolvedBid(targetBid);
+
+      const [alts, devs, geo] = await Promise.all([
+        apiFetch(`/api/guardian/beneficiary/${targetBid}/alerts`, {}, token).catch(() => []),
+        apiFetch(`/api/guardian/beneficiary/${targetBid}/devices`, {}, token).catch(() => null),
+        apiFetch(`/api/guardian/beneficiary/${targetBid}/geofence`, {}, token).catch(() => null),
       ]);
-      const ben = (bens || []).find((b: any) => b.id === bid) || null;
+
+      const ben = (bens || []).find((b: any) => b.id === targetBid) || (Array.isArray(bens) ? bens[0] : null) || null;
       setData(ben);
       setAlerts(Array.isArray(alts) ? alts : []);
       setDevices(devs);
@@ -50,10 +83,10 @@ export default function BeneficiaryDetailScreen() {
       setGeoLoading(false);
       // Fetch Nora analysis + subscription
       if (ben) {
-        apiFetch(`/api/guardian/beneficiary/${bid}/ai-report`, {}, token)
+        apiFetch(`/api/guardian/beneficiary/${targetBid}/ai-report`, {}, token)
           .then((r: any) => setNoraAnalysis(r?.summary || r?.report || ''))
           .catch(() => setNoraAnalysis(''));
-        apiFetch(`/api/guardian/beneficiary/${bid}/subscription`, {}, token)
+        apiFetch(`/api/guardian/beneficiary/${targetBid}/subscription`, {}, token)
           .then((r: any) => setSubInfo(r))
           .catch(() => {});
       }
@@ -66,7 +99,7 @@ export default function BeneficiaryDetailScreen() {
 
   if (loading) return <FullScreenLoader />;
   if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.5)' }}>Beneficiaire non trouve</Text></SafeAreaView>;
-  if (Platform.OS !== 'web') return <NativePageView path={`/beneficiary-detail?beneficiaryId=${bid || ''}`} />;
+  if (Platform.OS !== 'web') return <NativePageView path={`/beneficiary-detail?beneficiaryId=${activeBid || ''}`} />;
 
   const v = data.latest_vitals || {};
   const activeAlerts = alerts.filter((a: any) => a.status === 'active' || a.status === 'pending');
@@ -112,9 +145,10 @@ export default function BeneficiaryDetailScreen() {
   ].filter(m => m.val && m.val !== 0);
 
   const refreshGeofences = async () => {
+    if (!activeBid) return;
     try {
       setGeoLoading(true);
-      const geo = await apiFetch(`/api/guardian/beneficiary/${bid}/geofence`, {}, token);
+      const geo = await apiFetch(`/api/guardian/beneficiary/${activeBid}/geofence`, {}, token);
       setGeoZones(Array.isArray(geo?.zones) ? geo.zones : []);
       setGeoLocation(geo?.current_location || null);
     } catch {
@@ -124,9 +158,10 @@ export default function BeneficiaryDetailScreen() {
   };
 
   const toggleGeoZone = async (zoneId: string) => {
+    if (!activeBid) return;
     setGeoBusyId(zoneId);
     try {
-      const r = await apiFetch(`/api/guardian/beneficiary/${bid}/geofence/${zoneId}/toggle`, { method: 'PUT' }, token);
+      const r = await apiFetch(`/api/guardian/beneficiary/${activeBid}/geofence/${zoneId}/toggle`, { method: 'PUT' }, token);
       setGeoZones(prev => prev.map((z: any) => z.id === zoneId ? { ...z, active: r?.active ?? !z.active } : z));
     } catch {
     } finally {
@@ -135,11 +170,12 @@ export default function BeneficiaryDetailScreen() {
   };
 
   const deleteGeoZone = async (zoneId: string) => {
+    if (!activeBid) return;
     const ok = typeof window !== 'undefined' ? window.confirm('Supprimer cette safe zone ?') : true;
     if (!ok) return;
     setGeoBusyId(zoneId);
     try {
-      await apiFetch(`/api/guardian/beneficiary/${bid}/geofence/${zoneId}`, { method: 'DELETE' }, token);
+      await apiFetch(`/api/guardian/beneficiary/${activeBid}/geofence/${zoneId}`, { method: 'DELETE' }, token);
       setGeoZones(prev => prev.filter((z: any) => z.id !== zoneId));
     } catch {
     } finally {
@@ -148,6 +184,7 @@ export default function BeneficiaryDetailScreen() {
   };
 
   const createZoneFromCurrentLocation = async () => {
+    if (!activeBid) return;
     if (geoLocation?.latitude == null || geoLocation?.longitude == null) return;
     setGeoBusyId('create-from-location');
     try {
@@ -157,7 +194,7 @@ export default function BeneficiaryDetailScreen() {
         longitude: Number(geoLocation.longitude),
         radius_m: 500,
       };
-      const created = await apiFetch(`/api/guardian/beneficiary/${bid}/geofence`, { method: 'POST', body: JSON.stringify(payload) }, token);
+      const created = await apiFetch(`/api/guardian/beneficiary/${activeBid}/geofence`, { method: 'POST', body: JSON.stringify(payload) }, token);
       setGeoZones(prev => [created, ...prev]);
     } catch {
     } finally {
@@ -255,7 +292,7 @@ export default function BeneficiaryDetailScreen() {
               <div data-testid="beneficiary-safezone-refresh-btn" onClick={refreshGeofences} style={{ padding: '7px 10px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>
                 Actualiser
               </div>
-              <div data-testid="beneficiary-safezone-open-manager-btn" onClick={() => router.push({ pathname: '/geofencing' as any, params: { beneficiaryId: bid } })} style={{ padding: '7px 10px', borderRadius: 999, cursor: 'pointer', background: 'rgba(16,185,129,0.14)', border: '1px solid rgba(16,185,129,0.28)', fontSize: 11, fontWeight: 700, color: '#34D399' } as any}>
+              <div data-testid="beneficiary-safezone-open-manager-btn" onClick={() => router.push({ pathname: '/geofencing' as any, params: { beneficiaryId: activeBid } })} style={{ padding: '7px 10px', borderRadius: 999, cursor: 'pointer', background: 'rgba(16,185,129,0.14)', border: '1px solid rgba(16,185,129,0.28)', fontSize: 11, fontWeight: 700, color: '#34D399' } as any}>
                 Gerer
               </div>
             </div>

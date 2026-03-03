@@ -7,14 +7,33 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useGlobalSearchParams, useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function GeofencingScreen() {
   const { colors: themeColors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
-  const { beneficiaryId } = useLocalSearchParams<{ beneficiaryId?: string }>();
-  const managedBeneficiaryId = Array.isArray(beneficiaryId) ? beneficiaryId[0] : beneficiaryId;
+  const localParams = useLocalSearchParams<{ beneficiaryId?: string | string[] }>();
+  const globalParams = useGlobalSearchParams<{ beneficiaryId?: string | string[] }>();
+  const webBeneficiaryId = (() => {
+    try {
+      if (typeof window !== 'undefined' && window.location?.search) {
+        return new URLSearchParams(window.location.search).get('beneficiaryId') || '';
+      }
+      if (typeof globalThis !== 'undefined' && (globalThis as any)?.location?.search) {
+        return new URLSearchParams((globalThis as any).location.search).get('beneficiaryId') || '';
+      }
+    } catch {
+      return '';
+    }
+    return '';
+  })();
+  const normalizeBid = (value?: string) => (value || '').split('&')[0].split('#')[0].trim();
+  const localBeneficiaryIdRaw = Array.isArray(localParams?.beneficiaryId) ? localParams.beneficiaryId[0] : localParams?.beneficiaryId;
+  const globalBeneficiaryIdRaw = Array.isArray(globalParams?.beneficiaryId) ? globalParams.beneficiaryId[0] : globalParams?.beneficiaryId;
+  const localBeneficiaryId = normalizeBid(localBeneficiaryIdRaw);
+  const globalBeneficiaryId = normalizeBid(globalBeneficiaryIdRaw);
+  const managedBeneficiaryId = localBeneficiaryId || globalBeneficiaryId || normalizeBid(webBeneficiaryId) || '';
   const isGuardianMode = !!managedBeneficiaryId;
 
   const [zones, setZones] = useState<any[]>([]);
