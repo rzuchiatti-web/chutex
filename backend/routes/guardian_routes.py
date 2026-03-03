@@ -564,6 +564,32 @@ async def guardian_beneficiary_detail(bid: str, user=Depends(get_current_user)):
     }
 
 
+
+@router.get("/guardian/beneficiary/{bid}/subscription")
+async def guardian_beneficiary_subscription(bid: str, user=Depends(get_current_user)):
+    """Get subscription, contract and guardians info for a beneficiary"""
+    sub = await db.subscriptions.find_one({"beneficiary_id": bid, "status": "active"}, {"_id": 0})
+    if not sub:
+        ben = await db.users.find_one({"id": bid}, {"_id": 0})
+        if ben and ben.get("phone"):
+            sub = await db.subscriptions.find_one({"beneficiary_phone": ben["phone"], "status": "active"}, {"_id": 0})
+    contract = None
+    if sub and sub.get("contract_id"):
+        contract = await db.contracts.find_one({"id": sub["contract_id"]}, {"_id": 0})
+        if contract:
+            contract.pop("cgu_text", None)
+            contract.pop("stripe_client_secret", None)
+    # Get guardians linked to this beneficiary
+    ben = await db.users.find_one({"id": bid}, {"_id": 0, "password_hash": 0})
+    guardian_ids = ben.get("guardians", []) if ben else []
+    guardians = []
+    for gid in guardian_ids:
+        g = await db.users.find_one({"id": gid}, {"_id": 0, "password_hash": 0})
+        if g:
+            guardians.append({"id": g["id"], "name": g["name"], "phone": g.get("phone", ""), "relationship": g.get("relationship", ""), "guardian_type": g.get("guardian_type", "")})
+    return {"subscription": sub, "contract": contract, "guardians": guardians}
+
+
 @router.get("/guardian/beneficiary/{bid}/health-report")
 async def guardian_health_report(bid: str, user=Depends(get_current_user)):
     ben = await db.users.find_one({"id": bid}, {"_id": 0, "password_hash": 0})

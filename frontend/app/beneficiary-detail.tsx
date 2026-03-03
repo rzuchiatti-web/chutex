@@ -20,6 +20,7 @@ export default function BeneficiaryDetailScreen() {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [devices, setDevices] = useState<any>(null);
   const [noraAnalysis, setNoraAnalysis] = useState('');
+  const [subInfo, setSubInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchAll = useCallback(async () => {
@@ -33,11 +34,14 @@ export default function BeneficiaryDetailScreen() {
       setData(ben);
       setAlerts(Array.isArray(alts) ? alts : []);
       setDevices(devs);
-      // Fetch Nora analysis
+      // Fetch Nora analysis + subscription
       if (ben) {
         apiFetch(`/api/guardian/beneficiary/${beneficiaryId}/ai-report`, {}, token)
           .then((r: any) => setNoraAnalysis(r?.summary || r?.report || ''))
           .catch(() => setNoraAnalysis(''));
+        apiFetch(`/api/guardian/beneficiary/${beneficiaryId}/subscription`, {}, token)
+          .then((r: any) => setSubInfo(r))
+          .catch(() => {});
       }
     } catch {} finally { setLoading(false); }
   }, [beneficiaryId, token]);
@@ -169,6 +173,56 @@ export default function BeneficiaryDetailScreen() {
             );
           })}
         </div>
+
+        {/* ── ABONNEMENT + GARDIENS ── */}
+        {subInfo?.subscription && (<>
+          <Sep />
+          <SectionTitle icon="ri-shield-star-line" label="Abonnement Care" color="#7C3AED" />
+          <GlassCard style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.06), rgba(167,139,250,0.02))', border: '1px solid rgba(124,58,237,0.15)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <i className="ri-shield-star-line" style={{ fontSize: 20, color: '#A78BFA' }} />
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{subInfo.contract?.plan_label || (subInfo.subscription?.subscription_type === 'care' ? 'Chutex Care' : 'Standard')}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{subInfo.contract?.contract_number || ''}</div>
+              </div>
+              <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.2)' } as any}>
+                <span style={{ fontSize: 9, fontWeight: 700, color: '#10B981' }}>Actif</span>
+              </div>
+            </div>
+            {subInfo.contract?.price_monthly && (
+              <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+                <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Mensuel</div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{subInfo.contract.price_monthly} EUR</div>
+                </div>
+                {subInfo.contract.price_after_credit && (
+                  <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(16,185,129,0.06)', textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(16,185,129,0.5)', textTransform: 'uppercase', marginBottom: 2 }}>Apres credit impot</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#10B981' }}>{subInfo.contract.price_after_credit} EUR</div>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Gardiens liés */}
+            {subInfo.guardians && subInfo.guardians.length > 0 && (<>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8, marginTop: 4 }}>Gardiens ({subInfo.guardians.length})</div>
+              {subInfo.guardians.map((g: any, i: number) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: 4 } as any}>
+                  <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#10B981' }}>{g.name?.charAt(0)}</span>
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{g.name}</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{g.relationship || g.guardian_type || 'Gardien'}{g.phone ? ` · ${g.phone}` : ''}</div>
+                  </div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA', padding: '2px 8px', borderRadius: 99, background: 'rgba(167,139,250,0.1)' }}>#{i + 1}</div>
+                </div>
+              ))}
+            </>)}
+          </GlassCard>
+        </>)}
 
         {/* ── DONNEES DE SANTE ── */}
         {metrics.length > 0 && (<>
