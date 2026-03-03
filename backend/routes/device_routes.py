@@ -83,7 +83,8 @@ async def get_devices(user=Depends(get_current_user)):
         if d.get('last_sync'):
             try:
                 ls = datetime.fromisoformat(d['last_sync'].replace('Z', '+00:00'))
-                d['connected'] = (now - ls).total_seconds() < 120
+                threshold = 30 if d.get('device_type') == 'vest' else 120
+                d['connected'] = (now - ls).total_seconds() < threshold
             except:
                 d['connected'] = False
         else:
@@ -213,7 +214,7 @@ async def get_dashboard_summary(user=Depends(get_current_user)):
     if vest_dev and vest_dev.get('last_sync'):
         try:
             ls = datetime.fromisoformat(vest_dev['last_sync'].replace('Z', '+00:00'))
-            vs_connected = (now - ls).total_seconds() < 120
+            vs_connected = (now - ls).total_seconds() < 30
         except: pass
     has_br_data = bool(br_data) or br_connected
     has_sc_data = bool(sc_data) or sc_connected

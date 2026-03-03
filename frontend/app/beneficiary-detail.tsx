@@ -273,7 +273,7 @@ export default function BeneficiaryDetailScreen() {
             { label: 'Gilet Elder', img: IMG_VEST, color: '#A78BFA', d: vest, type: 'vest' },
           ].map((dev, i) => {
             const isVest = dev.type === 'vest';
-            const vestActive = isVest && dev.d?.last_sync && (Date.now() - new Date(dev.d.last_sync).getTime()) < 60000;
+            const vestActive = isVest && dev.d?.last_sync && (Date.now() - new Date(dev.d.last_sync).getTime()) < 30000;
             const statusLabel = !dev.d ? 'Non associe' : isVest ? (vestActive ? 'En marche' : 'En veille') : (dev.d?.connected ? 'Connecte' : 'Hors ligne');
             const statusColor = !dev.d ? '#6B7280' : isVest ? (vestActive ? '#10B981' : '#F59E0B') : (dev.d?.connected ? '#10B981' : '#6B7280');
             const bat = dev.d?.battery_level ?? 0;

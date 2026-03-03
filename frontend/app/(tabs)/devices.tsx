@@ -451,8 +451,8 @@ function DeviceManagement({ token }: { token: string }) {
             const meta = DEVICE_META[dt]; const device = deviceMap[dt];
             const isAssociated = device && (device.connected || device.battery > 0 || device.last_sync);
             const realBattery = device?.battery || 0; const realConnected = device?.connected || false;
-            // Vest: "En marche" if data received in last 60s
-            const vestActive = dt === 'vest' && device?.last_sync && (Date.now() - new Date(device.last_sync).getTime()) < 60000;
+            // Vest: "En marche" if data received in last 30s
+            const vestActive = dt === 'vest' && device?.last_sync && (Date.now() - new Date(device.last_sync).getTime()) < 30000;
             const needsSub = dt === 'bracelet' && !subscription?.can_use_bracelet;
             const hasWeighings = dt === 'scale' && weighings.length > 0;
             // Status label for badge
@@ -543,7 +543,7 @@ function DeviceManagement({ token }: { token: string }) {
         {/* ── Device Detail Popup ── */}
         {selectedDevice && deviceMap[selectedDevice] && (() => { const meta = DEVICE_META[selectedDevice]; const device = deviceMap[selectedDevice];
           const isVest = selectedDevice === 'vest';
-          const vestAct = isVest && device.last_sync && (Date.now() - new Date(device.last_sync).getTime()) < 60000;
+          const vestAct = isVest && device.last_sync && (Date.now() - new Date(device.last_sync).getTime()) < 30000;
           const detailConnected = isVest ? vestAct : device.connected;
           const detailLabel = isVest ? (vestAct ? 'En marche' : 'En veille') : (device.connected ? 'Connecte' : 'Hors ligne');
           const detailColor = isVest ? (vestAct ? '#10B981' : '#F59E0B') : (device.connected ? '#10B981' : '#EF4444');
