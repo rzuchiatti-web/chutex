@@ -138,6 +138,18 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - **Validation qualite**:
   - testing agent `iteration_71`: **frontend 100% / backend 100%**.
 
+### Mise a jour — Mar 3, 2026 (Simplification Safe Zones UX)
+- UX simplifiee selon demande utilisateur:
+  - Carte Safe Zones directe dans `beneficiary-detail` avec **carte OSM + localisation beneficiaire**.
+  - Bouton unique: **Definir une zone depuis la localisation**.
+  - Popup glass simplifiee: **Nom + Rayon (m)** uniquement (centre auto depuis la localisation beneficiaire).
+  - Liste zones conservee en dessous avec **Modifier / Supprimer**.
+- Nettoyage UX:
+  - Boutons **Actualiser** et **Gerer** supprimes de la carte.
+  - Ancien flux geofencing deprecie, redirection vers le nouveau flux.
+- Validation qualite:
+  - testing agent `iteration_73`: **frontend 100% / backend 100%** (no issues).
+
 ## Upcoming Tasks
 - P0: validation utilisateur en conditions reelles BLE (bracelet/gilet/balance) sur appareils physiques
 - P1: test iOS TestFlight complet du bridge BLE natif
