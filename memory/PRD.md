@@ -181,6 +181,13 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Validation qualite:
   - testing agent `iteration_76` = **frontend 100%** (ordre, structure, popups, carte contrat, no regression).
 
+### Mise a jour — Mar 3, 2026 (Fusion Profil + Dossier)
+- En tete simplifiee: uniquement **prenom + nom** en grand, centre, sans badges.
+- Fusion des informations personnelles (adresse, age, genre, taille/poids, groupe sanguin) et du dossier medical (pathologies, allergies) dans **une seule carte**.
+- Le reste de la page est conserve (dispositifs, gardiens, safe zones, contrat en bas).
+- Validation qualite:
+  - testing agent `iteration_77` = **frontend 100%** (6/6 exigences validees).
+
 ## Upcoming Tasks
 - P0: validation utilisateur en conditions reelles BLE (bracelet/gilet/balance) sur appareils physiques
 - P1: test iOS TestFlight complet du bridge BLE natif
