@@ -15,8 +15,8 @@ import NativePageView from '../src/components/NativePageView';
 
 const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 const G: any = { borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
-const TYPE_LABELS: any = { manual_app: 'Bouton SOS (application)', manual_bracelet: 'Pression manuelle (bracelet)', health_anomaly: 'Anomalie de sante', fall: 'Chute detectee (gilet)', sos: 'Bouton SOS', threshold: 'Depassement de seuil' };
-const TYPE_ICONS: any = { manual_app: 'ri-hand-heart-line', manual_bracelet: 'ri-remote-control-line', health_anomaly: 'ri-pulse-line', fall: 'ri-walk-line', sos: 'ri-hand-heart-line', threshold: 'ri-alert-line' };
+const TYPE_LABELS: any = { manual_app: 'Bouton SOS (application)', manual_bracelet: 'Pression manuelle (bracelet)', health_anomaly: 'Anomalie de sante', fall: 'Chute detectee (gilet)', sos: 'Bouton SOS', threshold: 'Depassement de seuil', geofence: 'Sortie de safe zone', geofence_exit: 'Sortie de safe zone' };
+const TYPE_ICONS: any = { manual_app: 'ri-hand-heart-line', manual_bracelet: 'ri-remote-control-line', health_anomaly: 'ri-pulse-line', fall: 'ri-walk-line', sos: 'ri-hand-heart-line', threshold: 'ri-alert-line', geofence: 'ri-map-pin-range-line', geofence_exit: 'ri-map-pin-range-line' };
 const STATUS_LABELS: any = { active: 'Active', intervention: 'En cours d\'intervention', resolved: 'Resolue' };
 const STATUS_COLORS: any = { active: '#EF4444', intervention: '#F59E0B', resolved: '#10B981' };
 
@@ -37,6 +37,7 @@ export default function AlertDetailScreen() {
   useEffect(() => { const t = setInterval(load, 8000); return () => clearInterval(t); }, [load]);
 
   if (Platform.OS !== 'web') return <NativePageView path="/alert-detail" />;
+  if (!data || !data.alert) return loading ? <FullScreenLoader /> : <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111', color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter, system-ui, sans-serif' } as any}>Alerte introuvable</div>;
 
   const a = data.alert;
   const ben = data.beneficiary || {};

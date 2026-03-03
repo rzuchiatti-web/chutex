@@ -345,7 +345,7 @@ async def get_alert_detail(aid: str, user=Depends(get_current_user)):
 
 
 def _build_alert_timeline(alert, escalations, calls, interventions):
-    type_labels = {"manual_app": "Bouton SOS (application)", "manual_bracelet": "Pression manuelle (bracelet)", "health_anomaly": "Anomalie de sante detectee", "fall": "Chute detectee (gilet)", "sos": "Alerte SOS", "threshold": "Depassement de seuil"}
+    type_labels = {"manual_app": "Bouton SOS (application)", "manual_bracelet": "Pression manuelle (bracelet)", "health_anomaly": "Anomalie de sante detectee", "fall": "Chute detectee (gilet)", "sos": "Alerte SOS", "threshold": "Depassement de seuil", "geofence": "Sortie de safe zone", "geofence_exit": "Sortie de safe zone"}
     status_fr = {
         "pending": "En attente", "active": "Active", "resolved": "Resolue",
         "CALLING_PATIENT": "Appel du beneficiaire en cours", "PATIENT_CONFIRMED_OK": "Beneficiaire confirme aller bien",

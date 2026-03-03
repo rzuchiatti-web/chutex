@@ -24,6 +24,7 @@ const getAlertLabel = (t: string) => {
   if (t === 'spo2') return 'Anomalie de sante detectee';
   if (t === 'threshold') return 'Depassement de seuil';
   if (t === 'inactivity') return 'Inactivite detectee';
+  if (t === 'geofence' || t === 'geofence_exit') return 'Sortie de safe zone';
   return t || 'Alerte';
 };
 

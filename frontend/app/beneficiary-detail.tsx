@@ -196,7 +196,7 @@ export default function BeneficiaryDetailScreen() {
   const ageYears = data.date_of_birth ? Math.floor((Date.now() - new Date(data.date_of_birth).getTime()) / 31557600000) : null;
   const genderLabel = data.gender === 'male' ? 'Homme' : data.gender === 'female' ? 'Femme' : (data.gender || 'N/A');
   const addressDisplay = [data.address, data.postal_code, data.city].filter(Boolean).join(' ') || 'Adresse non renseignee';
-  const profileWeight = data.weight_kg || (d.weight && d.weight > 0 ? d.weight : null);
+  const profileWeight = data.weight_kg || null;
 
   const getGuardianContractDetails = (guardian: any) => {
     const contractGuardians = Array.isArray(contract?.guardians) ? contract.guardians : [];
@@ -314,8 +314,10 @@ export default function BeneficiaryDetailScreen() {
         </div>
 
         <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
-          <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', lineHeight: 1.05 }} data-testid="beneficiary-firstname-value">{firstName}</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: 'rgba(255,255,255,0.92)', lineHeight: 1.1 }} data-testid="beneficiary-lastname-value">{lastName}</div>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: 10 }}>
+            <span style={{ fontSize: 36, fontWeight: 900, color: '#FFF', lineHeight: 1.05 }} data-testid="beneficiary-firstname-value">{firstName}</span>
+            <span style={{ fontSize: 28, fontWeight: 800, color: 'rgba(255,255,255,0.92)', lineHeight: 1.1 }} data-testid="beneficiary-lastname-value">{lastName}</span>
+          </div>
         </div>
 
         {/* ── ALERTE ACTIVE ── */}
@@ -375,7 +377,6 @@ export default function BeneficiaryDetailScreen() {
               { label: 'Age', val: ageYears != null ? `${ageYears} ans` : 'N/A', color: '#FFF', testid: 'beneficiary-profile-age-value' },
               { label: 'Genre', val: genderLabel, color: '#FFF', testid: 'beneficiary-profile-gender-value' },
               data.blood_type && { label: 'Groupe sanguin', val: data.blood_type, color: '#EF4444', testid: 'beneficiary-profile-blood-value' },
-              (data.height_cm || profileWeight) && { label: 'Taille / Poids', val: [data.height_cm && `${data.height_cm} cm`, profileWeight && `${profileWeight} kg`].filter(Boolean).join(' · '), color: '#FFF', testid: 'beneficiary-profile-size-weight-value' },
             ].filter(Boolean).map((item: any, i: number) => (
               <div key={i} style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
                 <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 3 }}>{item.label}</div>
@@ -383,6 +384,29 @@ export default function BeneficiaryDetailScreen() {
               </div>
             ))}
           </div>
+          {/* Taille / Poids - separated */}
+          {(data.height_cm || profileWeight) && (
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+              {data.height_cm && (
+                <div style={{ flex: 1, padding: '12px 14px', borderRadius: 14, background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                  <i className="ri-ruler-line" style={{ fontSize: 18, color: '#60A5FA' }} />
+                  <div>
+                    <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Taille</div>
+                    <div data-testid="beneficiary-profile-height-value" style={{ fontSize: 18, fontWeight: 900, color: '#60A5FA' }}>{data.height_cm} <span style={{ fontSize: 11, fontWeight: 600 }}>cm</span></div>
+                  </div>
+                </div>
+              )}
+              {profileWeight && (
+                <div style={{ flex: 1, padding: '12px 14px', borderRadius: 14, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                  <i className="ri-scales-3-line" style={{ fontSize: 18, color: '#F59E0B' }} />
+                  <div>
+                    <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Poids</div>
+                    <div data-testid="beneficiary-profile-weight-value" style={{ fontSize: 18, fontWeight: 900, color: '#F59E0B' }}>{profileWeight} <span style={{ fontSize: 11, fontWeight: 600 }}>kg</span></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           {data.medical_conditions && <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 6 } as any}><div style={{ fontSize: 8, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 3 }}>Pathologies</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.5 }}>{data.medical_conditions}</div></div>}
           {data.allergies && <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 6 } as any}><div style={{ fontSize: 8, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', marginBottom: 3 }}>Allergies</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.5 }}>{data.allergies}</div></div>}
         </GlassCard>
