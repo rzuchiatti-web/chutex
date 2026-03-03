@@ -503,24 +503,23 @@ async def guardian_beneficiary_ai_report(bid: str, user=Depends(get_current_user
 
 @router.get("/guardian/beneficiary/{bid}/devices")
 async def guardian_beneficiary_devices(bid: str, user=Depends(get_current_user)):
-    """Get device status for a beneficiary"""
-    bracelet = await db.bracelet_status.find_one({"user_id": bid}, {"_id": 0})
-    vest = await db.vest_status.find_one({"user_id": bid}, {"_id": 0})
-    # Also try device_readings for latest data
-    latest = await db.device_readings.find_one(
-        {"user_id": bid}, {"_id": 0}, sort=[("timestamp", -1)]
-    )
-    if bracelet is None and latest:
-        d = latest.get('data', {})
-        bracelet = {
-            "connected": True,
-            "heart_rate": d.get('heart_rate', 0),
-            "spo2": d.get('spo2', 0),
-            "steps": d.get('steps', 0),
-            "battery_level": d.get('battery_level', None),
-            "last_sync": latest.get('timestamp', ''),
-        }
-    return {"bracelet": bracelet, "vest": vest}
+    """Get device status for a beneficiary — real data from devices collection"""
+    result = {}
+    for dt in ["bracelet", "scale", "vest"]:
+        dev = await db.devices.find_one(
+            {"user_id": bid, "device_type": dt, "removed": {"$ne": True}}, {"_id": 0}
+        )
+        if dev:
+            result[dt] = {
+                "connected": dev.get("connected", False),
+                "battery_level": dev.get("battery", 0),
+                "last_sync": dev.get("last_sync"),
+                "heart_rate": dev.get("last_heart_rate", 0),
+                "spo2": dev.get("last_spo2", 0),
+                "steps": dev.get("last_steps", 0),
+                "temperature": dev.get("last_temperature", 0),
+            }
+    return result
 
 
 @router.get("/guardian/beneficiary/{bid}/detail")

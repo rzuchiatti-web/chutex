@@ -118,10 +118,10 @@ export default function BeneficiaryDetailScreen() {
   const activeAlerts = alerts.filter((a: any) => a.status === 'active' || a.status === 'pending');
   const historyAlerts = alerts.filter((a: any) => a.status !== 'active' && a.status !== 'pending');
 
-  // Simulate battery if not provided (for demo)
-  const bracelet = devices?.bracelet || { battery_level: 78, connected: true, heart_rate: v.heart_rate, spo2: v.spo2 };
-  const scale    = { battery_level: 45, connected: false };
-  const vest     = { battery_level: 91, connected: true };
+  // Real device data from API — no simulation
+  const bracelet = devices?.bracelet || null;
+  const scale    = devices?.scale || null;
+  const vest     = devices?.vest || null;
 
   const age = data.date_of_birth && !isNaN(new Date(data.date_of_birth).getTime())
     ? Math.floor((Date.now() - new Date(data.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365)) : null;

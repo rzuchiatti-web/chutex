@@ -98,6 +98,12 @@ function DeviceManagement({ token }: { token: string }) {
 
   useEffect(() => { fetchDevices(); }, [fetchDevices]);
 
+  // Auto-refresh devices every 10s to reflect BLE connection state changes
+  useEffect(() => {
+    const interval = setInterval(fetchDevices, 10000);
+    return () => clearInterval(interval);
+  }, [fetchDevices]);
+
   const startPairing = (dt: string) => {
     if (dt === 'bracelet' && !subscription?.can_use_bracelet) { setShowNoSubPopup(true); return; }
     setPairingDevice(dt); setPairingStep(0); setBleStatus('idle'); setBleError('');
