@@ -112,7 +112,8 @@ export default function BeneficiaryDetailScreen() {
           </div>
           <div style={{ flex: 1 } as any}>
             <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{data.name}</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{[age && `${age} ans`, data.gender].filter(Boolean).join(' · ')}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{[age && `${age} ans`, data.gender === 'male' ? 'Homme' : data.gender === 'female' ? 'Femme' : data.gender].filter(Boolean).join(' · ')}</div>
+            {data.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 3 }}><i className="ri-map-pin-line" style={{ fontSize: 11, marginRight: 4 }} />{data.address}{data.city ? `, ${data.city}` : ''}{data.postal_code ? ` ${data.postal_code}` : ''}</div>}
           </div>
           {data.phone && (
             <a href={`tel:${data.phone}`} style={{ textDecoration: 'none' }}>
@@ -178,7 +179,6 @@ export default function BeneficiaryDetailScreen() {
         {subInfo?.subscription && (<>
           <Sep />
           <SectionTitle icon="ri-shield-star-line" label="Abonnement Care" color="#7C3AED" />
-          <GlassCard style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.06), rgba(167,139,250,0.02))', border: '1px solid rgba(124,58,237,0.15)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
               <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                 <i className="ri-shield-star-line" style={{ fontSize: 20, color: '#A78BFA' }} />
@@ -205,11 +205,10 @@ export default function BeneficiaryDetailScreen() {
                 )}
               </div>
             )}
-            {/* Gardiens liés */}
             {subInfo.guardians && subInfo.guardians.length > 0 && (<>
               <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8, marginTop: 4 }}>Gardiens ({subInfo.guardians.length})</div>
               {subInfo.guardians.map((g: any, i: number) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: 4 } as any}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: i < subInfo.guardians.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' } as any}>
                   <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#10B981' }}>{g.name?.charAt(0)}</span>
                   </div>
@@ -221,7 +220,6 @@ export default function BeneficiaryDetailScreen() {
                 </div>
               ))}
             </>)}
-          </GlassCard>
         </>)}
 
         {/* ── DONNEES DE SANTE ── */}
@@ -245,7 +243,6 @@ export default function BeneficiaryDetailScreen() {
         {/* ── DOSSIER MEDICAL ── */}
         <Sep />
         <SectionTitle icon="ri-file-medical-line" label="Dossier medical" color="#A78BFA" />
-        <GlassCard>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 } as any}>
             {[
               data.blood_type && { label: 'Groupe sanguin', val: data.blood_type, color: '#EF4444' },
@@ -267,7 +264,6 @@ export default function BeneficiaryDetailScreen() {
               {data.emergency_contact_name && <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}><i className="ri-shield-user-line" style={{ fontSize: 14, color: '#EF4444', flexShrink: 0 }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Contact urgence</div><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{data.emergency_contact_name}</div></div>{data.emergency_contact_phone && <a href={`tel:${data.emergency_contact_phone}`} style={{ textDecoration: 'none' }}><div style={{ width: 30, height: 30, borderRadius: 999, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-phone-line" style={{ fontSize: 13, color: '#10B981' }} /></div></a>}</div>}
             </div>
           )}
-        </GlassCard>
 
         {/* ── LOCALISATION ── */}
         <Sep />
