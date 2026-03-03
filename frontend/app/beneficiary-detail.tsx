@@ -132,11 +132,34 @@ export default function BeneficiaryDetailScreen() {
   const Sep = () => <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '18px 0' } as any} />;
 
   const GlassCard = ({ children, style }: any) => (
-    <div style={{ padding: '16px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', marginBottom: 12, ...style } as any}>{children}</div>
+    <div
+      style={{
+        padding: '16px',
+        borderRadius: 20,
+        background: 'rgba(255,255,255,0.05)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        marginBottom: 12,
+        animation: 'beneficiary-fade-in 280ms ease both',
+        transition: 'transform 220ms ease, border-color 220ms ease',
+        ...style,
+      } as any}
+      onMouseEnter={(e: any) => {
+        e.currentTarget.style.transform = 'translateY(-1px)';
+        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)';
+      }}
+      onMouseLeave={(e: any) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.borderColor = style?.border || 'rgba(255,255,255,0.08)';
+      }}
+    >
+      {children}
+    </div>
   );
 
   const SectionTitle = ({ icon, label, color }: any) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, marginTop: 2 } as any}>
       <i className={icon} style={{ fontSize: 15, color }} />
       <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase' }}>{label}</span>
     </div>
@@ -270,6 +293,16 @@ export default function BeneficiaryDetailScreen() {
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
       <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
+      <style>{`
+        @keyframes beneficiary-fade-in {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes beneficiary-popup-in {
+          from { opacity: 0; transform: translateY(10px) scale(0.985); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
 
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch', width: '100%', maxWidth: 1200, margin: '0 auto' } as any}>
 
@@ -520,7 +553,7 @@ export default function BeneficiaryDetailScreen() {
                   <div data-testid="guardian-detail-close-btn" onClick={() => setSelectedGuardian(null)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
                 </div>
 
-                <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 16 } as any}>
+                <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 16, animation: 'beneficiary-popup-in 220ms ease both' } as any}>
                   <div data-testid="guardian-detail-name" style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 3 }}>{selectedGuardian.name}</div>
                   <div data-testid="guardian-detail-role" style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginBottom: 12 }}>{selectedGuardian.relationship || selectedGuardian.guardian_type || 'Gardien'}</div>
 
@@ -561,7 +594,7 @@ export default function BeneficiaryDetailScreen() {
                 <div data-testid="contract-detail-close-btn" onClick={() => setShowContractPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
               </div>
 
-              <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 16 } as any}>
+              <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 16, animation: 'beneficiary-popup-in 220ms ease both' } as any}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 3 }} data-testid="contract-detail-title">Contrat {subscription.subscription_type === 'care' ? 'Care' : 'Standard'}</div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginBottom: 12 }} data-testid="contract-detail-status">Statut: {subscription.status || 'N/A'}</div>
 
@@ -583,7 +616,7 @@ export default function BeneficiaryDetailScreen() {
                 <div data-testid="safezone-form-close-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
               </div>
 
-              <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 16 } as any}>
+              <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 16, animation: 'beneficiary-popup-in 220ms ease both' } as any}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 4 }} data-testid="safezone-form-modal-title">{geoEditingId ? 'Modifier la safe zone' : 'Definir une safe zone'}</div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 12 }} data-testid="safezone-form-center-info">
                   Centre: {Number(geoFormLat || 0).toFixed(5)}, {Number(geoFormLng || 0).toFixed(5)}
