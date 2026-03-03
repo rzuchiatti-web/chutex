@@ -165,6 +165,14 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Safe zones conservees fonctionnelles apres refonte.
 - Validation qualite: testing agent `iteration_74` = **backend 100% (9/9) + frontend 100%**.
 
+### Mise a jour — Mar 3, 2026 (Parite visuelle popups + carte contrat)
+- Popups de la fiche beneficiaire harmonisees avec le style de reference "Ajouter beneficiaire" (overlay blur plein ecran, carte glass, bouton fermeture top-right):
+  - Popup detail gardien
+  - Popup detail contrat
+  - Popup creation/modification safe zone
+- Carte contrat de la fiche beneficiaire alignee visuellement sur la carte abonnement du profil beneficiaire (image de fond + overlay sombre + pill statut).
+- Validation qualite: testing agent `iteration_75` = **frontend 100%**, aucune anomalie.
+
 ## Upcoming Tasks
 - P0: validation utilisateur en conditions reelles BLE (bracelet/gilet/balance) sur appareils physiques
 - P1: test iOS TestFlight complet du bridge BLE natif
