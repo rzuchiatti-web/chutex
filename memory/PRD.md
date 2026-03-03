@@ -11,11 +11,23 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 ## Test Credentials
 | Role | Phone/Email | Password |
 |------|-------------|----------|
-| (Aucun compte - base videe le 2 mars 2026) | | |
-| Codes activation: PRESC-DOC-01, PRESC-INF-01, PRESC-SAAD-01 | | |
-| Codes intervention: CARE-STETI-01, CARE-PARIS-01, CARE-LYON-01 | | |
+| Beneficiary | 0651245918 | test123 |
+| Admin | admin@chutex.fr | demo123 |
+| SAAD | 0499887766 | demo123 |
+| Guardian #1 | 0612345678 | test123 |
+| Guardian #2 | 0698765432 | test123 |
 
 ## Completed Features
+
+### Mar 3, 2026 - P0 Bug Fix Alertes + UI Finitions beneficiaire
+- **P0 FIX**: Corrige crash page Alertes - `getAlertLabel` gere le type `geofence` ("Sortie de safe zone")
+- **P0 FIX**: Corrige crash `alert-detail.tsx` quand `data` est null (ajout null guard)
+- **P0 FIX**: Corrige reference variable `d` indéfinie dans `beneficiary-detail.tsx` ligne 199
+- **P1 UI**: Prénom + Nom sur la MÊME LIGNE (flex horizontal)
+- **P1 UI**: Taille / Poids séparés en cartes distinctes avec icônes (ruler + scales)
+- **P1 UI**: Badge gilet "En veille" confirmé orange (#F59E0B) dans toutes les vues
+- Backend: `type_labels` dict dans `alert_routes.py` inclut `geofence` et `geofence_exit`
+- Tests: iteration_79 - 100% backend + 100% frontend
 
 ### Mar 3, 2026 - Refonte fiche beneficiaire gardien + Dispositifs
 - Refonte complete beneficiary-detail.tsx : header compact, analyse Nora IA, 3 cartes dispositifs, grille sante 3 colonnes (toutes metriques), dossier medical, localisation, historique alertes
