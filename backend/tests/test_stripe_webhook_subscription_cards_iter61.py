@@ -18,7 +18,7 @@ import json
 # Base URL from environment
 BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', '').rstrip('/')
 if not BASE_URL:
-    BASE_URL = "https://nora-health-ai-1.preview.emergentagent.com"
+    BASE_URL = "https://chutex-care-hub.preview.emergentagent.com"
 
 # MongoDB connection
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')

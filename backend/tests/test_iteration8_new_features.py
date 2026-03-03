@@ -7,9 +7,9 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://nora-health-ai-1.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://chutex-care-hub.preview.emergentagent.com')
 if not BASE_URL.startswith('http'):
-    BASE_URL = 'https://nora-health-ai-1.preview.emergentagent.com'
+    BASE_URL = 'https://chutex-care-hub.preview.emergentagent.com'
 
 # Test credentials
 BENEFICIARY_EMAIL = "robert.martin@email.fr"
