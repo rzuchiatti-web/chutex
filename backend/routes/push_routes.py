@@ -37,7 +37,7 @@ async def get_push_preferences(user=Depends(get_current_user)):
             "user_id": user["id"], "sos_alerts": True, "health_thresholds": True,
             "fall_detection": True, "low_battery": True, "reminders_hydration": True,
             "reminders_medication": True, "reminders_alarm": True,
-            "interventions": True, "guardian_requests": True,
+            "interventions": True, "guardian_requests": True, "geofence_alerts": True,
         }
         await db.push_preferences.insert_one({**prefs})
         prefs.pop("_id", None)
@@ -48,7 +48,7 @@ async def get_push_preferences(user=Depends(get_current_user)):
 async def update_push_preferences(body: dict, user=Depends(get_current_user)):
     allowed = ["sos_alerts", "health_thresholds", "fall_detection", "low_battery",
                "reminders_hydration", "reminders_medication", "reminders_alarm",
-               "interventions", "guardian_requests"]
+               "interventions", "guardian_requests", "geofence_alerts"]
     update = {k: v for k, v in body.items() if k in allowed}
     await db.push_preferences.update_one(
         {"user_id": user["id"]}, {"$set": {**update, "user_id": user["id"]}}, upsert=True
@@ -90,6 +90,10 @@ async def notify_sos_alert(beneficiary_name: str, alert_id: str, guardian_ids: l
 
 async def notify_fall_detected(beneficiary_name: str, alert_id: str, guardian_ids: list):
     await send_push_to_users(guardian_ids, "Chute detectee !", f"Une chute a ete detectee pour {beneficiary_name}.", {"type": "fall", "alert_id": alert_id}, "fall", "fall_detection")
+
+
+async def notify_geofence_exit(beneficiary_name: str, zone_name: str, alert_id: str, guardian_ids: list):
+    await send_push_to_users(guardian_ids, "Sortie de safe zone", f"{beneficiary_name} a quitte la zone '{zone_name}'.", {"type": "geofence_exit", "alert_id": alert_id}, "geofence", "geofence_alerts")
 
 
 async def notify_health_threshold(beneficiary_name: str, metric: str, value: float, guardian_ids: list):

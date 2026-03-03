@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone
-import uuid, random, logging, math
+import uuid, random, logging, math, asyncio
 
 from database import db, EMERGENT_LLM_KEY
 from auth import get_current_user, hash_password, sanitize_user
@@ -744,13 +744,22 @@ async def check_geofence(user=Depends(get_current_user)):
     for f in fences:
         dist = _haversine(loc['latitude'], loc['longitude'], f['latitude'], f['longitude'])
         if dist > f['radius_m']:
+            alert_id = str(uuid.uuid4())
             violations.append({"fence_name": f['name'], "zone_name": f['name'], "distance_m": round(dist), "radius_m": f['radius_m']})
             await db.alerts.insert_one({
-                "id": str(uuid.uuid4()), "beneficiary_id": user['id'], "beneficiary_name": user['name'],
+                "id": alert_id, "beneficiary_id": user['id'], "beneficiary_name": user['name'],
                 "alert_type": "geofence", "severity": "medium", "message": f"Sortie de zone: {f['name']} ({round(dist)}m / {f['radius_m']}m)",
                 "device_type": "gps", "status": "active", "created_at": datetime.now(timezone.utc).isoformat(),
                 "resolved_at": None, "resolved_by": None, "teleassistance_status": "pending",
             })
+            # Push notification to guardians
+            guardian_ids = user.get('guardians', [])
+            if not guardian_ids:
+                guardians = await db.users.find({"beneficiaries": user['id']}, {"_id": 0, "id": 1}).to_list(20)
+                guardian_ids = [g['id'] for g in guardians]
+            if guardian_ids:
+                from routes.push_routes import notify_geofence_exit
+                asyncio.create_task(notify_geofence_exit(user['name'], f['name'], alert_id, guardian_ids))
     return {"status": "checked", "in_zone": len(violations) == 0, "violations": violations, "total_fences": len(fences)}
 
 
