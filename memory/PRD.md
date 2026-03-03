@@ -150,6 +150,21 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Validation qualite:
   - testing agent `iteration_73`: **frontend 100% / backend 100%** (no issues).
 
+### Mise a jour — Mar 3, 2026 (Refonte fiche beneficiaire)
+- Reorganisation complete de la page detaillee (ordre exact):
+  1) Analyse Nora
+  2) Constantes vitales
+  3) Dossier medical
+  4) Dispositifs
+  5) Liste des gardiens
+  6) Contrat Care/Standard
+  7) Safe zones
+- Toutes les sections principales sont affichees en **cartes blur/glass**.
+- **Gardiens**: cartes cliquables + popup glass detaillee avec infos gardien et bloc historique d'activite.
+- **Contrat**: carte resume (actif/inactif) + popup glass details (date souscription, offre, paiement, statut, numero contrat).
+- Safe zones conservees fonctionnelles apres refonte.
+- Validation qualite: testing agent `iteration_74` = **backend 100% (9/9) + frontend 100%**.
+
 ## Upcoming Tasks
 - P0: validation utilisateur en conditions reelles BLE (bracelet/gilet/balance) sur appareils physiques
 - P1: test iOS TestFlight complet du bridge BLE natif
