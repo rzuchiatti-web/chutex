@@ -19,6 +19,19 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
+### Mar 3, 2026 - Push Notifications + Refonte Programmes
+- **Push Notifications**: Ajout `notify_geofence_exit` pour alertes safe zone + dispatch aux gardiens
+- **Push Preferences**: Ajout `geofence_alerts` aux preferences push (true par defaut)
+- **Geofence Check**: `POST /api/geofence/check` envoie maintenant push notification aux gardiens en cas de sortie de zone
+- **Programmes - Refonte complete** : pages `programs.tsx` et `program-detail.tsx` reecrites a partir de zero
+  - Meme fond que le dashboard (BG_IMAGES.beneficiary)
+  - Filtres categorie avec icones (sommeil, cardiovasculaire, stress, nutrition, mobilite)
+  - Cartes programme avec hover animation et gradient d accent
+  - Programme actif: hero card avec barre de progression, phases, mission du jour, streak
+  - Detail programme: flow en 4 etapes (presentation, personnalisation, invitation equipe, lancement)
+  - Phases, benefices, metriques suivies, disclaimer medical
+- Tests: iteration_80 - Backend 7/7 (100%) + Frontend 100%
+
 ### Mar 3, 2026 - P0 Bug Fix Alertes + UI Finitions beneficiaire
 - **P0 FIX**: Corrige crash page Alertes - `getAlertLabel` gere le type `geofence` ("Sortie de safe zone")
 - **P0 FIX**: Corrige crash `alert-detail.tsx` quand `data` est null (ajout null guard)
