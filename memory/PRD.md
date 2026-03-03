@@ -105,9 +105,24 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
   - Frontend subscription: bouton **Voir PDF** (et telechargement contrat en confirmation).
 - **Suppression simulation**: endpoint de seed demo balance retire (`/api/devices/scale/seed-history`) pour eviter toute recurrence de donnees factices.
 
+### Mise a jour — Mar 3, 2026 (Guardian Safe Zones)
+- **NOUVEAU (Gardien)**: gestion complete des safe zones depuis la fiche beneficiaire detaillee et l'ecran geofencing.
+  - CRUD complet des safe zones pour tous les gardiens lies au beneficiaire.
+  - Source centre de zone: localisation beneficiaire (si dispo) + saisie manuelle.
+  - Actions rapides dans `beneficiary-detail`: actualiser, creer depuis localisation, activer/desactiver, supprimer, ouvrir gestion avancee.
+- **Backend ajoute**:
+  - `GET /api/guardian/beneficiary/{bid}/geofence`
+  - `POST /api/guardian/beneficiary/{bid}/geofence`
+  - `PUT /api/guardian/beneficiary/{bid}/geofence/{gid}`
+  - `PUT /api/guardian/beneficiary/{bid}/geofence/{gid}/toggle`
+  - `DELETE /api/guardian/beneficiary/{bid}/geofence/{gid}`
+  - `POST /api/guardian/beneficiary/{bid}/geofence/check`
+- **Compatibilite geofence standard**: endpoint update ajoute `PUT /api/geofence/{gid}` + payload check/toggle harmonise.
+- **Data integrity**: retrait du fallback de localisation aleatoire cote guardian map (plus de simulation implicite).
+- **UX mobile/web regression**: validee par testing agent (iteration_70, backend 100%, frontend 100%).
+
 ## Upcoming Tasks
 - P0: validation utilisateur en conditions reelles BLE (bracelet/gilet/balance) sur appareils physiques
-- P1: regression mobile UX (safe-area + continuity iOS/Android)
 - P1: test iOS TestFlight complet du bridge BLE natif
 - P2: regression UI globale roles gardien/SAAD/admin
 
@@ -123,9 +138,13 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Key Files
 - `backend/routes/device_routes.py`: Endpoints dispositifs
+- `backend/routes/guardian_routes.py`: Endpoints gardien + geofence beneficiary CRUD
+- `backend/routes/misc_routes.py`: Geofence standard (create/update/toggle/check)
 - `backend/routes/health_report_routes.py`: Rapport sante
 - `backend/routes/contract_routes.py`: Contrat + export PDF template/signe
 - `backend/routes/bracelet_routes.py`: Donnees BLE bracelet
+- `frontend/app/beneficiary-detail.tsx`: Fiche detaillee gardien + carte safe zones
+- `frontend/app/geofencing.tsx`: Gestion safe zones (self + mode gardien)
 - `frontend/app/(tabs)/devices.tsx`: Page dispositifs avec BLE reel
 - `frontend/src/components/dashboard/DeviceCards.tsx`: Badges statut dispositifs dashboard
 - `frontend/app/(tabs)/health.tsx`: Vue sante (no fake data rendering)
