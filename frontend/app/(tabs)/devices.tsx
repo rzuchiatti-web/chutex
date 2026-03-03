@@ -449,15 +449,22 @@ function DeviceManagement({ token }: { token: string }) {
           </div>
           {allTypes.map(dt => {
             const meta = DEVICE_META[dt]; const device = deviceMap[dt];
-            const isAssociated = device && (device.connected || device.battery > 0);
+            const isAssociated = device && (device.connected || device.battery > 0 || device.last_sync);
             const realBattery = device?.battery || 0; const realConnected = device?.connected || false;
+            // Vest: "En marche" if data received in last 60s
+            const vestActive = dt === 'vest' && device?.last_sync && (Date.now() - new Date(device.last_sync).getTime()) < 60000;
             const needsSub = dt === 'bracelet' && !subscription?.can_use_bracelet;
             const hasWeighings = dt === 'scale' && weighings.length > 0;
+            // Status label for badge
+            const statusLabel = dt === 'vest' 
+              ? (vestActive ? 'En marche' : isAssociated ? 'En veille' : '')
+              : (realConnected ? 'Connecte' : isAssociated ? 'Appaire' : '');
+            const statusActive = dt === 'vest' ? vestActive : realConnected;
             return (
               <div key={dt} data-testid={`device-card-${dt}`} style={{ borderRadius: 24, marginBottom: 16, overflow: 'hidden', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 20px', minHeight: 180, cursor: isAssociated ? 'pointer' : 'default' } as any} onClick={() => isAssociated && setSelectedDevice(dt)}>
                   <img src={meta.img} alt={meta.name} style={{ height: 150, width: 'auto', maxWidth: '80%', objectFit: 'contain', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))' } as any} />
-                  {isAssociated && <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: realConnected ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)', border: `1px solid ${realConnected ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}` } as any}><span style={{ width: 6, height: 6, borderRadius: '50%', background: realConnected ? '#10B981' : 'rgba(255,255,255,0.3)' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: realConnected ? '#10B981' : 'rgba(255,255,255,0.5)' }}>{realConnected ? 'Connecte' : 'Associe'}</span></div>}
+                  {isAssociated && <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: statusActive ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.15)', border: `1px solid ${statusActive ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.25)'}` } as any}><span style={{ width: 6, height: 6, borderRadius: '50%', background: statusActive ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: statusActive ? '#10B981' : '#F59E0B' }}>{statusLabel}</span></div>}
                 </div>
                 <div style={{ padding: '0 20px 20px' } as any}>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{meta.name}</div>
@@ -471,7 +478,7 @@ function DeviceManagement({ token }: { token: string }) {
                       <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
                         {dt === 'bracelet' && <><div data-testid="bracelet-ecg-btn" onClick={() => router.push('/ecg' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#F97316' } as any}><i className="ri-pulse-line" style={{ fontSize: 14 }} />ECG</div></>}
                         {dt === 'scale' && <><div data-testid="scale-weigh-btn" onClick={() => launchScaleWeighing()} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-scales-3-line" style={{ fontSize: 14 }} />Nouvelle pesee</div>{hasWeighings && <div data-testid="scale-history-btn" onClick={() => setSelectedDevice('scale')} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}><i className="ri-history-line" style={{ fontSize: 14 }} />Pesees</div>}</>}
-                        {dt === 'vest' && <div data-testid="vest-status" style={{ flex: 1, padding: '11px 14px', borderRadius: 999, background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}><i className="ri-shield-check-line" style={{ fontSize: 14 }} />{realConnected ? 'Protection active' : 'En veille'}</div>}
+                        {dt === 'vest' && <div data-testid="vest-status" style={{ flex: 1, padding: '11px 14px', borderRadius: 999, background: vestActive ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.12)', border: `1px solid ${vestActive ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: vestActive ? '#10B981' : '#F59E0B' } as any}><i className={vestActive ? 'ri-shield-check-line' : 'ri-zzz-line'} style={{ fontSize: 14 }} />{vestActive ? 'Protection active' : 'En veille'}</div>}
                         <div data-testid={`detail-${dt}-btn`} onClick={() => setSelectedDevice(dt)} style={{ padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}><i className="ri-information-line" style={{ fontSize: 14 }} /></div>
                       </div>
                     </div>
