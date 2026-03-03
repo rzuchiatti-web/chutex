@@ -121,6 +121,23 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - **Data integrity**: retrait du fallback de localisation aleatoire cote guardian map (plus de simulation implicite).
 - **UX mobile/web regression**: validee par testing agent (iteration_70, backend 100%, frontend 100%).
 
+### Mise a jour — Mar 3, 2026 (Location Permission + Popup Glass)
+- **Correction root cause localisation indisponible**:
+  - Prompt de permission localisation ajoute au **premier lancement**.
+  - Cible: iOS + Android + Web fallback.
+  - Flux implemente: demande foreground puis background (mode "Toujours"), avec guide si refus.
+  - Actions guide: **Ouvrir Reglages** + **Reessayer**.
+- **Sync localisation beneficiaire**:
+  - Ajout envoi periodique de la position (`/api/location/update`) depuis le dashboard beneficiaire.
+- **Safe Zone manager UX**:
+  - Le bouton "Gerer" depuis la fiche beneficiaire ouvre maintenant une **popup glass complete** (plus de navigation vers page percue comme cassee).
+  - Popup: create/edit/toggle/delete/check + formulaire complet + reprise de la localisation beneficiaire.
+- **Permissions natives app config**:
+  - iOS: `NSLocationWhenInUseUsageDescription`, `NSLocationAlwaysAndWhenInUseUsageDescription`, `NSLocationAlwaysUsageDescription`, `UIBackgroundModes.location`.
+  - Android: `ACCESS_BACKGROUND_LOCATION` ajoute.
+- **Validation qualite**:
+  - testing agent `iteration_71`: **frontend 100% / backend 100%**.
+
 ## Upcoming Tasks
 - P0: validation utilisateur en conditions reelles BLE (bracelet/gilet/balance) sur appareils physiques
 - P1: test iOS TestFlight complet du bridge BLE natif
