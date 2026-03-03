@@ -406,17 +406,38 @@ export default function BeneficiaryDetailScreen() {
         {/* ── CONTRAT ── */}
         <SectionTitle icon="ri-shield-star-line" label="Contrat" color="#7C3AED" />
         <GlassCard>
-          <div data-testid="beneficiary-contract-card" onClick={() => subscription && setShowContractPopup(true)} style={{ padding: '12px 14px', borderRadius: 14, background: hasActiveContract ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.05)', border: hasActiveContract ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(255,255,255,0.1)', cursor: subscription ? 'pointer' : 'default' } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 } as any}>
+          <div
+            data-testid="beneficiary-contract-card"
+            onClick={() => subscription && setShowContractPopup(true)}
+            style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, cursor: subscription ? 'pointer' : 'default', transition: 'transform 0.15s', opacity: subscription ? 1 : 0.8 } as any}
+            onMouseEnter={(e: any) => { if (subscription) e.currentTarget.style.transform = 'scale(1.01)'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.transform = 'scale(1)'; }}
+          >
+            {subscription ? (
+              <img
+                src={subscription.subscription_type === 'care'
+                  ? 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png'
+                  : 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png'}
+                alt=""
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 22 } as any}
+              />
+            ) : (
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(124,58,237,0.26), rgba(2,6,23,0.7))' } as any} />
+            )}
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', borderRadius: 22 } as any} />
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', padding: '0 22px' } as any}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }} data-testid="beneficiary-contract-status-title">
-                  {hasActiveContract ? `Contrat ${subscription?.subscription_type === 'care' ? 'Care' : 'Standard'} actif` : 'Aucun contrat actif'}
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }} data-testid="beneficiary-contract-status-title">
+                  {subscription ? (subscription.subscription_type === 'care' ? 'Contrat Care' : 'Contrat Standard') : 'Aucun contrat'}
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 4 }} data-testid="beneficiary-contract-status-subtitle">
-                  {subscription ? 'Touchez pour voir les details de souscription et paiement.' : 'Aucune souscription enregistree.'}
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', marginTop: 2 }} data-testid="beneficiary-contract-status-subtitle">
+                  {subscription ? 'Touchez pour voir les details' : 'Aucune souscription enregistree'}
                 </div>
               </div>
-              {subscription && <i className="ri-arrow-right-s-line" style={{ color: 'rgba(255,255,255,0.35)', fontSize: 18 }} />}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: hasActiveContract ? 'rgba(16,185,129,0.25)' : 'rgba(107,114,128,0.25)', border: `1px solid ${hasActiveContract ? 'rgba(16,185,129,0.4)' : 'rgba(107,114,128,0.45)'}` } as any}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: hasActiveContract ? '#10B981' : '#9CA3AF' } as any} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: hasActiveContract ? '#10B981' : '#D1D5DB' }}>{hasActiveContract ? 'Actif' : 'Inactif'}</span>
+              </div>
             </div>
           </div>
         </GlassCard>
@@ -502,39 +523,40 @@ export default function BeneficiaryDetailScreen() {
           const activity = getGuardianActivity(selectedGuardian);
           const extra = getGuardianContractDetails(selectedGuardian);
           return (
-            <div data-testid="guardian-detail-modal" style={{ position: 'fixed', inset: 0, zIndex: 1190, background: 'rgba(2,6,23,0.62)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12 } as any}>
-              <div style={{ width: '100%', maxWidth: 460, borderRadius: 20, background: 'rgba(15,23,42,0.84)', border: '1px solid rgba(255,255,255,0.16)', boxShadow: '0 24px 70px rgba(0,0,0,0.4)', padding: 16 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
-                  <div>
-                    <div data-testid="guardian-detail-name" style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{selectedGuardian.name}</div>
-                    <div data-testid="guardian-detail-role" style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{selectedGuardian.relationship || selectedGuardian.guardian_type || 'Gardien'}</div>
-                  </div>
-                  <div data-testid="guardian-detail-close-btn" onClick={() => setSelectedGuardian(null)} style={{ width: 30, height: 30, borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-close-line" style={{ color: '#FFF' }} /></div>
+            <div data-testid="guardian-detail-modal" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1190, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+              <div style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                  <div data-testid="guardian-detail-close-btn" onClick={() => setSelectedGuardian(null)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 } as any}>
-                  <div style={{ padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginBottom: 3 }}>Telephone</div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="guardian-detail-phone">{selectedGuardian.phone || 'N/A'}</div>
-                  </div>
-                  <div style={{ padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginBottom: 3 }}>Type</div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="guardian-detail-type">{selectedGuardian.guardian_type || 'particular'}</div>
-                  </div>
-                </div>
+                <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 16 } as any}>
+                  <div data-testid="guardian-detail-name" style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 3 }}>{selectedGuardian.name}</div>
+                  <div data-testid="guardian-detail-role" style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginBottom: 12 }}>{selectedGuardian.relationship || selectedGuardian.guardian_type || 'Gardien'}</div>
 
-                {extra?.email && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 6 }} data-testid="guardian-detail-email">Email: {extra.email}</div>}
-                {extra?.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 8 }} data-testid="guardian-detail-address">Adresse: {extra.address}{extra.city ? `, ${extra.city}` : ''}{extra.postal_code ? ` ${extra.postal_code}` : ''}</div>}
-
-                <div style={{ marginTop: 10, padding: '10px 12px', borderRadius: 12, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.22)' } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: '#A5B4FC', textTransform: 'uppercase', marginBottom: 6 }}>Historique d activite</div>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 8 } as any}>
-                    <div style={{ flex: 1, fontSize: 11, color: 'rgba(255,255,255,0.7)' }} data-testid="guardian-detail-activity-count">Actions: {activity.count}</div>
-                    <div style={{ flex: 1, fontSize: 11, color: 'rgba(255,255,255,0.7)' }} data-testid="guardian-detail-last-action">Derniere: {activity.lastActionAt ? new Date(activity.lastActionAt).toLocaleString('fr-FR') : 'Aucune'}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 } as any}>
+                    <div style={{ padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginBottom: 3 }}>Telephone</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="guardian-detail-phone">{selectedGuardian.phone || 'N/A'}</div>
+                    </div>
+                    <div style={{ padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginBottom: 3 }}>Type</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="guardian-detail-type">{selectedGuardian.guardian_type || 'particular'}</div>
+                    </div>
                   </div>
-                  {activity.recentAlerts.length > 0 ? activity.recentAlerts.map((a: any) => (
-                    <div key={a.id} style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }} data-testid={`guardian-detail-activity-item-${a.id}`}>{a.message || a.alert_type} · {new Date(a.created_at).toLocaleDateString('fr-FR')}</div>
-                  )) : <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }} data-testid="guardian-detail-activity-empty">Aucune action enregistree pour ce gardien.</div>}
+
+                  {extra?.email && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 6 }} data-testid="guardian-detail-email">Email: {extra.email}</div>}
+                  {extra?.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 8 }} data-testid="guardian-detail-address">Adresse: {extra.address}{extra.city ? `, ${extra.city}` : ''}{extra.postal_code ? ` ${extra.postal_code}` : ''}</div>}
+
+                  <div style={{ marginTop: 10, padding: '10px 12px', borderRadius: 12, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.22)' } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: '#A5B4FC', textTransform: 'uppercase', marginBottom: 6 }}>Historique d activite</div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 } as any}>
+                      <div style={{ flex: 1, fontSize: 11, color: 'rgba(255,255,255,0.7)' }} data-testid="guardian-detail-activity-count">Actions: {activity.count}</div>
+                      <div style={{ flex: 1, fontSize: 11, color: 'rgba(255,255,255,0.7)' }} data-testid="guardian-detail-last-action">Derniere: {activity.lastActionAt ? new Date(activity.lastActionAt).toLocaleString('fr-FR') : 'Aucune'}</div>
+                    </div>
+                    {activity.recentAlerts.length > 0 ? activity.recentAlerts.map((a: any) => (
+                      <div key={a.id} style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }} data-testid={`guardian-detail-activity-item-${a.id}`}>{a.message || a.alert_type} · {new Date(a.created_at).toLocaleDateString('fr-FR')}</div>
+                    )) : <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }} data-testid="guardian-detail-activity-empty">Aucune action enregistree pour ce gardien.</div>}
+                  </div>
                 </div>
               </div>
             </div>
@@ -542,46 +564,49 @@ export default function BeneficiaryDetailScreen() {
         })()}
 
         {showContractPopup && subscription && (
-          <div data-testid="contract-detail-modal" style={{ position: 'fixed', inset: 0, zIndex: 1185, background: 'rgba(2,6,23,0.62)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12 } as any}>
-            <div style={{ width: '100%', maxWidth: 470, borderRadius: 20, background: 'rgba(15,23,42,0.84)', border: '1px solid rgba(255,255,255,0.16)', boxShadow: '0 24px 70px rgba(0,0,0,0.4)', padding: 16 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
-                <div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }} data-testid="contract-detail-title">Contrat {subscription.subscription_type === 'care' ? 'Care' : 'Standard'}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }} data-testid="contract-detail-status">Statut: {subscription.status || 'N/A'}</div>
-                </div>
-                <div data-testid="contract-detail-close-btn" onClick={() => setShowContractPopup(false)} style={{ width: 30, height: 30, borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-close-line" style={{ color: '#FFF' }} /></div>
+          <div data-testid="contract-detail-modal" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1185, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+            <div style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                <div data-testid="contract-detail-close-btn" onClick={() => setShowContractPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
               </div>
 
-              <div style={{ display: 'grid', gap: 8 } as any}>
-                <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Date de souscription</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-created-at">{subscription.created_at ? new Date(subscription.created_at).toLocaleDateString('fr-FR') : 'N/A'}</div></div>
-                <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Offre</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-plan">{contract?.plan_label || (subscription.subscription_type === 'care' ? 'Chutex Care' : 'Standard')}</div></div>
-                <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Paiement</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-payment">{contract?.price_monthly ? `${contract.price_monthly} EUR / mois` : 'N/A'}</div></div>
-                <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Numero contrat</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-number">{contract?.contract_number || 'N/A'}</div></div>
+              <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 16 } as any}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 3 }} data-testid="contract-detail-title">Contrat {subscription.subscription_type === 'care' ? 'Care' : 'Standard'}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginBottom: 12 }} data-testid="contract-detail-status">Statut: {subscription.status || 'N/A'}</div>
+
+                <div style={{ display: 'grid', gap: 8 } as any}>
+                  <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Date de souscription</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-created-at">{subscription.created_at ? new Date(subscription.created_at).toLocaleDateString('fr-FR') : 'N/A'}</div></div>
+                  <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Offre</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-plan">{contract?.plan_label || (subscription.subscription_type === 'care' ? 'Chutex Care' : 'Standard')}</div></div>
+                  <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Paiement</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-payment">{contract?.price_monthly ? `${contract.price_monthly} EUR / mois` : 'N/A'}</div></div>
+                  <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Numero contrat</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-number">{contract?.contract_number || 'N/A'}</div></div>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {geoFormOpen && (
-          <div data-testid="safezone-form-modal" style={{ position: 'fixed', inset: 0, zIndex: 1200, background: 'rgba(2,6,23,0.62)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12 } as any}>
-            <div style={{ width: '100%', maxWidth: 420, borderRadius: 20, background: 'rgba(15,23,42,0.84)', border: '1px solid rgba(255,255,255,0.16)', boxShadow: '0 24px 70px rgba(0,0,0,0.4)', padding: 16 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
-                <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }} data-testid="safezone-form-modal-title">{geoEditingId ? 'Modifier la safe zone' : 'Definir une safe zone'}</div>
-                <div data-testid="safezone-form-close-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ width: 30, height: 30, borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-close-line" style={{ color: '#FFF' }} /></div>
+          <div data-testid="safezone-form-modal" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1200, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+            <div style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                <div data-testid="safezone-form-close-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
               </div>
 
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 10 }} data-testid="safezone-form-center-info">
-                Centre: {Number(geoFormLat || 0).toFixed(5)}, {Number(geoFormLng || 0).toFixed(5)}
-              </div>
+              <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 16 } as any}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 4 }} data-testid="safezone-form-modal-title">{geoEditingId ? 'Modifier la safe zone' : 'Definir une safe zone'}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 12 }} data-testid="safezone-form-center-info">
+                  Centre: {Number(geoFormLat || 0).toFixed(5)}, {Number(geoFormLng || 0).toFixed(5)}
+                </div>
 
-              <div style={{ display: 'grid', gap: 8 } as any}>
-                <input data-testid="safezone-form-name-input" value={geoFormName} onChange={(e: any) => setGeoFormName(e.target.value)} placeholder="Nom de la zone" style={{ padding: '11px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', color: '#FFF' } as any} />
-                <input data-testid="safezone-form-radius-input" value={geoFormRadius} onChange={(e: any) => setGeoFormRadius(e.target.value)} placeholder="Rayon en metres" style={{ padding: '11px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', color: '#FFF' } as any} />
-              </div>
+                <div style={{ display: 'grid', gap: 8 } as any}>
+                  <input data-testid="safezone-form-name-input" value={geoFormName} onChange={(e: any) => setGeoFormName(e.target.value)} placeholder="Nom de la zone" style={{ padding: '11px 12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', color: '#FFF' } as any} />
+                  <input data-testid="safezone-form-radius-input" value={geoFormRadius} onChange={(e: any) => setGeoFormRadius(e.target.value)} placeholder="Rayon en metres" style={{ padding: '11px 12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', color: '#FFF' } as any} />
+                </div>
 
-              <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
-                <div data-testid="safezone-form-cancel-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ flex: 1, padding: '9px 10px', borderRadius: 999, cursor: 'pointer', textAlign: 'center', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', fontSize: 12, fontWeight: 700, color: '#FFF' } as any}>Annuler</div>
-                <div data-testid="safezone-form-save-btn" onClick={saveGeoForm} style={{ flex: 1, padding: '9px 10px', borderRadius: 999, cursor: geoFormSaving ? 'wait' : 'pointer', textAlign: 'center', background: 'rgba(16,185,129,0.22)', border: '1px solid rgba(16,185,129,0.35)', fontSize: 12, fontWeight: 800, color: '#34D399', opacity: geoFormSaving ? 0.6 : 1 } as any}>{geoFormSaving ? 'Enregistrement...' : (geoEditingId ? 'Enregistrer' : 'Creer')}</div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
+                  <div data-testid="safezone-form-cancel-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ flex: 1, padding: '10px 12px', borderRadius: 999, cursor: 'pointer', textAlign: 'center', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', fontSize: 12, fontWeight: 700, color: '#FFF' } as any}>Annuler</div>
+                  <div data-testid="safezone-form-save-btn" onClick={saveGeoForm} style={{ flex: 1, padding: '10px 12px', borderRadius: 999, cursor: geoFormSaving ? 'wait' : 'pointer', textAlign: 'center', background: 'rgba(16,185,129,0.22)', border: '1px solid rgba(16,185,129,0.35)', fontSize: 12, fontWeight: 800, color: '#34D399', opacity: geoFormSaving ? 0.6 : 1 } as any}>{geoFormSaving ? 'Enregistrement...' : (geoEditingId ? 'Enregistrer' : 'Creer')}</div>
+                </div>
               </div>
             </div>
           </div>
