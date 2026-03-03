@@ -74,9 +74,21 @@ async def sync_device(data: DeviceSyncRequest, user=Depends(get_current_user)):
 @router.get("/devices")
 async def get_devices(user=Depends(get_current_user)):
     uid = user.get('beneficiaries', []) if user['role'] == 'guardian' else [user['id']]
-    return await db.devices.find(
+    devices = await db.devices.find(
         {"user_id": {"$in": uid}, "removed": {"$ne": True}}, {"_id": 0}
     ).to_list(100)
+    # Compute real-time connected status based on last_sync freshness
+    now = datetime.now(timezone.utc)
+    for d in devices:
+        if d.get('last_sync'):
+            try:
+                ls = datetime.fromisoformat(d['last_sync'].replace('Z', '+00:00'))
+                d['connected'] = (now - ls).total_seconds() < 120
+            except:
+                d['connected'] = False
+        else:
+            d['connected'] = False
+    return devices
 
 
 @router.post("/devices/associate")
@@ -185,9 +197,24 @@ async def get_dashboard_summary(user=Depends(get_current_user)):
     br_data = (last_bracelet_reading or {}).get("data", {}) if last_bracelet_reading else {}
     sc_data = (last_scale_reading or {}).get("data", {}) if last_scale_reading else {}
     vs_data = (last_vest_reading or {}).get("data", {}) if last_vest_reading else {}
-    br_connected = bracelet_dev.get("connected", False) if bracelet_dev else False
-    sc_connected = scale_dev.get("connected", False) if scale_dev else False
-    vs_connected = vest_dev.get("connected", False) if vest_dev else False
+    br_connected = False
+    if bracelet_dev and bracelet_dev.get('last_sync'):
+        try:
+            ls = datetime.fromisoformat(bracelet_dev['last_sync'].replace('Z', '+00:00'))
+            br_connected = (now - ls).total_seconds() < 120
+        except: pass
+    sc_connected = False
+    if scale_dev and scale_dev.get('last_sync'):
+        try:
+            ls = datetime.fromisoformat(scale_dev['last_sync'].replace('Z', '+00:00'))
+            sc_connected = (now - ls).total_seconds() < 120
+        except: pass
+    vs_connected = False
+    if vest_dev and vest_dev.get('last_sync'):
+        try:
+            ls = datetime.fromisoformat(vest_dev['last_sync'].replace('Z', '+00:00'))
+            vs_connected = (now - ls).total_seconds() < 120
+        except: pass
     has_br_data = bool(br_data) or br_connected
     has_sc_data = bool(sc_data) or sc_connected
 

@@ -504,14 +504,21 @@ async def guardian_beneficiary_ai_report(bid: str, user=Depends(get_current_user
 @router.get("/guardian/beneficiary/{bid}/devices")
 async def guardian_beneficiary_devices(bid: str, user=Depends(get_current_user)):
     """Get device status for a beneficiary — real data from devices collection"""
+    now = datetime.now(timezone.utc)
     result = {}
     for dt in ["bracelet", "scale", "vest"]:
         dev = await db.devices.find_one(
             {"user_id": bid, "device_type": dt, "removed": {"$ne": True}}, {"_id": 0}
         )
         if dev:
+            is_connected = False
+            if dev.get('last_sync'):
+                try:
+                    ls = datetime.fromisoformat(dev['last_sync'].replace('Z', '+00:00'))
+                    is_connected = (now - ls).total_seconds() < 120
+                except: pass
             result[dt] = {
-                "connected": dev.get("connected", False),
+                "connected": is_connected,
                 "battery_level": dev.get("battery", 0),
                 "last_sync": dev.get("last_sync"),
                 "heart_rate": dev.get("last_heart_rate", 0),
