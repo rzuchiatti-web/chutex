@@ -266,38 +266,48 @@ export default function BeneficiaryDetailScreen() {
 
           {/* 3. APPAREILS — sans carte, séparés par traits */}
           <Sep />
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Appareils connectés</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Appareils connectes</div>
           {[
-            { label: 'Bracelet Elio', img: IMG_BRACELET, color: '#10B981', d: bracelet },
-            { label: 'Balance Vita', img: IMG_SCALE, color: '#3B82F6', d: scale },
-            { label: 'Elder', img: IMG_VEST, color: '#A78BFA', d: vest },
-          ].map((dev, i) => (
+            { label: 'Bracelet Elio', img: IMG_BRACELET, color: '#10B981', d: bracelet, type: 'bracelet' },
+            { label: 'Balance Vita', img: IMG_SCALE, color: '#3B82F6', d: scale, type: 'scale' },
+            { label: 'Gilet Elder', img: IMG_VEST, color: '#A78BFA', d: vest, type: 'vest' },
+          ].map((dev, i) => {
+            const isVest = dev.type === 'vest';
+            const vestActive = isVest && dev.d?.last_sync && (Date.now() - new Date(dev.d.last_sync).getTime()) < 60000;
+            const statusLabel = !dev.d ? 'Non associe' : isVest ? (vestActive ? 'En marche' : 'En veille') : (dev.d?.connected ? 'Connecte' : 'Hors ligne');
+            const statusColor = !dev.d ? '#6B7280' : isVest ? (vestActive ? '#10B981' : '#F59E0B') : (dev.d?.connected ? '#10B981' : '#6B7280');
+            const bat = dev.d?.battery_level ?? 0;
+            return (
             <div key={i}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
                 <div style={{ width: 56, height: 56, borderRadius: 14, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' } as any}>
-                  <img src={dev.img} alt={dev.label} style={{ width: 42, height: 42, objectFit: 'contain' } as any} />
+                  <img src={dev.img} alt={dev.label} style={{ width: 42, height: 42, objectFit: 'contain', opacity: dev.d ? 1 : 0.3 } as any} />
                 </div>
                 <div style={{ flex: 1 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } as any}>
                     <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{dev.label}</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 99, background: dev.d?.connected ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)' } as any}>
-                      <span style={{ width: 5, height: 5, borderRadius: 99, background: dev.d?.connected ? '#10B981' : '#6B7280' } as any} />
-                      <span style={{ fontSize: 9, fontWeight: 700, color: dev.d?.connected ? '#10B981' : 'rgba(255,255,255,0.35)' }}>{dev.d?.connected ? 'Connecté' : 'Hors ligne'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 99, background: `${statusColor}18` } as any}>
+                      <span style={{ width: 5, height: 5, borderRadius: 99, background: statusColor } as any} />
+                      <span style={{ fontSize: 9, fontWeight: 700, color: statusColor }}>{statusLabel}</span>
                     </div>
                   </div>
-                  {/* Battery */}
+                  {dev.d && bat > 0 ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                    <i className="ri-battery-2-line" style={{ fontSize: 13, color: (dev.d?.battery_level ?? 0) > 30 ? '#10B981' : '#EF4444', flexShrink: 0 }} />
+                    <i className="ri-battery-2-line" style={{ fontSize: 13, color: bat > 30 ? '#10B981' : '#EF4444', flexShrink: 0 }} />
                     <div style={{ flex: 1, height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.12)', overflow: 'hidden' } as any}>
-                      <div style={{ height: '100%', borderRadius: 99, background: (dev.d?.battery_level ?? 0) > 30 ? `linear-gradient(90deg, #10B981, #34D399)` : `linear-gradient(90deg, #EF4444, #F87171)`, width: `${dev.d?.battery_level ?? 0}%`, transition: 'width 1s' } as any} />
+                      <div style={{ height: '100%', borderRadius: 99, background: bat > 30 ? 'linear-gradient(90deg, #10B981, #34D399)' : 'linear-gradient(90deg, #EF4444, #F87171)', width: `${bat}%`, transition: 'width 1s' } as any} />
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: (dev.d?.battery_level ?? 0) > 30 ? '#10B981' : '#EF4444', minWidth: 34, textAlign: 'right' } as any}>{dev.d?.battery_level != null ? `${dev.d.battery_level}%` : '--'}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: bat > 30 ? '#10B981' : '#EF4444', minWidth: 34, textAlign: 'right' } as any}>{bat}%</span>
                   </div>
+                  ) : (
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>{dev.d ? 'Batterie inconnue' : 'Appareil non associe'}</div>
+                  )}
                 </div>
               </div>
               {i < 2 && <Sep />}
             </div>
-          ))}
+            );
+          })}
 
           {/* 4. LOCALISATION */}
           <Sep />
