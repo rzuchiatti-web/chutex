@@ -129,9 +129,6 @@ export default function BeneficiaryDetailScreen() {
   const bracelet = devices?.bracelet || null;
   const scale = devices?.scale || null;
   const vest = devices?.vest || null;
-  const age = data.date_of_birth && !isNaN(new Date(data.date_of_birth).getTime())
-    ? Math.floor((Date.now() - new Date(data.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365)) : null;
-
   const Sep = () => <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '18px 0' } as any} />;
 
   const GlassCard = ({ children, style }: any) => (
@@ -170,6 +167,12 @@ export default function BeneficiaryDetailScreen() {
   const subscription = subInfo?.subscription || null;
   const contract = subInfo?.contract || null;
   const hasActiveContract = subscription?.status === 'active';
+  const nameParts = (data.name || '').trim().split(' ').filter(Boolean);
+  const firstName = nameParts[0] || data.name || '-';
+  const lastName = nameParts.slice(1).join(' ') || '-';
+  const ageYears = data.date_of_birth ? Math.floor((Date.now() - new Date(data.date_of_birth).getTime()) / 31557600000) : null;
+  const genderLabel = data.gender === 'male' ? 'Homme' : data.gender === 'female' ? 'Femme' : (data.gender || 'N/A');
+  const addressDisplay = [data.address, data.postal_code, data.city].filter(Boolean).join(' ') || 'Adresse non renseignee';
 
   const getGuardianContractDetails = (guardian: any) => {
     const contractGuardians = Array.isArray(contract?.guardians) ? contract.guardians : [];
@@ -278,9 +281,15 @@ export default function BeneficiaryDetailScreen() {
             <span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{data.name?.charAt(0)?.toUpperCase()}</span>
           </div>
           <div style={{ flex: 1 } as any}>
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{data.name}</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{[age && `${age} ans`, data.gender === 'male' ? 'Homme' : data.gender === 'female' ? 'Femme' : data.gender].filter(Boolean).join(' · ')}</div>
-            {data.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 3 }}><i className="ri-map-pin-line" style={{ fontSize: 11, marginRight: 4 }} />{data.address}{data.city ? `, ${data.city}` : ''}{data.postal_code ? ` ${data.postal_code}` : ''}</div>}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' } as any}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }} data-testid="beneficiary-firstname-value">{firstName}</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: 'rgba(255,255,255,0.9)' }} data-testid="beneficiary-lastname-value">{lastName}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 } as any}>
+              <span data-testid="beneficiary-age-badge" style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(59,130,246,0.18)', border: '1px solid rgba(59,130,246,0.35)', fontSize: 10, fontWeight: 700, color: '#93C5FD' }}>{ageYears != null ? `${ageYears} ans` : 'Age N/A'}</span>
+              <span data-testid="beneficiary-gender-badge" style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(167,139,250,0.18)', border: '1px solid rgba(167,139,250,0.35)', fontSize: 10, fontWeight: 700, color: '#C4B5FD' }}>{genderLabel}</span>
+            </div>
+            <div data-testid="beneficiary-address-value" style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4, lineHeight: 1.5 }}><i className="ri-map-pin-line" style={{ fontSize: 11, marginRight: 4, color: '#F59E0B' }} />{addressDisplay}</div>
           </div>
           {data.phone && (
             <a href={`tel:${data.phone}`} style={{ textDecoration: 'none' }}>
@@ -361,28 +370,26 @@ export default function BeneficiaryDetailScreen() {
 
         {/* ── DISPOSITIFS ── */}
         <SectionTitle icon="ri-bluetooth-connect-line" label="Dispositifs" color="#22D3EE" />
-        <GlassCard>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' } as any}>
-            {devList.map((dev, i) => {
-              const isVest = dev.type === 'vest';
-              const vestAct = isVest && dev.d?.last_sync && (Date.now() - new Date(dev.d.last_sync).getTime()) < 30000;
-              const statusLabel = !dev.d ? 'Non associe' : isVest ? (vestAct ? 'Actif' : 'Veille') : (dev.d?.connected ? 'OK' : 'Off');
-              const statusColor = !dev.d ? '#6B7280' : isVest ? (vestAct ? '#10B981' : '#F59E0B') : (dev.d?.connected ? '#10B981' : '#6B7280');
-              const bat = dev.d?.battery_level ?? 0;
-              return (
-                <div key={i} data-testid={`beneficiary-device-card-${dev.type}`} style={{ flex: '1 1 120px', minWidth: 110, padding: '12px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
-                  <img src={dev.img} alt="" style={{ width: 36, height: 36, objectFit: 'contain', margin: '0 auto 6px', display: 'block', opacity: dev.d ? 1 : 0.25 } as any} />
-                  <div style={{ fontSize: 10, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{dev.label}</div>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 7px', borderRadius: 99, background: `${statusColor}18` } as any}>
-                    <span style={{ width: 4, height: 4, borderRadius: 99, background: statusColor } as any} />
-                    <span style={{ fontSize: 8, fontWeight: 700, color: statusColor }}>{statusLabel}</span>
-                  </div>
-                  {bat > 0 && <div style={{ fontSize: 10, fontWeight: 700, color: bat > 30 ? '#10B981' : '#EF4444', marginTop: 4 }}>{bat}%</div>}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 } as any}>
+          {devList.map((dev, i) => {
+            const isVest = dev.type === 'vest';
+            const vestAct = isVest && dev.d?.last_sync && (Date.now() - new Date(dev.d.last_sync).getTime()) < 30000;
+            const statusLabel = !dev.d ? 'Non associe' : isVest ? (vestAct ? 'Actif' : 'Veille') : (dev.d?.connected ? 'OK' : 'Off');
+            const statusColor = !dev.d ? '#6B7280' : isVest ? (vestAct ? '#10B981' : '#F59E0B') : (dev.d?.connected ? '#10B981' : '#6B7280');
+            const bat = dev.d?.battery_level ?? 0;
+            return (
+              <div key={i} data-testid={`beneficiary-device-card-${dev.type}`} style={{ flex: '1 1 120px', minWidth: 110, padding: '12px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+                <img src={dev.img} alt="" style={{ width: 36, height: 36, objectFit: 'contain', margin: '0 auto 6px', display: 'block', opacity: dev.d ? 1 : 0.25 } as any} />
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{dev.label}</div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 7px', borderRadius: 99, background: `${statusColor}18` } as any}>
+                  <span style={{ width: 4, height: 4, borderRadius: 99, background: statusColor } as any} />
+                  <span style={{ fontSize: 8, fontWeight: 700, color: statusColor }}>{statusLabel}</span>
                 </div>
-              );
-            })}
-          </div>
-        </GlassCard>
+                {bat > 0 && <div style={{ fontSize: 10, fontWeight: 700, color: bat > 30 ? '#10B981' : '#EF4444', marginTop: 4 }}>{bat}%</div>}
+              </div>
+            );
+          })}
+        </div>
 
         {/* ── GARDIENS ── */}
         <SectionTitle icon="ri-team-line" label="Liste des gardiens" color="#34D399" />
@@ -401,45 +408,6 @@ export default function BeneficiaryDetailScreen() {
           )) : (
             <div data-testid="beneficiary-guardians-empty" style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)', padding: '10px 0' } as any}>Aucun gardien associe</div>
           )}
-        </GlassCard>
-
-        {/* ── CONTRAT ── */}
-        <SectionTitle icon="ri-shield-star-line" label="Contrat" color="#7C3AED" />
-        <GlassCard>
-          <div
-            data-testid="beneficiary-contract-card"
-            onClick={() => subscription && setShowContractPopup(true)}
-            style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, cursor: subscription ? 'pointer' : 'default', transition: 'transform 0.15s', opacity: subscription ? 1 : 0.8 } as any}
-            onMouseEnter={(e: any) => { if (subscription) e.currentTarget.style.transform = 'scale(1.01)'; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.transform = 'scale(1)'; }}
-          >
-            {subscription ? (
-              <img
-                src={subscription.subscription_type === 'care'
-                  ? 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png'
-                  : 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png'}
-                alt=""
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 22 } as any}
-              />
-            ) : (
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(124,58,237,0.26), rgba(2,6,23,0.7))' } as any} />
-            )}
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', borderRadius: 22 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', padding: '0 22px' } as any}>
-              <div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }} data-testid="beneficiary-contract-status-title">
-                  {subscription ? (subscription.subscription_type === 'care' ? 'Contrat Care' : 'Contrat Standard') : 'Aucun contrat'}
-                </div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', marginTop: 2 }} data-testid="beneficiary-contract-status-subtitle">
-                  {subscription ? 'Touchez pour voir les details' : 'Aucune souscription enregistree'}
-                </div>
-              </div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: hasActiveContract ? 'rgba(16,185,129,0.25)' : 'rgba(107,114,128,0.25)', border: `1px solid ${hasActiveContract ? 'rgba(16,185,129,0.4)' : 'rgba(107,114,128,0.45)'}` } as any}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: hasActiveContract ? '#10B981' : '#9CA3AF' } as any} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: hasActiveContract ? '#10B981' : '#D1D5DB' }}>{hasActiveContract ? 'Actif' : 'Inactif'}</span>
-              </div>
-            </div>
-          </div>
         </GlassCard>
 
         {/* ── SAFE ZONES ── */}
@@ -518,6 +486,43 @@ export default function BeneficiaryDetailScreen() {
             </div>
           ))}
         </>)}
+
+        {/* ── CONTRAT (EN BAS) ── */}
+        <SectionTitle icon="ri-shield-star-line" label="Contrat" color="#7C3AED" />
+        <div
+          data-testid="beneficiary-contract-card"
+          onClick={() => subscription && setShowContractPopup(true)}
+          style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, cursor: subscription ? 'pointer' : 'default', transition: 'transform 0.15s', opacity: subscription ? 1 : 0.8, marginBottom: 12 } as any}
+          onMouseEnter={(e: any) => { if (subscription) e.currentTarget.style.transform = 'scale(1.01)'; }}
+          onMouseLeave={(e: any) => { e.currentTarget.style.transform = 'scale(1)'; }}
+        >
+          {subscription ? (
+            <img
+              src={subscription.subscription_type === 'care'
+                ? 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png'
+                : 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png'}
+              alt=""
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 22 } as any}
+            />
+          ) : (
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(124,58,237,0.26), rgba(2,6,23,0.7))' } as any} />
+          )}
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', borderRadius: 22 } as any} />
+          <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', padding: '0 22px' } as any}>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }} data-testid="beneficiary-contract-status-title">
+                {subscription ? (subscription.subscription_type === 'care' ? 'Contrat Care' : 'Contrat Standard') : 'Aucun contrat'}
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', marginTop: 2 }} data-testid="beneficiary-contract-status-subtitle">
+                {subscription ? 'Touchez pour voir les details' : 'Aucune souscription enregistree'}
+              </div>
+            </div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: hasActiveContract ? 'rgba(16,185,129,0.25)' : 'rgba(107,114,128,0.25)', border: `1px solid ${hasActiveContract ? 'rgba(16,185,129,0.4)' : 'rgba(107,114,128,0.45)'}` } as any}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: hasActiveContract ? '#10B981' : '#9CA3AF' } as any} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: hasActiveContract ? '#10B981' : '#D1D5DB' }}>{hasActiveContract ? 'Actif' : 'Inactif'}</span>
+            </div>
+          </div>
+        </div>
 
         {selectedGuardian && (() => {
           const activity = getGuardianActivity(selectedGuardian);
