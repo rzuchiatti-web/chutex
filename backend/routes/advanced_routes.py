@@ -129,7 +129,7 @@ async def get_morning_briefing(user=Depends(get_current_user)):
     hd = nora_ctx["health_data"]
 
     # Get the daily_plan from health_report (same as health page)
-    from routes.health_report_routes import compute_daily_plan, compute_subscores, _sanitize_data, _has_meaningful_data, gen_data, evaluate_objectives_met
+    from routes.health_report_routes import compute_daily_plan_async, compute_subscores, _sanitize_data, _has_meaningful_data, gen_data, evaluate_objectives_met
     d = gen_data()
     br_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
     sc_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
@@ -142,7 +142,7 @@ async def get_morning_briefing(user=Depends(get_current_user)):
             if sc_reading["data"].get(k): d[k] = sc_reading["data"][k]
     d = _sanitize_data(d)
     si = compute_subscores(d)
-    daily_plan = compute_daily_plan(d, si)
+    daily_plan = await compute_daily_plan_async(d, si, uid)
 
     # Active program
     enrollment = await db.program_enrollments.find_one({"user_id": uid, "status": "active"}, {"_id": 0})

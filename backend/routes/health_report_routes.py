@@ -251,9 +251,10 @@ def evaluate_objectives_met(d):
     return met
 
 
-def compute_daily_plan(d, score_info):
-    """Generate daily plan. Only includes items with actual measured data."""
-    # If no meaningful data, return a simple "connect device" plan
+async def compute_daily_plan_async(d, score_info, uid):
+    """Generate daily plan. Respects user-set goals. Nora adds smart objectives from ALL health data."""
+    from database import db
+
     if score_info.get("no_data") or not _has_meaningful_data(d):
         return [
             {"key": "connect", "label": "Connecter un appareil", "value": "--", "unit": "", "status": "action requise",
@@ -264,42 +265,77 @@ def compute_daily_plan(d, score_info):
     plan = []
     g = lambda k, default=0: d.get(k, default)
 
-    # Only add calorie plan if we have basal metabolism data
-    bm = g("basal_metabolism", 0)
-    rec_cal = g("recommended_calories", bm if bm > 0 else 0)
-    if rec_cal > 0:
-        plan.append({"key": "calories", "label": "Apport calorique", "value": f"{rec_cal}", "unit": "kcal", "status": "objectif", "icon": "ri-fire-line", "color": "#F59E0B",
-                     "detail": f"Votre metabolisme de base est de {bm} kcal. Visez {rec_cal} kcal aujourd'hui."})
+    # Get user-defined thresholds/goals
+    user_goals = {}
+    if uid:
+        goals_list = await db.thresholds.find({"user_id": uid}, {"_id": 0}).to_list(50)
+        for gl in goals_list:
+            user_goals[gl.get("metric_id", "")] = gl
 
-    # Only add steps plan if we have step data
+    # ACTIVITY: If user has set goals → use theirs. Otherwise suggest setting them.
     steps = g("steps")
     if steps > 0:
-        step_goal = 6000 if g("recovery_score") >= 70 else 4000
-        plan.append({"key": "steps", "label": "Objectif pas", "value": f"{step_goal}", "unit": "pas", "status": "en cours" if steps < step_goal else "atteint",
-                     "progress": min(100, round(steps / max(1, step_goal) * 100)), "icon": "ri-footprint-line", "color": "#10B981",
-                     "detail": f"Vous etes a {steps} pas. Objectif adapte a votre recuperation ({g('recovery_score')}/100)."})
+        user_step_goal = user_goals.get("steps", {}).get("goal")
+        if user_step_goal:
+            plan.append({"key": "steps", "label": "Objectif pas", "value": f"{user_step_goal}", "unit": "pas",
+                         "status": "atteint" if steps >= user_step_goal else "en cours",
+                         "progress": min(100, round(steps / max(1, user_step_goal) * 100)),
+                         "icon": "ri-footprint-line", "color": "#10B981",
+                         "detail": f"{steps} pas sur {user_step_goal}. Objectif defini par vous."})
+        # Don't add Nora-generated step goal — user should set it in activity page
 
-    # Only add hydration plan if we have water data
+    # HYDRATION: Nora objective based on real water_pct
     wp = g("water_pct")
     if wp > 0:
         water_goal = 1.5 if wp >= 55 else 2.0
-        plan.append({"key": "hydration", "label": "Hydratation", "value": f"{water_goal}L", "unit": "minimum", "status": "priorite" if wp < 55 else "OK",
+        plan.append({"key": "hydration", "label": "Hydratation", "value": f"{water_goal}L", "unit": "minimum",
+                     "status": "OK" if wp >= 55 else "priorite",
                      "icon": "ri-drop-line", "color": "#38BDF8",
-                     "detail": f"Votre taux d'hydratation est de {wp}%."})
+                     "detail": f"Taux d'hydratation: {wp}%."})
 
-    # Only add sleep plan if we have sleep data
+    # CALORIE INTAKE: If basal metabolism available
+    bm = g("basal_metabolism", 0)
+    if bm > 0:
+        rec_cal = g("recommended_calories", bm)
+        plan.append({"key": "calories_intake", "label": "Apport calorique", "value": f"{rec_cal}", "unit": "kcal",
+                     "status": "objectif", "icon": "ri-restaurant-line", "color": "#F59E0B",
+                     "detail": f"Metabolisme de base: {bm} kcal."})
+
+    # SLEEP: If sleep quality available
     sq = g("sleep_quality")
     if sq > 0:
         bed = "22:30" if sq < 80 else "23:00"
-        plan.append({"key": "sleep", "label": "Coucher conseille", "value": bed, "unit": "", "status": "conseil",
-                     "icon": "ri-moon-line", "color": "#A78BFA",
-                     "detail": f"Qualite de sommeil hier: {sq}%."})
+        plan.append({"key": "sleep", "label": "Coucher conseille", "value": bed, "unit": "",
+                     "status": "conseil", "icon": "ri-moon-line", "color": "#A78BFA",
+                     "detail": f"Qualite de sommeil: {sq}%."})
 
-    # If no plan items, add a generic one
+    # STRESS: If stress data available, Nora can set a stress objective
+    stress = g("stress_level")
+    if stress > 0:
+        stress_target = 40 if stress > 50 else 30
+        plan.append({"key": "stress", "label": "Stress", "value": f"< {stress_target}", "unit": "/100",
+                     "status": "attention" if stress > 50 else "OK",
+                     "icon": "ri-mental-health-line", "color": "#8B5CF6",
+                     "detail": f"Stress actuel: {stress}/100."})
+
+    # HEART RATE: If elevated resting HR
+    hr = g("heart_rate")
+    if hr > 80:
+        plan.append({"key": "heart_rate", "label": "Repos cardiaque", "value": "< 80", "unit": "bpm",
+                     "status": "a surveiller", "icon": "ri-heart-pulse-line", "color": "#EF4444",
+                     "detail": f"FC repos: {hr} bpm. Visez < 80 avec relaxation."})
+
+    # VISCERAL FAT: If elevated
+    vf = g("visceral_fat")
+    if vf > 10:
+        plan.append({"key": "visceral_fat", "label": "Graisse viscerale", "value": "< 10", "unit": "",
+                     "status": "objectif", "icon": "ri-body-scan-line", "color": "#F97316",
+                     "detail": f"Indice actuel: {vf}. Visez < 10."})
+
     if not plan:
         plan.append({"key": "measure", "label": "Realiser une mesure", "value": "--", "unit": "", "status": "en attente",
                      "icon": "ri-pulse-line", "color": "#3B82F6",
-                     "detail": "Portez votre bracelet ou montez sur la balance pour obtenir des recommandations personnalisees."})
+                     "detail": "Portez votre bracelet ou montez sur la balance pour des recommandations personnalisees."})
 
     return plan
 
@@ -826,14 +862,14 @@ async def get_daily_report(user=Depends(get_current_user)):
     # If no meaningful data despite having device_readings, treat as no_data
     if si.get("no_data"):
         ai_no_data = await gen_ai(d, si, nora_ctx)
-        plan = compute_daily_plan(d, si)
+        plan = await compute_daily_plan_async(d, si, uid)
         return {"no_data": True, "data": d, "score_info": si,
                 "score": 0, "status": "Aucune donnee", "status_color": "#6B7280",
                 "subscores": si.get("subscores", {}), "lifts": [], "limits": [],
                 "ai": ai_no_data, "daily_plan": plan, "sparklines": {}, "weighings": []}
 
     ai = await gen_ai(d, si, nora_ctx)
-    plan = compute_daily_plan(d, si)
+    plan = await compute_daily_plan_async(d, si, uid)
 
     # Build sparklines from REAL 7-day reading history
     sparks = {}
