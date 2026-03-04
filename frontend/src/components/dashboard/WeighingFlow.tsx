@@ -80,6 +80,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
   const weightsRef = useRef<number[]>([]);
   const stableTimerRef = useRef<any>(null);
   const lastWeightRef = useRef(0);
+  const lastPacketTimeRef = useRef(Date.now());
   const stableCountRef = useRef(0);
 
   // Detect weight stabilization (step 3 → step 5 auto-analysis)
@@ -114,27 +115,29 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
     return () => { clearInterval(iv); clearTimeout(timeout); };
   }, [step]);
 
-  // Analysis phase (step 5): wait for impedance data or timeout after 60s
+  // Analysis phase (step 5): wait for BLE silence (balance stopped) or timeout 30s
   useEffect(() => {
     if (step !== 5) return;
+    lastPacketTimeRef.current = Date.now();
     const startTime = Date.now();
     const iv = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      setCountdown(elapsed); // count UP for display
-      // If impedance received, finalize
-      if (hasImpedance && impedance > 0) {
+      const silenceMs = Date.now() - lastPacketTimeRef.current;
+      setCountdown(elapsed);
+      // Balance stopped sending data (3s silence) = analysis complete
+      if (elapsed > 5 && silenceMs > 3000) {
         clearInterval(iv);
         finalizeMeasurement();
         return;
       }
-      // Timeout after 60s: finalize with what we have
-      if (elapsed >= 60) {
+      // Hard timeout 30s
+      if (elapsed >= 30) {
         clearInterval(iv);
         finalizeMeasurement();
       }
-    }, 1000);
+    }, 500);
     return () => clearInterval(iv);
-  }, [step, hasImpedance, impedance]);
+  }, [step]);
 
   const startBleScan = async () => {
     setStep(2);
@@ -177,6 +180,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                   if (parsed.hasImpedance) setHasImpedance(true);
                   if (parsed.stable) setStableWeight(parsed.weight);
                   setRawDebug(`${bytes.length}B: ${parsed.rawHex} → ${parsed.weight}kg${parsed.hasImpedance ? ' +IMP' : ''}`);
+                  lastPacketTimeRef.current = Date.now();
                 }
               });
               notifyStarted = true;
@@ -318,52 +322,49 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
           </div>
         )}
 
-        {/* ── STEP 5: Full Body Analysis (video) ── */}
+        {/* ── STEP 5: Full Body Analysis (clinical white) ── */}
         {step === 5 && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 100000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}>
-            <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src={VIDEO_BG} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Analyse corporelle en cours</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>Maintenez le manche et restez immobile</div>
-              <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', marginBottom: 20 }}>{stableWeight}<span style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)' }}> kg</span></div>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 100000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#FAFBFC' } as any}>
+            <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: '0 24px' } as any}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#111827', marginBottom: 6, letterSpacing: -0.3 }}>Analyse corporelle</div>
+              <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 24 }}>Maintenez le manche et restez immobile</div>
+              <div style={{ fontSize: 52, fontWeight: 900, color: '#111827', marginBottom: 24 }}>{stableWeight}<span style={{ fontSize: 18, color: '#D1D5DB' }}> kg</span></div>
 
-              {/* Animated analysis ring */}
-              <div style={{ width: 120, height: 120, borderRadius: 60, border: '3px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', position: 'relative' } as any}>
-                <div style={{ position: 'absolute', inset: -2, borderRadius: 60, border: '3px solid transparent', borderTopColor: '#A78BFA', borderRightColor: '#22D3EE', animation: 'spin 1.5s linear infinite' } as any} />
-                <div style={{ position: 'absolute', inset: 6, borderRadius: 54, border: '2px solid transparent', borderBottomColor: '#10B981', borderLeftColor: '#F59E0B', animation: 'spin 2.5s linear infinite reverse' } as any} />
-                <div style={{ textAlign: 'center' } as any}>
-                  <i className="ri-body-scan-line" style={{ fontSize: 28, color: '#A78BFA', display: 'block', marginBottom: 2 }} />
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{countdown}s</div>
-                </div>
+              {/* Clinical scanning animation */}
+              <div style={{ width: 140, height: 140, borderRadius: 70, background: '#F3F4F6', border: '2px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 28px', position: 'relative', overflow: 'hidden' } as any}>
+                <div style={{ position: 'absolute', inset: 0, borderRadius: 70, border: '3px solid transparent', borderTopColor: '#6366F1', animation: 'spin 1.2s linear infinite' } as any} />
+                <div style={{ position: 'absolute', inset: 8, borderRadius: 62, border: '2px solid transparent', borderBottomColor: '#10B981', animation: 'spin 2s linear infinite reverse' } as any} />
+                <div style={{ position: 'absolute', width: '100%', height: 2, background: 'linear-gradient(90deg, transparent, #6366F1, transparent)', animation: 'scanLine 2s ease-in-out infinite' } as any} />
+                <i className="ri-body-scan-line" style={{ fontSize: 36, color: '#6366F1', position: 'relative', zIndex: 1 }} />
               </div>
 
-              {/* Analysis progress indicators */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 260, margin: '0 auto 20px' } as any}>
+              {/* Progress steps */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 280, margin: '0 auto 28px' } as any}>
                 {[
-                  { label: 'Poids', done: true, color: '#10B981' },
-                  { label: 'Composition corporelle', done: hasImpedance, color: '#A78BFA' },
-                  { label: 'Analyse complete', done: false, color: '#22D3EE' },
+                  { label: 'Poids mesure', done: true },
+                  { label: 'Analyse composition corporelle', done: hasImpedance },
+                  { label: 'Calcul des indicateurs', done: false },
                 ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                    <div style={{ width: 20, height: 20, borderRadius: 10, background: item.done ? `${item.color}30` : 'rgba(255,255,255,0.06)', border: `1.5px solid ${item.done ? item.color : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                      {item.done ? <i className="ri-check-line" style={{ fontSize: 11, color: item.color }} /> : <div style={{ width: 6, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.2)', animation: 'pulse 1.5s infinite' } as any} />}
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                    <div style={{ width: 24, height: 24, borderRadius: 12, background: item.done ? '#10B981' : '#F3F4F6', border: `2px solid ${item.done ? '#10B981' : '#E5E7EB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      {item.done ? <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} /> : <div style={{ width: 8, height: 8, borderRadius: 4, background: '#D1D5DB', animation: 'pulse 1.5s infinite' } as any} />}
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: item.done ? 700 : 500, color: item.done ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{item.label}</span>
+                    <span style={{ fontSize: 14, fontWeight: item.done ? 600 : 400, color: item.done ? '#111827' : '#9CA3AF' }}>{item.label}</span>
                   </div>
                 ))}
               </div>
 
-              <div onClick={closeAndCleanup} style={{ padding: '14px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler</div>
+              <div style={{ fontSize: 11, color: '#D1D5DB', marginBottom: 20 }}>Analyse en cours... {countdown}s</div>
+              <div onClick={closeAndCleanup} style={{ padding: '12px 28px', borderRadius: 999, background: '#F3F4F6', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#6B7280' } as any}>Annuler</div>
             </div>
-            <style dangerouslySetInnerHTML={{ __html: '@keyframes pulse{0%,100%{opacity:0.2;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}' }} />
+            <style dangerouslySetInnerHTML={{ __html: '@keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1.1)}} @keyframes scanLine{0%{top:10%;opacity:0}20%{opacity:1}80%{opacity:1}100%{top:90%;opacity:0}}' }} />
           </div>
         )}
 
         {/* ── STEP 6: Results ── */}
         {step === 6 && (() => {
           const w = result?.weight || stableWeight || liveWeight || 0;
-          const r = result || {};
+          const r = result?.data || result || {};
           const historyData = [...weighings.slice(0, 9).map((h: any) => h.weight || 0).reverse(), w].filter(v => v > 0);
           const hasHistory = historyData.length > 1;
           const prevWeight = weighings.length > 0 ? weighings[0].weight : 0;
@@ -379,14 +380,23 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                   <span style={{ fontSize: 12, fontWeight: 700, color: diff > 0 ? '#EF4444' : '#10B981' }}>{diff > 0 ? '+' : ''}{diff.toFixed(1)} kg</span>
                 </div>
               )}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 20, marginBottom: 20 } as any}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 20, marginBottom: 20 } as any}>
                 {[
-                  { label: 'Graisse', value: r.body_fat_pct ? `${r.body_fat_pct}%` : '--', color: '#F59E0B' },
-                  { label: 'Muscle', value: r.muscle_pct ? `${r.muscle_pct}%` : '--', color: '#10B981' },
-                  { label: 'Hydratation', value: r.water_pct ? `${r.water_pct}%` : '--', color: '#38BDF8' },
-                  { label: 'IMC', value: r.bmi ? `${r.bmi}` : '--', color: '#A78BFA' },
+                  { label: 'IMC', value: r.bmi || result?.bmi, unit: '', color: '#6366F1', icon: 'ri-scales-2-line' },
+                  { label: 'Graisse', value: r.body_fat_pct || result?.body_fat_pct, unit: '%', color: '#F59E0B', icon: 'ri-drop-line' },
+                  { label: 'Muscle', value: r.muscle_pct || (result?.muscle_mass ? Math.round(result.muscle_mass / w * 100 * 10) / 10 : 0), unit: '%', color: '#10B981', icon: 'ri-heart-pulse-line' },
+                  { label: 'Hydratation', value: r.water_pct || result?.hydration_pct, unit: '%', color: '#38BDF8', icon: 'ri-drop-fill' },
+                  { label: 'Masse osseuse', value: r.bone_mass_kg || result?.bone_mass, unit: 'kg', color: '#A78BFA', icon: 'ri-shield-line' },
+                  { label: 'Graisse visc.', value: r.visceral_fat || result?.visceral_fat, unit: '', color: '#EF4444', icon: 'ri-fire-line' },
+                  { label: 'Metabolisme', value: r.basal_metabolism || result?.basal_metabolism, unit: 'kcal', color: '#F97316', icon: 'ri-flashlight-line' },
+                  { label: 'Proteines', value: r.protein_pct || result?.protein_pct, unit: '%', color: '#14B8A6', icon: 'ri-leaf-line' },
+                  { label: 'Age corporel', value: r.body_age || result?.body_age, unit: 'ans', color: '#8B5CF6', icon: 'ri-time-line' },
                 ].map((m, i) => (
-                  <div key={i} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' } as any}><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>{m.label}</div><div style={{ fontSize: 18, fontWeight: 900, color: m.value === '--' ? 'rgba(255,255,255,0.2)' : m.color }}>{m.value}</div></div>
+                  <div key={i} style={{ padding: '10px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' } as any}>
+                    <i className={m.icon} style={{ fontSize: 14, color: m.color, display: 'block', marginBottom: 4 }} />
+                    <div style={{ fontSize: 16, fontWeight: 900, color: m.value ? m.color : 'rgba(255,255,255,0.15)' }}>{m.value || '--'}{m.value ? <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{m.unit}</span> : ''}</div>
+                    <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{m.label}</div>
+                  </div>
                 ))}
               </div>
 

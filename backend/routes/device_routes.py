@@ -439,8 +439,8 @@ async def ble_scale_measurement(body: dict, user=Depends(get_current_user)):
         sex = 1 if user.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 2
         body_data = await calculate_body_data(weight, impedance, height, age, sex)
     
-    # Use local BIA formulas as fallback if API fails
-    if not body_data and impedance and weight > 0:
+    # Use local BIA formulas as fallback
+    if not body_data and weight > 0:
         height = user.get('height_cm', 170) / 100
         age = 50
         sex = 1 if user.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 2
