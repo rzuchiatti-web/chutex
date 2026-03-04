@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import AlertBanner from '../../src/components/dashboard/AlertBanner';
 import VitalsRow from '../../src/components/dashboard/VitalsRow';
-import ActivitySleep from '../../src/components/dashboard/ActivitySleep';
+import ActivityCard from '../../src/components/dashboard/ActivityCard';
 import CopilotCard from '../../src/components/dashboard/CopilotCard';
 import DeviceCards from '../../src/components/dashboard/DeviceCards';
 import FullScreenLoader from '../../src/components/FullScreenLoader';
@@ -45,6 +45,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [showAddGuardianPopup, setShowAddGuardianPopup] = useState(false);
   const [teamInvitations, setTeamInvitations] = useState<any[]>([]);
   const [streakData, setStreakData] = useState<any>(null);
+  const [activityStreakData, setActivityStreakData] = useState<any>({ current_streak: 0, max_streak: 0, objectives_today: [], badge: null });
   const [predictiveAlerts, setPredictiveAlerts] = useState<any[]>([]);
   const [inviteGuardPhone, setInviteGuardPhone] = useState('');
   const [inviteGuardRelationship, setInviteGuardRelationship] = useState('');
@@ -157,9 +158,10 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         if (cat?.programs) setProgramCatalog(cat.programs);
         // Fetch team invitations
         apiFetch('/api/programs/team/invitations', {}, token).then(inv => { if (Array.isArray(inv)) setTeamInvitations(inv); }).catch(() => {});
-        // Daily checkin + streak + predictive alerts
+        // Daily checkin + streak + predictive alerts + activity streak
         apiFetch('/api/nora/checkin-daily', { method: 'POST' }, token).then(s => { if (s) setStreakData(s); }).catch(() => {});
         apiFetch('/api/nora/predictive-check', {}, token).then(p => { if (p?.alerts) setPredictiveAlerts(p.alerts); }).catch(() => {});
+        apiFetch('/api/health/activity-streak', {}, token).then(s => { if (s) setActivityStreakData(s); }).catch(() => {});
       } catch {}
     } catch {} finally { setLoading(false); setRefreshing(false); }
     // Fetch alerts separately to ensure it always runs
@@ -411,8 +413,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
-          {/* ── 3. ACTIVITE + SOMMEIL ── */}
-            <ActivitySleep br={br} sl={sl} />
+          {/* ── 3. ACTIVITE (remplace activite + sommeil) ── */}
+            <ActivityCard steps={br.steps || 0} calories={br.calories || 0} distance={br.distance_km || 0} streak={activityStreakData} />
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
