@@ -3,90 +3,149 @@ import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiFetch } from '../../src/services/api';
 import NativePageView from '../../src/components/NativePageView';
+import ProgramDailyView from '../../src/components/ProgramDailyView';
 import { useRouter } from 'expo-router';
+import { BG_IMAGES } from '../../src/components/dashboard/constants';
 
-const PROG_IMAGES: any = {
-  'prog-sleep-21': 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/8x2d3bbk_hearth%20red%20app%20healthbeat%20Chutex.png',
-  'prog-tension-14': 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png',
-  'prog-activity-30': 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png',
+const CATEGORY_ICONS: Record<string, string> = {
+  sommeil: 'ri-moon-line', cardiovasculaire: 'ri-heart-pulse-line', stress: 'ri-mental-health-line',
+  nutrition: 'ri-restaurant-line', mobilite: 'ri-walk-line', all: 'ri-apps-2-line',
 };
 
 export default function ProgramsTab() {
-  const { token, user } = useAuth();
+  const { token } = useAuth();
   const router = useRouter();
-  const [programs, setPrograms] = useState<any[]>([]);
-  const [active, setActive] = useState<any>(null);
+  const [activeProgram, setActiveProgram] = useState<any>(null);
+  const [catalog, setCatalog] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasDevices, setHasDevices] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
-  useEffect(() => {
-    Promise.all([
-      apiFetch('/api/programs/catalog', {}, token).catch(() => ({ programs: [] })),
-      apiFetch('/api/programs/active', {}, token).catch(() => null),
-    ]).then(([cat, act]) => {
-      setPrograms(cat?.programs || []);
-      if (act?.active) setActive(act);
-      setLoading(false);
-    });
-  }, [token]);
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [prog, cat, dev] = await Promise.all([
+        apiFetch('/api/programs/active', {}, token).catch(() => null),
+        apiFetch('/api/programs/catalog', {}, token).catch(() => null),
+        apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
+      ]);
+      if (prog) setActiveProgram(prog);
+      if (cat?.programs) setCatalog(cat.programs);
+      if (dev?.bracelet || dev?.scale) setHasDevices(true);
+    } catch {} finally { setLoading(false); }
+  };
+
+  useEffect(() => { loadData(); }, []);
 
   if (Platform.OS !== 'web') return <NativePageView path="/(tabs)/chat" />;
 
-  const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
+  const categories = ['all', ...Array.from(new Set(catalog.map((p: any) => p.category).filter(Boolean)))];
+  const visibleCatalog = catalog.filter((p: any) => selectedCategory === 'all' || p.category === selectedCategory);
+  const remainingPrograms = visibleCatalog.filter((p: any) => !activeProgram?.active || p.id !== activeProgram?.program?.id);
+  const singleProgramLock = !!activeProgram?.active;
 
   return (
-    <div data-testid="programs-tab" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
-      <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
+    <div data-testid="programs-tab" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
+      <img src={BG_IMAGES.beneficiary} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
 
-      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 120px', WebkitOverflowScrolling: 'touch' } as any}>
-        <div style={{ marginBottom: 24 } as any}>
-          <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 6, letterSpacing: -0.5 }}>Programmes</div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>Transforme ta sante avec des programmes guides et personnalises par l'IA.</div>
-        </div>
+      <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px 20px 120px' } as any}>
 
-        {/* Active program banner */}
-        {active && (
-          <div onClick={() => router.push('/(tabs)/health' as any)} style={{ padding: '16px 18px', borderRadius: 20, background: `${active.program.color}12`, border: `1px solid ${active.program.color}30`, marginBottom: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-            <div style={{ width: 44, height: 44, borderRadius: 14, background: `${active.program.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-              <i className={active.program.icon} style={{ fontSize: 22, color: active.program.color }} />
-            </div>
-            <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: active.program.color, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>Programme en cours</div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{active.program.title}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Jour {active.current_day}/{active.program.duration_days}</div>
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: active.program.color }}>{active.progress_pct}%</div>
+          {/* Header */}
+          <div style={{ marginBottom: 24 } as any}>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', letterSpacing: -0.5 }}>Programmes</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Parcours prevention personnalises</div>
           </div>
-        )}
 
-        {/* Program cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 } as any}>
-          {programs.map((p: any) => (
-            <div key={p.id} data-testid={`prog-card-${p.id}`} onClick={() => router.push({ pathname: '/program-detail', params: { id: p.id } } as any)}
-              style={{ borderRadius: 20, overflow: 'hidden', cursor: 'pointer', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'stretch', minHeight: 120, transition: 'transform 0.2s' } as any}
-              onMouseEnter={(e: any) => e.currentTarget.style.transform='translateY(-2px)'}
-              onMouseLeave={(e: any) => e.currentTarget.style.transform=''}>
-              {/* Left color accent + image */}
-              <div style={{ width: 110, background: `${p.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', flexShrink: 0 } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 16, background: `${p.color}18`, border: `1px solid ${p.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className={p.icon} style={{ fontSize: 28, color: p.color }} />
-                </div>
-              </div>
-              {/* Content */}
-              <div style={{ flex: 1, padding: '16px 16px 16px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 4, lineHeight: 1.2 }}>{p.title}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.4, marginBottom: 10 }}>{p.subtitle || p.description?.slice(0, 60) + '...'}</div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-                  <span style={{ padding: '3px 10px', borderRadius: 99, background: `${p.color}12`, border: `1px solid ${p.color}20`, fontSize: 10, fontWeight: 700, color: p.color }}>{p.duration_days} jours</span>
-                  {p.difficulty && <span style={{ padding: '3px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>{p.difficulty}</span>}
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)', marginLeft: 'auto' }} />
-                </div>
-              </div>
+          {/* ══ PROGRAMME ACTIF — Check-in quotidien ══ */}
+          {activeProgram?.active && token && (
+            <div style={{ marginBottom: 24 } as any}>
+              <ProgramDailyView token={token} onStop={() => { setActiveProgram(null); loadData(); }} />
             </div>
-          ))}
-        </div>
+          )}
 
-        {loading && <div style={{ textAlign: 'center', padding: '40px 0', fontSize: 14, color: 'rgba(255,255,255,0.3)' } as any}>Chargement...</div>}
+          {/* ══ CATALOGUE ══ */}
+          <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 } as any}>
+            {singleProgramLock ? 'Autres programmes' : 'Catalogue'}
+          </div>
+
+          {/* Category filters */}
+          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 4, marginBottom: 14 } as any}>
+            {categories.map((cat: string) => {
+              const active = selectedCategory === cat;
+              const icon = CATEGORY_ICONS[cat] || 'ri-price-tag-3-line';
+              return (
+                <div key={cat} data-testid={`program-category-${cat}`} onClick={() => setSelectedCategory(cat)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 999, cursor: 'pointer', whiteSpace: 'nowrap', background: active ? 'rgba(16,185,129,0.14)' : 'rgba(255,255,255,0.05)', border: `1px solid ${active ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}`, fontSize: 11, fontWeight: 700, color: active ? '#34D399' : 'rgba(255,255,255,0.45)', textTransform: 'capitalize', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+                  <i className={icon} style={{ fontSize: 12 }} />
+                  {cat === 'all' ? 'Tous' : cat}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Warnings */}
+          {!hasDevices && !singleProgramLock && (
+            <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              <i className="ri-bluetooth-connect-line" style={{ fontSize: 18, color: '#F59E0B' }} />
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>Connectez un appareil pour demarrer un programme.</div>
+            </div>
+          )}
+          {singleProgramLock && (
+            <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.15)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              <i className="ri-lock-line" style={{ fontSize: 14, color: '#7DD3FC' }} />
+              <div style={{ fontSize: 11, color: '#7DD3FC', fontWeight: 600 }}>Terminez le programme actif pour en lancer un autre.</div>
+            </div>
+          )}
+
+          {/* Loading */}
+          {loading && (
+            <div style={{ padding: '28px', textAlign: 'center' } as any}>
+              <div style={{ width: 28, height: 28, borderRadius: 14, border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#10B981', animation: 'spin 800ms linear infinite', margin: '0 auto 10px' } as any} />
+              <style dangerouslySetInnerHTML={{ __html: '@keyframes spin{to{transform:rotate(360deg)}}' }} />
+            </div>
+          )}
+
+          {/* Program cards */}
+          {remainingPrograms.map((p: any) => {
+            const locked = singleProgramLock;
+            return (
+              <div key={p.id} data-testid={`catalog-${p.id}`}
+                onClick={() => {
+                  if (locked) return;
+                  if (!hasDevices) { router.push('/(tabs)/devices' as any); return; }
+                  router.push({ pathname: '/program-detail' as any, params: { id: p.id } });
+                }}
+                style={{ padding: '18px 20px', borderRadius: 22, position: 'relative', marginBottom: 10, cursor: locked ? 'not-allowed' : 'pointer', opacity: locked ? 0.35 : 1, border: `1px solid ${p.color}15`, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 180ms' } as any}
+                onMouseEnter={(e: any) => { if (!locked) e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 } as any}>
+                  <div style={{ width: 48, height: 48, borderRadius: 16, background: `${p.color}12`, border: `1px solid ${p.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className={p.icon} style={{ fontSize: 24, color: p.color }} />
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{p.title}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{p.subtitle}</div>
+                  </div>
+                  {!locked && <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} />}
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
+                  <span style={{ padding: '4px 10px', borderRadius: 99, background: `${p.color}10`, border: `1px solid ${p.color}18`, fontSize: 10, fontWeight: 700, color: p.color }}>{p.duration_days}j</span>
+                  {p.difficulty && <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>{p.difficulty}</span>}
+                  {p.category && <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'capitalize' }}>{p.category}</span>}
+                </div>
+              </div>
+            );
+          })}
+
+          {!loading && remainingPrograms.length === 0 && (
+            <div style={{ padding: '28px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              <i className="ri-search-line" style={{ fontSize: 24, color: 'rgba(255,255,255,0.15)', marginBottom: 8, display: 'block' }} />
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Aucun programme dans cette categorie.</div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

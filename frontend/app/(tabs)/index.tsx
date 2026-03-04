@@ -433,7 +433,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── 4. PROGRAMME EN COURS ── */}
           {activeProgram?.active ? (
-            <div data-testid="active-program-card" onClick={() => router.push('/programs' as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: `1px solid ${activeProgram.program.color}20`, padding: '18px', marginBottom: 10, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer' } as any}>
+            <div data-testid="active-program-card" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: `1px solid ${activeProgram.program.color}20`, padding: '18px', marginBottom: 10, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
                 <div style={{ width: 44, height: 44, borderRadius: 14, background: `${activeProgram.program.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                   <i className={activeProgram.program.icon} style={{ fontSize: 22, color: activeProgram.program.color }} />
@@ -460,7 +460,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               )}
             </div>
           ) : (
-            <div data-testid="discover-programs" onClick={() => router.push('/programs' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '14px 16px', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+            <div data-testid="discover-programs" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '14px 16px', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
               <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                 <i className="ri-road-map-line" style={{ fontSize: 18, color: '#A78BFA' }} />
               </div>
