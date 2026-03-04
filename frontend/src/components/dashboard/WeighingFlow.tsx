@@ -142,8 +142,8 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
       const silenceMs = Date.now() - lastPacketTimeRef.current;
       setCountdown(elapsed);
-      // After 10s minimum, if 5s without any BLE packet = balance done
-      if (elapsed > 10 && silenceMs > 5000) { finish(); return; }
+      // After 20s minimum, if 12s without any BLE packet = balance done
+      if (elapsed > 20 && silenceMs > 12000) { finish(); return; }
       // Hard timeout 120s
       if (elapsed >= 120) finish();
     }, 500);
