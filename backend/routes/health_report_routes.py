@@ -252,7 +252,7 @@ def evaluate_objectives_met(d):
 
 
 async def compute_daily_plan_async(d, score_info, uid):
-    """Generate DAILY actionable objectives only. No long-term body goals."""
+    """Generate DAILY actionable objectives. Nora sets defaults, user can override."""
     from database import db
 
     if score_info.get("no_data") or not _has_meaningful_data(d):
@@ -272,16 +272,15 @@ async def compute_daily_plan_async(d, score_info, uid):
         for gl in goals_list:
             user_goals[gl.get("metric_id", "")] = gl
 
-    # CALORIE INTAKE: Based on basal metabolism — always actionable
+    # CALORIE INTAKE: Based on basal metabolism
     bm = g("basal_metabolism", 0)
     if bm > 0:
-        # Recommend slightly above basal for healthy maintenance
         rec_cal = round(bm * 1.2)
         plan.append({"key": "calories_intake", "label": "Calories a consommer", "value": f"{rec_cal}", "unit": "kcal",
                      "status": "objectif", "icon": "ri-restaurant-line", "color": "#F59E0B",
                      "detail": f"Base sur votre metabolisme de {bm} kcal."})
 
-    # HYDRATION: Actionable — drink water today
+    # HYDRATION: Drink water today
     wp = g("water_pct")
     if wp > 0:
         water_goal = 1.5 if wp >= 55 else 2.0
@@ -289,37 +288,44 @@ async def compute_daily_plan_async(d, score_info, uid):
                      "status": "OK" if wp >= 55 else "priorite",
                      "icon": "ri-drop-line", "color": "#38BDF8",
                      "detail": f"Hydratation actuelle: {wp}%."})
+    else:
+        plan.append({"key": "hydration", "label": "Eau a boire", "value": "1.5L", "unit": "minimum",
+                     "status": "objectif", "icon": "ri-drop-line", "color": "#38BDF8",
+                     "detail": "Buvez au minimum 1.5L d'eau par jour."})
 
-    # STEPS: Only if user set their own goal
+    # STEPS: User goal if set, otherwise Nora recommends 6000
     steps = g("steps")
+    user_step_goal = user_goals.get("steps", {}).get("goal")
+    step_goal = user_step_goal or 6000
     if steps > 0:
-        user_step_goal = user_goals.get("steps", {}).get("goal")
-        if user_step_goal:
-            plan.append({"key": "steps", "label": "Objectif pas", "value": f"{user_step_goal}", "unit": "pas",
-                         "status": "atteint" if steps >= user_step_goal else "en cours",
-                         "progress": min(100, round(steps / max(1, user_step_goal) * 100)),
-                         "icon": "ri-footprint-line", "color": "#10B981",
-                         "detail": f"{steps} pas sur {user_step_goal}."})
+        plan.append({"key": "steps", "label": "Objectif pas", "value": f"{step_goal}", "unit": "pas",
+                     "status": "atteint" if steps >= step_goal else "en cours",
+                     "progress": min(100, round(steps / max(1, step_goal) * 100)),
+                     "icon": "ri-footprint-line", "color": "#10B981",
+                     "detail": f"{steps} pas sur {step_goal}."})
+    else:
+        plan.append({"key": "steps", "label": "Objectif pas", "value": f"{step_goal}", "unit": "pas",
+                     "status": "objectif", "icon": "ri-footprint-line", "color": "#10B981",
+                     "detail": f"Visez {step_goal} pas aujourd'hui."})
 
-    # SLEEP: Go to bed at X — actionable tonight
+    # SLEEP: Always recommend a bedtime
     sq = g("sleep_quality")
     if sq > 0:
         bed = "22:30" if sq < 80 else "23:00"
         plan.append({"key": "sleep", "label": "Coucher conseille", "value": bed, "unit": "",
                      "status": "conseil", "icon": "ri-moon-line", "color": "#A78BFA",
                      "detail": f"Qualite de sommeil: {sq}%."})
+    else:
+        plan.append({"key": "sleep", "label": "Coucher conseille", "value": "22:30", "unit": "",
+                     "status": "conseil", "icon": "ri-moon-line", "color": "#A78BFA",
+                     "detail": "Un coucher regulier avant 23h ameliore la recuperation."})
 
-    # STRESS: Actionable — relax today
+    # STRESS: Relax today if stress is high
     stress = g("stress_level")
     if stress > 40:
         plan.append({"key": "stress", "label": "Relaxation", "value": "10 min", "unit": "respiration",
                      "status": "recommande", "icon": "ri-mental-health-line", "color": "#8B5CF6",
                      "detail": f"Stress a {stress}/100. Prenez 10 min de respiration profonde."})
-
-    if not plan:
-        plan.append({"key": "measure", "label": "Realiser une mesure", "value": "--", "unit": "", "status": "en attente",
-                     "icon": "ri-pulse-line", "color": "#3B82F6",
-                     "detail": "Portez votre bracelet ou montez sur la balance pour des recommandations personnalisees."})
 
     return plan
 
