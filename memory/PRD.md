@@ -19,46 +19,33 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
+### Mar 4, 2026 - Dashboard Device Cards → Navigation + Weight Trend Chart
+- **Dashboard device cards**: Clic sur une carte dispositif navigue vers la page Dispositifs (suppression des 3 popups bracelet/gilet/balance). DeviceCards.tsx 397 → 279 lignes.
+- **Mini graphique tendance poids**: SVG line chart dans le step 4 du WeighingFlow montrant les 5-10 dernieres pesees avec gradient, badge tendance (+/- kg), et point courant.
+- Tests: iteration_85 - Frontend 85% (6/7 PASS, 1 issue Playwright navigation timing)
+
 ### Mar 4, 2026 - Refactoring devices.tsx + Fix Balance Card
-- **Refactoring complet de `devices.tsx`**: 1773 lignes -> 49 lignes (routeur fin)
-- **Composants extraits**: PrescriptionManagement (914L), CompanyPrescriptionsTab (415L), AdminPrescripteurs (243L), RewardsCard (117L), SubscribersList (69L)
-- **Fix Balance Card**: Bouton "Pesees" retire de la carte balance, seul "Nouvelle pesee" + info reste
-- **Fix WeighingFlow**: "Nouvelle pesee" ouvre maintenant le WeighingFlow (avant: lancait BLE scan directement)
-- **Fix WeighingFlow Step**: "Je suis pret" va directement au countdown video 15s (saut step 2 bloque)
-- Tests: iteration_84 - Frontend 100% (14/14 features verified)
+- Refactoring complet de `devices.tsx`: 1773 → 49 lignes. 5 composants extraits.
+- Fix carte balance: "Pesees" retire, "Nouvelle pesee" ouvre WeighingFlow.
+- Fix WeighingFlow: step 1 → step 3 direct (15s video countdown).
+- Tests: iteration_84 - Frontend 100%
 
 ### Mar 4, 2026 - 3 UI/UX Guardian Fixes
-- **Bug Fix**: Popup notifications manquant dans dashboard gardien web
-- **UI verified**: Beneficiary detail page + Guardian popup
+- Bug Fix: Popup notifications dashboard gardien web.
 - Tests: iteration_83 - Frontend 100%
 
 ### Mar 4, 2026 - Fix recommendations Nora sans donnees
-- Sanitisation donnees, suppression simulation sommeil, fallback IA
 - Tests: iteration_82 - Backend 11/11, Frontend 100%
 
-### Mar 3, 2026 - Refactoring devices.tsx (partiel)
-- DeviceManagement extracte avec hooks + composants
-- Tests: iteration_81 - Frontend 10/10 (100%)
+### Mar 3, 2026 - Refactoring + Push Notifs + Programmes + Alertes + Safe Zones
+- Tests: iterations 70-81 - 100%
 
-### Mar 3, 2026 - Push Notifications + Refonte Programmes
-- Push Notifications safe zone + Programmes refonte complete
-- Tests: iteration_80 - Backend 7/7 + Frontend 100%
-
-### Mar 3, 2026 - Bug Fix Alertes + UI beneficiaire + Safe Zones + Location
-- Corrige crash alertes, badge gilet, refonte fiche beneficiaire
-- Safe zones CRUD, permission localisation, popup glass
-- Tests: iterations 70-79 - 100%
-
-### Mar 2, 2026 - BLE + Suppression Simulation + Appairage Reel
-- Gilet, bracelet BLE reel, suppression totale simulation
-
-### Mar 1-2, 2026 - Programmes, Nora IA, Fonctionnalites Avancees
-- 10 programmes prevention, Nora contextuelle, streaks, alertes predictives
+### Mar 1-2, 2026 - BLE + Simulation Removal + Programs + Nora IA
 
 ## Upcoming Tasks
 - P0: Validation utilisateur BLE en conditions reelles
 - P1: Test iOS TestFlight complet du bridge BLE natif
-- P2: Regression UI globale roles gardien/SAAD/admin
+- P2: Regression UI globale
 
 ## Future/Backlog
 - Systeme de parrainage gardien
@@ -66,20 +53,10 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Face ID / biometrie
 - Integration EBP comptable
 - Mode hors-ligne intervenants
-- Deploiement production
-
-> Decision produit: **Rapport PDF sante partageable retire du scope**.
 
 ## Key Files
-- `frontend/app/(tabs)/devices.tsx`: Routeur fin (49 lignes) - importe les composants
-- `frontend/src/components/devices/DeviceManagement.tsx`: Gestion appareils BLE
-- `frontend/src/components/devices/DeviceCard.tsx`: Carte appareil individuel
-- `frontend/src/components/devices/PrescriptionManagement.tsx`: Espace prescripteur gardien
-- `frontend/src/components/devices/AdminPrescripteurs.tsx`: Admin prescripteurs
-- `frontend/src/components/devices/CompanyPrescriptionsTab.tsx`: SAAD prescriptions
-- `frontend/src/components/devices/SubscribersList.tsx`: Teleassistance abonnes
-- `frontend/src/components/devices/RewardsCard.tsx`: Challenge prescripteurs
-- `frontend/src/components/dashboard/WeighingFlow.tsx`: Flux de pesee 15s video
+- `frontend/app/(tabs)/devices.tsx`: Routeur fin (49L)
+- `frontend/src/components/devices/*`: Composants dispositifs extraits
+- `frontend/src/components/dashboard/DeviceCards.tsx`: Cartes dispositifs dashboard (279L)
+- `frontend/src/components/dashboard/WeighingFlow.tsx`: Flux pesee + graphique tendance (164L)
 - `frontend/src/components/dashboard/GuardianHome.tsx`: Dashboard gardien + notifications
-- `frontend/app/beneficiary-detail.tsx`: Fiche beneficiaire gardien
-- `backend/services/health_logic.py`: Logique sante + sanitisation
