@@ -13,25 +13,29 @@ interface ActivityCardProps {
 }
 
 function getRecoveryInfo(recovery: number, stress: number, sleepQuality: number, heartRate: number) {
-  // Compute a workout readiness score
-  let readiness = recovery;
-  if (readiness === 0 && (stress > 0 || sleepQuality > 0 || heartRate > 0)) {
-    // Estimate from other data
-    readiness = 50;
-    if (sleepQuality >= 75) readiness += 15;
-    else if (sleepQuality > 0 && sleepQuality < 60) readiness -= 15;
-    if (stress > 60) readiness -= 20;
-    else if (stress > 0 && stress < 30) readiness += 10;
-    if (heartRate > 0 && heartRate < 70) readiness += 10;
-    else if (heartRate > 90) readiness -= 10;
-    readiness = Math.max(0, Math.min(100, readiness));
+  const hasAnyData = recovery > 0 || stress > 0 || sleepQuality > 0 || heartRate > 0;
+  if (!hasAnyData) return { level: 'unknown', pct: 0, color: '#6B7280', barColor: 'rgba(255,255,255,0.08)', note: 'Connectez votre bracelet Elio pour obtenir votre score de recuperation et un avis personnalise sur votre aptitude a l\'effort.' };
+
+  // Use recovery_score directly if available (from bracelet)
+  let pct = recovery;
+  if (pct === 0) {
+    // Estimate from available vitals
+    let score = 50;
+    if (sleepQuality >= 80) score += 20;
+    else if (sleepQuality >= 60) score += 10;
+    else if (sleepQuality > 0 && sleepQuality < 50) score -= 15;
+    if (stress > 70) score -= 25;
+    else if (stress > 50) score -= 10;
+    else if (stress > 0 && stress <= 30) score += 10;
+    if (heartRate > 0 && heartRate <= 65) score += 15;
+    else if (heartRate > 85) score -= 10;
+    pct = Math.max(10, Math.min(100, score));
   }
 
-  if (readiness === 0) return { level: 'unknown', color: '#6B7280', barColor: 'rgba(255,255,255,0.08)', note: 'Connectez votre bracelet Elio pour obtenir votre score de recuperation et un avis personnalise sur votre forme physique.' };
-  if (readiness >= 80) return { level: 'optimal', color: '#10B981', barColor: '#10B981', note: 'Votre recuperation est excellente. C\'est le moment ideal pour une seance de sport intense : course, musculation, ou HIIT. Votre corps est pret.' };
-  if (readiness >= 60) return { level: 'bon', color: '#22D3EE', barColor: '#22D3EE', note: 'Bonne recuperation. Une activite moderee est recommandee : marche rapide, yoga dynamique, ou velo tranquille. Evitez les efforts maximaux.' };
-  if (readiness >= 40) return { level: 'modere', color: '#F59E0B', barColor: '#F59E0B', note: 'Recuperation moyenne. Privilegiez une activite legere : stretching, marche douce ou mobilite articulaire. Votre corps a besoin de repos actif.' };
-  return { level: 'faible', color: '#EF4444', barColor: '#EF4444', note: 'Recuperation insuffisante. Reposez-vous aujourd\'hui. Votre corps a besoin de recuperer. Hydratez-vous bien et couchez-vous tot ce soir.' };
+  if (pct >= 80) return { level: 'optimal', pct, color: '#10B981', barColor: '#10B981', note: 'Excellente recuperation. Seance de sport intense recommandee : course, musculation ou HIIT. Votre corps est pret a l\'effort.' };
+  if (pct >= 60) return { level: 'bon', pct, color: '#22D3EE', barColor: '#22D3EE', note: 'Bonne recuperation. Activite moderee conseillee : marche rapide, yoga dynamique ou velo. Evitez les efforts maximaux.' };
+  if (pct >= 40) return { level: 'modere', pct, color: '#F59E0B', barColor: '#F59E0B', note: 'Recuperation moyenne. Privilegiez le repos actif : stretching, marche douce ou mobilite articulaire.' };
+  return { level: 'faible', pct, color: '#EF4444', barColor: '#EF4444', note: 'Recuperation insuffisante. Reposez-vous aujourd\'hui. Hydratez-vous et couchez-vous tot ce soir.' };
 }
 
 export default function ActivityCard({ steps, calories, distance, recovery = 0, stress = 0, sleepQuality = 0, heartRate = 0, streak }: ActivityCardProps) {
@@ -43,7 +47,6 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
     { label: 'Distance', value: distance, goal: 4, unit: 'km', icon: 'ri-route-line', color: '#38BDF8' },
   ];
   const ri = getRecoveryInfo(recovery, stress, sleepQuality, heartRate);
-  const recoveryPct = recovery > 0 ? recovery : (ri.level !== 'unknown' ? 50 : 0);
 
   return (
     <div data-testid="activity-card" onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: 'activity' } })} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', cursor: 'pointer', transition: 'transform 0.15s, background 0.15s' } as any}
@@ -114,7 +117,7 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
           )}
         </div>
         <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 10 } as any}>
-          <div style={{ height: 8, borderRadius: 4, width: recoveryPct > 0 ? `${recoveryPct}%` : '0%', background: `linear-gradient(90deg, ${ri.barColor}60, ${ri.barColor})`, transition: 'width 0.8s ease', boxShadow: recoveryPct > 0 ? `0 0 10px ${ri.barColor}30` : 'none' } as any} />
+          <div style={{ height: 8, borderRadius: 4, width: ri.pct > 0 ? `${ri.pct}%` : '0%', background: `linear-gradient(90deg, ${ri.barColor}60, ${ri.barColor})`, transition: 'width 0.8s ease', boxShadow: ri.pct > 0 ? `0 0 10px ${ri.barColor}30` : 'none' } as any} />
         </div>
         {/* Nora note */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 } as any}>

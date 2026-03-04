@@ -148,10 +148,11 @@ export default function HealthScreen() {
           {/* 0. Analysis Phase */}
           <AnalysisPhase analysisPhase={analysisPhase} showInfo={showAnalysisInfo} setShowInfo={setShowAnalysisInfo} progressBg={PROGRESS_BG} />
 
-          {/* 1. Hero BioAge */}
-          {!analysisPhase && (hasMeaningfulVitals || hasBodyAge) ? (
+          {/* 1. Hero BioAge — hidden during analysis phase */}
+          {!analysisPhase && (hasMeaningfulVitals || hasBodyAge) && (
             <HeroScore bioAge={noraBodyAge || d.body_age || 0} realAge={user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} bodyAgeNora={bodyAgeNora} />
-          ) : (
+          )}
+          {!analysisPhase && !hasMeaningfulVitals && !hasBodyAge && (
             <div data-testid="health-score-unavailable" style={{ padding: '18px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.22)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
               <div style={{ fontSize: 13, fontWeight: 800, color: '#FCD34D', marginBottom: 6 }}>Score Nora indisponible</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55 }}>
