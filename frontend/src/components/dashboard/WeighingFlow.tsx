@@ -87,6 +87,8 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
 
         {step === 4 && (() => {
           const w = d.weight || 72.4;
+          const historyData = [...weighings.slice(0, 9).map((h: any) => h.weight || 0).reverse(), w];
+          const hasHistory = historyData.length > 1;
           return (
             <div style={{ textAlign: 'center' } as any}>
               <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}><i className="ri-checkbox-circle-line" style={{ fontSize: 28, color: '#10B981' }} /></div>
@@ -97,6 +99,59 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                   <div key={i} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>{m.label}</div><div style={{ fontSize: 18, fontWeight: 900, color: m.color }}>{m.value}</div></div>
                 ))}
               </div>
+
+              {/* Mini weight trend chart */}
+              {hasHistory && (() => {
+                const chartW = 320;
+                const chartH = 90;
+                const min = Math.min(...historyData) - 0.5;
+                const max = Math.max(...historyData) + 0.5;
+                const range = max - min || 1;
+                const pts = historyData.map((v, i) => `${(i / (historyData.length - 1)) * chartW},${chartH - 8 - ((v - min) / range) * (chartH - 16)}`).join(' ');
+                const fillPts = `0,${chartH} ${pts} ${chartW},${chartH}`;
+                const lastIdx = historyData.length - 1;
+                const lastX = chartW;
+                const lastY = chartH - 8 - ((historyData[lastIdx] - min) / range) * (chartH - 16);
+                const prevWeight = historyData.length > 1 ? historyData[lastIdx - 1] : w;
+                const diff = w - prevWeight;
+                return (
+                  <div data-testid="weight-trend-chart" style={{ padding: '16px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 20 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                        <i className="ri-line-chart-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1 }}>Tendance</span>
+                      </div>
+                      {Math.abs(diff) > 0.05 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 999, background: diff > 0 ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)' } as any}>
+                          <i className={diff > 0 ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 12, color: diff > 0 ? '#EF4444' : '#10B981' }} />
+                          <span style={{ fontSize: 10, fontWeight: 700, color: diff > 0 ? '#EF4444' : '#10B981' }}>{diff > 0 ? '+' : ''}{diff.toFixed(1)} kg</span>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ width: '100%', maxWidth: chartW, margin: '0 auto' } as any}>
+                      <svg width="100%" viewBox={`0 0 ${chartW} ${chartH}`} style={{ overflow: 'visible' }}>
+                        <defs>
+                          <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#A78BFA" stopOpacity="0.25" />
+                            <stop offset="100%" stopColor="#A78BFA" stopOpacity="0" />
+                          </linearGradient>
+                        </defs>
+                        <polygon points={fillPts} fill="url(#wg)" />
+                        <polyline points={pts} fill="none" stroke="#A78BFA" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <circle cx={lastX} cy={lastY} r="5" fill="#A78BFA" stroke="#FFF" strokeWidth="2" />
+                        {historyData.map((v, i) => i < lastIdx ? (
+                          <circle key={i} cx={(i / (historyData.length - 1)) * chartW} cy={chartH - 8 - ((v - min) / range) * (chartH - 16)} r="2.5" fill="rgba(167,139,250,0.4)" />
+                        ) : null)}
+                      </svg>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 } as any}>
+                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>{historyData.length - 1} pesee{historyData.length > 2 ? 's' : ''} precedente{historyData.length > 2 ? 's' : ''}</span>
+                      <span style={{ fontSize: 9, color: '#A78BFA', fontWeight: 700 }}>Aujourd'hui</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
               <div onClick={() => { onClose(); router.push({ pathname: '/weighing-report' as any, params: { id: 'w-0' } }); }} style={{ padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF' } as any}>{t('weighing_report')}</div>
             </div>
           );
