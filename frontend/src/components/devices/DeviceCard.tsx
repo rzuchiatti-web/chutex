@@ -61,16 +61,9 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
                 </div>
               )}
               {dt === 'scale' && (
-                <>
-                  <div data-testid="scale-weigh-btn" onClick={onScaleWeighing} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}>
-                    <i className="ri-scales-3-line" style={{ fontSize: 14 }} />Nouvelle pesee
-                  </div>
-                  {hasWeighings && (
-                    <div data-testid="scale-history-btn" onClick={() => onSelectDevice('scale')} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
-                      <i className="ri-history-line" style={{ fontSize: 14 }} />Pesees
-                    </div>
-                  )}
-                </>
+                <div data-testid="scale-weigh-btn" onClick={onScaleWeighing} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}>
+                  <i className="ri-scales-3-line" style={{ fontSize: 14 }} />Nouvelle pesee
+                </div>
               )}
               {dt === 'vest' && (
                 <div data-testid="vest-status" style={{ flex: 1, padding: '11px 14px', borderRadius: 999, background: vestActive ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.12)', border: `1px solid ${vestActive ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: vestActive ? '#10B981' : '#F59E0B' } as any}>

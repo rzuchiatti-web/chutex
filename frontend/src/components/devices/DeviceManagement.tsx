@@ -30,7 +30,11 @@ export function DeviceManagement({ token }: { token: string }) {
     ble.startPairing(dt);
   };
 
-  const handleScaleWeighing = () => {
+  const openWeighingFlow = () => {
+    setShowWeighing(true);
+  };
+
+  const handleScaleWeighingFromPairing = () => {
     setShowWeighing(false);
     ble.launchScaleWeighing();
   };
@@ -63,7 +67,7 @@ export function DeviceManagement({ token }: { token: string }) {
               weighings={weighings}
               onStartPairing={handleStartPairing}
               onSelectDevice={setSelectedDevice}
-              onScaleWeighing={handleScaleWeighing}
+              onScaleWeighing={openWeighingFlow}
             />
           ))}
         </div>
@@ -76,7 +80,7 @@ export function DeviceManagement({ token }: { token: string }) {
             onSetStep={ble.setPairingStep}
             onClose={ble.closePairing}
             onLaunchScan={ble.launchBleScan}
-            onScaleWeighing={() => { ble.closePairing(); handleScaleWeighing(); }}
+            onScaleWeighing={() => { ble.closePairing(); handleScaleWeighingFromPairing(); }}
           />
         )}
 
@@ -118,7 +122,7 @@ export function DeviceManagement({ token }: { token: string }) {
             onClose={() => setSelectedDevice(null)}
             onRemove={handleRemoveDevice}
             onLaunchScan={ble.launchBleScan}
-            onScaleWeighing={handleScaleWeighing}
+            onScaleWeighing={openWeighingFlow}
           />
         )}
 
