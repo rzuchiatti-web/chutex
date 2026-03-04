@@ -19,6 +19,7 @@ function GuidedTask({ task, steps, done, color, onDone, locked }: { task: string
   const hasSteps = steps && steps.length > 0;
 
   const advanceStep = () => {
+    if (locked) return;
     const next = [...stepsDone]; next[currentStep] = true; setStepsDone(next);
     if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
     else { onDone(); setOpen(false); }
@@ -26,8 +27,8 @@ function GuidedTask({ task, steps, done, color, onDone, locked }: { task: string
 
   return (
     <div style={{ marginBottom: 6 } as any}>
-      <div onClick={() => { if (!locked && hasSteps && !done) setOpen(!open); else if (!locked && !hasSteps) onDone(); }}
-        style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 16, cursor: locked ? 'default' : 'pointer', background: done ? `${color}06` : open ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.015)', border: `1px solid ${done ? color + '20' : open ? color + '15' : 'rgba(255,255,255,0.04)'}`, transition: 'all 250ms' } as any}>
+      <div onClick={() => { if (hasSteps) setOpen(!open); else if (!locked) onDone(); }}
+        style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 16, cursor: 'pointer', background: done ? `${color}06` : open ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.015)', border: `1px solid ${done ? color + '20' : open ? color + '15' : 'rgba(255,255,255,0.04)'}`, transition: 'all 250ms' } as any}>
         <div style={{ width: 26, height: 26, borderRadius: 8, border: `2px solid ${done ? color : 'rgba(255,255,255,0.12)'}`, background: done ? `${color}18` : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 250ms' } as any}>
           {done ? <i className="ri-check-line" style={{ fontSize: 15, color }} /> : hasSteps ? <i className="ri-play-mini-fill" style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }} /> : null}
         </div>
