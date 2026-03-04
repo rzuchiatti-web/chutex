@@ -16,7 +16,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://chutex-care-hub.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://health-guardian-43.preview.emergentagent.com')
 
 # Test credentials
 TELEASSISTANCE_USER = {"email": "plateau@chutex.fr", "password": "demo123"}

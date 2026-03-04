@@ -110,6 +110,67 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               </div>
             </div>
           </div>
+          {/* Notifications popup (web) */}
+          {showNotifsG && (
+            <div onClick={() => setShowNotifsG(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                  <div onClick={() => setShowNotifsG(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                </div>
+                <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 } as any}><i className="ri-notification-3-line" style={{ fontSize: 26, color: '#EF4444' }} /></div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Notifications</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>{activeAlertsG.length + invitations.length + pendingInterventions.length} notification{(activeAlertsG.length + invitations.length + pendingInterventions.length) !== 1 ? 's' : ''}</div>
+                </div>
+
+                {activeAlertsG.length === 0 && invitations.length === 0 && pendingInterventions.length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '32px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                    <i className="ri-notification-off-line" style={{ fontSize: 32, color: 'rgba(255,255,255,0.15)', display: 'block', marginBottom: 8 }} />
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Aucune notification</div>
+                  </div>
+                )}
+
+                {activeAlertsG.map((a: any) => (
+                  <div key={a.id} data-testid={`notif-alert-${a.id}`} onClick={() => { setShowNotifsG(false); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 18, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', marginBottom: 8, cursor: 'pointer' } as any}>
+                    <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-alarm-warning-line" style={{ fontSize: 18, color: '#EF4444' }} /></div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{a.beneficiary_name}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{a.message || 'Alerte active'}</div>
+                    </div>
+                    <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#EF4444' }}>URGENT</span></div>
+                  </div>
+                ))}
+
+                {pendingInterventions.map((p: any) => (
+                  <div key={p.id} data-testid={`notif-intervention-${p.id}`} onClick={() => { setShowNotifsG(false); router.push({ pathname: '/intervention-detail', params: { interventionId: p.id } }); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 18, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.18)', marginBottom: 8, cursor: 'pointer' } as any}>
+                    <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-run-line" style={{ fontSize: 18, color: '#F59E0B' }} /></div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Intervention demandee</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{p.beneficiary_name}{p.distance_km ? ` - ${p.distance_km}km` : ''}</div>
+                    </div>
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
+                  </div>
+                ))}
+
+                {invitations.map((inv: any) => (
+                  <div key={inv.id} data-testid={`notif-invitation-${inv.id}`} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.18)', marginBottom: 8 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 } as any}>
+                      <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-user-heart-line" style={{ fontSize: 18, color: '#A78BFA' }} /></div>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Invitation gardien</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{inv.beneficiary_name} vous invite</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 } as any}>
+                      <div onClick={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/accept`, { method: 'POST' }, token); setShowNotifsG(false); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', fontSize: 12, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
+                      <div onClick={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Refuser</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* SAAD affiliation card */}
           {saadLink && (
             <div onClick={() => setShowSaadPopup(true)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 14, cursor: 'pointer' } as any}>

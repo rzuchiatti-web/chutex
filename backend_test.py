@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Backend URL configuration
-BASE_URL = "https://chutex-care-hub.preview.emergentagent.com/api"
+BASE_URL = "https://health-guardian-43.preview.emergentagent.com/api"
 
 # Test credentials (all passwords work)
 TEST_USERS = {
