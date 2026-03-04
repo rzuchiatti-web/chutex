@@ -322,14 +322,14 @@ export default function HealthDetailScreen() {
           );
         })()}
 
-        {/* Nora Analysis for this section */}
-        {(sectionAi || report?.ai) && (() => {
-          const ai = sectionAi || report?.ai;
+        {/* Nora Analysis for this section — ONLY section-specific, never global report.ai */}
+        {sectionAi && (() => {
+          const ai = sectionAi;
           const hasCorrelations = ai?.correlations?.length > 0;
           const hasGood = ai?.whats_good?.length > 0;
           const hasWatch = ai?.watch_out?.length > 0;
-          const isNoData = sectionAi?.no_data === true;
-          const recommendation = sectionAi?.recommendation || '';
+          const isNoData = ai?.no_data === true;
+          const recommendation = ai?.recommendation || '';
 
           return (
           <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '20px', paddingTop: metricId !== 'sleep' ? 60 : 20, marginBottom: 16, position: 'relative', zIndex: 1 } as any}>

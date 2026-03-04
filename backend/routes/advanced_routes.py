@@ -122,10 +122,27 @@ async def send_weekly_report(user=Depends(get_current_user)):
 
 @router.get("/nora/morning-briefing")
 async def get_morning_briefing(user=Depends(get_current_user)):
-    """Generate enriched morning briefing with real data, program info, and Nora advice"""
+    """Generate enriched morning briefing with real data, program info, and Nora advice.
+    Uses the SAME daily_plan as the health page for coherent objectives."""
     uid = user['id']
     nora_ctx = await build_nora_context(user)
     hd = nora_ctx["health_data"]
+
+    # Get the daily_plan from health_report (same as health page)
+    from routes.health_report_routes import compute_daily_plan, compute_subscores, _sanitize_data, _has_meaningful_data, gen_data, evaluate_objectives_met
+    d = gen_data()
+    br_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
+    sc_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
+    if br_reading and br_reading.get("data"):
+        for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv", "stress_level", "recovery_score", "sleep_quality", "sleep_duration_min"]:
+            if br_reading["data"].get(k): d[k] = br_reading["data"][k]
+        if br_reading["data"].get("blood_pressure"): d["blood_pressure"] = br_reading["data"]["blood_pressure"]
+    if sc_reading and sc_reading.get("data"):
+        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg", "basal_metabolism"]:
+            if sc_reading["data"].get(k): d[k] = sc_reading["data"][k]
+    d = _sanitize_data(d)
+    si = compute_subscores(d)
+    daily_plan = compute_daily_plan(d, si)
 
     # Active program
     enrollment = await db.program_enrollments.find_one({"user_id": uid, "status": "active"}, {"_id": 0})
@@ -142,18 +159,25 @@ async def get_morning_briefing(user=Depends(get_current_user)):
     streak_doc = await db.user_streaks.find_one({"user_id": uid}, {"_id": 0})
     streak = streak_doc.get("current_streak", 0) if streak_doc else 0
 
-    # Predictive alerts
-    pred_alerts = await db.predictive_alerts.find({"user_id": uid, "status": "active", "created_at": {"$gte": (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()}}, {"_id": 0}).to_list(5)
+    # Build briefing — objectives come from daily_plan (same as health page)
+    briefing_objectives = []
+    for p in daily_plan:
+        if p.get("key") != "connect" and p.get("key") != "measure":
+            briefing_objectives.append({
+                "icon": p.get("icon", "ri-pulse-line"),
+                "color": p.get("color", "#A78BFA"),
+                "label": p.get("label", ""),
+                "value": p.get("value", ""),
+                "detail": p.get("detail", ""),
+            })
 
-    # Build briefing data
     briefing = {
         "user_name": user.get("name", "").split(" ")[0],
         "has_data": nora_ctx["has_any_data"],
         "health": {},
         "program": program_info,
         "streak": streak,
-        "predictive_alerts": pred_alerts,
-        "objectives": [],
+        "objectives": briefing_objectives,
         "nora_message": "",
     }
 
@@ -163,40 +187,31 @@ async def get_morning_briefing(user=Depends(get_current_user)):
             "heart_rate": bd.get("heart_rate", 0),
             "spo2": bd.get("spo2", 0),
             "sleep_quality": bd.get("sleep_quality", 0),
-            "sleep_duration_min": bd.get("sleep_duration_min", 0),
             "steps": bd.get("steps", 0),
             "stress_level": bd.get("stress_level", 0),
             "recovery_score": bd.get("recovery_score", 0),
-            "temperature": bd.get("temperature", 0),
         }
 
-    # Generate Nora message via AI
+    # Generate Nora message — short and pertinent
     api_key = os.environ.get("EMERGENT_LLM_KEY")
     if api_key:
         try:
             from emergentintegrations.llm.chat import LlmChat, UserMessage
             import json
             ctx_str = format_nora_context_for_prompt(nora_ctx)
-            prog_str = f"Programme actif: {program_info['title']} jour {program_info['day']}/{program_info['total']} — focus: {program_info['today_focus']}" if program_info else "Aucun programme actif"
-            alerts_str = f"Alertes predictives: {'; '.join(a.get('message','') for a in pred_alerts)}" if pred_alerts else ""
+            prog_str = f"Programme: {program_info['title']} J{program_info['day']}/{program_info['total']}" if program_info else ""
 
-            prompt = f"""Nora, assistante sante. Genere le briefing du matin en JSON.
-
-PATIENT: {ctx_str}
+            prompt = f"""Briefing matin. 2 phrases COURTES MAX. Factuel, pas d'emoji, vouvoiement.
+DONNEES: Poids {d.get('weight',0)}kg, IMC {d.get('bmi',0)}, eau {d.get('water_pct',0)}%{', FC ' + str(d.get('heart_rate',0)) + 'bpm' if d.get('heart_rate',0) > 0 else ''}
 {prog_str}
-{alerts_str}
-Streak: {streak} jours
+JSON: {{"message": "2 phrases: 1 constat sante + 1 conseil du jour"}}"""
 
-CONSIGNES: Vouvoyez. 2-3 phrases max pour le message. Objectifs concrets et mesurables. Pas d'emoji.
-JSON: {{"message": "briefing personnalise 2-3 phrases", "objectives": [{{"icon": "ri-xxx", "color": "#hex", "label": "nom", "value": "valeur", "detail": "1 phrase"}}]}}"""
-
-            chat = LlmChat(api_key=api_key, session_id=f"mb-{uuid.uuid4().hex[:6]}", system_message="Nora. JSON. Pas d'emoji. Vouvoyez.").with_model("openai", "gpt-5.2")
+            chat = LlmChat(api_key=api_key, session_id=f"mb-{uuid.uuid4().hex[:6]}", system_message="Nora. JSON. Court. Pas d'emoji.").with_model("openai", "gpt-5.2")
             r = (await chat.send_message(UserMessage(text=prompt))).strip()
             if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
             if r.endswith("```"): r = r[:-3]
             parsed = json.loads(r.strip())
             briefing["nora_message"] = parsed.get("message", "")
-            briefing["objectives"] = parsed.get("objectives", [])
         except Exception as e:
             print(f"Morning briefing AI err: {e}")
 

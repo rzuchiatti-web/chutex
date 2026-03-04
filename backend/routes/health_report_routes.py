@@ -537,32 +537,21 @@ async def get_section_analysis(section: str, user=Depends(get_current_user)):
         # Check if all key values are 0 (device connected but no real measurement)
         values_are_zero = all(v == 0 or v == "0" for v in [d.get("heart_rate", 0), d.get("spo2", 0), d.get("steps", 0), d.get("weight", 0)])
 
-        prompt = f"""Tu es Nora, medecin IA specialiste en {sec_name}, prevention et longevite. Analyse les donnees ci-dessous. JSON uniquement.
-
-CONTEXTE PATIENT:
-{user_context}
+        prompt = f"""Nora, medecin IA. Analyse STRICTEMENT la section "{sec_name}". JSON uniquement.
 
 DONNEES {sec_name.upper()}: {data_str}
 
-{APP_SERVICES_KNOWLEDGE}
-
-CONSIGNES:
-- Analyse UNIQUEMENT les donnees de cette section
-- Vouvoiement, ton medical professionnel, pas d'emoji
-- Si les valeurs sont toutes a 0, cela signifie que l'appareil n'a pas encore transmis de donnees reelles. Dans ce cas:
-  * correlations = []
-  * whats_good = []
-  * watch_out = []
-  Ajoute une "recommendation" expliquant comment obtenir ces donnees
-- Si des valeurs reelles existent (non-zero):
-  * Donne 2-3 correlations medicales entre donnees mesurees
-  * Points positifs UNIQUEMENT si justifies par les donnees
-  * Points de vigilance UNIQUEMENT si justifies
-  * Integre conseils de longevite et prevention adaptes a l'age du patient
-  * Si un service Chutex peut aider, mentionne-le naturellement
+REGLES STRICTES:
+- Analyse UNIQUEMENT les donnees de CETTE section ({sec_name})
+- NE PARLE PAS d'autres sections (pas d'IMC dans sommeil, pas de sommeil dans cardio, etc.)
+- Seule exception: mentionne une correlation avec une autre donnee SI elle impacte directement cette section
+- Reponses COURTES: 1 phrase par correlation, 1 phrase par point
+- Max 2 correlations, 2 points forts, 1 vigilance
+- Recommendation: 1 phrase actionnable
+- Vouvoiement, pas d'emoji
 
 JSON:
-{{"correlations": ["..."], "whats_good": ["..."], "watch_out": ["..."], "recommendation": "conseil ou recommandation adapte au profil"}}"""
+{{"correlations": ["1 phrase max chacune"], "whats_good": ["1 phrase max"], "watch_out": ["1 phrase max"], "recommendation": "1 phrase actionnable"}}"""
 
         chat = LlmChat(api_key=api_key, session_id=f"sa-{uuid.uuid4().hex[:8]}",
                        system_message="Nora, medecin IA Chutex. JSON uniquement. Prevention et longevite. Pas d'emoji.").with_model("openai", "gpt-5.2")
