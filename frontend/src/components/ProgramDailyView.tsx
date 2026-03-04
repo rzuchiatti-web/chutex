@@ -38,76 +38,75 @@ function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { 
   };
 
   const popup = (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, overflow: 'hidden' } as any}>
-      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } as any} />
-      <div style={{ position: 'relative', zIndex: 5, width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' } as any}>
-        <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, borderRadius: 28, background: 'rgba(15,20,35,0.95)', border: `1px solid ${color}25`, padding: '28px 24px', boxShadow: `0 24px 80px rgba(0,0,0,0.6), 0 0 60px ${color}08`, maxHeight: '80vh', overflowY: 'auto' } as any}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+      <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
 
-          {/* Close */}
-          <div onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 } as any}>
-            <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
+        {/* Close */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+          <div onClick={onClose} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
           </div>
+        </div>
 
-          {!finished ? (
-            <>
-              {/* Progress bar */}
-              <div style={{ display: 'flex', gap: 4, marginBottom: 28 } as any}>
-                {Array.from({ length: totalSteps }).map((_, si) => (
-                  <div key={si} style={{ flex: 1, height: 4, borderRadius: 2, background: si <= currentStep ? color : 'rgba(255,255,255,0.06)', transition: 'background 0.3s', boxShadow: si === currentStep ? `0 0 8px ${color}50` : 'none' } as any} />
-                ))}
-              </div>
+        {!finished ? (
+          <>
+            {/* Progress bar */}
+            <div style={{ display: 'flex', gap: 4, marginBottom: 28 } as any}>
+              {Array.from({ length: totalSteps }).map((_, si) => (
+                <div key={si} style={{ flex: 1, height: 4, borderRadius: 2, background: si <= currentStep ? color : 'rgba(255,255,255,0.06)', transition: 'background 0.3s', boxShadow: si === currentStep ? `0 0 8px ${color}50` : 'none' } as any} />
+              ))}
+            </div>
 
-              {/* Step content */}
-              <div style={{ textAlign: 'center', padding: '10px 0 20px' } as any}>
-                {hasSteps && steps[currentStep] ? (
-                  <>
-                    <div style={{ width: 64, height: 64, borderRadius: 20, background: `${color}12`, border: `1px solid ${color}25`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
-                      <i className={steps[currentStep].icon || 'ri-heart-pulse-line'} style={{ fontSize: 32, color }} />
-                    </div>
-                    <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', lineHeight: 1.4, marginBottom: 8 }}>{steps[currentStep].instruction}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Etape {currentStep + 1} sur {totalSteps}</div>
-                  </>
-                ) : (
-                  <>
-                    <div style={{ width: 64, height: 64, borderRadius: 20, background: `${color}12`, border: `1px solid ${color}25`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
-                      <i className="ri-checkbox-circle-line" style={{ fontSize: 32, color }} />
-                    </div>
-                    <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', lineHeight: 1.4 }}>{task}</div>
-                  </>
-                )}
-              </div>
+            {/* Step content in glass card */}
+            <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '28px 24px', textAlign: 'center', marginBottom: 20 } as any}>
+              {hasSteps && steps[currentStep] ? (
+                <>
+                  <div style={{ width: 64, height: 64, borderRadius: 20, background: `${color}12`, border: `1px solid ${color}25`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
+                    <i className={steps[currentStep].icon || 'ri-heart-pulse-line'} style={{ fontSize: 32, color }} />
+                  </div>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', lineHeight: 1.4, marginBottom: 8 }}>{steps[currentStep].instruction}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Etape {currentStep + 1} sur {totalSteps}</div>
+                </>
+              ) : (
+                <>
+                  <div style={{ width: 64, height: 64, borderRadius: 20, background: `${color}12`, border: `1px solid ${color}25`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
+                    <i className="ri-checkbox-circle-line" style={{ fontSize: 32, color }} />
+                  </div>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', lineHeight: 1.4 }}>{task}</div>
+                </>
+              )}
+            </div>
 
-              {/* Navigation */}
-              <div style={{ display: 'flex', gap: 10 } as any}>
-                {currentStep > 0 && (
-                  <div onClick={() => setCurrentStep(currentStep - 1)} style={{ flex: 1, padding: '15px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Precedent</div>
-                )}
-                <div onClick={advanceStep} style={{ flex: 2, padding: '15px', borderRadius: 16, background: `linear-gradient(135deg, ${color}45, ${color}20)`, border: `1px solid ${color}40`, textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 900, color: '#FFF', boxShadow: `0 4px 20px ${color}25` } as any}>
-                  {currentStep < totalSteps - 1 ? 'Suivant' : 'Terminer'}
-                </div>
-              </div>
-            </>
-          ) : (
-            /* ── Evaluation ── */
-            <div style={{ textAlign: 'center', padding: '10px 0' } as any}>
-              <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}>
-                <i className="ri-checkbox-circle-fill" style={{ fontSize: 32, color: '#10B981' }} />
-              </div>
-              <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Termine</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>{evalLabel}</div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 8 } as any}>
-                {evalOptions.map(o => (
-                  <div key={o.v} onClick={() => onComplete(o.v)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', transition: 'all 200ms', minWidth: 56 } as any}
-                  onMouseEnter={(e: any) => { e.currentTarget.style.background = `${o.c}12`; e.currentTarget.style.borderColor = `${o.c}30`; }}
-                  onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.04)'; }}>
-                  <i className={o.i} style={{ fontSize: 24, color: o.c }} />
-                  <span style={{ fontSize: 8, fontWeight: 700, color: o.c }}>{o.l}</span>
-                </div>
-                ))}
+            {/* Navigation */}
+            <div style={{ display: 'flex', gap: 10 } as any}>
+              {currentStep > 0 && (
+                <div onClick={() => setCurrentStep(currentStep - 1)} style={{ flex: 1, padding: '15px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Precedent</div>
+              )}
+              <div onClick={advanceStep} style={{ flex: 2, padding: '15px', borderRadius: 16, background: `linear-gradient(135deg, ${color}45, ${color}20)`, border: `1px solid ${color}40`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 900, color: '#FFF', boxShadow: `0 4px 20px ${color}25` } as any}>
+                {currentStep < totalSteps - 1 ? 'Suivant' : 'Terminer'}
               </div>
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          /* ── Evaluation ── */
+          <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '28px 24px', textAlign: 'center' } as any}>
+            <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}>
+              <i className="ri-checkbox-circle-fill" style={{ fontSize: 32, color: '#10B981' }} />
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Termine</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>{evalLabel}</div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 8 } as any}>
+              {evalOptions.map(o => (
+                <div key={o.v} onClick={() => onComplete(o.v)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', transition: 'all 200ms', minWidth: 56 } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = `${o.c}15`; e.currentTarget.style.borderColor = `${o.c}30`; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}>
+                <i className={o.i} style={{ fontSize: 24, color: o.c }} />
+                <span style={{ fontSize: 8, fontWeight: 700, color: o.c }}>{o.l}</span>
+              </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
