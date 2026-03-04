@@ -19,63 +19,45 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
+### Mar 4, 2026 - Refactoring devices.tsx + Fix Balance Card
+- **Refactoring complet de `devices.tsx`**: 1773 lignes -> 49 lignes (routeur fin)
+- **Composants extraits**: PrescriptionManagement (914L), CompanyPrescriptionsTab (415L), AdminPrescripteurs (243L), RewardsCard (117L), SubscribersList (69L)
+- **Fix Balance Card**: Bouton "Pesees" retire de la carte balance, seul "Nouvelle pesee" + info reste
+- **Fix WeighingFlow**: "Nouvelle pesee" ouvre maintenant le WeighingFlow (avant: lancait BLE scan directement)
+- **Fix WeighingFlow Step**: "Je suis pret" va directement au countdown video 15s (saut step 2 bloque)
+- Tests: iteration_84 - Frontend 100% (14/14 features verified)
+
 ### Mar 4, 2026 - 3 UI/UX Guardian Fixes
-- **Bug Fix (P0)**: Bouton notifications du dashboard gardien web - ajout popup full-screen notifications manquant dans la version web de `GuardianHome.tsx`. Le popup affiche alertes actives (badge URGENT), interventions en attente, et invitations gardien.
-- **UI Verification**: Page detail beneficiaire - profil+dossier medical fusionnes, grille icones (adresse, ville, age, genre, groupe sanguin), taille/poids en cartes, pathologies/allergies.
-- **UI Verification**: Popup gardien redesign - avatar initiales, nom, badge relation, telephone, type, boutons Appeler/SMS, historique d'activite.
-- Tests: iteration_83 - Frontend 100% (18/18 features verified)
+- **Bug Fix**: Popup notifications manquant dans dashboard gardien web
+- **UI verified**: Beneficiary detail page + Guardian popup
+- Tests: iteration_83 - Frontend 100%
 
 ### Mar 4, 2026 - Fix recommendations Nora sans donnees
-- **Correction scoring** : `compute_subscores` renvoie `no_data=true` / score 0 quand aucune mesure valide
-- **Sanitisation des donnees** : `_sanitize_data()` filtre les valeurs erronees (poids > 250kg, temp < 30C ambiante, FC > 220)
-- **Plan quotidien** : N'affiche que les items avec de vraies donnees mesurees, sinon "Connecter un appareil"
-- **Section analysis** : Retourne `no_data=true` avec recommandation adaptee quand pas de donnees
-- **Suppression simulation sommeil** : `computeSleepForDate` remplacee par vrais donnees API
-- **Frontend** : `getValue` retourne '--' pour valeurs 0, barres de jauge masquees sans donnees
-- **Fallback IA** : Plus de fausses affirmations ("FC dans les normes") -- messages honnetes
+- Sanitisation donnees, suppression simulation sommeil, fallback IA
 - Tests: iteration_82 - Backend 11/11, Frontend 100%
 
-### Mar 3, 2026 - Refactoring devices.tsx en composants modulaires
-- **Refactoring complet** de `devices.tsx` (2338 -> 1772 lignes, -566 lignes)
-- **Hooks extraits**: `useDeviceData.ts`, `useBleConnection.ts`
-- **Composants extraits**: `DeviceCard.tsx`, `PairingOverlays.tsx`, `DeviceDetailPopup.tsx`, `NoSubscriptionPopup.tsx`, `GlassOverlay.tsx`, `constants.ts`
-- **DeviceManagement.tsx**: Conteneur leger qui compose hooks + composants
+### Mar 3, 2026 - Refactoring devices.tsx (partiel)
+- DeviceManagement extracte avec hooks + composants
 - Tests: iteration_81 - Frontend 10/10 (100%)
 
 ### Mar 3, 2026 - Push Notifications + Refonte Programmes
-- Push Notifications pour alertes safe zone + dispatch aux gardiens
-- Programmes - Refonte complete : pages `programs.tsx` et `program-detail.tsx`
-- Tests: iteration_80 - Backend 7/7 (100%) + Frontend 100%
+- Push Notifications safe zone + Programmes refonte complete
+- Tests: iteration_80 - Backend 7/7 + Frontend 100%
 
-### Mar 3, 2026 - P0 Bug Fix Alertes + UI Finitions beneficiaire
-- Corrige crash page Alertes - `getAlertLabel` gere le type `geofence`
-- Badge gilet "En veille" confirme orange (#F59E0B)
-- Tests: iteration_79 - 100% backend + 100% frontend
+### Mar 3, 2026 - Bug Fix Alertes + UI beneficiaire + Safe Zones + Location
+- Corrige crash alertes, badge gilet, refonte fiche beneficiaire
+- Safe zones CRUD, permission localisation, popup glass
+- Tests: iterations 70-79 - 100%
 
-### Mar 3, 2026 - Refonte fiche beneficiaire gardien + Dispositifs
-- Refonte complete beneficiary-detail.tsx : header compact, analyse Nora IA, 3 cartes dispositifs, grille sante, dossier medical, localisation, historique alertes
-- Badge gilet : seuil 30s pour "En marche" / "En veille"
-- Endpoint guardian AI report via GPT-5.2
+### Mar 2, 2026 - BLE + Suppression Simulation + Appairage Reel
+- Gilet, bracelet BLE reel, suppression totale simulation
 
-### Mar 2, 2026 - BLE Gilet + Bracelet + Suppression Simulation
-- Gilet: parsing protocole texte S-AIRBAG, detection chute -> alerte + escalade gardiens
-- Bracelet: fix batterie
-- Suppression TOTALE simulation
-
-### Mar 2, 2026 - Fix Switch Beneficiaire/Gardien + Nettoyage DB
-
-### Mar 2, 2026 - Refactoring Page Dispositifs + Appairage BLE Reel
-
-### Mar 2, 2026 - Correctifs Page Abonnement + Nora + Sante
-
-### Mar 1, 2026 - 10 Programmes de Prevention Scientifiques
-
-### Mar 1, 2026 - Nora IA Contextuelle & Intelligente + Fonctionnalites Avancees
+### Mar 1-2, 2026 - Programmes, Nora IA, Fonctionnalites Avancees
+- 10 programmes prevention, Nora contextuelle, streaks, alertes predictives
 
 ## Upcoming Tasks
-- P0: Validation utilisateur en conditions reelles BLE (bracelet/gilet/balance) sur appareils physiques
+- P0: Validation utilisateur BLE en conditions reelles
 - P1: Test iOS TestFlight complet du bridge BLE natif
-- P1: Complete devices.tsx refactor (PrescriptionManagement etc. still in monolithic file)
 - P2: Regression UI globale roles gardien/SAAD/admin
 
 ## Future/Backlog
@@ -86,18 +68,18 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 - Mode hors-ligne intervenants
 - Deploiement production
 
-> Decision produit: **Rapport PDF sante partageable retire du scope** (demande utilisateur explicite).
+> Decision produit: **Rapport PDF sante partageable retire du scope**.
 
 ## Key Files
-- `backend/routes/device_routes.py`: Endpoints dispositifs
-- `backend/routes/guardian_routes.py`: Endpoints gardien + geofence beneficiary CRUD
-- `backend/routes/health_report_routes.py`: Rapport sante
-- `backend/routes/contract_routes.py`: Contrat + export PDF
+- `frontend/app/(tabs)/devices.tsx`: Routeur fin (49 lignes) - importe les composants
+- `frontend/src/components/devices/DeviceManagement.tsx`: Gestion appareils BLE
+- `frontend/src/components/devices/DeviceCard.tsx`: Carte appareil individuel
+- `frontend/src/components/devices/PrescriptionManagement.tsx`: Espace prescripteur gardien
+- `frontend/src/components/devices/AdminPrescripteurs.tsx`: Admin prescripteurs
+- `frontend/src/components/devices/CompanyPrescriptionsTab.tsx`: SAAD prescriptions
+- `frontend/src/components/devices/SubscribersList.tsx`: Teleassistance abonnes
+- `frontend/src/components/devices/RewardsCard.tsx`: Challenge prescripteurs
+- `frontend/src/components/dashboard/WeighingFlow.tsx`: Flux de pesee 15s video
+- `frontend/src/components/dashboard/GuardianHome.tsx`: Dashboard gardien + notifications
+- `frontend/app/beneficiary-detail.tsx`: Fiche beneficiaire gardien
 - `backend/services/health_logic.py`: Logique sante + sanitisation
-- `frontend/app/beneficiary-detail.tsx`: Fiche detaillee gardien + carte safe zones
-- `frontend/src/components/dashboard/GuardianHome.tsx`: Dashboard gardien web + notifications popup
-- `frontend/app/guardian-detail.tsx`: Page detail gardien standalone
-- `frontend/app/(tabs)/devices.tsx`: Page dispositifs avec BLE reel
-- `frontend/app/(tabs)/health.tsx`: Vue sante (no fake data rendering)
-- `frontend/app/programs.tsx`: Catalogue programmes refondu
-- `frontend/app/subscription.tsx`: Contrat & paiement avec ouverture PDF
