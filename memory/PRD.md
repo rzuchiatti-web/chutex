@@ -20,54 +20,37 @@ Objectif: transformer l'app en un moteur de transformation sante et longevite gu
 
 ## Completed Features
 
-### Mar 4, 2026 - Age Corporel par Nora AI + BLE Timing Fix
-- **Age corporel Nora**: Nouvel endpoint `/api/health/body-age` qui utilise Nora (GPT-5.2) pour estimer l'age biologique base sur TOUTES les donnees de sante depuis l'inscription
-- **Collecte 7 jours**: L'age corporel n'est calcule qu'apres 7 jours de donnees. Avant cela, un indicateur de progression s'affiche ("Jour X sur 7")
-- **Cache intelligent**: Resultat cache 24h dans `body_age_cache`, invalide automatiquement apres nouvelle mesure
-- **Integration Nora Context**: Le body_age de Nora est injecte dans le contexte de Nora et remplace la valeur de la balance
-- **Frontend**: HeroScore affiche le badge "N" (Nora) avec l'explication IA. AnalysisPhase montre un message specifique pour la collecte d'age corporel
-- **BLE Timing**: Seuils ajustes a 30s minimum + 20s silence (vs 25s+15s) pour meilleure synchronisation avec la balance physique
-- Tests: iteration_86 - 100% (9/9)
+### Mar 4, 2026 - Carte Activite + Age Corporel Nora AI + BLE Timing
+- **Carte Activite pleine largeur**: Ajoutee sous les 4 cartes vitales (rythme, saturation, pression, temperature) dans la page sante. Affiche Pas (6000), Calories (300kcal), Distance (4km) avec barres de progression.
+- **Age corporel Nora**: Endpoint `/api/health/body-age` - Nora estime l'age biologique base sur TOUTES les donnees depuis l'inscription. Necessite 7 jours de collecte.
+- **Objectifs journaliers confirmes**: `daily_plan` genere des objectifs reels (hydratation, pas, sommeil) bases sur les donnees des appareils. Morning briefing et check-in quotidien fonctionnels.
+- **BLE Timing**: Seuils ajustes a 30s minimum + 20s silence pour meilleure synchro balance.
+- Tests: iterations 86-87 - 100%
 
 ### Mar 4, 2026 - WeighingFlow BLE Fonctionnel + Bouton Appeler
-- **WeighingFlow reel**: Reecrit pour utiliser Web Bluetooth (navigator.bluetooth)
-- **Fix poids x10**: Parsing weight bytes[3-4] little-endian / 100
-- **Bouton Appeler**: Ajoute sur la fiche beneficiaire (espace gardien)
-
-### Mar 4, 2026 - Dashboard Device Cards Navigation + Trend Chart
-- Clic carte dispositif -> page Dispositifs (popups supprimes)
-- Mini graphique SVG tendance poids dans WeighingFlow step 4
+- WeighingFlow reel: Web Bluetooth, parsing bytes[3-4] little-endian / 100
+- Bouton Appeler sur fiche beneficiaire gardien
 
 ### Mar 4, 2026 - Refactoring devices.tsx
 - 1773 -> 49 lignes. 5 composants extraits.
 
-### Mar 4, 2026 - 3 UI/UX Guardian Fixes + Nora AI Fix
-- Notifications gardien web, beneficiary detail, guardian popup
-
 ## Upcoming Tasks
-- P0: Validation utilisateur pesee BLE en conditions reelles (tester avec balance physique)
+- P0: Validation utilisateur pesee BLE avec balance physique
 - P1: Test iOS TestFlight BLE natif
 - P2: Regression UI globale
 
 ## Future/Backlog
 - Systeme de parrainage gardien
 - Programme d'essai gratuit 7 jours
-- Affichage du contrat PDF (page abonnement)
-- Face ID / biometrie
-- Badge gilet standby orange (verif utilisateur)
+- Affichage contrat PDF (page abonnement)
+- Badge gilet standby orange
 - Deploiement production
 
 ## Key Files
-- `frontend/src/components/dashboard/WeighingFlow.tsx`: Flux pesee BLE reel (Web Bluetooth)
-- `frontend/src/components/health/HeroScore.tsx`: Affichage age biologique Nora
+- `frontend/app/(tabs)/health.tsx`: Page sante avec carte activite
+- `frontend/src/components/dashboard/WeighingFlow.tsx`: Flux pesee BLE
+- `frontend/src/components/health/HeroScore.tsx`: Age biologique Nora
 - `frontend/src/components/health/AnalysisPhase.tsx`: Phase collecte 7 jours
-- `frontend/src/hooks/useBleConnection.ts`: Hook BLE (bracelet/gilet/balance)
-- `backend/routes/health_report_routes.py`: Endpoint body-age + daily-report
-- `backend/services/nora_context.py`: Contexte IA enrichi avec body age cache
-- `backend/services/lefu_service.py`: API Lefu composition corporelle
-
-## Key Endpoints
-- `/api/health/body-age`: Age biologique estime par Nora (GET, auth required)
-- `/api/health/daily-report`: Rapport sante quotidien avec body_age_nora et analysis_phase
-- `/api/devices/scale/ble-measurement`: Mesure BLE balance (POST, auth required)
-- `/api/lefu/body_composition`: Composition corporelle via Lefu API
+- `backend/routes/health_report_routes.py`: Endpoints body-age + daily-report
+- `backend/routes/advanced_routes.py`: Morning briefing + checkin-daily
+- `backend/services/nora_context.py`: Contexte IA enrichi
