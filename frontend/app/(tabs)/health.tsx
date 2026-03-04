@@ -82,6 +82,7 @@ export default function HealthScreen() {
   const analysisPhase = report?.analysis_phase || null;
   const bodyAgeNora = report?.body_age_nora || null;
   const noraBodyAge = bodyAgeNora?.body_age || 0;
+  const activityStreak = report?.activity_streak || { current_streak: 0, max_streak: 0, objectives_today: [], badge: null };
   const hasHeartRate = Number(d.heart_rate || 0) > 0;
   const hasSpo2 = Number(d.spo2 || 0) > 0;
   const hasBloodPressure = Number(d.blood_pressure?.systolic || 0) > 0 && Number(d.blood_pressure?.diastolic || 0) > 0;
@@ -245,7 +246,7 @@ export default function HealthScreen() {
             ))}
           </div>
 
-          {/* 4b. Activity Card — full width */}
+          {/* 4b. Activity Card — full width with streak */}
           <div data-testid="activity-card" onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: 'activity' } })} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s, background 0.15s' } as any}
             onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
             onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = ''; }}>
@@ -256,7 +257,24 @@ export default function HealthScreen() {
                 </div>
                 <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Activite physique</span>
               </div>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }} />
+              {/* Streak counter */}
+              <div data-testid="activity-streak" style={{ display: 'flex', alignItems: 'center', gap: 6 } as any} onClick={(e: any) => e.stopPropagation()}>
+                {activityStreak.badge && (
+                  <div style={{ padding: '3px 8px', borderRadius: 999, background: `${activityStreak.badge.color}15`, border: `1px solid ${activityStreak.badge.color}30` } as any}>
+                    <i className={activityStreak.badge.icon} style={{ fontSize: 10, color: activityStreak.badge.color }} />
+                  </div>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: activityStreak.current_streak > 0 ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${activityStreak.current_streak > 0 ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.06)'}` } as any}>
+                  <i className="ri-fire-fill" style={{ fontSize: 12, color: activityStreak.current_streak > 0 ? '#F59E0B' : 'rgba(255,255,255,0.15)' }} />
+                  <span style={{ fontSize: 12, fontWeight: 900, color: activityStreak.current_streak > 0 ? '#F59E0B' : 'rgba(255,255,255,0.2)' }}>{activityStreak.current_streak}</span>
+                </div>
+                {activityStreak.max_streak > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, opacity: 0.5 } as any}>
+                    <i className="ri-trophy-line" style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }} />
+                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>{activityStreak.max_streak}</span>
+                  </div>
+                )}
+              </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 } as any}>
               {[

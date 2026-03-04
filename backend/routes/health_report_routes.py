@@ -223,6 +223,34 @@ def compute_subscores(d):
     return {"score": global_score, "status": status, "status_color": color, "subscores": subs, "lifts": lifts, "limits": limits}
 
 
+def evaluate_objectives_met(d):
+    """Check which daily objectives are met based on real data."""
+    met = []
+    g = lambda k, default=0: d.get(k, default)
+    steps = g("steps")
+    if steps >= 6000:
+        met.append("steps")
+    elif steps >= 4000 and g("recovery_score") < 70:
+        met.append("steps")  # Adapted goal met
+    if g("water_pct") >= 55:
+        met.append("hydration")
+    if g("sleep_quality") >= 75:
+        met.append("sleep")
+    cal = g("calories")
+    if cal >= 200:
+        met.append("calories")
+    distance = g("distance_km")
+    if distance >= 3:
+        met.append("distance")
+    # Body composition objectives
+    bmi = g("bmi")
+    if 18.5 <= bmi <= 25:
+        met.append("bmi")
+    if g("body_fat_pct") > 0 and g("body_fat_pct") <= 25:
+        met.append("body_fat")
+    return met
+
+
 def compute_daily_plan(d, score_info):
     """Generate daily plan. Only includes items with actual measured data."""
     # If no meaningful data, return a simple "connect device" plan
@@ -890,6 +918,66 @@ async def get_daily_report(user=Depends(get_current_user)):
             "type": "body_age",
         }
 
+    # Activity streak (based on real objective achievement)
+    activity_streak = None
+    try:
+        streak_doc = await db.activity_streaks.find_one({"user_id": uid}, {"_id": 0})
+        if streak_doc:
+            cs = streak_doc.get("current_streak", 0)
+            badge = None
+            if cs >= 100:
+                badge = {"icon": "ri-vip-diamond-fill", "color": "#10B981", "label": "100 jours"}
+            elif cs >= 30:
+                badge = {"icon": "ri-medal-fill", "color": "#A78BFA", "label": "1 mois"}
+            elif cs >= 14:
+                badge = {"icon": "ri-fire-fill", "color": "#EF4444", "label": "2 semaines"}
+            elif cs >= 7:
+                badge = {"icon": "ri-fire-fill", "color": "#F59E0B", "label": "1 semaine"}
+            activity_streak = {
+                "current_streak": cs,
+                "max_streak": streak_doc.get("max_streak", 0),
+                "objectives_today": streak_doc.get("objectives_today", []),
+                "badge": badge,
+            }
+    except:
+        pass
+
+    # Evaluate today's objectives for streak (auto-evaluate on report fetch)
+    if not activity_streak or streak_doc.get("last_evaluated_day") != datetime.now(timezone.utc).strftime("%Y-%m-%d"):
+        objectives_met = evaluate_objectives_met(d)
+        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        if objectives_met:
+            existing = await db.activity_streaks.find_one({"user_id": uid}, {"_id": 0})
+            yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+            last_day = (existing or {}).get("last_achieved_day", "")
+            if last_day == yesterday:
+                new_streak = (existing or {}).get("current_streak", 0) + 1
+            elif last_day == today_str:
+                new_streak = (existing or {}).get("current_streak", 0)
+            else:
+                new_streak = 1
+            max_s = max(new_streak, (existing or {}).get("max_streak", 0))
+            await db.activity_streaks.update_one(
+                {"user_id": uid},
+                {"$set": {"current_streak": new_streak, "max_streak": max_s, "last_achieved_day": today_str, "last_evaluated_day": today_str, "objectives_today": objectives_met}},
+                upsert=True
+            )
+            cs = new_streak
+            badge = None
+            if cs >= 100: badge = {"icon": "ri-vip-diamond-fill", "color": "#10B981", "label": "100 jours"}
+            elif cs >= 30: badge = {"icon": "ri-medal-fill", "color": "#A78BFA", "label": "1 mois"}
+            elif cs >= 14: badge = {"icon": "ri-fire-fill", "color": "#EF4444", "label": "2 semaines"}
+            elif cs >= 7: badge = {"icon": "ri-fire-fill", "color": "#F59E0B", "label": "1 semaine"}
+            activity_streak = {"current_streak": cs, "max_streak": max_s, "objectives_today": objectives_met, "badge": badge}
+        else:
+            await db.activity_streaks.update_one(
+                {"user_id": uid},
+                {"$set": {"last_evaluated_day": today_str, "objectives_today": []}},
+                upsert=True
+            )
+            if not activity_streak:
+                activity_streak = {"current_streak": 0, "max_streak": 0, "objectives_today": [], "badge": None}
+
     return {
         "score": si["score"], "status": si["status"], "status_color": si["status_color"],
         "subscores": si["subscores"], "lifts": si["lifts"], "limits": si["limits"],
@@ -897,7 +985,92 @@ async def get_daily_report(user=Depends(get_current_user)):
         "weighings": weighings, "human_map_img": HUMAN_MAP_IMG,
         "analysis_phase": analysis_phase,
         "body_age_nora": body_age_data,
+        "activity_streak": activity_streak,
         "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+@router.get("/health/activity-streak")
+async def get_activity_streak(user=Depends(get_current_user)):
+    """Get activity streak based on real objective achievement."""
+    uid = user['id']
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    streak_doc = await db.activity_streaks.find_one({"user_id": uid}, {"_id": 0})
+    if not streak_doc:
+        streak_doc = {"user_id": uid, "current_streak": 0, "max_streak": 0, "last_achieved_day": "", "objectives_today": [], "history": []}
+
+    # Check if today's objectives need evaluation
+    if streak_doc.get("last_evaluated_day") != today:
+        # Get today's readings
+        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+        br = await db.device_readings.find_one(
+            {"user_id": uid, "device_type": "bracelet", "timestamp": {"$gte": today_start}}, {"_id": 0},
+            sort=[("timestamp", -1)]
+        )
+        sc = await db.device_readings.find_one(
+            {"user_id": uid, "device_type": "scale", "timestamp": {"$gte": today_start}}, {"_id": 0},
+            sort=[("timestamp", -1)]
+        )
+        d = {}
+        if br and br.get("data"):
+            d.update(br["data"])
+        if sc and sc.get("data"):
+            d.update(sc["data"])
+
+        objectives_met = evaluate_objectives_met(d)
+
+        if objectives_met:
+            yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+            last_day = streak_doc.get("last_achieved_day", "")
+            if last_day == yesterday:
+                new_streak = streak_doc.get("current_streak", 0) + 1
+            elif last_day == today:
+                new_streak = streak_doc.get("current_streak", 0)
+            else:
+                new_streak = 1
+
+            max_streak = max(new_streak, streak_doc.get("max_streak", 0))
+            history = streak_doc.get("history", [])
+            if not any(h.get("date") == today for h in history):
+                history.append({"date": today, "objectives": objectives_met})
+            history = history[-30:]  # Keep last 30 days
+
+            await db.activity_streaks.update_one(
+                {"user_id": uid},
+                {"$set": {
+                    "current_streak": new_streak, "max_streak": max_streak,
+                    "last_achieved_day": today, "last_evaluated_day": today,
+                    "objectives_today": objectives_met, "history": history,
+                }},
+                upsert=True
+            )
+            streak_doc = {"current_streak": new_streak, "max_streak": max_streak, "objectives_today": objectives_met, "last_achieved_day": today}
+        else:
+            await db.activity_streaks.update_one(
+                {"user_id": uid},
+                {"$set": {"last_evaluated_day": today, "objectives_today": []}},
+                upsert=True
+            )
+            streak_doc["objectives_today"] = []
+
+    # Badges
+    cs = streak_doc.get("current_streak", 0)
+    badge = None
+    if cs >= 100:
+        badge = {"icon": "ri-vip-diamond-fill", "color": "#10B981", "label": "100 jours"}
+    elif cs >= 30:
+        badge = {"icon": "ri-medal-fill", "color": "#A78BFA", "label": "1 mois"}
+    elif cs >= 14:
+        badge = {"icon": "ri-fire-fill", "color": "#EF4444", "label": "2 semaines"}
+    elif cs >= 7:
+        badge = {"icon": "ri-fire-fill", "color": "#F59E0B", "label": "1 semaine"}
+
+    return {
+        "current_streak": streak_doc.get("current_streak", 0),
+        "max_streak": streak_doc.get("max_streak", 0),
+        "objectives_today": streak_doc.get("objectives_today", []),
+        "badge": badge,
     }
 
 
