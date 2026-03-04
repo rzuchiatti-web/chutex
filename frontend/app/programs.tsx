@@ -4,6 +4,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter } from 'expo-router';
 import NativePageView from '../src/components/NativePageView';
+import ProgramDailyView from '../src/components/ProgramDailyView';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -20,8 +21,6 @@ export default function ProgramsScreen() {
   const [hasDevices, setHasDevices] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  useEffect(() => { loadData(); }, []);
-
   const loadData = async () => {
     setLoading(true);
     try {
@@ -32,14 +31,17 @@ export default function ProgramsScreen() {
       ]);
       if (prog) setActiveProgram(prog);
       if (cat?.programs) setCatalog(cat.programs);
-      if (dev?.devices?.length > 0 || dev?.bracelet || dev?.scale) setHasDevices(true);
+      if (dev?.bracelet || dev?.scale) setHasDevices(true);
     } catch {} finally { setLoading(false); }
   };
+
+  useEffect(() => { loadData(); }, []);
 
   if (Platform.OS !== 'web') return <NativePageView path="/programs" />;
 
   const categories = ['all', ...Array.from(new Set(catalog.map((p: any) => p.category).filter(Boolean)))];
   const visibleCatalog = catalog.filter((p: any) => selectedCategory === 'all' || p.category === selectedCategory);
+  const remainingPrograms = visibleCatalog.filter((p: any) => !activeProgram?.active || p.id !== activeProgram?.program?.id);
   const singleProgramLock = !!activeProgram?.active;
 
   return (
@@ -61,8 +63,20 @@ export default function ProgramsScreen() {
             </div>
           </div>
 
+          {/* ══ PROGRAMME ACTIF — Check-in quotidien ══ */}
+          {activeProgram?.active && token && (
+            <div style={{ marginBottom: 24 } as any}>
+              <ProgramDailyView token={token} onStop={() => { setActiveProgram(null); loadData(); }} />
+            </div>
+          )}
+
+          {/* ══ CATALOGUE ══ */}
+          <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 } as any}>
+            {singleProgramLock ? 'Autres programmes' : 'Catalogue'}
+          </div>
+
           {/* Category filters */}
-          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 4, marginBottom: 16 } as any}>
+          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 4, marginBottom: 14 } as any}>
             {categories.map((cat: string) => {
               const active = selectedCategory === cat;
               const icon = CATEGORY_ICONS[cat] || 'ri-price-tag-3-line';
@@ -98,26 +112,17 @@ export default function ProgramsScreen() {
             </div>
           )}
 
-          {/* Catalog label */}
-          {!loading && (
-            <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 } as any}>
-              {visibleCatalog.length} programme{visibleCatalog.length > 1 ? 's' : ''} disponible{visibleCatalog.length > 1 ? 's' : ''}
-            </div>
-          )}
-
           {/* Program cards */}
-          {visibleCatalog.map((p: any, idx: number) => {
-            const isActive = activeProgram?.active && activeProgram?.program?.id === p.id;
-            const locked = singleProgramLock && !isActive;
+          {remainingPrograms.map((p: any) => {
+            const locked = singleProgramLock;
             return (
               <div key={p.id} data-testid={`catalog-${p.id}`}
                 onClick={() => {
                   if (locked) return;
-                  if (isActive) { router.push('/programs' as any); return; } // Already active → go to daily view
                   if (!hasDevices) { router.push('/(tabs)/devices' as any); return; }
                   router.push({ pathname: '/program-detail' as any, params: { id: p.id } });
                 }}
-                style={{ padding: '18px 20px', borderRadius: 22, position: 'relative', marginBottom: 10, cursor: locked ? 'not-allowed' : 'pointer', opacity: locked ? 0.35 : 1, border: `1px solid ${isActive ? p.color + '40' : p.color + '15'}`, background: isActive ? `${p.color}08` : 'rgba(255,255,255,0.04)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 180ms' } as any}
+                style={{ padding: '18px 20px', borderRadius: 22, position: 'relative', marginBottom: 10, cursor: locked ? 'not-allowed' : 'pointer', opacity: locked ? 0.35 : 1, border: `1px solid ${p.color}15`, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 180ms' } as any}
                 onMouseEnter={(e: any) => { if (!locked) e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 } as any}>
@@ -128,28 +133,18 @@ export default function ProgramsScreen() {
                     <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{p.title}</div>
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{p.subtitle}</div>
                   </div>
-                  {isActive ? (
-                    <div style={{ padding: '4px 10px', borderRadius: 999, background: `${p.color}20`, fontSize: 10, fontWeight: 800, color: p.color }}>En cours</div>
-                  ) : !locked && (
-                    <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} />
-                  )}
+                  {!locked && <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} />}
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
                   <span style={{ padding: '4px 10px', borderRadius: 99, background: `${p.color}10`, border: `1px solid ${p.color}18`, fontSize: 10, fontWeight: 700, color: p.color }}>{p.duration_days}j</span>
                   {p.difficulty && <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>{p.difficulty}</span>}
                   {p.category && <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'capitalize' }}>{p.category}</span>}
                 </div>
-                {p.benefits?.slice(0, 2).map((b: string, i: number) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: i === 0 ? 10 : 3 } as any}>
-                    <div style={{ width: 4, height: 4, borderRadius: 2, background: p.color, flexShrink: 0 } as any} />
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{b}</span>
-                  </div>
-                ))}
               </div>
             );
           })}
 
-          {!loading && visibleCatalog.length === 0 && (
+          {!loading && remainingPrograms.length === 0 && (
             <div style={{ padding: '28px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
               <i className="ri-search-line" style={{ fontSize: 24, color: 'rgba(255,255,255,0.15)', marginBottom: 8, display: 'block' }} />
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Aucun programme dans cette categorie.</div>

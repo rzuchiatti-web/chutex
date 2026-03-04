@@ -386,23 +386,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           )}
 
-          {/* ── STREAK ── */}
-          {streakData && streakData.streak > 0 && (
-            <div data-testid="streak-card" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 12, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                <i className="ri-fire-fill" style={{ fontSize: 24, color: streakData.streak >= 7 ? '#F59E0B' : 'rgba(245,158,11,0.5)' }} />
-                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{streakData.streak}</div>
-              </div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>jour{streakData.streak > 1 ? 's' : ''} consecutif{streakData.streak > 1 ? 's' : ''}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Record: {streakData.max_streak} jours · {streakData.total_days} jours total</div>
-              </div>
-              {streakData.new_badges?.length > 0 && (
-                <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', fontSize: 10, fontWeight: 700, color: '#F59E0B' }}>Nouveau badge !</div>
-              )}
-            </div>
-          )}
-
           {/* ── SUBSCRIPTION BANNER (si pas d'abo bracelet) ── */}
           {/* Health data shown even without subscription — values show -- when no data */}
 
