@@ -751,7 +751,81 @@ async def get_active_program(user=Depends(get_current_user), day: int = 0):
             "tip": "La constance est la cle du succes.",
         }
 
-    # Get today's check-in if done
+    # ── Personalize tasks with Nora based on user profile ──
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    cache_key = f"{enrollment['id']}_{today_str}_{day_key}"
+    cached_personalized = await db.personalized_tasks_cache.find_one({"cache_key": cache_key}, {"_id": 0})
+
+    if cached_personalized and cached_personalized.get("tasks"):
+        today_tasks = cached_personalized["tasks"]
+    else:
+        # Keep original guided_steps as base
+        original_guided_steps = today_tasks.get("guided_steps", {})
+
+        # Personalize text via GPT
+        api_key = os.environ.get("EMERGENT_LLM_KEY")
+        if api_key:
+            try:
+                from emergentintegrations.llm.chat import LlmChat, UserMessage
+                import json as _json
+
+                age = None
+                dob = user.get('date_of_birth', '')
+                if dob:
+                    for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
+                        try:
+                            born = datetime.strptime(dob, fmt)
+                            age = (datetime.now(timezone.utc) - born.replace(tzinfo=timezone.utc)).days // 365
+                            break
+                        except ValueError:
+                            continue
+
+                profile = f"Age: {age or '?'} ans, Sexe: {user.get('gender', '?')}, Poids: {user.get('weight_kg', '?')}kg, Taille: {user.get('height_cm', '?')}cm"
+                if user.get('medical_conditions'):
+                    profile += f", Pathologies: {user['medical_conditions']}"
+                if user.get('allergies') and user['allergies'].lower() != 'aucune':
+                    profile += f", Allergies: {user['allergies']}"
+
+                tasks_list = today_tasks.get("tasks", [])
+                prompt = f"""Adapte ce programme au profil. JSON. Garde exactement {len(tasks_list)} taches.
+
+PROFIL: {profile}
+PROGRAMME: {program['title']}, Jour {day_key}
+FOCUS: {today_tasks.get('focus', '')}
+TACHES: {_json.dumps(tasks_list, ensure_ascii=False)}
+TIP: {today_tasks.get('tip', '')}
+
+Adapte intensite, duree, precautions selon le profil (age, pathologies).
+Vouvoiement pour +50 ans. Precautions si pathologie grave.
+JSON: {{"focus": "...", "mission": "1-2 phrases contexte medical", "tasks": ["tache 1 adaptee", "tache 2 adaptee", "tache 3 adaptee"], "tip": "conseil adapte"}}"""
+
+                chat = LlmChat(api_key=api_key, session_id=f"pt-{cache_key[:16]}",
+                    system_message="Nora. Adapte programme sante au profil. JSON uniquement. Court.").with_model("openai", "gpt-5.2")
+                r = (await chat.send_message(UserMessage(text=prompt))).strip()
+                if r.startswith("```"): r = r.split("\n", 1)[1] if "\n" in r else r[3:]
+                if r.endswith("```"): r = r[:-3]
+                personalized = _json.loads(r.strip())
+
+                if personalized.get("tasks") and isinstance(personalized["tasks"], list):
+                    # Ensure tasks are strings
+                    clean_tasks = []
+                    for t in personalized["tasks"]:
+                        if isinstance(t, str):
+                            clean_tasks.append(t)
+                        elif isinstance(t, dict):
+                            clean_tasks.append(t.get("title") or t.get("task") or str(t))
+                    personalized["tasks"] = clean_tasks
+                    # Keep original guided_steps (reliable structure)
+                    personalized["guided_steps"] = original_guided_steps
+                    today_tasks = personalized
+
+                    await db.personalized_tasks_cache.update_one(
+                        {"cache_key": cache_key},
+                        {"$set": {"cache_key": cache_key, "tasks": today_tasks, "created_at": today_str}},
+                        upsert=True
+                    )
+            except Exception as e:
+                print(f"Program personalization error: {e}")
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     today_checkin = await db.program_checkins.find_one(
         {"enrollment_id": enrollment["id"], "date": today_str}, {"_id": 0}
