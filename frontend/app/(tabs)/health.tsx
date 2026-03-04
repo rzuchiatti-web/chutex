@@ -245,9 +245,48 @@ export default function HealthScreen() {
             ))}
           </div>
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+          {/* 4b. Activity Card — full width */}
+          <div data-testid="activity-card" onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: 'activity' } })} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s, background 0.15s' } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = ''; }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-run-line" style={{ fontSize: 16, color: '#10B981' }} />
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Activite physique</span>
+              </div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 } as any}>
+              {[
+                { label: 'Pas', value: d.steps || 0, goal: 6000, unit: '', icon: 'ri-footprint-line', color: '#10B981' },
+                { label: 'Calories', value: d.calories || 0, goal: 300, unit: 'kcal', icon: 'ri-fire-line', color: '#F59E0B' },
+                { label: 'Distance', value: d.distance_km || 0, goal: 4, unit: 'km', icon: 'ri-route-line', color: '#38BDF8' },
+              ].map((m, i) => {
+                const pct = m.goal > 0 ? Math.min(100, Math.round((m.value / m.goal) * 100)) : 0;
+                const hasData = m.value > 0;
+                return (
+                  <div key={i} style={{ textAlign: 'center' } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 6 } as any}>
+                      <i className={m.icon} style={{ fontSize: 12, color: m.color }} />
+                      <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>{m.label}</span>
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: hasData ? '#FFF' : 'rgba(255,255,255,0.15)', lineHeight: 1, marginBottom: 2 }}>
+                      {hasData ? (typeof m.value === 'number' && m.value % 1 !== 0 ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}
+                    </div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', marginBottom: 8 }}>{m.unit}{hasData ? ` / ${m.goal.toLocaleString()} ${m.unit}` : ''}</div>
+                    <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                      <div style={{ height: 6, borderRadius: 3, width: hasData ? `${pct}%` : '0%', background: `linear-gradient(90deg, ${m.color}80, ${m.color})`, transition: 'width 0.8s ease', boxShadow: pct > 0 ? `0 0 8px ${m.color}40` : 'none' } as any} />
+                    </div>
+                    {hasData && <div style={{ fontSize: 8, fontWeight: 700, color: pct >= 100 ? '#10B981' : 'rgba(255,255,255,0.25)', marginTop: 4 }}>{pct}%</div>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
-          {/* 5. Sleep Card */}
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
           <SleepCard d={d} />
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
