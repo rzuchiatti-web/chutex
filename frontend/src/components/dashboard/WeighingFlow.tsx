@@ -115,7 +115,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
     return () => { clearInterval(iv); clearTimeout(timeout); };
   }, [step]);
 
-  // Analysis phase (step 5): wait for BLE silence (balance stopped) or timeout 30s
+  // Analysis phase (step 5): wait for BLE silence (balance stopped) or timeout 90s
   useEffect(() => {
     if (step !== 5) return;
     lastPacketTimeRef.current = Date.now();
@@ -124,14 +124,14 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
       const silenceMs = Date.now() - lastPacketTimeRef.current;
       setCountdown(elapsed);
-      // Balance stopped sending data (3s silence) = analysis complete
-      if (elapsed > 5 && silenceMs > 3000) {
+      // Balance stopped sending data (8s silence after at least 15s) = analysis complete
+      if (elapsed > 15 && silenceMs > 8000) {
         clearInterval(iv);
         finalizeMeasurement();
         return;
       }
-      // Hard timeout 30s
-      if (elapsed >= 30) {
+      // Hard timeout 90s
+      if (elapsed >= 90) {
         clearInterval(iv);
         finalizeMeasurement();
       }
@@ -322,23 +322,23 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
           </div>
         )}
 
-        {/* ── STEP 5: Full Body Analysis (clinical white) ── */}
+        {/* ── STEP 5: Full Body Analysis (video + clinical overlay) ── */}
         {step === 5 && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 100000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#FAFBFC' } as any}>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 100000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}>
+            <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src={VIDEO_BG} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.82)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: '0 24px' } as any}>
               <div style={{ fontSize: 22, fontWeight: 800, color: '#111827', marginBottom: 6, letterSpacing: -0.3 }}>Analyse corporelle</div>
               <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 24 }}>Maintenez le manche et restez immobile</div>
               <div style={{ fontSize: 52, fontWeight: 900, color: '#111827', marginBottom: 24 }}>{stableWeight}<span style={{ fontSize: 18, color: '#D1D5DB' }}> kg</span></div>
 
-              {/* Clinical scanning animation */}
-              <div style={{ width: 140, height: 140, borderRadius: 70, background: '#F3F4F6', border: '2px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 28px', position: 'relative', overflow: 'hidden' } as any}>
+              <div style={{ width: 140, height: 140, borderRadius: 70, background: 'rgba(243,244,246,0.8)', border: '2px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 28px', position: 'relative', overflow: 'hidden' } as any}>
                 <div style={{ position: 'absolute', inset: 0, borderRadius: 70, border: '3px solid transparent', borderTopColor: '#6366F1', animation: 'spin 1.2s linear infinite' } as any} />
                 <div style={{ position: 'absolute', inset: 8, borderRadius: 62, border: '2px solid transparent', borderBottomColor: '#10B981', animation: 'spin 2s linear infinite reverse' } as any} />
                 <div style={{ position: 'absolute', width: '100%', height: 2, background: 'linear-gradient(90deg, transparent, #6366F1, transparent)', animation: 'scanLine 2s ease-in-out infinite' } as any} />
                 <i className="ri-body-scan-line" style={{ fontSize: 36, color: '#6366F1', position: 'relative', zIndex: 1 }} />
               </div>
 
-              {/* Progress steps */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 280, margin: '0 auto 28px' } as any}>
                 {[
                   { label: 'Poids mesure', done: true },
@@ -346,7 +346,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                   { label: 'Calcul des indicateurs', done: false },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                    <div style={{ width: 24, height: 24, borderRadius: 12, background: item.done ? '#10B981' : '#F3F4F6', border: `2px solid ${item.done ? '#10B981' : '#E5E7EB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <div style={{ width: 24, height: 24, borderRadius: 12, background: item.done ? '#10B981' : 'rgba(243,244,246,0.8)', border: `2px solid ${item.done ? '#10B981' : '#E5E7EB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                       {item.done ? <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} /> : <div style={{ width: 8, height: 8, borderRadius: 4, background: '#D1D5DB', animation: 'pulse 1.5s infinite' } as any} />}
                     </div>
                     <span style={{ fontSize: 14, fontWeight: item.done ? 600 : 400, color: item.done ? '#111827' : '#9CA3AF' }}>{item.label}</span>
@@ -354,8 +354,8 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                 ))}
               </div>
 
-              <div style={{ fontSize: 11, color: '#D1D5DB', marginBottom: 20 }}>Analyse en cours... {countdown}s</div>
-              <div onClick={closeAndCleanup} style={{ padding: '12px 28px', borderRadius: 999, background: '#F3F4F6', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#6B7280' } as any}>Annuler</div>
+              <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 20 }}>Analyse en cours... {countdown}s</div>
+              <div onClick={closeAndCleanup} style={{ padding: '12px 28px', borderRadius: 999, background: 'rgba(243,244,246,0.8)', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#6B7280' } as any}>Annuler</div>
             </div>
             <style dangerouslySetInnerHTML={{ __html: '@keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1.1)}} @keyframes scanLine{0%{top:10%;opacity:0}20%{opacity:1}80%{opacity:1}100%{top:90%;opacity:0}}' }} />
           </div>
