@@ -317,7 +317,10 @@ export default function ProgramDailyView({ token, onStop }: Props) {
 
       {/* ═══ ARRETER ═══ */}
       {!showStop ? (
-        <div onClick={() => setShowStop(true)} style={{ textAlign: 'center', padding: '10px', fontSize: 11, color: 'rgba(255,255,255,0.15)', cursor: 'pointer' } as any}>Arreter le programme</div>
+        <div onClick={() => setShowStop(true)} style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+          <i className="ri-stop-circle-line" style={{ fontSize: 14, color: 'rgba(239,68,68,0.4)' }} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(239,68,68,0.4)' }}>Arreter le programme</span>
+        </div>
       ) : (
         <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.12)', ...g } as any}>
           <div style={{ fontSize: 13, fontWeight: 800, color: '#EF4444', marginBottom: 4 }}>Arreter ce programme ?</div>
