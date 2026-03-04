@@ -18,7 +18,7 @@ export default function ProgramsTab() {
   const [activeProgram, setActiveProgram] = useState<any>(null);
   const [catalog, setCatalog] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hasDevices, setHasDevices] = useState(false);
+  const [hasDevices, setHasDevices] = useState<any>({ bracelet: false, scale: false, any: false });
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const loadData = async () => {
@@ -31,7 +31,7 @@ export default function ProgramsTab() {
       ]);
       if (prog) setActiveProgram(prog);
       if (cat?.programs) setCatalog(cat.programs);
-      if (dev?.bracelet || dev?.scale) setHasDevices(true);
+      setHasDevices({ bracelet: !!(dev?.bracelet?.paired), scale: !!(dev?.scale?.paired), any: !!(dev?.bracelet?.paired || dev?.scale?.paired) });
     } catch {} finally { setLoading(false); }
   };
 
@@ -86,7 +86,7 @@ export default function ProgramsTab() {
           </div>
 
           {/* Warnings */}
-          {!hasDevices && !singleProgramLock && (
+          {!hasDevices.any && !singleProgramLock && (
             <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
               <i className="ri-bluetooth-connect-line" style={{ fontSize: 18, color: '#F59E0B' }} />
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>Connectez un appareil pour demarrer un programme.</div>
@@ -110,14 +110,17 @@ export default function ProgramsTab() {
           {/* Program cards */}
           {remainingPrograms.map((p: any) => {
             const locked = singleProgramLock;
+            const req = p.requires || 'any';
+            const hasRequired = req === 'any' ? hasDevices.any : req === 'bracelet' ? hasDevices.bracelet : req === 'scale' ? hasDevices.scale : hasDevices.any;
+            const deviceMissing = !hasRequired && !locked;
             return (
               <div key={p.id} data-testid={`catalog-${p.id}`}
                 onClick={() => {
                   if (locked) return;
-                  if (!hasDevices) { router.push('/(tabs)/devices' as any); return; }
+                  if (deviceMissing) { router.push('/(tabs)/devices' as any); return; }
                   router.push({ pathname: '/program-detail' as any, params: { id: p.id } });
                 }}
-                style={{ padding: '18px 20px', borderRadius: 22, position: 'relative', marginBottom: 10, cursor: locked ? 'not-allowed' : 'pointer', opacity: locked ? 0.35 : 1, border: `1px solid ${p.color}15`, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 180ms' } as any}
+                style={{ padding: '18px 20px', borderRadius: 22, position: 'relative', marginBottom: 10, cursor: locked ? 'not-allowed' : 'pointer', opacity: locked ? 0.35 : deviceMissing ? 0.6 : 1, border: `1px solid ${p.color}15`, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 180ms' } as any}
                 onMouseEnter={(e: any) => { if (!locked) e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 } as any}>
@@ -128,12 +131,17 @@ export default function ProgramsTab() {
                     <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{p.title}</div>
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{p.subtitle}</div>
                   </div>
-                  {!locked && <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} />}
+                  {!locked && !deviceMissing && <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} />}
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
                   <span style={{ padding: '4px 10px', borderRadius: 99, background: `${p.color}10`, border: `1px solid ${p.color}18`, fontSize: 10, fontWeight: 700, color: p.color }}>{p.duration_days}j</span>
                   {p.difficulty && <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>{p.difficulty}</span>}
                   {p.category && <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'capitalize' }}>{p.category}</span>}
+                  {deviceMissing && (
+                    <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: 10, fontWeight: 700, color: '#F59E0B', display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                      <i className="ri-bluetooth-connect-line" style={{ fontSize: 10 }} />{p.requires_label || 'Appareil requis'}
+                    </span>
+                  )}
                 </div>
               </div>
             );
