@@ -10,67 +10,110 @@ const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4
 const VIDEO_BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/8h3820je_dna%281%29.webm';
 const SCALE_SVCS = ['0000fff0-0000-1000-8000-00805f9b34fb', '0000ffe0-0000-1000-8000-00805f9b34fb'];
 
-function parseWeight(bytes: Uint8Array): { weight: number; impedance: number; stable: boolean; rawHex: string } | null {
+function parseWeight(bytes: Uint8Array): { weight: number; impedance: number; stable: boolean; hasImpedance: boolean; rawHex: string } | null {
   if (bytes.length < 3) return null;
   const rawHex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(' ');
   let weight = 0;
   let impedance = 0;
   let stable = false;
+  let hasImpedance = false;
 
-  // Try ALL possible 2-byte combinations: big-endian and little-endian, with /10, /100, /1000
-  const candidates: { w: number; pos: string }[] = [];
-  for (let i = 0; i <= bytes.length - 2; i++) {
-    const be = (bytes[i] << 8) | bytes[i + 1]; // big-endian
-    const le = bytes[i] | (bytes[i + 1] << 8); // little-endian
-    for (const [raw, endian] of [[be, 'BE'], [le, 'LE']] as [number, string][]) {
-      for (const div of [10, 100, 1000]) {
-        const w = raw / div;
-        if (w >= 3 && w <= 250) {
-          candidates.push({ w: Math.round(w * 10) / 10, pos: `[${i}-${i+1}]${endian}/${div}` });
-        }
-      }
+  // CF597/Lefu 8-electrode protocol: weight at bytes[8-9] big-endian / 5
+  if (bytes.length >= 10 && bytes[0] === 0xCF) {
+    const raw = (bytes[8] << 8) | bytes[9];
+    weight = Math.round((raw / 5) * 10) / 10;
+    stable = bytes[4] !== 0 || (bytes[0] & 0x20) !== 0;
+    // Impedance data comes in longer packets (>20 bytes) when handle is held
+    if (bytes.length >= 20) {
+      hasImpedance = true;
+      impedance = (bytes[10] << 8) | bytes[11];
+    }
+  }
+  // Fallback for other Lefu models: try bytes[8-9] / 5 first
+  else if (bytes.length >= 10) {
+    const raw89 = (bytes[8] << 8) | bytes[9];
+    const w89 = raw89 / 5;
+    if (w89 >= 3 && w89 <= 250) {
+      weight = Math.round(w89 * 10) / 10;
     }
   }
 
-  // Stability: common flags
-  stable = bytes.length > 0 && ((bytes[0] & 0x20) !== 0 || (bytes[0] & 0x10) !== 0);
-
-  // Pick first valid candidate (prefer bytes 3-4 or 1-2 which are most common for Lefu)
-  if (candidates.length > 0) {
-    weight = candidates[0].w;
-  }
-
-  // Impedance from bytes 17-18 if available
-  if (bytes.length >= 19) {
-    const imp = (bytes[17] << 8) | bytes[18];
-    if (imp >= 50 && imp <= 3000) impedance = imp;
+  // Generic fallback: scan all positions
+  if (weight < 3 || weight > 300) {
+    for (let i = 1; i <= bytes.length - 2; i++) {
+      const be = (bytes[i] << 8) | bytes[i + 1];
+      for (const div of [5, 10, 100]) {
+        const w = be / div;
+        if (w >= 10 && w <= 250) {
+          weight = Math.round(w * 10) / 10;
+          break;
+        }
+      }
+      if (weight >= 10) break;
+    }
   }
 
   if (weight < 3 || weight > 300) return null;
-  return { weight, impedance, stable, rawHex };
+  return { weight, impedance, stable, hasImpedance, rawHex };
 }
 
 export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props) {
   const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
+  // Steps: 1=instructions, 2=scanning/connecting, 3=stabilizing weight (live), 4=handle popup, 5=analyzing (countdown), 6=results
   const [step, setStep] = useState(1);
   const [bleStatus, setBleStatus] = useState<'idle' | 'scanning' | 'connecting' | 'connected' | 'error'>('idle');
   const [bleError, setBleError] = useState('');
   const [liveWeight, setLiveWeight] = useState(0);
   const [stableWeight, setStableWeight] = useState(0);
   const [impedance, setImpedance] = useState(0);
-  const [countdown, setCountdown] = useState(30);
+  const [hasImpedance, setHasImpedance] = useState(false);
+  const [countdown, setCountdown] = useState(20);
   const [result, setResult] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [rawDebug, setRawDebug] = useState('');
   const deviceRef = useRef<any>(null);
   const weightsRef = useRef<number[]>([]);
+  const stableTimerRef = useRef<any>(null);
+  const lastWeightRef = useRef(0);
+  const stableCountRef = useRef(0);
 
-  // Countdown timer when connected (step 3) - 30s for 8-electrode measurement
+  // Detect weight stabilization (step 3 → step 4)
   useEffect(() => {
     if (step !== 3) return;
-    setCountdown(30);
+    stableCountRef.current = 0;
+    const iv = setInterval(() => {
+      const w = lastWeightRef.current;
+      if (w > 3) {
+        const diff = Math.abs(w - (weightsRef.current[weightsRef.current.length - 2] || 0));
+        if (diff < 0.3) {
+          stableCountRef.current++;
+          if (stableCountRef.current >= 3) { // stable for 3 seconds
+            clearInterval(iv);
+            setStableWeight(w);
+            setStep(4); // go to handle popup
+          }
+        } else {
+          stableCountRef.current = 0;
+        }
+      }
+    }, 1000);
+    // Fallback: after 30s force stabilize
+    const timeout = setTimeout(() => {
+      clearInterval(iv);
+      if (lastWeightRef.current > 3) {
+        setStableWeight(lastWeightRef.current);
+        setStep(4);
+      }
+    }, 30000);
+    return () => { clearInterval(iv); clearTimeout(timeout); };
+  }, [step]);
+
+  // Analysis countdown (step 5)
+  useEffect(() => {
+    if (step !== 5) return;
+    setCountdown(20);
     const iv = setInterval(() => {
       setCountdown(c => {
         if (c <= 1) {
@@ -119,10 +162,12 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                 const parsed = parseWeight(bytes);
                 if (parsed && parsed.weight >= 2) {
                   setLiveWeight(parsed.weight);
+                  lastWeightRef.current = parsed.weight;
                   weightsRef.current.push(parsed.weight);
                   if (parsed.impedance > 0) setImpedance(parsed.impedance);
+                  if (parsed.hasImpedance) setHasImpedance(true);
                   if (parsed.stable) setStableWeight(parsed.weight);
-                  setRawDebug(`${bytes.length}B: ${parsed.rawHex} → ${parsed.weight}kg`);
+                  setRawDebug(`${bytes.length}B: ${parsed.rawHex} → ${parsed.weight}kg${parsed.hasImpedance ? ' +IMP' : ''}`);
                 }
               });
               notifyStarted = true;
@@ -134,7 +179,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
       if (notifyStarted) {
         setBleStatus('connected');
         setBleError('');
-        setStep(3); // Start countdown with live weight
+        setStep(3); // Go to weight stabilization phase
       } else {
         setBleStatus('error');
         setBleError('Service de pesee non trouve sur cet appareil.');
@@ -177,10 +222,10 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
       }
 
       setResult(res || { weight: finalWeight });
-      setStep(4);
+      setStep(6);
     } catch (e: any) {
       setResult({ weight: finalWeight });
-      setStep(4);
+      setStep(6);
     } finally {
       setSaving(false);
       // Disconnect
@@ -247,52 +292,70 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
           </div>
         )}
 
-        {/* ── STEP 3: Live Measurement (15s countdown) ── */}
+        {/* ── STEP 3: Weight Stabilization (live weight) ── */}
         {step === 3 && (
+          <div style={{ textAlign: 'center' } as any}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Stabilisation du poids...</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>Restez immobile sur la balance</div>
+            <div style={{ fontSize: 72, fontWeight: 900, color: '#FFF', marginBottom: 8, lineHeight: 1, minHeight: 90 } as any}>
+              {liveWeight > 0 ? <>{liveWeight}<span style={{ fontSize: 24, color: 'rgba(255,255,255,0.3)' }}> kg</span></> : <span style={{ fontSize: 28, color: 'rgba(255,255,255,0.3)' }}>En attente...</span>}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginBottom: 16 } as any}>
+              {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: 4, background: '#A78BFA', opacity: 0.5, animation: `pulse 1.2s ${i*0.3}s infinite` } as any} />)}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Le poids se stabilise automatiquement...</div>
+            <div onClick={closeAndCleanup} style={{ marginTop: 24, padding: '14px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler</div>
+            {rawDebug && <div style={{ marginTop: 12, padding: '6px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.3)', fontSize: 8, fontFamily: 'monospace', color: 'rgba(255,255,255,0.3)', wordBreak: 'break-all', maxWidth: 340, margin: '12px auto 0' } as any}>DEBUG: {rawDebug}</div>}
+          </div>
+        )}
+
+        {/* ── STEP 4: Handle Detection Popup ── */}
+        {step === 4 && (
+          <div style={{ textAlign: 'center' } as any}>
+            <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}><i className="ri-scales-3-line" style={{ fontSize: 34, color: '#F59E0B' }} /></div>
+            <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>{stableWeight} kg</div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', marginBottom: 20 } as any}>
+              <span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Poids stabilise</span>
+            </div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>Tenez-vous le manche ?</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, marginBottom: 24, maxWidth: 320, margin: '0 auto 24px' }}>Pour obtenir votre composition corporelle complete, tenez le manche avec les deux mains pendant l'analyse.</div>
+            <div onClick={() => setStep(5)} style={{ padding: '16px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.2))', border: '1px solid rgba(16,185,129,0.4)', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#10B981', marginBottom: 10 } as any}>
+              <i className="ri-hand-heart-line" style={{ marginRight: 8 }} />Oui, lancer l'analyse complete
+            </div>
+            <div onClick={() => finalizeMeasurement()} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 10 } as any}>
+              <i className="ri-scales-3-line" style={{ marginRight: 8 }} />Enregistrer seulement le poids
+            </div>
+            <div onClick={closeAndCleanup} style={{ padding: '12px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.35)' } as any}>Ne rien enregistrer</div>
+          </div>
+        )}
+
+        {/* ── STEP 5: Full Body Analysis Countdown (video) ── */}
+        {step === 5 && (
           <div style={{ position: 'fixed', inset: 0, zIndex: 100000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}>
             <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src={VIDEO_BG} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{t('weighing_measuring')}</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20 }}>{t('weighing_stay_still')}</div>
-
-              {/* Live weight display */}
-              <div style={{ fontSize: 64, fontWeight: 900, color: '#FFF', marginBottom: 6, lineHeight: 1, minHeight: 80 } as any}>
-                {liveWeight > 0 ? (
-                  <>{liveWeight}<span style={{ fontSize: 22, color: 'rgba(255,255,255,0.3)' }}> kg</span></>
-                ) : (
-                  <span style={{ fontSize: 28, color: 'rgba(255,255,255,0.3)' }}>En attente...</span>
-                )}
-              </div>
-              {liveWeight > 0 && stableWeight > 0 && (
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', marginBottom: 16 } as any}>
-                  <span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} />
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Poids stable</span>
-                </div>
-              )}
-
-              {/* Timer ring */}
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Analyse corporelle en cours</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>Maintenez le manche et restez immobile</div>
+              <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{stableWeight}<span style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)' }}> kg</span></div>
               <div style={{ width: 100, height: 100, borderRadius: 50, border: '3px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '10px auto 20px', position: 'relative' } as any}>
                 <svg width="100" height="100" style={{ position: 'absolute', top: -1.5, left: -1.5, transform: 'rotate(-90deg)' }}>
-                  <circle cx="50" cy="50" r="48" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeDasharray={`${(1 - countdown / 15) * 301} 301`} strokeLinecap="round" />
+                  <circle cx="50" cy="50" r="48" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeDasharray={`${(1 - countdown / 20) * 301} 301`} strokeLinecap="round" />
                 </svg>
-                <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>
-                  {countdown}<span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>s</span>
-                </div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{countdown}<span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>s</span></div>
               </div>
-
               <div style={{ display: 'flex', justifyContent: 'center', gap: 4 } as any}>
                 {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: 3, background: '#FFF', opacity: 0.4, animation: `pulse 1.2s ${i*0.3}s infinite` } as any} />)}
               </div>
-              <div onClick={closeAndCleanup} style={{ marginTop: 24, padding: '14px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler la pesee</div>
-              {rawDebug && <div style={{ marginTop: 16, padding: '8px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.4)', fontSize: 9, fontFamily: 'monospace', color: 'rgba(255,255,255,0.4)', wordBreak: 'break-all', maxWidth: 340 } as any}>DEBUG: {rawDebug}</div>}
+              <div onClick={closeAndCleanup} style={{ marginTop: 24, padding: '14px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler</div>
             </div>
             <style dangerouslySetInnerHTML={{ __html: '@keyframes pulse{0%,100%{opacity:0.2;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}' }} />
           </div>
         )}
 
-        {/* ── STEP 4: Results ── */}
-        {step === 4 && (() => {
+        {/* ── STEP 6: Results ── */}
+        {step === 6 && (() => {
           const w = result?.weight || stableWeight || liveWeight || 0;
           const r = result || {};
           const historyData = [...weighings.slice(0, 9).map((h: any) => h.weight || 0).reverse(), w].filter(v => v > 0);
