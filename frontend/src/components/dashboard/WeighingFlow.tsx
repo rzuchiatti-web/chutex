@@ -142,10 +142,10 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
       const silenceMs = Date.now() - lastPacketTimeRef.current;
       setCountdown(elapsed);
-      // After 25s minimum, if 15s without any BLE packet = balance done
-      if (elapsed > 25 && silenceMs > 15000) { finish(); return; }
-      // Hard timeout 120s
-      if (elapsed >= 120) finish();
+      // After 30s minimum, if 20s without any BLE packet = balance done
+      if (elapsed > 30 && silenceMs > 20000) { finish(); return; }
+      // Hard timeout 180s
+      if (elapsed >= 180) finish();
     }, 500);
 
     return () => {
@@ -395,12 +395,15 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                   { label: 'Graisse visc.', value: r.visceral_fat || result?.visceral_fat, unit: '', color: '#EF4444', icon: 'ri-fire-line' },
                   { label: 'Metabolisme', value: r.basal_metabolism || result?.basal_metabolism, unit: 'kcal', color: '#F97316', icon: 'ri-flashlight-line' },
                   { label: 'Proteines', value: r.protein_pct || result?.protein_pct, unit: '%', color: '#14B8A6', icon: 'ri-leaf-line' },
-                  { label: 'Age corporel', value: r.body_age || result?.body_age, unit: 'ans', color: '#8B5CF6', icon: 'ri-time-line' },
+                  { label: 'Age corporel', value: r.body_age || result?.body_age, unit: 'ans', color: '#8B5CF6', icon: 'ri-time-line', nora: true },
                 ].map((m, i) => (
-                  <div key={i} style={{ padding: '10px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' } as any}>
+                  <div key={i} style={{ padding: '10px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', position: 'relative' } as any}>
                     <i className={m.icon} style={{ fontSize: 14, color: m.color, display: 'block', marginBottom: 4 }} />
                     <div style={{ fontSize: 16, fontWeight: 900, color: m.value ? m.color : 'rgba(255,255,255,0.15)' }}>{m.value || '--'}{m.value ? <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{m.unit}</span> : ''}</div>
                     <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{m.label}</div>
+                    {(m as any).nora && !m.value && (
+                      <div style={{ position: 'absolute', top: 4, right: 4, padding: '1px 5px', borderRadius: 4, background: 'rgba(167,139,250,0.15)', fontSize: 7, fontWeight: 700, color: '#A78BFA' }}>Nora</div>
+                    )}
                   </div>
                 ))}
               </div>

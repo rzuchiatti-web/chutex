@@ -80,11 +80,21 @@ async def build_nora_context(user: dict) -> dict:
     has_bracelet_data = bool(bracelet_reading and bracelet_reading.get("data"))
     has_scale_data = bool(scale_reading and scale_reading.get("data"))
     ctx["has_any_data"] = has_bracelet_data or has_scale_data
+
+    # Get Nora's AI-computed body age
+    body_age_cache = await db.body_age_cache.find_one({"user_id": uid}, {"_id": 0})
+    nora_body_age = body_age_cache.get("body_age") if body_age_cache else None
+
+    scale_data = scale_reading.get("data", {}) if scale_reading else {}
+    if nora_body_age:
+        scale_data["body_age"] = nora_body_age  # Override with Nora's value
+
     ctx["health_data"] = {
         "bracelet": bracelet_reading.get("data", {}) if bracelet_reading else {},
-        "scale": scale_reading.get("data", {}) if scale_reading else {},
+        "scale": scale_data,
         "has_bracelet_data": has_bracelet_data,
         "has_scale_data": has_scale_data,
+        "nora_body_age": nora_body_age,
     }
 
     # ── Active program ──
@@ -218,7 +228,9 @@ def format_nora_context_for_prompt(ctx: dict) -> str:
             scale_parts.append(f"Eau {sd['water_pct']}%")
         if sd.get("visceral_fat"):
             scale_parts.append(f"Graisse visc. {sd['visceral_fat']}")
-        if sd.get("body_age"):
+        if hd.get("nora_body_age"):
+            scale_parts.append(f"Age corporel (estime par Nora) {hd['nora_body_age']} ans")
+        elif sd.get("body_age"):
             scale_parts.append(f"Age corporel {sd['body_age']} ans")
         if scale_parts:
             parts.append(f"Donnees balance: {', '.join(scale_parts)}.")

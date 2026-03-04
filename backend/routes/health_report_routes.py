@@ -852,27 +852,43 @@ async def get_daily_report(user=Depends(get_current_user)):
                 "status": sd.get("health_evaluation", "--"),
             })
 
-    # Analysis phase (7-day onboarding) — only if device was RECENTLY created
-    first_device = await db.devices.find_one({"user_id": uid, "removed": {"$ne": True}}, {"_id": 0}, sort=[("created_at", 1)])
+    # Body age from Nora AI (based on all historical data)
+    body_age_data = None
+    try:
+        body_age_result = await db.body_age_cache.find_one({"user_id": uid}, {"_id": 0})
+        if body_age_result and body_age_result.get("body_age"):
+            body_age_data = body_age_result
+            # Override body_age in the data dict with Nora's computed value
+            d["body_age"] = body_age_result["body_age"]
+    except:
+        pass
+
+    # Analysis phase (body age collection progress)
     analysis_phase = None
-    if first_device and first_device.get("created_at"):
-        try:
-            created = datetime.fromisoformat(first_device["created_at"].replace("Z", "+00:00"))
-            days_since = (datetime.now(timezone.utc) - created).days
-            if days_since < 7:
-                day = days_since + 1
-                messages = {
-                    1: "Debut de l'analyse",
-                    2: "Collecte des premieres tendances",
-                    3: "Ajustement de votre profil",
-                    4: "Analyse des habitudes",
-                    5: "Correlation des donnees",
-                    6: "Finalisation du profil",
-                    7: "Preparation du Score Sante IA",
-                }
-                analysis_phase = {"day": day, "total": 7, "message": messages.get(day, "Analyse en cours"), "progress_pct": round((day / 7) * 100)}
-        except:
-            pass
+    distinct_days = set()
+    all_user_readings = await db.device_readings.find(
+        {"user_id": uid}, {"_id": 0, "timestamp": 1}
+    ).to_list(500)
+    for r in all_user_readings:
+        ts = r.get("timestamp", "")
+        if ts:
+            distinct_days.add(ts[:10])
+    days_count = len(distinct_days)
+    if 0 < days_count < 7:
+        messages = {
+            1: "Debut de l'analyse — Nora collecte vos premieres donnees",
+            2: "Collecte des premieres tendances",
+            3: "Ajustement de votre profil de sante",
+            4: "Analyse des habitudes et correlations",
+            5: "Correlation des donnees corporelles et cardiaques",
+            6: "Finalisation de votre profil biologique",
+        }
+        analysis_phase = {
+            "day": days_count, "total": 7,
+            "message": messages.get(days_count, "Analyse en cours"),
+            "progress_pct": round((days_count / 7) * 100),
+            "type": "body_age",
+        }
 
     return {
         "score": si["score"], "status": si["status"], "status_color": si["status_color"],
@@ -880,8 +896,222 @@ async def get_daily_report(user=Depends(get_current_user)):
         "data": d, "ai": ai, "daily_plan": plan, "sparklines": sparks,
         "weighings": weighings, "human_map_img": HUMAN_MAP_IMG,
         "analysis_phase": analysis_phase,
+        "body_age_nora": body_age_data,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
+
+
+@router.get("/health/body-age")
+async def get_body_age(user=Depends(get_current_user)):
+    """
+    Compute biological body age using Nora AI.
+    Based on ALL health data since registration.
+    Requires at least 7 days of data collection before returning a value.
+    """
+    uid = user['id']
+
+    # Check cache (24h TTL or until new measurement)
+    cached = await db.body_age_cache.find_one({"user_id": uid}, {"_id": 0})
+    if cached:
+        try:
+            cached_at = datetime.fromisoformat(cached["computed_at"].replace("Z", "+00:00"))
+            last_reading = await db.device_readings.find_one(
+                {"user_id": uid}, {"_id": 0, "timestamp": 1}, sort=[("timestamp", -1)]
+            )
+            last_ts = last_reading["timestamp"] if last_reading else ""
+            # Use cache if < 24h old AND no new reading since cache
+            if (datetime.now(timezone.utc) - cached_at).total_seconds() < 86400:
+                if not last_ts or last_ts <= cached.get("last_reading_ts", ""):
+                    return cached
+        except:
+            pass
+
+    # Gather ALL device readings since registration
+    all_readings = await db.device_readings.find(
+        {"user_id": uid}, {"_id": 0}
+    ).sort("timestamp", 1).to_list(500)
+
+    if not all_readings:
+        return {
+            "user_id": uid, "body_age": None, "status": "no_data",
+            "message": "Aucune donnee de sante disponible. Connectez vos appareils pour commencer.",
+            "days_collected": 0, "days_required": 7, "progress_pct": 0,
+        }
+
+    # Count distinct days with readings
+    distinct_days = set()
+    for r in all_readings:
+        ts = r.get("timestamp", "")
+        if ts:
+            distinct_days.add(ts[:10])
+
+    days_collected = len(distinct_days)
+    first_day = min(distinct_days) if distinct_days else ""
+    last_day = max(distinct_days) if distinct_days else ""
+
+    if days_collected < 7:
+        return {
+            "user_id": uid, "body_age": None, "status": "collecting",
+            "message": f"Jour {days_collected} sur 7 : Nora collecte vos donnees pour estimer votre age corporel.",
+            "days_collected": days_collected, "days_required": 7,
+            "progress_pct": round((days_collected / 7) * 100),
+            "first_day": first_day, "last_day": last_day,
+        }
+
+    # We have >= 7 days of data — build a comprehensive health profile for Nora
+    # Aggregate key metrics across all readings
+    weights, bmis, body_fats, muscles, waters, heart_rates = [], [], [], [], [], []
+    spo2s, temperatures, steps_list, stress_list, sleep_quals = [], [], [], [], []
+    visceral_fats, bone_masses, hrv_list = [], [], []
+
+    for r in all_readings:
+        d = r.get("data", {})
+        if d.get("weight", 0) > 3: weights.append(d["weight"])
+        if d.get("bmi", 0) > 10: bmis.append(d["bmi"])
+        if d.get("body_fat_pct", 0) > 1: body_fats.append(d["body_fat_pct"])
+        if d.get("muscle_pct", 0) > 1: muscles.append(d["muscle_pct"])
+        if d.get("water_pct", 0) > 1: waters.append(d["water_pct"])
+        if d.get("visceral_fat", 0) > 0: visceral_fats.append(d["visceral_fat"])
+        if d.get("bone_mass_kg", 0) > 0: bone_masses.append(d["bone_mass_kg"])
+        if 30 < d.get("heart_rate", 0) < 220: heart_rates.append(d["heart_rate"])
+        if 80 < d.get("spo2", 0) <= 100: spo2s.append(d["spo2"])
+        if 34 < d.get("temperature", 0) < 42: temperatures.append(d["temperature"])
+        if d.get("steps", 0) > 0: steps_list.append(d["steps"])
+        if d.get("stress_level", 0) > 0: stress_list.append(d["stress_level"])
+        if d.get("sleep_quality", 0) > 0: sleep_quals.append(d["sleep_quality"])
+        if d.get("hrv", 0) > 0: hrv_list.append(d["hrv"])
+
+    def avg(lst): return round(sum(lst) / len(lst), 1) if lst else 0
+    def trend(lst): return round(lst[-1] - lst[0], 1) if len(lst) >= 2 else 0
+
+    # User profile
+    profile = user
+    real_age = None
+    dob = profile.get("date_of_birth", "")
+    if dob:
+        for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
+            try:
+                born = datetime.strptime(dob, fmt)
+                real_age = (datetime.now(timezone.utc) - born.replace(tzinfo=timezone.utc)).days // 365
+                break
+            except ValueError:
+                continue
+
+    gender = profile.get("gender", "")
+    height = profile.get("height_cm", 0)
+    conditions = profile.get("medical_conditions", "")
+
+    # Build data summary for Nora
+    data_summary_parts = []
+    data_summary_parts.append(f"Periode d'analyse: {first_day} a {last_day} ({days_collected} jours de donnees)")
+    if real_age: data_summary_parts.append(f"Age chronologique: {real_age} ans")
+    if gender: data_summary_parts.append(f"Sexe: {gender}")
+    if height: data_summary_parts.append(f"Taille: {height} cm")
+    if conditions: data_summary_parts.append(f"Pathologies: {conditions}")
+
+    if weights: data_summary_parts.append(f"Poids: moy {avg(weights)}kg, tendance {trend(weights):+.1f}kg, {len(weights)} mesures")
+    if bmis: data_summary_parts.append(f"IMC: moy {avg(bmis)}")
+    if body_fats: data_summary_parts.append(f"Graisse corporelle: moy {avg(body_fats)}%")
+    if muscles: data_summary_parts.append(f"Masse musculaire: moy {avg(muscles)}%")
+    if waters: data_summary_parts.append(f"Hydratation: moy {avg(waters)}%")
+    if visceral_fats: data_summary_parts.append(f"Graisse viscerale: moy {avg(visceral_fats)}")
+    if bone_masses: data_summary_parts.append(f"Masse osseuse: moy {avg(bone_masses)}kg")
+    if heart_rates: data_summary_parts.append(f"Frequence cardiaque repos: moy {avg(heart_rates)}bpm, tendance {trend(heart_rates):+.1f}")
+    if spo2s: data_summary_parts.append(f"SpO2: moy {avg(spo2s)}%")
+    if temperatures: data_summary_parts.append(f"Temperature: moy {avg(temperatures)}C")
+    if steps_list: data_summary_parts.append(f"Pas quotidiens: moy {avg(steps_list)}")
+    if stress_list: data_summary_parts.append(f"Stress: moy {avg(stress_list)}/100")
+    if sleep_quals: data_summary_parts.append(f"Qualite sommeil: moy {avg(sleep_quals)}%")
+    if hrv_list: data_summary_parts.append(f"HRV: moy {avg(hrv_list)}ms")
+
+    data_summary = "\n".join(data_summary_parts)
+
+    # Call Nora AI to estimate biological age
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    body_age = None
+    explanation = ""
+    factors_positive = []
+    factors_negative = []
+
+    if api_key:
+        try:
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
+            import json
+
+            prompt = f"""Tu es Nora, medecin IA specialisee en longevite et prevention. Tu dois estimer l'AGE BIOLOGIQUE (age corporel) de ce patient en te basant sur TOUTES ses donnees de sante collectees depuis son inscription.
+
+PROFIL ET DONNEES DU PATIENT:
+{data_summary}
+
+METHODE D'ESTIMATION:
+- Compare chaque parametre aux normes pour l'age chronologique du patient
+- Composition corporelle: IMC, graisse, muscle, hydratation, graisse viscerale
+- Sante cardiovasculaire: FC repos, HRV, SpO2, tension
+- Activite physique: pas quotidiens, depense calorique
+- Recuperation: qualite sommeil, stress, recuperation
+- Tendances: amelioration ou degradation dans le temps
+- Un bon IMC, bon taux musculaire, bonne hydratation, bonne FC repos = age corporel INFERIEUR a l'age chronologique
+- Un IMC eleve, faible muscle, mauvais sommeil, stress eleve = age corporel SUPERIEUR a l'age chronologique
+- L'age corporel doit etre un entier entre 30 et 100 ans
+
+IMPORTANT: Sois precis et medical. Pas d'emoji. L'age corporel est different de l'age chronologique. Un patient de 70 ans en excellente forme peut avoir un age corporel de 58 ans.
+
+Reponds UNIQUEMENT en JSON:
+{{"body_age": <entier>, "explanation": "1 phrase justificative courte", "factors_positive": ["facteur 1", "facteur 2"], "factors_negative": ["facteur 1"], "confidence": "haute/moyenne/basse"}}"""
+
+            chat = LlmChat(api_key=api_key, session_id=f"ba-{uuid.uuid4().hex[:8]}",
+                           system_message="Nora, medecin IA. Estimation age biologique. JSON uniquement. Pas d'emoji.").with_model("openai", "gpt-5.2")
+            r = await chat.send_message(UserMessage(text=prompt))
+            c = r.strip()
+            if c.startswith("```"): c = c.split("\n", 1)[1] if "\n" in c else c[3:]
+            if c.endswith("```"): c = c[:-3]
+            parsed = json.loads(c.strip())
+            body_age = parsed.get("body_age")
+            explanation = parsed.get("explanation", "")
+            factors_positive = parsed.get("factors_positive", [])
+            factors_negative = parsed.get("factors_negative", [])
+        except Exception as e:
+            print(f"Body age AI err: {e}")
+
+    # Fallback if AI fails
+    if body_age is None and real_age:
+        bmi_adj = 0
+        if bmis:
+            bmi_val = avg(bmis)
+            if bmi_val > 30: bmi_adj = 5
+            elif bmi_val > 25: bmi_adj = 2
+            elif bmi_val < 20: bmi_adj = -1
+        muscle_adj = 0
+        if muscles:
+            mp = avg(muscles)
+            if mp > 35: muscle_adj = -3
+            elif mp < 25: muscle_adj = 3
+        activity_adj = 0
+        if steps_list:
+            sp = avg(steps_list)
+            if sp > 8000: activity_adj = -3
+            elif sp < 3000: activity_adj = 3
+        body_age = max(30, min(100, real_age + bmi_adj + muscle_adj + activity_adj))
+        explanation = "Estimation basee sur la composition corporelle et l'activite physique."
+
+    last_reading_ts = all_readings[-1].get("timestamp", "") if all_readings else ""
+
+    result = {
+        "user_id": uid, "body_age": body_age, "status": "computed",
+        "real_age": real_age, "explanation": explanation,
+        "factors_positive": factors_positive, "factors_negative": factors_negative,
+        "days_collected": days_collected, "days_required": 7, "progress_pct": 100,
+        "first_day": first_day, "last_day": last_day,
+        "computed_at": datetime.now(timezone.utc).isoformat(),
+        "last_reading_ts": last_reading_ts,
+    }
+
+    # Cache result
+    await db.body_age_cache.update_one(
+        {"user_id": uid}, {"$set": result}, upsert=True
+    )
+
+    return result
 
 
 @router.get("/health/report/pdf")

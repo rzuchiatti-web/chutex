@@ -80,12 +80,14 @@ export default function HealthScreen() {
   const plan = report?.daily_plan || [];
   const weighings = report?.weighings || [];
   const analysisPhase = report?.analysis_phase || null;
+  const bodyAgeNora = report?.body_age_nora || null;
+  const noraBodyAge = bodyAgeNora?.body_age || 0;
   const hasHeartRate = Number(d.heart_rate || 0) > 0;
   const hasSpo2 = Number(d.spo2 || 0) > 0;
   const hasBloodPressure = Number(d.blood_pressure?.systolic || 0) > 0 && Number(d.blood_pressure?.diastolic || 0) > 0;
   const hasValidTemp = Number(d.temperature || 0) >= 34 && Number(d.temperature || 0) <= 42;
   const hasMeaningfulVitals = hasHeartRate || hasSpo2 || hasBloodPressure || hasValidTemp;
-  const hasBodyAge = Number(d.body_age || 0) > 0;
+  const hasBodyAge = noraBodyAge > 0 || Number(d.body_age || 0) > 0;
   const hasWeightData = weighings.length > 0 || Number(d.weight || 0) > 0;
   const hasAnyHealthData = hasMeaningfulVitals || hasBodyAge || hasWeightData;
   const filteredPlan = (Array.isArray(plan) ? plan : []).filter((p: any) => {
@@ -146,7 +148,7 @@ export default function HealthScreen() {
 
           {/* 1. Hero BioAge */}
           {!analysisPhase && (hasMeaningfulVitals || hasBodyAge) ? (
-            <HeroScore bioAge={d.body_age || 0} realAge={user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} />
+            <HeroScore bioAge={noraBodyAge || d.body_age || 0} realAge={user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} bodyAgeNora={bodyAgeNora} />
           ) : (
             <div data-testid="health-score-unavailable" style={{ padding: '18px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.22)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
               <div style={{ fontSize: 13, fontWeight: 800, color: '#FCD34D', marginBottom: 6 }}>Score Nora indisponible</div>

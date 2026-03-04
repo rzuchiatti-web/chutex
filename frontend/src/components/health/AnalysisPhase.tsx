@@ -8,16 +8,20 @@ export default function AnalysisPhase({ analysisPhase, showInfo, setShowInfo, pr
   const total = analysisPhase.total || 7;
   const pct = analysisPhase.progress_pct || Math.round((day / total) * 100);
   const message = analysisPhase.message || 'Analyse en cours';
+  const isBodyAge = analysisPhase.type === 'body_age';
 
   return (
     <>
       <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
         {/* Title */}
         <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 10, lineHeight: 1.2, letterSpacing: -0.5 }}>
-          Analyse en cours de<br/>votre profil sante.
+          {isBodyAge ? <>Nora analyse votre<br/>age biologique.</> : <>Analyse en cours de<br/>votre profil sante.</>}
         </div>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, marginBottom: 20, maxWidth: 320, margin: '0 auto 20px' }}>
-          Pendant les {total} premiers jours, nous analysons vos donnees pour comprendre votre rythme, vos habitudes et vos tendances.
+          {isBodyAge
+            ? `Nora collecte vos donnees de sante depuis votre inscription pour estimer votre age biologique. Encore ${total - day} jour${total - day > 1 ? 's' : ''} de donnees necessaires.`
+            : `Pendant les ${total} premiers jours, nous analysons vos donnees pour comprendre votre rythme, vos habitudes et vos tendances.`
+          }
         </div>
 
         {/* Info button */}

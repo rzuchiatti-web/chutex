@@ -1,24 +1,42 @@
 import React from 'react';
 
-interface Props { bioAge?: number; realAge?: number; status: string; statusColor: string; ai: any; subs: any; showDetail: boolean; setShowDetail: (v: boolean) => void; d: any; }
+interface Props { bioAge?: number; realAge?: number; status: string; statusColor: string; ai: any; subs: any; showDetail: boolean; setShowDetail: (v: boolean) => void; d: any; bodyAgeNora?: any; }
 
-export default function HeroScore({ bioAge, realAge, status, statusColor, ai, subs, showDetail, setShowDetail, d }: Props) {
-  const ba = bioAge || 63;
-  const ra = realAge || 68;
-  const diff = ra - ba;
+export default function HeroScore({ bioAge, realAge, status, statusColor, ai, subs, showDetail, setShowDetail, d, bodyAgeNora }: Props) {
+  const ba = bioAge || 0;
+  const ra = realAge || 0;
+  const diff = ra > 0 && ba > 0 ? ra - ba : 0;
+  const isNoraComputed = bodyAgeNora?.status === 'computed';
   return (
     <>
       {/* Bio age info — no card, floating on background */}
       <div style={{ textAlign: 'center', padding: '20px 20px 14px' } as any}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Age biologique</div>
-        <div style={{ fontSize: 56, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{ba}<span style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)', marginLeft: 4 }}>ans</span></div>
-        {diff !== 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 10 } as any}>
+          {isNoraComputed && (
+            <div style={{ width: 18, height: 18, borderRadius: 6, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <span style={{ fontSize: 8, fontWeight: 900, color: '#A78BFA' }}>N</span>
+            </div>
+          )}
+          <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+            Age biologique{isNoraComputed ? ' (estime par Nora)' : ''}
+          </span>
+        </div>
+        {ba > 0 ? (
+          <div style={{ fontSize: 56, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{ba}<span style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)', marginLeft: 4 }}>ans</span></div>
+        ) : (
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'rgba(255,255,255,0.3)', lineHeight: 1.4 }}>En cours d'analyse...</div>
+        )}
+        {diff !== 0 && ba > 0 && (
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 14px', borderRadius: 999, background: diff > 0 ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${diff > 0 ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`, marginTop: 10 } as any}>
             <i className={diff > 0 ? 'ri-arrow-down-line' : 'ri-arrow-up-line'} style={{ fontSize: 12, color: diff > 0 ? '#10B981' : '#EF4444' }} />
             <span style={{ fontSize: 11, fontWeight: 700, color: diff > 0 ? '#10B981' : '#EF4444' }}>{Math.abs(diff)} ans {diff > 0 ? 'de moins' : 'de plus'} que votre age reel</span>
           </div>
         )}
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 10, lineHeight: 1.5 }}>{ai.hero_line || ''}</div>
+        {/* Nora explanation */}
+        {isNoraComputed && bodyAgeNora?.explanation && (
+          <div style={{ fontSize: 12, color: 'rgba(167,139,250,0.7)', marginTop: 10, lineHeight: 1.5, fontStyle: 'italic' }}>{bodyAgeNora.explanation}</div>
+        )}
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: isNoraComputed ? 6 : 10, lineHeight: 1.5 }}>{ai.hero_line || ''}</div>
         {/* Glass button */}
         <div onClick={() => setShowDetail(true)} style={{ marginTop: 14, padding: '12px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'background 0.2s' } as any}
           onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; }}
