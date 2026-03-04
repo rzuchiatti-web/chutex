@@ -414,7 +414,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
           {/* ── 3. ACTIVITE (remplace activite + sommeil) ── */}
-            <ActivityCard steps={br.steps || 0} calories={br.calories || 0} distance={br.distance_km || 0} streak={activityStreakData} />
+            <ActivityCard steps={br.steps || 0} calories={br.calories || 0} distance={br.distance_km || 0} recovery={br.recovery_score || 0} stress={br.stress_level || 0} sleepQuality={dashData?.sleep?.quality || 0} heartRate={br.heart_rate || 0} streak={activityStreakData} />
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 

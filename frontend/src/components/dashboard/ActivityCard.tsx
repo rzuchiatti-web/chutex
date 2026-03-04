@@ -5,10 +5,36 @@ interface ActivityCardProps {
   steps: number;
   calories: number;
   distance: number;
+  recovery?: number;
+  stress?: number;
+  sleepQuality?: number;
+  heartRate?: number;
   streak?: { current_streak: number; max_streak: number; badge: any; objectives_today: string[] };
 }
 
-export default function ActivityCard({ steps, calories, distance, streak }: ActivityCardProps) {
+function getRecoveryInfo(recovery: number, stress: number, sleepQuality: number, heartRate: number) {
+  // Compute a workout readiness score
+  let readiness = recovery;
+  if (readiness === 0 && (stress > 0 || sleepQuality > 0 || heartRate > 0)) {
+    // Estimate from other data
+    readiness = 50;
+    if (sleepQuality >= 75) readiness += 15;
+    else if (sleepQuality > 0 && sleepQuality < 60) readiness -= 15;
+    if (stress > 60) readiness -= 20;
+    else if (stress > 0 && stress < 30) readiness += 10;
+    if (heartRate > 0 && heartRate < 70) readiness += 10;
+    else if (heartRate > 90) readiness -= 10;
+    readiness = Math.max(0, Math.min(100, readiness));
+  }
+
+  if (readiness === 0) return { level: 'unknown', color: '#6B7280', barColor: 'rgba(255,255,255,0.08)', note: 'Connectez votre bracelet Elio pour obtenir votre score de recuperation et un avis personnalise sur votre forme physique.' };
+  if (readiness >= 80) return { level: 'optimal', color: '#10B981', barColor: '#10B981', note: 'Votre recuperation est excellente. C\'est le moment ideal pour une seance de sport intense : course, musculation, ou HIIT. Votre corps est pret.' };
+  if (readiness >= 60) return { level: 'bon', color: '#22D3EE', barColor: '#22D3EE', note: 'Bonne recuperation. Une activite moderee est recommandee : marche rapide, yoga dynamique, ou velo tranquille. Evitez les efforts maximaux.' };
+  if (readiness >= 40) return { level: 'modere', color: '#F59E0B', barColor: '#F59E0B', note: 'Recuperation moyenne. Privilegiez une activite legere : stretching, marche douce ou mobilite articulaire. Votre corps a besoin de repos actif.' };
+  return { level: 'faible', color: '#EF4444', barColor: '#EF4444', note: 'Recuperation insuffisante. Reposez-vous aujourd\'hui. Votre corps a besoin de recuperer. Hydratez-vous bien et couchez-vous tot ce soir.' };
+}
+
+export default function ActivityCard({ steps, calories, distance, recovery = 0, stress = 0, sleepQuality = 0, heartRate = 0, streak }: ActivityCardProps) {
   const router = useRouter();
   const st = streak || { current_streak: 0, max_streak: 0, badge: null, objectives_today: [] };
   const metrics = [
@@ -16,6 +42,8 @@ export default function ActivityCard({ steps, calories, distance, streak }: Acti
     { label: 'Calories', value: calories, goal: 300, unit: 'kcal', icon: 'ri-fire-line', color: '#F59E0B' },
     { label: 'Distance', value: distance, goal: 4, unit: 'km', icon: 'ri-route-line', color: '#38BDF8' },
   ];
+  const ri = getRecoveryInfo(recovery, stress, sleepQuality, heartRate);
+  const recoveryPct = recovery > 0 ? recovery : (ri.level !== 'unknown' ? 50 : 0);
 
   return (
     <div data-testid="activity-card" onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: 'activity' } })} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', cursor: 'pointer', transition: 'transform 0.15s, background 0.15s' } as any}
@@ -72,6 +100,29 @@ export default function ActivityCard({ steps, calories, distance, streak }: Acti
             </div>
           );
         })}
+      </div>
+
+      {/* Recovery bar + Nora workout note */}
+      <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)' } as any}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+            <i className="ri-battery-charge-line" style={{ fontSize: 13, color: ri.color }} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Recuperation</span>
+          </div>
+          {recovery > 0 && (
+            <span style={{ fontSize: 13, fontWeight: 900, color: ri.color }}>{recovery}/100</span>
+          )}
+        </div>
+        <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 10 } as any}>
+          <div style={{ height: 8, borderRadius: 4, width: recoveryPct > 0 ? `${recoveryPct}%` : '0%', background: `linear-gradient(90deg, ${ri.barColor}60, ${ri.barColor})`, transition: 'width 0.8s ease', boxShadow: recoveryPct > 0 ? `0 0 10px ${ri.barColor}30` : 'none' } as any} />
+        </div>
+        {/* Nora note */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 } as any}>
+          <div style={{ width: 20, height: 20, borderRadius: 6, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
+            <span style={{ fontSize: 8, fontWeight: 900, color: '#A78BFA' }}>N</span>
+          </div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>{ri.note}</div>
+        </div>
       </div>
     </div>
   );

@@ -248,7 +248,7 @@ export default function HealthScreen() {
           </div>
 
           {/* 4b. Activity Card — full width with streak */}
-          <ActivityCard steps={d.steps || 0} calories={d.calories || 0} distance={d.distance_km || 0} streak={activityStreak} />
+          <ActivityCard steps={d.steps || 0} calories={d.calories || 0} distance={d.distance_km || 0} recovery={d.recovery_score || 0} stress={d.stress_level || 0} sleepQuality={d.sleep_quality || 0} heartRate={d.heart_rate || 0} streak={activityStreak} />
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '16px 20px 16px' } as any} />
           <SleepCard d={d} />
