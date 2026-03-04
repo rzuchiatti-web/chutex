@@ -10,53 +10,44 @@ const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4
 const VIDEO_BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/8h3820je_dna%281%29.webm';
 const SCALE_SVCS = ['0000fff0-0000-1000-8000-00805f9b34fb', '0000ffe0-0000-1000-8000-00805f9b34fb'];
 
-function parseWeight(bytes: Uint8Array): { weight: number; impedance: number; stable: boolean } | null {
+function parseWeight(bytes: Uint8Array): { weight: number; impedance: number; stable: boolean; rawHex: string } | null {
   if (bytes.length < 3) return null;
+  const rawHex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(' ');
   let weight = 0;
   let impedance = 0;
   let stable = false;
 
-  // Try multiple byte positions and divisors
-  const candidates: { w: number; imp: number; s: boolean }[] = [];
-
-  // Position: bytes 15-16 (QN-Scale long packet)
-  if (bytes.length >= 17) {
-    const raw = (bytes[15] << 8) | bytes[16];
-    candidates.push({ w: raw / 10, imp: 0, s: (bytes[0] & 0x20) !== 0 || (bytes[0] & 0x10) !== 0 });
-    candidates.push({ w: raw / 100, imp: 0, s: (bytes[0] & 0x20) !== 0 });
-    if (bytes.length >= 19) {
-      const imp = (bytes[17] << 8) | bytes[18];
-      if (imp >= 100 && imp <= 2000) {
-        candidates[0].imp = imp;
-        candidates[1].imp = imp;
+  // Try ALL possible 2-byte combinations: big-endian and little-endian, with /10, /100, /1000
+  const candidates: { w: number; pos: string }[] = [];
+  for (let i = 0; i <= bytes.length - 2; i++) {
+    const be = (bytes[i] << 8) | bytes[i + 1]; // big-endian
+    const le = bytes[i] | (bytes[i + 1] << 8); // little-endian
+    for (const [raw, endian] of [[be, 'BE'], [le, 'LE']] as [number, string][]) {
+      for (const div of [10, 100, 1000]) {
+        const w = raw / div;
+        if (w >= 3 && w <= 250) {
+          candidates.push({ w: Math.round(w * 10) / 10, pos: `[${i}-${i+1}]${endian}/${div}` });
+        }
       }
     }
   }
-  // Position: bytes 3-4
-  if (bytes.length >= 5) {
-    const raw = (bytes[3] << 8) | bytes[4];
-    candidates.push({ w: raw / 10, imp: 0, s: (bytes[0] & 0x20) !== 0 });
-    candidates.push({ w: raw / 100, imp: 0, s: (bytes[0] & 0x20) !== 0 });
-  }
-  // Position: bytes 1-2
-  if (bytes.length >= 3) {
-    const raw = (bytes[1] << 8) | bytes[2];
-    candidates.push({ w: raw / 10, imp: 0, s: true });
-    candidates.push({ w: raw / 100, imp: 0, s: true });
+
+  // Stability: common flags
+  stable = bytes.length > 0 && ((bytes[0] & 0x20) !== 0 || (bytes[0] & 0x10) !== 0);
+
+  // Pick first valid candidate (prefer bytes 3-4 or 1-2 which are most common for Lefu)
+  if (candidates.length > 0) {
+    weight = candidates[0].w;
   }
 
-  // Pick the best candidate: weight in 20-250 kg range
-  for (const c of candidates) {
-    if (c.w >= 20 && c.w <= 250) {
-      weight = Math.round(c.w * 10) / 10;
-      impedance = c.imp;
-      stable = c.s;
-      break;
-    }
+  // Impedance from bytes 17-18 if available
+  if (bytes.length >= 19) {
+    const imp = (bytes[17] << 8) | bytes[18];
+    if (imp >= 50 && imp <= 3000) impedance = imp;
   }
 
-  if (weight < 2 || weight > 300) return null;
-  return { weight, impedance, stable };
+  if (weight < 3 || weight > 300) return null;
+  return { weight, impedance, stable, rawHex };
 }
 
 export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props) {
@@ -69,16 +60,17 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
   const [liveWeight, setLiveWeight] = useState(0);
   const [stableWeight, setStableWeight] = useState(0);
   const [impedance, setImpedance] = useState(0);
-  const [countdown, setCountdown] = useState(15);
+  const [countdown, setCountdown] = useState(30);
   const [result, setResult] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [rawDebug, setRawDebug] = useState('');
   const deviceRef = useRef<any>(null);
   const weightsRef = useRef<number[]>([]);
 
-  // Countdown timer when connected (step 3)
+  // Countdown timer when connected (step 3) - 30s for 8-electrode measurement
   useEffect(() => {
     if (step !== 3) return;
-    setCountdown(15);
+    setCountdown(30);
     const iv = setInterval(() => {
       setCountdown(c => {
         if (c <= 1) {
@@ -130,6 +122,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                   weightsRef.current.push(parsed.weight);
                   if (parsed.impedance > 0) setImpedance(parsed.impedance);
                   if (parsed.stable) setStableWeight(parsed.weight);
+                  setRawDebug(`${bytes.length}B: ${parsed.rawHex} → ${parsed.weight}kg`);
                 }
               });
               notifyStarted = true;
@@ -292,6 +285,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                 {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: 3, background: '#FFF', opacity: 0.4, animation: `pulse 1.2s ${i*0.3}s infinite` } as any} />)}
               </div>
               <div onClick={closeAndCleanup} style={{ marginTop: 24, padding: '14px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler la pesee</div>
+              {rawDebug && <div style={{ marginTop: 16, padding: '8px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.4)', fontSize: 9, fontFamily: 'monospace', color: 'rgba(255,255,255,0.4)', wordBreak: 'break-all', maxWidth: 340 } as any}>DEBUG: {rawDebug}</div>}
             </div>
             <style dangerouslySetInnerHTML={{ __html: '@keyframes pulse{0%,100%{opacity:0.2;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}' }} />
           </div>
