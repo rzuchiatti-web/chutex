@@ -179,17 +179,19 @@ function WebLocationPermissionGate() {
   if (!visible) return null;
 
   return (
-    <div data-testid="web-location-permission-guide" style={{ position: 'fixed', right: 16, bottom: 16, zIndex: 9999, width: 340, maxWidth: 'calc(100vw - 24px)', borderRadius: 18, background: 'rgba(15,23,42,0.78)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: '0 12px 40px rgba(0,0,0,0.35)', padding: 14, fontFamily: "'Inter', system-ui, sans-serif" } as any}>
-      <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 6 }} data-testid="web-location-permission-guide-title">Activer la localisation</div>
-      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.72)', lineHeight: 1.5, marginBottom: 10 }} data-testid="web-location-permission-guide-text">
-        {message || 'Autorisez la localisation pour les safe zones et le suivi SOS.'}
-      </div>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' } as any}>
-        <div data-testid="web-location-open-settings-button" onClick={() => openSystemLocationSettings()} style={{ flex: 1, minWidth: 130, textAlign: 'center', borderRadius: 999, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.08)', color: '#FFF', fontSize: 12, fontWeight: 700, padding: '9px 12px', cursor: 'pointer' } as any}>
-          Ouvrir Reglages
+    <div data-testid="web-location-permission-guide" style={{ position: 'fixed', right: 16, bottom: 80, zIndex: 9999, width: 300, maxWidth: 'calc(100vw - 32px)', borderRadius: 14, background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: '0 8px 30px rgba(0,0,0,0.3)', padding: '12px 14px', fontFamily: "'Inter', system-ui, sans-serif" } as any}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }} data-testid="web-location-permission-guide-title">Localisation</div>
+        <div data-testid="web-location-dismiss" onClick={() => setVisible(false)} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <i className="ri-close-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }} />
         </div>
-        <div data-testid="web-location-retry-button" onClick={retry} style={{ flex: 1, minWidth: 130, textAlign: 'center', borderRadius: 999, border: '1px solid rgba(16,185,129,0.35)', background: 'rgba(16,185,129,0.22)', color: '#34D399', fontSize: 12, fontWeight: 800, padding: '9px 12px', cursor: 'pointer', opacity: retrying ? 0.6 : 1 } as any}>
-          {retrying ? 'Verification...' : 'Reessayer'}
+      </div>
+      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 8 }} data-testid="web-location-permission-guide-text">
+        {message || 'Pour les safe zones et le suivi SOS.'}
+      </div>
+      <div style={{ display: 'flex', gap: 6 } as any}>
+        <div data-testid="web-location-retry-button" onClick={retry} style={{ flex: 1, textAlign: 'center', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', color: '#34D399', fontSize: 11, fontWeight: 700, padding: '7px 10px', cursor: 'pointer', opacity: retrying ? 0.6 : 1 } as any}>
+          {retrying ? '...' : 'Autoriser'}
         </div>
       </div>
     </div>
