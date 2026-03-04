@@ -18,10 +18,13 @@ function parseWeight(bytes: Uint8Array): { weight: number; impedance: number; st
   let stable = false;
   let hasImpedance = false;
 
-  // CF597/Lefu 8-electrode protocol: weight at bytes[8-9] big-endian / 5
+  // CF597/Lefu 8-electrode protocol: weight at bytes[3-4] LITTLE-ENDIAN / 100
   if (bytes.length >= 10 && bytes[0] === 0xCF) {
-    const raw = (bytes[8] << 8) | bytes[9];
-    weight = Math.round((raw / 5) * 10) / 10;
+    const raw = bytes[3] | (bytes[4] << 8); // little-endian
+    const w = raw / 100;
+    if (w >= 3 && w <= 250) {
+      weight = Math.round(w * 10) / 10;
+    }
     stable = bytes[4] !== 0 || (bytes[0] & 0x20) !== 0;
     // Impedance data comes in longer packets (>20 bytes) when handle is held
     if (bytes.length >= 20) {
@@ -79,34 +82,35 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
   const lastWeightRef = useRef(0);
   const stableCountRef = useRef(0);
 
-  // Detect weight stabilization (step 3 → step 4)
+  // Detect weight stabilization (step 3 → step 5 auto-analysis)
   useEffect(() => {
     if (step !== 3) return;
     stableCountRef.current = 0;
     const iv = setInterval(() => {
       const w = lastWeightRef.current;
       if (w > 3) {
-        const diff = Math.abs(w - (weightsRef.current[weightsRef.current.length - 2] || 0));
-        if (diff < 0.3) {
+        const prevW = weightsRef.current.length >= 2 ? weightsRef.current[weightsRef.current.length - 2] : 0;
+        const diff = Math.abs(w - prevW);
+        if (diff < 0.3 && prevW > 0) {
           stableCountRef.current++;
           if (stableCountRef.current >= 3) { // stable for 3 seconds
             clearInterval(iv);
             setStableWeight(w);
-            setStep(4); // go to handle popup
+            setStep(5); // auto-launch body analysis
           }
         } else {
           stableCountRef.current = 0;
         }
       }
     }, 1000);
-    // Fallback: after 30s force stabilize
+    // Fallback: after 45s force stabilize
     const timeout = setTimeout(() => {
       clearInterval(iv);
       if (lastWeightRef.current > 3) {
         setStableWeight(lastWeightRef.current);
-        setStep(4);
+        setStep(5);
       }
-    }, 30000);
+    }, 45000);
     return () => { clearInterval(iv); clearTimeout(timeout); };
   }, [step]);
 
@@ -306,27 +310,6 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Le poids se stabilise automatiquement...</div>
             <div onClick={closeAndCleanup} style={{ marginTop: 24, padding: '14px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler</div>
             {rawDebug && <div style={{ marginTop: 12, padding: '6px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.3)', fontSize: 8, fontFamily: 'monospace', color: 'rgba(255,255,255,0.3)', wordBreak: 'break-all', maxWidth: 340, margin: '12px auto 0' } as any}>DEBUG: {rawDebug}</div>}
-          </div>
-        )}
-
-        {/* ── STEP 4: Handle Detection Popup ── */}
-        {step === 4 && (
-          <div style={{ textAlign: 'center' } as any}>
-            <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}><i className="ri-scales-3-line" style={{ fontSize: 34, color: '#F59E0B' }} /></div>
-            <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>{stableWeight} kg</div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', marginBottom: 20 } as any}>
-              <span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Poids stabilise</span>
-            </div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>Tenez-vous le manche ?</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, marginBottom: 24, maxWidth: 320, margin: '0 auto 24px' }}>Pour obtenir votre composition corporelle complete, tenez le manche avec les deux mains pendant l'analyse.</div>
-            <div onClick={() => setStep(5)} style={{ padding: '16px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.2))', border: '1px solid rgba(16,185,129,0.4)', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#10B981', marginBottom: 10 } as any}>
-              <i className="ri-hand-heart-line" style={{ marginRight: 8 }} />Oui, lancer l'analyse complete
-            </div>
-            <div onClick={() => finalizeMeasurement()} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 10 } as any}>
-              <i className="ri-scales-3-line" style={{ marginRight: 8 }} />Enregistrer seulement le poids
-            </div>
-            <div onClick={closeAndCleanup} style={{ padding: '12px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.35)' } as any}>Ne rien enregistrer</div>
           </div>
         )}
 
