@@ -252,7 +252,7 @@ def evaluate_objectives_met(d):
 
 
 async def compute_daily_plan_async(d, score_info, uid):
-    """Generate daily plan. Respects user-set goals. Nora adds smart objectives from ALL health data."""
+    """Generate DAILY actionable objectives only. No long-term body goals."""
     from database import db
 
     if score_info.get("no_data") or not _has_meaningful_data(d):
@@ -265,14 +265,32 @@ async def compute_daily_plan_async(d, score_info, uid):
     plan = []
     g = lambda k, default=0: d.get(k, default)
 
-    # Get user-defined thresholds/goals
+    # Get user-defined goals
     user_goals = {}
     if uid:
         goals_list = await db.thresholds.find({"user_id": uid}, {"_id": 0}).to_list(50)
         for gl in goals_list:
             user_goals[gl.get("metric_id", "")] = gl
 
-    # ACTIVITY: If user has set goals → use theirs. Otherwise suggest setting them.
+    # CALORIE INTAKE: Based on basal metabolism — always actionable
+    bm = g("basal_metabolism", 0)
+    if bm > 0:
+        # Recommend slightly above basal for healthy maintenance
+        rec_cal = round(bm * 1.2)
+        plan.append({"key": "calories_intake", "label": "Calories a consommer", "value": f"{rec_cal}", "unit": "kcal",
+                     "status": "objectif", "icon": "ri-restaurant-line", "color": "#F59E0B",
+                     "detail": f"Base sur votre metabolisme de {bm} kcal."})
+
+    # HYDRATION: Actionable — drink water today
+    wp = g("water_pct")
+    if wp > 0:
+        water_goal = 1.5 if wp >= 55 else 2.0
+        plan.append({"key": "hydration", "label": "Eau a boire", "value": f"{water_goal}L", "unit": "minimum",
+                     "status": "OK" if wp >= 55 else "priorite",
+                     "icon": "ri-drop-line", "color": "#38BDF8",
+                     "detail": f"Hydratation actuelle: {wp}%."})
+
+    # STEPS: Only if user set their own goal
     steps = g("steps")
     if steps > 0:
         user_step_goal = user_goals.get("steps", {}).get("goal")
@@ -281,27 +299,9 @@ async def compute_daily_plan_async(d, score_info, uid):
                          "status": "atteint" if steps >= user_step_goal else "en cours",
                          "progress": min(100, round(steps / max(1, user_step_goal) * 100)),
                          "icon": "ri-footprint-line", "color": "#10B981",
-                         "detail": f"{steps} pas sur {user_step_goal}. Objectif defini par vous."})
-        # Don't add Nora-generated step goal — user should set it in activity page
+                         "detail": f"{steps} pas sur {user_step_goal}."})
 
-    # HYDRATION: Nora objective based on real water_pct
-    wp = g("water_pct")
-    if wp > 0:
-        water_goal = 1.5 if wp >= 55 else 2.0
-        plan.append({"key": "hydration", "label": "Hydratation", "value": f"{water_goal}L", "unit": "minimum",
-                     "status": "OK" if wp >= 55 else "priorite",
-                     "icon": "ri-drop-line", "color": "#38BDF8",
-                     "detail": f"Taux d'hydratation: {wp}%."})
-
-    # CALORIE INTAKE: If basal metabolism available
-    bm = g("basal_metabolism", 0)
-    if bm > 0:
-        rec_cal = g("recommended_calories", bm)
-        plan.append({"key": "calories_intake", "label": "Apport calorique", "value": f"{rec_cal}", "unit": "kcal",
-                     "status": "objectif", "icon": "ri-restaurant-line", "color": "#F59E0B",
-                     "detail": f"Metabolisme de base: {bm} kcal."})
-
-    # SLEEP: If sleep quality available
+    # SLEEP: Go to bed at X — actionable tonight
     sq = g("sleep_quality")
     if sq > 0:
         bed = "22:30" if sq < 80 else "23:00"
@@ -309,28 +309,12 @@ async def compute_daily_plan_async(d, score_info, uid):
                      "status": "conseil", "icon": "ri-moon-line", "color": "#A78BFA",
                      "detail": f"Qualite de sommeil: {sq}%."})
 
-    # STRESS: If stress data available, Nora can set a stress objective
+    # STRESS: Actionable — relax today
     stress = g("stress_level")
-    if stress > 0:
-        stress_target = 40 if stress > 50 else 30
-        plan.append({"key": "stress", "label": "Stress", "value": f"< {stress_target}", "unit": "/100",
-                     "status": "attention" if stress > 50 else "OK",
-                     "icon": "ri-mental-health-line", "color": "#8B5CF6",
-                     "detail": f"Stress actuel: {stress}/100."})
-
-    # HEART RATE: If elevated resting HR
-    hr = g("heart_rate")
-    if hr > 80:
-        plan.append({"key": "heart_rate", "label": "Repos cardiaque", "value": "< 80", "unit": "bpm",
-                     "status": "a surveiller", "icon": "ri-heart-pulse-line", "color": "#EF4444",
-                     "detail": f"FC repos: {hr} bpm. Visez < 80 avec relaxation."})
-
-    # VISCERAL FAT: If elevated
-    vf = g("visceral_fat")
-    if vf > 10:
-        plan.append({"key": "visceral_fat", "label": "Graisse viscerale", "value": "< 10", "unit": "",
-                     "status": "objectif", "icon": "ri-body-scan-line", "color": "#F97316",
-                     "detail": f"Indice actuel: {vf}. Visez < 10."})
+    if stress > 40:
+        plan.append({"key": "stress", "label": "Relaxation", "value": "10 min", "unit": "respiration",
+                     "status": "recommande", "icon": "ri-mental-health-line", "color": "#8B5CF6",
+                     "detail": f"Stress a {stress}/100. Prenez 10 min de respiration profonde."})
 
     if not plan:
         plan.append({"key": "measure", "label": "Realiser une mesure", "value": "--", "unit": "", "status": "en attente",
@@ -852,7 +836,7 @@ async def get_daily_report(user=Depends(get_current_user)):
         if rd.get("blood_pressure"): d["blood_pressure"] = rd["blood_pressure"]
     if scale_reading and scale_reading.get("data"):
         sd = scale_reading["data"]
-        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg"]:
+        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg", "basal_metabolism", "protein_pct"]:
             if sd.get(k): d[k] = sd[k]
 
     # Sanitize erroneous readings before computing scores
