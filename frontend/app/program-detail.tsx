@@ -91,7 +91,7 @@ export default function ProgramDetailScreen() {
   };
 
   const GlassBox = ({ children, style }: any) => (
-    <div style={{ padding: '16px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', ...style } as any}>{children}</div>
+    <div style={{ padding: '16px', borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', ...style } as any}>{children}</div>
   );
 
   return (
@@ -185,7 +185,7 @@ export default function ProgramDetailScreen() {
                 <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>Suivi Nora</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
                   {program.tracked_metrics.map((m: string, i: number) => (
-                    <div key={i} style={{ padding: '7px 12px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: 5 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+                    <div key={i} style={{ padding: '7px 12px', borderRadius: 99, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', fontSize: 11, color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: 5 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                       <i className={metricIcons[m] || 'ri-bar-chart-line'} style={{ fontSize: 12, color: clr }} />
                       {metricLabels[m] || m.replace(/_/g, ' ')}
                     </div>
@@ -199,7 +199,7 @@ export default function ProgramDetailScreen() {
               <div style={{ marginBottom: 28 } as any}>
                 <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>Phases du programme</div>
                 {program.phases.map((ph: any, i: number) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: 6, animation: `detail-fade-in 300ms ease ${i * 80}ms both` } as any}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: 6, animation: `detail-fade-in 300ms ease ${i * 80}ms both` } as any}>
                     <div style={{ width: 36, height: 36, borderRadius: 12, background: `${ph.color || clr}12`, border: `1px solid ${ph.color || clr}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 900, color: ph.color || clr, flexShrink: 0 } as any}>{i + 1}</div>
                     <div style={{ flex: 1 } as any}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{ph.name}</div>
@@ -232,7 +232,7 @@ export default function ProgramDetailScreen() {
               <i className="ri-team-line" style={{ fontSize: 16 }} />Le faire avec un ami
             </div>
 
-            {error && <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', fontSize: 12, color: '#FCA5A5', marginTop: 12, textAlign: 'center' } as any}>{error}</div>}
+            {error && <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', fontSize: 12, color: '#FCA5A5', marginTop: 12, textAlign: 'center' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>{error}</div>}
           </div>
         )}
 
@@ -250,7 +250,7 @@ export default function ProgramDetailScreen() {
             {(program.onboarding_fields || []).map((f: any) => (
               <div key={f.key} style={{ marginBottom: 18 } as any}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>{f.label}</div>
-                {f.type === 'time' && <input type="time" value={onboarding[f.key] || ''} onChange={(e: any) => setOnboarding({ ...onboarding, [f.key]: e.target.value })} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', colorScheme: 'dark' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any} />}
+                {f.type === 'time' && <input type="time" value={onboarding[f.key] || ''} onChange={(e: any) => setOnboarding({ ...onboarding, [f.key]: e.target.value })} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', colorScheme: 'dark' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any} />}
                 {f.type === 'choice' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
                     {(f.options || []).map((o: string) => (
@@ -300,7 +300,7 @@ export default function ProgramDetailScreen() {
             <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Inviter par telephone</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
               <input data-testid="invite-phone-input" value={invitePhone} onChange={(e: any) => setInvitePhone(e.target.value)} placeholder="06 12 34 56 78"
-                style={{ flex: 1, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any} />
+                style={{ flex: 1, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any} />
               <div data-testid="invite-send-btn" onClick={inviteFriend} style={{ padding: '14px 18px', borderRadius: 14, background: invitePhone.trim() ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.03)', border: `1px solid ${invitePhone.trim() ? 'rgba(167,139,250,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: invitePhone.trim() && !inviteLoading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center' } as any}>
                 <i className={inviteLoading ? "ri-loader-4-line" : "ri-send-plane-2-line"} style={{ fontSize: 18, color: invitePhone.trim() ? '#A78BFA' : 'rgba(255,255,255,0.2)' }} />
               </div>
@@ -361,7 +361,7 @@ export default function ProgramDetailScreen() {
               ))}
             </div>
 
-            {error && <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', fontSize: 12, color: '#FCA5A5', marginBottom: 16, textAlign: 'center' } as any}>{error}</div>}
+            {error && <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', fontSize: 12, color: '#FCA5A5', marginBottom: 16, textAlign: 'center' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>{error}</div>}
 
             <div data-testid="launch-program-btn" onClick={() => { if (hasActiveConflict) { setError('Vous avez deja un programme actif.'); return; } mode !== 'solo' ? createTeamAndStart() : startSolo(); }}
               style={{ padding: '16px', borderRadius: 18, textAlign: 'center', cursor: starting || hasActiveConflict ? 'not-allowed' : 'pointer', background: `linear-gradient(135deg, ${clr}35, ${clr}18)`, border: `1px solid ${clr}45`, fontSize: 16, fontWeight: 900, color: '#FFF', boxShadow: `0 4px 24px ${clr}22`, opacity: hasActiveConflict ? 0.4 : 1 } as any}>

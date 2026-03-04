@@ -108,7 +108,7 @@ export default function ProgramsScreen() {
                   if (isActive) { router.push('/(tabs)/chat' as any); return; }
                   router.push({ pathname: '/program-detail' as any, params: { id: p.id } });
                 }}
-                style={{ padding: '18px 20px', borderRadius: 22, marginBottom: 10, cursor: 'pointer', opacity: !hasReq ? 0.6 : 1, border: `1px solid ${isActive ? p.color + '40' : p.color + '15'}`, background: isActive ? `${p.color}06` : 'rgba(255,255,255,0.04)', ...g, transition: 'transform 180ms' } as any}
+                style={{ padding: '18px 20px', borderRadius: 22, marginBottom: 10, cursor: 'pointer', opacity: !hasReq ? 0.6 : 1, border: `1px solid ${isActive ? p.color + '40' : p.color + '25'}`, background: isActive ? `${p.color}10` : 'rgba(255,255,255,0.08)', ...g, transition: 'transform 180ms' } as any}
                 onMouseEnter={(e: any) => { if (!locked) e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 } as any}>
