@@ -19,6 +19,16 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
+### Mar 4, 2026 - Fix recommendations Nora sans donnees
+- **Correction scoring** : `compute_subscores` renvoie `no_data=true` / score 0 quand aucune mesure valide
+- **Sanitisation des donnees** : `_sanitize_data()` filtre les valeurs erronees (poids > 250kg, temp < 30°C ambiante, FC > 220)
+- **Plan quotidien** : N'affiche que les items avec de vraies donnees mesurees, sinon "Connecter un appareil"
+- **Section analysis** : Retourne `no_data=true` avec recommandation adaptee quand pas de donnees
+- **Suppression simulation sommeil** : `computeSleepForDate` remplacee par vrais donnees API
+- **Frontend** : `getValue` retourne '--' pour valeurs 0, barres de jauge masquees sans donnees
+- **Fallback IA** : Plus de fausses affirmations ("FC dans les normes") — messages honnetes
+- Tests: iteration_82 - Backend 11/11, Frontend 100%
+
 ### Mar 3, 2026 - Refactoring devices.tsx en composants modulaires
 - **Refactoring complet** de `devices.tsx` (2338 → 1772 lignes, -566 lignes)
 - **Hooks extraits**: `useDeviceData.ts` (fetch devices, subscription, pesees, sync/remove), `useBleConnection.ts` (logique BLE, scan, appairage)
