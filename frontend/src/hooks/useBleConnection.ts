@@ -280,15 +280,32 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
               c.addEventListener('characteristicvaluechanged', (event: any) => {
                 const dv = event.target.value as DataView;
                 const bytes = new Uint8Array(dv.buffer);
-                if (bytes.length < 4) return;
+                if (bytes.length < 3) return;
                 let weight = 0;
-                if (bytes.length >= 17) weight = ((bytes[15] << 8) | bytes[16]) / 100;
-                else if (bytes.length >= 5) weight = ((bytes[3] << 8) | bytes[4]) / 100;
-                else if (bytes.length >= 3) weight = ((bytes[1] << 8) | bytes[2]) / 100;
+                // Try multiple positions and divisors, pick first in 20-250 range
+                const candidates: number[] = [];
+                if (bytes.length >= 17) {
+                  const raw = (bytes[15] << 8) | bytes[16];
+                  candidates.push(raw / 10, raw / 100);
+                }
+                if (bytes.length >= 5) {
+                  const raw = (bytes[3] << 8) | bytes[4];
+                  candidates.push(raw / 10, raw / 100);
+                }
+                if (bytes.length >= 3) {
+                  const raw = (bytes[1] << 8) | bytes[2];
+                  candidates.push(raw / 10, raw / 100);
+                }
+                for (const c of candidates) {
+                  if (c >= 20 && c <= 250) { weight = Math.round(c * 10) / 10; break; }
+                }
                 if (weight < 2 || weight > 300) {
                   for (let i = 0; i <= bytes.length - 2; i++) {
-                    const w = ((bytes[i] << 8) | bytes[i + 1]) / 100;
-                    if (w >= 20 && w <= 250) { weight = w; break; }
+                    for (const div of [10, 100]) {
+                      const w = ((bytes[i] << 8) | bytes[i + 1]) / div;
+                      if (w >= 20 && w <= 250) { weight = Math.round(w * 10) / 10; break; }
+                    }
+                    if (weight >= 20) break;
                   }
                 }
                 if (weight >= 2 && weight <= 300) {

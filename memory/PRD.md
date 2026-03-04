@@ -19,44 +19,39 @@ Application de sante preventive "Chutex Care" - plateforme full-stack React Nati
 
 ## Completed Features
 
-### Mar 4, 2026 - Dashboard Device Cards → Navigation + Weight Trend Chart
-- **Dashboard device cards**: Clic sur une carte dispositif navigue vers la page Dispositifs (suppression des 3 popups bracelet/gilet/balance). DeviceCards.tsx 397 → 279 lignes.
-- **Mini graphique tendance poids**: SVG line chart dans le step 4 du WeighingFlow montrant les 5-10 dernieres pesees avec gradient, badge tendance (+/- kg), et point courant.
-- Tests: iteration_85 - Frontend 85% (6/7 PASS, 1 issue Playwright navigation timing)
+### Mar 4, 2026 - WeighingFlow BLE Fonctionnel + Bouton Appeler
+- **WeighingFlow reel**: Reecrit pour utiliser Web Bluetooth (navigator.bluetooth). Flux: Instructions → "Je suis prêt" → popup Bluetooth navigateur → connexion balance → poids en direct 15s → sauvegarde API → resultats reels.
+- **Fix poids x10**: Parsing weight essaie /10 en priorite puis /100 pour trouver la valeur dans la plage 20-250 kg.
+- **Bouton Appeler**: Ajoute sur la fiche beneficiaire (espace gardien) avec le telephone du beneficiaire.
+- **Fix DeviceCard**: "Nouvelle pesee" sur balance non-associee ouvre WeighingFlow (au lieu du pairing).
 
-### Mar 4, 2026 - Refactoring devices.tsx + Fix Balance Card
-- Refactoring complet de `devices.tsx`: 1773 → 49 lignes. 5 composants extraits.
-- Fix carte balance: "Pesees" retire, "Nouvelle pesee" ouvre WeighingFlow.
-- Fix WeighingFlow: step 1 → step 3 direct (15s video countdown).
-- Tests: iteration_84 - Frontend 100%
+### Mar 4, 2026 - Dashboard Device Cards Navigation + Trend Chart
+- Clic carte dispositif → page Dispositifs (popups supprimes)
+- Mini graphique SVG tendance poids dans WeighingFlow step 4
 
-### Mar 4, 2026 - 3 UI/UX Guardian Fixes
-- Bug Fix: Popup notifications dashboard gardien web.
-- Tests: iteration_83 - Frontend 100%
+### Mar 4, 2026 - Refactoring devices.tsx
+- 1773 → 49 lignes. 5 composants extraits.
+- Fix WeighingFlow step transition.
+- Tests: iteration_84 - 100%
 
-### Mar 4, 2026 - Fix recommendations Nora sans donnees
-- Tests: iteration_82 - Backend 11/11, Frontend 100%
-
-### Mar 3, 2026 - Refactoring + Push Notifs + Programmes + Alertes + Safe Zones
-- Tests: iterations 70-81 - 100%
-
-### Mar 1-2, 2026 - BLE + Simulation Removal + Programs + Nora IA
+### Mar 4, 2026 - 3 UI/UX Guardian Fixes + Nora AI Fix
+- Notifications gardien web, beneficiary detail, guardian popup
+- Tests: iterations_82-83 - 100%
 
 ## Upcoming Tasks
-- P0: Validation utilisateur BLE en conditions reelles
-- P1: Test iOS TestFlight complet du bridge BLE natif
+- P0: Validation utilisateur pesee BLE en conditions reelles (tester avec balance physique)
+- P1: Test iOS TestFlight BLE natif
 - P2: Regression UI globale
 
 ## Future/Backlog
 - Systeme de parrainage gardien
 - Programme d'essai gratuit 7 jours
 - Face ID / biometrie
-- Integration EBP comptable
-- Mode hors-ligne intervenants
+- Deploiement production
 
 ## Key Files
-- `frontend/app/(tabs)/devices.tsx`: Routeur fin (49L)
-- `frontend/src/components/devices/*`: Composants dispositifs extraits
-- `frontend/src/components/dashboard/DeviceCards.tsx`: Cartes dispositifs dashboard (279L)
-- `frontend/src/components/dashboard/WeighingFlow.tsx`: Flux pesee + graphique tendance (164L)
-- `frontend/src/components/dashboard/GuardianHome.tsx`: Dashboard gardien + notifications
+- `frontend/src/components/dashboard/WeighingFlow.tsx`: Flux pesee BLE reel (Web Bluetooth)
+- `frontend/src/hooks/useBleConnection.ts`: Hook BLE (bracelet/gilet/balance)
+- `frontend/src/components/devices/DeviceCard.tsx`: Carte appareil
+- `frontend/src/components/devices/DeviceManagement.tsx`: Gestion appareils
+- `frontend/app/beneficiary-detail.tsx`: Fiche beneficiaire + bouton appeler

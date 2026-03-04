@@ -322,6 +322,11 @@ export default function BeneficiaryDetailScreen() {
             </div>
             <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }} data-testid="beneficiary-firstname-value">{firstName} <span data-testid="beneficiary-lastname-value" style={{ fontWeight: 800 }}>{lastName}</span></div>
             {ageYears != null && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>{ageYears} ans · {genderLabel}</div>}
+            {data.phone && (
+              <div data-testid="beneficiary-call-btn" onClick={() => window.open(`tel:${data.phone}`, '_self')} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 24px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.1))', border: '1px solid rgba(16,185,129,0.3)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#10B981' } as any}>
+                <i className="ri-phone-fill" style={{ fontSize: 16 }} />Appeler {firstName}
+              </div>
+            )}
           </div>
 
           {/* Info grid with icons */}

@@ -77,8 +77,8 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 10 } as any}>
-            <div data-testid={`connect-${dt}-btn`} onClick={() => onStartPairing(dt)} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: '#FFF', color: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700, opacity: needsSub ? 0.5 : 1 } as any}>
-              <i className="ri-bluetooth-line" style={{ fontSize: 16 }} />{dt === 'scale' ? 'Nouvelle pesee' : 'Associer'}
+            <div data-testid={`connect-${dt}-btn`} onClick={() => dt === 'scale' ? onScaleWeighing() : onStartPairing(dt)} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: '#FFF', color: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700, opacity: needsSub ? 0.5 : 1 } as any}>
+              <i className={dt === 'scale' ? 'ri-scales-3-line' : 'ri-bluetooth-line'} style={{ fontSize: 16 }} />{dt === 'scale' ? 'Nouvelle pesee' : 'Associer'}
             </div>
             <div onClick={() => window.open(meta.link, '_blank')} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 600 } as any}>
               <i className="ri-external-link-line" style={{ fontSize: 14 }} />Decouvrir
