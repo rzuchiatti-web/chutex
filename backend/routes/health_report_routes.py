@@ -67,47 +67,137 @@ def gen_data():
     }
 
 
+def _has_meaningful_data(d):
+    """Check if the data dict contains at least one valid, non-zero health metric."""
+    g = lambda k, default=0: d.get(k, default)
+    # Heart rate between 30-220 is plausible
+    if 30 < g("heart_rate") < 220: return True
+    if 80 < g("spo2") <= 100: return True
+    bp = g("blood_pressure", {"systolic": 0, "diastolic": 0})
+    if 60 < bp.get("systolic", 0) < 250: return True
+    # Body temperature between 34-42 (not ambient)
+    if 34 < g("temperature") < 42: return True
+    if g("steps") > 0: return True
+    if g("sleep_quality") > 0: return True
+    # Weight between 20-250 kg is plausible
+    if 20 < g("weight") < 250: return True
+    if g("bmi") > 10: return True
+    if g("body_fat_pct") > 1: return True
+    if g("muscle_pct") > 1: return True
+    if g("water_pct") > 1: return True
+    return False
+
+
+def _sanitize_data(d):
+    """Remove erroneous/implausible readings so they don't pollute scoring."""
+    # Temperature < 30 is ambient, not body
+    if d.get("temperature", 0) < 30 or d.get("temperature", 0) > 45:
+        d["temperature"] = 0
+    # Weight > 250 kg is erroneous
+    if d.get("weight", 0) > 250 or d.get("weight", 0) < 2:
+        d["weight"] = 0
+        d["bmi"] = 0
+        d["body_fat_pct"] = 0
+        d["muscle_pct"] = 0
+        d["water_pct"] = 0
+        d["visceral_fat"] = 0
+        d["body_age"] = 0
+        d["bone_mass_kg"] = 0
+    # Heart rate > 220 or < 25 is implausible
+    if d.get("heart_rate", 0) > 220 or (0 < d.get("heart_rate", 0) < 25):
+        d["heart_rate"] = 0
+    return d
+
+
 def compute_subscores(d):
+    """Compute health subscores. Returns no_data=True if no meaningful data exists."""
+    d = _sanitize_data(d)
+
+    # If no meaningful data, return a clean "no data" state
+    if not _has_meaningful_data(d):
+        empty_sub = lambda label, icon, color: {"score": 0, "label": label, "icon": icon, "color": color, "no_data": True}
+        return {
+            "score": 0, "status": "Aucune donnee", "status_color": "#6B7280", "no_data": True,
+            "subscores": {
+                "cardio": empty_sub("Coeur", "ri-heart-pulse-line", "#EF4444"),
+                "sleep": empty_sub("Sommeil", "ri-moon-line", "#A78BFA"),
+                "activity": empty_sub("Activite", "ri-footprint-line", "#10B981"),
+                "metabolism": empty_sub("Metabolisme", "ri-body-scan-line", "#F59E0B"),
+                "hydration": empty_sub("Hydratation", "ri-drop-line", "#38BDF8"),
+            },
+            "lifts": [], "limits": [],
+        }
+
     def clamp(v): return max(0, min(100, v))
     def g(k, default=0): return d.get(k, default)
+
+    # Cardio: only penalize if we HAVE a measurement (non-zero)
     cardio = 100
-    if g("heart_rate") < 55 or g("heart_rate") > 100: cardio -= 25
-    elif g("heart_rate") < 60 or g("heart_rate") > 90: cardio -= 10
-    if g("spo2") < 95: cardio -= 25
-    elif g("spo2") < 97: cardio -= 10
+    hr = g("heart_rate")
+    if hr > 0:
+        if hr < 55 or hr > 100: cardio -= 25
+        elif hr < 60 or hr > 90: cardio -= 10
+    spo2 = g("spo2")
+    if spo2 > 0:
+        if spo2 < 95: cardio -= 25
+        elif spo2 < 97: cardio -= 10
     bp = g("blood_pressure", {"systolic": 0, "diastolic": 0})
-    if bp.get("systolic", 0) > 140: cardio -= 20
-    elif bp.get("systolic", 0) > 130: cardio -= 8
-    if g("hrv") < 25: cardio -= 15
+    if bp.get("systolic", 0) > 0:
+        if bp["systolic"] > 140: cardio -= 20
+        elif bp["systolic"] > 130: cardio -= 8
+    hrv = g("hrv")
+    if hrv > 0 and hrv < 25: cardio -= 15
 
+    # Sleep: only penalize if we HAVE sleep data
     sleep = 100
-    if g("sleep_quality") < 60: sleep -= 30
-    elif g("sleep_quality") < 75: sleep -= 10
-    if g("sleep_duration_min") < 360: sleep -= 20
-    elif g("sleep_duration_min") < 420: sleep -= 5
+    sq = g("sleep_quality")
+    if sq > 0:
+        if sq < 60: sleep -= 30
+        elif sq < 75: sleep -= 10
+    sdm = g("sleep_duration_min")
+    if sdm > 0:
+        if sdm < 360: sleep -= 20
+        elif sdm < 420: sleep -= 5
     if g("sleep_interruptions") > 4: sleep -= 15
-    if g("stress_level") > 60: sleep -= 15
-    elif g("stress_level") > 40: sleep -= 5
+    stress = g("stress_level")
+    if stress > 0:
+        if stress > 60: sleep -= 15
+        elif stress > 40: sleep -= 5
 
+    # Activity: only penalize if steps/calories are measured
     activity = 100
-    if g("steps") < 2000: activity -= 30
-    elif g("steps") < 4000: activity -= 10
-    elif g("steps") < 6000: activity -= 3
-    if g("calories") < 100: activity -= 10
+    steps = g("steps")
+    if steps > 0:
+        if steps < 2000: activity -= 30
+        elif steps < 4000: activity -= 10
+        elif steps < 6000: activity -= 3
+    cal = g("calories")
+    if cal > 0 and cal < 100: activity -= 10
 
+    # Metabolism: only penalize if body composition data exists
     metabolism = 100
-    if g("bmi") > 30: metabolism -= 25
-    elif g("bmi") > 25: metabolism -= 8
-    if g("body_fat_pct") > 30: metabolism -= 20
-    elif g("body_fat_pct") > 25: metabolism -= 8
-    if g("visceral_fat") > 12: metabolism -= 20
-    elif g("visceral_fat") > 10: metabolism -= 8
-    if g("muscle_pct") < 28: metabolism -= 10
+    bmi = g("bmi")
+    if bmi > 0:
+        if bmi > 30: metabolism -= 25
+        elif bmi > 25: metabolism -= 8
+    bfp = g("body_fat_pct")
+    if bfp > 0:
+        if bfp > 30: metabolism -= 20
+        elif bfp > 25: metabolism -= 8
+    vf = g("visceral_fat")
+    if vf > 0:
+        if vf > 12: metabolism -= 20
+        elif vf > 10: metabolism -= 8
+    mp = g("muscle_pct")
+    if mp > 0 and mp < 28: metabolism -= 10
 
+    # Hydration: only penalize if measured
     hydration = 100
-    if g("water_pct") < 45: hydration -= 30
-    elif g("water_pct") < 50: hydration -= 15
-    elif g("water_pct") < 55: hydration -= 5
+    wp = g("water_pct")
+    if wp > 0:
+        if wp < 45: hydration -= 30
+        elif wp < 50: hydration -= 15
+        elif wp < 55: hydration -= 5
 
     subs = {
         "cardio": {"score": clamp(cardio), "label": "Coeur", "icon": "ri-heart-pulse-line", "color": "#EF4444"},
@@ -116,42 +206,83 @@ def compute_subscores(d):
         "metabolism": {"score": clamp(metabolism), "label": "Metabolisme", "icon": "ri-body-scan-line", "color": "#F59E0B"},
         "hydration": {"score": clamp(hydration), "label": "Hydratation", "icon": "ri-drop-line", "color": "#38BDF8"},
     }
-    global_score = clamp(round(sum(s["score"] for s in subs.values()) / 5))
+
+    # Only count subscores that have actual data contributing
+    scored_subs = [s for s in subs.values() if s["score"] < 100]  # If 100, no data was available to penalize
+    if scored_subs:
+        global_score = clamp(round(sum(s["score"] for s in subs.values()) / 5))
+    else:
+        global_score = 100  # All perfect because no data to penalize — but this edge case shouldn't happen due to _has_meaningful_data check
+
     if global_score >= 85: status, color = "En forme", "#10B981"
     elif global_score >= 70: status, color = "Stable", "#38BDF8"
     elif global_score >= 55: status, color = "A surveiller", "#F59E0B"
     else: status, color = "Attention requise", "#EF4444"
-    # What lifts / limits the score
     lifts = [s["label"] for k, s in subs.items() if s["score"] >= 85]
     limits = [s["label"] for k, s in subs.items() if s["score"] < 75]
     return {"score": global_score, "status": status, "status_color": color, "subscores": subs, "lifts": lifts, "limits": limits}
 
 
 def compute_daily_plan(d, score_info):
+    """Generate daily plan. Only includes items with actual measured data."""
+    # If no meaningful data, return a simple "connect device" plan
+    if score_info.get("no_data") or not _has_meaningful_data(d):
+        return [
+            {"key": "connect", "label": "Connecter un appareil", "value": "--", "unit": "", "status": "action requise",
+             "icon": "ri-bluetooth-connect-line", "color": "#3B82F6",
+             "detail": "Connectez votre bracelet Elio ou votre balance Vita pour demarrer votre suivi personnalise."},
+        ]
+
     plan = []
     g = lambda k, default=0: d.get(k, default)
-    rec_cal = g("recommended_calories", g("basal_metabolism", 1500))
-    plan.append({"key": "calories", "label": "Apport calorique", "value": f"{rec_cal}", "unit": "kcal", "status": "objectif", "icon": "ri-fire-line", "color": "#F59E0B",
-                 "detail": f"Ton metabolisme de base est de {g('basal_metabolism', 1500)} kcal. Vise {rec_cal} kcal aujourd'hui."})
-    step_goal = 6000 if g("recovery_score") >= 70 else 4000
-    plan.append({"key": "steps", "label": "Objectif pas", "value": f"{step_goal}", "unit": "pas", "status": "en cours" if g("steps") < step_goal else "atteint",
-                 "progress": min(100, round(g("steps") / max(1, step_goal) * 100)), "icon": "ri-footprint-line", "color": "#10B981",
-                 "detail": f"Tu es a {g('steps')} pas. Objectif adapte a ta recuperation ({g('recovery_score')}/100)."})
-    water_goal = 1.5 if g("water_pct") >= 55 else 2.0
-    plan.append({"key": "hydration", "label": "Hydratation", "value": f"{water_goal}L", "unit": "minimum", "status": "priorite" if g("water_pct") < 55 else "OK",
-                 "icon": "ri-drop-line", "color": "#38BDF8",
-                 "detail": f"Ton taux d'hydratation est de {g('water_pct')}%."})
-    bed = "22:30" if g("sleep_quality") < 80 else "23:00"
-    plan.append({"key": "sleep", "label": "Coucher conseille", "value": bed, "unit": "", "status": "conseil",
-                 "icon": "ri-moon-line", "color": "#A78BFA",
-                 "detail": f"Qualite de sommeil hier: {g('sleep_quality')}%."})
+
+    # Only add calorie plan if we have basal metabolism data
+    bm = g("basal_metabolism", 0)
+    rec_cal = g("recommended_calories", bm if bm > 0 else 0)
+    if rec_cal > 0:
+        plan.append({"key": "calories", "label": "Apport calorique", "value": f"{rec_cal}", "unit": "kcal", "status": "objectif", "icon": "ri-fire-line", "color": "#F59E0B",
+                     "detail": f"Votre metabolisme de base est de {bm} kcal. Visez {rec_cal} kcal aujourd'hui."})
+
+    # Only add steps plan if we have step data
+    steps = g("steps")
+    if steps > 0:
+        step_goal = 6000 if g("recovery_score") >= 70 else 4000
+        plan.append({"key": "steps", "label": "Objectif pas", "value": f"{step_goal}", "unit": "pas", "status": "en cours" if steps < step_goal else "atteint",
+                     "progress": min(100, round(steps / max(1, step_goal) * 100)), "icon": "ri-footprint-line", "color": "#10B981",
+                     "detail": f"Vous etes a {steps} pas. Objectif adapte a votre recuperation ({g('recovery_score')}/100)."})
+
+    # Only add hydration plan if we have water data
+    wp = g("water_pct")
+    if wp > 0:
+        water_goal = 1.5 if wp >= 55 else 2.0
+        plan.append({"key": "hydration", "label": "Hydratation", "value": f"{water_goal}L", "unit": "minimum", "status": "priorite" if wp < 55 else "OK",
+                     "icon": "ri-drop-line", "color": "#38BDF8",
+                     "detail": f"Votre taux d'hydratation est de {wp}%."})
+
+    # Only add sleep plan if we have sleep data
+    sq = g("sleep_quality")
+    if sq > 0:
+        bed = "22:30" if sq < 80 else "23:00"
+        plan.append({"key": "sleep", "label": "Coucher conseille", "value": bed, "unit": "", "status": "conseil",
+                     "icon": "ri-moon-line", "color": "#A78BFA",
+                     "detail": f"Qualite de sommeil hier: {sq}%."})
+
+    # If no plan items, add a generic one
+    if not plan:
+        plan.append({"key": "measure", "label": "Realiser une mesure", "value": "--", "unit": "", "status": "en attente",
+                     "icon": "ri-pulse-line", "color": "#3B82F6",
+                     "detail": "Portez votre bracelet ou montez sur la balance pour obtenir des recommandations personnalisees."})
+
     return plan
 
 
 async def gen_ai(d, si, nora_ctx=None):
     """Generate AI analysis. Context-aware: coherent with or without data."""
     api_key = os.environ.get("EMERGENT_LLM_KEY")
-    has_real_data = nora_ctx and nora_ctx.get("has_any_data", False) if nora_ctx else (d.get("heart_rate", 0) > 0 or d.get("weight", 0) > 0)
+
+    # Use the robust check: sanitize first, then check for meaningful data
+    d = _sanitize_data(d)
+    has_real_data = _has_meaningful_data(d)
 
     if not api_key:
         return _fb(has_real_data, nora_ctx)
@@ -163,12 +294,34 @@ async def gen_ai(d, si, nora_ctx=None):
         user_context = format_nora_context_for_prompt(nora_ctx) if nora_ctx else ""
 
         if has_real_data:
-            sh, sm = d["sleep_duration_min"] // 60, d["sleep_duration_min"] % 60
-            data_block = f"""DONNEES MESUREES: Score {si['score']}/100 ({si['status']}). Sous-scores: Cardio {si['subscores']['cardio']['score']}, Sommeil {si['subscores']['sleep']['score']}, Activite {si['subscores']['activity']['score']}, Metabolisme {si['subscores']['metabolism']['score']}, Hydratation {si['subscores']['hydration']['score']}.
-FC {d['heart_rate']}bpm (HRV {d['hrv']}ms), SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}, Temp {d['temperature']}C.
-Sommeil {sh}h{sm:02d} (qualite {d['sleep_quality']}%, {d['sleep_interruptions']} interruptions).
-{d['steps']} pas, {d['calories']}kcal. Poids {d['weight']}kg, IMC {d['bmi']}, Age corp {d['body_age']} ans.
-Graisse {d['body_fat_pct']}%, Muscle {d['muscle_pct']}%, Eau {d['water_pct']}%, Graisse visc {d['visceral_fat']}."""
+            # Only include non-zero values in the data block to avoid confusing the AI
+            data_parts = [f"Score {si['score']}/100 ({si['status']})."]
+            if d.get('heart_rate', 0) > 0: data_parts.append(f"FC {d['heart_rate']}bpm")
+            if d.get('hrv', 0) > 0: data_parts.append(f"HRV {d['hrv']}ms")
+            if d.get('spo2', 0) > 0: data_parts.append(f"SpO2 {d['spo2']}%")
+            bp = d.get('blood_pressure', {})
+            if bp.get('systolic', 0) > 0: data_parts.append(f"Tension {bp['systolic']}/{bp.get('diastolic', 0)}")
+            if d.get('temperature', 0) > 0: data_parts.append(f"Temp {d['temperature']}C")
+            if d.get('sleep_duration_min', 0) > 0:
+                sh, sm = d['sleep_duration_min'] // 60, d['sleep_duration_min'] % 60
+                data_parts.append(f"Sommeil {sh}h{sm:02d} (qualite {d.get('sleep_quality', 0)}%)")
+            if d.get('steps', 0) > 0: data_parts.append(f"{d['steps']} pas")
+            if d.get('calories', 0) > 0: data_parts.append(f"{d['calories']}kcal")
+            if d.get('weight', 0) > 0: data_parts.append(f"Poids {d['weight']}kg")
+            if d.get('bmi', 0) > 0: data_parts.append(f"IMC {d['bmi']}")
+            if d.get('body_fat_pct', 0) > 0: data_parts.append(f"Graisse {d['body_fat_pct']}%")
+            if d.get('muscle_pct', 0) > 0: data_parts.append(f"Muscle {d['muscle_pct']}%")
+            if d.get('water_pct', 0) > 0: data_parts.append(f"Eau {d['water_pct']}%")
+            # Mark which data is missing
+            missing = []
+            if d.get('heart_rate', 0) == 0: missing.append("FC")
+            if d.get('spo2', 0) == 0: missing.append("SpO2")
+            if d.get('weight', 0) == 0: missing.append("Poids")
+            if d.get('sleep_quality', 0) == 0: missing.append("Sommeil")
+            if d.get('steps', 0) == 0: missing.append("Activite")
+            missing_str = f"\nDONNEES MANQUANTES: {', '.join(missing)}." if missing else ""
+            data_block = f"""DONNEES MESUREES: {' | '.join(data_parts)}{missing_str}
+IMPORTANT: Ne fais des recommandations QUE sur les donnees mesurees. Pour les donnees manquantes, recommande uniquement de connecter l'appareil."""
         else:
             data_block = "AUCUNE DONNEE DE SANTE DISPONIBLE. Les appareils ne sont pas connectes ou n'ont pas encore transmis de donnees."
 
@@ -236,16 +389,16 @@ def _fb(has_data=True, nora_ctx=None):
             "score_explain_down": "Aucune donnee collectee",
         }
     return {
-        "hero_line": "Vos constantes sont stables.",
-        "priority": "Augmentez vos pas de 500 aujourd'hui.",
-        "priority_why": "Votre activite est un peu basse par rapport a votre recuperation.",
-        "correlations": ["Un bon sommeil favorise une frequence cardiaque stable", "L'activite reguliere contribue au maintien du poids"],
-        "whats_good": ["Frequence cardiaque au repos dans les normes", "Hydratation correcte"],
-        "watch_out": ["Augmentez legerement votre activite physique quotidienne"],
-        "secondary_recs": ["Buvez 1,5L d'eau par jour", "Couchez-vous avant 23h", "10 minutes d'etirements le matin"],
-        "motivation": "La regularite est la cle de la prevention.",
-        "score_explain_up": "Cardio et sommeil sont vos points forts",
-        "score_explain_down": "L'activite pourrait etre amelioree",
+        "hero_line": "Analyse indisponible momentanement.",
+        "priority": "Reessayez dans quelques instants pour obtenir votre analyse personnalisee.",
+        "priority_why": "Le service d'analyse IA est temporairement indisponible.",
+        "correlations": [],
+        "whats_good": [],
+        "watch_out": [],
+        "secondary_recs": ["Portez votre bracelet pour un suivi continu", "Realisez une pesee quotidienne a la meme heure"],
+        "motivation": "",
+        "score_explain_up": "",
+        "score_explain_down": "Analyse IA en attente",
     }
 
 
@@ -310,12 +463,27 @@ async def get_section_analysis(section: str, user=Depends(get_current_user)):
         for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg", "basal_metabolism", "recommended_calories", "waist_hip_ratio", "ideal_weight", "protein_pct", "skeletal_muscle_pct"]:
             if sd.get(k): d[k] = sd[k]
 
+    # Sanitize erroneous readings
+    d = _sanitize_data(d)
+
+    # Build section data strings with ONLY non-zero values
+    def build_section_str(keys_labels):
+        parts = []
+        for key, label in keys_labels:
+            v = d.get(key, 0)
+            if isinstance(v, dict):
+                if v.get("systolic", 0) > 0:
+                    parts.append(f"{label} {v['systolic']}/{v.get('diastolic',0)}mmHg")
+            elif v and v != 0:
+                parts.append(f"{label} {v}")
+        return " | ".join(parts) if parts else "Aucune donnee mesuree pour cette section."
+
     section_data = {
-        "cardio": f"FC {d['heart_rate']}bpm, HRV {d['hrv']}ms, SpO2 {d['spo2']}%, Tension {d['blood_pressure']['systolic']}/{d['blood_pressure']['diastolic']}mmHg, Temp {d['temperature']}C.",
-        "metabolism": f"IMC {d['bmi']}, Graisse viscerale {d['visceral_fat']}, Metabolisme basal {d['basal_metabolism']}kcal, Ratio TH {d['waist_hip_ratio']}, Age corp {d['body_age']} ans, Poids ideal ~{d.get('ideal_weight', 0)}kg, Apport reco {d['recommended_calories']}kcal.",
-        "activity": f"{d['steps']} pas, {d['calories']}kcal depenses, Stress {d['stress_level']}/100, Recup {d['recovery_score']}/100, Distance ~{round(d['steps']*0.0007,1)}km.",
-        "composition": f"Poids {d['weight']}kg, Graisse {d['body_fat_pct']}%, Muscle {d['muscle_pct']}%, Eau {d['water_pct']}%, Os {d.get('bone_mass_kg',0)}kg, Proteine {d.get('protein_pct',0)}%, Muscle squelettique {d.get('skeletal_muscle_pct', 0)}%.",
-        "sleep": f"Duree {d['sleep_duration_min']}min, Qualite {d['sleep_quality']}%, Profond {d['deep_sleep_min']}min, Leger {d['light_sleep_min']}min, REM {d['rem_sleep_min']}min, Interruptions {d['sleep_interruptions']}.",
+        "cardio": build_section_str([("heart_rate", "FC"), ("hrv", "HRV"), ("spo2", "SpO2"), ("blood_pressure", "Tension"), ("temperature", "Temp")]),
+        "metabolism": build_section_str([("bmi", "IMC"), ("visceral_fat", "Graisse visc"), ("basal_metabolism", "Metabolisme basal"), ("waist_hip_ratio", "Ratio TH"), ("body_age", "Age corp"), ("ideal_weight", "Poids ideal"), ("recommended_calories", "Apport reco")]),
+        "activity": build_section_str([("steps", "Pas"), ("calories", "Depense"), ("stress_level", "Stress"), ("recovery_score", "Recuperation")]),
+        "composition": build_section_str([("weight", "Poids"), ("body_fat_pct", "Graisse"), ("muscle_pct", "Muscle"), ("water_pct", "Eau"), ("bone_mass_kg", "Os"), ("protein_pct", "Proteine"), ("skeletal_muscle_pct", "Muscle squelettique")]),
+        "sleep": build_section_str([("sleep_duration_min", "Duree(min)"), ("sleep_quality", "Qualite(%)"), ("deep_sleep_min", "Profond(min)"), ("light_sleep_min", "Leger(min)"), ("rem_sleep_min", "REM(min)"), ("sleep_interruptions", "Interruptions")]),
     }
     section_names = {"cardio": "Sante cardiaque", "metabolism": "Sante metabolique", "activity": "Sante physique et activite", "composition": "Composition corporelle", "sleep": "Sommeil"}
     user_context = format_nora_context_for_prompt(nora_ctx)
@@ -329,6 +497,14 @@ async def get_section_analysis(section: str, user=Depends(get_current_user)):
         import json
         data_str = section_data.get(section, section_data.get("cardio", ""))
         sec_name = section_names.get(section, "Sante")
+
+        # If no data for this section, return no-data response without AI call
+        if data_str == "Aucune donnee mesuree pour cette section.":
+            return {
+                "section": section, "no_data": True,
+                "correlations": [], "whats_good": [], "watch_out": [],
+                "recommendation": _no_data_section_recs(section, nora_ctx),
+            }
 
         # Check if all key values are 0 (device connected but no real measurement)
         values_are_zero = all(v == 0 or v == "0" for v in [d.get("heart_rate", 0), d.get("spo2", 0), d.get("steps", 0), d.get("weight", 0)])
@@ -400,18 +576,17 @@ def _no_data_section_recs(section: str, nora_ctx: dict) -> str:
 
 
 def _section_fallback_with_data(section: str) -> dict:
-    """Fallback analysis when AI is unavailable but data exists."""
+    """Fallback analysis when AI is unavailable. No false claims about data."""
     fb = {
-        "cardio": {"correlations": ["La frequence cardiaque au repos et la variabilite cardiaque refletent l'equilibre du systeme nerveux autonome", "La saturation en oxygene stable confirme une bonne oxygenation"], "whats_good": ["Parametres cardiaques dans les normes"], "watch_out": ["Surveillez votre tension arterielle regulierement"]},
-        "metabolism": {"correlations": ["L'IMC et la graisse viscerale sont lies au risque metabolique", "Le metabolisme basal determine vos besoins caloriques"], "whats_good": ["Suivi metabolique en cours"], "watch_out": ["Maintenez un apport calorique adapte"]},
-        "activity": {"correlations": ["Le niveau d'activite impacte directement le score de recuperation", "L'activite reguliere contribue a la longevite"], "whats_good": ["Suivi d'activite actif"], "watch_out": ["Augmentez progressivement votre nombre de pas"]},
-        "composition": {"correlations": ["Le ratio graisse/muscle influence le metabolisme de base", "L'hydratation impacte la precision des mesures"], "whats_good": ["Donnees de composition corporelle disponibles"], "watch_out": ["Surveillez l'evolution de la graisse viscerale"]},
-        "sleep": {"correlations": ["La qualite du sommeil profond influence la recuperation physique", "Les interruptions impactent la variabilite cardiaque"], "whats_good": ["Suivi du sommeil actif"], "watch_out": ["Limitez les interruptions nocturnes"]},
+        "cardio": {"correlations": [], "whats_good": [], "watch_out": [], "recommendation": "Analyse detaillee indisponible. Consultez votre medecin pour interpreter vos constantes cardiaques."},
+        "metabolism": {"correlations": [], "whats_good": [], "watch_out": [], "recommendation": "Analyse detaillee indisponible. Un suivi regulier avec votre balance permet de suivre vos tendances."},
+        "activity": {"correlations": [], "whats_good": [], "watch_out": [], "recommendation": "Analyse detaillee indisponible. Portez votre bracelet pour obtenir un suivi d'activite complet."},
+        "composition": {"correlations": [], "whats_good": [], "watch_out": [], "recommendation": "Analyse detaillee indisponible. Pesez-vous regulierement a la meme heure pour des resultats fiables."},
+        "sleep": {"correlations": [], "whats_good": [], "watch_out": [], "recommendation": "Analyse detaillee indisponible. Portez votre bracelet la nuit pour obtenir une analyse de sommeil."},
     }
     result = fb.get(section, fb["cardio"])
     result["section"] = section
     result["no_data"] = False
-    result["recommendation"] = ""
     return result
 
 
@@ -516,7 +691,25 @@ async def get_health_summary(user=Depends(get_current_user)):
     if sc and sc.get("data"):
         for k, v in sc["data"].items():
             if v: d[k] = v
+
+    # Sanitize erroneous readings before computing
+    d = _sanitize_data(d)
     si = compute_subscores(d)
+
+    # If no meaningful data, return clean no-data summary
+    if si.get("no_data"):
+        result = {
+            "user_id": uid,
+            "summary": "Connectez un appareil pour demarrer votre suivi sante.",
+            "recommendation": "Associez votre bracelet Elio ou votre balance Vita depuis l'onglet Appareils.",
+            "score": 0, "status": "Aucune donnee", "status_color": "#6B7280",
+            "no_data": True,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        await db.health_summary_cache.update_one({"user_id": uid}, {"$set": result}, upsert=True)
+        del result["user_id"]
+        return result
+
     summary_sentence = ""
     recommendation = ""
     api_key = os.environ.get("EMERGENT_LLM_KEY")
@@ -609,7 +802,19 @@ async def get_daily_report(user=Depends(get_current_user)):
         for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg"]:
             if sd.get(k): d[k] = sd[k]
 
+    # Sanitize erroneous readings before computing scores
+    d = _sanitize_data(d)
     si = compute_subscores(d)
+
+    # If no meaningful data despite having device_readings, treat as no_data
+    if si.get("no_data"):
+        ai_no_data = await gen_ai(d, si, nora_ctx)
+        plan = compute_daily_plan(d, si)
+        return {"no_data": True, "data": d, "score_info": si,
+                "score": 0, "status": "Aucune donnee", "status_color": "#6B7280",
+                "subscores": si.get("subscores", {}), "lifts": [], "limits": [],
+                "ai": ai_no_data, "daily_plan": plan, "sparklines": {}, "weighings": []}
+
     ai = await gen_ai(d, si, nora_ctx)
     plan = compute_daily_plan(d, si)
 

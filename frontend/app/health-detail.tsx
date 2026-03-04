@@ -80,54 +80,55 @@ export default function HealthDetailScreen() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  /* ── Per-night sleep data computation (depends on selectedDate) ── */
-  const computeSleepForDate = (dt: Date) => {
-    const deep = 130, light = 245, rem = 68;
-    const seed = (dt.getDate() * 7 + dt.getMonth() * 31 + dt.getFullYear()) % 997;
-    const pr = (n: number) => ((seed * 9301 + n * 49297 + 233280) % 233280) / 233280;
+  /* ── Per-night sleep data: uses REAL bracelet data only ── */
+  const [sleepData, setSleepData] = useState<any>(null);
 
-    const nDeep = Math.max(60, deep + Math.round((pr(1) - 0.5) * 60));
-    const nLight = Math.max(100, light + Math.round((pr(2) - 0.5) * 80));
-    const nRem = Math.max(30, rem + Math.round((pr(3) - 0.5) * 40));
-    const nTotal = nDeep + nLight + nRem;
-    const nDur = nTotal + Math.round(pr(4) * 20) + 5;
-    const startH = 22 + Math.floor(pr(5) * 1.5);
-    const startM = Math.round(pr(6) * 50);
+  useEffect(() => {
+    if (metricId !== 'sleep' || !token) return;
+    (async () => {
+      try {
+        const data = await apiFetch('/api/health/sleep/history', {}, token);
+        if (data && Array.isArray(data) && data.length > 0) {
+          setSleepData(data);
+        }
+      } catch {}
+    })();
+  }, [token, metricId]);
 
-    const stages: number[] = [];
-    let m = 0;
-    const awake = Math.max(0, nDur - nTotal);
-    for (let i = 0; i < Math.min(8, awake); i++) { stages.push(0); m++; }
-    const cycles = Math.max(3, Math.round(nTotal / 90));
-    for (let c = 0; c < cycles && m < nDur; c++) {
-      const lpc = Math.round(nLight / cycles);
-      for (let i = 0; i < lpc && m < nDur; i++) { stages.push(2); m++; }
-      const dpc = c < 2 ? Math.round(nDeep / cycles) + 5 : Math.max(5, Math.round(nDeep / cycles) - 5);
-      for (let i = 0; i < dpc && m < nDur; i++) { stages.push(1); m++; }
-      for (let i = 0; i < Math.round(lpc * 0.3) && m < nDur; i++) { stages.push(2); m++; }
-      const rpc = c < 2 ? Math.max(5, Math.round(nRem / cycles) - 5) : Math.round(nRem / cycles) + 5;
-      for (let i = 0; i < rpc && m < nDur; i++) { stages.push(3); m++; }
-      if (c < cycles - 1 && pr(10 + c) > 0.4) {
-        for (let i = 0; i < 1 + Math.round(pr(20 + c) * 3) && m < nDur; i++) { stages.push(0); m++; }
-      }
-    }
-    for (let i = 0; i < 3 && m < nDur; i++) { stages.push(0); m++; }
+  // Find sleep data for the selected date
+  const getSleepForDate = (dt: Date) => {
+    if (!sleepData || sleepData.length === 0) return null;
+    const dateStr = dt.toISOString().split('T')[0];
+    const match = sleepData.find((s: any) => s.date?.startsWith(dateStr));
+    if (!match) return null;
 
-    const session = fromBraceletStages(stages, startH, startM);
-    const pts = session.points;
-    const deepMin = pts.filter((p: any) => p.stage === 'deep').length;
-    const lightMin = pts.filter((p: any) => p.stage === 'light').length;
-    const remMin = pts.filter((p: any) => p.stage === 'rem').length;
-    const awakeMin = pts.filter((p: any) => p.stage === 'awake').length;
+    const deepMin = match.deep || 0;
+    const lightMin = match.light || 0;
+    const remMin = match.rem || 0;
+    const awakeMin = match.awake || 0;
     const totalSleep = deepMin + lightMin + remMin;
-    const duration = totalSleep + awakeMin;
-    const quality = totalSleep > 0 ? Math.min(100, Math.round((deepMin * 2 + remMin * 1.5 + lightMin * 0.8) / totalSleep * 100)) : 0;
-    const interruptions = pts.filter((p: any, i: number) => i > 0 && p.stage === 'awake' && pts[i - 1]?.stage !== 'awake').length;
+    const duration = match.duration || (totalSleep + awakeMin);
+    const quality = match.quality || (totalSleep > 0 ? Math.min(100, Math.round((deepMin * 2 + remMin * 1.5 + lightMin * 0.8) / totalSleep * 100)) : 0);
+    const interruptions = match.sleep_interruptions || 0;
+
+    // Build stages array from real data for hypnogram
+    const stages: number[] = [];
+    const cycles = Math.max(1, Math.round(totalSleep / 90));
+    for (let c = 0; c < cycles; c++) {
+      for (let i = 0; i < Math.round(lightMin / cycles); i++) stages.push(2);
+      for (let i = 0; i < Math.round(deepMin / cycles); i++) stages.push(1);
+      for (let i = 0; i < Math.round(remMin / cycles); i++) stages.push(3);
+      if (c < cycles - 1) stages.push(0); // brief wake between cycles
+    }
+
+    const startH = 22, startM = 30;
+    const session = fromBraceletStages(stages.length > 0 ? stages : [2, 2, 1, 1, 3, 2], startH, startM);
     const apnea = Math.min(100, Math.max(5, interruptions * 12 + (quality < 70 ? 20 : 0)));
 
     return { session, deepMin, lightMin, remMin, awakeMin, totalSleep, duration, quality, interruptions, apnea };
   };
-  const sleepNightData = computeSleepForDate(selectedDate);
+
+  const sleepNightData = getSleepForDate(selectedDate);
 
   const changeDate = (offset: number) => {
     const d = new Date(selectedDate);
@@ -158,10 +159,14 @@ export default function HealthDetailScreen() {
   const subScore = subs[metricId || '']?.score;
 
   const getValue = (key: string) => {
-    if (key === 'bp_display') return `${d.blood_pressure?.systolic || '--'}/${d.blood_pressure?.diastolic || '--'}`;
-    if (key === 'sleep_duration') { const m = d.sleep_duration_min || 0; return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}min`; }
+    if (key === 'bp_display') {
+      const sys = d.blood_pressure?.systolic || 0;
+      const dia = d.blood_pressure?.diastolic || 0;
+      return sys > 0 ? `${sys}/${dia}` : '--';
+    }
+    if (key === 'sleep_duration') { const m = d.sleep_duration_min || 0; return m > 0 ? `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}min` : '--'; }
     const v = d[key];
-    if (v === undefined || v === null) return '--';
+    if (v === undefined || v === null || v === 0) return '--';
     if (typeof v === 'number') return v % 1 === 0 ? v.toLocaleString() : v.toFixed(1);
     return String(v);
   };
@@ -199,7 +204,14 @@ export default function HealthDetailScreen() {
         )}
 
         {/* Sleep section: Hypnogram hero + apnea risk */}
-        {metricId === 'sleep' && d.sleep_duration_min && (() => {
+        {metricId === 'sleep' && (() => {
+          if (!sleepNightData) return (
+            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, padding: 24, textAlign: 'center' } as any}>
+              <i className="ri-moon-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.2)', marginBottom: 12, display: 'block' }} />
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Aucune donnee de sommeil</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5 }}>Portez votre bracelet Elio pendant la nuit pour obtenir une analyse detaillee de votre sommeil.</div>
+            </div>
+          );
           const { session: sleepSession, deepMin: nightDeepMin, lightMin: nightLightMin, remMin: nightRemMin, awakeMin: nightAwakeMin, totalSleep: nightTotalSleep, duration: nightDuration, quality: nightQuality, interruptions: nightInterruptions, apnea: nightApnea } = sleepNightData;
           const deepPct = nightTotalSleep > 0 ? Math.round(nightDeepMin / nightTotalSleep * 100) : 0;
           return (
@@ -441,8 +453,8 @@ export default function HealthDetailScreen() {
                     <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>{m.unit}</span>
                   </div>
                 </div>
-                {/* Zone bar — big and visible */}
-                {z && !isNaN(numVal) && (
+                {/* Zone bar — only shown when there is actual measured data */}
+                {z && val !== '--' && !isNaN(numVal) && numVal !== 0 && (
                   <div>
                     <div style={{ height: 12, borderRadius: 6, background: 'rgba(255,255,255,0.06)', position: 'relative', overflow: 'visible' } as any}>
                       {/* Danger zones */}
