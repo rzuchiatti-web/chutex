@@ -448,10 +448,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           ))}
 
-          {/* ── 4. PROGRAMME EN COURS (si actif, avant Nora) ── */}
-          {activeProgram?.active && (
-            <div data-testid="active-program-card" style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: `1px solid ${activeProgram.program.color}20`, padding: '18px', marginBottom: 16, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
-              {/* Header */}
+          {/* ── 4. PROGRAMME EN COURS ── */}
+          {activeProgram?.active ? (
+            <div data-testid="active-program-card" onClick={() => router.push('/programs' as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: `1px solid ${activeProgram.program.color}20`, padding: '18px', marginBottom: 10, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
                 <div style={{ width: 44, height: 44, borderRadius: 14, background: `${activeProgram.program.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                   <i className={activeProgram.program.icon} style={{ fontSize: 22, color: activeProgram.program.color }} />
@@ -462,39 +461,31 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 900, color: activeProgram.program.color }}>{activeProgram.progress_pct}%</div>
               </div>
-              {/* Progress bar */}
               <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 12 } as any}>
                 <div style={{ height: 6, borderRadius: 3, width: `${activeProgram.progress_pct}%`, background: `linear-gradient(90deg, ${activeProgram.program.color}80, ${activeProgram.program.color})`, transition: 'width 0.5s' } as any} />
               </div>
-              {/* Today's mission */}
               {activeProgram.today_tasks && (
-                <div onClick={() => router.push('/programs' as any)} style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', marginBottom: activeProgram.team ? 10 : 0 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
-                    <i className="ri-focus-3-line" style={{ fontSize: 12, color: activeProgram.program.color }} />
-                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Mission du jour</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{activeProgram.today_tasks.tasks?.length || 0} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider'}</div>
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{activeProgram.today_tasks.focus}</div>
-                  {activeProgram.today_tasks.tasks && (
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{activeProgram.today_tasks.tasks.length} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider'}</div>
-                  )}
-                </div>
-              )}
-              {/* Team members progress */}
-              {activeProgram.team && activeProgram.team.members && activeProgram.team.members.length > 1 && (
-                <div style={{ padding: '10px 14px', borderRadius: 14, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.12)' } as any}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(167,139,250,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Equipe</div>
-                  <div style={{ display: 'flex', gap: 8 } as any}>
-                    {activeProgram.team.members.map((m: any, i: number) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                        <div style={{ width: 28, height: 28, borderRadius: 8, background: m.checked_in_today ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${m.checked_in_today ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                          {m.checked_in_today ? <i className="ri-check-line" style={{ fontSize: 14, color: '#10B981' }} /> : <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>{m.name?.charAt(0)}</span>}
-                        </div>
-                        <span style={{ fontSize: 10, color: m.is_me ? '#A78BFA' : 'rgba(255,255,255,0.4)', fontWeight: m.is_me ? 700 : 400 }}>{m.is_me ? 'Moi' : m.name?.split(' ')[0]}</span>
-                      </div>
-                    ))}
+                  <div style={{ padding: '6px 12px', borderRadius: 999, background: activeProgram.today_checkin ? 'rgba(16,185,129,0.12)' : `${activeProgram.program.color}15`, border: `1px solid ${activeProgram.today_checkin ? 'rgba(16,185,129,0.25)' : activeProgram.program.color + '25'}` } as any}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: activeProgram.today_checkin ? '#10B981' : activeProgram.program.color }}>{activeProgram.today_checkin ? 'Fait' : 'Ouvrir'}</span>
                   </div>
                 </div>
               )}
+            </div>
+          ) : (
+            <div data-testid="discover-programs" onClick={() => router.push('/programs' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '14px 16px', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <i className="ri-road-map-line" style={{ fontSize: 18, color: '#A78BFA' }} />
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Programmes prevention</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Decouvrez nos parcours personnalises</div>
+              </div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.15)' }} />
             </div>
           )}
 
