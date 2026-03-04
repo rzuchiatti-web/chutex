@@ -114,22 +114,27 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
     return () => { clearInterval(iv); clearTimeout(timeout); };
   }, [step]);
 
-  // Analysis countdown (step 5)
+  // Analysis phase (step 5): wait for impedance data or timeout after 60s
   useEffect(() => {
     if (step !== 5) return;
-    setCountdown(20);
+    const startTime = Date.now();
     const iv = setInterval(() => {
-      setCountdown(c => {
-        if (c <= 1) {
-          clearInterval(iv);
-          finalizeMeasurement();
-          return 0;
-        }
-        return c - 1;
-      });
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      setCountdown(elapsed); // count UP for display
+      // If impedance received, finalize
+      if (hasImpedance && impedance > 0) {
+        clearInterval(iv);
+        finalizeMeasurement();
+        return;
+      }
+      // Timeout after 60s: finalize with what we have
+      if (elapsed >= 60) {
+        clearInterval(iv);
+        finalizeMeasurement();
+      }
     }, 1000);
     return () => clearInterval(iv);
-  }, [step]);
+  }, [step, hasImpedance, impedance]);
 
   const startBleScan = async () => {
     setStep(2);
@@ -313,7 +318,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
           </div>
         )}
 
-        {/* ── STEP 5: Full Body Analysis Countdown (video) ── */}
+        {/* ── STEP 5: Full Body Analysis (video) ── */}
         {step === 5 && (
           <div style={{ position: 'fixed', inset: 0, zIndex: 100000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}>
             <video autoPlay loop muted playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src={VIDEO_BG} />
@@ -321,17 +326,35 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
             <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Analyse corporelle en cours</div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>Maintenez le manche et restez immobile</div>
-              <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{stableWeight}<span style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)' }}> kg</span></div>
-              <div style={{ width: 100, height: 100, borderRadius: 50, border: '3px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '10px auto 20px', position: 'relative' } as any}>
-                <svg width="100" height="100" style={{ position: 'absolute', top: -1.5, left: -1.5, transform: 'rotate(-90deg)' }}>
-                  <circle cx="50" cy="50" r="48" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeDasharray={`${(1 - countdown / 20) * 301} 301`} strokeLinecap="round" />
-                </svg>
-                <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{countdown}<span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>s</span></div>
+              <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', marginBottom: 20 }}>{stableWeight}<span style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)' }}> kg</span></div>
+
+              {/* Animated analysis ring */}
+              <div style={{ width: 120, height: 120, borderRadius: 60, border: '3px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', position: 'relative' } as any}>
+                <div style={{ position: 'absolute', inset: -2, borderRadius: 60, border: '3px solid transparent', borderTopColor: '#A78BFA', borderRightColor: '#22D3EE', animation: 'spin 1.5s linear infinite' } as any} />
+                <div style={{ position: 'absolute', inset: 6, borderRadius: 54, border: '2px solid transparent', borderBottomColor: '#10B981', borderLeftColor: '#F59E0B', animation: 'spin 2.5s linear infinite reverse' } as any} />
+                <div style={{ textAlign: 'center' } as any}>
+                  <i className="ri-body-scan-line" style={{ fontSize: 28, color: '#A78BFA', display: 'block', marginBottom: 2 }} />
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{countdown}s</div>
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 4 } as any}>
-                {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: 3, background: '#FFF', opacity: 0.4, animation: `pulse 1.2s ${i*0.3}s infinite` } as any} />)}
+
+              {/* Analysis progress indicators */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 260, margin: '0 auto 20px' } as any}>
+                {[
+                  { label: 'Poids', done: true, color: '#10B981' },
+                  { label: 'Composition corporelle', done: hasImpedance, color: '#A78BFA' },
+                  { label: 'Analyse complete', done: false, color: '#22D3EE' },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                    <div style={{ width: 20, height: 20, borderRadius: 10, background: item.done ? `${item.color}30` : 'rgba(255,255,255,0.06)', border: `1.5px solid ${item.done ? item.color : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      {item.done ? <i className="ri-check-line" style={{ fontSize: 11, color: item.color }} /> : <div style={{ width: 6, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.2)', animation: 'pulse 1.5s infinite' } as any} />}
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: item.done ? 700 : 500, color: item.done ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{item.label}</span>
+                  </div>
+                ))}
               </div>
-              <div onClick={closeAndCleanup} style={{ marginTop: 24, padding: '14px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler</div>
+
+              <div onClick={closeAndCleanup} style={{ padding: '14px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler</div>
             </div>
             <style dangerouslySetInnerHTML={{ __html: '@keyframes pulse{0%,100%{opacity:0.2;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}' }} />
           </div>
