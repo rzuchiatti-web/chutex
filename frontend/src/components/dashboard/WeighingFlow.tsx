@@ -115,32 +115,37 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
     return () => { clearInterval(iv); clearTimeout(timeout); };
   }, [step]);
 
-  // Analysis phase (step 5): wait for BLE disconnection or long silence
+  // Analysis phase (step 5): wait for BLE disconnection OR packet silence
   useEffect(() => {
     if (step !== 5) return;
     lastPacketTimeRef.current = Date.now();
     const startTime = Date.now();
+    let done = false;
+
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearInterval(iv);
+      finalizeMeasurement();
+    };
 
     // Listen for device disconnection (balance turns off)
     const bd = deviceRef.current;
-    let disconnected = false;
-    const onDisconnect = () => {
-      disconnected = true;
-      setTimeout(() => finalizeMeasurement(), 1000);
-    };
+    const onDisconnect = () => setTimeout(finish, 500);
     if (bd?.addEventListener) {
       try { bd.addEventListener('gattserverdisconnected', onDisconnect); } catch {}
     }
 
+    // Also check for packet silence (balance finished but stayed connected)
     const iv = setInterval(() => {
-      if (disconnected) { clearInterval(iv); return; }
+      if (done) return;
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const silenceMs = Date.now() - lastPacketTimeRef.current;
       setCountdown(elapsed);
+      // After 10s minimum, if 5s without any BLE packet = balance done
+      if (elapsed > 10 && silenceMs > 5000) { finish(); return; }
       // Hard timeout 120s
-      if (elapsed >= 120) {
-        clearInterval(iv);
-        finalizeMeasurement();
-      }
+      if (elapsed >= 120) finish();
     }, 500);
 
     return () => {
@@ -349,7 +354,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                 <div style={{ position: 'absolute', inset: 0, borderRadius: 999, border: '2px solid rgba(255,255,255,0.15)', animation: 'scanPulse 2s ease-out infinite' } as any} />
                 <div style={{ position: 'absolute', inset: 10, borderRadius: 999, border: '2px solid rgba(255,255,255,0.1)', animation: 'scanPulse 2s ease-out infinite 0.5s' } as any} />
                 <div style={{ position: 'absolute', inset: 20, borderRadius: 999, border: '2px solid rgba(255,255,255,0.08)', animation: 'scanPulse 2s ease-out infinite 1s' } as any} />
-                <i className="ri-body-scan-line" style={{ fontSize: 32, color: '#FFF' }} />
+                <div style={{ width: 10, height: 10, borderRadius: 5, background: '#FFF' } as any} />
               </div>
 
               <div style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: 6 }}>Analyse en cours...</div>
