@@ -129,7 +129,7 @@ export default function ProgramDetailScreen() {
             </div>
 
             {hasActiveConflict && (
-              <div data-testid="program-active-conflict-warning" style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 } as any}>
+              <div data-testid="program-active-conflict-warning" style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                 <i className="ri-error-warning-line" style={{ fontSize: 18, color: '#EF4444', flexShrink: 0 }} />
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 800, color: '#FCA5A5', marginBottom: 3 }}>Programme actif en cours</div>
@@ -185,7 +185,7 @@ export default function ProgramDetailScreen() {
                 <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>Suivi Nora</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
                   {program.tracked_metrics.map((m: string, i: number) => (
-                    <div key={i} style={{ padding: '7px 12px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: 5 } as any}>
+                    <div key={i} style={{ padding: '7px 12px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: 5 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                       <i className={metricIcons[m] || 'ri-bar-chart-line'} style={{ fontSize: 12, color: clr }} />
                       {metricLabels[m] || m.replace(/_/g, ' ')}
                     </div>
@@ -212,7 +212,7 @@ export default function ProgramDetailScreen() {
 
             {/* Disclaimer */}
             {program.medical_disclaimer && (
-              <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)', fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 28, display: 'flex', alignItems: 'flex-start', gap: 8 } as any}>
+              <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)', fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 28, display: 'flex', alignItems: 'flex-start', gap: 8 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                 <i className="ri-stethoscope-line" style={{ fontSize: 14, color: '#F59E0B', marginTop: 1, flexShrink: 0 }} />
                 <span>{program.medical_disclaimer}</span>
               </div>
@@ -228,7 +228,7 @@ export default function ProgramDetailScreen() {
 
             <div onClick={() => { if (hasActiveConflict) { setError('Vous avez deja un programme actif.'); return; } setMode('duo'); setStep(hasOnboarding ? 1 : 3); }}
               data-testid="start-team-btn"
-              style={{ padding: '14px', borderRadius: 16, textAlign: 'center', cursor: hasActiveConflict ? 'not-allowed' : 'pointer', background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.18)', fontSize: 13, fontWeight: 700, color: '#A78BFA', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: hasActiveConflict ? 0.4 : 1 } as any}>
+              style={{ padding: '14px', borderRadius: 16, textAlign: 'center', cursor: hasActiveConflict ? 'not-allowed' : 'pointer', background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.18)', fontSize: 13, fontWeight: 700, color: '#A78BFA', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: hasActiveConflict ? 0.4 : 1 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
               <i className="ri-team-line" style={{ fontSize: 16 }} />Le faire avec un ami
             </div>
 
@@ -250,7 +250,7 @@ export default function ProgramDetailScreen() {
             {(program.onboarding_fields || []).map((f: any) => (
               <div key={f.key} style={{ marginBottom: 18 } as any}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>{f.label}</div>
-                {f.type === 'time' && <input type="time" value={onboarding[f.key] || ''} onChange={(e: any) => setOnboarding({ ...onboarding, [f.key]: e.target.value })} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', colorScheme: 'dark' } as any} />}
+                {f.type === 'time' && <input type="time" value={onboarding[f.key] || ''} onChange={(e: any) => setOnboarding({ ...onboarding, [f.key]: e.target.value })} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', colorScheme: 'dark' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any} />}
                 {f.type === 'choice' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
                     {(f.options || []).map((o: string) => (
@@ -284,7 +284,7 @@ export default function ProgramDetailScreen() {
         {step === 2 && (
           <div style={{ animation: 'detail-fade-in 350ms ease both' } as any}>
             <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-              <div style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' } as any}>
+              <div style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                 <i className="ri-team-line" style={{ fontSize: 28, color: '#A78BFA' }} />
               </div>
               <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Invitez vos amis</div>
@@ -300,7 +300,7 @@ export default function ProgramDetailScreen() {
             <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Inviter par telephone</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
               <input data-testid="invite-phone-input" value={invitePhone} onChange={(e: any) => setInvitePhone(e.target.value)} placeholder="06 12 34 56 78"
-                style={{ flex: 1, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                style={{ flex: 1, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any} />
               <div data-testid="invite-send-btn" onClick={inviteFriend} style={{ padding: '14px 18px', borderRadius: 14, background: invitePhone.trim() ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.03)', border: `1px solid ${invitePhone.trim() ? 'rgba(167,139,250,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: invitePhone.trim() && !inviteLoading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center' } as any}>
                 <i className={inviteLoading ? "ri-loader-4-line" : "ri-send-plane-2-line"} style={{ fontSize: 18, color: invitePhone.trim() ? '#A78BFA' : 'rgba(255,255,255,0.2)' }} />
               </div>

@@ -165,14 +165,14 @@ export default function ProgramDailyView({ token, onStop }: Props) {
 
       {/* ── STREAK & BADGES ── */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-        <div style={{ flex: 1, padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+        <div style={{ flex: 1, padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
           <i className="ri-fire-fill" style={{ fontSize: 22, color: data.streak >= 3 ? '#F59E0B' : 'rgba(255,255,255,0.15)' }} />
           <div>
             <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{data.streak}</div>
             <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>jours d'affilee</div>
           </div>
         </div>
-        <div style={{ flex: 1, padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+        <div style={{ flex: 1, padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
           <i className="ri-trophy-line" style={{ fontSize: 22, color: unlockedBadges.length > 0 ? '#22D3EE' : 'rgba(255,255,255,0.15)' }} />
           <div>
             <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{unlockedBadges.length}</div>
@@ -183,7 +183,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
 
       {/* ── TEAM PROGRESS (if in team) ── */}
       {data.team && data.team.members && data.team.members.length > 1 && (
-        <div data-testid="team-progress" style={{ padding: '14px 18px', borderRadius: 18, background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 14 } as any}>
+        <div data-testid="team-progress" style={{ padding: '14px 18px', borderRadius: 18, background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 14 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
             <i className="ri-team-line" style={{ fontSize: 16, color: '#A78BFA' }} />
             <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.6)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Equipe · {data.team.members.length} membres</span>
@@ -222,7 +222,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
       )}
 
       {/* ── MISSION DU JOUR ── */}
-      <div data-testid="daily-mission" style={{ padding: '18px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', marginBottom: 14 } as any}>
+      <div data-testid="daily-mission" style={{ padding: '18px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', marginBottom: 14 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
           <i className="ri-focus-3-line" style={{ fontSize: 16, color: clr }} />
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8 }}>Mission du jour</div>
@@ -284,7 +284,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
 
       {/* ── AI FEEDBACK ── */}
       {aiFeedback && (
-        <div data-testid="ai-feedback" style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 14 } as any}>
+        <div data-testid="ai-feedback" style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 14 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
             <div style={{ width: 28, height: 28, borderRadius: 8, background: `${clr}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
               <i className="ri-robot-2-line" style={{ fontSize: 14, color: clr }} />
@@ -301,14 +301,14 @@ export default function ProgramDailyView({ token, onStop }: Props) {
         </div>
       )}
       {loadingFeedback && !aiFeedback && (
-        <div style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', marginBottom: 14, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.2)' } as any}>
+        <div style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', marginBottom: 14, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.2)' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
           <i className="ri-loader-4-line" style={{ marginRight: 6 }} />Analyse IA en cours...
         </div>
       )}
 
       {/* ── CHECK-IN ── */}
       {!showCheckinDone ? (
-        <div data-testid="checkin-form" style={{ padding: '18px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', marginBottom: 14 } as any}>
+        <div data-testid="checkin-form" style={{ padding: '18px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', marginBottom: 14 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
           <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Check-in du jour</div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 14 }}>Comment te sens-tu aujourd'hui ?</div>
 
@@ -357,7 +357,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
           </div>
         </div>
       ) : (
-        <div data-testid="checkin-done" style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', marginBottom: 14 } as any}>
+        <div data-testid="checkin-done" style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', marginBottom: 14 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
             <i className="ri-checkbox-circle-fill" style={{ fontSize: 20, color: '#10B981' }} />
             <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Check-in du jour valide !</div>
@@ -379,11 +379,11 @@ export default function ProgramDailyView({ token, onStop }: Props) {
 
       {/* ── ACTIONS ── */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-        <div onClick={() => loadBilan('weekly')} data-testid="btn-weekly-report" style={{ flex: 1, padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', textAlign: 'center' } as any}>
+        <div onClick={() => loadBilan('weekly')} data-testid="btn-weekly-report" style={{ flex: 1, padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', textAlign: 'center' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
           <i className="ri-bar-chart-box-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }} />
           <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>Bilan hebdo</div>
         </div>
-        <div onClick={() => setShowStopConfirm(true)} data-testid="btn-stop-program" style={{ flex: 1, padding: '12px', borderRadius: 14, background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.1)', cursor: 'pointer', textAlign: 'center' } as any}>
+        <div onClick={() => setShowStopConfirm(true)} data-testid="btn-stop-program" style={{ flex: 1, padding: '12px', borderRadius: 14, background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.1)', cursor: 'pointer', textAlign: 'center' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
           <i className="ri-stop-circle-line" style={{ fontSize: 18, color: 'rgba(239,68,68,0.4)', display: 'block', marginBottom: 4 }} />
           <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(239,68,68,0.5)' }}>Arreter</div>
         </div>
@@ -419,8 +419,8 @@ export default function ProgramDailyView({ token, onStop }: Props) {
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Ta progression sera perdue. Tu pourras recommencer un nouveau programme.</div>
             </div>
             <div style={{ display: 'flex', gap: 10 } as any}>
-              <div onClick={() => setShowStopConfirm(false)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>Annuler</div>
-              <div onClick={stopProgram} style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#EF4444' } as any}>Arreter</div>
+              <div onClick={() => setShowStopConfirm(false)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>Annuler</div>
+              <div onClick={stopProgram} style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#EF4444' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>Arreter</div>
             </div>
           </div>
         </div>
@@ -463,7 +463,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
                       { val: s.checkins_this_week, label: 'Check-ins', sub: `vs ${s.checkins_last_week} sem. dern.`, color: '#10B981' },
                       { val: s.avg_mood_this_week, label: 'Humeur moy.', sub: s.mood_trend === 'up' ? 'En hausse' : s.mood_trend === 'down' ? 'En baisse' : 'Stable', color: s.mood_trend === 'up' ? '#10B981' : '#F59E0B' },
                     ].map((st, i) => (
-                      <div key={i} style={{ flex: 1, padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
+                      <div key={i} style={{ flex: 1, padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                         <div style={{ fontSize: 28, fontWeight: 900, color: st.color }}>{st.val}</div>
                         <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>{st.label}</div>
                         <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{st.sub}</div>
@@ -534,7 +534,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
                       { val: `${s.avg_mood}/5`, label: 'Humeur moyenne', color: '#FCD34D' },
                       { val: s.streak, label: 'Meilleur streak', color: '#F59E0B' },
                     ].map((st, i) => (
-                      <div key={i} style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
+                      <div key={i} style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                         <div style={{ fontSize: 24, fontWeight: 900, color: st.color }}>{st.val}</div>
                         <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{st.label}</div>
                       </div>
@@ -546,13 +546,13 @@ export default function ProgramDailyView({ token, onStop }: Props) {
                     <div style={{ marginBottom: 20 } as any}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 10 }}>Avant / Apres — Humeur</div>
                       <div style={{ display: 'flex', gap: 10 } as any}>
-                        <div style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', textAlign: 'center' } as any}>
+                        <div style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', textAlign: 'center' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                           <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(239,68,68,0.6)', textTransform: 'uppercase', marginBottom: 4 }}>Avant</div>
                           <div style={{ fontSize: 20, fontWeight: 900, color: '#EF4444' }}>{r.before_after.mood?.before || '?'}/5</div>
                           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>humeur</div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center' } as any}><i className="ri-arrow-right-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} /></div>
-                        <div style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)', textAlign: 'center' } as any}>
+                        <div style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)', textAlign: 'center' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                           <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(16,185,129,0.6)', textTransform: 'uppercase', marginBottom: 4 }}>Apres</div>
                           <div style={{ fontSize: 20, fontWeight: 900, color: '#10B981' }}>{r.before_after.mood?.after || '?'}/5</div>
                           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>humeur</div>
