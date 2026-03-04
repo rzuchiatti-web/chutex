@@ -65,9 +65,19 @@ export default function WeighingReportScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const r = await apiFetch('/api/health/daily-report', {}, token);
-        const w = (r?.weighings || []).find((w: any) => w.id === id) || r?.weighings?.[0];
-        setReport(w);
+        // Try scale history first (has BLE measurement data)
+        const scaleHistory = await apiFetch('/api/devices/scale/history', {}, token).catch(() => []);
+        if (Array.isArray(scaleHistory) && scaleHistory.length > 0) {
+          const latest = scaleHistory.find((w: any) => w.id === id) || scaleHistory[0];
+          // Flatten data sub-object into top level
+          const flat = { ...latest, ...(latest.data || {}) };
+          setReport(flat);
+        } else {
+          // Fallback to daily report
+          const r = await apiFetch('/api/health/daily-report', {}, token);
+          const w = (r?.weighings || []).find((w: any) => w.id === id) || r?.weighings?.[0];
+          setReport(w ? { ...w, ...(w.data || {}) } : null);
+        }
       } catch {} finally { setLoading(false); }
     })();
   }, [id, token]);
@@ -103,8 +113,6 @@ export default function WeighingReportScreen() {
 
         {/* Data groups */}
         {DATA_GROUPS.map((group) => {
-          const hasData = group.keys.some(k => w[k.k] !== undefined && w[k.k] !== null);
-          if (!hasData) return null;
           return (
             <div key={group.title} style={{ marginBottom: 14 } as any}>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 } as any}>
@@ -113,10 +121,10 @@ export default function WeighingReportScreen() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
                 {group.keys.map(k => {
                   const val = w[k.k];
-                  if (val === undefined || val === null) return null;
+                  const hasVal = val !== undefined && val !== null && val !== 0;
                   return (
-                    <div key={k.k} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: k.k } })} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', transition: 'transform 0.2s' } as any}
-                      onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                    <div key={k.k} onClick={() => hasVal ? router.push({ pathname: '/metric-detail' as any, params: { key: k.k } }) : null} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: hasVal ? 'pointer' : 'default', transition: 'transform 0.2s', opacity: hasVal ? 1 : 0.5 } as any}
+                      onMouseEnter={(e: any) => { if (hasVal) e.currentTarget.style.transform = 'translateY(-2px)'; }}
                       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
                         <div style={{ width: 28, height: 28, borderRadius: 8, background: `${k.c}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
@@ -124,7 +132,7 @@ export default function WeighingReportScreen() {
                         </div>
                         <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>{k.l}</span>
                       </div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{typeof val === 'number' ? (val % 1 === 0 ? val.toLocaleString() : val.toFixed(1)) : val}<span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginLeft: 4 }}>{k.u}</span></div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: hasVal ? '#FFF' : 'rgba(255,255,255,0.15)' }}>{hasVal ? (typeof val === 'number' ? (val % 1 === 0 ? val.toLocaleString() : val.toFixed(1)) : val) : '--'}<span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginLeft: 4 }}>{k.u}</span></div>
                     </div>
                   );
                 })}
