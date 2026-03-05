@@ -131,16 +131,28 @@ export default function ProgramDailyView({ token, onStop }: Props) {
 
   const fetchActive = useCallback(async () => {
     const res = await apiFetch('/api/programs/active', {}, token).catch(() => null);
-    if (res) { setData(res); if (res.today_checkin) { setCheckedIn(true); setTasksDone(res.today_checkin.tasks_done || []); } }
+    if (res) {
+      setData(res);
+      // Load saved progress: checkin > task_progress
+      if (res.today_checkin) {
+        setCheckedIn(true);
+        setTasksDone(res.today_checkin.tasks_done || []);
+      } else if (res.task_progress) {
+        setTasksDone(res.task_progress.tasks_done || []);
+        setTaskRatings(res.task_progress.task_ratings || {});
+      }
+    }
   }, [token]);
 
   useEffect(() => { fetchActive(); }, [fetchActive]);
 
-  const completeTask = (taskIdx: number, rating: number) => {
+  const completeTask = async (taskIdx: number, rating: number) => {
     const task = tasks[taskIdx];
     if (!tasksDone.includes(task)) setTasksDone(prev => [...prev, task]);
     setTaskRatings(prev => ({ ...prev, [task]: rating }));
     setOpenTask(null);
+    // Auto-save to backend
+    await apiFetch('/api/programs/save-task', { method: 'POST', body: JSON.stringify({ task, rating }) }, token).catch(() => {});
   };
 
   const submitCheckin = async () => {
