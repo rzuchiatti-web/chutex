@@ -38,9 +38,18 @@ function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { 
     return /not[eé]|renseign|evalu|ecri|indiqu|enregistr|rempli|combien|quel.*temps|quel.*cot|stabilit/i.test(step.instruction);
   };
 
+  // Detect if a step has choices (button-based answers)
+  const stepChoices = step?.choices || null;
+
   const advanceStep = () => {
     if (currentStep < totalSteps - 1) setCurrentStep(currentStep + 1);
     else setFinished(true);
+  };
+
+  const selectChoice = (choice: string) => {
+    setNotes(prev => ({ ...prev, [`step_${currentStep}`]: choice }));
+    // Auto-advance after selecting
+    setTimeout(() => advanceStep(), 300);
   };
 
   const step = hasSteps ? steps[currentStep] : null;
@@ -81,15 +90,18 @@ function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { 
                   <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', lineHeight: 1.4, marginBottom: 8 }}>{step.instruction}</div>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Etape {currentStep + 1} sur {totalSteps}</div>
 
-                  {/* Input field for observation steps */}
-                  {stepNeedsInput && (
-                    <div style={{ marginTop: 16, textAlign: 'left' } as any}>
-                      <textarea
-                        placeholder="Notez vos observations ici..."
-                        value={notes[`step_${currentStep}`] || ''}
-                        onChange={(e: any) => setNotes(prev => ({ ...prev, [`step_${currentStep}`]: e.target.value }))}
-                        style={{ width: '100%', padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 13, lineHeight: 1.6, resize: 'none', minHeight: 80, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' } as any}
-                      />
+                  {/* Choice buttons for observation steps */}
+                  {stepChoices && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginTop: 16 } as any}>
+                      {stepChoices.map((choice: string, ci: number) => {
+                        const selected = notes[`step_${currentStep}`] === choice;
+                        return (
+                          <div key={ci} onClick={() => selectChoice(choice)}
+                            style={{ padding: '10px 16px', borderRadius: 14, cursor: 'pointer', background: selected ? `${color}20` : 'rgba(255,255,255,0.06)', border: `1.5px solid ${selected ? color : 'rgba(255,255,255,0.1)'}`, fontSize: 13, fontWeight: selected ? 800 : 600, color: selected ? '#FFF' : 'rgba(255,255,255,0.5)', transition: 'all 200ms' } as any}>
+                            {selected && <i className="ri-check-line" style={{ fontSize: 12, marginRight: 6, color }} />}{choice}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </>
