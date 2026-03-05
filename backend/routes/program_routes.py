@@ -758,9 +758,13 @@ async def get_active_program(user=Depends(get_current_user), day: int = 0):
 
     if cached_personalized and cached_personalized.get("tasks"):
         today_tasks = cached_personalized["tasks"]
+        # ALWAYS reload guided_steps from the original template (never from cache)
+        original_gs = tasks_template.get(day_key, {}).get("guided_steps", {})
+        if original_gs:
+            today_tasks["guided_steps"] = original_gs
     else:
-        # Keep original guided_steps as base
-        original_guided_steps = today_tasks.get("guided_steps", {})
+        # Save original guided_steps BEFORE personalization
+        original_guided_steps = tasks_template.get(day_key, {}).get("guided_steps", {})
 
         # Personalize text via GPT
         api_key = os.environ.get("EMERGENT_LLM_KEY")
@@ -815,8 +819,8 @@ JSON: {{"focus": "...", "mission": "1-2 phrases contexte medical", "tasks": ["ta
                         elif isinstance(t, dict):
                             clean_tasks.append(t.get("title") or t.get("task") or str(t))
                     personalized["tasks"] = clean_tasks
-                    # Keep original guided_steps (reliable structure)
-                    personalized["guided_steps"] = original_guided_steps
+                    # DO NOT store guided_steps in cache — always use template original
+                    personalized.pop("guided_steps", None)
                     today_tasks = personalized
 
                     await db.personalized_tasks_cache.update_one(
