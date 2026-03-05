@@ -153,7 +153,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         ]);
         if (prog) {
           setActiveProgram(prog);
-          if (prog.active && !prog.today_checkin) setShowCheckin(true);
+          if (prog.active && !prog.today_checkin) {
+            // Don't show popup — checkin is done inside the program page
+          }
         }
         if (cat?.programs) setProgramCatalog(cat.programs);
         // Fetch team invitations
