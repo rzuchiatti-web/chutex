@@ -159,7 +159,7 @@ function ExercisePopup({ task, steps, color, category, alreadyDone, onComplete, 
 
 export default function ProgramDailyView({ token, onStop }: Props) {
   const [data, setData] = useState<any>(null);
-  const [tasksDone, setTasksDone] = useState<string[]>([]);
+  const [tasksDone, setTasksDone] = useState<number[]>([]);
   const [taskRatings, setTaskRatings] = useState<Record<string, number>>({});
   const [mood, setMood] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -172,12 +172,13 @@ export default function ProgramDailyView({ token, onStop }: Props) {
     const res = await apiFetch('/api/programs/active', {}, token).catch(() => null);
     if (res) {
       setData(res);
-      // Load saved progress: checkin > task_progress
+      // Load saved progress: checkin > task_progress (using task indices)
       if (res.today_checkin) {
         setCheckedIn(true);
-        setTasksDone(res.today_checkin.tasks_done || []);
+        const saved = res.today_checkin.tasks_done_indices || [];
+        setTasksDone(saved);
       } else if (res.task_progress) {
-        setTasksDone(res.task_progress.tasks_done || []);
+        setTasksDone(res.task_progress.tasks_done_indices || []);
         setTaskRatings(res.task_progress.task_ratings || {});
       }
     }
@@ -186,18 +187,17 @@ export default function ProgramDailyView({ token, onStop }: Props) {
   useEffect(() => { fetchActive(); }, [fetchActive]);
 
   const completeTask = async (taskIdx: number, rating: number, taskNotes?: Record<string, string>) => {
-    const task = tasks[taskIdx];
-    if (!tasksDone.includes(task)) setTasksDone(prev => [...prev, task]);
-    setTaskRatings(prev => ({ ...prev, [task]: rating }));
+    if (!tasksDone.includes(taskIdx)) setTasksDone(prev => [...prev, taskIdx]);
+    setTaskRatings(prev => ({ ...prev, [String(taskIdx)]: rating }));
     setOpenTask(null);
-    // Auto-save to backend with notes
-    await apiFetch('/api/programs/save-task', { method: 'POST', body: JSON.stringify({ task, rating, notes: taskNotes || {} }) }, token).catch(() => {});
+    // Auto-save to backend with index
+    await apiFetch('/api/programs/save-task', { method: 'POST', body: JSON.stringify({ task_index: taskIdx, rating, notes: taskNotes || {} }) }, token).catch(() => {});
   };
 
   const submitCheckin = async () => {
     if (mood === 0 || submitting) return;
     setSubmitting(true);
-    await apiFetch('/api/programs/checkin', { method: 'POST', body: JSON.stringify({ mood, tasks_done: tasksDone, task_ratings: taskRatings }) }, token).catch(() => {});
+    await apiFetch('/api/programs/checkin', { method: 'POST', body: JSON.stringify({ mood, tasks_done_indices: tasksDone, task_ratings: taskRatings }) }, token).catch(() => {});
     setCheckedIn(true); setSubmitting(false); fetchActive();
   };
 
@@ -292,10 +292,10 @@ export default function ProgramDailyView({ token, onStop }: Props) {
 
         {/* Task rows — click opens full-screen popup */}
         {tasks.map((task: string, i: number) => {
-          const done = tasksDone.includes(task);
+          const done = tasksDone.includes(i);
           const steps = guidedSteps[String(i)] || [];
           const hasSteps = steps.length > 0;
-          const rating = taskRatings[task] || 0;
+          const rating = taskRatings[String(i)] || 0;
           return (
             <div key={i} data-testid={`task-${i}`} onClick={() => setOpenTask(i)}
               style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 16, marginBottom: 6, cursor: 'pointer', background: done ? `${c}06` : 'rgba(255,255,255,0.015)', border: `1px solid ${done ? c + '20' : 'rgba(255,255,255,0.04)'}`, transition: 'all 250ms' } as any}>
@@ -320,7 +320,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
           steps={guidedSteps[String(openTask)] || []}
           color={c}
           category={pg?.category}
-          alreadyDone={tasksDone.includes(tasks[openTask])}
+          alreadyDone={tasksDone.includes(openTask)}
           onComplete={(r, taskNotes) => completeTask(openTask, r, taskNotes)}
           onClose={() => setOpenTask(null)}
         />

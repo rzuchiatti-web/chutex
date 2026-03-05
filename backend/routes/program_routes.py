@@ -909,27 +909,26 @@ async def save_task_progress(data: dict, user=Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Aucun programme actif")
 
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    task = data.get("task", "")
+    task_index = data.get("task_index", -1)
     rating = data.get("rating", 0)
     notes = data.get("notes", {})
 
-    # Upsert today's progress
     existing = await db.program_task_progress.find_one(
         {"enrollment_id": enrollment["id"], "date": today_str}, {"_id": 0}
     )
 
     if existing:
-        tasks_done = existing.get("tasks_done", [])
-        if task and task not in tasks_done:
-            tasks_done.append(task)
+        indices = existing.get("tasks_done_indices", [])
+        if task_index >= 0 and task_index not in indices:
+            indices.append(task_index)
         ratings = existing.get("task_ratings", {})
-        if task and rating > 0:
-            ratings[task] = rating
+        if task_index >= 0 and rating > 0:
+            ratings[str(task_index)] = rating
         all_notes = existing.get("notes", {})
         all_notes.update(notes)
         await db.program_task_progress.update_one(
             {"enrollment_id": enrollment["id"], "date": today_str},
-            {"$set": {"tasks_done": tasks_done, "task_ratings": ratings, "notes": all_notes, "updated_at": datetime.now(timezone.utc).isoformat()}}
+            {"$set": {"tasks_done_indices": indices, "task_ratings": ratings, "notes": all_notes, "updated_at": datetime.now(timezone.utc).isoformat()}}
         )
     else:
         await db.program_task_progress.insert_one({
@@ -937,8 +936,8 @@ async def save_task_progress(data: dict, user=Depends(get_current_user)):
             "user_id": user['id'],
             "date": today_str,
             "day": enrollment.get("current_day", 1),
-            "tasks_done": [task] if task else [],
-            "task_ratings": {task: rating} if task and rating > 0 else {},
+            "tasks_done_indices": [task_index] if task_index >= 0 else [],
+            "task_ratings": {str(task_index): rating} if task_index >= 0 and rating > 0 else {},
             "notes": notes,
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
@@ -957,17 +956,16 @@ async def program_checkin(data: dict, user=Depends(get_current_user)):
 
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-    # Merge with auto-saved task progress
+    # Merge with auto-saved task progress (using indices)
     saved_progress = await db.program_task_progress.find_one(
         {"enrollment_id": enrollment["id"], "date": today_str}, {"_id": 0}
     )
-    submitted_tasks = data.get("tasks_done", [])
+    submitted_indices = data.get("tasks_done_indices", [])
     if saved_progress:
-        saved_tasks = saved_progress.get("tasks_done", [])
-        # Merge: union of submitted + saved
-        merged_tasks = list(set(submitted_tasks + saved_tasks))
+        saved_indices = saved_progress.get("tasks_done_indices", [])
+        merged_indices = list(set(submitted_indices + saved_indices))
     else:
-        merged_tasks = submitted_tasks
+        merged_indices = submitted_indices
 
     # Check if already checked in today
     existing = await db.program_checkins.find_one(
@@ -977,7 +975,7 @@ async def program_checkin(data: dict, user=Depends(get_current_user)):
         # Update existing
         await db.program_checkins.update_one(
             {"enrollment_id": enrollment["id"], "date": today_str},
-            {"$set": {"mood": data.get("mood", 3), "note": data.get("note", ""), "tasks_done": merged_tasks, "sleep_quality": data.get("sleep_quality"), "updated_at": datetime.now(timezone.utc).isoformat()}}
+            {"$set": {"mood": data.get("mood", 3), "note": data.get("note", ""), "tasks_done_indices": merged_indices, "sleep_quality": data.get("sleep_quality"), "updated_at": datetime.now(timezone.utc).isoformat()}}
         )
         return {"status": "updated"}
 
@@ -989,7 +987,7 @@ async def program_checkin(data: dict, user=Depends(get_current_user)):
         "day": enrollment.get("current_day", 1),
         "mood": data.get("mood", 3),
         "note": data.get("note", ""),
-        "tasks_done": merged_tasks,
+        "tasks_done_indices": merged_indices,
         "sleep_quality": data.get("sleep_quality"),
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
