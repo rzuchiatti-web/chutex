@@ -14,13 +14,13 @@ const MOOD = [
 interface Props { token: string; onStop: () => void; }
 
 /* ── Full-screen Glass Popup for guided exercises ── */
-function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { task: string; steps: any[]; color: string; category?: string; onComplete: (rating: number) => void; onClose: () => void }) {
+function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { task: string; steps: any[]; color: string; category?: string; onComplete: (rating: number, notes?: Record<string, string>) => void; onClose: () => void }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [notes, setNotes] = useState<Record<string, string>>({});
   const hasSteps = steps && steps.length > 0;
   const totalSteps = hasSteps ? steps.length : 1;
 
-  // Determine evaluation type based on category/task content
   const isPhysical = /exercice|tenez|marche|repet|position|etir|respir|yoga|squat|levez|pied|bras|jambe|equilibre/i.test(task);
   const isNutrition = /mang|aliment|repas|sel|sucre|legume|fruit|eau|boire|calorie|portion|cuisine/i.test(task);
   const isMental = /meditat|respir|calm|pleine conscience|visualis|gratitude|journal|ecri|not/i.test(task);
@@ -32,17 +32,31 @@ function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { 
     ? [{v:1,l:'Pas du tout',i:'ri-close-line',c:'#EF4444'},{v:2,l:'Un peu',i:'ri-subtract-line',c:'#F59E0B'},{v:3,l:'Partiellement',i:'ri-checkbox-blank-circle-line',c:'#FCD34D'},{v:4,l:'Presque',i:'ri-check-line',c:'#34D399'},{v:5,l:'Completement',i:'ri-check-double-line',c:'#10B981'}]
     : [{v:1,l:'1',i:'ri-star-line',c:'#EF4444'},{v:2,l:'2',i:'ri-star-line',c:'#F59E0B'},{v:3,l:'3',i:'ri-star-line',c:'#FCD34D'},{v:4,l:'4',i:'ri-star-line',c:'#34D399'},{v:5,l:'5',i:'ri-star-fill',c:'#10B981'}];
 
+  // Detect if a step needs user input (note, evaluate, record, etc.)
+  const needsInput = (step: any) => {
+    if (!step?.instruction) return false;
+    return /not[eé]|renseign|evalu|ecri|indiqu|enregistr|rempli|combien|quel.*temps|quel.*cot|stabilit/i.test(step.instruction);
+  };
+
   const advanceStep = () => {
     if (currentStep < totalSteps - 1) setCurrentStep(currentStep + 1);
     else setFinished(true);
   };
 
+  const step = hasSteps ? steps[currentStep] : null;
+  const stepNeedsInput = step && needsInput(step);
+
   const popup = (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
       <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
 
-        {/* Close */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+        {/* Header: back + close */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
+          {currentStep > 0 && !finished ? (
+            <div onClick={() => setCurrentStep(currentStep - 1)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+              <i className="ri-arrow-left-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
+            </div>
+          ) : <div />}
           <div onClick={onClose} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
           </div>
@@ -53,19 +67,31 @@ function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { 
             {/* Progress bar */}
             <div style={{ display: 'flex', gap: 4, marginBottom: 28 } as any}>
               {Array.from({ length: totalSteps }).map((_, si) => (
-                <div key={si} style={{ flex: 1, height: 4, borderRadius: 2, background: si <= currentStep ? color : 'rgba(255,255,255,0.06)', transition: 'background 0.3s', boxShadow: si === currentStep ? `0 0 8px ${color}50` : 'none' } as any} />
+                <div key={si} style={{ flex: 1, height: 4, borderRadius: 2, background: si < currentStep ? color : si === currentStep ? color : 'rgba(255,255,255,0.06)', transition: 'background 0.3s', boxShadow: si === currentStep ? `0 0 8px ${color}50` : 'none' } as any} />
               ))}
             </div>
 
             {/* Step content in glass card */}
             <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '28px 24px', textAlign: 'center', marginBottom: 20 } as any}>
-              {hasSteps && steps[currentStep] ? (
+              {step ? (
                 <>
                   <div style={{ width: 64, height: 64, borderRadius: 20, background: `${color}12`, border: `1px solid ${color}25`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
-                    <i className={steps[currentStep].icon || 'ri-heart-pulse-line'} style={{ fontSize: 32, color }} />
+                    <i className={step.icon || 'ri-heart-pulse-line'} style={{ fontSize: 32, color }} />
                   </div>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', lineHeight: 1.4, marginBottom: 8 }}>{steps[currentStep].instruction}</div>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', lineHeight: 1.4, marginBottom: 8 }}>{step.instruction}</div>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Etape {currentStep + 1} sur {totalSteps}</div>
+
+                  {/* Input field for observation steps */}
+                  {stepNeedsInput && (
+                    <div style={{ marginTop: 16, textAlign: 'left' } as any}>
+                      <textarea
+                        placeholder="Notez vos observations ici..."
+                        value={notes[`step_${currentStep}`] || ''}
+                        onChange={(e: any) => setNotes(prev => ({ ...prev, [`step_${currentStep}`]: e.target.value }))}
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 13, lineHeight: 1.6, resize: 'none', minHeight: 80, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' } as any}
+                      />
+                    </div>
+                  )}
                 </>
               ) : (
                 <>
@@ -78,13 +104,8 @@ function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { 
             </div>
 
             {/* Navigation */}
-            <div style={{ display: 'flex', gap: 10 } as any}>
-              {currentStep > 0 && (
-                <div onClick={() => setCurrentStep(currentStep - 1)} style={{ flex: 1, padding: '15px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Precedent</div>
-              )}
-              <div onClick={advanceStep} style={{ flex: 2, padding: '15px', borderRadius: 16, background: `linear-gradient(135deg, ${color}45, ${color}20)`, border: `1px solid ${color}40`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 900, color: '#FFF', boxShadow: `0 4px 20px ${color}25` } as any}>
-                {currentStep < totalSteps - 1 ? 'Suivant' : 'Terminer'}
-              </div>
+            <div onClick={advanceStep} style={{ padding: '15px', borderRadius: 16, background: `linear-gradient(135deg, ${color}45, ${color}20)`, border: `1px solid ${color}40`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 900, color: '#FFF', boxShadow: `0 4px 20px ${color}25` } as any}>
+              {currentStep < totalSteps - 1 ? 'Suivant' : 'Terminer'}
             </div>
           </>
         ) : (
@@ -97,7 +118,7 @@ function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { 
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>{evalLabel}</div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 8 } as any}>
               {evalOptions.map(o => (
-                <div key={o.v} onClick={() => onComplete(o.v)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', transition: 'all 200ms', minWidth: 56 } as any}
+                <div key={o.v} onClick={() => onComplete(o.v, notes)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', transition: 'all 200ms', minWidth: 56 } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.background = `${o.c}15`; e.currentTarget.style.borderColor = `${o.c}30`; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}>
                 <i className={o.i} style={{ fontSize: 24, color: o.c }} />
@@ -146,13 +167,13 @@ export default function ProgramDailyView({ token, onStop }: Props) {
 
   useEffect(() => { fetchActive(); }, [fetchActive]);
 
-  const completeTask = async (taskIdx: number, rating: number) => {
+  const completeTask = async (taskIdx: number, rating: number, taskNotes?: Record<string, string>) => {
     const task = tasks[taskIdx];
     if (!tasksDone.includes(task)) setTasksDone(prev => [...prev, task]);
     setTaskRatings(prev => ({ ...prev, [task]: rating }));
     setOpenTask(null);
-    // Auto-save to backend
-    await apiFetch('/api/programs/save-task', { method: 'POST', body: JSON.stringify({ task, rating }) }, token).catch(() => {});
+    // Auto-save to backend with notes
+    await apiFetch('/api/programs/save-task', { method: 'POST', body: JSON.stringify({ task, rating, notes: taskNotes || {} }) }, token).catch(() => {});
   };
 
   const submitCheckin = async () => {
@@ -281,7 +302,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
           steps={guidedSteps[String(openTask)] || []}
           color={c}
           category={pg?.category}
-          onComplete={(r) => completeTask(openTask, r)}
+          onComplete={(r, taskNotes) => completeTask(openTask, r, taskNotes)}
           onClose={() => setOpenTask(null)}
         />
       )}
