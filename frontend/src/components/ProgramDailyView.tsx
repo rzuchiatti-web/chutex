@@ -14,12 +14,14 @@ const MOOD = [
 interface Props { token: string; onStop: () => void; }
 
 /* ── Full-screen Glass Popup for guided exercises ── */
-function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { task: string; steps: any[]; color: string; category?: string; onComplete: (rating: number, notes?: Record<string, string>) => void; onClose: () => void }) {
+function ExercisePopup({ task, steps, color, category, alreadyDone, onComplete, onClose }: { task: string; steps: any[]; color: string; category?: string; alreadyDone?: boolean; onComplete: (rating: number, notes?: Record<string, string>) => void; onClose: () => void }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [finished, setFinished] = useState(false);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [redoing, setRedoing] = useState(false);
   const hasSteps = steps && steps.length > 0;
   const totalSteps = hasSteps ? steps.length : 1;
+  const showExercise = !alreadyDone || redoing;
 
   const isPhysical = /exercice|tenez|marche|repet|position|etir|respir|yoga|squat|levez|pied|bras|jambe|equilibre/i.test(task);
   const isNutrition = /mang|aliment|repas|sel|sucre|legume|fruit|eau|boire|calorie|portion|cuisine/i.test(task);
@@ -62,7 +64,20 @@ function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { 
           </div>
         </div>
 
-        {!finished ? (
+        {!showExercise ? (
+          /* Already done screen */
+          <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '28px 24px', textAlign: 'center' } as any}>
+            <div style={{ width: 64, height: 64, borderRadius: 20, background: `${color}12`, border: `1px solid ${color}25`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}>
+              <i className="ri-checkbox-circle-fill" style={{ fontSize: 32, color }} />
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Action realisee</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24, lineHeight: 1.5 }}>{task}</div>
+            <div onClick={() => { setRedoing(true); setCurrentStep(0); setFinished(false); setNotes({}); }}
+              style={{ padding: '15px', borderRadius: 16, background: `linear-gradient(135deg, ${color}30, ${color}15)`, border: `1px solid ${color}30`, textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 900, color: '#FFF' } as any}>
+              <i className="ri-repeat-line" style={{ fontSize: 14, marginRight: 8 }} />Recommencer l'exercice
+            </div>
+          </div>
+        ) : !finished ? (
           <>
             {/* Progress bar */}
             <div style={{ display: 'flex', gap: 4, marginBottom: 28 } as any}>
@@ -305,6 +320,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
           steps={guidedSteps[String(openTask)] || []}
           color={c}
           category={pg?.category}
+          alreadyDone={tasksDone.includes(tasks[openTask])}
           onComplete={(r, taskNotes) => completeTask(openTask, r, taskNotes)}
           onClose={() => setOpenTask(null)}
         />
