@@ -32,15 +32,7 @@ function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { 
     ? [{v:1,l:'Pas du tout',i:'ri-close-line',c:'#EF4444'},{v:2,l:'Un peu',i:'ri-subtract-line',c:'#F59E0B'},{v:3,l:'Partiellement',i:'ri-checkbox-blank-circle-line',c:'#FCD34D'},{v:4,l:'Presque',i:'ri-check-line',c:'#34D399'},{v:5,l:'Completement',i:'ri-check-double-line',c:'#10B981'}]
     : [{v:1,l:'1',i:'ri-star-line',c:'#EF4444'},{v:2,l:'2',i:'ri-star-line',c:'#F59E0B'},{v:3,l:'3',i:'ri-star-line',c:'#FCD34D'},{v:4,l:'4',i:'ri-star-line',c:'#34D399'},{v:5,l:'5',i:'ri-star-fill',c:'#10B981'}];
 
-  // Detect if a step needs user input (note, evaluate, record, etc.)
-  const needsInput = (step: any) => {
-    if (!step?.instruction) return false;
-    return /not[eé]|renseign|evalu|ecri|indiqu|enregistr|rempli|combien|quel.*temps|quel.*cot|stabilit/i.test(step.instruction);
-  };
-
   // Detect if a step has choices (button-based answers)
-  const stepChoices = step?.choices || null;
-
   const advanceStep = () => {
     if (currentStep < totalSteps - 1) setCurrentStep(currentStep + 1);
     else setFinished(true);
@@ -48,12 +40,11 @@ function ExercisePopup({ task, steps, color, category, onComplete, onClose }: { 
 
   const selectChoice = (choice: string) => {
     setNotes(prev => ({ ...prev, [`step_${currentStep}`]: choice }));
-    // Auto-advance after selecting
     setTimeout(() => advanceStep(), 300);
   };
 
-  const step = hasSteps ? steps[currentStep] : null;
-  const stepNeedsInput = step && needsInput(step);
+  const step = hasSteps && currentStep < steps.length ? steps[currentStep] : null;
+  const stepChoices = step?.choices || null;
 
   const popup = (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
@@ -332,21 +323,24 @@ export default function ProgramDailyView({ token, onStop }: Props) {
         </div>
       )}
 
-      {/* ═══ CHECK-IN ═══ */}
+      {/* ═══ CHECK-IN — Données utiles pour adapter le programme ═══ */}
       {!checkedIn ? (
         <div style={{ padding: '20px', borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 14, animation: 'pdv-fade 400ms ease 400ms both', ...g } as any}>
-          <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Bilan de la journee</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 14 }}>Comment vous sentez-vous ?</div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 16 } as any}>
-            {MOOD.map(m => (
-              <div key={m.val} data-testid={`mood-${m.val}`} onClick={() => setMood(m.val)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, cursor: 'pointer' } as any}>
-                <div style={{ width: 46, height: 46, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: mood === m.val ? `${m.color}15` : 'rgba(255,255,255,0.03)', border: `2px solid ${mood === m.val ? m.color : 'rgba(255,255,255,0.06)'}`, transition: 'all 200ms', transform: mood === m.val ? 'scale(1.1)' : 'scale(1)' } as any}>
-                  <i className={m.icon} style={{ fontSize: 22, color: mood === m.val ? m.color : 'rgba(255,255,255,0.2)' }} />
+          <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Bilan du jour</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 16 }}>Ces informations permettent a Nora d'adapter votre programme</div>
+
+          {/* Energy level */}
+          <div style={{ marginBottom: 16 } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Niveau d'energie</div>
+            <div style={{ display: 'flex', gap: 6 } as any}>
+              {[{v:1,l:'Epuise',c:'#EF4444'},{v:2,l:'Fatigue',c:'#F59E0B'},{v:3,l:'Normal',c:'#FCD34D'},{v:4,l:'En forme',c:'#34D399'},{v:5,l:'Plein d\'energie',c:'#10B981'}].map(e => (
+                <div key={e.v} onClick={() => setMood(e.v)} style={{ flex: 1, padding: '10px 4px', borderRadius: 12, textAlign: 'center', cursor: 'pointer', background: mood === e.v ? `${e.c}15` : 'rgba(255,255,255,0.03)', border: `1.5px solid ${mood === e.v ? e.c : 'rgba(255,255,255,0.06)'}`, transition: 'all 200ms' } as any}>
+                  <div style={{ fontSize: 11, fontWeight: mood === e.v ? 800 : 600, color: mood === e.v ? e.c : 'rgba(255,255,255,0.3)' }}>{e.l}</div>
                 </div>
-                <span style={{ fontSize: 8, fontWeight: 700, color: mood === m.val ? m.color : 'rgba(255,255,255,0.15)' }}>{m.label}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
           <div data-testid="submit-checkin" onClick={submitCheckin} style={{ padding: '15px', borderRadius: 16, textAlign: 'center', cursor: mood > 0 ? 'pointer' : 'not-allowed', background: mood > 0 ? `linear-gradient(135deg, ${c}40, ${c}20)` : 'rgba(255,255,255,0.02)', border: `1px solid ${mood > 0 ? c + '40' : 'rgba(255,255,255,0.05)'}`, fontSize: 14, fontWeight: 900, color: mood > 0 ? '#FFF' : 'rgba(255,255,255,0.15)', boxShadow: mood > 0 ? `0 4px 20px ${c}20` : 'none' } as any}>
             {submitting ? 'Envoi...' : 'Valider mon check-in'}
           </div>
