@@ -942,7 +942,7 @@ async def save_task_progress(data: dict, user=Depends(get_current_user)):
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
 
-    return {"status": "saved", "tasks_done": (existing or {}).get("tasks_done", []) + ([task] if task else [])}
+    return {"status": "saved"}
 
 
 @router.post("/programs/checkin")
