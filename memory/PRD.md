@@ -1,104 +1,90 @@
-# Chutex Care - PRD
+# Chutex Care - Product Requirements Document
 
-## Problem Statement
-Chutex Care is a sophisticated preventative health and teleassistance application for elderly beneficiaries, with a complete SOS alert chain and professional care intervention system.
+## Original Problem Statement
+Build "Chutex Care," a preventative health application for elderly care with connected devices (bracelet, scale, vest), AI-powered health monitoring, teleassistance, and care agency integration.
 
-## Architecture
-- **Frontend**: Expo React Native (web + mobile)
+## Core Architecture
+- **Frontend**: React (Expo Router) - Web + iOS
 - **Backend**: FastAPI + MongoDB
-- **AI**: GPT-5.2/4o-mini via Emergent LLM Key, VAPI.ai voice AI
-- **Payments**: Stripe
-- **SMS**: SMSMode, Twilio
-- **Voice**: ElevenLabs (Delphine), VAPI.ai
+- **3rd Party**: VAPI.ai (voice), Stripe (payments), OpenAI (AI), Mailjet (email), SMSMode (SMS), Lefu (scale API)
 
-## Completed Features
+## What's Been Implemented
 
-### SOS Alert Chain (COMPLETE)
-- Beneficiary triggers SOS → VAPI AI calls (Nora/Delphine voice) → Guardian cascade → SAAD dispatch
-- Alert auto-resolved when patient confirms OK (status + resolved_at + resolved_by)
-- Call report (Rapport de Nora) with integrated audio player in alert detail
-- Geolocation-based SAAD agency dispatch (haversine distance + radius)
-- 10min timeout for patient calls, 3-retry analysis fetch
+### Dorsi Smart Cushion Integration (March 2026) - DONE
+- **Device & Pairing**: Added "Coussin Dorsi" as a pairable device with simulated Bluetooth connection
+- **Bilan (Assessment)**: Multi-step guided flow with:
+  - Introduction with posture instructions
+  - Gyroscope taring/calibration simulation
+  - 4-direction mobility measurement (forward/backward/left/right) with simulated gyroscope
+  - Pain level sliders (0-10) for each direction
+  - 4-point radar chart (Kiviat diagram) showing mobility and pain results
+- **10-Day Program**: Generated from bilan results with:
+  - 2 sessions per day (10 min each)
+  - Reassessment on days 3, 6, 9
+  - Progress tracking and day advancement
+- **3 Mini-Games**:
+  - Esquive Lombaire (Dodge): Dodge falling balls using left/right pelvic tilts
+  - Equilibre Dorsal (Balance): Keep ball on target in circular arena using 4-direction input
+  - Cible Posturale (Target): Match direction prompts by pressing correct arrow
 
-### SAAD Intervention System (COMPLETE)
-- `/api/interventions/pending` matches by company_id/agency_id for SAAD guardians
-- Accept/decline missions, QCM closure report, intervention tracking
-- Test accounts: 2 SAAD structures with agencies and guardians
-
-### Alert Detail UI (COMPLETE)
-- Unified view (alert-detail.tsx redirects to alerts tab)
-- Glass blur on all cards, icons on info grid + timeline
-- Rapport de Nora with audio player, badges, call summary
-- Translated in 7 languages (FR/EN/DE/ES/IT/PT/NL)
-
-### Programs (COMPLETE)
-- 10 programs, 573+ guided tasks, Nora AI personalization
-
-### i18n (IN PROGRESS)
-- 7 languages with ~90 keys per language
-- Applied on alerts page, partially on dashboard
-
-## Test Accounts (password: test123)
-| Role | Login |
-|---|---|
-| Beneficiary | 0651245918 (Josette) |
-| Guardian (Fils) | 0630686585 (Franck) |
-| Guardian (Fille) | 0612345678 (Claire) |
-| SAAD1 Guardian | 0611223344 (Sophie) |
-| SAAD1 Guardian | 0605221196 (Fabrice) |
-| SAAD2 Guardian | 0655667788 (Laurent) |
-| SAAD1 Admin | saad@aide-domicile.fr |
-| SAAD2 Admin | saad2@steti-centre.fr |
-
-## P0 - Coussin Dorsi Integration (NEXT)
-New kinesiotherapy device: air cushion with BLE accelerometer/gyroscope
-
-### Device Specs
-- Name: "HeloKine01", BLE communication
-- BLE Service UUID: 00001101-0000-1000-8000-00805f9b34fb
-- Characteristic UUIDs: angleX=00002101, angleY=00002102, angleZ=00002103
-- Data format: UTF-8 String (degrees), e.g. "45.1"
-- Wake: double-tap accelerometer, sleep after 1min no connection
-
-### Features to Build
-1. **Device Connection** - BLE scan + pair (simulated for now), add to devices page
-2. **Mobility Assessment (Bilan)** - Guided step-by-step:
-   - Calibration (tare sensor)
-   - 4 cardinal directions: Anteversion, Retroversion, Right flexion, Left flexion
-   - Pain level 1-10 for each direction
-   - Radar/Kiviat chart visualization
-3. **3 Mini-Games** (ludic exercises using pelvic tilt):
-   - Ball Dodge: tilt pelvis to dodge falling balls
-   - Bubble Pop: pop soap bubbles at max mobility range
-   - Balance Path: navigate a path by tilting
-4. **10-Day Program** - 2 sessions/day, 10 min each
-   - Reassessment every 3 days
-   - Adapt exercises based on progress
-5. **Exercise Types**: Mobility, Proprioception, Deep muscle strengthening, Body awareness
-6. **Progress Dashboard**: Radar chart evolution, streaks, pain tracking
-
-### Backend Endpoints
-- POST /api/dorsi/assessment - Save assessment
-- GET /api/dorsi/assessments - History
-- GET /api/dorsi/program - Current program
-- POST /api/dorsi/session - Save game session
-
-## P1 Backlog
-- Complete i18n on all screens
-- Vivoo urine test integration
-- VAPI voice cloning
-- SAAD escalation end-to-end testing
-
-## P2 Backlog
-- Guardian referral system
-- Free 7-day trial
-- Contract PDF viewer
-- Vest badge color fix
-- Refactor VAPI into vapi_service.py
+### Previous Implementations (Pre-Dorsi)
+- VAPI Voice AI SOS call system
+- Alert escalation flow with SAAD intervention
+- Bracelet Elio, Balance Vita, Gilet Elder device management
+- Health dashboard with vitals monitoring
+- Internationalization (7 languages: FR, EN, DE, ES, IT, PT, NL)
+- Nora AI morning briefing
+- Subscription/payment system
+- RGPD compliance
+- Admin backoffice
 
 ## Key Files
-- `backend/services/vapi_engine.py` - VAPI orchestration (timeout 600s, 3-retry analysis)
-- `frontend/app/(tabs)/alerts.tsx` - Unified alert detail with ResolvedSection
-- `frontend/src/context/I18nContext.tsx` - 7-language i18n (FR/EN/DE/ES/IT/PT/NL)
-- `backend/routes/teleassistance_routes.py` - Interventions pending (SAAD matching)
-- `backend/routes/alert_routes.py` - Alert creation, SAAD dispatch
+- `/app/backend/routes/dorsi_routes.py` - Dorsi API endpoints
+- `/app/frontend/app/dorsi-bilan.tsx` - Bilan assessment page
+- `/app/frontend/app/dorsi-program.tsx` - Program with 3 mini-games
+- `/app/frontend/src/components/devices/constants.ts` - Device metadata including Dorsi
+- `/app/frontend/src/components/devices/DeviceCard.tsx` - Dorsi card with Bilan button
+
+## API Endpoints (Dorsi)
+- `POST /api/devices/associate` (device_type=dorsi) - Pair device
+- `POST /api/dorsi/bilan` - Create mobility assessment
+- `GET /api/dorsi/bilans` - List all assessments
+- `GET /api/dorsi/bilan/{id}` - Get specific assessment
+- `POST /api/dorsi/program` - Generate 10-day program
+- `GET /api/dorsi/programs` - List programs
+- `GET /api/dorsi/program/{id}` - Get specific program
+- `PUT /api/dorsi/program/{id}/session` - Complete a game session
+- `PUT /api/dorsi/program/{id}/reassessment` - Submit reassessment
+
+## DB Collections
+- `dorsi_bilans`: Stores mobility assessments with 4-direction measurements
+- `dorsi_programs`: Stores 10-day exercise programs with sessions and scores
+
+## Prioritized Backlog
+
+### P0 (Critical)
+- None currently
+
+### P1 (High)
+- Nora AI recommending exercises based on bilan results
+- Guardian Referral System
+- Free 7-Day Trial
+
+### P2 (Medium)
+- View Contract PDF functionality
+- Vivoo Urine Test Integration
+- ElevenLabs voice cloning for VAPI
+- Vest "standby" badge should be orange not green (minor UI fix)
+- Refactor alerts.tsx (>900 lines) into smaller components
+
+### P3 (Low/Future)
+- Real Bluetooth device connection for Dorsi cushion
+- More mini-game variety
+- Leaderboard/social features for games
+
+## Test Credentials
+| Role | Email/Phone | Password |
+|---|---|---|
+| Beneficiary | 0651245918 | test123 |
+| Guardian | +33630686585 | test123 |
+| SAAD Agent | sophie@saad-loire.com | test123 |
