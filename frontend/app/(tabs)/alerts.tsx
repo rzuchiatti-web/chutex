@@ -317,6 +317,7 @@ function IntervenantPopup({ person, onClose }: { person: any; onClose: () => voi
    ──────────────────────────────────────────────────────────────────── */
 function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { alert: any; onClose: () => void; role: string; token: string; onRefresh: () => void; user: any }) {
   const router = useRouter();
+  const { t } = useI18n();
   const [alertDetail, setAlertDetail] = useState<any>(null);
   const [showReport, setShowReport] = useState(false);
   const [showIntervenantPopup, setShowIntervenantPopup] = useState(false);
@@ -381,7 +382,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
         </div>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: isResolved ? '#10B981' : '#EF4444' } as any} />
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isResolved ? 'Alerte resolue' : 'Alerte active'}</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isResolved ? t('alert_resolved') : t('alert_active')}</span>
         </div>
       </div>
 
@@ -400,10 +401,10 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
         {/* Info grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
           {[
-            { label: 'Type', value: getAlertLabel(alert.alert_type), icon: 'ri-alarm-warning-line', color: '#EF4444' },
-            { label: 'Statut', value: isResolved ? 'Resolue' : STATE_LABEL[alert.incident_state || alert.teleassistance_status] || 'Active', icon: isResolved ? 'ri-check-double-line' : 'ri-pulse-line', color: isResolved ? '#10B981' : '#F59E0B' },
-            { label: 'Appareil', value: alert.device_type === 'bracelet' ? 'Bracelet' : alert.device_type === 'vest' ? 'Gilet' : alert.device_type || '-', icon: 'ri-device-line', color: '#38BDF8' },
-            { label: 'Heure', value: new Date(alert.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' }), icon: 'ri-time-line', color: '#A78BFA' },
+            { label: t('alert_type'), value: getAlertLabel(alert.alert_type), icon: 'ri-alarm-warning-line', color: '#EF4444' },
+            { label: t('status'), value: isResolved ? t('resolved') : STATE_LABEL[alert.incident_state || alert.teleassistance_status] || t('active'), icon: isResolved ? 'ri-check-double-line' : 'ri-pulse-line', color: isResolved ? '#10B981' : '#F59E0B' },
+            { label: t('device'), value: alert.device_type === 'bracelet' ? t('bracelet') : alert.device_type === 'vest' ? t('vest') : alert.device_type || '-', icon: 'ri-device-line', color: '#38BDF8' },
+            { label: t('hour'), value: new Date(alert.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' }), icon: 'ri-time-line', color: '#A78BFA' },
           ].map((item, i) => (
             <div key={i} style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
@@ -421,7 +422,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
         {/* Message */}
         {alert.message && (
           <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10 } as any}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Message</div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>{t('message')}</div>
             <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF', lineHeight: 1.5 }}>{alert.message}</div>
           </div>
         )}
@@ -626,6 +627,7 @@ function InterventionCard({ iv, hasAssigned, alert, onOpenPopup }: { iv: any; ha
 }
 
 function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any }) {
+  const { t } = useI18n();
   const ivReport = alert.intervention_report || alertDetail?.interventions?.[0]?.report;
   const G: any = { borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, padding: '14px 16px' };
   return (
@@ -634,14 +636,14 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
       <div style={{ ...G } as any}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 } as any}>
           <i className="ri-check-double-line" style={{ fontSize: 14, color: '#10B981' }} />
-          <div style={{ fontSize: 10, fontWeight: 600, color: '#10B981', letterSpacing: 1, textTransform: 'uppercase' }}>Resolution</div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: '#10B981', letterSpacing: 1, textTransform: 'uppercase' }}>{t('resolution')}</div>
         </div>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Resolue le {alert.resolved_at ? new Date(alert.resolved_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('resolved_on')} {alert.resolved_at ? new Date(alert.resolved_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</div>
         <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
-        {alert.resolved_by_name && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Par {alert.resolved_by_name}</div>}
+        {alert.resolved_by_name && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{t('by')} {alert.resolved_by_name}</div>}
         {alert.created_at && alert.resolved_at && (() => {
           const dur = Math.round((new Date(alert.resolved_at).getTime() - new Date(alert.created_at).getTime()) / 60000);
-          return <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', marginTop: 8 } as any}><i className="ri-time-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }} /><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>Duree : {dur >= 60 ? `${Math.floor(dur / 60)}h${dur % 60 > 0 ? String(dur % 60).padStart(2, '0') : ''}` : `${dur} min`}</span></div>;
+          return <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', marginTop: 8 } as any}><i className="ri-time-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }} /><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{t('duration')} : {dur >= 60 ? `${Math.floor(dur / 60)}h${dur % 60 > 0 ? String(dur % 60).padStart(2, '0') : ''}` : `${dur} ${t('min')}`}</span></div>;
         })()}
       </div>
 
@@ -649,7 +651,7 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
       {alert.call_report && (
         <div style={{ ...G, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)' } as any}>
           <div style={{ fontSize: 10, fontWeight: 600, color: '#A78BFA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 } as any}>
-            <i className="ri-phone-line" style={{ fontSize: 14 }} />Rapport de Nora
+            <i className="ri-phone-line" style={{ fontSize: 14 }} />{t('nora_report')}
           </div>
           {alert.call_report.call_summary && (
             <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 8 } as any}>
@@ -670,7 +672,7 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
                 <i className="ri-mic-line" style={{ fontSize: 16, color: '#A78BFA' }} />
               </div>
               <div style={{ flex: 1, minWidth: 0 } as any}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Enregistrement de l'appel</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>{t('call_recording')}</div>
                 <audio controls preload="none" style={{ width: '100%', height: 32, borderRadius: 8, display: 'block', filter: 'invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9)' } as any}>
                   <source src={alert.call_report.recording_url} type="audio/wav" />
                 </audio>
@@ -712,7 +714,7 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
         <div style={{ ...G } as any}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 } as any}>
             <i className="ri-history-line" style={{ fontSize: 14, color: '#38BDF8' }} />
-            <div style={{ fontSize: 10, fontWeight: 600, color: '#38BDF8', letterSpacing: 1, textTransform: 'uppercase' }}>Chronologie</div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: '#38BDF8', letterSpacing: 1, textTransform: 'uppercase' }}>{t('timeline')}</div>
           </div>
           {alertDetail.timeline.sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime()).map((t: any, i: number) => (
             <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 8 } as any}>
