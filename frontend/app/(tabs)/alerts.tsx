@@ -664,8 +664,10 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
             )}
           </div>
           {alert.call_report.recording_url && (
-            <div onClick={() => window.open(alert.call_report.recording_url, '_blank')} style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)' } as any}>
-              <i className="ri-play-circle-line" style={{ fontSize: 16, color: '#A78BFA' }} />Ecouter l'enregistrement de l'appel
+            <div style={{ marginTop: 4 } as any}>
+              <audio controls preload="none" style={{ width: '100%', height: 40, borderRadius: 12, opacity: 0.85 }}>
+                <source src={alert.call_report.recording_url} type="audio/wav" />
+              </audio>
             </div>
           )}
         </div>
