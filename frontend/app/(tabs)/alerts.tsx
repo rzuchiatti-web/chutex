@@ -405,7 +405,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
             { label: 'Appareil', value: alert.device_type || '-' },
             { label: 'Heure', value: new Date(alert.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' }) },
           ].map((item, i) => (
-            <div key={i} style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+            <div key={i} style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
               <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 3 }}>{item.label}</div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{item.value}</div>
             </div>
@@ -417,7 +417,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
 
         {/* Message */}
         {alert.message && (
-          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10 } as any}>
             <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Message</div>
             <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF', lineHeight: 1.5 }}>{alert.message}</div>
           </div>
@@ -428,7 +428,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
 
         {/* GARDIENS */}
         {alertDetail?.guardians && alertDetail.guardians.length > 0 && (
-          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10 } as any}>
             <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Gardiens ({alertDetail.guardians.length})</div>
             {alertDetail.guardians.map((g: any, i: number) => (
               <div key={g.id}>
@@ -534,7 +534,7 @@ function BeneficiaireCard({ ben }: { ben: any }) {
   ].filter(Boolean) as any[];
 
   return (
-    <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+    <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10 } as any}>
       <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Fiche beneficiaire</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
         <div style={{ width: 44, height: 44, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
@@ -589,7 +589,7 @@ function InterventionCard({ iv, hasAssigned, alert, onOpenPopup }: { iv: any; ha
   const statusLabel = iv.status === 'completed' ? 'Terminee' : iv.status === 'in_progress' ? 'En cours' : iv.status === 'en_route' ? 'En route' : iv.status === 'pending_acceptance' ? 'En attente d\'acceptation' : iv.status || '';
 
   return (
-    <div onClick={hasAssigned ? onOpenPopup : undefined} data-testid="intervention-card" style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: hasAssigned ? 'pointer' : 'default' } as any}>
+    <div onClick={hasAssigned ? onOpenPopup : undefined} data-testid="intervention-card" style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, cursor: hasAssigned ? 'pointer' : 'default' } as any}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
         <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>{hasAssigned ? 'Intervenant' : 'Intervention Care'}</div>
         <div style={{ display: 'flex', gap: 6 } as any}>
