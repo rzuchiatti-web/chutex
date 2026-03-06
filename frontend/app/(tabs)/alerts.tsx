@@ -400,13 +400,16 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
         {/* Info grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
           {[
-            { label: 'Type', value: getAlertLabel(alert.alert_type) },
-            { label: 'Statut', value: isResolved ? 'Resolue' : STATE_LABEL[alert.incident_state || alert.teleassistance_status] || 'Active' },
-            { label: 'Appareil', value: alert.device_type || '-' },
-            { label: 'Heure', value: new Date(alert.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' }) },
+            { label: 'Type', value: getAlertLabel(alert.alert_type), icon: 'ri-alarm-warning-line', color: '#EF4444' },
+            { label: 'Statut', value: isResolved ? 'Resolue' : STATE_LABEL[alert.incident_state || alert.teleassistance_status] || 'Active', icon: isResolved ? 'ri-check-double-line' : 'ri-pulse-line', color: isResolved ? '#10B981' : '#F59E0B' },
+            { label: 'Appareil', value: alert.device_type === 'bracelet' ? 'Bracelet' : alert.device_type === 'vest' ? 'Gilet' : alert.device_type || '-', icon: 'ri-device-line', color: '#38BDF8' },
+            { label: 'Heure', value: new Date(alert.created_at).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' }), icon: 'ri-time-line', color: '#A78BFA' },
           ].map((item, i) => (
             <div key={i} style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
-              <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 3 }}>{item.label}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
+                <i className={item.icon} style={{ fontSize: 14, color: item.color }} />
+                <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>{item.label}</div>
+              </div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{item.value}</div>
             </div>
           ))}
@@ -629,7 +632,10 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
     <div style={{ marginTop: 6 } as any}>
       {/* Resolution summary */}
       <div style={{ ...G } as any}>
-        <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Resolution</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 } as any}>
+          <i className="ri-check-double-line" style={{ fontSize: 14, color: '#10B981' }} />
+          <div style={{ fontSize: 10, fontWeight: 600, color: '#10B981', letterSpacing: 1, textTransform: 'uppercase' }}>Resolution</div>
+        </div>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Resolue le {alert.resolved_at ? new Date(alert.resolved_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</div>
         <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
         {alert.resolved_by_name && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Par {alert.resolved_by_name}</div>}
