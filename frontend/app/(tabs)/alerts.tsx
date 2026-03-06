@@ -624,10 +624,11 @@ function InterventionCard({ iv, hasAssigned, alert, onOpenPopup }: { iv: any; ha
 
 function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any }) {
   const ivReport = alert.intervention_report || alertDetail?.interventions?.[0]?.report;
+  const G: any = { borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, padding: '14px 16px' };
   return (
     <div style={{ marginTop: 6 } as any}>
       {/* Resolution summary */}
-      <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+      <div style={{ ...G } as any}>
         <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Resolution</div>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Resolue le {alert.resolved_at ? new Date(alert.resolved_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</div>
         <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />
@@ -638,9 +639,9 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
         })()}
       </div>
 
-      {/* Call report from AI (VAPI) */}
+      {/* Rapport de Nora */}
       {alert.call_report && (
-        <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)', marginBottom: 10 } as any}>
+        <div style={{ ...G, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)' } as any}>
           <div style={{ fontSize: 10, fontWeight: 600, color: '#A78BFA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 } as any}>
             <i className="ri-phone-line" style={{ fontSize: 14 }} />Rapport de Nora
           </div>
@@ -651,18 +652,10 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
           )}
           {(alert.call_report.patient_ok || alert.call_report.needs_help || alert.call_report.medical_issue || (alert.call_report.urgency_level && alert.call_report.urgency_level !== 'none')) && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 } as any}>
-              {alert.call_report.patient_ok && (
-                <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', fontSize: 10, fontWeight: 700, color: '#10B981' } as any}>Patient OK</div>
-              )}
-              {alert.call_report.needs_help && (
-                <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 10, fontWeight: 700, color: '#EF4444' } as any}>Besoin d'aide</div>
-              )}
-              {alert.call_report.medical_issue && (
-                <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)', fontSize: 10, fontWeight: 700, color: '#F59E0B' } as any}>{alert.call_report.medical_issue}</div>
-              )}
-              {alert.call_report.urgency_level && alert.call_report.urgency_level !== 'none' && (
-                <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 10, fontWeight: 700, color: '#EF4444' } as any}>Urgence: {alert.call_report.urgency_level}</div>
-              )}
+              {alert.call_report.patient_ok && <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', fontSize: 10, fontWeight: 700, color: '#10B981' } as any}>Patient OK</div>}
+              {alert.call_report.needs_help && <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 10, fontWeight: 700, color: '#EF4444' } as any}>Besoin d'aide</div>}
+              {alert.call_report.medical_issue && <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)', fontSize: 10, fontWeight: 700, color: '#F59E0B' } as any}>{alert.call_report.medical_issue}</div>}
+              {alert.call_report.urgency_level && alert.call_report.urgency_level !== 'none' && <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 10, fontWeight: 700, color: '#EF4444' } as any}>Urgence: {alert.call_report.urgency_level}</div>}
             </div>
           )}
           {alert.call_report.recording_url && (
@@ -681,10 +674,9 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
         </div>
       )}
 
-      {/* Timeline — skip empty intervention/closure reports */}
       {/* Intervention report — only if has real content */}
       {ivReport && ivReport.description && (
-        <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+        <div style={{ ...G } as any}>
           <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rapport d'intervention</div>
           <div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{ivReport.description}</div>
         </div>
@@ -692,7 +684,7 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
 
       {/* Closure report — only if has real answers */}
       {alert.report?.answers && Object.keys(alert.report.answers).filter(k => !['notes', 'closed_by', 'closed_at', 'closed_by_role'].includes(k)).length > 0 && (
-        <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+        <div style={{ ...G } as any}>
           <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rapport de cloture</div>
           {Object.entries(alert.report.answers).filter(([k]) => !['notes', 'closed_by', 'closed_at', 'closed_by_role'].includes(k)).map(([key, val]: any, i: number, arr: any[]) => (
             <div key={key}>
@@ -709,9 +701,9 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
         </div>
       )}
 
-      {/* Timeline */}
+      {/* Chronologie */}
       {alertDetail?.timeline && alertDetail.timeline.filter((t: any) => t.detail).length > 0 && (
-        <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+        <div style={{ ...G } as any}>
           <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Chronologie</div>
           {alertDetail.timeline.sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime()).map((t: any, i: number) => (
             <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 8 } as any}>
