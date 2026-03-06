@@ -42,18 +42,94 @@ async def _log_event(incident_id: str, state: str, detail: str):
     logger.info(f"[VAPI] {incident_id[:8]}: {state} - {detail}")
 
 
-async def _vapi_call(phone: str, assistant_id: str, variable_values: dict = None) -> dict:
-    """Make an outbound call via Vapi API"""
+async def _vapi_call(phone: str, assistant_id: str, variable_values: dict = None, role: str = "patient") -> dict:
+    """Make an outbound call via Vapi API with inline assistant overrides for better voice and faster response."""
     if not VAPI_API_KEY or not VAPI_PHONE_NUMBER_ID:
         return {"success": False, "error": "Vapi not configured"}
 
+    # Build inline assistant for full control over prompt, voice and model
+    patient_prompt = f"""Tu es Nora, l'assistante de teleassistance Chutex Care. Tu appelles {variable_values.get('patientName', 'le beneficiaire')} suite a une alerte.
+
+REGLES ABSOLUES:
+- Sois BREVE et DIRECTE. Maximum 2 phrases par tour.
+- Rassure en UNE phrase, puis pose LA question cle.
+- Si la personne dit qu'elle va bien → confirme et raccroche.
+- Si la personne demande de l'aide, dit avoir mal, est tombee, ou veut qu'on appelle quelqu'un → dis "Je previens immediatement vos proches" et termine l'appel.
+- Ne fais PAS de long discours. Pas de "je comprends votre inquietude, sachez que...". Va droit au but.
+- Parle comme une aide-soignante bienveillante, pas comme un robot.
+
+SCRIPT:
+1. "Bonjour {variable_values.get('patientName', '')}, c'est Nora de Chutex Care. Nous avons recu une alerte. Est-ce que vous allez bien ?"
+2. Ecoute la reponse. Si OK → "Tres bien, je suis rassuree. Prenez soin de vous. Au revoir."
+3. Si pas OK ou demande d'aide → "D'accord, je previens vos proches tout de suite. Restez calme, on s'occupe de vous. Au revoir."
+"""
+
+    guardian_prompt = f"""Tu es Nora, l'assistante de teleassistance Chutex Care. Tu appelles {variable_values.get('guardianName', 'le gardien')} car {variable_values.get('patientName', 'le beneficiaire')} a declenche une alerte.
+
+REGLES:
+- Sois BREVE. Maximum 2 phrases par tour.
+- Contexte patient: {variable_values.get('patientContext', 'alerte declenchee')}
+- Demande si le gardien peut aller verifier ou intervenir.
+- Si oui → remercie et raccroche.
+- Si non → dis que tu contactes d'autres personnes et raccroche.
+
+SCRIPT:
+1. "Bonjour {variable_values.get('guardianName', '')}, c'est Nora de Chutex Care. {variable_values.get('patientName', 'Votre proche')} a declenche une alerte. {variable_values.get('patientContext', '')}. Pouvez-vous aller verifier ?"
+2. Si oui → "Merci beaucoup. Je vous envoie la localisation sur l'application. Au revoir."
+3. Si non → "Je comprends. Je contacte d'autres personnes. Merci, au revoir."
+"""
+
+    prompt = patient_prompt if role == "patient" else guardian_prompt
+
     payload = {
-        "assistantId": assistant_id,
         "phoneNumberId": VAPI_PHONE_NUMBER_ID,
         "customer": {"number": phone},
+        "assistant": {
+            "model": {
+                "provider": "openai",
+                "model": "gpt-4o-mini",
+                "temperature": 0.4,
+                "maxTokens": 150,
+                "messages": [{"role": "system", "content": prompt}],
+            },
+            "voice": {
+                "provider": "11labs",
+                "voiceId": "pFZP5JQG7iQjIQuC4Bku",
+                "stability": 0.6,
+                "similarityBoost": 0.8,
+                "model": "eleven_multilingual_v2",
+            },
+            "firstMessage": "Bonjour" + (f" {variable_values.get('patientName', '')}" if role == "patient" else f" {variable_values.get('guardianName', '')}") + ", c'est Nora de Chutex Care.",
+            "transcriber": {
+                "provider": "deepgram",
+                "language": "fr",
+                "model": "nova-2",
+            },
+            "endCallFunctionEnabled": True,
+            "maxDurationSeconds": 120 if role == "patient" else 90,
+            "silenceTimeoutSeconds": 15,
+            "responseDelaySeconds": 0.5,
+            "llmRequestDelaySeconds": 0.1,
+            "numWordsToInterruptAssistant": 1,
+            "analysisPlan": {
+                "summaryPrompt": "Resume l'appel en 1 phrase en francais.",
+                "structuredDataPrompt": "Analyse l'appel et reponds en JSON.",
+                "structuredDataSchema": {
+                    "type": "object",
+                    "properties": {
+                        "patient_ok": {"type": "boolean", "description": "Le patient dit aller bien"},
+                        "needs_help": {"type": "boolean", "description": "Le patient a besoin d'aide ou demande qu'on appelle quelqu'un"},
+                        "call_guardians": {"type": "boolean", "description": "Le patient demande explicitement d'appeler ses proches/gardiens"},
+                        "medical_issue": {"type": "string", "description": "Probleme medical mentionne"},
+                        "urgency_level": {"type": "string", "enum": ["none", "low", "medium", "high"]},
+                        "patient_summary": {"type": "string", "description": "Resume en 1 phrase de l'etat du patient"},
+                        "will_intervene": {"type": "boolean", "description": "Le gardien accepte d'aller verifier (appels gardiens uniquement)"},
+                        "requested_contact": {"type": "string", "description": "Nom du proche que le patient veut appeler"},
+                    },
+                },
+            },
+        },
     }
-    if variable_values:
-        payload["assistantOverrides"] = {"variableValues": variable_values}
 
     async with httpx.AsyncClient(timeout=30) as client:
         r = await client.post(
@@ -170,7 +246,7 @@ async def vapi_orchestrate(alert: dict):
         if not phone or len(phone) < 10:
             await _log_event(iid, "PATIENT_NO_RESPONSE", "Numero invalide")
         else:
-            result = await _vapi_call(phone, VAPI_PATIENT_ASSISTANT_ID, {"patientName": prenom})
+            result = await _vapi_call(phone, VAPI_PATIENT_ASSISTANT_ID, {"patientName": prenom}, role="patient")
 
             if result["success"]:
                 call_id = result["call_id"]
@@ -201,38 +277,18 @@ async def vapi_orchestrate(alert: dict):
                     }
                     await db.alerts.update_one({"id": alert['id']}, {"$set": {"call_report": report}})
 
-                    # If analysis is empty but call lasted > 15s, patient talked — default to OK
+                    # If analysis is empty but call lasted > 15s, patient talked — default to needs_help (safer)
                     if not sd and duration > 15:
-                        logger.info(f"[VAPI] Analysis empty but call lasted {duration}s — defaulting to patient_ok")
-                        sd = {"patient_ok": True, "needs_help": False}
+                        logger.info(f"[VAPI] Analysis empty but call lasted {duration}s — defaulting to needs_help for safety")
+                        sd = {"patient_ok": False, "needs_help": True}
 
-                    if sd.get("patient_ok") and not sd.get("needs_help"):
+                    # FAST ESCALATION: if patient is clearly OK and doesn't need help → resolve
+                    if sd.get("patient_ok") and not sd.get("needs_help") and not sd.get("call_guardians"):
                         await _log_event(iid, "PATIENT_CONFIRMED_OK", f"Patient confirme aller bien: {summary}")
                         await _resolve_incident(iid, alert['id'], "PATIENT_CONFIRMED_OK", summary)
                         return
 
-                    # Only escalate if explicitly needs help or call_guardians requested
-                    if not sd.get("needs_help") and not sd.get("call_guardians"):
-                        # Patient talked but no clear help needed — resolve
-                        await _log_event(iid, "PATIENT_CONFIRMED_OK", f"Appel termine, pas de besoin d'aide detecte: {summary}")
-                        await _resolve_incident(iid, alert['id'], "PATIENT_CONFIRMED_OK", summary)
-                        return
-
-                    # Check if patient requested a specific guardian
-                    requested = sd.get("requested_contact", "").lower().strip()
-                    if requested and guardians:
-                        # Reorder guardians to call the requested one first
-                        for idx, g in enumerate(guardians):
-                            g_name = g.get("name", "").lower()
-                            g_relation = g.get("relation", "").lower()
-                            if requested in g_name or requested in g_relation or \
-                               (requested in ("ma fille", "fille") and g_relation in ("fille", "daughter")) or \
-                               (requested in ("mon fils", "fils") and g_relation in ("fils", "son")):
-                                # Move to front
-                                guardians.insert(0, guardians.pop(idx))
-                                await _log_event(iid, "PATIENT_REQUESTED_CONTACT", f"Patient demande d'appeler: {g['name']} ({requested})")
-                                break
-
+                    # ANY sign of distress, help request, or uncertainty → ESCALATE immediately
                     await _log_event(iid, "PATIENT_NEEDS_HELP", f"Patient a besoin d'aide: {summary}")
                 else:
                     await _log_event(iid, "PATIENT_NO_RESPONSE", f"Appel termine sans reponse exploitable")
@@ -271,7 +327,7 @@ async def vapi_orchestrate(alert: dict):
                         elif tr.get("summary"):
                             patient_context = tr["summary"][:100]
 
-            g_result = await _vapi_call(g_phone, VAPI_GUARDIAN_ASSISTANT_ID, {"patientName": prenom, "guardianName": guardian['prenom'], "patientContext": patient_context})
+            g_result = await _vapi_call(g_phone, VAPI_GUARDIAN_ASSISTANT_ID, {"patientName": prenom, "guardianName": guardian['prenom'], "patientContext": patient_context}, role="guardian")
 
             if g_result["success"]:
                 g_call_id = g_result["call_id"]
