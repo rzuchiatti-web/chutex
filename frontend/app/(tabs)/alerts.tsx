@@ -649,65 +649,49 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
               <div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{alert.call_report.call_summary}</div>
             </div>
           )}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 } as any}>
-            {alert.call_report.patient_ok && (
-              <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', fontSize: 10, fontWeight: 700, color: '#10B981' } as any}>Patient OK</div>
-            )}
-            {alert.call_report.needs_help && (
-              <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 10, fontWeight: 700, color: '#EF4444' } as any}>Besoin d'aide</div>
-            )}
-            {alert.call_report.medical_issue && (
-              <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)', fontSize: 10, fontWeight: 700, color: '#F59E0B' } as any}>{alert.call_report.medical_issue}</div>
-            )}
-            {alert.call_report.urgency_level && alert.call_report.urgency_level !== 'none' && (
-              <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 10, fontWeight: 700, color: '#EF4444' } as any}>Urgence: {alert.call_report.urgency_level}</div>
-            )}
-          </div>
+          {(alert.call_report.patient_ok || alert.call_report.needs_help || alert.call_report.medical_issue || (alert.call_report.urgency_level && alert.call_report.urgency_level !== 'none')) && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 } as any}>
+              {alert.call_report.patient_ok && (
+                <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', fontSize: 10, fontWeight: 700, color: '#10B981' } as any}>Patient OK</div>
+              )}
+              {alert.call_report.needs_help && (
+                <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 10, fontWeight: 700, color: '#EF4444' } as any}>Besoin d'aide</div>
+              )}
+              {alert.call_report.medical_issue && (
+                <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)', fontSize: 10, fontWeight: 700, color: '#F59E0B' } as any}>{alert.call_report.medical_issue}</div>
+              )}
+              {alert.call_report.urgency_level && alert.call_report.urgency_level !== 'none' && (
+                <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 10, fontWeight: 700, color: '#EF4444' } as any}>Urgence: {alert.call_report.urgency_level}</div>
+              )}
+            </div>
+          )}
           {alert.call_report.recording_url && (
-            <div style={{ marginTop: 4 } as any}>
-              <audio controls preload="none" style={{ width: '100%', height: 40, borderRadius: 12, opacity: 0.85 }}>
-                <source src={alert.call_report.recording_url} type="audio/wav" />
-              </audio>
+            <div style={{ padding: '10px 12px', borderRadius: 14, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+              <div style={{ width: 36, height: 36, borderRadius: 99, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <i className="ri-mic-line" style={{ fontSize: 16, color: '#A78BFA' }} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 } as any}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Enregistrement de l'appel</div>
+                <audio controls preload="none" style={{ width: '100%', height: 32, borderRadius: 8, display: 'block', filter: 'invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9)' } as any}>
+                  <source src={alert.call_report.recording_url} type="audio/wav" />
+                </audio>
+              </div>
             </div>
           )}
         </div>
       )}
 
-      {/* Intervention report */}
-      {ivReport && (() => {
-        const entries = [
-          ivReport.description && { label: 'Description', value: ivReport.description },
-          ivReport.actions_taken && { label: 'Actions realisees', value: ivReport.actions_taken },
-          ivReport.patient_condition && { label: 'Etat du patient', value: ivReport.patient_condition === 'stable' ? 'Stable' : ivReport.patient_condition },
-          ivReport.follow_up_notes && { label: 'Suivi necessaire', value: ivReport.follow_up_notes, warn: true },
-        ].filter(Boolean) as any[];
-        if (!entries.length) return null;
-        return (
-          <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rapport d'intervention</div>
-            {entries.map((e: any, i: number) => (
-              <div key={i}>
-                {e.warn ? (
-                  <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', margin: '6px 0' } as any}>
-                    <div style={{ fontSize: 9, fontWeight: 600, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 2 }}>{e.label}</div>
-                    <div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.4 }}>{e.value}</div>
-                  </div>
-                ) : (
-                  <div style={{ padding: '10px 0' } as any}>
-                    <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{e.label}</div>
-                    <div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{e.value}</div>
-                  </div>
-                )}
-                {i < entries.length - 1 && !e.warn && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' } as any} />}
-              </div>
-            ))}
-            {ivReport.completed_by && <><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0' } as any} /><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Redige par {ivReport.completed_by}</div></>}
-          </div>
-        );
-      })()}
+      {/* Timeline — skip empty intervention/closure reports */}
+      {/* Intervention report — only if has real content */}
+      {ivReport && ivReport.description && (
+        <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
+          <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rapport d'intervention</div>
+          <div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{ivReport.description}</div>
+        </div>
+      )}
 
-      {/* Closure report (QCM answers) */}
-      {alert.report?.answers && (
+      {/* Closure report — only if has real answers */}
+      {alert.report?.answers && Object.keys(alert.report.answers).filter(k => !['notes', 'closed_by', 'closed_at', 'closed_by_role'].includes(k)).length > 0 && (
         <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
           <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rapport de cloture</div>
           {Object.entries(alert.report.answers).filter(([k]) => !['notes', 'closed_by', 'closed_at', 'closed_by_role'].includes(k)).map(([key, val]: any, i: number, arr: any[]) => (
