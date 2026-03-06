@@ -456,7 +456,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
         {iv && <InterventionCard iv={iv} hasAssigned={hasAssigned} alert={alert} onOpenPopup={openIntervenantPopup} />}
 
         {/* RESOLVED INFO */}
-        {isResolved && <ResolvedSection alert={alert} alertDetail={alertDetail} />}
+        {isResolved && <ResolvedSection alert={alertDetail?.alert || alert} alertDetail={alertDetail} />}
 
         {/* ACTION BUTTONS — inside scroll, not fixed */}
         {!isResolved && (
