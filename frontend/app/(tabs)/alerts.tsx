@@ -710,11 +710,16 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
       {/* Chronologie */}
       {alertDetail?.timeline && alertDetail.timeline.filter((t: any) => t.detail).length > 0 && (
         <div style={{ ...G } as any}>
-          <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Chronologie</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 } as any}>
+            <i className="ri-history-line" style={{ fontSize: 14, color: '#38BDF8' }} />
+            <div style={{ fontSize: 10, fontWeight: 600, color: '#38BDF8', letterSpacing: 1, textTransform: 'uppercase' }}>Chronologie</div>
+          </div>
           {alertDetail.timeline.sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime()).map((t: any, i: number) => (
             <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 8 } as any}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 } as any}>
-                <div style={{ width: 8, height: 8, borderRadius: 4, background: i === alertDetail.timeline.length - 1 ? '#10B981' : 'rgba(255,255,255,0.25)', marginTop: 4 } as any} />
+                <div style={{ width: 24, height: 24, borderRadius: 99, background: t.color ? `${t.color}20` : i === alertDetail.timeline.length - 1 ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${t.color ? `${t.color}40` : i === alertDetail.timeline.length - 1 ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className={t.icon || (i === alertDetail.timeline.length - 1 ? 'ri-check-line' : 'ri-circle-fill')} style={{ fontSize: t.icon ? 12 : 6, color: t.color || (i === alertDetail.timeline.length - 1 ? '#10B981' : 'rgba(255,255,255,0.3)') }} />
+                </div>
                 {i < alertDetail.timeline.length - 1 && <div style={{ width: 1, flex: 1, background: 'rgba(255,255,255,0.08)', marginTop: 4 } as any} />}
               </div>
               <div style={{ flex: 1, paddingBottom: 4 } as any}>
