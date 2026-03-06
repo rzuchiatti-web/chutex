@@ -208,6 +208,7 @@ const T: Record<string, Record<string, string>> = {
     emergency_contact: 'Notfallkontakt', call: 'Anrufen',
     message: 'Nachricht', bracelet: 'Armband', vest: 'Weste', scale: 'Waage',
   },
+  ES: {
     home: 'Inicio', health: 'Salud', alerts: 'Alertas', devices: 'Dispositivos', profile: 'Perfil', programs: 'Programas',
     hello: 'Hola', online: 'En linea', sos: 'SOS', sos_sub: 'Pulse en caso de emergencia',
     connected: 'Conectado', disconnected: 'Desconectado', battery: 'Bateria', devices_connected: 'Dispositivos conectados',
