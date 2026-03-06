@@ -1,89 +1,73 @@
 # Chutex Care - PRD
 
 ## Problem Statement
-Chutex Care is a sophisticated preventative health and teleassistance application. The core mission is to transform the app into a guided, engaging, and personalized health and longevity transformation engine for elderly beneficiaries, with a complete SOS alert chain and professional care intervention system.
+Chutex Care is a sophisticated preventative health and teleassistance application for elderly beneficiaries, with a complete SOS alert chain and professional care intervention system.
 
 ## Architecture
-- **Frontend**: Expo React Native (web + mobile), served via Metro bundler
-- **Backend**: FastAPI + MongoDB (motor async)
-- **AI**: GPT-5.2 via Emergent LLM Key, VAPI.ai voice AI
+- **Frontend**: Expo React Native (web + mobile)
+- **Backend**: FastAPI + MongoDB
+- **AI**: GPT-5.2/4o-mini via Emergent LLM Key, VAPI.ai voice AI
 - **Payments**: Stripe
-- **SMS**: SMSMode, Twilio (for calls)
-- **Email**: Mailjet
-- **Voice**: ElevenLabs, Azure TTS
+- **SMS**: SMSMode, Twilio
+- **Voice**: ElevenLabs (Delphine), VAPI.ai
 
-## Core Features Implemented
+## Completed Features (Feb-Mar 2026)
 
-### SOS Alert & Teleassistance Chain (COMPLETE)
-1. Beneficiary triggers SOS alert
-2. VAPI AI calls beneficiary (GPT-4o + ElevenLabs voice)
-3. If beneficiary is OK → Alert auto-resolved
-4. If beneficiary needs help OR no response → AI calls guardians in cascade
-5. If no guardian responds → Dispatch to nearest SAAD agency (geolocation-based)
-6. SAAD guardian sees mission in app → Accepts → Tracks to beneficiary
+### SOS Alert Chain (COMPLETE)
+- Beneficiary triggers SOS → VAPI AI calls (Nora) → Guardian cascade → SAAD dispatch
+- Alert auto-resolved when patient confirms OK
+- Call report (Rapport de Nora) with audio recording in alert detail
+- Geolocation-based SAAD agency dispatch
 
-### Programs Feature (COMPLETE)
-- 10 programs with 573+ guided tasks
-- Dynamic personalization by Nora AI based on health profile
-- Task progress tracked via index-based IDs
+### SAAD Intervention System (COMPLETE)  
+- SAAD guardians see pending missions via company_id/agency_id matching
+- Accept/decline missions, QCM closure report
+- Test accounts: 2 SAAD structures, agencies, guardians
 
-### Device Integration
-- Smart bracelet (heart rate, SpO2, steps, temperature)
-- Smart scale (weight, body composition via Lefu API)
-- Anti-fall vest
-- Activity tracking and recovery scores
+### Programs (COMPLETE)
+- 10 programs, 573+ guided tasks, Nora personalization
 
-### User Roles
-- **Beneficiary**: Health dashboard, SOS alerts, programs
-- **Guardian (Family)**: Monitor beneficiaries, receive alerts, intervene
-- **Guardian (Professional/SAAD)**: Accept care intervention missions
-- **SAAD Company (prescriber_company)**: Manage agencies, guardians, prescriptions
-- **Teleassistance**: Manual escalation, monitoring
-- **Admin**: System management
+### i18n (IN PROGRESS)
+- 7 languages: FR, EN, DE, ES, IT, PT, NL
+- ~90 keys per language, applied on alerts page
 
-## Test Accounts (as of Feb 2026)
+### UI Improvements (COMPLETE)
+- Unified alert detail view (no more duplicates)
+- Glass blur on all cards
+- Icons on info grid and timeline
+- Audio player for call recordings
+- alert-detail.tsx redirects to alerts tab
 
-| Role | Login | Password | Notes |
-|---|---|---|---|
-| Beneficiary | 0651245918 | test123 | Josette Zuchiatti, Saint-Chamond |
-| Guardian (Fils) | 0630686585 | test123 | Franck ZUCHIATTI |
-| Guardian (Fille) | 0612345678 | test123 | Claire Martin |
-| Guardian (Voisin) | 0698765432 | test123 | Pierre Durand |
-| SAAD1 Guardian | 0611223344 | test123 | Sophie MARTIN (Agence Saint-Chamond) |
-| SAAD1 Guardian | 0605221196 | test123 | Fabrice COMMEAT (Agence Lyon) |
-| SAAD2 Guardian | 0655667788 | test123 | Laurent DUBOIS (Agence Saint-Etienne) |
-| SAAD1 Admin | saad@aide-domicile.fr | test123 | SAAD Aide a Domicile Loire |
-| SAAD2 Admin | saad2@steti-centre.fr | test123 | SAAD Saint-Etienne Centre |
+## Test Accounts (password: test123)
+| Role | Login |
+|---|---|
+| Beneficiary | 0651245918 (Josette) |
+| Guardian (Fils) | 0630686585 (Franck) |
+| Guardian (Fille) | 0612345678 (Claire) |
+| SAAD1 Guardian | 0611223344 (Sophie) |
+| SAAD1 Guardian | 0605221196 (Fabrice) |
+| SAAD2 Guardian | 0655667788 (Laurent) |
+| SAAD1 Admin | saad@aide-domicile.fr |
+| SAAD2 Admin | saad2@steti-centre.fr |
 
-## Key API Endpoints
-
-### Alerts
-- `POST /api/alerts` - Create SOS alert (triggers VAPI orchestration)
-- `GET /api/alerts` - List alerts
-- `GET /api/alerts/active-with-interventions` - Active alerts with intervention data
-- `GET /api/alerts/{id}/detail` - Full alert detail with timeline
-
-### Interventions
-- `GET /api/interventions/pending` - Pending interventions (includes SAAD-dispatched via company_id/agency_id)
-- `POST /api/intervention/accept` - Accept an intervention
-- `GET /api/intervention/{id}` - Intervention detail
-- `POST /api/intervention/close` - Close with QCM report
-- `POST /api/interventions/accept-as-guardian` - Guardian accepts directly
-
-### Programs
-- `GET /api/programs/active` - Active program with Nora-personalized tasks
-- `POST /api/programs/save-task` - Save task progress
-
-## P0 Backlog (Next)
-- [ ] Vivoo urine test integration (awaiting distributor SDK feedback)
-- [ ] VAPI voice quality improvement (ElevenLabs voice cloning)
+## P0 Backlog - Coussin Dorsi Integration
+New kinesiotherapy device: air cushion with BLE gyroscope/accelerometer
+- **Device**: "HeloKine01", BLE communication, angles X/Y/Z via UUIDs
+- **Assessment**: 4 cardinal directions (anteversion, retroversion, flexion D/G) + pain (1-10)
+- **Radar Chart**: Kiviat diagram showing mobility + pain evolution
+- **3 Mini-Games**: Ludic exercises using pelvic tilt (dodge balls, etc.)
+- **10-Day Program**: 2 sessions/day, 10 min, reassessment every 3 days
+- **BLE UUIDs**: angleX=00002101, angleY=00002102, angleZ=00002103
 
 ## P1 Backlog
-- [ ] Guardian referral system
-- [ ] Free 7-day trial program
-- [ ] View contract PDF from subscription page
-- [ ] Vest status badge color (standby should be orange, not green)
+- Complete i18n application (dashboard, guardian home)
+- Vivoo urine test integration
+- VAPI voice cloning (ElevenLabs)
+- Full SAAD escalation end-to-end testing
 
 ## P2 Backlog
-- [ ] Refactor VAPI logic from alert_routes.py into dedicated vapi_service.py
-- [ ] Production Twilio number for French calls
+- Guardian referral system
+- Free 7-day trial
+- Contract PDF viewer
+- Vest badge color fix (standby → orange)
+- Refactor VAPI logic into vapi_service.py
