@@ -5,9 +5,10 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useDorsiBLE, DorsiAngles } from '../src/hooks/useDorsiBLE';
 
-const ACCENT = '#A78BFA';
-const BG_IMG = 'https://static.prod-images.emergentagent.com/jobs/90871f7e-0dfc-431e-a3ec-24e137a4d9c9/images/039b6b0bcff62a5c7adcf5681370f2bb095349cc5a04453f6e408263f2bbb67b.png';
-const GLASS: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '24px 20px' };
+const ACCENT = '#FFF';
+const BG_IMG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
+const GLASS: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '24px 20px' };
+const BTN_WHITE: any = { padding: '16px 40px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)', cursor: 'pointer', color: '#FFF', fontSize: 15, fontWeight: 800, textAlign: 'center' };
 
 const DIRECTIONS = [
   { key: 'forward', label: 'Anteversion', desc: 'Inclinez le bassin vers l\'avant', icon: 'ri-arrow-up-line', axis: 'y', sign: -1 },
@@ -227,7 +228,7 @@ export default function DorsiBilanPage() {
             <li>Respirez normalement pendant les mesures</li>
           </ul>
         </div>
-        <div data-testid="start-bilan-btn" onClick={() => setStep(1)} style={{ padding: '16px 40px', borderRadius: 999, background: ACCENT, cursor: 'pointer', color: '#FFF', fontSize: 15, fontWeight: 800, display: 'inline-block' } as any}>
+        <div data-testid="start-bilan-btn" onClick={() => setStep(1)} style={{ ...BTN_WHITE, display: 'inline-block' } as any}>
           Commencer le bilan
         </div>
       </div>
@@ -257,7 +258,7 @@ export default function DorsiBilanPage() {
             <i className="ri-checkbox-circle-line" style={{ fontSize: 28, color: '#10B981' }} />
           </div>
         </div>
-        <div data-testid="tare-done-btn" onClick={() => { ble.tare(); setStep(2); }} style={{ padding: '16px 40px', borderRadius: 999, background: '#10B981', cursor: 'pointer', color: '#FFF', fontSize: 15, fontWeight: 800, display: 'inline-block' } as any}>
+        <div data-testid="tare-done-btn" onClick={() => { ble.tare(); setStep(2); }} style={{ ...BTN_WHITE, display: 'inline-block' } as any}>
           Tarage termine — Continuer
         </div>
       </div>
@@ -308,7 +309,7 @@ export default function DorsiBilanPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 4 } as any}><span>Aucune</span><span>Maximale</span></div>
           </div>
         ))}
-        <div data-testid="submit-bilan-btn" onClick={submitBilan} style={{ marginTop: 20, padding: '16px', borderRadius: 999, background: ACCENT, cursor: saving ? 'default' : 'pointer', color: '#FFF', fontSize: 15, fontWeight: 800, textAlign: 'center', opacity: saving ? 0.6 : 1 } as any}>
+        <div data-testid="submit-bilan-btn" onClick={submitBilan} style={{ ...BTN_WHITE, marginTop: 20, opacity: saving ? 0.6 : 1, cursor: saving ? 'default' : 'pointer' } as any}>
           {saving ? 'Analyse en cours...' : 'Voir les resultats'}
         </div>
       </div>

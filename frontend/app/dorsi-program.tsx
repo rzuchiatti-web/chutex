@@ -6,9 +6,9 @@ import { apiFetch } from '../src/services/api';
 import { useDorsiBLE } from '../src/hooks/useDorsiBLE';
 import { SerpentGame, LabyrintheGame, SlalomGame, EtoilesGame, SimonGame, CerclesGame, CourseGame } from '../src/components/dorsi/ExtraGames';
 
-const ACCENT = '#A78BFA';
-const BG_IMG = 'https://static.prod-images.emergentagent.com/jobs/90871f7e-0dfc-431e-a3ec-24e137a4d9c9/images/039b6b0bcff62a5c7adcf5681370f2bb095349cc5a04453f6e408263f2bbb67b.png';
-const GLASS: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
+const ACCENT = '#FFF';
+const BG_IMG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
+const GLASS: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 
 /* ────────────────────────────────────────
    JEU 1: Jeu des Moutons (Mobilite)
