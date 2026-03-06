@@ -86,6 +86,9 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
     uid = user['id']
     role = user.get('active_role') or user.get('role', 'beneficiary')
     session_id = data.get("session_id", f"chat-{uid}-{role}")
+    user_lang = data.get("lang", "FR").upper()
+    lang_names = {"FR": "francais", "EN": "English", "DE": "Deutsch", "ES": "espanol", "IT": "italiano", "PT": "portugues", "NL": "Nederlands"}
+    lang_name = lang_names.get(user_lang, "francais")
 
     # Save user message
     msg_id = str(uuid.uuid4())
@@ -154,7 +157,7 @@ DONNEES SANTE DU PATIENT:
 {APP_SERVICES_KNOWLEDGE}
 
 REGLES STRICTES:
-- Reponds toujours en francais, de facon claire, precise et medicalement fondee (max 3-4 phrases sauf si la question necessite plus de detail)
+- Reponds toujours en {lang_name}, de facon claire, precise et medicalement fondee (max 3-4 phrases sauf si la question necessite plus de detail)
 - Base tes reponses EXCLUSIVEMENT sur les DONNEES REELLES ci-dessus
 - Si les donnees sante sont vides, absentes ou montrent "aucune donnee", "no_data", ou des valeurs a 0 : NE DIS JAMAIS que le patient va bien. Dis clairement que tu n'as pas de donnees de sante disponibles, qu'aucun appareil n'est connecte, et que tu ne peux pas evaluer son etat sans donnees. Propose-lui de connecter son bracelet Elio ou sa balance Vita.
 - NE FABRIQUE JAMAIS de donnees ou d'evaluations positives sans donnees reelles

@@ -3,13 +3,13 @@ import { createPortal } from 'react-dom';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LANGUAGES = [
-  { code: 'fr', flag: '\u{1F1EB}\u{1F1F7}', label: 'Francais' },
-  { code: 'en', flag: '\u{1F1EC}\u{1F1E7}', label: 'English' },
-  { code: 'es', flag: '\u{1F1EA}\u{1F1F8}', label: 'Espanol' },
-  { code: 'de', flag: '\u{1F1E9}\u{1F1EA}', label: 'Deutsch' },
-  { code: 'it', flag: '\u{1F1EE}\u{1F1F9}', label: 'Italiano' },
-  { code: 'pt', flag: '\u{1F1F5}\u{1F1F9}', label: 'Portugues' },
-  { code: 'ar', flag: '\u{1F1F2}\u{1F1E6}', label: '\u0627\u0644\u0639\u0631\u0628\u064A\u0629' },
+  { code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', label: 'Francais' },
+  { code: 'EN', flag: '\u{1F1EC}\u{1F1E7}', label: 'English' },
+  { code: 'ES', flag: '\u{1F1EA}\u{1F1F8}', label: 'Espanol' },
+  { code: 'DE', flag: '\u{1F1E9}\u{1F1EA}', label: 'Deutsch' },
+  { code: 'IT', flag: '\u{1F1EE}\u{1F1F9}', label: 'Italiano' },
+  { code: 'PT', flag: '\u{1F1F5}\u{1F1F9}', label: 'Portugues' },
+  { code: 'NL', flag: '\u{1F1F3}\u{1F1F1}', label: 'Nederlands' },
 ];
 
 export default function LanguagePicker({ lang, setLang }: { lang: string; setLang: (l: string) => void }) {
