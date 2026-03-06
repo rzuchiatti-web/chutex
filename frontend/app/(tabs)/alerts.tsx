@@ -836,7 +836,7 @@ export default function AlertsScreen() {
             return (
               <div key={alert.id} data-testid={`alert-card-${alert.id}`} style={{ borderRadius: 20, position: 'relative', padding: '18px 16px', marginBottom: 12, minHeight: 100, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', transition: 'transform 0.15s' } as any}>
                 {/* Clickable card area */}
-                <div onClick={() => router.push({ pathname: '/alert-detail' as any, params: { alertId: alert.id } })} style={{ cursor: 'pointer' } as any}>
+                <div onClick={() => setSelectedAlert(alert)} style={{ cursor: 'pointer' } as any}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 } as any}>
                     <div>
                       <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{alert.beneficiary_name || 'Beneficiaire'}</div>
