@@ -116,7 +116,8 @@ async def create_agency(data: dict, user=Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Acces entreprise requis")
     agency = {
         "id": str(uuid.uuid4()), "company_id": user['id'], "name": data.get('name', ''),
-        "address": data.get('address', ''), "created_at": datetime.now(timezone.utc).isoformat(),
+        "address": data.get('address', ''), "latitude": data.get('latitude'), "longitude": data.get('longitude'),
+        "radius_km": data.get('radius_km', 30), "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.agencies.insert_one(agency)
     return {k: v for k, v in agency.items() if k != '_id'}
@@ -129,6 +130,9 @@ async def update_agency(agency_id: str, data: dict, user=Depends(get_current_use
     update = {}
     if 'name' in data: update['name'] = data['name']
     if 'address' in data: update['address'] = data['address']
+    if 'latitude' in data: update['latitude'] = data['latitude']
+    if 'longitude' in data: update['longitude'] = data['longitude']
+    if 'radius_km' in data: update['radius_km'] = data['radius_km']
     if update:
         await db.agencies.update_one({"id": agency_id, "company_id": user['id']}, {"$set": update})
     return {"status": "updated"}

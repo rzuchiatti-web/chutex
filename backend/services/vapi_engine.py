@@ -227,10 +227,105 @@ async def vapi_orchestrate(alert: dict):
             else:
                 await _log_event(iid, "GUARDIAN_UNREACHABLE", f"Gardien {guardian['name']}: erreur appel")
 
-        # ─── STEP 3: DISPATCH IF NEEDED ───
+        # ─── STEP 3: DISPATCH TO NEAREST SAAD AGENCY ───
         if not guardian_accepted:
-            await _log_event(iid, "CARE_DISPATCHED", "Aucun gardien disponible - dispatch d'un intervenant Care")
-            await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "CARE_DISPATCHED"}})
+            await _log_event(iid, "SEARCHING_SAAD", "Recherche de l'agence SAAD la plus proche")
+            await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "SEARCHING_SAAD"}})
+
+            # Find nearest agency based on alert geolocation
+            alert_loc = alert.get('location', {})
+            alert_lat = alert_loc.get('latitude')
+            alert_lng = alert_loc.get('longitude')
+
+            assigned_agency = None
+            if alert_lat and alert_lng:
+                import math
+                def haversine(lat1, lon1, lat2, lon2):
+                    R = 6371
+                    dlat = math.radians(lat2 - lat1)
+                    dlon = math.radians(lon2 - lon1)
+                    a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
+                    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+                # Get ALL agencies with geolocation
+                agencies = await db.agencies.find(
+                    {"latitude": {"$ne": None}, "longitude": {"$ne": None}},
+                    {"_id": 0}
+                ).to_list(100)
+
+                # Sort by distance, filter by radius
+                candidates = []
+                for ag in agencies:
+                    dist = haversine(alert_lat, alert_lng, ag['latitude'], ag['longitude'])
+                    radius = ag.get('radius_km', 30)
+                    if dist <= radius:
+                        candidates.append((dist, ag))
+
+                candidates.sort(key=lambda x: x[0])
+
+                if candidates:
+                    dist_km, nearest = candidates[0]
+                    assigned_agency = nearest
+                    await _log_event(iid, "SAAD_FOUND",
+                        f"Agence {nearest['name']} trouvee a {dist_km:.1f}km (rayon {nearest.get('radius_km', 30)}km)")
+                else:
+                    # Log all distances for debugging
+                    if agencies:
+                        dists = [(haversine(alert_lat, alert_lng, a['latitude'], a['longitude']), a['name'], a.get('radius_km', 30)) for a in agencies]
+                        dists.sort()
+                        detail = "; ".join(f"{n}: {d:.1f}km (rayon {r}km)" for d, n, r in dists[:5])
+                        await _log_event(iid, "NO_SAAD_IN_RANGE", f"Aucune agence dans le rayon. Distances: {detail}")
+                    else:
+                        await _log_event(iid, "NO_SAAD_AVAILABLE", "Aucune agence SAAD configuree avec geolocalisation")
+            else:
+                await _log_event(iid, "NO_ALERT_LOCATION", "Impossible de localiser l'alerte - pas de geolocalisation")
+
+            # Create intervention mission
+            if assigned_agency:
+                iv_id = str(uuid.uuid4())
+                intervention = {
+                    "id": iv_id,
+                    "alert_id": alert['id'],
+                    "incident_id": iid,
+                    "beneficiary_id": alert['beneficiary_id'],
+                    "beneficiary_name": alert.get('beneficiary_name', ''),
+                    "agency_id": assigned_agency.get('id', ''),
+                    "agency_name": assigned_agency['name'],
+                    "company_id": assigned_agency.get('company_id', ''),
+                    "status": "pending_acceptance",
+                    "intervener_type": "saad",
+                    "created_at": _now(),
+                    "location": alert_loc,
+                    "distance_km": round(candidates[0][0], 1) if candidates else None,
+                }
+                await db.interventions.insert_one(intervention)
+
+                await db.incidents.update_one({"id": iid}, {"$set": {
+                    "care_provider": assigned_agency['name'],
+                    "intervention_id": iv_id,
+                    "assigned_agency": assigned_agency,
+                }})
+
+                await _log_event(iid, "CARE_DISPATCHED",
+                    f"Mission d'intervention creee pour l'agence {assigned_agency['name']} (a {candidates[0][0]:.1f}km)")
+                await db.alerts.update_one({"id": alert['id']}, {"$set": {
+                    "teleassistance_status": "CARE_DISPATCHED",
+                    "assigned_agency": assigned_agency['name'],
+                    "intervention_id": iv_id,
+                }})
+
+                # Notify SAAD company via push/SMS
+                company = await db.users.find_one({"id": assigned_agency.get('company_id')}, {"_id": 0, "phone": 1, "name": 1})
+                if company and company.get('phone'):
+                    from services.smsmode_service import send_sms
+                    ben_name = alert.get('beneficiary_name', 'Un beneficiaire')
+                    asyncio.create_task(send_sms(
+                        company['phone'],
+                        f"CHUTEX CARE - Mission d'intervention: {ben_name} a {candidates[0][0]:.0f}km de {assigned_agency['name']}. Ouvrez l'app pour details."
+                    ))
+            else:
+                await _log_event(iid, "CARE_DISPATCHED", "Aucune agence SAAD disponible dans le rayon d'intervention")
+                await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "CARE_DISPATCHED_NO_AGENCY"}})
 
     except Exception as e:
         logger.error(f"Vapi orchestration error: {e}", exc_info=True)
