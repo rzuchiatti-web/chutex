@@ -726,7 +726,7 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
       )}
 
       {/* Timeline */}
-      {alertDetail?.timeline && alertDetail.timeline.length > 0 && (
+      {alertDetail?.timeline && alertDetail.timeline.filter((t: any) => t.detail).length > 0 && (
         <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
           <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Chronologie</div>
           {alertDetail.timeline.sort((a: any, b: any) => new Date(a.time).getTime() - new Date(b.time).getTime()).map((t: any, i: number) => (
