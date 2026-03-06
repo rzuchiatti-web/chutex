@@ -1,0 +1,68 @@
+{
+  "summary": "Iteration 91: Dorsi Smart Cushion with CDC games and BLE integration. Backend 100% pass (9/9 tests). Frontend verified: bilan multi-step flow, program calendar with CDC games (Jeu des Moutons, Bulles de Savon, Equilibre Proprioceptif), free play section. Fixed bug in dorsi_routes.py (now variable used before definition).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "dorsi-program page loading",
+        "issue": "Intermittent loading issue - page sometimes gets stuck on 'Chargement...' spinner during navigation. Works correctly when page fully loads.",
+        "affected_selectors": ["[data-testid='dorsi-program-page']"],
+        "priority": "MEDIUM",
+        "notes": "Auth token may not persist properly between page navigations. Successfully renders when data loads."
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_dorsi_iteration91.py",
+    "/app/test_reports/pytest/pytest_results_iter91.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fixed: dorsi_routes.py line 157 - 'now' variable was used before definition in create_program endpoint. Moved 'now = datetime.now(timezone.utc).isoformat()' to line 147."
+  ],
+  "updated_files": [
+    "/app/backend/routes/dorsi_routes.py",
+    "/app/frontend/app/dorsi-program.tsx",
+    "/app/backend/tests/test_dorsi_iteration91.py"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "85%"
+  },
+  "test_credentials": {
+    "phone": "0651245918",
+    "password": "test123",
+    "user": "Josette Zuchiatti (beneficiary)"
+  },
+  "seed_data_creation": "Backend tests created bilans and programs via API calls",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Dorsi feature working with CDC spec games. Backend routes at /app/backend/routes/dorsi_routes.py. Frontend pages /dorsi-bilan and /dorsi-program. BLE integration via useDorsiBLE hook falls back to simulation mode without HeloKine01 device. Free play section now visible at top of program page. Games: Jeu des Moutons (mobility), Bulles de Savon (endurance), Equilibre Proprioceptif (proprioception).",
+  "verified_features": {
+    "backend": [
+      "POST /api/dorsi/bilan - create bilan works with existing program",
+      "POST /api/dorsi/program - replaces existing active program (old marked 'replaced')",
+      "GET /api/dorsi/programs - returns all including replaced programs",
+      "PUT /api/dorsi/program/{id}/session - completes session with score",
+      "CDC game names in program generation: Moutons, Bulles, Proprioception"
+    ],
+    "frontend": [
+      "/dorsi-bilan: BLE connection UI with 'Connecter' button, simulation mode indicator",
+      "/dorsi-bilan: Multi-step flow - intro → taring → 4 directions → pain → radar chart",
+      "/dorsi-program: 'Jeux libres' section with 3 CDC games accessible anytime",
+      "/dorsi-program: 10-day calendar showing CDC game names per session",
+      "Mini-games render: MoutonsGame, BullesGame, ProprioceptionGame (canvas-based)"
+    ]
+  },
+  "bug_fix_applied": {
+    "file": "/app/backend/routes/dorsi_routes.py",
+    "issue": "'now' variable used before being defined in create_program endpoint",
+    "fix": "Moved datetime assignment to before existing program check",
+    "line": "147"
+  }
+}

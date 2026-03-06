@@ -76,30 +76,30 @@ def generate_program_from_bilan(bilan: dict) -> list:
         directions.append({"direction": d, "score": score, "mobility": mobility, "pain": pain})
     directions.sort(key=lambda x: x["score"])
 
-    # Available games
+    # Available games per CDC spec
     games = [
         {
-            "game_id": "dodge",
-            "name": "Esquive Lombaire",
-            "description": "Esquivez les obstacles en inclinant le bassin a gauche et a droite.",
-            "icon": "ri-ghost-line",
-            "directions": ["left", "right"],
+            "game_id": "moutons",
+            "name": "Jeu des Moutons",
+            "description": "Attrapez les moutons en inclinant le bassin vers les zones de faible mobilite.",
+            "icon": "ri-ghost-smile-line",
+            "focus": "mobility",
             "color": "#22D3EE",
         },
         {
-            "game_id": "balance",
-            "name": "Equilibre Dorsal",
-            "description": "Maintenez la bille au centre en equilibrant votre bassin dans toutes les directions.",
-            "icon": "ri-focus-3-line",
-            "directions": ["forward", "backward", "left", "right"],
+            "game_id": "bulles",
+            "name": "Bulles de Savon",
+            "description": "Eclatez un maximum de bulles en atteignant les limites de votre mobilite.",
+            "icon": "ri-bubble-chart-line",
+            "focus": "endurance",
             "color": "#A78BFA",
         },
         {
-            "game_id": "target",
-            "name": "Cible Posturale",
-            "description": "Atteignez les cibles en inclinant le bassin dans la direction indiquee.",
-            "icon": "ri-crosshair-2-line",
-            "directions": ["forward", "backward", "left", "right"],
+            "game_id": "proprioception",
+            "name": "Equilibre Proprioceptif",
+            "description": "Maintenez votre equilibre en stabilisant la cible au centre.",
+            "icon": "ri-focus-3-line",
+            "focus": "proprioception",
             "color": "#10B981",
         },
     ]
@@ -145,14 +145,18 @@ async def create_program(data: dict, user=Depends(get_current_user)):
     if not bilan:
         raise HTTPException(404, "Bilan non trouve")
 
-    # Check no active program exists
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Check no active program exists - allow creating new one anyway
     existing = await db.dorsi_programs.find_one(
         {"user_id": user["id"], "status": "active"}, {"_id": 0}
     )
     if existing:
-        raise HTTPException(400, "Un programme actif existe deja. Terminez-le d'abord.")
-
-    now = datetime.now(timezone.utc).isoformat()
+        # Mark old program as replaced
+        await db.dorsi_programs.update_one(
+            {"id": existing["id"]},
+            {"$set": {"status": "replaced", "updated_at": now}}
+        )
     days = generate_program_from_bilan(bilan)
 
     program = {
