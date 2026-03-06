@@ -642,7 +642,7 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
       {alert.call_report && (
         <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)', marginBottom: 10 } as any}>
           <div style={{ fontSize: 10, fontWeight: 600, color: '#A78BFA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 } as any}>
-            <i className="ri-phone-line" style={{ fontSize: 14 }} />Rapport d'appel IA
+            <i className="ri-phone-line" style={{ fontSize: 14 }} />Rapport de Nora
           </div>
           {alert.call_report.call_summary && (
             <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 8 } as any}>

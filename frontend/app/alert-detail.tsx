@@ -125,7 +125,7 @@ export default function AlertDetailScreen() {
         {a.call_report && (
           <div style={{ ...G, padding: '16px', marginBottom: 12 } as any}>
             <div style={{ fontSize: 13, fontWeight: 800, color: '#A78BFA', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 } as any}>
-              <i className="ri-phone-line" style={{ fontSize: 16 }} />Rapport d'appel IA
+              <i className="ri-phone-line" style={{ fontSize: 16 }} />Rapport de Nora
             </div>
             {a.call_report.call_summary && (
               <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.15)', marginBottom: 10 } as any}>
