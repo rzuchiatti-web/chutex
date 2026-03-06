@@ -1,90 +1,82 @@
 # Chutex Care - Product Requirements Document
 
 ## Original Problem Statement
-Build "Chutex Care," a preventative health application for elderly care with connected devices (bracelet, scale, vest), AI-powered health monitoring, teleassistance, and care agency integration.
+Build "Chutex Care," a preventative health application for elderly care with connected devices, AI-powered health monitoring, teleassistance, and care agency integration.
 
 ## Core Architecture
 - **Frontend**: React (Expo Router) - Web + iOS
-- **Backend**: FastAPI + MongoDB
-- **3rd Party**: VAPI.ai (voice), Stripe (payments), OpenAI (AI), Mailjet (email), SMSMode (SMS), Lefu (scale API)
+- **Backend**: FastAPI + MongoDB (vitallink_db)
+- **3rd Party**: VAPI.ai (voice), Stripe (payments), OpenAI GPT-5.2 (AI), Mailjet (email), SMSMode (SMS), Lefu (scale API)
 
 ## What's Been Implemented
 
-### Dorsi Smart Cushion Integration (March 2026) - DONE
-- **Device & Pairing**: Added "Coussin Dorsi" as a pairable device with simulated Bluetooth connection
-- **Bilan (Assessment)**: Multi-step guided flow with:
-  - Introduction with posture instructions
-  - Gyroscope taring/calibration simulation
-  - 4-direction mobility measurement (forward/backward/left/right) with simulated gyroscope
-  - Pain level sliders (0-10) for each direction
-  - 4-point radar chart (Kiviat diagram) showing mobility and pain results
-- **10-Day Program**: Generated from bilan results with:
-  - 2 sessions per day (10 min each)
-  - Reassessment on days 3, 6, 9
-  - Progress tracking and day advancement
-- **3 Mini-Games**:
-  - Esquive Lombaire (Dodge): Dodge falling balls using left/right pelvic tilts
-  - Equilibre Dorsal (Balance): Keep ball on target in circular arena using 4-direction input
-  - Cible Posturale (Target): Match direction prompts by pressing correct arrow
+### Dorsi Smart Cushion — Full CDC Integration (March 2026)
 
-### Previous Implementations (Pre-Dorsi)
-- VAPI Voice AI SOS call system
-- Alert escalation flow with SAAD intervention
-- Bracelet Elio, Balance Vita, Gilet Elder device management
-- Health dashboard with vitals monitoring
-- Internationalization (7 languages: FR, EN, DE, ES, IT, PT, NL)
-- Nora AI morning briefing
-- Subscription/payment system
-- RGPD compliance
-- Admin backoffice
+#### BLE Communication (HeloKine01)
+- **Web Bluetooth API** integration via `useDorsiBLE` hook
+- Device name: "HeloKine01", scans via `namePrefix: 'HeloKine'`
+- Angular Service UUID: `00001101-0000-1000-8000-00805f9b34fb`
+- Characteristics: angleX (`00002101`), angleY (`00002102`), angleZ (`00002103`)
+- Data format: UTF-8 string in degrees (e.g. "45.1")
+- Battery Service: standard BLE 0x180F
+- Auto fallback to simulation mode when no device connected
+
+#### Bilan (Assessment)
+- Multi-step guided flow: introduction → BLE connect → gyroscope taring → 4 direction measurements → pain sliders → radar chart (Kiviat)
+- Measures real angles from BLE (0-45° → 0-100% mobility) or simulated
+- 4 directions: Anteversion, Retroversion, Flexion gauche, Flexion droite
+- Pain scale 1-10 per direction
+- Bilans and games are **DECOUPLED** from program — accessible at any time
+
+#### 3 Mini-Games (CDC Spec)
+1. **Jeu des Moutons** (Mobilite) — Catch sheep by tilting pelvis toward weak mobility zones
+2. **Bulles de Savon** (Endurance) — Pop bubbles at edges of maximal mobility
+3. **Equilibre Proprioceptif** (Proprioception) — Stabilize ball at center via balance
+- All games use real BLE angles or keyboard/touch fallback
+- Canvas-based rendering at 60fps
+- "Jeux libres" section for free play without program
+
+#### 10-Day Program
+- Generated from bilan results, 2 sessions/day of 10 min
+- Reassessment days 3, 6, 9
+- Multiple programs allowed (old ones marked 'replaced')
+- Progress tracking with day advancement
+
+### Previous Implementations
+- VAPI Voice AI SOS, Alert escalation, SAAD intervention
+- Bracelet Elio, Balance Vita, Gilet Elder devices
+- Health dashboard, Nora AI morning briefing
+- Subscription/payment, RGPD, Admin backoffice
+- i18n (7 languages)
 
 ## Key Files
-- `/app/backend/routes/dorsi_routes.py` - Dorsi API endpoints
-- `/app/frontend/app/dorsi-bilan.tsx` - Bilan assessment page
-- `/app/frontend/app/dorsi-program.tsx` - Program with 3 mini-games
-- `/app/frontend/src/components/devices/constants.ts` - Device metadata including Dorsi
-- `/app/frontend/src/components/devices/DeviceCard.tsx` - Dorsi card with Bilan button
-
-## API Endpoints (Dorsi)
-- `POST /api/devices/associate` (device_type=dorsi) - Pair device
-- `POST /api/dorsi/bilan` - Create mobility assessment
-- `GET /api/dorsi/bilans` - List all assessments
-- `GET /api/dorsi/bilan/{id}` - Get specific assessment
-- `POST /api/dorsi/program` - Generate 10-day program
-- `GET /api/dorsi/programs` - List programs
-- `GET /api/dorsi/program/{id}` - Get specific program
-- `PUT /api/dorsi/program/{id}/session` - Complete a game session
-- `PUT /api/dorsi/program/{id}/reassessment` - Submit reassessment
-
-## DB Collections
-- `dorsi_bilans`: Stores mobility assessments with 4-direction measurements
-- `dorsi_programs`: Stores 10-day exercise programs with sessions and scores
+- `/app/frontend/src/hooks/useDorsiBLE.ts` — Web Bluetooth API hook
+- `/app/frontend/app/dorsi-bilan.tsx` — Bilan assessment with BLE
+- `/app/frontend/app/dorsi-program.tsx` — Program + 3 CDC mini-games
+- `/app/backend/routes/dorsi_routes.py` — Dorsi API endpoints
+- `/app/frontend/src/components/devices/constants.ts` — Device metadata
 
 ## Prioritized Backlog
 
-### P0 (Critical)
-- None currently
-
 ### P1 (High)
-- Nora AI recommending exercises based on bilan results
+- Nora AI recommends exercises based on bilan
 - Guardian Referral System
 - Free 7-Day Trial
 
 ### P2 (Medium)
-- View Contract PDF functionality
+- Contract PDF viewer
 - Vivoo Urine Test Integration
 - ElevenLabs voice cloning for VAPI
-- Vest "standby" badge should be orange not green (minor UI fix)
-- Refactor alerts.tsx (>900 lines) into smaller components
+- Vest badge color fix (orange not green)
+- Refactor alerts.tsx into smaller components
 
 ### P3 (Low/Future)
-- Real Bluetooth device connection for Dorsi cushion
-- More mini-game variety
-- Leaderboard/social features for games
+- Real HeloKine01 device testing
+- Game difficulty adaptation based on progress
+- Leaderboard/social features
 
 ## Test Credentials
-| Role | Email/Phone | Password |
+| Role | Login | Password |
 |---|---|---|
 | Beneficiary | 0651245918 | test123 |
-| Guardian | +33630686585 | test123 |
 | SAAD Agent | sophie@saad-loire.com | test123 |
