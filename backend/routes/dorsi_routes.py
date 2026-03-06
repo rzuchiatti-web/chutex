@@ -76,32 +76,18 @@ def generate_program_from_bilan(bilan: dict) -> list:
         directions.append({"direction": d, "score": score, "mobility": mobility, "pain": pain})
     directions.sort(key=lambda x: x["score"])
 
-    # Available games per CDC spec
+    # Available games per CDC spec — 10 total
     games = [
-        {
-            "game_id": "moutons",
-            "name": "Jeu des Moutons",
-            "description": "Attrapez les moutons en inclinant le bassin vers les zones de faible mobilite.",
-            "icon": "ri-ghost-smile-line",
-            "focus": "mobility",
-            "color": "#22D3EE",
-        },
-        {
-            "game_id": "bulles",
-            "name": "Bulles de Savon",
-            "description": "Eclatez un maximum de bulles en atteignant les limites de votre mobilite.",
-            "icon": "ri-bubble-chart-line",
-            "focus": "endurance",
-            "color": "#A78BFA",
-        },
-        {
-            "game_id": "proprioception",
-            "name": "Equilibre Proprioceptif",
-            "description": "Maintenez votre equilibre en stabilisant la cible au centre.",
-            "icon": "ri-focus-3-line",
-            "focus": "proprioception",
-            "color": "#10B981",
-        },
+        {"game_id": "moutons", "name": "Jeu des Moutons", "description": "Attrapez les moutons en inclinant le bassin vers les zones de faible mobilite.", "icon": "ri-ghost-smile-line", "focus": "mobility", "color": "#22D3EE"},
+        {"game_id": "bulles", "name": "Bulles de Savon", "description": "Eclatez un maximum de bulles en atteignant les limites de votre mobilite.", "icon": "ri-bubble-chart-line", "focus": "endurance", "color": "#A78BFA"},
+        {"game_id": "proprioception", "name": "Equilibre Proprioceptif", "description": "Maintenez votre equilibre en stabilisant la cible au centre.", "icon": "ri-focus-3-line", "focus": "proprioception", "color": "#10B981"},
+        {"game_id": "serpent", "name": "Serpent Lombaire", "description": "Guidez le serpent pour manger les fruits en inclinant le bassin.", "icon": "ri-route-line", "focus": "coordination", "color": "#F59E0B"},
+        {"game_id": "labyrinthe", "name": "Labyrinthe", "description": "Trouvez la sortie du labyrinthe en inclinant le bassin.", "icon": "ri-compass-discover-line", "focus": "mobility", "color": "#EC4899"},
+        {"game_id": "slalom", "name": "Slalom Postural", "description": "Passez entre les portes du slalom en inclinant le bassin.", "icon": "ri-flag-line", "focus": "agility", "color": "#06B6D4"},
+        {"game_id": "etoiles", "name": "Pluie d'Etoiles", "description": "Attrapez les etoiles qui tombent en vous deplacant lateralement.", "icon": "ri-star-line", "focus": "endurance", "color": "#F97316"},
+        {"game_id": "simon", "name": "Simon Postural", "description": "Reproduisez les sequences de directions affichees.", "icon": "ri-flashlight-line", "focus": "memory", "color": "#EF4444"},
+        {"game_id": "cercles", "name": "Cercles Concentriques", "description": "Touchez les cercles qui apparaissent avant qu'ils ne disparaissent.", "icon": "ri-record-circle-line", "focus": "reaction", "color": "#8B5CF6"},
+        {"game_id": "course", "name": "Course d'Obstacles", "description": "Esquivez les obstacles dans une course laterale infinie.", "icon": "ri-run-line", "focus": "agility", "color": "#14B8A6"},
     ]
 
     days = []

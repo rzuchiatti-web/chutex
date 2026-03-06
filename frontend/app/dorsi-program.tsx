@@ -4,9 +4,11 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useDorsiBLE } from '../src/hooks/useDorsiBLE';
+import { SerpentGame, LabyrintheGame, SlalomGame, EtoilesGame, SimonGame, CerclesGame, CourseGame } from '../src/components/dorsi/ExtraGames';
 
-const ACCENT = '#F97316';
-const BG_IMG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
+const ACCENT = '#A78BFA';
+const BG_IMG = 'https://static.prod-images.emergentagent.com/jobs/90871f7e-0dfc-431e-a3ec-24e137a4d9c9/images/039b6b0bcff62a5c7adcf5681370f2bb095349cc5a04453f6e408263f2bbb67b.png';
+const GLASS: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 
 /* ────────────────────────────────────────
    JEU 1: Jeu des Moutons (Mobilite)
@@ -475,6 +477,13 @@ export default function DorsiProgramPage() {
       moutons: { game_id: 'moutons', name: 'Jeu des Moutons', icon: 'ri-ghost-smile-line', color: '#22D3EE' },
       bulles: { game_id: 'bulles', name: 'Bulles de Savon', icon: 'ri-bubble-chart-line', color: '#A78BFA' },
       proprioception: { game_id: 'proprioception', name: 'Equilibre Proprioceptif', icon: 'ri-focus-3-line', color: '#10B981' },
+      serpent: { game_id: 'serpent', name: 'Serpent Lombaire', icon: 'ri-route-line', color: '#F59E0B' },
+      labyrinthe: { game_id: 'labyrinthe', name: 'Labyrinthe', icon: 'ri-compass-discover-line', color: '#EC4899' },
+      slalom: { game_id: 'slalom', name: 'Slalom Postural', icon: 'ri-flag-line', color: '#06B6D4' },
+      etoiles: { game_id: 'etoiles', name: 'Pluie d\'Etoiles', icon: 'ri-star-line', color: '#F97316' },
+      simon: { game_id: 'simon', name: 'Simon Postural', icon: 'ri-flashlight-line', color: '#EF4444' },
+      cercles: { game_id: 'cercles', name: 'Cercles Concentriques', icon: 'ri-record-circle-line', color: '#8B5CF6' },
+      course: { game_id: 'course', name: 'Course d\'Obstacles', icon: 'ri-run-line', color: '#14B8A6' },
     };
     setActiveGame({ day: 0, session: 0, game: games[gameId], difficulty: 0.5 });
     setFreePlay(true);
@@ -499,6 +508,13 @@ export default function DorsiProgramPage() {
   const GameComponent = activeGame?.game?.game_id === 'moutons' ? MoutonsGame
     : activeGame?.game?.game_id === 'bulles' ? BullesGame
     : activeGame?.game?.game_id === 'proprioception' ? ProprioceptionGame
+    : activeGame?.game?.game_id === 'serpent' ? SerpentGame
+    : activeGame?.game?.game_id === 'labyrinthe' ? LabyrintheGame
+    : activeGame?.game?.game_id === 'slalom' ? SlalomGame
+    : activeGame?.game?.game_id === 'etoiles' ? EtoilesGame
+    : activeGame?.game?.game_id === 'simon' ? SimonGame
+    : activeGame?.game?.game_id === 'cercles' ? CerclesGame
+    : activeGame?.game?.game_id === 'course' ? CourseGame
     : null;
 
   const totalSessions = program?.days?.reduce((a: number, d: any) => a + d.sessions.length, 0) || 0;
@@ -563,18 +579,25 @@ export default function DorsiProgramPage() {
         {view === 'calendar' && !loading && (
           <div style={{ maxWidth: 480, margin: '0 auto' } as any}>
             {/* Free play section - always available */}
-            <div data-testid="free-play-section" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 20, marginBottom: 16 } as any}>
+            <div data-testid="free-play-section" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
               <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Jeux libres</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 14 }}>Jouez a tout moment, avec ou sans programme actif</div>
-              <div style={{ display: 'flex', gap: 8 } as any}>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 14 }}>10 jeux disponibles — jouez a tout moment</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 8 } as any}>
                 {[
                   { id: 'moutons', name: 'Moutons', icon: 'ri-ghost-smile-line', color: '#22D3EE' },
                   { id: 'bulles', name: 'Bulles', icon: 'ri-bubble-chart-line', color: '#A78BFA' },
                   { id: 'proprioception', name: 'Equilibre', icon: 'ri-focus-3-line', color: '#10B981' },
+                  { id: 'serpent', name: 'Serpent', icon: 'ri-route-line', color: '#F59E0B' },
+                  { id: 'labyrinthe', name: 'Labyrinthe', icon: 'ri-compass-discover-line', color: '#EC4899' },
+                  { id: 'slalom', name: 'Slalom', icon: 'ri-flag-line', color: '#06B6D4' },
+                  { id: 'etoiles', name: 'Etoiles', icon: 'ri-star-line', color: '#F97316' },
+                  { id: 'simon', name: 'Simon', icon: 'ri-flashlight-line', color: '#EF4444' },
+                  { id: 'cercles', name: 'Cercles', icon: 'ri-record-circle-line', color: '#8B5CF6' },
+                  { id: 'course', name: 'Course', icon: 'ri-run-line', color: '#14B8A6' },
                 ].map(g => (
-                  <div key={g.id} data-testid={`free-play-${g.id}`} onClick={() => startFreeGame(g.id)} style={{ flex: 1, padding: '14px 8px', borderRadius: 14, cursor: 'pointer', background: `${g.color}08`, border: `1px solid ${g.color}20`, textAlign: 'center' } as any}>
-                    <i className={g.icon} style={{ fontSize: 22, color: g.color, display: 'block', marginBottom: 6 }} />
-                    <div style={{ fontSize: 11, fontWeight: 700, color: g.color }}>{g.name}</div>
+                  <div key={g.id} data-testid={`free-play-${g.id}`} onClick={() => startFreeGame(g.id)} style={{ padding: '12px 4px', borderRadius: 14, cursor: 'pointer', background: `${g.color}08`, border: `1px solid ${g.color}20`, textAlign: 'center' } as any}>
+                    <i className={g.icon} style={{ fontSize: 20, color: g.color, display: 'block', marginBottom: 4 }} />
+                    <div style={{ fontSize: 9, fontWeight: 700, color: g.color }}>{g.name}</div>
                   </div>
                 ))}
               </div>

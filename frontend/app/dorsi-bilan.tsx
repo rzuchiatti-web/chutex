@@ -5,8 +5,9 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useDorsiBLE, DorsiAngles } from '../src/hooks/useDorsiBLE';
 
-const ACCENT = '#F97316';
-const BG_IMG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
+const ACCENT = '#A78BFA';
+const BG_IMG = 'https://static.prod-images.emergentagent.com/jobs/90871f7e-0dfc-431e-a3ec-24e137a4d9c9/images/039b6b0bcff62a5c7adcf5681370f2bb095349cc5a04453f6e408263f2bbb67b.png';
+const GLASS: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '24px 20px' };
 
 const DIRECTIONS = [
   { key: 'forward', label: 'Anteversion', desc: 'Inclinez le bassin vers l\'avant', icon: 'ri-arrow-up-line', axis: 'y', sign: -1 },
@@ -171,13 +172,15 @@ export default function DorsiBilanPage() {
     // Step 0: Introduction + BLE connection
     if (step === 0) return (
       <div style={{ textAlign: 'center', maxWidth: 420, margin: '0 auto' } as any}>
-        <div style={{ width: 80, height: 80, borderRadius: 20, background: `${ACCENT}15`, border: `1px solid ${ACCENT}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' } as any}>
-          <i className="ri-body-scan-line" style={{ fontSize: 36, color: ACCENT }} />
+        <div style={{ ...GLASS, marginBottom: 24, padding: '32px 24px' } as any}>
+          <div style={{ width: 80, height: 80, borderRadius: 20, background: `${ACCENT}15`, border: `1px solid ${ACCENT}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' } as any}>
+            <i className="ri-body-scan-line" style={{ fontSize: 36, color: ACCENT }} />
+          </div>
+          <h2 style={{ fontSize: 24, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>Bilan de mobilite lombaire</h2>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, margin: '0 0 24px' }}>
+            Ce bilan evalue votre mobilite lombaire dans 4 directions via le capteur gyroscopique du coussin HeloKine.
+          </p>
         </div>
-        <h2 style={{ fontSize: 24, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>Bilan de mobilite lombaire</h2>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, margin: '0 0 24px' }}>
-          Ce bilan evalue votre mobilite lombaire dans 4 directions via le capteur gyroscopique du coussin HeloKine.
-        </p>
 
         {/* BLE Connection status */}
         <div style={{ background: ble.connected ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${ble.connected ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.1)'}`, borderRadius: 16, padding: 20, marginBottom: 20 } as any}>
