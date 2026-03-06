@@ -146,6 +146,7 @@ const T: Record<string, Record<string, string>> = {
     emergency_contact: 'Emergency contact', call: 'Call',
     message: 'Message', bracelet: 'Bracelet', vest: 'Vest', scale: 'Scale',
   },
+  DE: {
     home: 'Start', health: 'Gesundheit', alerts: 'Alarme', devices: 'Gerate', profile: 'Profil', programs: 'Programme',
     hello: 'Hallo', online: 'Online', sos: 'SOS', sos_sub: 'Bei Notfall drucken',
     connected: 'Verbunden', disconnected: 'Getrennt', battery: 'Akku', devices_connected: 'Verbundene Gerate',
@@ -271,6 +272,7 @@ const T: Record<string, Record<string, string>> = {
     emergency_contact: 'Contacto de emergencia', call: 'Llamar',
     message: 'Mensaje', bracelet: 'Pulsera', vest: 'Chaleco', scale: 'Bascula',
   },
+  IT: {
     home: 'Home', health: 'Salute', alerts: 'Avvisi', devices: 'Dispositivi', profile: 'Profilo', programs: 'Programmi',
     hello: 'Ciao', online: 'Online', sos: 'SOS', sos_sub: "Premere in caso d'emergenza",
     connected: 'Connesso', disconnected: 'Disconnesso', battery: 'Batteria', devices_connected: 'Dispositivi connessi',
@@ -339,6 +341,7 @@ const T: Record<string, Record<string, string>> = {
     emergency_contact: 'Contatto di emergenza', call: 'Chiamare',
     message: 'Messaggio', bracelet: 'Braccialetto', vest: 'Gilet', scale: 'Bilancia',
   },
+  PT: {
     home: 'Inicio', health: 'Saude', alerts: 'Alertas', devices: 'Dispositivos', profile: 'Perfil', programs: 'Programas',
     hello: 'Ola', online: 'Online', sos: 'SOS', sos_sub: 'Pressione em emergencia',
     connected: 'Conectado', disconnected: 'Desconectado', battery: 'Bateria', devices_connected: 'Dispositivos conectados',
@@ -407,6 +410,7 @@ const T: Record<string, Record<string, string>> = {
     emergency_contact: 'Contato de emergencia', call: 'Ligar',
     message: 'Mensagem', bracelet: 'Pulseira', vest: 'Colete', scale: 'Balanca',
   },
+  NL: {
     home: 'Home', health: 'Gezondheid', alerts: 'Meldingen', devices: 'Apparaten', profile: 'Profiel', programs: 'Programma\'s',
     hello: 'Hallo', online: 'Online', sos: 'SOS', sos_sub: 'Druk in geval van nood',
     connected: 'Verbonden', disconnected: 'Niet verbonden', battery: 'Batterij', devices_connected: 'Verbonden apparaten',
