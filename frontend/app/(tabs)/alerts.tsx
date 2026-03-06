@@ -767,7 +767,10 @@ export default function AlertsScreen() {
   useEffect(() => {
     if (preselect && alerts.length > 0) {
       const found = alerts.find((a: any) => a.id === preselect);
-      if (found) { setSelectedAlert(found); }
+      if (found) {
+        if (found.status === 'resolved') setTab('resolved');
+        setSelectedAlert(found);
+      }
     }
   }, [preselect, alerts]);
 
