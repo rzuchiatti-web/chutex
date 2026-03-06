@@ -69,36 +69,51 @@ async def _vapi_call(phone: str, assistant_id: str, variable_values: dict = None
 
 async def _wait_for_vapi_call_end(call_id: str, timeout: int = 600) -> dict:
     """Poll Vapi until the call ends, then return analysis. 10min max."""
-    for _ in range(timeout // 3):
+    for i in range(timeout // 3):
         await asyncio.sleep(3)
-        async with httpx.AsyncClient(timeout=15) as client:
-            r = await client.get(
-                f"{VAPI_BASE}/call/{call_id}",
-                headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
-            )
-        if r.status_code == 200:
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                r = await client.get(
+                    f"{VAPI_BASE}/call/{call_id}",
+                    headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
+                )
+            if r.status_code != 200:
+                logger.warning(f"[VAPI] Poll {call_id[:12]}: HTTP {r.status_code}")
+                continue
             data = r.json()
             status = data.get("status", "")
             if status == "ended":
-                # Wait a moment for analysis to be ready
-                await asyncio.sleep(2)
-                # Re-fetch to get analysis
-                async with httpx.AsyncClient(timeout=15) as client:
-                    r2 = await client.get(
-                        f"{VAPI_BASE}/call/{call_id}",
-                        headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
-                    )
-                if r2.status_code == 200:
-                    data = r2.json()
+                duration = data.get("duration") or 0
+                # Wait for analysis — longer if call was long
+                wait_for_analysis = 5 if duration > 10 else 2
+                await asyncio.sleep(wait_for_analysis)
+                # Re-fetch with analysis
+                for retry in range(3):
+                    async with httpx.AsyncClient(timeout=15) as client:
+                        r2 = await client.get(
+                            f"{VAPI_BASE}/call/{call_id}",
+                            headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
+                        )
+                    if r2.status_code == 200:
+                        data = r2.json()
+                        sd = data.get("analysis", {}).get("structuredData", {})
+                        if sd:
+                            break  # Got analysis
+                        logger.info(f"[VAPI] Analysis not ready yet (attempt {retry+1}/3)")
+                        await asyncio.sleep(3)
+                analysis = data.get("analysis", {})
+                logger.info(f"[VAPI] Call ended: duration={duration}s reason={data.get('endedReason','')} analysis={bool(analysis.get('structuredData'))}")
                 return {
                     "ended": True,
-                    "duration": data.get("duration"),
+                    "duration": duration,
                     "ended_reason": data.get("endedReason"),
-                    "summary": data.get("analysis", {}).get("summary", ""),
-                    "structured_data": data.get("analysis", {}).get("structuredData", {}),
+                    "summary": analysis.get("summary", ""),
+                    "structured_data": analysis.get("structuredData", {}),
                     "transcript": data.get("transcript", ""),
                     "recording_url": data.get("recordingUrl"),
                 }
+        except Exception as e:
+            logger.warning(f"[VAPI] Poll error: {e}")
     return {"ended": False, "error": "timeout"}
 
 
@@ -162,11 +177,12 @@ async def vapi_orchestrate(alert: dict):
                 await db.incidents.update_one({"id": iid}, {"$push": {"calls": {"type": "patient", "call_id": call_id, "phone": phone, "timestamp": _now()}}})
                 await _log_event(iid, "CALLING_PATIENT", f"Appel Vapi en cours (ID: {call_id[:12]}...)")
 
-                call_result = await _wait_for_vapi_call_end(call_id, timeout=120)
+                call_result = await _wait_for_vapi_call_end(call_id, timeout=600)
 
                 if call_result.get("ended"):
                     sd = call_result.get("structured_data", {})
                     summary = call_result.get("summary", "")
+                    duration = call_result.get("duration") or 0
 
                     await db.incidents.update_one({"id": iid}, {"$push": {"transcriptions": {
                         "type": "patient", "summary": summary, "structured_data": sd,
@@ -185,8 +201,20 @@ async def vapi_orchestrate(alert: dict):
                     }
                     await db.alerts.update_one({"id": alert['id']}, {"$set": {"call_report": report}})
 
+                    # If analysis is empty but call lasted > 15s, patient talked — default to OK
+                    if not sd and duration > 15:
+                        logger.info(f"[VAPI] Analysis empty but call lasted {duration}s — defaulting to patient_ok")
+                        sd = {"patient_ok": True, "needs_help": False}
+
                     if sd.get("patient_ok") and not sd.get("needs_help"):
                         await _log_event(iid, "PATIENT_CONFIRMED_OK", f"Patient confirme aller bien: {summary}")
+                        await _resolve_incident(iid, alert['id'], "PATIENT_CONFIRMED_OK", summary)
+                        return
+
+                    # Only escalate if explicitly needs help or call_guardians requested
+                    if not sd.get("needs_help") and not sd.get("call_guardians"):
+                        # Patient talked but no clear help needed — resolve
+                        await _log_event(iid, "PATIENT_CONFIRMED_OK", f"Appel termine, pas de besoin d'aide detecte: {summary}")
                         await _resolve_incident(iid, alert['id'], "PATIENT_CONFIRMED_OK", summary)
                         return
 
