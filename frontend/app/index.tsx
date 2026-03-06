@@ -66,9 +66,9 @@ export default function AuthScreen() {
   };
 
   if (loading || user || !ready) {
-    if (Platform.OS === 'web') return <Loader />;
+    if (Platform.OS === 'web') return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: '#050510' } as any}><Loader /></div>;
     const { View, ActivityIndicator } = require('react-native');
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0A0A0A' }}><ActivityIndicator size="large" color="#FFF" /></View>;
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#050510' }}><ActivityIndicator size="large" color="#FFF" /></View>;
   }
 
   if (Platform.OS === 'web') {
