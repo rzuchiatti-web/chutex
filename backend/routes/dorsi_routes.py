@@ -90,14 +90,34 @@ def generate_program_from_bilan(bilan: dict) -> list:
         {"game_id": "course", "name": "Course d'Obstacles", "description": "Esquivez les obstacles dans une course laterale infinie.", "icon": "ri-run-line", "focus": "agility", "color": "#14B8A6"},
     ]
 
+    # Classify weak areas
+    weak_lateral = any(d["direction"] in ("left", "right") and d["score"] < 5 for d in directions)
+    weak_sagittal = any(d["direction"] in ("forward", "backward") and d["score"] < 5 for d in directions)
+
+    # Games categorized by direction focus
+    lateral_games = [g for g in games if g["game_id"] in ("slalom", "etoiles", "course", "moutons")]
+    sagittal_games = [g for g in games if g["game_id"] in ("serpent", "labyrinthe", "proprioception")]
+    all_direction_games = [g for g in games if g["game_id"] in ("bulles", "simon", "cercles")]
+
+    # Build prioritized game list based on weaknesses
+    prioritized = []
+    if weak_lateral:
+        prioritized.extend(lateral_games)
+    if weak_sagittal:
+        prioritized.extend(sagittal_games)
+    prioritized.extend(all_direction_games)
+    # Fill remaining
+    for g in games:
+        if g not in prioritized:
+            prioritized.append(g)
+
     days = []
     for day_num in range(1, 11):
         is_reassessment = day_num in [3, 6, 9]
         sessions = []
         for session_num in range(1, 3):
-            # Rotate through games
-            game_idx = ((day_num - 1) * 2 + (session_num - 1)) % len(games)
-            game = games[game_idx]
+            game_idx = ((day_num - 1) * 2 + (session_num - 1)) % len(prioritized)
+            game = prioritized[game_idx]
             # Adjust difficulty based on day progression
             difficulty = min(1.0, 0.3 + (day_num - 1) * 0.08)
             sessions.append({
@@ -278,3 +298,71 @@ async def submit_reassessment(program_id: str, data: dict, user=Depends(get_curr
     )
 
     return {"status": "ok", "bilan_id": bilan["id"]}
+
+
+
+@router.get("/dorsi/score-history")
+async def get_score_history(user=Depends(get_current_user)):
+    """Get score history per game from all completed programs."""
+    programs = await db.dorsi_programs.find(
+        {"user_id": user["id"]}, {"_id": 0}
+    ).to_list(50)
+    history: dict = {}
+    for prog in programs:
+        for day in prog.get("days", []):
+            for s in day.get("sessions", []):
+                if s.get("completed") and s.get("score") is not None:
+                    gid = s["game"]["game_id"]
+                    if gid not in history:
+                        history[gid] = {"game_id": gid, "name": s["game"]["name"], "scores": [], "best": 0}
+                    history[gid]["scores"].append({"score": s["score"], "date": s.get("completed_at", ""), "day": day["day_num"]})
+                    if s["score"] > history[gid]["best"]:
+                        history[gid]["best"] = s["score"]
+    return list(history.values())
+
+
+@router.get("/dorsi/dashboard")
+async def get_dorsi_dashboard(user=Depends(get_current_user)):
+    """Get dashboard summary for Dorsi: active program progress, last bilan, next bilan date."""
+    uid = user["id"]
+    program = await db.dorsi_programs.find_one(
+        {"user_id": uid, "status": "active"}, {"_id": 0}
+    )
+    bilans = await db.dorsi_bilans.find(
+        {"user_id": uid}, {"_id": 0}
+    ).sort("created_at", -1).to_list(10)
+
+    total = 0
+    completed = 0
+    current_day = 1
+    if program:
+        for d in program.get("days", []):
+            for s in d.get("sessions", []):
+                total += 1
+                if s.get("completed"):
+                    completed += 1
+        current_day = program.get("current_day", 1)
+
+    last_bilan = bilans[0] if bilans else None
+    # Suggest new bilan every 10 days
+    needs_new_bilan = False
+    if last_bilan:
+        from datetime import datetime, timezone
+        try:
+            last_dt = datetime.fromisoformat(last_bilan["created_at"].replace("Z", "+00:00"))
+            days_since = (datetime.now(timezone.utc) - last_dt).days
+            needs_new_bilan = days_since >= 10
+        except:
+            pass
+
+    return {
+        "has_program": program is not None,
+        "program_id": program["id"] if program else None,
+        "total_sessions": total,
+        "completed_sessions": completed,
+        "progress_pct": round((completed / total) * 100) if total > 0 else 0,
+        "current_day": current_day,
+        "bilan_count": len(bilans),
+        "last_bilan_date": last_bilan["created_at"] if last_bilan else None,
+        "needs_new_bilan": needs_new_bilan,
+    }

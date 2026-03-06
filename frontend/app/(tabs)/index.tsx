@@ -24,6 +24,44 @@ import { apiFetch } from '../../src/services/api';
 import { requestNotificationPermission, startReminderChecker, notifyAlert } from '../../src/services/notifications';
 import { SubscriptionBanner, SubscriptionGate } from '../../src/components/SubscriptionGate';
 
+/* ── Dorsi Dashboard Card ── */
+function DorsiDashCard({ token }: { token: string | null }) {
+  const router = useRouter();
+  const [data, setData] = useState<any>(null);
+  useEffect(() => {
+    if (token) apiFetch('/api/dorsi/dashboard', {}, token).then(setData).catch(() => {});
+  }, [token]);
+  if (!data || (!data.has_program && data.bilan_count === 0)) return null;
+  return (
+    <div data-testid="dorsi-dashboard-card" style={{ margin: '0 0 16px', padding: '18px 20px', borderRadius: 20, background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.15)', cursor: 'pointer' } as any}
+      onClick={() => router.push(data.has_program ? '/dorsi-program' as any : '/dorsi-bilan' as any)}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+        <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(249,115,22,0.15)', border: '1px solid rgba(249,115,22,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+          <i className="ri-body-scan-line" style={{ fontSize: 22, color: '#F97316' }} />
+        </div>
+        <div style={{ flex: 1 } as any}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Programme Dorsi</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
+            {data.has_program ? `Jour ${data.current_day}/10 — ${data.progress_pct}% complete` : `${data.bilan_count} bilan(s) — Creer un programme`}
+          </div>
+        </div>
+        {data.has_program && (
+          <div style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(249,115,22,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+            <span style={{ fontSize: 12, fontWeight: 900, color: '#F97316' }}>{data.progress_pct}%</span>
+          </div>
+        )}
+        <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+      </div>
+      {data.has_program && (
+        <div style={{ marginTop: 10, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+          <div style={{ height: '100%', borderRadius: 3, width: `${Math.max(2, data.progress_pct)}%`, background: 'linear-gradient(90deg, #F97316, #F59E0B)' } as any} />
+        </div>
+      )}
+      {data.needs_new_bilan && <div style={{ marginTop: 8, fontSize: 11, fontWeight: 600, color: '#F97316' }}>Nouveau bilan recommande</div>}
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════════════════ */
 /*                    BENEFICIARY HOME                     */
 /* ═══════════════════════════════════════════════════════ */
@@ -485,6 +523,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
 
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
+
+          {/* ── DORSI PROGRAMME CARD ── */}
+          <DorsiDashCard token={token} />
 
           {/* Les alertes sont affichées en haut du dashboard */}
 

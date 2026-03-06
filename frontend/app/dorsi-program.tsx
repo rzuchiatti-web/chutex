@@ -606,15 +606,15 @@ export default function DorsiProgramPage() {
             {/* Program progress */}
             {program && (
               <>
-                <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 20, marginBottom: 16 } as any}>
+                <div style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Progression</span>
-                    <span style={{ fontSize: 14, fontWeight: 900, color: ACCENT }}>{progressPct}%</span>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{progressPct}%</span>
                   </div>
-                  <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-                    <div style={{ height: '100%', borderRadius: 5, width: `${Math.max(2, progressPct)}%`, background: `linear-gradient(90deg, ${ACCENT}, #F59E0B)`, transition: 'width 0.5s' } as any} />
+                  <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' } as any}>
+                    <div style={{ height: '100%', borderRadius: 5, width: `${Math.max(2, progressPct)}%`, background: '#FFF', transition: 'width 0.5s' } as any} />
                   </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 6 }}>{completedSessions}/{totalSessions} sessions — Jour {program.current_day}/10</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>{completedSessions}/{totalSessions} sessions — Jour {program.current_day}/10</div>
                 </div>
 
                 {program.days?.map((day: any) => {
@@ -622,17 +622,17 @@ export default function DorsiProgramPage() {
                   const allDone = day.sessions.every((s: any) => s.completed);
                   const isLocked = day.day_num > program.current_day;
                   return (
-                    <div key={day.day_num} data-testid={`day-${day.day_num}`} style={{ background: isCurrentDay ? `${ACCENT}06` : 'rgba(255,255,255,0.02)', border: `1px solid ${isCurrentDay ? `${ACCENT}30` : 'rgba(255,255,255,0.06)'}`, borderRadius: 18, padding: 16, marginBottom: 10, opacity: isLocked ? 0.4 : 1 } as any}>
+                    <div key={day.day_num} data-testid={`day-${day.day_num}`} style={{ ...GLASS, padding: 16, marginBottom: 10, opacity: isLocked ? 0.4 : 1 } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                          <div style={{ width: 36, height: 36, borderRadius: 10, background: allDone ? 'rgba(16,185,129,0.15)' : isCurrentDay ? `${ACCENT}20` : 'rgba(255,255,255,0.05)', border: `1px solid ${allDone ? 'rgba(16,185,129,0.3)' : isCurrentDay ? `${ACCENT}30` : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: allDone ? '#10B981' : isCurrentDay ? ACCENT : 'rgba(255,255,255,0.3)' } as any}>
+                          <div style={{ width: 36, height: 36, borderRadius: 10, background: allDone ? 'rgba(16,185,129,0.15)' : isCurrentDay ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${allDone ? 'rgba(16,185,129,0.3)' : isCurrentDay ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: allDone ? '#10B981' : '#FFF' } as any}>
                             {allDone ? <i className="ri-check-line" /> : day.day_num}
                           </div>
                           <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Jour {day.day_num}</div>
                             {day.is_reassessment && <div style={{ fontSize: 10, fontWeight: 600, color: '#22D3EE', marginTop: 2 }}>Reevaluation</div>}
                           </div>
                         </div>
-                        {isCurrentDay && !allDone && <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT, background: `${ACCENT}15`, padding: '3px 10px', borderRadius: 999 }}>Aujourd'hui</span>}
+                        {isCurrentDay && !allDone && <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF', background: 'rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 999 }}>Aujourd'hui</span>}
                       </div>
                       <div style={{ display: 'flex', gap: 8 } as any}>
                         {day.sessions.map((s: any) => (
