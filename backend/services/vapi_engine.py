@@ -338,6 +338,23 @@ async def vapi_orchestrate(alert: dict):
                     "created_at": _now(),
                     "location": alert_loc,
                     "distance_km": round(candidates[0][0], 1) if candidates else None,
+                    "alert_type": alert.get('alert_type', 'sos'),
+                    "alert_message": alert.get('message', ''),
+                    "notes": f"Dispatch SAAD automatique - {alert.get('message', 'Alerte SOS')}",
+                    "beneficiary_info": {
+                        "name": ben.get('name', ''), "phone": ben.get('phone', ''),
+                        "address": ben.get('address', ''),
+                        "medical_conditions": ben.get('medical_conditions', ''),
+                        "allergies": ben.get('allergies', ''),
+                        "emergency_contact_name": ben.get('emergency_contact_name', ''),
+                        "emergency_contact_phone": ben.get('emergency_contact_phone', ''),
+                    },
+                    "beneficiary_location": {
+                        "latitude": alert_lat, "longitude": alert_lng,
+                        "address": ben.get('address', ''),
+                    },
+                    "timeline": [{"status": "pending_acceptance", "time": _now(),
+                        "note": f"Mission envoyee a {assigned_agency['name']} (a {candidates[0][0]:.1f}km)"}],
                 }
                 await db.interventions.insert_one(intervention)
 

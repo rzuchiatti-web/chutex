@@ -68,7 +68,7 @@ export default function InterventionDetailScreen() {
   if (loading) return <FullScreenLoader />;
   if (!iv) return <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#6B7280' }}>Intervention non trouvee</Text></SafeAreaView>;
 
-  const isRecipient = iv.recipients?.some((r: any) => r.id === user?.id) || iv.assigned_to === user?.id;
+  const isRecipient = iv.recipients?.some((r: any) => r.id === user?.id) || iv.assigned_to === user?.id || (iv.company_id && (iv.company_id === user?.saad_company_id || iv.company_id === user?.prescriber_company_id)) || (iv.agency_id && iv.agency_id === user?.agency_id);
   const isAssigned = iv.assigned_to === user?.id;
   const ben = iv.beneficiary_info || {};
   const statusLabel = iv.status === 'pending_acceptance' ? 'En attente' : iv.status === 'in_progress' ? 'En cours' : iv.status === 'completed' ? 'Terminee' : iv.status;

@@ -370,7 +370,7 @@ async def twilio_call_beneficiary(data: TriggerCallRequest, user=Depends(get_cur
         message_key = 'inactivity_alert'
 
     try:
-        base_url = os.environ.get("APP_URL", "https://longevity-engine-2.preview.emergentagent.com")
+        base_url = os.environ.get("APP_URL", "https://emergency-care-flow.preview.emergentagent.com")
         twiml = VoiceResponse()
         twiml.play(f"{base_url}/api/elevenlabs/audio/{message_key}")
         gather = Gather(input='speech', language='fr-FR', timeout=10, speech_timeout=5,
@@ -415,7 +415,7 @@ async def twilio_call_guardian(request: Request, user=Depends(get_current_user))
     alert_msg = alert.get('message', 'une alerte') if alert else 'une alerte'
 
     try:
-        base_url = os.environ.get("APP_URL", "https://longevity-engine-2.preview.emergentagent.com")
+        base_url = os.environ.get("APP_URL", "https://emergency-care-flow.preview.emergentagent.com")
         # Generate dynamic guardian message with ElevenLabs
         guardian_audio_key = f"guardian_call_{alert_id}_{guardian_id}"
         guardian_text = (
@@ -469,7 +469,7 @@ async def twilio_call_guardian(request: Request, user=Depends(get_current_user))
 @router.get("/twilio/twiml/beneficiary")
 async def twiml_beneficiary(request: Request):
     """TwiML for beneficiary call - speech recognition, no DTMF"""
-    base_url = os.environ.get("APP_URL", "https://longevity-engine-2.preview.emergentagent.com")
+    base_url = os.environ.get("APP_URL", "https://emergency-care-flow.preview.emergentagent.com")
     resp = VoiceResponse()
     resp.play(f"{base_url}/api/elevenlabs/audio/fall_detected")
     gather = Gather(input='speech', language='fr-FR', timeout=10, speech_timeout=5,
@@ -572,7 +572,7 @@ async def twilio_speech_response(request: Request):
         }}
     )
 
-    base_url = os.environ.get("APP_URL", "https://longevity-engine-2.preview.emergentagent.com")
+    base_url = os.environ.get("APP_URL", "https://emergency-care-flow.preview.emergentagent.com")
     resp_twiml = VoiceResponse()
     if confirmed_ok:
         resp_twiml.play(f"{base_url}/api/elevenlabs/audio/confirmed_ok")
@@ -648,7 +648,7 @@ async def twilio_guardian_speech_response(request: Request):
         {"$set": {"response": speech_result, "answered": True, "guardian_will_intervene": will_intervene}}
     )
 
-    base_url = os.environ.get("APP_URL", "https://longevity-engine-2.preview.emergentagent.com")
+    base_url = os.environ.get("APP_URL", "https://emergency-care-flow.preview.emergentagent.com")
     resp_twiml = VoiceResponse()
     if will_intervene:
         resp_twiml.play(f"{base_url}/api/elevenlabs/audio/guardian_followup")
@@ -812,7 +812,7 @@ async def auto_escalation_protocol(alert: dict):
         await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "ai_calling", "escalation_id": esc['id']}})
 
         # Build base URL for audio
-        base_url = os.environ.get("APP_URL", "https://longevity-engine-2.preview.emergentagent.com")
+        base_url = os.environ.get("APP_URL", "https://emergency-care-flow.preview.emergentagent.com")
 
         # STEP 1: Call beneficiary with ElevenLabs voice + speech recognition
         ben_phone = norm_phone(ben.get('phone', ''))
@@ -1008,7 +1008,7 @@ async def get_intervention_close_qcm():
 
 @router.get("/interventions/pending")
 async def get_pending_interventions(user=Depends(get_current_user)):
-    """Get all pending interventions for the current intervention provider"""
+    """Get all pending interventions for the current intervention provider or SAAD guardian"""
     pending = await db.interventions.find(
         {"status": {"$in": ["pending_acceptance", "in_progress"]},
          "recipients.id": user['id']},
@@ -1020,10 +1020,32 @@ async def get_pending_interventions(user=Depends(get_current_user)):
          "assigned_to": user['id']},
         {"_id": 0}
     ).sort("created_at", -1).to_list(20)
+
+    # SAAD-dispatched interventions: match by company_id or agency_id
+    saad_company_id = user.get('saad_company_id') or user.get('prescriber_company_id')
+    agency_id = user.get('agency_id')
+    saad_ivs = []
+    if saad_company_id or agency_id:
+        # Check intervenant space is not deactivated
+        link = await db.saad_guardian_links.find_one(
+            {"guardian_id": user['id'], "status": "accepted"}, {"_id": 0}
+        )
+        intervenant_active = not (link or {}).get('intervenant_deactivated', False)
+        if intervenant_active:
+            saad_query = {"status": {"$in": ["pending_acceptance"]}, "intervener_type": "saad"}
+            or_clauses = []
+            if saad_company_id:
+                or_clauses.append({"company_id": saad_company_id})
+            if agency_id:
+                or_clauses.append({"agency_id": agency_id})
+            if or_clauses:
+                saad_query["$or"] = or_clauses
+                saad_ivs = await db.interventions.find(saad_query, {"_id": 0}).sort("created_at", -1).to_list(20)
+
     # Merge without duplicates
     seen = set()
     result = []
-    for iv in pending + assigned:
+    for iv in pending + assigned + saad_ivs:
         if iv['id'] not in seen:
             seen.add(iv['id'])
             result.append(iv)
