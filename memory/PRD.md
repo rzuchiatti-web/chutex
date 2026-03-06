@@ -79,4 +79,7 @@ Build "Chutex Care," a preventative health application for elderly care with con
 | Role | Login | Password |
 |---|---|---|
 | Beneficiary | 0651245918 | test123 |
+| Guardian | +33771149910 | test123 |
 | SAAD Agent | sophie@saad-loire.com | test123 |
+
+## Guardian: Myriam YSSARTEL (+33771149910) — linked to Josette Zuchiatti

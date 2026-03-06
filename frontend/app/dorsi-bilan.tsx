@@ -6,7 +6,7 @@ import { apiFetch } from '../src/services/api';
 import { useDorsiBLE, DorsiAngles } from '../src/hooks/useDorsiBLE';
 
 const ACCENT = '#F97316';
-const BG = 'linear-gradient(135deg, #0A0A0F 0%, #141420 50%, #0A0A0F 100%)';
+const BG_IMG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 
 const DIRECTIONS = [
   { key: 'forward', label: 'Anteversion', desc: 'Inclinez le bassin vers l\'avant', icon: 'ri-arrow-up-line', axis: 'y', sign: -1 },
@@ -355,8 +355,10 @@ export default function DorsiBilanPage() {
   };
 
   return (
-    <div data-testid="dorsi-bilan-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: BG, fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-      <div style={{ position: 'absolute', inset: 0, overflowY: 'auto', padding: '0 20px 120px', WebkitOverflowScrolling: 'touch' } as any}>
+    <div data-testid="dorsi-bilan-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+      <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
+      <div style={{ position: 'absolute', inset: 0, overflowY: 'auto', padding: '0 20px 120px', WebkitOverflowScrolling: 'touch', zIndex: 5 } as any}>
         <div style={{ display: 'flex', alignItems: 'center', padding: '20px 0 24px', gap: 12 } as any}>
           <div data-testid="back-btn" onClick={() => step > 0 && step < 7 ? setStep(step - 1) : router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
