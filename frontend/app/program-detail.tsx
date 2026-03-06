@@ -5,6 +5,7 @@ import { apiFetch } from '../src/services/api';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import NativePageView from '../src/components/NativePageView';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
+import Loader from '../src/components/Loader';
 
 export default function ProgramDetailScreen() {
   const { token } = useAuth();

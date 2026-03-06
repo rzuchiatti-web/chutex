@@ -5,6 +5,7 @@ import { apiFetch } from '../src/services/api';
 import { useRouter } from 'expo-router';
 import NativePageView from '../src/components/NativePageView';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
+import Loader from '../src/components/Loader';
 
 const CATEGORY_ICONS: Record<string, string> = {
   sommeil: 'ri-moon-line', cardiovasculaire: 'ri-heart-pulse-line', stress: 'ri-mental-health-line',
@@ -131,7 +132,7 @@ export default function ProgramsScreen() {
             );
           })}
 
-          {loading && <div style={{ textAlign: 'center', padding: '40px', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Chargement...</div>}
+          {loading && <Loader />}
         </div>
       </div>
     </div>

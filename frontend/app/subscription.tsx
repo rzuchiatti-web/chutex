@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Platform, View, Text } from 'react-native';
+import Loader from '../src/components/Loader';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 let STRIPE_PK = '';

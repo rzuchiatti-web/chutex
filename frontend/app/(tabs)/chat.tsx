@@ -6,6 +6,7 @@ import NativePageView from '../../src/components/NativePageView';
 import ProgramDailyView from '../../src/components/ProgramDailyView';
 import { useRouter } from 'expo-router';
 import { BG_IMAGES } from '../../src/components/dashboard/constants';
+import Loader from '../../src/components/Loader';
 
 const CATEGORY_ICONS: Record<string, string> = {
   sommeil: 'ri-moon-line', cardiovasculaire: 'ri-heart-pulse-line', stress: 'ri-mental-health-line',
@@ -93,10 +94,7 @@ export default function ProgramsTab() {
 
               {/* Loading */}
               {loading && (
-                <div style={{ padding: '28px', textAlign: 'center' } as any}>
-                  <div style={{ width: 28, height: 28, borderRadius: 14, border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#10B981', animation: 'spin 800ms linear infinite', margin: '0 auto 10px' } as any} />
-                  <style dangerouslySetInnerHTML={{ __html: '@keyframes spin{to{transform:rotate(360deg)}}' }} />
-                </div>
+                <Loader />
               )}
 
               {/* Program cards */}

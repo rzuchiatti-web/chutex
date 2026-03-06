@@ -4,7 +4,7 @@ import VitalsRow from '../../src/components/dashboard/VitalsRow';
 import ActivityCard from '../../src/components/dashboard/ActivityCard';
 import CopilotCard from '../../src/components/dashboard/CopilotCard';
 import DeviceCards from '../../src/components/dashboard/DeviceCards';
-import FullScreenLoader from '../../src/components/FullScreenLoader';
+import Loader from '../../src/components/Loader';
 import WeighingFlow from '../../src/components/dashboard/WeighingFlow';
 import GuardianHome from '../../src/components/dashboard/GuardianHome';
 import TeleassistanceHome from '../../src/components/dashboard/TeleassistanceHome';
@@ -285,7 +285,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
   };
 
-  if (loading) return Platform.OS === 'web' ? <FullScreenLoader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#040E1A' }}><ActivityIndicator size="large" color="#4FC3F7" /></View>;
+  if (loading) return Platform.OS === 'web' ? <Loader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#040E1A' }}><ActivityIndicator size="large" color="#4FC3F7" /></View>;
 
   const br = dashData?.bracelet || { heart_rate: 0, spo2: 0, steps: 0, blood_pressure: { systolic: 0, diastolic: 0 }, temperature: 0, battery: 0, connected: false, calories: 0, distance_km: 0, heart_rate_history: [], paired: false };
   const sc = dashData?.scale || { weight: 0, bmi: 0, body_fat: 0, muscle_mass: 0, water_pct: 0, battery: 0, connected: false, paired: false };

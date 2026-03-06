@@ -20,6 +20,7 @@ function TypewriterText({ text, speed = 18, onDone }: { text: string; speed?: nu
 
 import { useI18n } from '../src/context/I18nContext';
 import NativePageView from '../src/components/NativePageView';
+import Loader from '../src/components/Loader';
 
 export default function ChatIAScreen() {
   const { user, token } = useAuth();
