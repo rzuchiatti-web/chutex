@@ -70,6 +70,11 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
                   <i className={vestActive ? 'ri-shield-check-line' : 'ri-zzz-line'} style={{ fontSize: 14 }} />{vestActive ? 'Protection active' : 'En veille'}
                 </div>
               )}
+              {dt === 'dorsi' && (
+                <div data-testid="dorsi-bilan-btn" onClick={() => router.push('/dorsi-bilan' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#F97316' } as any}>
+                  <i className="ri-pulse-line" style={{ fontSize: 14 }} />Bilan lombaire
+                </div>
+              )}
               <div data-testid={`detail-${dt}-btn`} onClick={() => onSelectDevice(dt)} style={{ padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
                 <i className="ri-information-line" style={{ fontSize: 14 }} />
               </div>

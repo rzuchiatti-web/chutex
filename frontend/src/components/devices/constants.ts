@@ -29,12 +29,19 @@ export const SCALE_STEPS = [
   { icon: 'ri-bluetooth-connect-line', title: 'Montez sur la balance', desc: 'Montez pieds nus sur la balance. Elle s\'allume automatiquement et lance la recherche Bluetooth.', tip: 'Restez immobile pendant la mesure pour un resultat optimal.' },
 ];
 
+export const DORSI_STEPS = [
+  { icon: 'ri-armchair-line', title: 'Placez le coussin', desc: 'Posez le coussin Dorsi sur une chaise a dossier droit. La face avec le logo doit etre vers le haut.', tip: 'Le coussin fonctionne mieux sur une surface plane et stable.' },
+  { icon: 'ri-user-line', title: 'Asseyez-vous', desc: 'Asseyez-vous au centre du coussin, le dos bien droit contre le dossier. Les pieds doivent etre a plat au sol.', tip: 'Une bonne position de depart est essentielle pour des mesures precises.' },
+  { icon: 'ri-bluetooth-connect-line', title: 'Connexion en cours...', desc: 'Le coussin Dorsi se connecte automatiquement via Bluetooth. Attendez la confirmation.', tip: 'Le coussin est detecte sous le nom "Dorsi-XXXX" dans la liste Bluetooth.' },
+];
+
 export const DEVICE_META: Record<string, { name: string; desc: string; img: string; link: string; color: string; steps: any[] }> = {
   bracelet: { name: 'Bracelet Elio', desc: 'Suivi cardiaque, SpO2, temperature et detection de chute en continu.', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', link: 'https://chutex-innovation.com/bracelet-elio', color: '#22D3EE', steps: BRACELET_STEPS },
   scale: { name: 'Balance Vita', desc: 'Poids et composition corporelle avec plus de 30 metriques de sante.', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', link: 'https://chutex-innovation.com/balance-vita', color: '#A78BFA', steps: SCALE_STEPS },
   vest: { name: 'Gilet Elder', desc: 'Protection anti-chute par airbag. Se gonfle automatiquement en cas de chute.', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', link: 'https://chutex-innovation.com/gilet-elder', color: '#10B981', steps: VEST_STEPS },
+  dorsi: { name: 'Coussin Dorsi', desc: 'Coussin intelligent de reeducation lombaire avec capteur gyroscopique integre.', img: 'https://static.prod-images.emergentagent.com/jobs/90871f7e-0dfc-431e-a3ec-24e137a4d9c9/images/901209d5b55f961f1d52a1314d39d61f96726f528cb0767fece5db02105171af.png', link: 'https://chutex-innovation.com/coussin-dorsi', color: '#F97316', steps: DORSI_STEPS },
 };
 
 export const BG_BLACK = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
 
-export const ALL_DEVICE_TYPES = ['bracelet', 'scale', 'vest'] as const;
+export const ALL_DEVICE_TYPES = ['bracelet', 'scale', 'vest', 'dorsi'] as const;

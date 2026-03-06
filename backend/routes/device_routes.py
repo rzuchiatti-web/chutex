@@ -98,7 +98,7 @@ async def get_devices(user=Depends(get_current_user)):
 async def associate_device(data: dict, user=Depends(get_current_user)):
     """Associate/pair a new device for the user. Creates the device record."""
     device_type = data.get("device_type", "")
-    if device_type not in ("bracelet", "scale", "vest"):
+    if device_type not in ("bracelet", "scale", "vest", "dorsi"):
         raise HTTPException(status_code=400, detail="Type d'appareil invalide")
 
     uid = user["id"]
@@ -132,7 +132,7 @@ async def associate_device(data: dict, user=Depends(get_current_user)):
         )
         return {"status": "reconnected", "device": updated}
 
-    names = {"bracelet": "Bracelet Elio", "scale": "Balance Vita", "vest": "Gilet Elder"}
+    names = {"bracelet": "Bracelet Elio", "scale": "Balance Vita", "vest": "Gilet Elder", "dorsi": "Coussin Dorsi"}
     now = datetime.now(timezone.utc).isoformat()
     device = {
         "id": str(uuid.uuid4()), "user_id": uid, "device_type": device_type,
@@ -158,7 +158,7 @@ async def remove_device_by_type(data: dict, user=Depends(get_current_user)):
     uid = user["id"]
     device_type = data.get("device_type", "")
     await db.devices.update_many({"user_id": uid, "device_type": device_type}, {"$set": {"connected": False, "battery": 0, "removed": True}})
-    field_map = {"bracelet": "bracelet", "vest": "vest", "scale": "scale"}
+    field_map = {"bracelet": "bracelet", "vest": "vest", "scale": "scale", "dorsi": "dorsi"}
     field = field_map.get(device_type)
     if field:
         await db.dashboard_summary.update_one({"user_id": uid}, {"$set": {f"{field}.connected": False, f"{field}.battery": 0}}, upsert=True)
@@ -169,7 +169,7 @@ async def remove_device_by_type(data: dict, user=Depends(get_current_user)):
 @router.get("/devices/latest")
 async def get_latest_readings(user=Depends(get_current_user)):
     readings = {}
-    for dt in ["bracelet", "scale", "vest"]:
+    for dt in ["bracelet", "scale", "vest", "dorsi"]:
         r = await db.device_readings.find_one({"user_id": user['id'], "device_type": dt}, {"_id": 0}, sort=[("timestamp", -1)])
         if r:
             readings[dt] = r

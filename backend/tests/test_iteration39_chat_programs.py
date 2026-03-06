@@ -10,7 +10,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://emergency-care-flow.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://dorsi-cushion.preview.emergentagent.com')
 
 # Test credentials
 TEST_EMAIL = "robert.martin@email.fr"

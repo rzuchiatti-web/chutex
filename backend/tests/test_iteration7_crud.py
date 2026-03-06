@@ -11,7 +11,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://emergency-care-flow.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://dorsi-cushion.preview.emergentagent.com').rstrip('/')
 
 # Test credentials
 ADMIN_CREDS = {"email": "admin@chutex.fr", "password": "demo123"}

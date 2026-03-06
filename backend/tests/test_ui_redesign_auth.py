@@ -7,7 +7,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://emergency-care-flow.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://dorsi-cushion.preview.emergentagent.com')
 
 # Test credentials for all 4 roles
 TEST_CREDENTIALS = {

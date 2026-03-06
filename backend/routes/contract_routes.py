@@ -719,8 +719,8 @@ async def create_saad_stripe_account(request: Request):
         # Regenerate onboarding link
         link = stripe.AccountLink.create(
             account=existing["account_id"],
-            refresh_url=body.get("refresh_url", "https://emergency-care-flow.preview.emergentagent.com"),
-            return_url=body.get("return_url", "https://emergency-care-flow.preview.emergentagent.com"),
+            refresh_url=body.get("refresh_url", "https://dorsi-cushion.preview.emergentagent.com"),
+            return_url=body.get("return_url", "https://dorsi-cushion.preview.emergentagent.com"),
             type="account_onboarding",
         )
         return {"account_id": existing["account_id"], "onboarding_url": link.url, "already_exists": True}
@@ -738,8 +738,8 @@ async def create_saad_stripe_account(request: Request):
 
     link = stripe.AccountLink.create(
         account=account.id,
-        refresh_url=body.get("refresh_url", "https://emergency-care-flow.preview.emergentagent.com"),
-        return_url=body.get("return_url", "https://emergency-care-flow.preview.emergentagent.com"),
+        refresh_url=body.get("refresh_url", "https://dorsi-cushion.preview.emergentagent.com"),
+        return_url=body.get("return_url", "https://dorsi-cushion.preview.emergentagent.com"),
         type="account_onboarding",
     )
 
