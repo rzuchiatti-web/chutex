@@ -163,10 +163,37 @@ async def vapi_orchestrate(alert: dict):
                         "recording_url": call_result.get("recording_url"), "timestamp": _now()
                     }}})
 
+                    # Save call report to alert
+                    report = {
+                        "call_summary": summary,
+                        "patient_ok": sd.get("patient_ok", False),
+                        "needs_help": sd.get("needs_help", False),
+                        "medical_issue": sd.get("medical_issue", ""),
+                        "urgency_level": sd.get("urgency_level", "none"),
+                        "requested_contact": sd.get("requested_contact", ""),
+                        "recording_url": call_result.get("recording_url"),
+                    }
+                    await db.alerts.update_one({"id": alert['id']}, {"$set": {"call_report": report}})
+
                     if sd.get("patient_ok") and not sd.get("needs_help"):
                         await _log_event(iid, "PATIENT_CONFIRMED_OK", f"Patient confirme aller bien: {summary}")
                         await _resolve_incident(iid, alert['id'], "PATIENT_CONFIRMED_OK", summary)
                         return
+
+                    # Check if patient requested a specific guardian
+                    requested = sd.get("requested_contact", "").lower().strip()
+                    if requested and guardians:
+                        # Reorder guardians to call the requested one first
+                        for idx, g in enumerate(guardians):
+                            g_name = g.get("name", "").lower()
+                            g_relation = g.get("relation", "").lower()
+                            if requested in g_name or requested in g_relation or \
+                               (requested in ("ma fille", "fille") and g_relation in ("fille", "daughter")) or \
+                               (requested in ("mon fils", "fils") and g_relation in ("fils", "son")):
+                                # Move to front
+                                guardians.insert(0, guardians.pop(idx))
+                                await _log_event(iid, "PATIENT_REQUESTED_CONTACT", f"Patient demande d'appeler: {g['name']} ({requested})")
+                                break
 
                     await _log_event(iid, "PATIENT_NEEDS_HELP", f"Patient a besoin d'aide: {summary}")
                 else:
