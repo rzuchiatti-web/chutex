@@ -548,8 +548,10 @@ async def seed_programs():
     for p in SEED_PROGRAMS:
         existing = await db.programs.find_one({"id": p["id"]})
         if existing:
-            # Force update with enriched content
-            await db.programs.update_one({"id": p["id"]}, {"$set": {k: v for k, v in p.items() if k != "id"}})
+            # Update metadata ONLY — never overwrite daily_tasks_template (contains generated guided_steps)
+            update = {k: v for k, v in p.items() if k not in ("id", "daily_tasks_template")}
+            if update:
+                await db.programs.update_one({"id": p["id"]}, {"$set": update})
         else:
             await db.programs.insert_one(p)
 
@@ -828,6 +830,8 @@ JSON: {{"focus": "...", "mission": "1-2 phrases contexte medical", "tasks": ["ta
                         {"$set": {"cache_key": cache_key, "tasks": today_tasks, "created_at": today_str}},
                         upsert=True
                     )
+                    # Re-inject guided_steps from template AFTER caching
+                    today_tasks["guided_steps"] = original_guided_steps
             except Exception as e:
                 print(f"Program personalization error: {e}")
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
