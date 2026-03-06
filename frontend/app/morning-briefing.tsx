@@ -55,88 +55,53 @@ export default function MorningBriefingScreen() {
 
     Promise.all([
       apiFetch('/api/health/daily-report', {}, token).catch(() => null),
-      apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
-    ]).then(([report, dash]) => {
-      const isNewUser = report?.no_data || (!dash?.bracelet?.connected && !dash?.scale?.connected && !dash?.vest?.connected);
+      apiFetch('/api/nora/morning-briefing', {}, token).catch(() => null),
+    ]).then(([report, briefing]) => {
+      // Check if Nora intro was already seen (stored in localStorage)
+      const introSeen = typeof localStorage !== 'undefined' && localStorage.getItem('nora_intro_seen');
+      const hasAnyData = report && !report.no_data;
 
-      let fullText: string;
-
-      if (isNewUser) {
-        // NEW USER: Nora welcome message
+      if (!introSeen && !hasAnyData) {
+        // FIRST TIME: Nora welcome
         const nora = NORA_CONTENT[role] || NORA_CONTENT.beneficiary;
-        fullText = `Bonjour ${name},\n\n${nora.greeting}`;
+        setText(`Bonjour ${name},\n\n${nora.greeting}`);
         setObjectives(nora.features);
+        if (typeof localStorage !== 'undefined') localStorage.setItem('nora_intro_seen', 'true');
       } else {
-        // EXISTING USER: Health briefing
-        const d = report?.data || {};
-        const br = dash?.bracelet || {};
-        const sc = dash?.scale || {};
-
-        const hr = br.heart_rate || d.heart_rate || 72;
-        const spo2 = br.spo2 || d.spo2 || 97;
-        const sys = br.blood_pressure?.systolic || d.blood_pressure?.systolic || 125;
-        const dia = br.blood_pressure?.diastolic || d.blood_pressure?.diastolic || 78;
-        const weight = sc.weight || d.weight || 72.4;
-        const sleepQ = d.sleep_quality || 82;
-        const sleepMin = d.sleep_duration_min || 443;
-        const sleepH = Math.floor(sleepMin / 60);
-        const sleepM = sleepMin % 60;
-        const stress = d.stress_level || 35;
-        const score = report?.score || 96;
-        const recoCal = d.recommended_calories || 2050;
-        const recovery = d.recovery_score || 78;
-
-        fullText = `Bonjour ${name},\n`;
-        if (score >= 90) {
-          fullText += `vous etes en pleine forme aujourd'hui. `;
-          if (hr >= 55 && hr <= 75) fullText += `Votre frequence cardiaque de ${hr} bpm est excellente, `;
-          else fullText += `Frequence cardiaque a ${hr} bpm, `;
-          if (stress < 40) fullText += `un niveau de stress faible a ${stress}/100 et `;
-          else fullText += `stress modere a ${stress}/100, `;
-          fullText += `une saturation en oxygene optimale a ${spo2}%. `;
-          fullText += `Nuit de ${sleepH}h${String(sleepM).padStart(2,'0')} avec une qualite de ${sleepQ}%. `;
-          if (recovery > 75) fullText += `Recuperation solide.`;
-          else fullText += `Recuperation a consolider.`;
-        } else if (score >= 70) {
-          fullText += `votre etat general est correct avec quelques points d'attention. `;
-          fullText += `Frequence cardiaque ${hr} bpm, SpO2 ${spo2}%. `;
-          if (sys > 120) fullText += `Tension a ${sys}/${dia} mmHg, legerement elevee. `;
-          if (sleepQ < 80) fullText += `Qualite de sommeil a ameliorer (${sleepQ}%). `;
-          if (stress > 50) fullText += `Stress modere a ${stress}/100.`;
-        } else {
-          fullText += `certains indicateurs necessitent votre attention. `;
-          fullText += `FC ${hr} bpm, tension ${sys}/${dia}, SpO2 ${spo2}%. `;
-          if (sleepQ < 70) fullText += `Sommeil insuffisant (${sleepQ}%). `;
-          fullText += `Consultez votre medecin si ces valeurs persistent.`;
-        }
-        fullText += `\n\nVoici vos objectifs pour aujourd'hui :`;
-
-        const targetSteps = score >= 90 ? 8000 : score >= 70 ? 6000 : 4000;
-        const targetWater = weight > 80 ? '2L' : weight > 60 ? '1.5L' : '1.2L';
-        const bedtime = sleepQ < 70 ? '22h00' : sleepQ < 85 ? '22h30' : '23h00';
-
-        setObjectives([
-          { icon: 'ri-restaurant-line', color: '#F59E0B', label: 'Apport calorique', value: `${recoCal} kcal`, detail: 'Repartis en 3 repas equilibres' },
-          { icon: 'ri-drop-line', color: '#38BDF8', label: 'Hydratation', value: targetWater, detail: 'A repartir regulierement' },
-          { icon: 'ri-footprint-line', color: '#10B981', label: 'Activite physique', value: `${targetSteps.toLocaleString()} pas`, detail: '30 min de marche ou equivalent' },
-          { icon: 'ri-moon-line', color: '#A78BFA', label: 'Coucher recommande', value: bedtime, detail: 'Ecrans eteints 30 min avant' },
-        ]);
+        // DAILY BRIEFING: Real health data + objectives
+        if (typeof localStorage !== 'undefined') localStorage.setItem('nora_intro_seen', 'true');
+        const msg = briefing?.nora_message || `Bonjour ${name}, bienvenue dans votre journee.`;
+        setText(msg);
+        setObjectives(briefing?.objectives || report?.daily_plan || []);
       }
 
-      // Typewriter
-      let idx = 0;
-      const iv = setInterval(() => {
-        if (idx <= fullText.length) { setText(fullText.slice(0, idx)); idx++; }
-        else {
-          clearInterval(iv);
-          setTimeout(() => { setVisibleObjs(1); smoothScroll(); }, 500);
-          setTimeout(() => { setVisibleObjs(2); smoothScroll(); }, 1200);
-          setTimeout(() => { setVisibleObjs(3); smoothScroll(); }, 1900);
-          setTimeout(() => { setVisibleObjs(4); smoothScroll(); setTimeout(() => setDone(true), 400); }, 2600);
-        }
-      }, 22);
-    });
+      // Start typewriter
+      setDone(false);
+      const fullText = typeof text === 'string' ? text : '';
+    }).then(() => {}).catch(() => {});
+
+    // Typewriter effect runs after text is set
   }, [user]);
+
+  // Typewriter effect
+  useEffect(() => {
+    if (!text || done) return;
+    let idx = 0;
+    const fullText = text;
+    setText('');
+    const iv = setInterval(() => {
+      if (idx <= fullText.length) { setText(fullText.slice(0, idx)); idx++; }
+      else {
+        clearInterval(iv);
+        const objCount = objectives.length;
+        objectives.forEach((_, i) => {
+          setTimeout(() => { setVisibleObjs(i + 1); if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, 500 + i * 700);
+        });
+        setTimeout(() => setDone(true), 500 + objCount * 700 + 400);
+      }
+    }, 22);
+    return () => clearInterval(iv);
+  }, [objectives]);
 
   const smoothScroll = () => {
     setTimeout(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }), 50);
