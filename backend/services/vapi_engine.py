@@ -219,7 +219,21 @@ async def vapi_orchestrate(alert: dict):
             await _log_event(iid, f"CALLING_GUARDIAN_{idx+1}", f"Appel Vapi du gardien {guardian['name']} ({g_phone})")
             await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": f"CALLING_GUARDIAN_{idx+1}"}})
 
-            g_result = await _vapi_call(g_phone, VAPI_GUARDIAN_ASSISTANT_ID, {"patientName": prenom, "guardianName": guardian['prenom']})
+            # Build patient context for guardian
+            patient_context = "pas de reponse du beneficiaire"
+            last_transcript = await db.incidents.find_one({"id": iid}, {"_id": 0, "transcriptions": 1})
+            if last_transcript and last_transcript.get("transcriptions"):
+                for tr in last_transcript["transcriptions"]:
+                    if tr.get("type") == "patient":
+                        sd = tr.get("structured_data", {})
+                        if sd.get("patient_summary"):
+                            patient_context = sd["patient_summary"]
+                        elif sd.get("medical_issue"):
+                            patient_context = f"il a dit avoir {sd['medical_issue']}"
+                        elif tr.get("summary"):
+                            patient_context = tr["summary"][:100]
+
+            g_result = await _vapi_call(g_phone, VAPI_GUARDIAN_ASSISTANT_ID, {"patientName": prenom, "guardianName": guardian['prenom'], "patientContext": patient_context})
 
             if g_result["success"]:
                 g_call_id = g_result["call_id"]
