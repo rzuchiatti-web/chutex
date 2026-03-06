@@ -121,6 +121,40 @@ export default function AlertDetailScreen() {
           </div>
         )}
 
+        {/* Call report from AI (VAPI) */}
+        {a.call_report && (
+          <div style={{ ...G, padding: '16px', marginBottom: 12 } as any}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#A78BFA', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 } as any}>
+              <i className="ri-phone-line" style={{ fontSize: 16 }} />Rapport d'appel IA
+            </div>
+            {a.call_report.call_summary && (
+              <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.15)', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>Resume de l'appel</div>
+                <div style={{ fontSize: 13, color: '#FFF', fontWeight: 500, lineHeight: 1.5 }}>{a.call_report.call_summary}</div>
+              </div>
+            )}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 } as any}>
+              {a.call_report.patient_ok && (
+                <div style={{ padding: '5px 12px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', fontSize: 11, fontWeight: 700, color: '#10B981' } as any}>Patient OK</div>
+              )}
+              {a.call_report.needs_help && (
+                <div style={{ padding: '5px 12px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 11, fontWeight: 700, color: '#EF4444' } as any}>Besoin d'aide</div>
+              )}
+              {a.call_report.medical_issue && (
+                <div style={{ padding: '5px 12px', borderRadius: 99, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)', fontSize: 11, fontWeight: 700, color: '#F59E0B' } as any}>{a.call_report.medical_issue}</div>
+              )}
+              {a.call_report.urgency_level && a.call_report.urgency_level !== 'none' && (
+                <div style={{ padding: '5px 12px', borderRadius: 99, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)', fontSize: 11, fontWeight: 700, color: '#EF4444' } as any}>Urgence: {a.call_report.urgency_level}</div>
+              )}
+            </div>
+            {a.call_report.recording_url && (
+              <div onClick={() => window.open(a.call_report.recording_url, '_blank')} style={{ marginTop: 10, padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.6)' } as any}>
+                <i className="ri-play-circle-line" style={{ fontSize: 18 }} />Ecouter l'enregistrement
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Resolution report */}
         {a.status === 'resolved' && (a.resolution_report || a.report) && (
           <div style={{ ...G, padding: '16px', marginBottom: 12 } as any}>

@@ -392,5 +392,11 @@ async def vapi_orchestrate(alert: dict):
 async def _resolve_incident(iid: str, alert_id: str, resolution: str, detail: str):
     now = _now()
     await db.incidents.update_one({"id": iid}, {"$set": {"state": "RESOLVED", "resolved_at": now, "resolution": resolution}})
-    await db.alerts.update_one({"id": alert_id}, {"$set": {"teleassistance_status": "RESOLVED"}})
+    await db.alerts.update_one({"id": alert_id}, {"$set": {
+        "teleassistance_status": "RESOLVED",
+        "status": "resolved",
+        "resolved_at": now,
+        "resolved_by": "nora_ai",
+        "resolved_by_name": "Nora (IA Teleassistance)",
+    }})
     await _log_event(iid, "RESOLVED", detail)
