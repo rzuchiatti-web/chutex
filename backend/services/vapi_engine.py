@@ -67,7 +67,7 @@ async def _vapi_call(phone: str, assistant_id: str, variable_values: dict = None
     return {"success": False, "error": f"HTTP {r.status_code}: {r.text[:200]}"}
 
 
-async def _wait_for_vapi_call_end(call_id: str, timeout: int = 120) -> dict:
+async def _wait_for_vapi_call_end(call_id: str, timeout: int = 180) -> dict:
     """Poll Vapi until the call ends, then return analysis"""
     for _ in range(timeout // 3):
         await asyncio.sleep(3)
@@ -80,6 +80,16 @@ async def _wait_for_vapi_call_end(call_id: str, timeout: int = 120) -> dict:
             data = r.json()
             status = data.get("status", "")
             if status == "ended":
+                # Wait a moment for analysis to be ready
+                await asyncio.sleep(2)
+                # Re-fetch to get analysis
+                async with httpx.AsyncClient(timeout=15) as client:
+                    r2 = await client.get(
+                        f"{VAPI_BASE}/call/{call_id}",
+                        headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
+                    )
+                if r2.status_code == 200:
+                    data = r2.json()
                 return {
                     "ended": True,
                     "duration": data.get("duration"),
