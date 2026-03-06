@@ -479,6 +479,7 @@ const T: Record<string, Record<string, string>> = {
     emergency_contact: 'Noodcontact', call: 'Bellen',
     message: 'Bericht', bracelet: 'Armband', vest: 'Vest', scale: 'Weegschaal',
   },
+};
 
 interface I18nContextType { lang: string; setLang: (l: string) => void; t: (key: string) => string; }
 const I18nContext = createContext<I18nContextType>({ lang: 'FR', setLang: () => {}, t: (k) => k });
