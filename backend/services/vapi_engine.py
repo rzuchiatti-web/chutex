@@ -240,127 +240,126 @@ async def vapi_orchestrate(alert: dict):
 
         await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "CALLING_PATIENT", "incident_id": iid}})
 
-        # ─── STEP 1: CALL PATIENT VIA VAPI ───
+        # ─── STEP 1: CALL PATIENT + GUARDIANS IN PARALLEL ───
         await _log_event(iid, "CALLING_PATIENT", f"Appel Vapi du beneficiaire {ben['name']} ({phone})")
 
-        if not phone or len(phone) < 10:
-            await _log_event(iid, "PATIENT_NO_RESPONSE", "Numero invalide")
-        else:
+        # Launch patient call
+        patient_call_id = None
+        if phone and len(phone) >= 10:
             result = await _vapi_call(phone, VAPI_PATIENT_ASSISTANT_ID, {"patientName": prenom}, role="patient")
-
             if result["success"]:
-                call_id = result["call_id"]
-                await db.incidents.update_one({"id": iid}, {"$push": {"calls": {"type": "patient", "call_id": call_id, "phone": phone, "timestamp": _now()}}})
-                await _log_event(iid, "CALLING_PATIENT", f"Appel Vapi en cours (ID: {call_id[:12]}...)")
-
-                call_result = await _wait_for_vapi_call_end(call_id, timeout=600)
-
-                if call_result.get("ended"):
-                    sd = call_result.get("structured_data", {})
-                    summary = call_result.get("summary", "")
-                    duration = call_result.get("duration") or 0
-
-                    await db.incidents.update_one({"id": iid}, {"$push": {"transcriptions": {
-                        "type": "patient", "summary": summary, "structured_data": sd,
-                        "recording_url": call_result.get("recording_url"), "timestamp": _now()
-                    }}})
-
-                    # Save call report to alert
-                    report = {
-                        "call_summary": summary,
-                        "patient_ok": sd.get("patient_ok", False),
-                        "needs_help": sd.get("needs_help", False),
-                        "medical_issue": sd.get("medical_issue", ""),
-                        "urgency_level": sd.get("urgency_level", "none"),
-                        "requested_contact": sd.get("requested_contact", ""),
-                        "recording_url": call_result.get("recording_url"),
-                    }
-                    await db.alerts.update_one({"id": alert['id']}, {"$set": {"call_report": report}})
-
-                    # If analysis is empty but call lasted > 15s, patient talked — default to needs_help (safer)
-                    if not sd and duration > 15:
-                        logger.info(f"[VAPI] Analysis empty but call lasted {duration}s — defaulting to needs_help for safety")
-                        sd = {"patient_ok": False, "needs_help": True}
-
-                    # FAST ESCALATION: if patient is clearly OK and doesn't need help → resolve
-                    if sd.get("patient_ok") and not sd.get("needs_help") and not sd.get("call_guardians"):
-                        await _log_event(iid, "PATIENT_CONFIRMED_OK", f"Patient confirme aller bien: {summary}")
-                        await _resolve_incident(iid, alert['id'], "PATIENT_CONFIRMED_OK", summary)
-                        return
-
-                    # ANY sign of distress, help request, or uncertainty → ESCALATE immediately
-                    await _log_event(iid, "PATIENT_NEEDS_HELP", f"Patient a besoin d'aide: {summary}")
-                else:
-                    await _log_event(iid, "PATIENT_NO_RESPONSE", f"Appel termine sans reponse exploitable")
+                patient_call_id = result["call_id"]
+                await db.incidents.update_one({"id": iid}, {"$push": {"calls": {"type": "patient", "call_id": patient_call_id, "phone": phone, "timestamp": _now()}}})
+                await _log_event(iid, "CALLING_PATIENT", f"Appel Vapi en cours (ID: {patient_call_id[:12]}...)")
             else:
                 await _log_event(iid, "PATIENT_NO_RESPONSE", f"Erreur Vapi: {result.get('error', 'inconnu')}")
 
-        # ─── STEP 2: CALL GUARDIANS IN CASCADE ───
-        await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "CALLING_GUARDIANS"}})
+        # Immediately start calling guardians in parallel (don't wait for patient call to end)
+        await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "CALLING_PARALLEL"}})
 
-        guardian_accepted = False
-        for idx, guardian in enumerate(guardians):
-            # Check if resolved externally
-            inc_check = await db.incidents.find_one({"id": iid}, {"_id": 0, "state": 1})
-            if inc_check and inc_check.get("state") in ("RESOLVED", "GUARDIAN_INTERVENTION_ACCEPTED"):
-                return
-
+        async def call_guardian_parallel(idx: int, guardian: dict) -> dict:
+            """Call a single guardian and return result."""
             g_phone = _norm_phone(guardian.get('phone', ''))
             if not g_phone or len(g_phone) < 10:
-                await _log_event(iid, f"CALLING_GUARDIAN_{idx+1}", f"Gardien {guardian['name']}: numero invalide")
-                continue
-
-            await _log_event(iid, f"CALLING_GUARDIAN_{idx+1}", f"Appel Vapi du gardien {guardian['name']} ({g_phone})")
-            await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": f"CALLING_GUARDIAN_{idx+1}"}})
-
-            # Build patient context for guardian
-            patient_context = "pas de reponse du beneficiaire"
-            last_transcript = await db.incidents.find_one({"id": iid}, {"_id": 0, "transcriptions": 1})
-            if last_transcript and last_transcript.get("transcriptions"):
-                for tr in last_transcript["transcriptions"]:
-                    if tr.get("type") == "patient":
-                        sd = tr.get("structured_data", {})
-                        if sd.get("patient_summary"):
-                            patient_context = sd["patient_summary"]
-                        elif sd.get("medical_issue"):
-                            patient_context = f"il a dit avoir {sd['medical_issue']}"
-                        elif tr.get("summary"):
-                            patient_context = tr["summary"][:100]
-
+                return {"guardian": guardian, "answered": False, "will_intervene": False, "error": "invalid_phone"}
+            
+            await _log_event(iid, f"CALLING_GUARDIAN_{idx+1}", f"Appel parallele du gardien {guardian['name']} ({g_phone})")
+            
+            patient_context = "alerte SOS declenchee — levee de doute en cours avec le beneficiaire"
             g_result = await _vapi_call(g_phone, VAPI_GUARDIAN_ASSISTANT_ID, {"patientName": prenom, "guardianName": guardian['prenom'], "patientContext": patient_context}, role="guardian")
-
+            
             if g_result["success"]:
                 g_call_id = g_result["call_id"]
                 await db.incidents.update_one({"id": iid}, {"$push": {"calls": {"type": "guardian", "guardian_id": guardian['id'], "call_id": g_call_id, "phone": g_phone, "timestamp": _now()}}})
-
+                
                 g_call_result = await _wait_for_vapi_call_end(g_call_id, timeout=90)
-
+                
                 await db.incidents.update_one({"id": iid}, {"$push": {"guardians_contacted": {
                     "id": guardian['id'], "name": guardian['name'],
                     "answered": g_call_result.get("ended", False), "timestamp": _now(),
                 }}})
-
+                
                 if g_call_result.get("ended"):
                     g_sd = g_call_result.get("structured_data", {})
                     g_summary = g_call_result.get("summary", "")
-
                     await db.incidents.update_one({"id": iid}, {"$push": {"transcriptions": {
                         "type": "guardian", "guardian_name": guardian['name'],
                         "summary": g_summary, "structured_data": g_sd, "timestamp": _now()
                     }}})
+                    return {"guardian": guardian, "answered": True, "will_intervene": g_sd.get("will_intervene", False), "summary": g_summary}
+            
+            return {"guardian": guardian, "answered": False, "will_intervene": False}
 
-                    if g_sd.get("will_intervene"):
-                        await _log_event(iid, "GUARDIAN_INTERVENTION_ACCEPTED", f"Gardien {guardian['name']} accepte d'intervenir: {g_summary}")
-                        await db.incidents.update_one({"id": iid}, {"$set": {"assigned_guardian": guardian}})
-                        await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "GUARDIAN_INTERVENTION_ACCEPTED"}})
-                        guardian_accepted = True
-                        break
-                    else:
-                        await _log_event(iid, "GUARDIAN_UNREACHABLE", f"Gardien {guardian['name']}: ne peut pas intervenir")
-                else:
-                    await _log_event(iid, "GUARDIAN_UNREACHABLE", f"Gardien {guardian['name']}: pas de reponse")
-            else:
-                await _log_event(iid, "GUARDIAN_UNREACHABLE", f"Gardien {guardian['name']}: erreur appel")
+        # Launch ALL guardian calls in parallel
+        guardian_tasks = [call_guardian_parallel(idx, g) for idx, g in enumerate(guardians)]
+        
+        # Wait for patient call AND guardian calls concurrently
+        async def wait_patient():
+            if patient_call_id:
+                return await _wait_for_vapi_call_end(patient_call_id, timeout=600)
+            return {"ended": False}
+
+        # Run patient wait + all guardian calls in parallel
+        patient_task = asyncio.create_task(wait_patient())
+        guardian_results_task = asyncio.gather(*[asyncio.create_task(t) for t in guardian_tasks], return_exceptions=True)
+        
+        # Wait for both
+        patient_result, guardian_results = await asyncio.gather(patient_task, guardian_results_task)
+
+        # Process patient call result
+        if patient_result.get("ended"):
+            sd = patient_result.get("structured_data", {})
+            summary = patient_result.get("summary", "")
+            duration = patient_result.get("duration") or 0
+
+            await db.incidents.update_one({"id": iid}, {"$push": {"transcriptions": {
+                "type": "patient", "summary": summary, "structured_data": sd,
+                "recording_url": patient_result.get("recording_url"), "timestamp": _now()
+            }}})
+
+            report = {
+                "call_summary": summary,
+                "patient_ok": sd.get("patient_ok", False),
+                "needs_help": sd.get("needs_help", False),
+                "medical_issue": sd.get("medical_issue", ""),
+                "urgency_level": sd.get("urgency_level", "none"),
+                "requested_contact": sd.get("requested_contact", ""),
+                "recording_url": patient_result.get("recording_url"),
+            }
+            await db.alerts.update_one({"id": alert['id']}, {"$set": {"call_report": report}})
+
+            if not sd and duration > 15:
+                sd = {"patient_ok": False, "needs_help": True}
+
+            if sd.get("patient_ok") and not sd.get("needs_help") and not sd.get("call_guardians"):
+                await _log_event(iid, "PATIENT_CONFIRMED_OK", f"Patient confirme aller bien: {summary}")
+                # Check if any guardian already accepted
+                any_accepted = any(isinstance(r, dict) and r.get("will_intervene") for r in guardian_results)
+                if not any_accepted:
+                    await _resolve_incident(iid, alert['id'], "PATIENT_CONFIRMED_OK", summary)
+                    return
+
+            await _log_event(iid, "PATIENT_NEEDS_HELP", f"Patient a besoin d'aide: {summary}")
+        else:
+            if patient_call_id:
+                await _log_event(iid, "PATIENT_NO_RESPONSE", "Appel termine sans reponse exploitable")
+
+        # Process guardian results
+        guardian_accepted = False
+        for r in guardian_results:
+            if isinstance(r, Exception):
+                continue
+            if isinstance(r, dict) and r.get("will_intervene"):
+                g = r["guardian"]
+                await _log_event(iid, "GUARDIAN_INTERVENTION_ACCEPTED", f"Gardien {g['name']} accepte d'intervenir")
+                await db.incidents.update_one({"id": iid}, {"$set": {"assigned_guardian": g}})
+                await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "GUARDIAN_INTERVENTION_ACCEPTED"}})
+                guardian_accepted = True
+                break
+            elif isinstance(r, dict) and r.get("answered"):
+                await _log_event(iid, "GUARDIAN_UNREACHABLE", f"Gardien {r['guardian']['name']}: ne peut pas intervenir")
+            elif isinstance(r, dict):
+                await _log_event(iid, "GUARDIAN_UNREACHABLE", f"Gardien {r['guardian']['name']}: pas de reponse")
 
         # ─── STEP 3: DISPATCH TO NEAREST SAAD AGENCY ───
         if not guardian_accepted:
