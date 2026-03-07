@@ -44,6 +44,7 @@ export default function HealthScreen() {
   const [healthProgData, setHealthProgData] = useState<any>(null);
   const [healthProgCatalog, setHealthProgCatalog] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [noraRecs, setNoraRecs] = useState<any>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -61,6 +62,8 @@ export default function HealthScreen() {
   const fetchReport = useCallback(async () => { try { setReport(await apiFetch('/api/health/daily-report', {}, token)); } catch {} finally { setReportLoading(false); } }, [token]);
 
   useEffect(() => { fetchData(); fetchDashData(); fetchReport(); }, [fetchData, fetchDashData, fetchReport]);
+  // Fetch Nora morning briefing recommendations
+  useEffect(() => { if (token) apiFetch('/api/nora/morning-briefing', {}, token).then(setNoraRecs).catch(() => {}); }, [token]);
   useEffect(() => {
     Promise.all([
       apiFetch('/api/programs/active', {}, token).catch(() => null),
@@ -164,6 +167,26 @@ export default function HealthScreen() {
           )}
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+
+          {/* Nora Morning Briefing Recommendations */}
+          {noraRecs && (noraRecs.recommendations || noraRecs.summary) && (
+            <div data-testid="nora-health-recs" style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)', marginBottom: 16, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                <div style={{ width: 28, height: 28, borderRadius: 10, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-robot-2-line" style={{ fontSize: 14, color: '#A78BFA' }} /></div>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#A78BFA' }}>Nora</span>
+              </div>
+              {noraRecs.summary && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginBottom: noraRecs.recommendations?.length ? 10 : 0 }}>{noraRecs.summary}</div>}
+              {noraRecs.recommendations?.map((rec: any, i: number) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderTop: '1px solid rgba(255,255,255,0.06)' } as any}>
+                  <i className={rec.icon || 'ri-arrow-right-circle-line'} style={{ fontSize: 14, color: rec.color || '#A78BFA', marginTop: 2, flexShrink: 0 }} />
+                  <div>
+                    {rec.title && <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>{rec.title}</div>}
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{rec.text || rec}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* 2. Daily Objectives (no program here — moved to Programmes tab) */}
 
