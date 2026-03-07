@@ -128,6 +128,8 @@ const T: Record<string, Record<string, string>> = {
     height: 'Taille', weight: 'Poids', gender: 'Sexe', male: 'Homme', female: 'Femme',
     dob: 'Date de naissance', day_label: 'Jour', month_label: 'Mois', year_label: 'Annee',
     select: 'Selectionner', medical_file: 'Dossier medical',
+    no_health_data: 'Aucune donnee de sante', recent_measure: 'Mesure recente', no_data: 'Aucune donnee',
+    heart_rate: 'Rythme cardiaque', spo2: 'Saturation O2', blood_pressure: 'Tension arterielle', temperature: 'Temperature',
   },
   EN: {
     home: 'Home', health: 'Health', alerts: 'Alerts', devices: 'Devices', profile: 'Profile', programs: 'Programs',
@@ -241,6 +243,8 @@ const T: Record<string, Record<string, string>> = {
     height: 'Height', weight: 'Weight', gender: 'Gender', male: 'Male', female: 'Female',
     dob: 'Date of birth', day_label: 'Day', month_label: 'Month', year_label: 'Year',
     select: 'Select', medical_file: 'Medical file',
+    no_health_data: 'No health data', recent_measure: 'Recent measure', no_data: 'No data',
+    heart_rate: 'Heart rate', spo2: 'O2 Saturation', blood_pressure: 'Blood pressure', temperature: 'Temperature',
   },
   DE: {
     home: 'Start', health: 'Gesundheit', alerts: 'Alarme', devices: 'Gerate', profile: 'Profil', programs: 'Programme',

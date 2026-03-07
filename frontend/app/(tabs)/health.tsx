@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useI18n } from '../../src/context/I18nContext';
 import { apiFetch } from '../../src/services/api';
 import FullScreenLoader from '../../src/components/FullScreenLoader';
 import CompanyAgencyScreen from '../company-agency';
@@ -30,6 +31,7 @@ export default function HealthScreen() {
   const { token, user } = useAuth();
   const { colors } = useTheme();
   const router = useRouter();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [vitals, setVitals] = useState<any>(null);
   const [dashData, setDashData] = useState<any>(null);
@@ -113,7 +115,7 @@ export default function HealthScreen() {
           <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px', textAlign: 'center', overflowY: 'auto', WebkitOverflowScrolling: 'touch', paddingTop: 'env(safe-area-inset-top, 60px)', paddingBottom: 100 } as any}>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>{noDataAi?.hero_line || 'Aucune donnee de sante'}</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>{noDataAi?.hero_line || t('no_health_data')}</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 320, marginBottom: 20 }}>{noDataAi?.priority || 'Connectez vos dispositifs pour commencer a suivre votre sante et recevoir des analyses personnalisees de Nora.'}</div>
 
             {/* Nora recommendations */}
@@ -193,7 +195,7 @@ export default function HealthScreen() {
                 val: d.heart_rate > 0 ? d.heart_rate : '--',
                 unit: 'bpm',
                 label: 'Rythme cardiaque',
-                status: d.heart_rate > 0 ? 'Mesure recente' : 'Aucune donnee',
+                status: d.heart_rate > 0 ? t('recent_measure') : t('no_data'),
                 icon: 'ri-heart-pulse-line',
                 color: '#EF4444',
                 key: 'heart_rate',
@@ -202,7 +204,7 @@ export default function HealthScreen() {
                 val: d.spo2 > 0 ? `${d.spo2}` : '--',
                 unit: '%',
                 label: 'Saturation O2',
-                status: d.spo2 > 0 ? 'Mesure recente' : 'Aucune donnee',
+                status: d.spo2 > 0 ? t('recent_measure') : t('no_data'),
                 icon: 'ri-drop-line',
                 color: '#6366F1',
                 key: 'spo2',
@@ -213,7 +215,7 @@ export default function HealthScreen() {
                   : '--/--',
                 unit: 'mmHg',
                 label: 'Pression arterielle',
-                status: d.blood_pressure?.systolic > 0 ? 'Mesure recente' : 'Aucune donnee',
+                status: d.blood_pressure?.systolic > 0 ? t('recent_measure') : t('no_data'),
                 icon: 'ri-water-flash-line',
                 color: '#8B5CF6',
                 key: 'blood_pressure',
@@ -222,7 +224,7 @@ export default function HealthScreen() {
                 val: d.temperature > 0 ? `${d.temperature}` : '--',
                 unit: '°C',
                 label: 'Temperature',
-                status: d.temperature > 0 ? 'Mesure recente' : 'Aucune donnee',
+                status: d.temperature > 0 ? t('recent_measure') : t('no_data'),
                 icon: 'ri-temp-hot-line',
                 color: '#F59E0B',
                 key: 'temperature',
