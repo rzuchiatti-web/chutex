@@ -7,6 +7,7 @@ import { PhoneInputWithPrefix } from '../src/components/PhoneInputWithPrefix';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
+import { useI18n } from '../src/context/I18nContext';
 
 const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
 
@@ -21,6 +22,7 @@ const GCard = ({ children, style, onClick }: any) => (
 
 export default function CompanyAgencyScreen() {
   const { agencyId } = useLocalSearchParams<{ agencyId?: string }>();
+  const { t } = useI18n();
   const { token, user } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<'agencies' | 'guardians'>('agencies');

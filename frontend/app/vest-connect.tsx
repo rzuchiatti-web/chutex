@@ -10,6 +10,7 @@ import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
 import { isBleAvailable, getBleManager, bytesToBase64, base64ToBytes } from '../src/services/ble';
+import { useI18n } from '../src/context/I18nContext';
 
 const BLE_SERVICES = [
   { uuid: '0000ffe0-0000-1000-8000-00805f9b34fb', notify: '0000ffe4-0000-1000-8000-00805f9b34fb' },
@@ -35,6 +36,7 @@ function parseVestData(raw: string) {
 
 export default function VestConnectScreen() {
   const { colors: themeColors } = useTheme();
+  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [bleStatus, setBleStatus] = useState<'idle'|'scanning'|'connecting'|'connected'>('idle');

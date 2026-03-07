@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table, Badge, Pill, SH } from './AdminUI';
 import { apiFetch } from '../../services/api';
+import { useI18n } from '../../context/I18nContext';
 
 export default function DataTab({ dataSub, setDataSub, subs, prescs, invites, rgpd, emails, token, load, mob }: any) {
   return (

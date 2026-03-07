@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Platform, View, Text } from 'react-native';
 import Loader from '../src/components/Loader';
+import { useI18n } from '../src/context/I18nContext';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 let STRIPE_PK = '';
@@ -49,6 +50,7 @@ Chutex Innovation met en oeuvre tous les moyens necessaires pour assurer la cont
 
 export default function SubscriptionPage() {
   const [step, setStep] = useState(1);
+  const { t } = useI18n();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState('');
   const [subType, setSubType] = useState('');

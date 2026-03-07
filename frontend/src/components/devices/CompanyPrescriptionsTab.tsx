@@ -14,6 +14,7 @@ import { Colors } from '../../constants/colors';
 import { useTheme } from '../../context/ThemeContext';
 import { PageExplainer } from '../HelpSystem';
 import { confirmAction } from './constants';
+import { useI18n } from '../../context/I18nContext';
 
 function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) {
   const router = useRouter();

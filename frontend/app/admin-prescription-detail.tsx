@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import { useI18n } from '../src/context/I18nContext';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
@@ -41,6 +42,7 @@ const PersonCard = ({ name, subtitle, color, onPress }: { name: string; subtitle
 
 export default function AdminPrescriptionDetail() {
   const { colors, isDark } = useTheme();
+  const { t } = useI18n();
   const { prescriptionId } = useLocalSearchParams<{ prescriptionId: string }>();
   const { token } = useAuth();
   const router = useRouter();

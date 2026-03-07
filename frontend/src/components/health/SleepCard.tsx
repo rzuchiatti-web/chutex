@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import SleepHypnogram, { fromBraceletStages } from './SleepHypnogram';
+import { useI18n } from '../../context/I18nContext';
 
 interface Props { d: any; }
 

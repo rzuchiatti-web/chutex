@@ -8,6 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
+import { useI18n } from '../src/context/I18nContext';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
@@ -16,6 +17,7 @@ const GlassCard = ({ children, style }: any) => (
 
 export default function InterventionDetailScreen() {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const { interventionId } = useLocalSearchParams<{ interventionId: string }>();
   const { token, user } = useAuth();
   const router = useRouter();

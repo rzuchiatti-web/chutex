@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import { useI18n } from '../src/context/I18nContext';
 
 const { height: SCREEN_H } = Dimensions.get('window');
 const MAP_H = SCREEN_H * 0.50;
@@ -27,6 +28,7 @@ const makeCall = (phone: string) => { if (phone) Linking.openURL(`tel:${phone}`)
 
 export default function CompanyInterventionDetail() {
   const { colors, isDark } = useTheme();
+  const { t } = useI18n();
   const { interventionId } = useLocalSearchParams<{ interventionId: string }>();
   const { token, user } = useAuth();
   const router = useRouter();

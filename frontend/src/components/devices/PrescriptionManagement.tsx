@@ -16,6 +16,7 @@ import { PageExplainer } from '../HelpSystem';
 import { confirmAction } from './constants';
 
 import RewardsCard from './RewardsCard';
+import { useI18n } from '../../context/I18nContext';
 
 function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const { refreshUser } = useAuth();

@@ -8,6 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
+import { useI18n } from '../src/context/I18nContext';
 
 const HEALTH_IMAGES: Record<string, string> = {
   heart_rate: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/u3ch46l8_hearth%20red%20app%20healthbeat%20Chutex.png',
@@ -25,6 +26,7 @@ const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBack
 
 export default function EditThresholdsScreen() {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const { metricId } = useLocalSearchParams<{ metricId: string }>();
   const { token } = useAuth();
   const router = useRouter();

@@ -6,9 +6,11 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import NativePageView from '../src/components/NativePageView';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
 import Loader from '../src/components/Loader';
+import { useI18n } from '../src/context/I18nContext';
 
 export default function ProgramDetailScreen() {
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const programId = Array.isArray(id) ? id[0] : id;

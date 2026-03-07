@@ -7,6 +7,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import { useI18n } from '../src/context/I18nContext';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
@@ -29,6 +30,7 @@ const Badge = ({ label, color, bg }: { label: string; color: string; bg: string 
 
 export default function AdminClientDetail() {
   const { colors, isDark } = useTheme();
+  const { t } = useI18n();
   const { clientId, viewAs } = useLocalSearchParams<{ clientId: string; viewAs?: string }>();
   const { token } = useAuth();
   const router = useRouter();

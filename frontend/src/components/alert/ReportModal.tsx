@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import { apiFetch } from '../../services/api';
+import { useI18n } from '../../context/I18nContext';
 
 export default function ReportModal({ alertId, user, token, onClose, onReload }: { alertId: string; user: any; token: string; onClose: () => void; onReload: () => void }) {
   const [answers, setAnswers] = useState<Record<string, string>>({});

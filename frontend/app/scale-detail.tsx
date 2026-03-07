@@ -9,6 +9,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { scanForScales, connectToScale, disconnectScale, stopScaleScan } from '../src/services/ble';
 import type { ScaleMeasurement } from '../src/services/ble';
+import { useI18n } from '../src/context/I18nContext';
 
 const { width: SW } = Dimensions.get('window');
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
@@ -35,6 +36,7 @@ const bodyTypeLabel = (t: number) => ['', 'Maigre', 'Mince', 'Normal', 'Muscle+'
 
 export default function ScaleDetailScreen() {
   const { colors, isDark } = useTheme();
+  const { t } = useI18n();
   const { token, user } = useAuth();
   const router = useRouter();
   const [history, setHistory] = useState<any[]>([]);
