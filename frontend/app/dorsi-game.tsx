@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useDorsiBLE } from '../src/hooks/useDorsiBLE';
+import { useI18n } from '../src/context/I18nContext';
 
 const BG = '#0A0A14';
 const GAMES: Record<string, { name: string; icon: string; color: string; desc: string }> = {
@@ -17,6 +18,11 @@ const GAMES: Record<string, { name: string; icon: string; color: string; desc: s
   simon: { name: 'Simon', icon: 'ri-flashlight-line', color: '#EF4444', desc: 'Memorisez et reproduisez la sequence.' },
   cercles: { name: 'Cercles', icon: 'ri-record-circle-line', color: '#8B5CF6', desc: 'Touchez les cercles avant qu\'ils disparaissent.' },
   course: { name: 'Course', icon: 'ri-run-line', color: '#14B8A6', desc: 'Esquivez les obstacles le plus longtemps possible !' },
+  respiration: { name: 'Respiration', icon: 'ri-lungs-line', color: '#60A5FA', desc: 'Suivez le rythme respiratoire. Gonflez et degonflez le cercle en harmonie.' },
+  pendule: { name: 'Pendule', icon: 'ri-timer-flash-line', color: '#F472B6', desc: 'Arretez le pendule au bon moment pour marquer des points.' },
+  peinture: { name: 'Peinture', icon: 'ri-brush-line', color: '#FBBF24', desc: 'Peignez en inclinant le bassin. Remplissez la toile pour scorer !' },
+  rebond: { name: 'Rebond', icon: 'ri-basketball-line', color: '#FB923C', desc: 'Faites rebondir la balle et cassez les blocs. Ne la laissez pas tomber !' },
+  gravite: { name: 'Gravite', icon: 'ri-planet-line', color: '#818CF8', desc: 'Guidez l\'asteroide a travers le champ de gravite sans toucher les planetes.' },
 };
 
 /* ── HUD ── */
@@ -299,8 +305,111 @@ function CanvasGame({ gameId, meta, onScoreUpdate, onComboUpdate, onTimeUpdate, 
         snakeBody.forEach((s, idx) => { ctx.fillStyle = idx === 0 ? '#FFF' : `${meta.color}${Math.max(40, 200 - idx * 8).toString(16).padStart(2, '0')}`; ctx.beginPath(); ctx.arc(s.x * gs + gs / 2, s.y * gs + 100 + gs / 2, gs / 2 - 1, 0, Math.PI * 2); ctx.fill(); });
       }
 
-      // Cursor (not for serpent)
-      if (gameId !== 'serpent') {
+      // === NEW GAMES ===
+      if (gameId === 'respiration') {
+        // Breathing circle - expand and contract
+        const cx = w / 2, cy = h / 2;
+        const breathCycle = Math.sin(frameRef.current * 0.025) * 0.5 + 0.5; // 0-1
+        const targetR = 40 + breathCycle * 100;
+        // Show target circle
+        ctx.strokeStyle = `${meta.color}40`; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(cx, cy, targetR, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = `${meta.color}08`; ctx.fill();
+        // User circle based on cursor distance from center
+        const d = Math.sqrt((cursorRef.current.x - cx) ** 2 + (cursorRef.current.y - cy) ** 2);
+        const userR = Math.min(150, Math.max(20, d));
+        ctx.strokeStyle = meta.color; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(cx, cy, userR, 0, Math.PI * 2); ctx.stroke();
+        // Score based on sync
+        if (frameRef.current % 6 === 0) {
+          const sync = 1 - Math.abs(userR - targetR) / 80;
+          if (sync > 0.7) addPts(3);
+          else if (sync > 0.4) addPts(1);
+        }
+        // Guide text
+        ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.font = '16px Inter'; ctx.textAlign = 'center';
+        ctx.fillText(breathCycle > 0.5 ? 'Inspirez...' : 'Expirez...', cx, cy + targetR + 40);
+      }
+
+      if (gameId === 'pendule') {
+        const cx = w / 2, cy = 120;
+        const angle = Math.sin(frameRef.current * 0.03) * 1.2;
+        const pendL = h * 0.45;
+        const bx = cx + Math.sin(angle) * pendL, by = cy + Math.cos(angle) * pendL;
+        // String
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
+        // Ball
+        ctx.fillStyle = `${meta.color}30`; ctx.beginPath(); ctx.arc(bx, by, 30, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = meta.color; ctx.beginPath(); ctx.arc(bx, by, 20, 0, Math.PI * 2); ctx.fill();
+        // Target zone at bottom center
+        ctx.fillStyle = 'rgba(16,185,129,0.15)'; ctx.fillRect(w / 2 - 40, h - 180, 80, 20);
+        ctx.strokeStyle = '#10B981'; ctx.strokeRect(w / 2 - 40, h - 180, 80, 20);
+        // Click/tap to score when pendulum is at center
+        if (Math.abs(angle) < 0.15 && keysRef.current.has(' ')) {
+          addPts(25, bx, by); keysRef.current.delete(' ');
+        }
+      }
+
+      if (gameId === 'peinture') {
+        // Paint trail
+        if (frameRef.current % 2 === 0) {
+          const hue = (frameRef.current * 2) % 360;
+          ctx.fillStyle = `hsl(${hue}, 70%, 60%)`;
+          ctx.beginPath(); ctx.arc(cursorRef.current.x, cursorRef.current.y, 8 + Math.random() * 6, 0, Math.PI * 2); ctx.fill();
+        }
+        if (frameRef.current % 20 === 0) { scoreRef.current += 2; onScoreUpdate(scoreRef.current); }
+      }
+
+      if (gameId === 'rebond') {
+        // Breakout-like game
+        const paddleW = 120, paddleH = 14;
+        const paddleX = cursorRef.current.x - paddleW / 2;
+        const paddleY = h - 180;
+        // Ball
+        if (!('bx' in (window as any))) { (window as any).bx = w / 2; (window as any).by = paddleY - 20; (window as any).bvx = 3; (window as any).bvy = -4; }
+        const ball = window as any;
+        ball.bx += ball.bvx; ball.by += ball.bvy;
+        if (ball.bx < 10 || ball.bx > w - 10) ball.bvx *= -1;
+        if (ball.by < 80) ball.bvy *= -1;
+        // Paddle collision
+        if (ball.by > paddleY - 10 && ball.by < paddleY + paddleH && ball.bx > paddleX && ball.bx < paddleX + paddleW) {
+          ball.bvy = -Math.abs(ball.bvy); addPts(5, ball.bx, ball.by);
+        }
+        if (ball.by > h) { ball.by = paddleY - 20; ball.bx = w / 2; ball.bvy = -4; }
+        // Draw paddle
+        ctx.fillStyle = meta.color; ctx.beginPath(); ctx.roundRect(paddleX, paddleY, paddleW, paddleH, 7); ctx.fill();
+        // Draw ball
+        ctx.fillStyle = '#FFF'; ctx.shadowColor = '#FFF'; ctx.shadowBlur = 10;
+        ctx.beginPath(); ctx.arc(ball.bx, ball.by, 8, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        // Blocks
+        if (!(window as any).blocks) { (window as any).blocks = []; for (let r = 0; r < 4; r++) for (let c = 0; c < Math.floor(w / 55); c++) (window as any).blocks.push({ x: 10 + c * 55, y: 100 + r * 25, alive: true }); }
+        (window as any).blocks.forEach((b: any) => { if (!b.alive) return; ctx.fillStyle = `${meta.color}60`; ctx.fillRect(b.x, b.y, 50, 20); ctx.strokeStyle = meta.color; ctx.strokeRect(b.x, b.y, 50, 20);
+          if (ball.bx > b.x && ball.bx < b.x + 50 && ball.by > b.y && ball.by < b.y + 20) { b.alive = false; ball.bvy *= -1; addPts(15, b.x + 25, b.y + 10); } });
+      }
+
+      if (gameId === 'gravite') {
+        // Asteroid dodging planets
+        if (frameRef.current % 80 === 0) {
+          obstacles.push({ x: Math.random() * w, y: -40, w: 20 + Math.random() * 30, h: 0, speed: 1 + Math.random() * 2 });
+        }
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+          const p = obstacles[i];
+          p.y += p.speed;
+          // Planet with rings
+          ctx.fillStyle = `${meta.color}40`; ctx.beginPath(); ctx.arc(p.x, p.y, p.w, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = `${meta.color}60`; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.w + 10, 6, 0.3, 0, Math.PI * 2); ctx.stroke();
+          // Collision
+          const dx = cursorRef.current.x - p.x, dy = cursorRef.current.y - p.y;
+          if (Math.sqrt(dx * dx + dy * dy) < p.w + 14) { comboRef.current = 0; onComboUpdate(0); }
+          if (p.y > h + 40) { obstacles.splice(i, 1); }
+        }
+        if (frameRef.current % 5 === 0) { scoreRef.current++; onScoreUpdate(scoreRef.current); }
+      }
+
+      // Cursor (not for serpent/peinture)
+      if (!['serpent', 'peinture', 'pendule', 'rebond'].includes(gameId)) {
         ctx.fillStyle = `${meta.color}12`; ctx.beginPath(); ctx.arc(cursorRef.current.x, cursorRef.current.y, 30, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = meta.color; ctx.shadowColor = meta.color; ctx.shadowBlur = 16;
         ctx.beginPath(); ctx.arc(cursorRef.current.x, cursorRef.current.y, 14, 0, Math.PI * 2); ctx.fill();

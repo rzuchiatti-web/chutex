@@ -88,6 +88,11 @@ def generate_program_from_bilan(bilan: dict) -> list:
         {"game_id": "simon", "name": "Simon Postural", "description": "Reproduisez les sequences de directions affichees.", "icon": "ri-flashlight-line", "focus": "memory", "color": "#EF4444"},
         {"game_id": "cercles", "name": "Cercles Concentriques", "description": "Touchez les cercles qui apparaissent avant qu'ils ne disparaissent.", "icon": "ri-record-circle-line", "focus": "reaction", "color": "#8B5CF6"},
         {"game_id": "course", "name": "Course d'Obstacles", "description": "Esquivez les obstacles dans une course laterale infinie.", "icon": "ri-run-line", "focus": "agility", "color": "#14B8A6"},
+        {"game_id": "respiration", "name": "Respiration", "description": "Suivez le rythme respiratoire en synchronisant vos mouvements.", "icon": "ri-lungs-line", "focus": "relaxation", "color": "#60A5FA"},
+        {"game_id": "pendule", "name": "Pendule", "description": "Arretez le pendule au bon moment pour marquer.", "icon": "ri-timer-flash-line", "focus": "timing", "color": "#F472B6"},
+        {"game_id": "peinture", "name": "Peinture", "description": "Peignez en inclinant le bassin. Liberte artistique !", "icon": "ri-brush-line", "focus": "mobility", "color": "#FBBF24"},
+        {"game_id": "rebond", "name": "Rebond", "description": "Cassez les blocs avec la balle rebondissante.", "icon": "ri-basketball-line", "focus": "coordination", "color": "#FB923C"},
+        {"game_id": "gravite", "name": "Gravite", "description": "Guidez l'asteroide entre les planetes.", "icon": "ri-planet-line", "focus": "agility", "color": "#818CF8"},
     ]
 
     # Classify weak areas

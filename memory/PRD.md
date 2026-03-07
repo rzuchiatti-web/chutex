@@ -10,76 +10,39 @@ Build "Chutex Care," a preventative health application for elderly care with con
 
 ## What's Been Implemented
 
-### Dorsi Smart Cushion — Full CDC Integration (March 2026)
+### Dorsi Smart Cushion — Complete
+- BLE CDC integration (HeloKine01) with Web Bluetooth API
+- Multi-step bilan with stepper, progressive gauge, pain per direction, radar chart with overlays
+- **15 mini-games** full-screen immersive: Moutons, Bulles, Equilibre, Serpent, Labyrinthe, Slalom, Etoiles, Simon, Cercles, Course, Respiration, Pendule, Peinture, Rebond, Gravite
+- Full-screen game page with HUD (live score, timer, combo), start/end screens, particles, glow effects
+- 10-day program with smart game selection based on bilan weaknesses
+- Score history tracking, dashboard card, bilan comparison
 
-#### BLE Communication (HeloKine01)
-- **Web Bluetooth API** integration via `useDorsiBLE` hook
-- Device name: "HeloKine01", scans via `namePrefix: 'HeloKine'`
-- Angular Service UUID: `00001101-0000-1000-8000-00805f9b34fb`
-- Characteristics: angleX (`00002101`), angleY (`00002102`), angleZ (`00002103`)
-- Data format: UTF-8 string in degrees (e.g. "45.1")
-- Battery Service: standard BLE 0x180F
-- Auto fallback to simulation mode when no device connected
+### i18n — 83 Components, 7 Languages
+- FR, EN, DE, ES, IT, PT, NL — ~430 translation keys
+- Bug fix: LanguagePicker case mismatch (uppercase/lowercase)
+- Nora AI responds in user's selected language
+- Coverage: ALL pages (onboarding, login, register, dashboard, health, teleconsult, devices, ECG, Dorsi, alerts, chat, profile, detail pages, admin, backoffice)
 
-#### Bilan (Assessment)
-- Multi-step guided flow: introduction → BLE connect → gyroscope taring → 4 direction measurements → pain sliders → radar chart (Kiviat)
-- Measures real angles from BLE (0-45° → 0-100% mobility) or simulated
-- 4 directions: Anteversion, Retroversion, Flexion gauche, Flexion droite
-- Pain scale 1-10 per direction
-- Bilans and games are **DECOUPLED** from program — accessible at any time
+### VAPI Voice AI
+- ElevenLabs multilingual voice (Lily), concise prompts, fast escalation
+- If patient not OK → call guardians immediately
 
-#### 3 Mini-Games (CDC Spec)
-1. **Jeu des Moutons** (Mobilite) — Catch sheep by tilting pelvis toward weak mobility zones
-2. **Bulles de Savon** (Endurance) — Pop bubbles at edges of maximal mobility
-3. **Equilibre Proprioceptif** (Proprioception) — Stabilize ball at center via balance
-- All games use real BLE angles or keyboard/touch fallback
-- Canvas-based rendering at 60fps
-- "Jeux libres" section for free play without program
-
-#### 10-Day Program
-- Generated from bilan results, 2 sessions/day of 10 min
-- Reassessment days 3, 6, 9
-- Multiple programs allowed (old ones marked 'replaced')
-- Progress tracking with day advancement
-
-### Previous Implementations
-- VAPI Voice AI SOS, Alert escalation, SAAD intervention
-- Bracelet Elio, Balance Vita, Gilet Elder devices
-- Health dashboard, Nora AI morning briefing
-- Subscription/payment, RGPD, Admin backoffice
-- i18n (7 languages)
+### Previous
+- Alert escalation, SAAD intervention, health dashboard, subscriptions, RGPD
 
 ## Key Files
-- `/app/frontend/src/hooks/useDorsiBLE.ts` — Web Bluetooth API hook
-- `/app/frontend/app/dorsi-bilan.tsx` — Bilan assessment with BLE
-- `/app/frontend/app/dorsi-program.tsx` — Program + 3 CDC mini-games
-- `/app/backend/routes/dorsi_routes.py` — Dorsi API endpoints
-- `/app/frontend/src/components/devices/constants.ts` — Device metadata
+- `/app/frontend/app/dorsi-game.tsx` — Full-screen game engine (15 games)
+- `/app/frontend/app/dorsi-bilan.tsx` — Bilan with stepper, radar overlay
+- `/app/frontend/app/dorsi-program.tsx` — Program with free play grid
+- `/app/frontend/src/context/I18nContext.tsx` — 765 lines, 7 languages
+- `/app/backend/routes/dorsi_routes.py` — Dorsi API (bilans, programs, scores, dashboard)
 
 ## Prioritized Backlog
+### P1
+- Nora recommends exercises based on bilan
+- Guardian referral system, Free 7-day trial
 
-### P1 (High)
-- Nora AI recommends exercises based on bilan
-- Guardian Referral System
-- Free 7-Day Trial
-
-### P2 (Medium)
-- Contract PDF viewer
-- Vivoo Urine Test Integration
-- ElevenLabs voice cloning for VAPI
-- Vest badge color fix (orange not green)
-- Refactor alerts.tsx into smaller components
-
-### P3 (Low/Future)
-- Real HeloKine01 device testing
-- Game difficulty adaptation based on progress
-- Leaderboard/social features
-
-## Test Credentials
-| Role | Login | Password |
-|---|---|---|
-| Beneficiary | 0651245918 | test123 |
-| Guardian | +33771149910 | test123 |
-| SAAD Agent | sophie@saad-loire.com | test123 |
-
-## Guardian: Myriam YSSARTEL (+33771149910) — linked to Josette Zuchiatti
+### P2
+- Contract PDF, Vivoo, ElevenLabs voice cloning
+- Test HeloKine01 physical device, Leaderboard

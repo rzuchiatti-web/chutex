@@ -571,7 +571,7 @@ export default function DorsiProgramPage() {
             {/* Free play section - always available */}
             <div data-testid="free-play-section" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
               <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{t('dorsi_free_games')}</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 14 }}>10 {t('dorsi_games_available')}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 14 }}>15 {t('dorsi_games_available')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 8 } as any}>
                 {[
                   { id: 'moutons', name: 'Moutons', icon: 'ri-ghost-smile-line', color: '#22D3EE' },
@@ -584,6 +584,11 @@ export default function DorsiProgramPage() {
                   { id: 'simon', name: 'Simon', icon: 'ri-flashlight-line', color: '#EF4444' },
                   { id: 'cercles', name: 'Cercles', icon: 'ri-record-circle-line', color: '#8B5CF6' },
                   { id: 'course', name: 'Course', icon: 'ri-run-line', color: '#14B8A6' },
+                  { id: 'respiration', name: 'Respir.', icon: 'ri-lungs-line', color: '#60A5FA' },
+                  { id: 'pendule', name: 'Pendule', icon: 'ri-timer-flash-line', color: '#F472B6' },
+                  { id: 'peinture', name: 'Peinture', icon: 'ri-brush-line', color: '#FBBF24' },
+                  { id: 'rebond', name: 'Rebond', icon: 'ri-basketball-line', color: '#FB923C' },
+                  { id: 'gravite', name: 'Gravite', icon: 'ri-planet-line', color: '#818CF8' },
                 ].map(g => (
                   <div key={g.id} data-testid={`free-play-${g.id}`} onClick={() => startFreeGame(g.id)} style={{ padding: '12px 4px', borderRadius: 14, cursor: 'pointer', background: `${g.color}08`, border: `1px solid ${g.color}20`, textAlign: 'center' } as any}>
                     <i className={g.icon} style={{ fontSize: 20, color: g.color, display: 'block', marginBottom: 4 }} />

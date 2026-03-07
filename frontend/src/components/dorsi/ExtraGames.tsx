@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useI18n } from '../../context/I18nContext';
 
 const GAME_CANVAS: any = { borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)', width: '100%', maxWidth: 360, aspectRatio: '360/400' };
 const DPAD_BTN: any = { borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' };

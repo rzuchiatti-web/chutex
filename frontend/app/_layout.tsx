@@ -7,6 +7,7 @@ import { I18nProvider } from '../src/context/I18nContext';
 import { View, ActivityIndicator, StyleSheet, Platform, Image, Text, TouchableOpacity } from 'react-native';
 import { PastelMistBackground } from '../src/components/PastelMistBackground';
 import { ensureFirstLaunchLocationPermission, openSystemLocationSettings, requestLocationPermission } from '../src/services/locationPermissions';
+import { useI18n } from '../src/context/I18nContext';
 
 /**
  * On iOS: render the entire app as a single full-screen WebView
