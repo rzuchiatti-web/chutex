@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useDorsiBLE } from '../src/hooks/useDorsiBLE';
+import { useI18n } from '../src/context/I18nContext';
 import { SerpentGame, LabyrintheGame, SlalomGame, EtoilesGame, SimonGame, CerclesGame, CourseGame } from '../src/components/dorsi/ExtraGames';
 
 const ACCENT = '#FFF';
@@ -450,6 +451,7 @@ export default function DorsiProgramPage() {
   const { token } = useAuth();
   const router = useRouter();
   const ble = useDorsiBLE();
+  const { t } = useI18n();
   const [program, setProgram] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeGame, setActiveGame] = useState<{ day: number; session: number; game: any; difficulty: number } | null>(null);
@@ -580,8 +582,8 @@ export default function DorsiProgramPage() {
           <div style={{ maxWidth: 480, margin: '0 auto' } as any}>
             {/* Free play section - always available */}
             <div data-testid="free-play-section" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Jeux libres</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 14 }}>10 jeux disponibles — jouez a tout moment</div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{t('dorsi_free_games')}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 14 }}>10 {t('dorsi_games_available')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 8 } as any}>
                 {[
                   { id: 'moutons', name: 'Moutons', icon: 'ri-ghost-smile-line', color: '#22D3EE' },
@@ -608,13 +610,13 @@ export default function DorsiProgramPage() {
               <>
                 <div style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Progression</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{t('dorsi_progression')}</span>
                     <span style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{progressPct}%</span>
                   </div>
                   <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' } as any}>
                     <div style={{ height: '100%', borderRadius: 5, width: `${Math.max(2, progressPct)}%`, background: '#FFF', transition: 'width 0.5s' } as any} />
                   </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>{completedSessions}/{totalSessions} sessions — Jour {program.current_day}/10</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>{completedSessions}/{totalSessions} {t('dorsi_sessions')} — {t('dorsi_day')} {program.current_day}/10</div>
                 </div>
 
                 {program.days?.map((day: any) => {
@@ -628,11 +630,11 @@ export default function DorsiProgramPage() {
                           <div style={{ width: 36, height: 36, borderRadius: 10, background: allDone ? 'rgba(16,185,129,0.15)' : isCurrentDay ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${allDone ? 'rgba(16,185,129,0.3)' : isCurrentDay ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: allDone ? '#10B981' : '#FFF' } as any}>
                             {allDone ? <i className="ri-check-line" /> : day.day_num}
                           </div>
-                          <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Jour {day.day_num}</div>
-                            {day.is_reassessment && <div style={{ fontSize: 10, fontWeight: 600, color: '#22D3EE', marginTop: 2 }}>Reevaluation</div>}
+                          <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('dorsi_day')} {day.day_num}</div>
+                            {day.is_reassessment && <div style={{ fontSize: 10, fontWeight: 600, color: '#22D3EE', marginTop: 2 }}>{t('dorsi_reevaluation')}</div>}
                           </div>
                         </div>
-                        {isCurrentDay && !allDone && <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF', background: 'rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 999 }}>Aujourd'hui</span>}
+                        {isCurrentDay && !allDone && <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF', background: 'rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 999 }}>{t('dorsi_today')}</span>}
                       </div>
                       <div style={{ display: 'flex', gap: 8 } as any}>
                         {day.sessions.map((s: any) => (

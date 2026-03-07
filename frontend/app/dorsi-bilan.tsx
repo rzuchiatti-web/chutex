@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useDorsiBLE } from '../src/hooks/useDorsiBLE';
+import { useI18n } from '../src/context/I18nContext';
 
 const BG_IMG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 const G: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '24px 20px' };
@@ -108,14 +109,15 @@ function MeasureGauge({ direction, onComplete }: { direction: typeof DIRS[0]; on
 
 // ── Pain Slider ──
 function PainSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const { t } = useI18n();
   return (
     <div style={{ ...G, marginTop: 16 } as any}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
-        <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Niveau de douleur</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{t('dorsi_pain_level')}</span>
         <span style={{ fontSize: 20, fontWeight: 900, color: value > 6 ? '#EF4444' : value > 3 ? '#F59E0B' : '#10B981' }}>{value}/10</span>
       </div>
       <input type="range" min={0} max={10} step={1} value={value} onChange={(e: any) => onChange(parseInt(e.target.value))} style={{ width: '100%', accentColor: '#FFF', height: 6 }} />
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 4 } as any}><span>Aucune</span><span>Maximale</span></div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 4 } as any}><span>{t('dorsi_no_pain')}</span><span>{t('dorsi_max_pain')}</span></div>
     </div>
   );
 }
@@ -124,6 +126,7 @@ export default function DorsiBilanPage() {
   const { token } = useAuth();
   const router = useRouter();
   const ble = useDorsiBLE();
+  const { t } = useI18n();
   // Steps: 0=intro, 1=connect, 2=tare, 3-6=direction+pain (4 dirs), 7=results
   const [step, setStep] = useState(0);
   const [data, setData] = useState<Record<string, { mobility: number; pain: number }>>({});
@@ -187,15 +190,15 @@ export default function DorsiBilanPage() {
       <div style={{ textAlign: 'center', maxWidth: 400, margin: '0 auto' } as any}>
         <div style={{ ...G, marginBottom: 20, padding: '32px 24px' } as any}>
           <i className="ri-body-scan-line" style={{ fontSize: 44, color: '#FFF', display: 'block', marginBottom: 16 }} />
-          <h2 style={{ fontSize: 24, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>Bilan lombaire</h2>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, margin: 0 }}>Evaluez votre mobilite dans 4 directions.</p>
+          <h2 style={{ fontSize: 24, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>{t('dorsi_bilan')}</h2>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, margin: 0 }}>{t('dorsi_evaluate')}</p>
         </div>
         <div style={{ ...G, textAlign: 'left', marginBottom: 20 } as any}>
           {[
-            { icon: 'ri-armchair-line', text: 'Asseyez-vous au centre du coussin' },
-            { icon: 'ri-user-line', text: 'Dos droit contre le dossier' },
-            { icon: 'ri-footprint-line', text: 'Pieds a plat au sol' },
-            { icon: 'ri-lungs-line', text: 'Respirez normalement' },
+            { icon: 'ri-armchair-line', text: t('dorsi_sit') },
+            { icon: 'ri-user-line', text: t('dorsi_back') },
+            { icon: 'ri-footprint-line', text: t('dorsi_feet') },
+            { icon: 'ri-lungs-line', text: t('dorsi_breathe') },
           ].map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
               <i className={s.icon} style={{ fontSize: 18, color: '#FFF', opacity: 0.7 }} />
@@ -203,7 +206,7 @@ export default function DorsiBilanPage() {
             </div>
           ))}
         </div>
-        <div onClick={() => setStep(1)} style={BTN} data-testid="start-bilan-btn">Commencer</div>
+        <div onClick={() => setStep(1)} style={BTN} data-testid="start-bilan-btn">{t('dorsi_start')}</div>
       </div>
     );
 
@@ -212,13 +215,13 @@ export default function DorsiBilanPage() {
       <div style={{ textAlign: 'center', maxWidth: 400, margin: '0 auto' } as any}>
         <div style={{ ...G, marginBottom: 20 } as any}>
           <i className={ble.connected ? 'ri-bluetooth-connect-fill' : 'ri-bluetooth-line'} style={{ fontSize: 40, color: '#FFF', display: 'block', marginBottom: 16 }} />
-          <h2 style={{ fontSize: 20, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>{ble.connected ? `${ble.deviceName} connecte` : 'Connexion coussin'}</h2>
-          {!ble.connected && <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 16px' }}>Connectez votre coussin HeloKine ou continuez en simulation.</p>}
-          {!ble.connected && <div onClick={ble.connect} style={{ ...BTN, marginBottom: 12 }} data-testid="ble-connect-btn">{ble.connecting ? 'Recherche...' : 'Connecter le coussin'}</div>}
+          <h2 style={{ fontSize: 20, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>{ble.connected ? `${ble.deviceName} ${t('dorsi_connected')}` : t('dorsi_connect')}</h2>
+          {!ble.connected && <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 16px' }}>{t('dorsi_continue_without')}.</p>}
+          {!ble.connected && <div onClick={ble.connect} style={{ ...BTN, marginBottom: 12 }} data-testid="ble-connect-btn">{ble.connecting ? '...' : t('dorsi_connect_cushion')}</div>}
           {ble.connected && <div style={{ fontSize: 13, color: '#10B981', marginBottom: 16 }}>Batterie {ble.battery}%</div>}
         </div>
         <div onClick={() => setStep(2)} style={{ ...BTN, background: ble.connected ? '#FFF' : 'rgba(255,255,255,0.15)', color: ble.connected ? '#1a1a2e' : '#FFF' } as any} data-testid="skip-ble-btn">
-          {ble.connected ? 'Continuer' : 'Continuer sans coussin'}
+          {ble.connected ? t('dorsi_continue') : t('dorsi_continue_without')}
         </div>
       </div>
     );
@@ -228,13 +231,13 @@ export default function DorsiBilanPage() {
       <div style={{ textAlign: 'center', maxWidth: 400, margin: '0 auto' } as any}>
         <div style={{ ...G, marginBottom: 20 } as any}>
           <i className="ri-compass-3-line" style={{ fontSize: 40, color: '#FFF', display: 'block', marginBottom: 16 }} />
-          <h2 style={{ fontSize: 20, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>Calibration</h2>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 20px' }}>Restez immobile, dos droit. Le capteur se calibre.</p>
+          <h2 style={{ fontSize: 20, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>{t('dorsi_calibration')}</h2>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 20px' }}>{t('dorsi_calibration_desc')}</p>
           <div style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.3)', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'pulseRing 2s ease-out infinite', position: 'relative' } as any}>
             <i className="ri-check-line" style={{ fontSize: 32, color: '#FFF' }} />
           </div>
         </div>
-        <div onClick={() => { ble.tare(); setStep(3); }} style={BTN} data-testid="tare-done-btn">Tarage OK — Continuer</div>
+        <div onClick={() => { ble.tare(); setStep(3); }} style={BTN} data-testid="tare-done-btn">{t('dorsi_calibration_done')}</div>
       </div>
     );
 
@@ -244,7 +247,7 @@ export default function DorsiBilanPage() {
       const dir = DIRS[dirIdx];
       return (
         <div style={{ textAlign: 'center', maxWidth: 400, margin: '0 auto' } as any}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 6 }}>Direction {dirIdx + 1}/4</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 6 }}>{t('dorsi_direction')} {dirIdx + 1}/4</div>
           <h2 style={{ fontSize: 22, fontWeight: 900, color: '#FFF', margin: '0 0 4px' }}>{dir.label}</h2>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: '0 0 20px' }}>{dir.desc}</p>
 
@@ -253,10 +256,10 @@ export default function DorsiBilanPage() {
               <MeasureGauge direction={dir} onComplete={(v) => handleMeasured(dir.key, v)} />
             ) : (
               <>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#10B981', marginBottom: 8 }}>Mobilite: {data[dir.key]?.mobility}%</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#10B981', marginBottom: 8 }}>{t('dorsi_mobility')}: {data[dir.key]?.mobility}%</div>
                 <PainSlider value={currentPain} onChange={setCurrentPain} />
                 <div onClick={confirmPainAndNext} style={{ ...BTN, marginTop: 16, width: '100%' } as any} data-testid={`confirm-${dir.key}`}>
-                  {saving ? 'Analyse...' : dirIdx < 3 ? 'Direction suivante' : 'Voir les resultats'}
+                  {saving ? '...' : dirIdx < 3 ? t('dorsi_next_direction') : t('dorsi_see_results')}
                 </div>
               </>
             )}
@@ -270,7 +273,7 @@ export default function DorsiBilanPage() {
       const bilanForChart = bilanResult ? [{ measurements: data, created_at: bilanResult.created_at }, ...allBilans.filter(b => b.id !== bilanResult.id).slice(0, 3)] : allBilans.slice(0, 4);
       return (
         <div style={{ maxWidth: 440, margin: '0 auto', textAlign: 'center' } as any}>
-          <h2 style={{ fontSize: 24, fontWeight: 900, color: '#FFF', margin: '0 0 6px' }}>Resultats</h2>
+          <h2 style={{ fontSize: 24, fontWeight: 900, color: '#FFF', margin: '0 0 6px' }}>{t('dorsi_results')}</h2>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 20px' }}>
             {allBilans.length > 1 ? `${allBilans.length} bilans superposes — Comparez votre evolution` : 'Diagramme de mobilite et douleur'}
           </p>
@@ -299,8 +302,8 @@ export default function DorsiBilanPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' } as any}>
-            <div onClick={createProgram} style={BTN} data-testid="create-program-btn">Generer un programme</div>
-            <div onClick={() => router.push('/dorsi-program' as any)} style={{ ...BTN, background: 'rgba(255,255,255,0.15)', color: '#FFF' } as any} data-testid="play-games-btn">Jouer</div>
+            <div onClick={createProgram} style={BTN} data-testid="create-program-btn">{t('dorsi_generate_program')}</div>
+            <div onClick={() => router.push('/dorsi-program' as any)} style={{ ...BTN, background: 'rgba(255,255,255,0.15)', color: '#FFF' } as any} data-testid="play-games-btn">{t('dorsi_play')}</div>
           </div>
 
           {allBilans.length > 0 && (
@@ -324,7 +327,7 @@ export default function DorsiBilanPage() {
             <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
           </div>
           <div style={{ flex: 1 } as any}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Bilan Dorsi</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{t('dorsi_bilan')} Dorsi</div>
           </div>
         </div>
         <Stepper current={step} total={totalSteps} />
