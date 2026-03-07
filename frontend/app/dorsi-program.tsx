@@ -457,6 +457,7 @@ export default function DorsiProgramPage() {
   const [activeGame, setActiveGame] = useState<{ day: number; session: number; game: any; difficulty: number } | null>(null);
   const [view, setView] = useState<'calendar' | 'game'>('calendar');
   const [freePlay, setFreePlay] = useState(false);
+  const [scoreHistory, setScoreHistory] = useState<any[]>([]);
 
   const fetchProgram = useCallback(async () => {
     try {
@@ -467,6 +468,9 @@ export default function DorsiProgramPage() {
   }, [token]);
 
   useEffect(() => { fetchProgram(); }, [fetchProgram]);
+
+  // Fetch score history
+  useEffect(() => { if (token) apiFetch('/api/dorsi/score-history', {}, token).then(setScoreHistory).catch(() => {}); }, [token]);
 
   const startSession = (day: any, session: any) => {
     router.push({ pathname: '/dorsi-game', params: { gameId: session.game.game_id, programId: program?.id, day: String(day.day_num), session: String(session.session_num) } } as any);
@@ -587,6 +591,39 @@ export default function DorsiProgramPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Score History */}
+            {scoreHistory.length > 0 && (
+              <div style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>Meilleurs scores</div>
+                  <i className="ri-trophy-line" style={{ fontSize: 18, color: '#F59E0B' }} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
+                  {scoreHistory.slice(0, 6).map((h: any) => (
+                    <div key={h.game_id} onClick={() => startFreeGame(h.game_id)} style={{ padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                      <div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>{h.name}</div>
+                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{h.scores.length} parties</div>
+                      </div>
+                      <div style={{ fontSize: 16, fontWeight: 900, color: '#F59E0B' }}>{h.best}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Bilan reminder */}
+            <div onClick={() => router.push('/dorsi-bilan' as any)} style={{ ...GLASS, padding: 16, marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <i className="ri-bar-chart-box-line" style={{ fontSize: 22, color: '#FFF' }} />
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Faire un bilan</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Evaluez votre mobilite et comparez avec les precedents</div>
+              </div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
             </div>
 
             {/* Program progress */}
