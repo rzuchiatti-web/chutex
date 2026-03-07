@@ -1,17 +1,15 @@
 import React from 'react';
 import { GI, INPUT_STYLE, RegisterForm, UpdateFn } from './RegisterUI';
 import { CountryPicker } from '../GlassPickers';
-import { useI18n } from '../../context/I18nContext';
 
 export default function BeneficiaryInfoStep({ form, u }: { form: RegisterForm; u: UpdateFn }) {
-  const { t } = useI18n();
   return (
     <>
-      <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>{t('step_info')}</div>
-      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>{t('personal_info_sub')}</div>
+      <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Informations personnelles</div>
+      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>Pour personnaliser votre suivi sante</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
-        <GI label={t('first_name')} placeholder="Jean" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
-        <GI label={t('last_name')} placeholder="Dupont" value={form.name} onChange={(e: any) => u('name', e.target.value)} />
+        <GI label="Prenom" placeholder="Jean" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
+        <GI label="Nom" placeholder="Dupont" value={form.name} onChange={(e: any) => u('name', e.target.value)} />
       </div>
       <div style={{ marginBottom: 14 } as any}>
         <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Date de naissance</div>

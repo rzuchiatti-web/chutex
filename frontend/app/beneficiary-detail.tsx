@@ -6,7 +6,6 @@ import { useGlobalSearchParams, useLocalSearchParams, useRouter } from 'expo-rou
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
-import { useI18n } from '../src/context/I18nContext';
 
 const BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
 const IMG_BRACELET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg';
@@ -15,7 +14,6 @@ const IMG_VEST = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-46
 
 export default function BeneficiaryDetailScreen() {
   const localParams = useLocalSearchParams<{ beneficiaryId: string | string[] }>();
-  const { t } = useI18n();
   const globalParams = useGlobalSearchParams<{ beneficiaryId?: string | string[] }>();
   const webBeneficiaryId = (() => {
     try {

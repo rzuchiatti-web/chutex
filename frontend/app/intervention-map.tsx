@@ -5,7 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
-import { useI18n } from '../src/context/I18nContext';
 
 const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
@@ -16,7 +15,6 @@ const TILES = {
 
 export default function InterventionMapScreen() {
   const { interventionId, alertId } = useLocalSearchParams<{ interventionId?: string; alertId?: string }>();
-  const { t } = useI18n();
   const { token, user } = useAuth();
   const router = useRouter();
   const [iv, setIv] = useState<any>(null);

@@ -9,7 +9,6 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
-import { useI18n } from '../src/context/I18nContext';
 
 const confirmAction = (title: string, message: string, onConfirm: () => void) => {
   if (Platform.OS === 'web') {
@@ -24,7 +23,6 @@ const confirmAction = (title: string, message: string, onConfirm: () => void) =>
 
 export default function BackofficeScreen() {
   const { colors: themeColors } = useTheme();
-  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState<any>(null);

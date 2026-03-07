@@ -1,17 +1,15 @@
 import React from 'react';
 import { GI, RegisterForm, UpdateFn, AcceptTerms, HowFoundGrid } from './RegisterUI';
 import { CountryPicker } from '../GlassPickers';
-import { useI18n } from '../../context/I18nContext';
 
 export default function GuardianInfoStep({ form, u }: { form: RegisterForm; u: UpdateFn }) {
-  const { t } = useI18n();
   return (
     <>
-      <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>{t('step_info')}</div>
+      <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Vos informations</div>
       <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Pour personnaliser votre espace gardien</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
-        <GI label={t('first_name')} placeholder="Claire" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
-        <GI label={t('last_name')} placeholder="Martin" value={form.name} onChange={(e: any) => u('name', e.target.value)} />
+        <GI label="Prenom" placeholder="Claire" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
+        <GI label="Nom" placeholder="Martin" value={form.name} onChange={(e: any) => u('name', e.target.value)} />
       </div>
       <GI label="Adresse" placeholder="12 rue de la Paix" value={form.address} onChange={(e: any) => u('address', e.target.value)} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>

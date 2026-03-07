@@ -24,56 +24,6 @@ import { apiFetch } from '../../src/services/api';
 import { requestNotificationPermission, startReminderChecker, notifyAlert } from '../../src/services/notifications';
 import { SubscriptionBanner, SubscriptionGate } from '../../src/components/SubscriptionGate';
 
-/* ── Dorsi Dashboard Card ── */
-function DorsiDashCard({ token }: { token: string | null }) {
-  const router = useRouter();
-  const [data, setData] = useState<any>(null);
-  useEffect(() => {
-    if (token) apiFetch('/api/dorsi/dashboard', {}, token).then(setData).catch(() => {});
-  }, [token]);
-  if (!data || (!data.has_program && data.bilan_count === 0)) return null;
-  const hasBilan = data.bilan_count > 0;
-  return (
-    <div data-testid="dorsi-dashboard-card" style={{ margin: '0 0 16px', padding: '18px 20px', borderRadius: 20, background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.15)' } as any}>
-      <div onClick={() => router.push('/dorsi-program' as any)} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' } as any}>
-        <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(249,115,22,0.15)', border: '1px solid rgba(249,115,22,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-          <i className="ri-body-scan-line" style={{ fontSize: 22, color: '#F97316' }} />
-        </div>
-        <div style={{ flex: 1 } as any}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Programme Dorsi</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
-            {data.has_program ? `Jour ${data.current_day}/10 — ${data.progress_pct}% complete` : hasBilan ? `${data.bilan_count} bilan(s) realise(s)` : 'Commencer'}
-          </div>
-        </div>
-        {data.has_program && (
-          <div style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(249,115,22,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-            <span style={{ fontSize: 12, fontWeight: 900, color: '#F97316' }}>{data.progress_pct}%</span>
-          </div>
-        )}
-      </div>
-      {data.has_program && (
-        <div style={{ marginTop: 10, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-          <div style={{ height: '100%', borderRadius: 3, width: `${Math.max(2, data.progress_pct)}%`, background: 'linear-gradient(90deg, #F97316, #F59E0B)' } as any} />
-        </div>
-      )}
-      {/* Quick action buttons when bilan exists */}
-      {hasBilan && (
-        <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
-          <div data-testid="dorsi-dash-games" onClick={() => router.push('/dorsi-program' as any)} style={{ flex: 1, padding: '10px 12px', borderRadius: 14, background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-            <i className="ri-gamepad-line" style={{ fontSize: 16, color: '#F97316' }} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#F97316' }}>Mini-jeux</span>
-          </div>
-          <div data-testid="dorsi-dash-bilan" onClick={() => router.push('/dorsi-bilan' as any)} style={{ flex: 1, padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-            <i className="ri-bar-chart-box-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Nouveau bilan</span>
-          </div>
-        </div>
-      )}
-      {data.needs_new_bilan && <div style={{ marginTop: 8, fontSize: 11, fontWeight: 600, color: '#F97316' }}>Nouveau bilan recommande</div>}
-    </div>
-  );
-}
-
 /* ═══════════════════════════════════════════════════════ */
 /*                    BENEFICIARY HOME                     */
 /* ═══════════════════════════════════════════════════════ */
@@ -283,19 +233,16 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const handleSOS = async () => {
     setSosLoading(true);
     try {
-      // Get geolocation if available (non-blocking)
+      // Get geolocation if available
       let lat = null, lng = null;
       try {
         if (typeof navigator !== 'undefined' && navigator.geolocation) {
-          const pos: any = await Promise.race([
-            new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000 })),
-            new Promise((_, reject) => setTimeout(() => reject('timeout'), 3000))
-          ]);
-          lat = pos.coords?.latitude;
-          lng = pos.coords?.longitude;
+          const pos: any = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 }));
+          lat = pos.coords.latitude;
+          lng = pos.coords.longitude;
         }
       } catch {}
-      await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'sos', message: 'Bouton SOS active depuis l\'application', device_type: 'app', latitude: lat, longitude: lng }) }, token);
+      await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'manual_app', message: 'Bouton SOS active depuis l\'application', device_type: 'app', latitude: lat, longitude: lng }) }, token);
       notifyAlert('sos', 'SOS envoye ! Vos gardiens ont ete alertes.');
       Alert.alert('Alerte envoyee', 'Nous avons bien recu votre alerte.\n\n1. Vos gardiens sont notifies par SMS et push\n2. Votre position est transmise\n3. Un intervenant sera envoye si besoin');
       fetchData();
@@ -538,9 +485,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
 
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
-
-          {/* ── DORSI PROGRAMME CARD ── */}
-          <DorsiDashCard token={token} />
 
           {/* Les alertes sont affichées en haut du dashboard */}
 

@@ -57,7 +57,7 @@ export default function ChatIAScreen() {
     setMessages(prev => [...prev, { id: 'temp-' + Date.now(), role: 'user', content: msg, created_at: new Date().toISOString() }]);
     setSending(true);
     try {
-      const res = await apiFetch('/api/chat/message', { method: 'POST', body: JSON.stringify({ message: msg, session_id: `chat-${user?.id}-${role}`, lang }) }, token);
+      const res = await apiFetch('/api/chat/message', { method: 'POST', body: JSON.stringify({ message: msg, session_id: `chat-${user?.id}-${role}` }) }, token);
       setMessages(prev => [...prev.filter(m => !m.id?.startsWith('temp-')), { id: 'u-' + Date.now(), role: 'user', content: msg, created_at: new Date().toISOString() }, { id: res.id, role: 'assistant', content: res.content, created_at: res.created_at }]);
       setTypingId(res.id);
     } catch {
@@ -68,7 +68,7 @@ export default function ChatIAScreen() {
   if (Platform.OS !== 'web') return <NativePageView path="/chat-ia" />;
 
   const hasMessages = messages.length > 0;
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const firstName = user?.name?.split(' ')[0] || '';
   const VIDEO_BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/ufilgqml_banner_mobile_chat_ia_bakcground.mp4';
 

@@ -5,7 +5,6 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import NativePageView from '../src/components/NativePageView';
-import { useI18n } from '../src/context/I18nContext';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 
@@ -45,7 +44,6 @@ function ECGWaveform({ data, color = '#EF4444', w = 360, h = 120 }: { data?: num
 
 export default function ECGDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [ecg, setEcg] = useState<any>(null);

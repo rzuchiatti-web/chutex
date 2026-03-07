@@ -6,13 +6,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
-import { useI18n } from '../src/context/I18nContext';
 
 const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
 
 export default function SubscriberDetailScreen() {
   const { subscriberId } = useLocalSearchParams<{ subscriberId: string }>();
-  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<any>(null);

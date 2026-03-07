@@ -10,7 +10,6 @@ import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
 import { isBleAvailable, getBleManager, bytesToBase64, base64ToBytes } from '../src/services/ble';
-import { useI18n } from '../src/context/I18nContext';
 
 // BLE UUIDs extracted from J-Style 2208A SDK APK
 const BLE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
@@ -49,7 +48,6 @@ function parseResponse(data: DataView) {
 
 export default function BraceletConnectScreen() {
   const { colors: themeColors } = useTheme();
-  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [bleStatus, setBleStatus] = useState<'idle'|'scanning'|'connecting'|'connected'>('idle');

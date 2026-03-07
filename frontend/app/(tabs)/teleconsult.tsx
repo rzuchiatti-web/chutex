@@ -5,7 +5,6 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
-import { useI18n } from '../../src/context/I18nContext';
 
 const confirmAction = (title: string, message: string, onConfirm: () => void) => {
   if (Platform.OS === 'web') {
@@ -38,7 +37,6 @@ const getCleanLabel = (alertType: string, message?: string) => {
 const BG_BLUE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
 
 function BeneficiaryTeleconsult({ token }: { token: string }) {
-  const { t } = useI18n();
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<any>({});
   const [step, setStep] = useState(0);
@@ -204,7 +202,6 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
 
 /* ===== TELEASSISTANCE: CARE WATCH DASHBOARD ===== */
 function TeleassistanceDashboard({ token }: { token: string }) {
-  const { t } = useI18n();
   const router = useRouter();
   const [incidents, setIncidents] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
@@ -438,7 +435,6 @@ function TeleassistanceDashboard({ token }: { token: string }) {
 
 /* ===== GUARDIAN: INTERVENTIONS ===== */
 function GuardianInterventions({ token, user }: { token: string; user: any }) {
-  const { t } = useI18n();
   const router = useRouter();
   const { refreshUser } = useAuth();
   const [ivs, setIvs] = useState<any[]>([]);
@@ -497,7 +493,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
     } catch {}
   };
 
-  const statusLabel = (st: string) => ({ pending_acceptance: t('pending'), in_progress: t('in_progress'), en_route: t('en_route'), completed: t('completed'), dispatched: t('dispatched') }[st] || st);
+  const statusLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
   const statusColor = (st: string) => ({ pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' }[st] || '#888');
 
   const activeIvs = ivs.filter(iv => ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status));

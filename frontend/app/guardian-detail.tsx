@@ -6,14 +6,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
-import { useI18n } from '../src/context/I18nContext';
 
 const BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
 const G: any = { borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 
 export default function GuardianDetailScreen() {
   const { guardianId } = useLocalSearchParams<{ guardianId: string }>();
-  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [guardian, setGuardian] = useState<any>(null);

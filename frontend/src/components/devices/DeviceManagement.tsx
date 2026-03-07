@@ -9,14 +9,12 @@ import { useDeviceData } from '../../hooks/useDeviceData';
 import { useBleConnection } from '../../hooks/useBleConnection';
 import { BG_BLACK, ALL_DEVICE_TYPES, DEVICE_META } from './constants';
 import { DeviceCard } from './DeviceCard';
-import { useI18n } from '../../context/I18nContext';
 import { PairingStepsPopup, BleScanningPopup, BleConnectedPopup, BleErrorPopup } from './PairingOverlays';
 import { DeviceDetailPopup } from './DeviceDetailPopup';
 import { NoSubscriptionPopup } from './NoSubscriptionPopup';
 
 export function DeviceManagement({ token }: { token: string }) {
   const router = useRouter();
-  const { t } = useI18n();
   const { deviceMap, loading, subscription, weighings, dashData, removing, fetchDevices, removeDevice } = useDeviceData(token);
   const ble = useBleConnection(token, fetchDevices);
 
@@ -56,8 +54,8 @@ export function DeviceManagement({ token }: { token: string }) {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
           <div style={{ padding: '28px 0 16px', textAlign: 'center' } as any}>
-            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{t('dev_title')}</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{t('dev_subtitle')}</div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Dispositifs connectes</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Gerez vos dispositifs de sante Chutex</div>
           </div>
 
           {ALL_DEVICE_TYPES.map(dt => (

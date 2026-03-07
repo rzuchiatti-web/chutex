@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useI18n } from '../../context/I18nContext';
 
 const VIDEO = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/ufilgqml_banner_mobile_chat_ia_bakcground.mp4';
 

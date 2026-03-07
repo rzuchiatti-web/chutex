@@ -6,7 +6,6 @@ import FullScreenLoader from '../FullScreenLoader';
 import { Card, HeroCard, QuickAction, SectionHeader, LanguageFlagButton } from './SharedUI';
 import { Icon } from '../WebIcon';
 import { BG_IMAGES } from './constants';
-import { useI18n } from '../../context/I18nContext';
 
 export default function CompanyHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();

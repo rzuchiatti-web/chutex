@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LanguagePicker from '../src/components/LanguagePicker';
 import NativePageView from '../src/components/NativePageView';
-import { useI18n } from '../src/context/I18nContext';
 
 const LOGO = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
 
@@ -18,7 +17,9 @@ function Typewriter({ text, speed = 30, delay = 300, color = '#FFF' }: any) {
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { lang, setLang } = useI18n();
+  const [lang, setLang] = useState('fr');
+
+  useEffect(() => { AsyncStorage.getItem('chutex_lang').then(v => { if (v) setLang(v); }).catch(() => {}); }, []);
 
   const finish = async () => { await AsyncStorage.setItem('chutex_onboarding_done', 'true'); router.replace('/'); };
 

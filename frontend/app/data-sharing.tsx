@@ -8,7 +8,6 @@ import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
 import { useRouter } from 'expo-router';
-import { useI18n } from '../src/context/I18nContext';
 
 const SHARING_ITEMS = [
   { key: 'share_heart_rate', label: 'Fréquence cardiaque', icon: 'heart-outline' },
@@ -25,7 +24,6 @@ const SHARING_ITEMS = [
 
 export default function DataSharingScreen() {
   const { colors: themeColors } = useTheme();
-  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [prefs, setPrefs] = useState<any>({});

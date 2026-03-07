@@ -7,7 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
-import { useI18n } from '../src/context/I18nContext';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 2px 16px rgba(0,0,0,0.06)' } : {};
 const GlassCard = ({ children, style }: any) => (
@@ -95,7 +94,6 @@ const RelationshipPicker = ({ value, onChange, relationships, label }: any) => {
 
 export default function LinkScreen() {
   const { user, token } = useAuth();
-  const { t } = useI18n();
   const router = useRouter();
   const isBeneficiary = user?.role === 'beneficiary' || user?.active_role === 'beneficiary';
 

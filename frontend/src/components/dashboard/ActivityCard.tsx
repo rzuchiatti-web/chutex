@@ -1,6 +1,5 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
-import { useI18n } from '../../context/I18nContext';
 
 interface ActivityCardProps {
   steps: number;

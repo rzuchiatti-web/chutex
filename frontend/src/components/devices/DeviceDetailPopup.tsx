@@ -2,7 +2,6 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import { GlassOverlay } from './GlassOverlay';
 import { DEVICE_META } from './constants';
-import { useI18n } from '../../context/I18nContext';
 
 interface DeviceDetailPopupProps {
   deviceType: string;

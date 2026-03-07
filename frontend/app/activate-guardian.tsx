@@ -8,7 +8,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
-import { useI18n } from '../src/context/I18nContext';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 const GlassCard = ({ children, style }: any) => (
@@ -24,7 +23,6 @@ const WebInput = ({ label, val, onChange, placeholder, type }: any) => Platform.
 
 export default function ActivateGuardianScreen() {
   const { colors, isDark } = useTheme();
-  const { t } = useI18n();
   const { token, user, refreshUser } = useAuth();
   const router = useRouter();
   const [guardianType, setGuardianType] = useState(user?.guardian_type || 'particular');

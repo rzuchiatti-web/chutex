@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Platform } from 'react-native';
-import { useI18n } from '../../context/I18nContext';
 
 const PREFIXES = [
   { code: '+33', flag: '\u{1F1EB}\u{1F1F7}', country: 'France' },

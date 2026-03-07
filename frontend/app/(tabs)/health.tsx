@@ -15,7 +15,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
-import { useI18n } from '../../src/context/I18nContext';
 import { apiFetch } from '../../src/services/api';
 import FullScreenLoader from '../../src/components/FullScreenLoader';
 import CompanyAgencyScreen from '../company-agency';
@@ -31,7 +30,6 @@ export default function HealthScreen() {
   const { token, user } = useAuth();
   const { colors } = useTheme();
   const router = useRouter();
-  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [vitals, setVitals] = useState<any>(null);
   const [dashData, setDashData] = useState<any>(null);
@@ -44,7 +42,6 @@ export default function HealthScreen() {
   const [healthProgData, setHealthProgData] = useState<any>(null);
   const [healthProgCatalog, setHealthProgCatalog] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [noraRecs, setNoraRecs] = useState<any>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -62,8 +59,6 @@ export default function HealthScreen() {
   const fetchReport = useCallback(async () => { try { setReport(await apiFetch('/api/health/daily-report', {}, token)); } catch {} finally { setReportLoading(false); } }, [token]);
 
   useEffect(() => { fetchData(); fetchDashData(); fetchReport(); }, [fetchData, fetchDashData, fetchReport]);
-  // Fetch Nora morning briefing recommendations
-  useEffect(() => { if (token) apiFetch('/api/nora/morning-briefing', {}, token).then(setNoraRecs).catch(() => {}); }, [token]);
   useEffect(() => {
     Promise.all([
       apiFetch('/api/programs/active', {}, token).catch(() => null),
@@ -118,7 +113,7 @@ export default function HealthScreen() {
           <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px', textAlign: 'center', overflowY: 'auto', WebkitOverflowScrolling: 'touch', paddingTop: 'env(safe-area-inset-top, 60px)', paddingBottom: 100 } as any}>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>{noDataAi?.hero_line || t('no_health_data')}</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>{noDataAi?.hero_line || 'Aucune donnee de sante'}</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 320, marginBottom: 20 }}>{noDataAi?.priority || 'Connectez vos dispositifs pour commencer a suivre votre sante et recevoir des analyses personnalisees de Nora.'}</div>
 
             {/* Nora recommendations */}
@@ -168,26 +163,6 @@ export default function HealthScreen() {
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
-          {/* Nora Morning Briefing Recommendations */}
-          {noraRecs && (noraRecs.recommendations || noraRecs.summary) && (
-            <div data-testid="nora-health-recs" style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)', marginBottom: 16, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
-                <div style={{ width: 28, height: 28, borderRadius: 10, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-robot-2-line" style={{ fontSize: 14, color: '#A78BFA' }} /></div>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#A78BFA' }}>Nora</span>
-              </div>
-              {noraRecs.summary && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginBottom: noraRecs.recommendations?.length ? 10 : 0 }}>{noraRecs.summary}</div>}
-              {noraRecs.recommendations?.map((rec: any, i: number) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderTop: '1px solid rgba(255,255,255,0.06)' } as any}>
-                  <i className={rec.icon || 'ri-arrow-right-circle-line'} style={{ fontSize: 14, color: rec.color || '#A78BFA', marginTop: 2, flexShrink: 0 }} />
-                  <div>
-                    {rec.title && <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>{rec.title}</div>}
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{rec.text || rec}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
           {/* 2. Daily Objectives (no program here — moved to Programmes tab) */}
 
           {/* 3. Daily Objectives — no card wrapper */}
@@ -218,7 +193,7 @@ export default function HealthScreen() {
                 val: d.heart_rate > 0 ? d.heart_rate : '--',
                 unit: 'bpm',
                 label: 'Rythme cardiaque',
-                status: d.heart_rate > 0 ? t('recent_measure') : t('no_data'),
+                status: d.heart_rate > 0 ? 'Mesure recente' : 'Aucune donnee',
                 icon: 'ri-heart-pulse-line',
                 color: '#EF4444',
                 key: 'heart_rate',
@@ -227,7 +202,7 @@ export default function HealthScreen() {
                 val: d.spo2 > 0 ? `${d.spo2}` : '--',
                 unit: '%',
                 label: 'Saturation O2',
-                status: d.spo2 > 0 ? t('recent_measure') : t('no_data'),
+                status: d.spo2 > 0 ? 'Mesure recente' : 'Aucune donnee',
                 icon: 'ri-drop-line',
                 color: '#6366F1',
                 key: 'spo2',
@@ -238,7 +213,7 @@ export default function HealthScreen() {
                   : '--/--',
                 unit: 'mmHg',
                 label: 'Pression arterielle',
-                status: d.blood_pressure?.systolic > 0 ? t('recent_measure') : t('no_data'),
+                status: d.blood_pressure?.systolic > 0 ? 'Mesure recente' : 'Aucune donnee',
                 icon: 'ri-water-flash-line',
                 color: '#8B5CF6',
                 key: 'blood_pressure',
@@ -247,7 +222,7 @@ export default function HealthScreen() {
                 val: d.temperature > 0 ? `${d.temperature}` : '--',
                 unit: '°C',
                 label: 'Temperature',
-                status: d.temperature > 0 ? t('recent_measure') : t('no_data'),
+                status: d.temperature > 0 ? 'Mesure recente' : 'Aucune donnee',
                 icon: 'ri-temp-hot-line',
                 color: '#F59E0B',
                 key: 'temperature',

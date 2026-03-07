@@ -1,6 +1,5 @@
 import React from 'react';
 import { Table, Badge } from './AdminUI';
-import { useI18n } from '../../context/I18nContext';
 
 export default function AlertsTab({ alerts, active, ivs, mob }: any) {
   return (

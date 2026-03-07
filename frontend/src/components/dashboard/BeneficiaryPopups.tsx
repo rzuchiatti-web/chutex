@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import { apiFetch } from '../../services/api';
 import { REMINDER_IMAGES } from './constants';
 import { PhoneInputWithPrefix } from '../PhoneInputWithPrefix';
-import { useI18n } from '../../context/I18nContext';
 
 /* ─── NOTIFICATIONS POPUP ─── */
 export function NotificationsPopup({ show, onClose, activeAlerts, guardianRequests, token, onRefresh }: any) {

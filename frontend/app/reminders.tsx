@@ -8,7 +8,6 @@ import { useAuth } from '../src/context/AuthContext';
 import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter } from 'expo-router';
-import { useI18n } from '../src/context/I18nContext';
 
 const REMINDER_IMAGES: Record<string, string> = {
   hydration: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/7s8stuxi_hydratation.png',
@@ -49,7 +48,6 @@ function getTimeRemaining(reminders: any[]): string {
 
 export default function RemindersScreen() {
   const { colors } = useTheme();
-  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [reminders, setReminders] = useState<any[]>([]);

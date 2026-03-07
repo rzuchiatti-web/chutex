@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
-import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
 import Loader from '../src/components/Loader';

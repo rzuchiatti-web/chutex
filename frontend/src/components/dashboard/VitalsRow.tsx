@@ -1,12 +1,10 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
-import { useI18n } from '../../context/I18nContext';
 
 interface Props { br: any; }
 
 export default function VitalsRow({ br }: Props) {
   const router = useRouter();
-  const { t } = useI18n();
 
   const hasData = br.heart_rate > 0 || br.spo2 > 0;
   const fmt = (v: any) => (v && v !== 0) ? v : '--';
@@ -20,22 +18,22 @@ export default function VitalsRow({ br }: Props) {
   const vitals = [
     {
       label: 'Rythme cardiaque', icon: 'ri-heart-pulse-line', color: '#EF4444',
-      val: fmt(br.heart_rate), unit: 'bpm', status: hasData ? t('at_rest') : t('not_connected'),
+      val: fmt(br.heart_rate), unit: 'bpm', status: hasData ? 'Au repos' : 'Non connecte',
       route: '/health-detail', params: { metricId: 'heart_rate' },
     },
     {
       label: 'Saturation O2', icon: 'ri-drop-line', color: '#6366F1',
-      val: fmt(br.spo2), unit: '%', status: hasData ? 'Normal' : t('not_connected'),
+      val: fmt(br.spo2), unit: '%', status: hasData ? 'Normal' : 'Non connecte',
       route: '/health-detail', params: { metricId: 'spo2' },
     },
     {
       label: 'Pression arterielle', icon: 'ri-water-flash-line', color: '#8B5CF6',
-      val: fmtBp(), unit: 'mmHg', status: hasData ? 'Stable' : t('not_connected'),
+      val: fmtBp(), unit: 'mmHg', status: hasData ? 'Stable' : 'Non connecte',
       route: '/health-detail', params: { metricId: 'blood_pressure' },
     },
     {
       label: 'Temperature', icon: 'ri-temp-hot-line', color: '#F59E0B',
-      val: fmtTemp(), unit: '°C', status: hasData ? 'OK' : t('not_connected'),
+      val: fmtTemp(), unit: '°C', status: hasData ? 'Normale' : 'Non connecte',
       route: '/health-detail', params: { metricId: 'temperature' },
     },
   ];

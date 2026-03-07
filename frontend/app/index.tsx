@@ -8,7 +8,6 @@ import { apiFetch } from '../src/services/api';
 import { PREFIXES } from '../src/components/register/RegisterUI';
 import { PrefixPicker } from '../src/components/GlassPickers';
 import LanguagePicker from '../src/components/LanguagePicker';
-import { useI18n } from '../src/context/I18nContext';
 
 import NativePageView from '../src/components/NativePageView';
 
@@ -17,7 +16,6 @@ const INPUT = { padding: '13px 16px', borderRadius: 999, background: 'rgba(255,2
 export default function AuthScreen() {
   const { user, loading, login } = useAuth();
   const router = useRouter();
-  const { t, lang, setLang } = useI18n();
   const hasRedirected = useRef(false);
   const phoneRef = useRef('');
   const passwordRef = useRef('');
@@ -27,6 +25,7 @@ export default function AuthScreen() {
   const [phone, setPhone] = useState('');
   const [prefix, setPrefix] = useState('+33');
   const [password, setPassword] = useState('');
+  const [lang, setLang] = useState('fr');
   const [showForgot, setShowForgot] = useState(false);
   const [forgotPhone, setForgotPhone] = useState('');
   const [forgotMsg, setForgotMsg] = useState('');
@@ -54,7 +53,7 @@ export default function AuthScreen() {
   const handleSubmit = async (e?: any) => {
     if (e) e.preventDefault();
     setError('');
-    if (!phone.trim() || !password) return setError(t('phone_required'));
+    if (!phone.trim() || !password) return setError('Telephone et mot de passe requis');
     setSubmitting(true);
     try {
       let id = phone.trim().replace(/\s/g, '');
@@ -114,16 +113,16 @@ export default function AuthScreen() {
               </div>
 
               <button type="submit" disabled={submitting} data-testid="login-form-submit-button" style={{ width: '100%', padding: '15px', borderRadius: 999, background: '#FFF', border: 'none', color: '#111', fontSize: 15, fontWeight: 800, fontFamily: 'inherit', cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.6 : 1 } as any}>
-                {submitting ? t('connecting') : t('connect')}
+                {submitting ? 'Connexion...' : 'Se connecter'}
               </button>
             </form>
 
-            <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); setForgotStep(0); setForgotCode(''); setForgotNewPw(''); }} style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: 'rgba(255,255,255,0.4)', cursor: 'pointer' } as any}>{t('forgot_password')}</div>
+            <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); setForgotStep(0); setForgotCode(''); setForgotNewPw(''); }} style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: 'rgba(255,255,255,0.4)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
 
             <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '24px 0 20px' } as any} />
 
             <div style={{ textAlign: 'center' } as any}>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>{t('no_account')} </span>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>Pas encore de compte ? </span>
               <span data-testid="register-link" onClick={() => router.push('/register' as any)} style={{ fontSize: 13, color: '#FFF', fontWeight: 700, cursor: 'pointer' }}>S'inscrire</span>
             </div>
 

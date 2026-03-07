@@ -5,7 +5,6 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import NativePageView from '../src/components/NativePageView';
-import { useI18n } from '../src/context/I18nContext';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 const G: any = { borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
@@ -108,7 +107,6 @@ function noraText(key: string, m: any, val: any, avg: string, isNormal: boolean,
 
 export default function MetricDetailScreen() {
   const { key } = useLocalSearchParams<{ key: string }>();
-  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<any>(null);

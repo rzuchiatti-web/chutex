@@ -5,7 +5,6 @@ import { apiFetch } from '../src/services/api';
 import { useRouter } from 'expo-router';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import NativePageView from '../src/components/NativePageView';
-import { useI18n } from '../src/context/I18nContext';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 const BRACELET_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg';
@@ -13,7 +12,6 @@ const BRACELET_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab
 export default function ECGScreen() {
   const { token } = useAuth();
   const router = useRouter();
-  const { t } = useI18n();
   const [step, setStep] = useState(0); // 0=prep1, 1=breathing, 2=finger, 3=recording, 4=result
   const [breathCount, setBreathCount] = useState(15);
   const [recordProgress, setRecordProgress] = useState(0);
@@ -69,15 +67,15 @@ export default function ECGScreen() {
         {step === 0 && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
             <img src={BRACELET_IMG} alt="" style={{ width: 140, height: 140, objectFit: 'contain', margin: '0 auto 24px', display: 'block', filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.4))' } as any} />
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{t('ecg_title')}</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Electrocardiogramme</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 28 }}>
-              {t('ecg_prep')}
+              Pour obtenir un resultat precis, nous allons vous preparer en quelques etapes.
             </div>
             <div style={{ ...glassCard, textAlign: 'left', marginBottom: 16 } as any}>
               {[
-                { icon: 'ri-armchair-line', text: t('ecg_sit') },
-                { icon: 'ri-rest-time-line', text: t('ecg_calm') },
-                { icon: 'ri-volume-mute-line', text: t('ecg_silent') },
+                { icon: 'ri-armchair-line', text: 'Asseyez-vous confortablement' },
+                { icon: 'ri-rest-time-line', text: 'Restez calme et detendu' },
+                { icon: 'ri-volume-mute-line', text: 'Evitez de parler pendant la mesure' },
               ].map((s, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(249,115,22,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
@@ -88,7 +86,7 @@ export default function ECGScreen() {
               ))}
             </div>
             <div data-testid="ecg-start-prep" onClick={() => setStep(1)} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFF', textAlign: 'center' } as any}>
-              {t('ecg_ready')}
+              Je suis pret
             </div>
             <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>Annuler</div>
           </div>
@@ -105,7 +103,7 @@ export default function ECGScreen() {
               </svg>
               <div style={{ fontSize: 56, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{breathCount}</div>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>{t('ecg_breathe')}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Respirez doucement</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
               Ne parlez pas et restez immobile.<br/>Inspirez... Expirez...
             </div>
@@ -138,7 +136,7 @@ export default function ECGScreen() {
         {/* Step 3: Recording with live ECG waveform */}
         {step === 3 && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 20 }}>{t('ecg_recording')}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 20 }}>Enregistrement</div>
             {/* White timer ring */}
             <div style={{ width: 140, height: 140, borderRadius: 70, border: '3px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', position: 'relative' } as any}>
               <svg width="140" height="140" style={{ position: 'absolute', top: -1.5, left: -1.5, transform: 'rotate(-90deg)' }}>
@@ -165,7 +163,7 @@ export default function ECGScreen() {
                 })}
               </svg>
             </div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{t('ecg_measuring')}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Mesure en cours...</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
               Gardez votre doigt sur le capteur
             </div>

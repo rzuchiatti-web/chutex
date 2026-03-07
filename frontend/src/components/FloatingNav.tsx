@@ -4,11 +4,9 @@ import { View, TouchableOpacity, Text, Platform } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, usePathname } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
-import { useI18n } from '../context/I18nContext';
 
 export function FloatingNav({ role }: { role?: string }) {
   const { user } = useAuth();
-  const { t } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -22,14 +20,14 @@ export function FloatingNav({ role }: { role?: string }) {
 
   const tabs = isAdmin ? [
     { key: 'index', icon: 'grid-outline', label: 'Dashboard', lib: 'ion' },
-    { key: 'alerts', icon: 'notifications-outline', label: t('alerts'), lib: 'ion' },
-    { key: 'devices', icon: 'document-text-outline', label: t('prescriber_space'), lib: 'ion' },
-    { key: 'teleconsult', icon: 'shield-checkmark-outline', label: t('intervenant_space'), lib: 'ion' },
-    { key: 'profile', icon: 'person-outline', label: t('profile'), lib: 'ion' },
+    { key: 'alerts', icon: 'notifications-outline', label: 'Alertes', lib: 'ion' },
+    { key: 'devices', icon: 'document-text-outline', label: 'Prescripteurs', lib: 'ion' },
+    { key: 'teleconsult', icon: 'shield-checkmark-outline', label: 'Intervenants', lib: 'ion' },
+    { key: 'profile', icon: 'person-outline', label: 'Profil', lib: 'ion' },
   ] : [
-    { key: 'index', icon: 'home-outline', label: t('home'), lib: 'ion' },
-    ...(isBen ? [{ key: 'health', icon: 'heart-pulse', label: t('health'), lib: 'mci' }] : []),
-    { key: 'alerts', icon: 'notifications-outline', label: t('alerts'), lib: 'ion' },
+    { key: 'index', icon: 'home-outline', label: 'Accueil', lib: 'ion' },
+    ...(isBen ? [{ key: 'health', icon: 'heart-pulse', label: 'Sante', lib: 'mci' }] : []),
+    { key: 'alerts', icon: 'notifications-outline', label: 'Alertes', lib: 'ion' },
     {
       key: 'teleconsult',
       icon: isTA ? 'headset-outline' : isG ? 'map-marker-radius-outline' : 'videocam-outline',
@@ -39,10 +37,10 @@ export function FloatingNav({ role }: { role?: string }) {
     {
       key: 'devices',
       icon: isG ? 'document-text-outline' : isTA ? 'people-outline' : 'bluetooth-connect',
-      label: isG ? 'Prescriptions' : isTA ? t('subscription') : t('devices'),
+      label: isG ? 'Prescriptions' : isTA ? 'Abonnes' : 'Appareils',
       lib: isG || isTA ? 'ion' : 'mci',
     },
-    { key: 'profile', icon: 'person-outline', label: t('profile'), lib: 'ion' },
+    { key: 'profile', icon: 'person-outline', label: 'Profil', lib: 'ion' },
   ];
 
   const isActive = (tabKey: string) => {

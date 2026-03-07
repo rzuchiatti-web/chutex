@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, Table, Badge, Pill, SH } from './AdminUI';
 import { apiFetch } from '../../services/api';
-import { useI18n } from '../../context/I18nContext';
 
 export default function SystemTab({ sysSub, setSysSub, actC, ivC, shop, users, alerts, token, load, mob }: any) {
   return (

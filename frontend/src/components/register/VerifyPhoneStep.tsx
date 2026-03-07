@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { INPUT_STYLE } from './RegisterUI';
 import { apiFetch } from '../../services/api';
-import { useI18n } from '../../context/I18nContext';
 
 export default function VerifyPhoneStep({ phone, onVerified }: { phone: string; onVerified: () => void }) {
-  const { t } = useI18n();
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);

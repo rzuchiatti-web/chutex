@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, ROLES, RCOL, SH } from './AdminUI';
 import { apiFetch } from '../../services/api';
-import { useI18n } from '../../context/I18nContext';
 
 export default function DashboardTab({ users, active, subs, ivs, token, load, setRoleFilter, setTab, mob }: any) {
   return (

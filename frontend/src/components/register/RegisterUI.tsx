@@ -1,5 +1,4 @@
 import React from 'react';
-import { useI18n } from '../../context/I18nContext';
 
 export const PREFIXES = [
   { code: '+33', flag: '\u{1F1EB}\u{1F1F7}', label: 'France' },

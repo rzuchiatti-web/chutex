@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useI18n } from '../../context/I18nContext';
 
 const AVATARS_BEN = [
   { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/dbnv0bpj_img1_beneficiaire.png', label: 'SENIOR' },
@@ -32,24 +31,23 @@ function AvatarRow({ items }: { items: any[] }) {
 
 export default function RoleSelection({ onSelect }: { onSelect: (role: string) => void }) {
   const [showHelp, setShowHelp] = useState(false);
-  const { t } = useI18n();
 
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 } as any}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>{t('step_role')}</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Choisissez votre espace</div>
         <div onClick={() => setShowHelp(true)} style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 } as any}>
           <i className="ri-question-line" style={{ fontSize: 13 }} />Comment choisir ?
         </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 } as any}>
         <div data-testid="role-beneficiary" onClick={() => onSelect('beneficiary')} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>{t('im_beneficiary')}</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Beneficiaire</div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous souhaitez utiliser ou porter les dispositifs de sante de Chutex.</div>
           <AvatarRow items={AVATARS_BEN} />
         </div>
         <div data-testid="role-guardian" onClick={() => onSelect('guardian')} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>{t('im_guardian')}</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Gardien</div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous etes un aidant ou professionnel souhaitant accompagner un beneficiaire.</div>
           <AvatarRow items={AVATARS_GUARD} />
         </div>

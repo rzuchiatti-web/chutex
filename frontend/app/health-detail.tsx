@@ -5,7 +5,6 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform }
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
-import { useI18n } from '../src/context/I18nContext';
 
 const SECTIONS: Record<string, { title: string; color: string; img: string; metrics: { key: string; label: string; unit: string; explain: string }[] }> = {
   cardio: {
@@ -73,7 +72,6 @@ const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920
 
 export default function HealthDetailScreen() {
   const { metricId } = useLocalSearchParams<{ metricId: string }>();
-  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [report, setReport] = useState<any>(null);

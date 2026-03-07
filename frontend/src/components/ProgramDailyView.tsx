@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import ReactDOM from 'react-dom';
 import { apiFetch } from '../services/api';
-import { useI18n } from '../../context/I18nContext';
 
 const MOOD = [
   { val: 1, icon: 'ri-emotion-sad-line', label: 'Difficile', color: '#EF4444' },
