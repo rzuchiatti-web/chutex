@@ -7,22 +7,22 @@ import { useDorsiBLE } from '../src/hooks/useDorsiBLE';
 import { useI18n } from '../src/context/I18nContext';
 
 const BG = '#0A0A14';
-const GAMES: Record<string, { name: string; icon: string; color: string; desc: string }> = {
-  moutons: { name: 'Jeu des Moutons', icon: 'ri-ghost-smile-line', color: '#22D3EE', desc: 'Attrapez tous les moutons. Plus vous etes rapide, plus le combo monte !' },
-  bulles: { name: 'Bulles de Savon', icon: 'ri-bubble-chart-line', color: '#A78BFA', desc: 'Eclatez les bulles avant qu\'elles disparaissent.' },
-  proprioception: { name: 'Equilibre', icon: 'ri-focus-3-line', color: '#10B981', desc: 'Restez dans la zone verte le plus longtemps possible.' },
-  serpent: { name: 'Serpent', icon: 'ri-route-line', color: '#F59E0B', desc: 'Mangez les fruits pour grandir !' },
-  labyrinthe: { name: 'Labyrinthe', icon: 'ri-compass-discover-line', color: '#EC4899', desc: 'Trouvez toutes les cibles dans le labyrinthe.' },
-  slalom: { name: 'Slalom', icon: 'ri-flag-line', color: '#06B6D4', desc: 'Passez entre les portes. Plus c\'est rapide, plus ca rapporte !' },
-  etoiles: { name: 'Pluie d\'Etoiles', icon: 'ri-star-line', color: '#F97316', desc: 'Attrapez les etoiles qui tombent du ciel.' },
-  simon: { name: 'Simon', icon: 'ri-flashlight-line', color: '#EF4444', desc: 'Memorisez et reproduisez la sequence.' },
-  cercles: { name: 'Cercles', icon: 'ri-record-circle-line', color: '#8B5CF6', desc: 'Touchez les cercles avant qu\'ils disparaissent.' },
-  course: { name: 'Course', icon: 'ri-run-line', color: '#14B8A6', desc: 'Esquivez les obstacles le plus longtemps possible !' },
-  respiration: { name: 'Respiration', icon: 'ri-lungs-line', color: '#60A5FA', desc: 'Suivez le rythme respiratoire. Gonflez et degonflez le cercle en harmonie.' },
-  pendule: { name: 'Pendule', icon: 'ri-timer-flash-line', color: '#F472B6', desc: 'Arretez le pendule au bon moment pour marquer des points.' },
-  peinture: { name: 'Peinture', icon: 'ri-brush-line', color: '#FBBF24', desc: 'Peignez en inclinant le bassin. Remplissez la toile pour scorer !' },
-  rebond: { name: 'Rebond', icon: 'ri-basketball-line', color: '#FB923C', desc: 'Faites rebondir la balle et cassez les blocs. Ne la laissez pas tomber !' },
-  gravite: { name: 'Gravite', icon: 'ri-planet-line', color: '#818CF8', desc: 'Guidez l\'asteroide a travers le champ de gravite sans toucher les planetes.' },
+const GAMES: Record<string, { name: string; icon: string; color: string; desc: string; objective: string; howto: string[] }> = {
+  moutons: { name: 'Jeu des Moutons', icon: 'ri-ghost-smile-line', color: '#22D3EE', desc: 'Attrapez tous les moutons le plus vite possible !', objective: 'Touchez chaque mouton pour le capturer', howto: ['Deplacez-vous avec les fleches ou le coussin', 'Touchez les moutons (ronds cyan) pour les capturer', 'Les moutons dores valent 3x plus de points', 'Enchainez sans en rater pour monter le combo'] },
+  bulles: { name: 'Bulles de Savon', icon: 'ri-bubble-chart-line', color: '#A78BFA', desc: 'Eclatez les bulles avant qu\'elles disparaissent.', objective: 'Touchez les bulles pour les eclater', howto: ['Les bulles apparaissent aleatoirement', 'Deplacez votre curseur pour les toucher', 'Elles disparaissent si non eclatees a temps', 'Les dorees valent beaucoup plus'] },
+  proprioception: { name: 'Equilibre', icon: 'ri-focus-3-line', color: '#10B981', desc: 'Restez dans la zone verte le plus longtemps possible.', objective: 'Gardez le curseur au centre', howto: ['Le cercle vert central est la zone cible', 'Zone verte = +3 pts, moyenne = +2, externe = +1', 'Restez stable et centre', 'La cle : des mouvements lents et precis'] },
+  serpent: { name: 'Serpent', icon: 'ri-route-line', color: '#F59E0B', desc: 'Mangez les fruits pour grandir !', objective: 'Mangez les fruits jaunes', howto: ['Changez de direction avec les fleches', 'Mangez les fruits pour grandir et scorer', 'Le serpent traverse les bords', 'Chaque fruit = +25 points'] },
+  labyrinthe: { name: 'Labyrinthe', icon: 'ri-compass-discover-line', color: '#EC4899', desc: 'Trouvez toutes les cibles dans le labyrinthe.', objective: 'Atteignez les cibles vertes', howto: ['Deplacez-vous dans le labyrinthe', 'Touchez les cibles vertes', 'Evitez les murs roses', 'Chaque cible = +30 pts'] },
+  slalom: { name: 'Slalom', icon: 'ri-flag-line', color: '#06B6D4', desc: 'Passez entre les portes du slalom.', objective: 'Passez dans les ouvertures', howto: ['Des barrieres descendent du haut', 'Passez dans l\'ouverture entre les murs', 'Deplacez-vous a gauche/droite', 'Chaque porte = +12 points'] },
+  etoiles: { name: 'Pluie d\'Etoiles', icon: 'ri-star-line', color: '#F97316', desc: 'Attrapez les etoiles qui tombent du ciel.', objective: 'Touchez les etoiles avant qu\'elles tombent', howto: ['Des etoiles tombent du haut', 'Deplacez-vous pour les attraper', 'Les dorees valent plus', 'Gardez le combo en n\'en ratant aucune'] },
+  simon: { name: 'Simon', icon: 'ri-flashlight-line', color: '#EF4444', desc: 'Memorisez et reproduisez la sequence.', objective: 'Reproduisez la sequence affichee', howto: ['Nora montre une sequence de directions', 'Les boutons s\'allument un par un', 'Reproduisez dans le meme ordre (fleches ou clic)', 'La sequence s\'allonge a chaque tour reussi'] },
+  cercles: { name: 'Cercles', icon: 'ri-record-circle-line', color: '#8B5CF6', desc: 'Touchez les cercles avant qu\'ils disparaissent.', objective: 'Touchez les cercles qui grandissent', howto: ['Des cercles apparaissent et grandissent', 'Touchez-les avant qu\'ils soient trop grands', 'Plus ils sont petits = plus de points', 'Soyez rapide et precis'] },
+  course: { name: 'Course', icon: 'ri-run-line', color: '#14B8A6', desc: 'Esquivez les obstacles !', objective: 'Survivez le plus longtemps', howto: ['Des obstacles arrivent de la droite', 'Montez/descendez pour les eviter', 'Score automatique en survivant', 'Concentration et reflexes !'] },
+  respiration: { name: 'Respiration', icon: 'ri-lungs-line', color: '#60A5FA', desc: 'Suivez le rythme respiratoire.', objective: 'Synchronisez-vous avec le cercle guide', howto: ['Un cercle pulse au rythme de la respiration', 'Eloignez le curseur quand il grandit (inspirez)', 'Rapprochez-le quand il retrecit (expirez)', 'Plus vous etes synchronise = plus de points'] },
+  pendule: { name: 'Pendule', icon: 'ri-timer-flash-line', color: '#F472B6', desc: 'Arretez le pendule au bon moment.', objective: 'Appuyez sur Espace au centre', howto: ['Un pendule oscille de gauche a droite', 'Appuyez sur Espace quand il passe au centre', 'Timing precis = +25 points', 'Observez le rythme avant d\'appuyer'] },
+  peinture: { name: 'Peinture', icon: 'ri-brush-line', color: '#FBBF24', desc: 'Peignez en bougeant librement.', objective: 'Deplacez-vous pour peindre la toile', howto: ['Votre curseur laisse une trainee coloree', 'Les couleurs changent en arc-en-ciel', 'Plus vous bougez = plus de points', 'Exercice libre de mobilite'] },
+  rebond: { name: 'Rebond', icon: 'ri-basketball-line', color: '#FB923C', desc: 'Cassez les blocs avec la balle.', objective: 'Renvoyez la balle et cassez les blocs', howto: ['Une balle rebondit sur l\'ecran', 'Deplacez la raquette en bas pour la renvoyer', 'Cassez les blocs en haut (+15 pts chacun)', 'Ne laissez pas la balle tomber'] },
+  gravite: { name: 'Gravite', icon: 'ri-planet-line', color: '#818CF8', desc: 'Evitez les planetes dans l\'espace.', objective: 'Esquivez les planetes qui descendent', howto: ['Des planetes avec des anneaux descendent', 'Deplacez-vous pour les eviter', 'Score automatique en survivant', 'Les collisions cassent votre combo'] },
 };
 
 /* ── HUD ── */
@@ -60,15 +60,35 @@ function HUD({ score, timeLeft, combo, bestScore, gameName, gameColor, onBack }:
 /* ── Start/End Screens ── */
 function StartScreen({ meta, bestScore, onStart }: any) {
   return (
-    <div style={{ position: 'absolute', inset: 0, background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 30 } as any}>
-      <div style={{ textAlign: 'center', padding: 32, maxWidth: 380 } as any}>
-        <div style={{ width: 110, height: 110, borderRadius: 32, background: `${meta.color}12`, border: `2px solid ${meta.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 28px', animation: 'float 3s ease-in-out infinite' } as any}>
-          <i className={meta.icon} style={{ fontSize: 52, color: meta.color }} />
+    <div style={{ position: 'absolute', inset: 0, background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 30, overflowY: 'auto' } as any}>
+      <div style={{ textAlign: 'center', padding: '32px 24px', maxWidth: 400 } as any}>
+        <div style={{ width: 90, height: 90, borderRadius: 28, background: `${meta.color}12`, border: `2px solid ${meta.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', animation: 'float 3s ease-in-out infinite' } as any}>
+          <i className={meta.icon} style={{ fontSize: 44, color: meta.color }} />
         </div>
-        <h1 style={{ fontSize: 30, fontWeight: 900, color: '#FFF', margin: '0 0 10px' }}>{meta.name}</h1>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, margin: '0 0 28px' }}>{meta.desc}</p>
-        {bestScore > 0 && <div style={{ fontSize: 13, color: meta.color, marginBottom: 20 }}>Record : <strong>{bestScore}</strong> pts</div>}
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 24 } as any}>
+        <h1 style={{ fontSize: 28, fontWeight: 900, color: '#FFF', margin: '0 0 6px' }}>{meta.name}</h1>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6, margin: '0 0 16px' }}>{meta.desc}</p>
+
+        {/* Objective */}
+        <div style={{ padding: '10px 16px', borderRadius: 14, background: `${meta.color}10`, border: `1px solid ${meta.color}20`, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 } as any}>
+          <i className="ri-crosshair-2-line" style={{ fontSize: 18, color: meta.color, flexShrink: 0 }} />
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{meta.objective}</span>
+        </div>
+
+        {/* How to play */}
+        <div style={{ textAlign: 'left', padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 20 } as any}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Comment jouer</div>
+          {meta.howto.map((step: string, i: number) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+              <div style={{ width: 20, height: 20, borderRadius: 6, background: `${meta.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
+                <span style={{ fontSize: 10, fontWeight: 900, color: meta.color }}>{i + 1}</span>
+              </div>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{step}</span>
+            </div>
+          ))}
+        </div>
+
+        {bestScore > 0 && <div style={{ fontSize: 13, color: meta.color, marginBottom: 16 }}>Record : <strong>{bestScore}</strong> pts</div>}
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20 } as any}>
           {[{ icon: 'ri-timer-line', text: '60s' }, { icon: 'ri-keyboard-box-line', text: 'Fleches / WASD' }].map((b, i) => (
             <div key={i} style={{ padding: '8px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', fontSize: 11, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className={b.icon} style={{ fontSize: 14 }} />{b.text}</div>
           ))}
