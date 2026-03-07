@@ -177,7 +177,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
       {connectedDevices.length === 0 && (
         <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px dashed rgba(255,255,255,0.15)', marginBottom: 12, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
           <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-bluetooth-connect-line" style={{ fontSize: 22, color: '#3B82F6' }} /></div>
-          <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Connecter un appareil</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Bracelet, balance ou gilet</div></div>
+          <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('connect_device')}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{t('connect_device_sub')}</div></div>
           <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.2)' }} />
         </div>
       )}
@@ -190,7 +190,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
                   <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' } as any} />
-                  <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' }}>{d.connected ? (d.id === 'vest' ? 'En marche' : 'Connecte') : (d.id === 'vest' ? 'En veille' : 'Deconnecte')}</span>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' }}>{d.connected ? (d.id === 'vest' ? t('running') : t('connected')) : (d.id === 'vest' ? t('on_standby') : t('disconnected'))}</span>
                 </div>
                 <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: 4, borderRadius: 2, width: `${d.battery}%`, background: batteryGrad(d.battery) } as any} /></div>
               </>
