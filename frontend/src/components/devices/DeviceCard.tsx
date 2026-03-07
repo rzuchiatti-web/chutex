@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
 import { DEVICE_META } from './constants';
+import { useI18n } from '../../context/I18nContext';
 
 interface DeviceCardProps {
   deviceType: string;
@@ -14,6 +15,7 @@ interface DeviceCardProps {
 
 export function DeviceCard({ deviceType: dt, device, subscription, weighings, onStartPairing, onSelectDevice, onScaleWeighing }: DeviceCardProps) {
   const router = useRouter();
+  const { t } = useI18n();
   const meta = DEVICE_META[dt];
   const isAssociated = device && (device.connected || device.battery > 0 || device.last_sync);
   const realBattery = device?.battery || 0;
@@ -23,8 +25,8 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
   const hasWeighings = dt === 'scale' && weighings.length > 0;
 
   const statusLabel = dt === 'vest'
-    ? (vestActive ? 'En marche' : isAssociated ? 'En veille' : '')
-    : (realConnected ? 'Connecte' : isAssociated ? 'Appaire' : '');
+    ? (vestActive ? t('dev_protection_active') : isAssociated ? t('dev_standby') : '')
+    : (realConnected ? t('connected') : isAssociated ? t('connected') : '');
   const statusActive = dt === 'vest' ? vestActive : realConnected;
 
   return (
@@ -46,7 +48,7 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
             {realBattery > 0 && (
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}><i className="ri-battery-line" style={{ fontSize: 14, marginRight: 6 }} />Batterie</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}><i className="ri-battery-line" style={{ fontSize: 14, marginRight: 6 }} />{t('battery')}</span>
                   <span style={{ fontSize: 14, fontWeight: 800, color: realBattery > 50 ? '#10B981' : realBattery > 20 ? '#F59E0B' : '#EF4444' }}>{realBattery}%</span>
                 </div>
                 <div style={{ height: 14, borderRadius: 7, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' } as any}>
@@ -62,17 +64,17 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
               )}
               {dt === 'scale' && (
                 <div data-testid="scale-weigh-btn" onClick={onScaleWeighing} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: `${meta.color}18`, border: `1px solid ${meta.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: meta.color } as any}>
-                  <i className="ri-scales-3-line" style={{ fontSize: 14 }} />Nouvelle pesee
+                  <i className="ri-scales-3-line" style={{ fontSize: 14 }} />{t('dev_new_weighing')}
                 </div>
               )}
               {dt === 'vest' && (
                 <div data-testid="vest-status" style={{ flex: 1, padding: '11px 14px', borderRadius: 999, background: vestActive ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.12)', border: `1px solid ${vestActive ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: vestActive ? '#10B981' : '#F59E0B' } as any}>
-                  <i className={vestActive ? 'ri-shield-check-line' : 'ri-zzz-line'} style={{ fontSize: 14 }} />{vestActive ? 'Protection active' : 'En veille'}
+                  <i className={vestActive ? 'ri-shield-check-line' : 'ri-zzz-line'} style={{ fontSize: 14 }} />{vestActive ? t('dev_protection_active') : t('dev_standby')}
                 </div>
               )}
               {dt === 'dorsi' && (
                 <div data-testid="dorsi-bilan-btn" onClick={() => router.push('/dorsi-bilan' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#F97316' } as any}>
-                  <i className="ri-pulse-line" style={{ fontSize: 14 }} />Bilan lombaire
+                  <i className="ri-pulse-line" style={{ fontSize: 14 }} />{t('dev_bilan')}
                 </div>
               )}
               <div data-testid={`detail-${dt}-btn`} onClick={() => onSelectDevice(dt)} style={{ padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
@@ -83,10 +85,10 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
         ) : (
           <div style={{ display: 'flex', gap: 10 } as any}>
             <div data-testid={`connect-${dt}-btn`} onClick={() => dt === 'scale' ? onScaleWeighing() : onStartPairing(dt)} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: '#FFF', color: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700, opacity: needsSub ? 0.5 : 1 } as any}>
-              <i className={dt === 'scale' ? 'ri-scales-3-line' : 'ri-bluetooth-line'} style={{ fontSize: 16 }} />{dt === 'scale' ? 'Nouvelle pesee' : 'Associer'}
+              <i className={dt === 'scale' ? 'ri-scales-3-line' : 'ri-bluetooth-line'} style={{ fontSize: 16 }} />{dt === 'scale' ? t('dev_new_weighing') : t('dev_associate')}
             </div>
             <div onClick={() => window.open(meta.link, '_blank')} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 600 } as any}>
-              <i className="ri-external-link-line" style={{ fontSize: 14 }} />Decouvrir
+              <i className="ri-external-link-line" style={{ fontSize: 14 }} />{t('dev_discover')}
             </div>
           </div>
         )}
