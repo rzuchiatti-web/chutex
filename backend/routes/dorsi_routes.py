@@ -371,3 +371,83 @@ async def get_dorsi_dashboard(user=Depends(get_current_user)):
         "last_bilan_date": last_bilan["created_at"] if last_bilan else None,
         "needs_new_bilan": needs_new_bilan,
     }
+
+
+@router.get("/dorsi/nora-recommendations")
+async def get_nora_dorsi_recommendations(user=Depends(get_current_user)):
+    """Generate Nora recommendations based on the latest bilan results."""
+    uid = user["id"]
+    last_bilan = await db.dorsi_bilans.find_one(
+        {"user_id": uid}, {"_id": 0}
+    , sort=[("created_at", -1)])
+
+    if not last_bilan:
+        return {"recommendations": [], "summary": ""}
+
+    m = last_bilan.get("measurements", {})
+
+    # Analyze weaknesses
+    recs = []
+    weak_dirs = []
+    pain_dirs = []
+
+    for direction in ["forward", "backward", "left", "right"]:
+        data = m.get(direction, {})
+        mobility = data.get("mobility", 50)
+        pain = data.get("pain", 0)
+
+        dir_labels = {"forward": "avant (anteversion)", "backward": "arriere (retroversion)", "left": "gauche", "right": "droite"}
+        label = dir_labels.get(direction, direction)
+
+        if mobility < 40:
+            weak_dirs.append(label)
+        if pain > 5:
+            pain_dirs.append((label, pain))
+
+    # Game recommendations based on weaknesses
+    game_recs = []
+    if any(d in ["gauche", "droite"] for d in weak_dirs):
+        game_recs.extend([
+            {"game": "slalom", "name": "Slalom Postural", "reason": "Travaille la mobilite laterale", "icon": "ri-flag-line", "color": "#06B6D4"},
+            {"game": "course", "name": "Course d'Obstacles", "reason": "Renforce les reflexes lateraux", "icon": "ri-run-line", "color": "#14B8A6"},
+        ])
+    if any(d in ["avant (anteversion)", "arriere (retroversion)"] for d in weak_dirs):
+        game_recs.extend([
+            {"game": "proprioception", "name": "Equilibre Proprioceptif", "reason": "Ameliore la stabilite antero-posterieure", "icon": "ri-focus-3-line", "color": "#10B981"},
+            {"game": "respiration", "name": "Respiration", "reason": "Renforce le controle du bassin avant/arriere", "icon": "ri-lungs-line", "color": "#60A5FA"},
+        ])
+    if pain_dirs:
+        game_recs.append({"game": "peinture", "name": "Peinture", "reason": "Exercice doux pour les zones douloureuses", "icon": "ri-brush-line", "color": "#FBBF24"})
+        game_recs.append({"game": "respiration", "name": "Respiration", "reason": "Relaxation et gestion de la douleur", "icon": "ri-lungs-line", "color": "#60A5FA"})
+
+    if not game_recs:
+        game_recs = [
+            {"game": "moutons", "name": "Jeu des Moutons", "reason": "Mobilite generale", "icon": "ri-ghost-smile-line", "color": "#22D3EE"},
+            {"game": "bulles", "name": "Bulles de Savon", "reason": "Endurance et amplitude", "icon": "ri-bubble-chart-line", "color": "#A78BFA"},
+        ]
+
+    # Text recommendations
+    if weak_dirs:
+        recs.append(f"Mobilite reduite en direction {', '.join(weak_dirs)}. Concentrez-vous sur les exercices de ces zones.")
+    if pain_dirs:
+        pain_strs = [f"{d} (douleur {p}/10)" for d, p in pain_dirs]
+        recs.append(f"Douleur significative : {', '.join(pain_strs)}. Privilegiez les exercices doux et la respiration.")
+
+    avg_mobility = sum(m.get(d, {}).get("mobility", 50) for d in ["forward", "backward", "left", "right"]) / 4
+    if avg_mobility >= 70:
+        recs.append("Bonne mobilite globale ! Maintenez votre programme et augmentez progressivement la difficulte.")
+    elif avg_mobility >= 40:
+        recs.append("Mobilite moderee. Un entrainement regulier de 2 sessions par jour ameliorera significativement vos resultats.")
+    else:
+        recs.append("Mobilite limitee. Commencez doucement avec des exercices de respiration et d'equilibre avant les jeux plus dynamiques.")
+
+    summary = f"Mobilite moyenne : {round(avg_mobility)}%. " + (f"Zones a travailler : {', '.join(weak_dirs)}." if weak_dirs else "Toutes les directions sont dans la norme.")
+
+    return {
+        "recommendations": recs,
+        "game_recommendations": game_recs[:4],
+        "summary": summary,
+        "avg_mobility": round(avg_mobility),
+        "weak_directions": weak_dirs,
+        "pain_directions": [{"dir": d, "pain": p} for d, p in pain_dirs],
+    }

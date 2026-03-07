@@ -1,10 +1,12 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
+import { useI18n } from '../../context/I18nContext';
 
 interface Props { br: any; }
 
 export default function VitalsRow({ br }: Props) {
   const router = useRouter();
+  const { t } = useI18n();
 
   const hasData = br.heart_rate > 0 || br.spo2 > 0;
   const fmt = (v: any) => (v && v !== 0) ? v : '--';

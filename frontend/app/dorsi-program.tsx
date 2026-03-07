@@ -458,6 +458,7 @@ export default function DorsiProgramPage() {
   const [view, setView] = useState<'calendar' | 'game'>('calendar');
   const [freePlay, setFreePlay] = useState(false);
   const [scoreHistory, setScoreHistory] = useState<any[]>([]);
+  const [noraRecs, setNoraRecs] = useState<any>(null);
 
   const fetchProgram = useCallback(async () => {
     try {
@@ -469,8 +470,13 @@ export default function DorsiProgramPage() {
 
   useEffect(() => { fetchProgram(); }, [fetchProgram]);
 
-  // Fetch score history
-  useEffect(() => { if (token) apiFetch('/api/dorsi/score-history', {}, token).then(setScoreHistory).catch(() => {}); }, [token]);
+  // Fetch score history + Nora recommendations
+  useEffect(() => {
+    if (token) {
+      apiFetch('/api/dorsi/score-history', {}, token).then(setScoreHistory).catch(() => {});
+      apiFetch('/api/dorsi/nora-recommendations', {}, token).then(setNoraRecs).catch(() => {});
+    }
+  }, [token]);
 
   const startSession = (day: any, session: any) => {
     router.push({ pathname: '/dorsi-game', params: { gameId: session.game.game_id, programId: program?.id, day: String(day.day_num), session: String(session.session_num) } } as any);
@@ -597,6 +603,36 @@ export default function DorsiProgramPage() {
                 ))}
               </div>
             </div>
+
+            {/* Nora Recommendations based on bilan */}
+            {noraRecs?.game_recommendations?.length > 0 && (
+              <div style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                  <div style={{ width: 28, height: 28, borderRadius: 10, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className="ri-robot-2-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#A78BFA' }}>Nora recommande</span>
+                </div>
+                {noraRecs.summary && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 12, lineHeight: 1.5 }}>{noraRecs.summary}</div>}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
+                  {noraRecs.game_recommendations.map((g: any) => (
+                    <div key={g.game} onClick={() => startFreeGame(g.game)} style={{ padding: '12px', borderRadius: 14, background: `${g.color}10`, border: `1px solid ${g.color}20`, cursor: 'pointer' } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } as any}>
+                        <i className={g.icon} style={{ fontSize: 18, color: g.color }} />
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{g.name}</span>
+                      </div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>{g.reason}</div>
+                    </div>
+                  ))}
+                </div>
+                {noraRecs.recommendations?.map((rec: string, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 10, padding: '8px 0', borderTop: '1px solid rgba(255,255,255,0.06)' } as any}>
+                    <i className="ri-arrow-right-circle-line" style={{ fontSize: 12, color: '#A78BFA', marginTop: 2, flexShrink: 0 }} />
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>{rec}</span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Score History */}
             {scoreHistory.length > 0 && (
