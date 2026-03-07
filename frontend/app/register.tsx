@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiFetch } from '../src/services/api';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { RegisterForm } from '../src/components/register/RegisterUI';
 import LanguagePicker from '../src/components/LanguagePicker';
 import RoleSelection from '../src/components/register/RoleSelection';
@@ -29,6 +30,7 @@ const SAAD_STEPS = 3;
 export default function RegisterScreen() {
   const router = useRouter();
   const { login, token } = useAuth();
+  const { t, lang, setLang } = useI18n();
   const [role, setRole] = useState('');
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
@@ -36,7 +38,6 @@ export default function RegisterScreen() {
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [showBiometric, setShowBiometric] = useState(false);
   const [showNora, setShowNora] = useState(false);
-  const [lang, setLang] = useState('fr');
 
   useEffect(() => { AsyncStorage.getItem('chutex_lang').then(v => { if (v) setLang(v); }).catch(() => {}); }, []);
   const [form, setForm] = useState<RegisterForm>({
@@ -205,7 +206,7 @@ export default function RegisterScreen() {
                 <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>Retour</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Etape {step}/{totalSteps}</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>{t('step_info')} {step}/{totalSteps}</span>
                 <LanguagePicker lang={lang} setLang={setLang} />
               </div>
             </div>
@@ -226,7 +227,7 @@ export default function RegisterScreen() {
           {step > 0 && !isVerifyStep && (
             <div style={{ marginTop: 24 } as any}>
               <div data-testid="register-next-btn" onClick={() => { if (!canNext()) return; setError(''); if (isLastStep) handleRegister(); else setStep(step + 1); }} style={{ padding: '16px', borderRadius: 999, background: canNext() ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)', border: `1px solid ${canNext() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: canNext() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 15, fontWeight: 800, color: canNext() ? '#FFF' : 'rgba(255,255,255,0.25)', opacity: submitting ? 0.6 : 1 } as any}>
-                {submitting ? 'Creation en cours...' : isLastStep ? 'Creer mon compte' : 'Continuer'}
+                {submitting ? t('connecting') : isLastStep ? t('create_account') : t('next')}
               </div>
             </div>
           )}
