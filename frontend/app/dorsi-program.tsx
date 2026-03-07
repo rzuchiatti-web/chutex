@@ -469,27 +469,11 @@ export default function DorsiProgramPage() {
   useEffect(() => { fetchProgram(); }, [fetchProgram]);
 
   const startSession = (day: any, session: any) => {
-    setActiveGame({ day: day.day_num, session: session.session_num, game: session.game, difficulty: session.difficulty });
-    setFreePlay(false);
-    setView('game');
+    router.push({ pathname: '/dorsi-game', params: { gameId: session.game.game_id, programId: program?.id, day: String(day.day_num), session: String(session.session_num) } } as any);
   };
 
-  const startFreeGame = (gameId: string) => {
-    const games: Record<string, any> = {
-      moutons: { game_id: 'moutons', name: 'Jeu des Moutons', icon: 'ri-ghost-smile-line', color: '#22D3EE' },
-      bulles: { game_id: 'bulles', name: 'Bulles de Savon', icon: 'ri-bubble-chart-line', color: '#A78BFA' },
-      proprioception: { game_id: 'proprioception', name: 'Equilibre Proprioceptif', icon: 'ri-focus-3-line', color: '#10B981' },
-      serpent: { game_id: 'serpent', name: 'Serpent Lombaire', icon: 'ri-route-line', color: '#F59E0B' },
-      labyrinthe: { game_id: 'labyrinthe', name: 'Labyrinthe', icon: 'ri-compass-discover-line', color: '#EC4899' },
-      slalom: { game_id: 'slalom', name: 'Slalom Postural', icon: 'ri-flag-line', color: '#06B6D4' },
-      etoiles: { game_id: 'etoiles', name: 'Pluie d\'Etoiles', icon: 'ri-star-line', color: '#F97316' },
-      simon: { game_id: 'simon', name: 'Simon Postural', icon: 'ri-flashlight-line', color: '#EF4444' },
-      cercles: { game_id: 'cercles', name: 'Cercles Concentriques', icon: 'ri-record-circle-line', color: '#8B5CF6' },
-      course: { game_id: 'course', name: 'Course d\'Obstacles', icon: 'ri-run-line', color: '#14B8A6' },
-    };
-    setActiveGame({ day: 0, session: 0, game: games[gameId], difficulty: 0.5 });
-    setFreePlay(true);
-    setView('game');
+  const startFreeGame = (gid: string) => {
+    router.push({ pathname: '/dorsi-game', params: { gameId: gid } } as any);
   };
 
   const handleGameFinish = async (score: number) => {
