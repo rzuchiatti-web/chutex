@@ -123,6 +123,11 @@ const T: Record<string, Record<string, string>> = {
     step_role: 'Choisissez votre role', step_phone: 'Telephone', step_info: 'Informations', step_medical: 'Medical',
     im_beneficiary: 'Je suis beneficiaire', im_guardian: 'Je suis gardien', next: 'Suivant', previous: 'Precedent',
     your_phone: 'Votre telephone', your_password: 'Votre mot de passe',
+    personal_info_sub: 'Pour personnaliser votre suivi sante',
+    address: 'Adresse', postal_code: 'Code postal', city: 'Ville',
+    height: 'Taille', weight: 'Poids', gender: 'Sexe', male: 'Homme', female: 'Femme',
+    dob: 'Date de naissance', day_label: 'Jour', month_label: 'Mois', year_label: 'Annee',
+    select: 'Selectionner', medical_file: 'Dossier medical',
   },
   EN: {
     home: 'Home', health: 'Health', alerts: 'Alerts', devices: 'Devices', profile: 'Profile', programs: 'Programs',
@@ -231,6 +236,11 @@ const T: Record<string, Record<string, string>> = {
     step_role: 'Choose your role', step_phone: 'Phone', step_info: 'Information', step_medical: 'Medical',
     im_beneficiary: 'I am a beneficiary', im_guardian: 'I am a guardian', next: 'Next', previous: 'Previous',
     your_phone: 'Your phone', your_password: 'Your password',
+    personal_info_sub: 'To personalize your health monitoring',
+    address: 'Address', postal_code: 'Postal code', city: 'City',
+    height: 'Height', weight: 'Weight', gender: 'Gender', male: 'Male', female: 'Female',
+    dob: 'Date of birth', day_label: 'Day', month_label: 'Month', year_label: 'Year',
+    select: 'Select', medical_file: 'Medical file',
   },
   DE: {
     home: 'Start', health: 'Gesundheit', alerts: 'Alarme', devices: 'Gerate', profile: 'Profil', programs: 'Programme',

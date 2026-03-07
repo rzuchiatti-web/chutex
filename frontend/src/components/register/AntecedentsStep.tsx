@@ -1,7 +1,9 @@
 import React from 'react';
 import { GI, INPUT_STYLE, Chip, RegisterForm, UpdateFn, AcceptTerms, HowFoundGrid } from './RegisterUI';
+import { useI18n } from '../../context/I18nContext';
 
 export default function AntecedentsStep({ form, u, toggleArr }: { form: RegisterForm; u: UpdateFn; toggleArr: (k: string, v: string) => void }) {
+  const { t } = useI18n();
   const GLASS = { borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px', marginBottom: 16 } as any;
 
   return (

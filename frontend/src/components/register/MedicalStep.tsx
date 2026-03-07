@@ -1,7 +1,9 @@
 import React from 'react';
 import { GI, INPUT_STYLE, RegisterForm, UpdateFn, CheckboxGrid, YesNoToggle } from './RegisterUI';
+import { useI18n } from '../../context/I18nContext';
 
 export default function MedicalStep({ form, u, toggleArr }: { form: RegisterForm; u: UpdateFn; toggleArr: (k: string, v: string) => void }) {
+  const { t } = useI18n();
   const handleConditionToggle = (c: string) => {
     if (c === 'Aucune') u('medical_conditions', ['Aucune']);
     else toggleArr('medical_conditions', c);
@@ -16,7 +18,7 @@ export default function MedicalStep({ form, u, toggleArr }: { form: RegisterForm
 
   return (
     <>
-      <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Dossier medical</div>
+      <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>{t('step_medical')}</div>
       <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>Ces informations sont confidentielles et aident a personnaliser votre suivi</div>
       <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.7)', marginBottom: 16, marginTop: -16 }}>Tous les champs sont obligatoires. Selectionnez "Aucune" si non concerne.</div>
 
