@@ -497,7 +497,7 @@ function GuardianInterventions({ token, user }: { token: string; user: any }) {
     } catch {}
   };
 
-  const statusLabel = (st: string) => ({ pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' }[st] || st);
+  const statusLabel = (st: string) => ({ pending_acceptance: t('pending'), in_progress: t('in_progress'), en_route: t('en_route'), completed: t('completed'), dispatched: t('dispatched') }[st] || st);
   const statusColor = (st: string) => ({ pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' }[st] || '#888');
 
   const activeIvs = ivs.filter(iv => ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status));

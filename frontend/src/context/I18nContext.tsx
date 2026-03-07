@@ -130,6 +130,9 @@ const T: Record<string, Record<string, string>> = {
     select: 'Selectionner', medical_file: 'Dossier medical',
     no_health_data: 'Aucune donnee de sante', recent_measure: 'Mesure recente', no_data: 'Aucune donnee',
     heart_rate: 'Rythme cardiaque', spo2: 'Saturation O2', blood_pressure: 'Tension arterielle', temperature: 'Temperature',
+    pending: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee',
+    resolved: 'Resolu', statistics: 'Statistiques', response: 'Reponse', loading: 'Chargement...', cancel: 'Annuler', confirm: 'Confirmer',
+    intervention: 'Intervention', accept: 'Accepter', refuse: 'Refuser', close_alert: 'Cloturer',
   },
   EN: {
     home: 'Home', health: 'Health', alerts: 'Alerts', devices: 'Devices', profile: 'Profile', programs: 'Programs',
@@ -245,6 +248,9 @@ const T: Record<string, Record<string, string>> = {
     select: 'Select', medical_file: 'Medical file',
     no_health_data: 'No health data', recent_measure: 'Recent measure', no_data: 'No data',
     heart_rate: 'Heart rate', spo2: 'O2 Saturation', blood_pressure: 'Blood pressure', temperature: 'Temperature',
+    pending: 'Pending', in_progress: 'In progress', en_route: 'En route', completed: 'Completed', dispatched: 'Dispatched',
+    resolved: 'Resolved', statistics: 'Statistics', response: 'Response', loading: 'Loading...', cancel: 'Cancel', confirm: 'Confirm',
+    intervention: 'Intervention', accept: 'Accept', refuse: 'Refuse', close_alert: 'Close',
   },
   DE: {
     home: 'Start', health: 'Gesundheit', alerts: 'Alarme', devices: 'Gerate', profile: 'Profil', programs: 'Programme',
@@ -333,6 +339,10 @@ const T: Record<string, Record<string, string>> = {
     step_role: 'Rolle wahlen', step_phone: 'Telefon', step_info: 'Informationen', step_medical: 'Medizinisch',
     im_beneficiary: 'Ich bin Begunstigter', im_guardian: 'Ich bin Betreuer', next: 'Weiter', previous: 'Zuruck',
     your_phone: 'Ihre Telefonnummer', your_password: 'Ihr Passwort',
+    pending: 'Ausstehend', in_progress: 'Laufend', en_route: 'Unterwegs', completed: 'Abgeschlossen', dispatched: 'Gesendet',
+    resolved: 'Gelost', statistics: 'Statistiken', loading: 'Laden...', cancel: 'Abbrechen', confirm: 'Bestatigen',
+    intervention: 'Intervention', accept: 'Annehmen', refuse: 'Ablehnen', no_health_data: 'Keine Gesundheitsdaten', recent_measure: 'Aktuelle Messung', no_data: 'Keine Daten',
+    heart_rate: 'Herzfrequenz', blood_pressure: 'Blutdruck', personal_info_sub: 'Zur Personalisierung Ihrer Gesundheitsbegleitung',
   },
   ES: {
     home: 'Inicio', health: 'Salud', alerts: 'Alertas', devices: 'Dispositivos', profile: 'Perfil', programs: 'Programas',
@@ -421,6 +431,10 @@ const T: Record<string, Record<string, string>> = {
     step_role: 'Elija su rol', step_phone: 'Telefono', step_info: 'Informacion', step_medical: 'Medico',
     im_beneficiary: 'Soy beneficiario', im_guardian: 'Soy guardian', next: 'Siguiente', previous: 'Anterior',
     your_phone: 'Su telefono', your_password: 'Su contrasena',
+    pending: 'Pendiente', in_progress: 'En curso', en_route: 'En camino', completed: 'Completada', dispatched: 'Enviada',
+    resolved: 'Resuelto', statistics: 'Estadisticas', loading: 'Cargando...', cancel: 'Cancelar', confirm: 'Confirmar',
+    intervention: 'Intervencion', accept: 'Aceptar', refuse: 'Rechazar', no_health_data: 'Sin datos de salud', recent_measure: 'Medida reciente', no_data: 'Sin datos',
+    heart_rate: 'Frecuencia cardiaca', blood_pressure: 'Presion arterial', personal_info_sub: 'Para personalizar su seguimiento de salud',
   },
   IT: {
     home: 'Home', health: 'Salute', alerts: 'Avvisi', devices: 'Dispositivi', profile: 'Profilo', programs: 'Programmi',
@@ -515,6 +529,10 @@ const T: Record<string, Record<string, string>> = {
     step_role: 'Scegli il tuo ruolo', step_phone: 'Telefono', step_info: 'Informazioni', step_medical: 'Medico',
     im_beneficiary: 'Sono beneficiario', im_guardian: 'Sono tutore', next: 'Avanti', previous: 'Indietro',
     your_phone: 'Il tuo telefono', your_password: 'La tua password',
+    pending: 'In attesa', in_progress: 'In corso', en_route: 'In viaggio', completed: 'Completata', dispatched: 'Inviata',
+    resolved: 'Risolto', statistics: 'Statistiche', loading: 'Caricamento...', cancel: 'Annullare', confirm: 'Confermare',
+    intervention: 'Intervento', accept: 'Accettare', refuse: 'Rifiutare', no_health_data: 'Nessun dato sanitario', recent_measure: 'Misura recente', no_data: 'Nessun dato',
+    heart_rate: 'Frequenza cardiaca', blood_pressure: 'Pressione sanguigna', personal_info_sub: 'Per personalizzare il tuo monitoraggio sanitario',
   },
   PT: {
     home: 'Inicio', health: 'Saude', alerts: 'Alertas', devices: 'Dispositivos', profile: 'Perfil', programs: 'Programas',
@@ -609,6 +627,10 @@ const T: Record<string, Record<string, string>> = {
     step_role: 'Escolha seu papel', step_phone: 'Telefone', step_info: 'Informacoes', step_medical: 'Medico',
     im_beneficiary: 'Sou beneficiario', im_guardian: 'Sou guardiao', next: 'Proximo', previous: 'Anterior',
     your_phone: 'Seu telefone', your_password: 'Sua senha',
+    pending: 'Pendente', in_progress: 'Em andamento', en_route: 'A caminho', completed: 'Concluida', dispatched: 'Enviada',
+    resolved: 'Resolvido', statistics: 'Estatisticas', loading: 'Carregando...', cancel: 'Cancelar', confirm: 'Confirmar',
+    intervention: 'Intervencao', accept: 'Aceitar', refuse: 'Recusar', no_health_data: 'Sem dados de saude', recent_measure: 'Medida recente', no_data: 'Sem dados',
+    heart_rate: 'Frequencia cardiaca', blood_pressure: 'Pressao arterial', personal_info_sub: 'Para personalizar seu monitoramento de saude',
   },
   NL: {
     home: 'Home', health: 'Gezondheid', alerts: 'Meldingen', devices: 'Apparaten', profile: 'Profiel', programs: 'Programma\'s',
@@ -703,6 +725,10 @@ const T: Record<string, Record<string, string>> = {
     step_role: 'Kies uw rol', step_phone: 'Telefoon', step_info: 'Informatie', step_medical: 'Medisch',
     im_beneficiary: 'Ik ben begunstigde', im_guardian: 'Ik ben begeleider', next: 'Volgende', previous: 'Vorige',
     your_phone: 'Uw telefoonnummer', your_password: 'Uw wachtwoord',
+    pending: 'In afwachting', in_progress: 'Bezig', en_route: 'Onderweg', completed: 'Voltooid', dispatched: 'Verzonden',
+    resolved: 'Opgelost', statistics: 'Statistieken', loading: 'Laden...', cancel: 'Annuleren', confirm: 'Bevestigen',
+    intervention: 'Interventie', accept: 'Accepteren', refuse: 'Weigeren', no_health_data: 'Geen gezondheidsgegevens', recent_measure: 'Recente meting', no_data: 'Geen gegevens',
+    heart_rate: 'Hartslag', blood_pressure: 'Bloeddruk', personal_info_sub: 'Om uw gezondheidsbegeleiding te personaliseren',
   },
 };
 
