@@ -110,6 +110,12 @@ const T: Record<string, Record<string, string>> = {
     dorsi_free_games: 'Jeux libres', dorsi_games_available: 'jeux disponibles — jouez a tout moment',
     dorsi_progression: 'Progression', dorsi_sessions: 'sessions', dorsi_day: 'Jour', dorsi_today: 'Aujourd\'hui',
     dorsi_reevaluation: 'Reevaluation',
+    // ECG
+    ecg_title: 'Electrocardiogramme', ecg_prep: 'Pour obtenir un resultat precis, nous allons vous preparer.', ecg_sit: 'Asseyez-vous confortablement', ecg_calm: 'Restez calme et detendu', ecg_silent: 'Evitez de parler pendant la mesure', ecg_ready: 'Je suis pret', ecg_breathe: 'Respirez doucement', ecg_recording: 'Enregistrement', ecg_measuring: 'Mesure en cours...', ecg_stay_still: 'Ne bougez pas et gardez le doigt sur le capteur', ecg_results: 'Resultats ECG',
+    // Devices
+    dev_title: 'Dispositifs connectes', dev_subtitle: 'Gerez vos dispositifs de sante Chutex', dev_associate: 'Associer', dev_discover: 'Decouvrir', dev_new_weighing: 'Nouvelle pesee', dev_bilan: 'Bilan lombaire', dev_connection: 'Connexion', dev_searching: 'Recherche en cours...', dev_protection_active: 'Protection active', dev_standby: 'En veille',
+    // Login extras
+    forgot_password_title: 'Mot de passe oublie', verification_code: 'Code de verification', new_password: 'Nouveau mot de passe', password_reset_success: 'Mot de passe reinitialise avec succes !', connecting: 'Connexion...',
   },
   EN: {
     home: 'Home', health: 'Health', alerts: 'Alerts', devices: 'Devices', profile: 'Profile', programs: 'Programs',
@@ -209,6 +215,9 @@ const T: Record<string, Record<string, string>> = {
     dorsi_free_games: 'Free games', dorsi_games_available: 'games available — play anytime',
     dorsi_progression: 'Progress', dorsi_sessions: 'sessions', dorsi_day: 'Day', dorsi_today: 'Today',
     dorsi_reevaluation: 'Reassessment',
+    ecg_title: 'Electrocardiogram', ecg_prep: 'For an accurate result, we will prepare you.', ecg_sit: 'Sit comfortably', ecg_calm: 'Stay calm and relaxed', ecg_silent: 'Avoid talking during the measurement', ecg_ready: 'I am ready', ecg_breathe: 'Breathe gently', ecg_recording: 'Recording', ecg_measuring: 'Measuring...', ecg_stay_still: 'Don\'t move and keep your finger on the sensor', ecg_results: 'ECG Results',
+    dev_title: 'Connected devices', dev_subtitle: 'Manage your Chutex health devices', dev_associate: 'Pair', dev_discover: 'Discover', dev_new_weighing: 'New weighing', dev_bilan: 'Lumbar assessment', dev_connection: 'Connection', dev_searching: 'Searching...', dev_protection_active: 'Protection active', dev_standby: 'Standby',
+    forgot_password_title: 'Forgot password', verification_code: 'Verification code', new_password: 'New password', password_reset_success: 'Password reset successfully!', connecting: 'Connecting...',
   },
   DE: {
     home: 'Start', health: 'Gesundheit', alerts: 'Alarme', devices: 'Gerate', profile: 'Profil', programs: 'Programme',
@@ -288,6 +297,9 @@ const T: Record<string, Record<string, string>> = {
     dorsi_next_direction: 'Nachste Richtung', dorsi_see_results: 'Ergebnisse anzeigen', dorsi_results: 'Ergebnisse', dorsi_mobility: 'Mobilitat', dorsi_pain: 'Schmerz',
     dorsi_generate_program: 'Programm erstellen', dorsi_play: 'Spielen', dorsi_next_bilan: 'Nachste Bewertung in 10 Tagen empfohlen',
     dorsi_free_games: 'Freie Spiele', dorsi_games_available: 'Spiele verfugbar — jederzeit spielen', dorsi_progression: 'Fortschritt', dorsi_sessions: 'Sitzungen', dorsi_day: 'Tag', dorsi_today: 'Heute', dorsi_reevaluation: 'Neubewertung',
+    ecg_title: 'Elektrokardiogramm', ecg_prep: 'Fur ein genaues Ergebnis bereiten wir Sie vor.', ecg_sit: 'Setzen Sie sich bequem hin', ecg_calm: 'Bleiben Sie ruhig und entspannt', ecg_silent: 'Sprechen Sie nicht wahrend der Messung', ecg_ready: 'Ich bin bereit', ecg_breathe: 'Atmen Sie sanft', ecg_recording: 'Aufnahme', ecg_measuring: 'Messung...', ecg_stay_still: 'Nicht bewegen', ecg_results: 'EKG-Ergebnisse',
+    dev_title: 'Verbundene Gerate', dev_subtitle: 'Verwalten Sie Ihre Chutex-Gerate', dev_associate: 'Koppeln', dev_discover: 'Entdecken', dev_new_weighing: 'Neue Wiegung', dev_bilan: 'Lendencheck', dev_connection: 'Verbindung', dev_searching: 'Suche...', dev_protection_active: 'Schutz aktiv', dev_standby: 'Standby',
+    forgot_password_title: 'Passwort vergessen', verification_code: 'Code', new_password: 'Neues Passwort', password_reset_success: 'Passwort zuruckgesetzt!', connecting: 'Verbindung...',
   },
   ES: {
     home: 'Inicio', health: 'Salud', alerts: 'Alertas', devices: 'Dispositivos', profile: 'Perfil', programs: 'Programas',
@@ -367,6 +379,9 @@ const T: Record<string, Record<string, string>> = {
     dorsi_next_direction: 'Siguiente direccion', dorsi_see_results: 'Ver resultados', dorsi_results: 'Resultados', dorsi_mobility: 'movilidad', dorsi_pain: 'Dolor',
     dorsi_generate_program: 'Generar programa', dorsi_play: 'Jugar', dorsi_next_bilan: 'Proxima evaluacion recomendada en 10 dias',
     dorsi_free_games: 'Juegos libres', dorsi_games_available: 'juegos disponibles — juega cuando quieras', dorsi_progression: 'Progreso', dorsi_sessions: 'sesiones', dorsi_day: 'Dia', dorsi_today: 'Hoy', dorsi_reevaluation: 'Reevaluacion',
+    ecg_title: 'Electrocardiograma', ecg_prep: 'Para un resultado preciso, lo prepararemos.', ecg_sit: 'Sientese comodamente', ecg_calm: 'Mantengase tranquilo', ecg_silent: 'Evite hablar durante la medicion', ecg_ready: 'Estoy listo', ecg_breathe: 'Respire suavemente', ecg_recording: 'Grabacion', ecg_measuring: 'Midiendo...', ecg_stay_still: 'No se mueva', ecg_results: 'Resultados ECG',
+    dev_title: 'Dispositivos conectados', dev_subtitle: 'Gestione sus dispositivos', dev_associate: 'Vincular', dev_discover: 'Descubrir', dev_new_weighing: 'Nuevo pesaje', dev_bilan: 'Evaluacion lumbar', dev_connection: 'Conexion', dev_searching: 'Buscando...', dev_protection_active: 'Proteccion activa', dev_standby: 'En espera',
+    forgot_password_title: 'Contrasena olvidada', verification_code: 'Codigo', new_password: 'Nueva contrasena', password_reset_success: 'Contrasena restablecida!', connecting: 'Conectando...',
   },
   IT: {
     home: 'Home', health: 'Salute', alerts: 'Avvisi', devices: 'Dispositivi', profile: 'Profilo', programs: 'Programmi',
@@ -452,6 +467,9 @@ const T: Record<string, Record<string, string>> = {
     dorsi_next_direction: 'Direzione successiva', dorsi_see_results: 'Vedi risultati', dorsi_results: 'Risultati', dorsi_mobility: 'mobilita', dorsi_pain: 'Dolore',
     dorsi_generate_program: 'Genera programma', dorsi_play: 'Gioca', dorsi_next_bilan: 'Prossima valutazione raccomandata tra 10 giorni',
     dorsi_free_games: 'Giochi liberi', dorsi_games_available: 'giochi disponibili — gioca quando vuoi', dorsi_progression: 'Progresso', dorsi_sessions: 'sessioni', dorsi_day: 'Giorno', dorsi_today: 'Oggi', dorsi_reevaluation: 'Rivalutazione',
+    ecg_title: 'Elettrocardiogramma', ecg_prep: 'Per un risultato preciso, ti prepareremo.', ecg_sit: 'Siediti comodamente', ecg_calm: 'Resta calmo', ecg_silent: 'Evita di parlare', ecg_ready: 'Sono pronto', ecg_breathe: 'Respira dolcemente', ecg_recording: 'Registrazione', ecg_measuring: 'Misurazione...', ecg_stay_still: 'Non muoverti', ecg_results: 'Risultati ECG',
+    dev_title: 'Dispositivi connessi', dev_subtitle: 'Gestisci i tuoi dispositivi', dev_associate: 'Associa', dev_discover: 'Scopri', dev_new_weighing: 'Nuova pesata', dev_bilan: 'Valutazione lombare', dev_connection: 'Connessione', dev_searching: 'Ricerca...', dev_protection_active: 'Protezione attiva', dev_standby: 'In attesa',
+    forgot_password_title: 'Password dimenticata', verification_code: 'Codice', new_password: 'Nuova password', password_reset_success: 'Password reimpostata!', connecting: 'Connessione...',
   },
   PT: {
     home: 'Inicio', health: 'Saude', alerts: 'Alertas', devices: 'Dispositivos', profile: 'Perfil', programs: 'Programas',
@@ -537,6 +555,9 @@ const T: Record<string, Record<string, string>> = {
     dorsi_next_direction: 'Proxima direcao', dorsi_see_results: 'Ver resultados', dorsi_results: 'Resultados', dorsi_mobility: 'mobilidade', dorsi_pain: 'Dor',
     dorsi_generate_program: 'Gerar programa', dorsi_play: 'Jogar', dorsi_next_bilan: 'Proxima avaliacao recomendada em 10 dias',
     dorsi_free_games: 'Jogos livres', dorsi_games_available: 'jogos disponiveis — jogue a qualquer momento', dorsi_progression: 'Progresso', dorsi_sessions: 'sessoes', dorsi_day: 'Dia', dorsi_today: 'Hoje', dorsi_reevaluation: 'Reavaliacao',
+    ecg_title: 'Eletrocardiograma', ecg_prep: 'Para um resultado preciso, vamos prepara-lo.', ecg_sit: 'Sente-se confortavelmente', ecg_calm: 'Fique calmo', ecg_silent: 'Evite falar', ecg_ready: 'Estou pronto', ecg_breathe: 'Respire suavemente', ecg_recording: 'Gravacao', ecg_measuring: 'Medindo...', ecg_stay_still: 'Nao se mova', ecg_results: 'Resultados ECG',
+    dev_title: 'Dispositivos conectados', dev_subtitle: 'Gerencie seus dispositivos', dev_associate: 'Associar', dev_discover: 'Descobrir', dev_new_weighing: 'Nova pesagem', dev_bilan: 'Avaliacao lombar', dev_connection: 'Conexao', dev_searching: 'Procurando...', dev_protection_active: 'Protecao ativa', dev_standby: 'Em espera',
+    forgot_password_title: 'Senha esquecida', verification_code: 'Codigo', new_password: 'Nova senha', password_reset_success: 'Senha redefinida!', connecting: 'Conectando...',
   },
   NL: {
     home: 'Home', health: 'Gezondheid', alerts: 'Meldingen', devices: 'Apparaten', profile: 'Profiel', programs: 'Programma\'s',
@@ -622,6 +643,9 @@ const T: Record<string, Record<string, string>> = {
     dorsi_next_direction: 'Volgende richting', dorsi_see_results: 'Resultaten bekijken', dorsi_results: 'Resultaten', dorsi_mobility: 'mobiliteit', dorsi_pain: 'Pijn',
     dorsi_generate_program: 'Programma genereren', dorsi_play: 'Spelen', dorsi_next_bilan: 'Volgende beoordeling aanbevolen over 10 dagen',
     dorsi_free_games: 'Vrije spellen', dorsi_games_available: 'spellen beschikbaar — speel wanneer je wilt', dorsi_progression: 'Voortgang', dorsi_sessions: 'sessies', dorsi_day: 'Dag', dorsi_today: 'Vandaag', dorsi_reevaluation: 'Herbeoordeling',
+    ecg_title: 'Elektrocardiogram', ecg_prep: 'Voor een nauwkeurig resultaat bereiden we u voor.', ecg_sit: 'Ga comfortabel zitten', ecg_calm: 'Blijf kalm', ecg_silent: 'Praat niet tijdens de meting', ecg_ready: 'Ik ben klaar', ecg_breathe: 'Adem rustig', ecg_recording: 'Opname', ecg_measuring: 'Meting...', ecg_stay_still: 'Niet bewegen', ecg_results: 'ECG-resultaten',
+    dev_title: 'Verbonden apparaten', dev_subtitle: 'Beheer uw apparaten', dev_associate: 'Koppelen', dev_discover: 'Ontdekken', dev_new_weighing: 'Nieuwe weging', dev_bilan: 'Lumbale beoordeling', dev_connection: 'Verbinding', dev_searching: 'Zoeken...', dev_protection_active: 'Bescherming actief', dev_standby: 'Stand-by',
+    forgot_password_title: 'Wachtwoord vergeten', verification_code: 'Code', new_password: 'Nieuw wachtwoord', password_reset_success: 'Wachtwoord gereset!', connecting: 'Verbinden...',
   },
 };
 
