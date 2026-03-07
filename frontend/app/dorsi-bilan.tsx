@@ -69,8 +69,9 @@ function RadarChart({ allBilans }: { allBilans: { measurements: Record<string, {
   );
 }
 
-// ── Gauge for measurement ──
+// ── Animated Direction Gauge ──
 function MeasureGauge({ direction, onComplete }: { direction: typeof DIRS[0]; onComplete: (mobility: number) => void }) {
+  const { t } = useI18n();
   const [pct, setPct] = useState(0);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
@@ -80,29 +81,38 @@ function MeasureGauge({ direction, onComplete }: { direction: typeof DIRS[0]; on
     setRunning(true); setDone(false); setPct(0); maxRef.current = 0;
     let v = 0;
     const iv = setInterval(() => {
-      v += Math.random() * 4 + 1;
+      v += Math.random() * 3 + 0.5;
       if (v > 100) v = 100;
       if (v > maxRef.current) maxRef.current = Math.round(v);
       setPct(Math.round(v));
       if (v >= 100) { clearInterval(iv); setRunning(false); setDone(true); }
-    }, 60);
-    setTimeout(() => { clearInterval(iv); setRunning(false); setDone(true); }, 4000);
+    }, 50);
+    setTimeout(() => { clearInterval(iv); setRunning(false); setDone(true); }, 5000);
   };
 
-  const circumference = 2 * Math.PI * 70;
-  const offset = circumference - (pct / 100) * circumference;
+  const arrows: Record<string, { dx: number; dy: number }> = { forward: { dx: 0, dy: -1 }, backward: { dx: 0, dy: 1 }, left: { dx: -1, dy: 0 }, right: { dx: 1, dy: 0 } };
+  const ar = arrows[direction.key] || { dx: 0, dy: -1 };
+  const moveX = ar.dx * (pct / 100) * 55;
+  const moveY = ar.dy * (pct / 100) * 55;
 
   return (
     <div style={{ textAlign: 'center' } as any}>
-      <svg width={180} height={180} viewBox="0 0 180 180" style={{ display: 'block', margin: '0 auto 16px' }}>
-        <circle cx={90} cy={90} r={70} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={8} />
-        <circle cx={90} cy={90} r={70} fill="none" stroke={done ? '#10B981' : '#F97316'} strokeWidth={8} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 90 90)" style={{ transition: 'stroke-dashoffset 0.1s' }} />
-        <text x={90} y={78} fill="#FFF" fontSize={32} fontWeight={900} textAnchor="middle">{pct}%</text>
-        <text x={90} y={100} fill="rgba(255,255,255,0.5)" fontSize={11} textAnchor="middle">mobilite</text>
-      </svg>
-      {!done && !running && <div onClick={start} style={{ ...BTN }} data-testid={`measure-${direction.key}`}>Mesurer</div>}
-      {running && <div style={{ fontSize: 14, fontWeight: 700, color: '#F97316' }}>Inclinez au maximum...</div>}
-      {done && <div onClick={() => onComplete(maxRef.current)} style={{ ...BTN, background: '#10B981', color: '#FFF' }} data-testid={`next-${direction.key}`}>Valider {maxRef.current}%</div>}
+      <div style={{ position: 'relative', width: 220, height: 220, margin: '0 auto 16px' } as any}>
+        <svg width={220} height={220} viewBox="0 0 220 220" style={{ position: 'absolute', inset: 0 }}>
+          <circle cx={110} cy={110} r={100} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={2} />
+          <circle cx={110} cy={110} r={70} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+          <line x1={110} y1={110} x2={110 + ar.dx * 95} y2={110 + ar.dy * 95} stroke={done ? '#10B981' : running ? '#F97316' : 'rgba(255,255,255,0.12)'} strokeWidth={2} strokeDasharray={running ? 'none' : '6,4'} />
+          <circle cx={110 + ar.dx * 95} cy={110 + ar.dy * 95} r={6} fill={done ? '#10B981' : running ? '#F97316' : 'rgba(255,255,255,0.08)'} />
+          {(running || done) && <circle cx={110} cy={110} r={100} fill="none" stroke={done ? '#10B981' : '#F97316'} strokeWidth={4} strokeDasharray={`${2 * Math.PI * 100 * pct / 100} ${2 * Math.PI * 100}`} strokeLinecap="round" transform="rotate(-90 110 110)" style={{ transition: 'stroke-dasharray 0.1s' }} />}
+        </svg>
+        <div style={{ position: 'absolute', left: 110 - 18 + moveX, top: 110 - 18 + moveY, width: 36, height: 36, borderRadius: '50%', background: done ? '#10B981' : running ? '#F97316' : 'rgba(255,255,255,0.12)', border: `3px solid ${done ? '#10B981' : running ? '#FFF' : 'rgba(255,255,255,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s', boxShadow: running ? '0 0 24px rgba(249,115,22,0.5)' : 'none' } as any}>
+          <i className={direction.icon} style={{ fontSize: 16, color: '#FFF' }} />
+        </div>
+        <div style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', fontSize: 32, fontWeight: 900, color: '#FFF' } as any}>{pct}%</div>
+      </div>
+      {!done && !running && <div onClick={start} style={{ ...BTN }} data-testid={`measure-${direction.key}`}>{t('dorsi_measure')}</div>}
+      {running && <div style={{ fontSize: 15, fontWeight: 700, color: '#F97316', animation: 'pulse 1s infinite' }}>{t('dorsi_measuring')}</div>}
+      {done && <div onClick={() => onComplete(maxRef.current)} style={{ ...BTN, background: '#10B981', color: '#FFF' }} data-testid={`next-${direction.key}`}>{t('dorsi_validate')} {maxRef.current}%</div>}
     </div>
   );
 }

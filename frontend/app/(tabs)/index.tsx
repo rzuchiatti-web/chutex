@@ -32,17 +32,17 @@ function DorsiDashCard({ token }: { token: string | null }) {
     if (token) apiFetch('/api/dorsi/dashboard', {}, token).then(setData).catch(() => {});
   }, [token]);
   if (!data || (!data.has_program && data.bilan_count === 0)) return null;
+  const hasBilan = data.bilan_count > 0;
   return (
-    <div data-testid="dorsi-dashboard-card" style={{ margin: '0 0 16px', padding: '18px 20px', borderRadius: 20, background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.15)', cursor: 'pointer' } as any}
-      onClick={() => router.push(data.has_program ? '/dorsi-program' as any : '/dorsi-bilan' as any)}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+    <div data-testid="dorsi-dashboard-card" style={{ margin: '0 0 16px', padding: '18px 20px', borderRadius: 20, background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.15)' } as any}>
+      <div onClick={() => router.push('/dorsi-program' as any)} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' } as any}>
         <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(249,115,22,0.15)', border: '1px solid rgba(249,115,22,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
           <i className="ri-body-scan-line" style={{ fontSize: 22, color: '#F97316' }} />
         </div>
         <div style={{ flex: 1 } as any}>
           <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Programme Dorsi</div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
-            {data.has_program ? `Jour ${data.current_day}/10 — ${data.progress_pct}% complete` : `${data.bilan_count} bilan(s) — Creer un programme`}
+            {data.has_program ? `Jour ${data.current_day}/10 — ${data.progress_pct}% complete` : hasBilan ? `${data.bilan_count} bilan(s) realise(s)` : 'Commencer'}
           </div>
         </div>
         {data.has_program && (
@@ -50,11 +50,23 @@ function DorsiDashCard({ token }: { token: string | null }) {
             <span style={{ fontSize: 12, fontWeight: 900, color: '#F97316' }}>{data.progress_pct}%</span>
           </div>
         )}
-        <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
       </div>
       {data.has_program && (
         <div style={{ marginTop: 10, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
           <div style={{ height: '100%', borderRadius: 3, width: `${Math.max(2, data.progress_pct)}%`, background: 'linear-gradient(90deg, #F97316, #F59E0B)' } as any} />
+        </div>
+      )}
+      {/* Quick action buttons when bilan exists */}
+      {hasBilan && (
+        <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
+          <div data-testid="dorsi-dash-games" onClick={() => router.push('/dorsi-program' as any)} style={{ flex: 1, padding: '10px 12px', borderRadius: 14, background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+            <i className="ri-gamepad-line" style={{ fontSize: 16, color: '#F97316' }} />
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#F97316' }}>Mini-jeux</span>
+          </div>
+          <div data-testid="dorsi-dash-bilan" onClick={() => router.push('/dorsi-bilan' as any)} style={{ flex: 1, padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+            <i className="ri-bar-chart-box-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Nouveau bilan</span>
+          </div>
         </div>
       )}
       {data.needs_new_bilan && <div style={{ marginTop: 8, fontSize: 11, fontWeight: 600, color: '#F97316' }}>Nouveau bilan recommande</div>}
