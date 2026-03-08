@@ -110,6 +110,7 @@ export default function MorningBriefingScreen() {
   const goToDashboard = () => {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('briefing_seen', '1');
+      localStorage.setItem('briefing_last_date', new Date().toISOString().split('T')[0]);
       window.location.href = '/';
     }
   };

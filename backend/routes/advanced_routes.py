@@ -155,6 +155,23 @@ async def get_morning_briefing(user=Depends(get_current_user)):
             today_focus = full_prog.get("daily_tasks_template", {}).get(day_key, {}).get("focus", "") if full_prog else ""
             program_info = {"title": prog["title"], "day": enrollment.get("current_day", 1), "total": prog["duration_days"], "today_focus": today_focus, "color": prog.get("color", "#A78BFA"), "icon": prog.get("icon", "")}
 
+    # Data freshness — check when data was last measured
+    data_freshness = {}
+    if br_reading and br_reading.get("timestamp"):
+        try:
+            br_dt = datetime.fromisoformat(str(br_reading["timestamp"]).replace("Z", "+00:00"))
+            days_ago = (datetime.now(timezone.utc) - br_dt).days
+            data_freshness["bracelet"] = days_ago
+        except:
+            data_freshness["bracelet"] = -1
+    if sc_reading and sc_reading.get("timestamp"):
+        try:
+            sc_dt = datetime.fromisoformat(str(sc_reading["timestamp"]).replace("Z", "+00:00"))
+            days_ago = (datetime.now(timezone.utc) - sc_dt).days
+            data_freshness["scale"] = days_ago
+        except:
+            data_freshness["scale"] = -1
+
     # Streak
     streak_doc = await db.user_streaks.find_one({"user_id": uid}, {"_id": 0})
     streak = streak_doc.get("current_streak", 0) if streak_doc else 0
@@ -179,6 +196,7 @@ async def get_morning_briefing(user=Depends(get_current_user)):
         "streak": streak,
         "objectives": briefing_objectives,
         "nora_message": "",
+        "data_freshness": data_freshness,
     }
 
     if hd.get("has_bracelet_data"):
@@ -201,10 +219,23 @@ async def get_morning_briefing(user=Depends(get_current_user)):
             ctx_str = format_nora_context_for_prompt(nora_ctx)
             prog_str = f"Programme: {program_info['title']} J{program_info['day']}/{program_info['total']}" if program_info else ""
 
+            # Build freshness context for GPT
+            fresh_str = ""
+            if data_freshness.get("scale", -1) >= 0:
+                if data_freshness["scale"] == 0: fresh_str += "Balance pesee aujourd'hui. "
+                elif data_freshness["scale"] <= 2: fresh_str += f"Balance pesee il y a {data_freshness['scale']} jours. "
+                else: fresh_str += f"ATTENTION: Derniere pesee il y a {data_freshness['scale']} jours (anciennes donnees). "
+            else:
+                fresh_str += "Aucune pesee recente. "
+            if data_freshness.get("bracelet", -1) >= 0:
+                if data_freshness["bracelet"] > 2: fresh_str += f"Bracelet pas de donnees depuis {data_freshness['bracelet']} jours. "
+
             prompt = f"""Briefing matin. 2 phrases COURTES MAX. Factuel, pas d'emoji, vouvoiement.
+FRAICHEUR DONNEES: {fresh_str}
 DONNEES: Poids {d.get('weight',0)}kg, IMC {d.get('bmi',0)}, eau {d.get('water_pct',0)}%{', FC ' + str(d.get('heart_rate',0)) + 'bpm' if d.get('heart_rate',0) > 0 else ''}
 {prog_str}
-JSON: {{"message": "2 phrases: 1 constat sante + 1 conseil du jour"}}"""
+REGLES: Si les donnees sont anciennes (>2 jours), ne dis PAS le poids comme si c'etait actuel. Dis plutot que tu n'as pas de mesure recente et invite a se peser. Si donnees fraiches, fais un constat.
+JSON: {{"message": "2 phrases: 1 constat ou invitation a se mesurer + 1 conseil du jour"}}`"""
 
             chat = LlmChat(api_key=api_key, session_id=f"mb-{uuid.uuid4().hex[:6]}", system_message="Nora. JSON. Court. Pas d'emoji.").with_model("openai", "gpt-5.2")
             r = (await chat.send_message(UserMessage(text=prompt))).strip()

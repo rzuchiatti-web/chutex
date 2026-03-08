@@ -175,11 +175,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   useEffect(() => { fetchData(); const iv = setInterval(fetchData, 30000); return () => clearInterval(iv); }, [fetchData]);
   useEffect(() => { requestNotificationPermission(); }, []);
-  // Morning briefing — only once per session
+  // Morning briefing — only once per day (not per session)
   useEffect(() => {
     if (Platform.OS === 'web') {
-      const seen = sessionStorage.getItem('briefing_seen');
-      if (!seen) { router.push('/morning-briefing' as any); }
+      const today = new Date().toISOString().split('T')[0];
+      const lastSeen = localStorage.getItem('briefing_last_date');
+      if (lastSeen !== today) { router.push('/morning-briefing' as any); }
     }
   }, []);
   useEffect(() => { if (reminders.length > 0) { const cleanup = startReminderChecker(reminders); return cleanup; } }, [reminders]);
