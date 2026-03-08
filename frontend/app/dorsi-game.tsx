@@ -50,15 +50,26 @@ function HUD({ score, timeLeft, combo, bestScore, gameName, gameColor, onBack }:
           <i className="ri-star-fill" style={{ fontSize: 16, color: gameColor }} />
           <span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{score}</span>
         </div>
-        {combo > 1 && <div style={{ padding: '8px 16px', borderRadius: 999, background: `${gameColor}20`, border: `1px solid ${gameColor}40`, animation: 'bounceIn 0.3s' } as any}><span style={{ fontSize: 16, fontWeight: 900, color: gameColor }}>x{combo}</span></div>}
-        {bestScore > 0 && <div style={{ padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.04)' } as any}><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Record {bestScore}</span></div>}
+        {bestScore > 0 && (
+          <div style={{ padding: '8px 16px', borderRadius: 999, background: score > bestScore ? 'rgba(16,185,129,0.15)' : 'rgba(249,115,22,0.1)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+            <i className="ri-trophy-fill" style={{ fontSize: 14, color: score > bestScore ? '#10B981' : '#F59E0B' }} />
+            <span style={{ fontSize: 13, fontWeight: 800, color: score > bestScore ? '#10B981' : '#F59E0B' }}>{score > bestScore ? 'NOUVEAU RECORD !' : `Record: ${bestScore}`}</span>
+          </div>
+        )}
+        {combo > 1 && (
+          <div style={{ padding: '8px 16px', borderRadius: 999, background: `${gameColor}15`, backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: 6, animation: 'pulse 0.5s' } as any}>
+            <i className="ri-fire-fill" style={{ fontSize: 14, color: gameColor }} />
+            <span style={{ fontSize: 14, fontWeight: 900, color: gameColor }}>x{combo}</span>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 /* ── Start/End Screens ── */
-function StartScreen({ meta, bestScore, onStart, ble }: any) {
+function StartScreen({ meta, bestScore, onStart, ble, scoreHistory }: any) {
+  const gameScores = scoreHistory?.find((h: any) => h.game_id === meta.name.toLowerCase().replace(/[^a-z]/g, '')) || scoreHistory?.find((h: any) => meta.name.includes(h.name));
   return (
     <div style={{ position: 'absolute', inset: 0, background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 30, overflowY: 'auto' } as any}>
       <div style={{ textAlign: 'center', padding: '32px 24px', maxWidth: 400 } as any}>
@@ -87,7 +98,24 @@ function StartScreen({ meta, bestScore, onStart, ble }: any) {
           ))}
         </div>
 
-        {bestScore > 0 && <div style={{ fontSize: 13, color: meta.color, marginBottom: 16 }}>Record : <strong>{bestScore}</strong> pts</div>}
+        {/* Score History */}
+        {bestScore > 0 && (
+          <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 16, textAlign: 'left' } as any}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Historique</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                <i className="ri-trophy-fill" style={{ fontSize: 14, color: '#F59E0B' }} />
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#F59E0B' }}>{bestScore} pts</span>
+              </div>
+            </div>
+            {gameScores?.scores?.slice(-5).reverse().map((s: any, i: number) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{s.date ? new Date(s.date).toLocaleDateString() : `Partie ${i + 1}`}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: s.score >= bestScore ? '#F59E0B' : '#FFF' }}>{s.score} pts</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* BLE Connection */}
         <div style={{ padding: '12px 16px', borderRadius: 14, background: ble?.connected ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${ble?.connected ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)'}`, marginBottom: 16 } as any}>
@@ -263,7 +291,7 @@ function CanvasGame({ gameId, meta, onScoreUpdate, onComboUpdate, onTimeUpdate, 
 
     const move = () => {
       const s = 4.5;
-      if (bleConnected) { cursorRef.current.x = W() / 2 + (bleRef.current.x - baseAngle.current.x) * 6; cursorRef.current.y = H() / 2 - (bleRef.current.y - baseAngle.current.y) * 6; }
+      if (bleConnected) { cursorRef.current.x = W() / 2 + (bleRef.current.x - baseAngle.current.x) * 12; cursorRef.current.y = H() / 2 - (bleRef.current.y - baseAngle.current.y) * 12; }
       else { if (keysRef.current.has('ArrowLeft') || keysRef.current.has('a')) cursorRef.current.x -= s; if (keysRef.current.has('ArrowRight') || keysRef.current.has('d')) cursorRef.current.x += s; if (keysRef.current.has('ArrowUp') || keysRef.current.has('w')) cursorRef.current.y -= s; if (keysRef.current.has('ArrowDown') || keysRef.current.has('s')) cursorRef.current.y += s; }
       cursorRef.current.x = Math.max(10, Math.min(W() - 10, cursorRef.current.x));
       cursorRef.current.y = Math.max(90, Math.min(H() - 170, cursorRef.current.y));
@@ -490,9 +518,10 @@ export default function DorsiGamePage() {
   const [combo, setCombo] = useState(0);
   const [finalScore, setFinalScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
+  const [allScoreHistory, setAllScoreHistory] = useState<any[]>([]);
   const meta = GAMES[gameId] || GAMES.moutons;
 
-  useEffect(() => { if (token) apiFetch('/api/dorsi/score-history', {}, token).then((d: any[]) => { const g = d.find((x: any) => x.game_id === gameId); if (g) setBestScore(g.best); }).catch(() => {}); }, [token, gameId]);
+  useEffect(() => { if (token) apiFetch('/api/dorsi/score-history', {}, token).then((d: any[]) => { setAllScoreHistory(d); const g = d.find((x: any) => x.game_id === gameId); if (g) setBestScore(g.best); }).catch(() => {}); }, [token, gameId]);
 
   const handleFinish = useCallback(async (s: number) => { setFinalScore(s); setPhase('end'); if (programId && dayNum && sessionNum) { try { await apiFetch(`/api/dorsi/program/${programId}/session`, { method: 'PUT', body: JSON.stringify({ day_num: dayNum, session_num: sessionNum, score: s }) }, token); } catch {} } }, [programId, dayNum, sessionNum, token]);
   const goBack = () => router.back();
@@ -504,7 +533,7 @@ export default function DorsiGamePage() {
 
   return (
     <div data-testid="dorsi-game-page" style={{ position: 'absolute', inset: 0, background: BG, fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-      {phase === 'start' && <StartScreen meta={meta} bestScore={bestScore} onStart={() => setPhase('playing')} ble={ble} />}
+      {phase === 'start' && <StartScreen meta={meta} bestScore={bestScore} onStart={() => setPhase('playing')} ble={ble} scoreHistory={allScoreHistory} />}
       {phase === 'playing' && (
         <>
           {isSimon ? <SimonFullScreen onScoreUpdate={setScore} onTimeUpdate={setTimeLeft} onFinish={handleFinish} />

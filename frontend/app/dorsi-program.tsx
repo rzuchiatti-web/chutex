@@ -702,138 +702,57 @@ export default function DorsiProgramPage() {
               </div>
             )}
 
-            {/* ═══ NORA GUIDED SESSION ═══ */}
-            <div data-testid="nora-guided-section" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
-                <div style={{ width: 36, height: 36, borderRadius: 12, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(236,72,153,0.2))', border: '1px solid rgba(167,139,250,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className="ri-mic-line" style={{ fontSize: 18, color: '#A78BFA' }} />
-                </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Seance guidee par Nora</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Nora vous accompagne vocalement</div>
-                </div>
+            {/* ═══ JEUX LIBRES — CARROUSEL SWIPABLE ═══ */}
+            <div data-testid="free-play-section" style={{ marginBottom: 16 } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, padding: '0 4px' } as any}>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{t('dorsi_free_games')}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>15 {t('dorsi_games_available')}</div>
               </div>
-              {isGuiding ? (
-                <div style={{ background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.2)', borderRadius: 16, padding: 16 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
-                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#A78BFA', animation: 'pulse 1.5s infinite' } as any} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Nora parle...</span>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>{guidedIdx + 1}/{guidedInstructions.length}</span>
-                  </div>
-                  <div style={{ fontSize: 14, color: '#FFF', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 12 }}>{guidedInstructions[guidedIdx]}</div>
-                  <div style={{ display: 'flex', gap: 8 } as any}>
-                    <div onClick={nextGuidedInstruction} style={{ flex: 1, padding: '10px', borderRadius: 999, background: 'rgba(167,139,250,0.2)', border: '1px solid rgba(167,139,250,0.3)', cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: 700, color: '#A78BFA' } as any}>
-                      {guidedIdx < guidedInstructions.length - 1 ? 'Suivant' : 'Terminer'}
-                    </div>
-                    <div onClick={() => { setIsGuiding(false); if (audioRef.current) audioRef.current.pause(); }} style={{ padding: '10px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>
-                      Arreter
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
-                  {[
-                    { id: 'respiration', name: 'Respiration', icon: 'ri-lungs-line', color: '#60A5FA' },
-                    { id: 'proprioception', name: 'Equilibre', icon: 'ri-focus-3-line', color: '#10B981' },
-                    { id: 'peinture', name: 'Peinture', icon: 'ri-brush-line', color: '#FBBF24' },
-                    { id: 'moutons', name: 'Moutons', icon: 'ri-ghost-smile-line', color: '#22D3EE' },
-                  ].map(g => (
-                    <div key={g.id} data-testid={`guided-${g.id}`} onClick={() => startGuidedSession(g.id)} style={{ padding: '12px', borderRadius: 14, cursor: 'pointer', background: `${g.color}08`, border: `1px solid ${g.color}20`, display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                      <i className={g.icon} style={{ fontSize: 18, color: g.color }} />
-                      <div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{g.name}</div>
-                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>Guidee par Nora</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* ═══ CORRELATIONS SANTE ═══ */}
-            {correlations?.insights?.length > 0 && (
-              <div data-testid="correlations-card" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
-                  <i className="ri-bar-chart-grouped-line" style={{ fontSize: 18, color: '#22D3EE' }} />
-                  <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Correlations sante</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 } as any}>
-                  {correlations.insights.map((ins: any, i: number) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px', borderRadius: 14, background: `${ins.color}08`, border: `1px solid ${ins.color}15` } as any}>
-                      <div style={{ width: 36, height: 36, borderRadius: 10, background: `${ins.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        <i className={ins.icon} style={{ fontSize: 16, color: ins.color }} />
-                      </div>
-                      <div style={{ flex: 1 } as any}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 } as any}>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{ins.title}</span>
-                          {ins.impact && <span style={{ fontSize: 10, fontWeight: 800, color: ins.color, background: `${ins.color}15`, padding: '2px 8px', borderRadius: 999 }}>{ins.impact}</span>}
-                        </div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{ins.detail}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {/* Free play section - always available */}
-            <div data-testid="free-play-section" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{t('dorsi_free_games')}</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 14 }}>15 {t('dorsi_games_available')}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 8 } as any}>
+              <div style={{ display: 'flex', gap: 12, overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', padding: '4px 0 12px', scrollbarWidth: 'none' } as any}
+                ref={(el: any) => { if (el) el.style.cssText += '::-webkit-scrollbar{display:none}'; }}>
                 {[
-                  { id: 'moutons', name: 'Moutons', icon: 'ri-ghost-smile-line', color: '#22D3EE' },
-                  { id: 'bulles', name: 'Bulles', icon: 'ri-bubble-chart-line', color: '#A78BFA' },
-                  { id: 'proprioception', name: 'Equilibre', icon: 'ri-focus-3-line', color: '#10B981' },
-                  { id: 'serpent', name: 'Serpent', icon: 'ri-route-line', color: '#F59E0B' },
-                  { id: 'labyrinthe', name: 'Labyrinthe', icon: 'ri-compass-discover-line', color: '#EC4899' },
-                  { id: 'slalom', name: 'Slalom', icon: 'ri-flag-line', color: '#06B6D4' },
-                  { id: 'etoiles', name: 'Etoiles', icon: 'ri-star-line', color: '#F97316' },
-                  { id: 'simon', name: 'Simon', icon: 'ri-flashlight-line', color: '#EF4444' },
-                  { id: 'cercles', name: 'Cercles', icon: 'ri-record-circle-line', color: '#8B5CF6' },
-                  { id: 'course', name: 'Course', icon: 'ri-run-line', color: '#14B8A6' },
-                  { id: 'respiration', name: 'Respir.', icon: 'ri-lungs-line', color: '#60A5FA' },
-                  { id: 'pendule', name: 'Pendule', icon: 'ri-timer-flash-line', color: '#F472B6' },
-                  { id: 'peinture', name: 'Peinture', icon: 'ri-brush-line', color: '#FBBF24' },
-                  { id: 'rebond', name: 'Rebond', icon: 'ri-basketball-line', color: '#FB923C' },
-                  { id: 'gravite', name: 'Gravite', icon: 'ri-planet-line', color: '#818CF8' },
-                ].map(g => (
-                  <div key={g.id} data-testid={`free-play-${g.id}`} onClick={() => startFreeGame(g.id)} style={{ padding: '12px 4px', borderRadius: 14, cursor: 'pointer', background: `${g.color}08`, border: `1px solid ${g.color}20`, textAlign: 'center' } as any}>
-                    <i className={g.icon} style={{ fontSize: 20, color: g.color, display: 'block', marginBottom: 4 }} />
-                    <div style={{ fontSize: 9, fontWeight: 700, color: g.color }}>{g.name}</div>
-                  </div>
-                ))}
+                  { id: 'moutons', name: 'Moutons', icon: 'ri-ghost-smile-line', color: '#22D3EE', desc: 'Attrapez les moutons' },
+                  { id: 'bulles', name: 'Bulles', icon: 'ri-bubble-chart-line', color: '#A78BFA', desc: 'Eclatez les bulles' },
+                  { id: 'proprioception', name: 'Equilibre', icon: 'ri-focus-3-line', color: '#10B981', desc: 'Restez stable' },
+                  { id: 'serpent', name: 'Serpent', icon: 'ri-route-line', color: '#F59E0B', desc: 'Guidez le serpent' },
+                  { id: 'labyrinthe', name: 'Labyrinthe', icon: 'ri-compass-discover-line', color: '#EC4899', desc: 'Trouvez la sortie' },
+                  { id: 'slalom', name: 'Slalom', icon: 'ri-flag-line', color: '#06B6D4', desc: 'Passez les portes' },
+                  { id: 'etoiles', name: 'Etoiles', icon: 'ri-star-line', color: '#F97316', desc: 'Attrapez les etoiles' },
+                  { id: 'simon', name: 'Simon', icon: 'ri-flashlight-line', color: '#EF4444', desc: 'Memorisez la sequence' },
+                  { id: 'cercles', name: 'Cercles', icon: 'ri-record-circle-line', color: '#8B5CF6', desc: 'Touchez les cibles' },
+                  { id: 'course', name: 'Course', icon: 'ri-run-line', color: '#14B8A6', desc: 'Esquivez les obstacles' },
+                  { id: 'respiration', name: 'Respiration', icon: 'ri-lungs-line', color: '#60A5FA', desc: 'Respirez en rythme' },
+                  { id: 'pendule', name: 'Pendule', icon: 'ri-timer-flash-line', color: '#F472B6', desc: 'Timing parfait' },
+                  { id: 'peinture', name: 'Peinture', icon: 'ri-brush-line', color: '#FBBF24', desc: 'Peignez librement' },
+                  { id: 'rebond', name: 'Rebond', icon: 'ri-basketball-line', color: '#FB923C', desc: 'Cassez les blocs' },
+                  { id: 'gravite', name: 'Gravite', icon: 'ri-planet-line', color: '#818CF8', desc: 'Evitez les planetes' },
+                ].map((g, i) => {
+                  const best = scoreHistory.find((h: any) => h.game_id === g.id);
+                  return (
+                    <div key={g.id} data-testid={`free-play-${g.id}`} onClick={() => startFreeGame(g.id)} style={{
+                      minWidth: 140, scrollSnapAlign: 'start', borderRadius: 20, cursor: 'pointer',
+                      background: `linear-gradient(135deg, ${g.color}18, ${g.color}08)`,
+                      border: `1px solid ${g.color}30`, padding: '18px 16px', position: 'relative', overflow: 'hidden',
+                      transition: 'transform 0.2s', flexShrink: 0,
+                    } as any}
+                      onMouseEnter={(e: any) => e.currentTarget.style.transform = 'scale(1.04)'}
+                      onMouseLeave={(e: any) => e.currentTarget.style.transform = 'scale(1)'}
+                    >
+                      <div style={{ position: 'absolute', top: -20, right: -20, width: 60, height: 60, borderRadius: '50%', background: `${g.color}10` } as any} />
+                      <i className={g.icon} style={{ fontSize: 28, color: g.color, display: 'block', marginBottom: 10 }} />
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>{g.name}</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 8, lineHeight: 1.3 }}>{g.desc}</div>
+                      {best && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                          <i className="ri-trophy-fill" style={{ fontSize: 10, color: '#F59E0B' }} />
+                          <span style={{ fontSize: 10, fontWeight: 800, color: '#F59E0B' }}>{best.best} pts</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
-
-            {/* Nora Recommendations based on bilan */}
-            {noraRecs?.game_recommendations?.length > 0 && (
-              <div style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
-                  <div style={{ width: 28, height: 28, borderRadius: 10, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-robot-2-line" style={{ fontSize: 14, color: '#A78BFA' }} />
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: '#A78BFA' }}>Nora recommande</span>
-                </div>
-                {noraRecs.summary && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 12, lineHeight: 1.5 }}>{noraRecs.summary}</div>}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
-                  {noraRecs.game_recommendations.map((g: any) => (
-                    <div key={g.game} onClick={() => startFreeGame(g.game)} style={{ padding: '12px', borderRadius: 14, background: `${g.color}10`, border: `1px solid ${g.color}20`, cursor: 'pointer' } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } as any}>
-                        <i className={g.icon} style={{ fontSize: 18, color: g.color }} />
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{g.name}</span>
-                      </div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>{g.reason}</div>
-                    </div>
-                  ))}
-                </div>
-                {noraRecs.recommendations?.map((rec: string, i: number) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 10, padding: '8px 0', borderTop: '1px solid rgba(255,255,255,0.06)' } as any}>
-                    <i className="ri-arrow-right-circle-line" style={{ fontSize: 12, color: '#A78BFA', marginTop: 2, flexShrink: 0 }} />
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>{rec}</span>
-                  </div>
-                ))}
-              </div>
-            )}
 
             {/* Score History */}
             {scoreHistory.length > 0 && (
