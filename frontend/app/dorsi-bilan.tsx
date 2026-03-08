@@ -70,24 +70,54 @@ function RadarChart({ allBilans }: { allBilans: { measurements: Record<string, {
 }
 
 // ── Animated Direction Gauge ──
-function MeasureGauge({ direction, onComplete }: { direction: typeof DIRS[0]; onComplete: (mobility: number) => void }) {
+function MeasureGauge({ direction, onComplete, bleAngles, bleConnected, tareAngles }: { direction: typeof DIRS[0]; onComplete: (mobility: number) => void; bleAngles?: any; bleConnected?: boolean; tareAngles?: any }) {
   const { t } = useI18n();
   const [pct, setPct] = useState(0);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
   const maxRef = useRef(0);
+  const ivRef = useRef<any>(null);
+  const bleRef = useRef(bleAngles);
+
+  useEffect(() => { bleRef.current = bleAngles; }, [bleAngles]);
+
+  // When BLE connected and running, read angles and compute mobility
+  useEffect(() => {
+    if (!running || !bleConnected) return;
+    const tare = tareAngles || { x: 0, y: 0 };
+    const poll = setInterval(() => {
+      const a = bleRef.current || { x: 0, y: 0 };
+      // Compute deviation from tare in the target direction
+      let deviation = 0;
+      if (direction.key === 'forward') deviation = Math.max(0, (a.y - tare.y));
+      else if (direction.key === 'backward') deviation = Math.max(0, -(a.y - tare.y));
+      else if (direction.key === 'left') deviation = Math.max(0, -(a.x - tare.x));
+      else if (direction.key === 'right') deviation = Math.max(0, (a.x - tare.x));
+      // Normalize: 30 degrees of tilt = 100% mobility
+      const mobility = Math.min(100, Math.round((deviation / 30) * 100));
+      if (mobility > maxRef.current) maxRef.current = mobility;
+      setPct(maxRef.current);
+    }, 50);
+    return () => clearInterval(poll);
+  }, [running, bleConnected, direction.key]);
 
   const start = () => {
     setRunning(true); setDone(false); setPct(0); maxRef.current = 0;
-    let v = 0;
-    const iv = setInterval(() => {
-      v += Math.random() * 3 + 0.5;
-      if (v > 100) v = 100;
-      if (v > maxRef.current) maxRef.current = Math.round(v);
-      setPct(Math.round(v));
-      if (v >= 100) { clearInterval(iv); setRunning(false); setDone(true); }
-    }, 50);
-    setTimeout(() => { clearInterval(iv); setRunning(false); setDone(true); }, 5000);
+    if (bleConnected) {
+      // BLE mode: measure for 5 seconds, track max angle
+      setTimeout(() => { setRunning(false); setDone(true); }, 5000);
+    } else {
+      // Simulation mode (keyboard/no cushion)
+      let v = 0;
+      ivRef.current = setInterval(() => {
+        v += Math.random() * 3 + 0.5;
+        if (v > 100) v = 100;
+        if (v > maxRef.current) maxRef.current = Math.round(v);
+        setPct(Math.round(v));
+        if (v >= 100) { clearInterval(ivRef.current); setRunning(false); setDone(true); }
+      }, 50);
+      setTimeout(() => { clearInterval(ivRef.current); setRunning(false); setDone(true); }, 5000);
+    }
   };
 
   const arrows: Record<string, { dx: number; dy: number }> = { forward: { dx: 0, dy: -1 }, backward: { dx: 0, dy: 1 }, left: { dx: -1, dy: 0 }, right: { dx: 1, dy: 0 } };
@@ -111,6 +141,8 @@ function MeasureGauge({ direction, onComplete }: { direction: typeof DIRS[0]; on
         <div style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', fontSize: 32, fontWeight: 900, color: '#FFF' } as any}>{pct}%</div>
       </div>
       {!done && !running && <div onClick={start} style={{ ...BTN }} data-testid={`measure-${direction.key}`}>{t('dorsi_measure')}</div>}
+      {!done && !running && bleConnected && <div style={{ fontSize: 10, color: '#10B981', marginTop: 6, fontWeight: 600 }}>Coussin connecte — mesure reelle</div>}
+      {!done && !running && !bleConnected && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>Mode simulation (sans coussin)</div>}
       {running && <div style={{ fontSize: 15, fontWeight: 700, color: '#F97316', animation: 'pulse 1s infinite' }}>{t('dorsi_measuring')}</div>}
       {done && <div onClick={() => onComplete(maxRef.current)} style={{ ...BTN, background: '#10B981', color: '#FFF' }} data-testid={`next-${direction.key}`}>{t('dorsi_validate')} {maxRef.current}%</div>}
     </div>
@@ -145,6 +177,7 @@ export default function DorsiBilanPage() {
   const [bilanResult, setBilanResult] = useState<any>(null);
   const [allBilans, setAllBilans] = useState<any[]>([]);
   const [dirMeasured, setDirMeasured] = useState(false);
+  const [tareAngles, setTareAngles] = useState({ x: 0, y: 0, z: 0 });
 
   // Fetch previous bilans for overlay
   useEffect(() => {
@@ -247,7 +280,7 @@ export default function DorsiBilanPage() {
             <i className="ri-check-line" style={{ fontSize: 32, color: '#FFF' }} />
           </div>
         </div>
-        <div onClick={() => { ble.tare(); setStep(3); }} style={BTN} data-testid="tare-done-btn">{t('dorsi_calibration_done')}</div>
+        <div onClick={() => { const t = ble.tare(); setTareAngles(t); setStep(3); }} style={BTN} data-testid="tare-done-btn">{t('dorsi_calibration_done')}</div>
       </div>
     );
 
@@ -263,7 +296,7 @@ export default function DorsiBilanPage() {
 
           <div style={{ ...G, marginBottom: 12 } as any}>
             {!dirMeasured ? (
-              <MeasureGauge direction={dir} onComplete={(v) => handleMeasured(dir.key, v)} />
+              <MeasureGauge direction={dir} onComplete={(v) => handleMeasured(dir.key, v)} bleAngles={ble.angles} bleConnected={ble.connected} tareAngles={tareAngles} />
             ) : (
               <>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#10B981', marginBottom: 8 }}>{t('dorsi_mobility')}: {data[dir.key]?.mobility}%</div>
