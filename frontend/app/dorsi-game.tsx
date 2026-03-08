@@ -300,30 +300,95 @@ function CanvasGame({ gameId, meta, onScoreUpdate, onComboUpdate, onTimeUpdate, 
     const loop = () => {
       if (gameOverRef.current) return;
       const w = W(), h = H(); frameRef.current++;
-      ctx.fillStyle = BG; ctx.fillRect(0, 0, w, h);
-      // Subtle animated grid
-      ctx.strokeStyle = `${meta.color}06`;
-      const off = (frameRef.current * 0.3) % 50;
-      for (let i = -50 + off; i < w + 50; i += 50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
-      for (let i = -50 + off; i < h + 50; i += 50) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(w, i); ctx.stroke(); }
+      const f = frameRef.current;
+
+      // ═══ ANIMATED BACKGROUND ═══
+      const bgHue = (f * 0.3) % 360;
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      if (gameId === 'moutons') { grad.addColorStop(0, '#1a3a2a'); grad.addColorStop(1, '#0d2818'); }
+      else if (gameId === 'bulles') { grad.addColorStop(0, '#0a1628'); grad.addColorStop(1, '#061230'); }
+      else if (gameId === 'proprioception') { grad.addColorStop(0, '#0a0a20'); grad.addColorStop(1, '#15082a'); }
+      else if (gameId === 'respiration') { grad.addColorStop(0, '#0a1520'); grad.addColorStop(1, '#081018'); }
+      else if (gameId === 'peinture') { grad.addColorStop(0, '#1a1a2e'); grad.addColorStop(1, '#16213e'); }
+      else { grad.addColorStop(0, '#0A0A14'); grad.addColorStop(1, '#0d0d1c'); }
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
+
+      // Floating stars/particles background
+      for (let i = 0; i < 30; i++) {
+        const sx = ((i * 137.5 + f * 0.2) % w);
+        const sy = ((i * 97.3 + f * (0.1 + i * 0.01)) % (h - 100)) + 80;
+        const ss = 1 + Math.sin(f * 0.03 + i) * 0.8;
+        ctx.fillStyle = `rgba(255,255,255,${0.05 + Math.sin(f * 0.02 + i * 0.5) * 0.04})`;
+        ctx.beginPath(); ctx.arc(sx, sy, ss, 0, Math.PI * 2); ctx.fill();
+      }
 
       move();
 
-      // === GAME-SPECIFIC LOGIC ===
+      // ═══ MOUTONS / BULLES / ETOILES / CERCLES ═══
       if (['moutons', 'bulles', 'etoiles', 'cercles', 'labyrinthe'].includes(gameId)) {
-        if (frameRef.current % 50 === 0) spawnTarget();
+        if (f % 50 === 0) spawnTarget();
         if (gameId === 'etoiles') targets.forEach(t => { t.y += 1.5 + Math.sin(t.age * 0.02) * 0.5; });
         if (gameId === 'cercles') targets.forEach(t => { t.r += 0.3; });
         targets.forEach(t => t.age++);
+
+        // Moutons: draw grass at bottom
+        if (gameId === 'moutons') {
+          for (let i = 0; i < w; i += 8) {
+            const gh = 15 + Math.sin(f * 0.05 + i * 0.1) * 5;
+            ctx.fillStyle = `rgba(34,180,80,${0.15 + Math.sin(f * 0.02 + i * 0.05) * 0.05})`;
+            ctx.fillRect(i, h - 160 - gh, 6, gh);
+          }
+        }
+
         for (let i = targets.length - 1; i >= 0; i--) {
           const t = targets[i];
           if (t.y > h + 20 || t.age > 280 || (gameId === 'cercles' && t.r > 60)) { targets.splice(i, 1); comboRef.current = 0; onComboUpdate(0); continue; }
-          const glow = Math.sin(frameRef.current * 0.06 + i) * 0.3 + 0.7;
+          const glow = Math.sin(f * 0.06 + i) * 0.3 + 0.7;
           const col = t.gold ? '#FFD700' : meta.color;
-          ctx.fillStyle = `${col}${Math.round(glow * 30).toString(16).padStart(2, '0')}`;
-          ctx.beginPath(); ctx.arc(t.x, t.y, t.r + 10, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = col; ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = `rgba(255,255,255,${glow * 0.5})`; ctx.beginPath(); ctx.arc(t.x - t.r * 0.3, t.y - t.r * 0.3, t.r * 0.25, 0, Math.PI * 2); ctx.fill();
+          const wobble = Math.sin(f * 0.08 + i * 2) * 3;
+
+          if (gameId === 'moutons') {
+            // Cartoon sheep body
+            ctx.fillStyle = t.gold ? '#FFF8DC' : '#F5F5F5';
+            ctx.beginPath(); ctx.ellipse(t.x + wobble, t.y, t.r + 6, t.r + 2, 0, 0, Math.PI * 2); ctx.fill();
+            // Woolly bumps
+            for (let b = 0; b < 5; b++) {
+              const ba = (b / 5) * Math.PI * 2 + f * 0.02;
+              ctx.fillStyle = t.gold ? '#FFFACD' : '#E8E8E8';
+              ctx.beginPath(); ctx.arc(t.x + wobble + Math.cos(ba) * (t.r), t.y + Math.sin(ba) * (t.r - 2), 5, 0, Math.PI * 2); ctx.fill();
+            }
+            // Face
+            ctx.fillStyle = '#333'; ctx.beginPath(); ctx.ellipse(t.x + wobble + t.r * 0.7, t.y, 6, 7, 0, 0, Math.PI * 2); ctx.fill();
+            // Eyes
+            ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(t.x + wobble + t.r * 0.7 - 2, t.y - 2, 2.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(t.x + wobble + t.r * 0.7 - 1, t.y - 2, 1.2, 0, Math.PI * 2); ctx.fill();
+            // Legs
+            ctx.strokeStyle = '#555'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(t.x + wobble - 4, t.y + t.r); ctx.lineTo(t.x + wobble - 4, t.y + t.r + 8); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(t.x + wobble + 4, t.y + t.r); ctx.lineTo(t.x + wobble + 4, t.y + t.r + 8); ctx.stroke();
+            if (t.gold) { ctx.fillStyle = 'rgba(255,215,0,0.2)'; ctx.beginPath(); ctx.arc(t.x + wobble, t.y, t.r + 16, 0, Math.PI * 2); ctx.fill(); }
+          } else if (gameId === 'bulles') {
+            // Rainbow bubble
+            const rGrad = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, t.r + 8);
+            const hue1 = (f * 2 + i * 40) % 360;
+            rGrad.addColorStop(0, `hsla(${hue1}, 80%, 70%, 0.3)`);
+            rGrad.addColorStop(0.7, `hsla(${hue1 + 60}, 80%, 60%, 0.15)`);
+            rGrad.addColorStop(1, `hsla(${hue1 + 120}, 80%, 50%, 0.05)`);
+            ctx.fillStyle = rGrad; ctx.beginPath(); ctx.arc(t.x, t.y + wobble, t.r + 8, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = `hsla(${hue1}, 90%, 80%, 0.4)`; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(t.x, t.y + wobble, t.r + 4, 0, Math.PI * 2); ctx.stroke();
+            // Shine
+            ctx.fillStyle = `rgba(255,255,255,${glow * 0.6})`;
+            ctx.beginPath(); ctx.ellipse(t.x - t.r * 0.3, t.y + wobble - t.r * 0.3, t.r * 0.35, t.r * 0.2, -0.5, 0, Math.PI * 2); ctx.fill();
+            if (t.gold) { ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 20; ctx.fillStyle = 'rgba(255,215,0,0.3)'; ctx.beginPath(); ctx.arc(t.x, t.y + wobble, t.r, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0; }
+          } else {
+            // Default: glowing orbs
+            ctx.fillStyle = `${col}${Math.round(glow * 30).toString(16).padStart(2, '0')}`;
+            ctx.beginPath(); ctx.arc(t.x, t.y, t.r + 10, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = `rgba(255,255,255,${glow * 0.5})`; ctx.beginPath(); ctx.arc(t.x - t.r * 0.3, t.y - t.r * 0.3, t.r * 0.25, 0, Math.PI * 2); ctx.fill();
+          }
+
           const dx = cursorRef.current.x - t.x, dy = cursorRef.current.y - t.y;
           if (Math.sqrt(dx * dx + dy * dy) < t.r + 15) { addPts(t.gold ? 50 : 15 + Math.min(comboRef.current * 2, 20), t.x, t.y); targets.splice(i, 1); spawnTarget(); }
         }
@@ -331,25 +396,41 @@ function CanvasGame({ gameId, meta, onScoreUpdate, onComboUpdate, onTimeUpdate, 
 
       if (gameId === 'proprioception') {
         const cx = w / 2, cy = h / 2;
-        [140, 90, 45].forEach((r, i) => { ctx.fillStyle = [`${meta.color}08`, `${meta.color}15`, `${meta.color}25`][i]; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill(); });
-        ctx.strokeStyle = `${meta.color}50`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, 45, 0, Math.PI * 2); ctx.stroke();
+        // Pulsating space rings
+        const pulse = Math.sin(f * 0.03) * 10;
+        [140 + pulse, 90, 45].forEach((r, i) => {
+          const rGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+          rGrad.addColorStop(0, `${meta.color}00`);
+          rGrad.addColorStop(0.8, [`${meta.color}06`, `${meta.color}12`, `${meta.color}22`][i]);
+          rGrad.addColorStop(1, `${meta.color}00`);
+          ctx.fillStyle = rGrad; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+        });
+        // Rotating ring
+        ctx.strokeStyle = `${meta.color}40`; ctx.lineWidth = 2; ctx.setLineDash([8, 8]);
+        ctx.beginPath(); ctx.arc(cx, cy, 90, f * 0.01, f * 0.01 + Math.PI * 1.5); ctx.stroke();
+        ctx.setLineDash([]);
+        // Target zone
+        ctx.strokeStyle = `${meta.color}80`; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(cx, cy, 45, 0, Math.PI * 2); ctx.stroke();
         const d = Math.sqrt((cursorRef.current.x - cx) ** 2 + (cursorRef.current.y - cy) ** 2);
-        if (frameRef.current % 8 === 0) { if (d < 45) addPts(3); else if (d < 90) addPts(2); else if (d < 140) addPts(1); }
+        if (f % 8 === 0) { if (d < 45) addPts(3); else if (d < 90) addPts(2); else if (d < 140) addPts(1); }
       }
 
       if (gameId === 'slalom' || gameId === 'course') {
-        if (frameRef.current % 35 === 0) {
+        if (f % 35 === 0) {
           if (gameId === 'slalom') { const gap = 120; obstacles.push({ x: 20 + Math.random() * (w - 40 - gap), y: -10, w: gap, h: 6, speed: 3.5 }); }
           else { obstacles.push({ x: w + 10, y: 100 + Math.random() * (h - 280), w: 20, h: 50 + Math.random() * 120, speed: 4.5 }); }
         }
         for (let i = obstacles.length - 1; i >= 0; i--) {
           const o = obstacles[i];
           if (gameId === 'slalom') o.y += o.speed; else o.x -= o.speed;
-          ctx.fillStyle = `${meta.color}25`; ctx.strokeStyle = `${meta.color}60`; ctx.lineWidth = 1;
-          if (gameId === 'slalom') { ctx.fillRect(0, o.y, o.x, o.h); ctx.fillRect(o.x + o.w, o.y, w, o.h); } else { ctx.fillRect(o.x, o.y, o.w, o.h); ctx.strokeRect(o.x, o.y, o.w, o.h); }
+          const oGrad = ctx.createLinearGradient(0, o.y, 0, o.y + (o.h || 20));
+          oGrad.addColorStop(0, `${meta.color}35`); oGrad.addColorStop(1, `${meta.color}15`);
+          ctx.fillStyle = oGrad;
+          if (gameId === 'slalom') { ctx.fillRect(0, o.y, o.x, o.h + 4); ctx.fillRect(o.x + o.w, o.y, w, o.h + 4); } else { ctx.beginPath(); ctx.roundRect(o.x, o.y, o.w, o.h, 8); ctx.fill(); }
           if (o.y > h + 20 || o.x < -40) { if (gameId === 'slalom') addPts(12); obstacles.splice(i, 1); }
         }
-        if (gameId === 'course' && frameRef.current % 4 === 0) { scoreRef.current++; onScoreUpdate(scoreRef.current); }
+        if (gameId === 'course' && f % 4 === 0) { scoreRef.current++; onScoreUpdate(scoreRef.current); }
       }
 
       if (gameId === 'serpent') {
@@ -365,128 +446,182 @@ function CanvasGame({ gameId, meta, onScoreUpdate, onComboUpdate, onTimeUpdate, 
           if (head.x === snakeFood.x && head.y === snakeFood.y) { addPts(25, snakeFood.x * gs + gs / 2, snakeFood.y * gs + 100); snakeFood = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) }; }
           else snakeBody.pop();
         }
-        // Draw food
-        ctx.fillStyle = meta.color; ctx.shadowColor = meta.color; ctx.shadowBlur = 12;
-        ctx.beginPath(); ctx.arc(snakeFood.x * gs + gs / 2, snakeFood.y * gs + 100 + gs / 2, gs / 2 - 1, 0, Math.PI * 2); ctx.fill();
+        // Glowing food
+        ctx.shadowColor = meta.color; ctx.shadowBlur = 20;
+        ctx.fillStyle = meta.color; ctx.beginPath(); ctx.arc(snakeFood.x * gs + gs / 2, snakeFood.y * gs + 100 + gs / 2, gs / 2 + Math.sin(f * 0.1) * 2, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
-        // Draw snake
-        snakeBody.forEach((s, idx) => { ctx.fillStyle = idx === 0 ? '#FFF' : `${meta.color}${Math.max(40, 200 - idx * 8).toString(16).padStart(2, '0')}`; ctx.beginPath(); ctx.arc(s.x * gs + gs / 2, s.y * gs + 100 + gs / 2, gs / 2 - 1, 0, Math.PI * 2); ctx.fill(); });
+        // Cartoon snake with gradient
+        snakeBody.forEach((s, idx) => {
+          const hue = (120 + idx * 8) % 360;
+          ctx.fillStyle = idx === 0 ? '#FFF' : `hsl(${hue}, 70%, 55%)`;
+          ctx.beginPath(); ctx.arc(s.x * gs + gs / 2, s.y * gs + 100 + gs / 2, gs / 2, 0, Math.PI * 2); ctx.fill();
+          if (idx === 0) { // Eyes on head
+            ctx.fillStyle = '#000';
+            const ex = snakeDir.x * 3, ey = snakeDir.y * 3;
+            ctx.beginPath(); ctx.arc(s.x * gs + gs / 2 + ex - 3, s.y * gs + 100 + gs / 2 + ey - 2, 2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(s.x * gs + gs / 2 + ex + 3, s.y * gs + 100 + gs / 2 + ey - 2, 2, 0, Math.PI * 2); ctx.fill();
+          }
+        });
       }
 
-      // === NEW GAMES ===
+      // === RESPIRATION ===
       if (gameId === 'respiration') {
-        // Breathing circle - expand and contract
         const cx = w / 2, cy = h / 2;
-        const breathCycle = Math.sin(frameRef.current * 0.025) * 0.5 + 0.5; // 0-1
+        const breathCycle = Math.sin(f * 0.025) * 0.5 + 0.5;
         const targetR = 40 + breathCycle * 100;
-        // Show target circle
-        ctx.strokeStyle = `${meta.color}40`; ctx.lineWidth = 3;
+        // Zen waves background
+        for (let i = 0; i < 5; i++) {
+          ctx.strokeStyle = `rgba(96,165,250,${0.03 + i * 0.01})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          for (let x = 0; x < w; x += 5) { ctx.lineTo(x, cy + Math.sin(f * 0.015 + x * 0.01 + i * 0.5) * (30 + i * 20)); }
+          ctx.stroke();
+        }
+        // Organic target circle
+        const tGrad = ctx.createRadialGradient(cx, cy, targetR * 0.5, cx, cy, targetR);
+        tGrad.addColorStop(0, `${meta.color}15`); tGrad.addColorStop(1, `${meta.color}03`);
+        ctx.fillStyle = tGrad; ctx.beginPath(); ctx.arc(cx, cy, targetR, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = `${meta.color}50`; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.arc(cx, cy, targetR, 0, Math.PI * 2); ctx.stroke();
-        ctx.fillStyle = `${meta.color}08`; ctx.fill();
-        // User circle based on cursor distance from center
+        // User circle
         const d = Math.sqrt((cursorRef.current.x - cx) ** 2 + (cursorRef.current.y - cy) ** 2);
         const userR = Math.min(150, Math.max(20, d));
-        ctx.strokeStyle = meta.color; ctx.lineWidth = 4;
+        const sync = 1 - Math.abs(userR - targetR) / 80;
+        ctx.strokeStyle = sync > 0.7 ? '#10B981' : sync > 0.4 ? meta.color : '#EF4444'; ctx.lineWidth = 4;
         ctx.beginPath(); ctx.arc(cx, cy, userR, 0, Math.PI * 2); ctx.stroke();
-        // Score based on sync
-        if (frameRef.current % 6 === 0) {
-          const sync = 1 - Math.abs(userR - targetR) / 80;
-          if (sync > 0.7) addPts(3);
-          else if (sync > 0.4) addPts(1);
-        }
-        // Guide text
-        ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.font = '16px Inter'; ctx.textAlign = 'center';
-        ctx.fillText(breathCycle > 0.5 ? 'Inspirez...' : 'Expirez...', cx, cy + targetR + 40);
+        if (f % 6 === 0) { if (sync > 0.7) addPts(3); else if (sync > 0.4) addPts(1); }
+        ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.font = '18px Inter'; ctx.textAlign = 'center';
+        ctx.fillText(breathCycle > 0.5 ? 'Inspirez...' : 'Expirez...', cx, cy + targetR + 50);
       }
 
       if (gameId === 'pendule') {
         const cx = w / 2, cy = 120;
-        const angle = Math.sin(frameRef.current * 0.03) * 1.2;
+        const angle = Math.sin(f * 0.03) * 1.2;
         const pendL = h * 0.45;
         const bx = cx + Math.sin(angle) * pendL, by = cy + Math.cos(angle) * pendL;
-        // String
-        ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
-        // Ball
-        ctx.fillStyle = `${meta.color}30`; ctx.beginPath(); ctx.arc(bx, by, 30, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = meta.color; ctx.beginPath(); ctx.arc(bx, by, 20, 0, Math.PI * 2); ctx.fill();
-        // Target zone at bottom center
-        ctx.fillStyle = 'rgba(16,185,129,0.15)'; ctx.fillRect(w / 2 - 40, h - 180, 80, 20);
-        ctx.strokeStyle = '#10B981'; ctx.strokeRect(w / 2 - 40, h - 180, 80, 20);
-        // Click/tap to score when pendulum is at center
-        if (Math.abs(angle) < 0.15 && keysRef.current.has(' ')) {
-          addPts(25, bx, by); keysRef.current.delete(' ');
-        }
+        ctx.shadowColor = meta.color; ctx.shadowBlur = 20;
+        ctx.fillStyle = meta.color; ctx.beginPath(); ctx.arc(bx, by, 22, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        // Cute face on ball
+        ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(bx - 5, by - 3, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(bx + 5, by - 3, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(bx - 5, by - 3, 1.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(bx + 5, by - 3, 1.5, 0, Math.PI * 2); ctx.fill();
+        // Smile
+        ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(bx, by + 1, 5, 0.1, Math.PI - 0.1); ctx.stroke();
+        // Target zone
+        ctx.fillStyle = 'rgba(16,185,129,0.12)'; ctx.fillRect(w / 2 - 50, h - 180, 100, 24);
+        ctx.strokeStyle = '#10B981'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(w / 2 - 50, h - 180, 100, 24, 12); ctx.stroke();
+        if (Math.abs(angle) < 0.15 && keysRef.current.has(' ')) { addPts(25, bx, by); keysRef.current.delete(' '); }
       }
 
       if (gameId === 'peinture') {
-        // Paint trail
-        if (frameRef.current % 2 === 0) {
-          const hue = (frameRef.current * 2) % 360;
-          ctx.fillStyle = `hsl(${hue}, 70%, 60%)`;
-          ctx.beginPath(); ctx.arc(cursorRef.current.x, cursorRef.current.y, 8 + Math.random() * 6, 0, Math.PI * 2); ctx.fill();
+        // Rainbow paint trail with splashes
+        if (f % 2 === 0) {
+          const hue = (f * 3) % 360;
+          const size = 10 + Math.sin(f * 0.1) * 5;
+          ctx.fillStyle = `hsla(${hue}, 80%, 60%, 0.7)`;
+          ctx.beginPath(); ctx.arc(cursorRef.current.x, cursorRef.current.y, size, 0, Math.PI * 2); ctx.fill();
+          // Splash particles
+          if (f % 8 === 0) {
+            for (let s = 0; s < 3; s++) {
+              const sx = cursorRef.current.x + (Math.random() - 0.5) * 30;
+              const sy = cursorRef.current.y + (Math.random() - 0.5) * 30;
+              ctx.fillStyle = `hsla(${(hue + s * 30) % 360}, 80%, 60%, 0.4)`;
+              ctx.beginPath(); ctx.arc(sx, sy, 3 + Math.random() * 4, 0, Math.PI * 2); ctx.fill();
+            }
+          }
         }
-        if (frameRef.current % 20 === 0) { scoreRef.current += 2; onScoreUpdate(scoreRef.current); }
+        if (f % 20 === 0) { scoreRef.current += 2; onScoreUpdate(scoreRef.current); }
       }
 
       if (gameId === 'rebond') {
-        // Breakout-like game
         const paddleW = 120, paddleH = 14;
         const paddleX = cursorRef.current.x - paddleW / 2;
         const paddleY = h - 180;
-        // Ball
         if (!('bx' in (window as any))) { (window as any).bx = w / 2; (window as any).by = paddleY - 20; (window as any).bvx = 3; (window as any).bvy = -4; }
         const ball = window as any;
         ball.bx += ball.bvx; ball.by += ball.bvy;
         if (ball.bx < 10 || ball.bx > w - 10) ball.bvx *= -1;
         if (ball.by < 80) ball.bvy *= -1;
-        // Paddle collision
-        if (ball.by > paddleY - 10 && ball.by < paddleY + paddleH && ball.bx > paddleX && ball.bx < paddleX + paddleW) {
-          ball.bvy = -Math.abs(ball.bvy); addPts(5, ball.bx, ball.by);
-        }
+        if (ball.by > paddleY - 10 && ball.by < paddleY + paddleH && ball.bx > paddleX && ball.bx < paddleX + paddleW) { ball.bvy = -Math.abs(ball.bvy); addPts(5, ball.bx, ball.by); }
         if (ball.by > h) { ball.by = paddleY - 20; ball.bx = w / 2; ball.bvy = -4; }
-        // Draw paddle
+        // Neon paddle
+        ctx.shadowColor = meta.color; ctx.shadowBlur = 15;
         ctx.fillStyle = meta.color; ctx.beginPath(); ctx.roundRect(paddleX, paddleY, paddleW, paddleH, 7); ctx.fill();
-        // Draw ball
-        ctx.fillStyle = '#FFF'; ctx.shadowColor = '#FFF'; ctx.shadowBlur = 10;
-        ctx.beginPath(); ctx.arc(ball.bx, ball.by, 8, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
-        // Blocks
-        if (!(window as any).blocks) { (window as any).blocks = []; for (let r = 0; r < 4; r++) for (let c = 0; c < Math.floor(w / 55); c++) (window as any).blocks.push({ x: 10 + c * 55, y: 100 + r * 25, alive: true }); }
-        (window as any).blocks.forEach((b: any) => { if (!b.alive) return; ctx.fillStyle = `${meta.color}60`; ctx.fillRect(b.x, b.y, 50, 20); ctx.strokeStyle = meta.color; ctx.strokeRect(b.x, b.y, 50, 20);
+        // Glowing ball
+        ctx.shadowColor = '#FFF'; ctx.shadowBlur = 15;
+        ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(ball.bx, ball.by, 9, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        // Colorful blocks
+        if (!(window as any).blocks) { (window as any).blocks = []; for (let r = 0; r < 4; r++) for (let c = 0; c < Math.floor(w / 55); c++) (window as any).blocks.push({ x: 10 + c * 55, y: 100 + r * 25, alive: true, hue: (r * 50 + c * 20) % 360 }); }
+        (window as any).blocks.forEach((b: any) => { if (!b.alive) return;
+          ctx.fillStyle = `hsl(${b.hue}, 70%, 50%)`; ctx.beginPath(); ctx.roundRect(b.x, b.y, 50, 20, 4); ctx.fill();
+          ctx.fillStyle = `hsl(${b.hue}, 70%, 70%)`; ctx.fillRect(b.x + 2, b.y + 2, 46, 6);
           if (ball.bx > b.x && ball.bx < b.x + 50 && ball.by > b.y && ball.by < b.y + 20) { b.alive = false; ball.bvy *= -1; addPts(15, b.x + 25, b.y + 10); } });
       }
 
       if (gameId === 'gravite') {
-        // Asteroid dodging planets
-        if (frameRef.current % 80 === 0) {
-          obstacles.push({ x: Math.random() * w, y: -40, w: 20 + Math.random() * 30, h: 0, speed: 1 + Math.random() * 2 });
-        }
+        // Space background with nebula
+        if (f % 80 === 0) { obstacles.push({ x: Math.random() * w, y: -40, w: 20 + Math.random() * 30, h: 0, speed: 1 + Math.random() * 2, hue: Math.random() * 360 }); }
         for (let i = obstacles.length - 1; i >= 0; i--) {
-          const p = obstacles[i];
+          const p = obstacles[i] as any;
           p.y += p.speed;
-          // Planet with rings
-          ctx.fillStyle = `${meta.color}40`; ctx.beginPath(); ctx.arc(p.x, p.y, p.w, 0, Math.PI * 2); ctx.fill();
-          ctx.strokeStyle = `${meta.color}60`; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.w + 10, 6, 0.3, 0, Math.PI * 2); ctx.stroke();
-          // Collision
+          // Colorful planet
+          const pGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.w);
+          pGrad.addColorStop(0, `hsl(${p.hue || 200}, 60%, 50%)`); pGrad.addColorStop(1, `hsl(${(p.hue || 200) + 30}, 60%, 30%)`);
+          ctx.fillStyle = pGrad; ctx.beginPath(); ctx.arc(p.x, p.y, p.w, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = `hsl(${p.hue || 200}, 70%, 60%)`; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.w + 12, 5, 0.3, 0, Math.PI * 2); ctx.stroke();
           const dx = cursorRef.current.x - p.x, dy = cursorRef.current.y - p.y;
           if (Math.sqrt(dx * dx + dy * dy) < p.w + 14) { comboRef.current = 0; onComboUpdate(0); }
           if (p.y > h + 40) { obstacles.splice(i, 1); }
         }
-        if (frameRef.current % 5 === 0) { scoreRef.current++; onScoreUpdate(scoreRef.current); }
+        if (f % 5 === 0) { scoreRef.current++; onScoreUpdate(scoreRef.current); }
       }
 
-      // Cursor (not for serpent/peinture)
+      // ═══ CARTOON CURSOR CHARACTER ═══
       if (!['serpent', 'peinture', 'pendule', 'rebond'].includes(gameId)) {
-        ctx.fillStyle = `${meta.color}12`; ctx.beginPath(); ctx.arc(cursorRef.current.x, cursorRef.current.y, 30, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = meta.color; ctx.shadowColor = meta.color; ctx.shadowBlur = 16;
-        ctx.beginPath(); ctx.arc(cursorRef.current.x, cursorRef.current.y, 14, 0, Math.PI * 2); ctx.fill();
+        const cx = cursorRef.current.x, cy = cursorRef.current.y;
+        // Outer glow
+        ctx.shadowColor = meta.color; ctx.shadowBlur = 25;
+        ctx.fillStyle = `${meta.color}20`; ctx.beginPath(); ctx.arc(cx, cy, 26, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
-        ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(cursorRef.current.x - 3, cursorRef.current.y - 4, 4, 0, Math.PI * 2); ctx.fill();
+        // Body
+        ctx.fillStyle = meta.color; ctx.beginPath(); ctx.arc(cx, cy, 16, 0, Math.PI * 2); ctx.fill();
+        // Eyes (white)
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath(); ctx.arc(cx - 5, cy - 3, 4.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + 5, cy - 3, 4.5, 0, Math.PI * 2); ctx.fill();
+        // Pupils (follow movement direction)
+        const pdx = keysRef.current.has('ArrowRight') ? 1.5 : keysRef.current.has('ArrowLeft') ? -1.5 : 0;
+        const pdy = keysRef.current.has('ArrowDown') ? 1.5 : keysRef.current.has('ArrowUp') ? -1.5 : 0;
+        ctx.fillStyle = '#111';
+        ctx.beginPath(); ctx.arc(cx - 5 + pdx, cy - 3 + pdy, 2, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + 5 + pdx, cy - 3 + pdy, 2, 0, Math.PI * 2); ctx.fill();
+        // Blush
+        ctx.fillStyle = `rgba(255,150,150,0.3)`;
+        ctx.beginPath(); ctx.ellipse(cx - 9, cy + 3, 4, 2.5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(cx + 9, cy + 3, 4, 2.5, 0, 0, Math.PI * 2); ctx.fill();
+        // Smile
+        ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cx, cy + 2, 5, 0.2, Math.PI - 0.2); ctx.stroke();
       }
 
-      // Particles
-      particles.current = particles.current.filter(p => { p.x += p.vx; p.y += p.vy; p.life -= 0.03; p.vy += 0.08; if (p.life <= 0) return false; ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; return true; });
+      // ═══ CONFETTI PARTICLES ═══
+      particles.current = particles.current.filter(p => {
+        p.x += p.vx; p.y += p.vy; p.life -= 0.025; p.vy += 0.06;
+        if (p.life <= 0) return false;
+        ctx.globalAlpha = p.life;
+        // Colorful confetti shapes
+        const hue = (parseInt(p.color?.slice(1) || '0', 16) + frameRef.current) % 360;
+        ctx.fillStyle = p.color || `hsl(${hue}, 80%, 60%)`;
+        if (Math.random() > 0.5) { ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size * p.life, p.size * p.life); }
+        else { ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); ctx.fill(); }
+        ctx.globalAlpha = 1;
+        return true;
+      });
 
       requestAnimationFrame(loop);
     };
