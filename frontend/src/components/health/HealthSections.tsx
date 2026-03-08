@@ -47,34 +47,6 @@ export default function HealthSections({ d, subs }: Props) {
         </div>
       ))}
 
-      {/* Poids & Nutrition — permanent card */}
-      <div data-testid="health-section-weight"
-        onClick={() => router.push('/minceur' as any)}
-        style={{
-          display: 'flex', alignItems: 'center',
-          padding: '0 16px 0 0', borderRadius: 18,
-          background: 'rgba(249,115,22,0.04)',
-          border: '1px solid rgba(249,115,22,0.15)',
-          backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-          cursor: 'pointer', transition: 'transform 0.15s, background 0.15s',
-          overflow: 'visible', position: 'relative', minHeight: 80,
-        } as any}
-        onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(249,115,22,0.08)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-        onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(249,115,22,0.04)'; e.currentTarget.style.transform = ''; }}
-      >
-        <div style={{ width: 70, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 0 8px 12px' } as any}>
-          <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(249,115,22,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-            <i className="ri-scales-3-line" style={{ fontSize: 26, color: '#F59E0B' }} />
-          </div>
-        </div>
-        <div style={{ flex: 1, padding: '16px 0' } as any}>
-          <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>Poids & Nutrition</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>
-            {lastWeight > 0 ? `${lastWeight}kg — IMC ${bmi}` : 'Suivi poids, repas, exercices'}
-          </div>
-        </div>
-        <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(249,115,22,0.3)', flexShrink: 0 }} />
-      </div>
     </div>
   );
 }
