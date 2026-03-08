@@ -76,6 +76,46 @@ const T: Record<string, Record<string, string>> = {
     emergency_contact: 'Contact d\'urgence', call: 'Appeler',
     // Misc
     message: 'Message', bracelet: 'Bracelet', vest: 'Gilet', scale: 'Balance',
+    // Login/Register
+    phone_placeholder: 'Votre numero de telephone', password_placeholder: 'Mot de passe', sign_in: 'Se connecter',
+    no_account: 'Pas encore de compte ?', create_account: 'Creer un compte', forgot_password: 'Mot de passe oublie ?',
+    phone_required: 'Telephone et mot de passe requis', connecting_dots: 'Connexion...',
+    create_your_account: 'Creez votre compte', first_name: 'Prenom', last_name: 'Nom',
+    step_role: 'Choisissez votre espace', im_beneficiary: 'Beneficiaire', im_guardian: 'Gardien',
+    next: 'Suivant', previous: 'Precedent',
+    // ECG
+    ecg_title: 'Electrocardiogramme', ecg_ready: 'Je suis pret',
+    ecg_sit: 'Asseyez-vous confortablement', ecg_calm: 'Restez calme et detendu',
+    ecg_silent: 'Evitez de parler pendant la mesure', ecg_recording: 'Enregistrement',
+    // Devices
+    dev_title: 'Dispositifs connectes', dev_subtitle: 'Gerez vos dispositifs de sante Chutex',
+    dev_associate: 'Associer', dev_discover: 'Decouvrir', dev_new_weighing: 'Nouvelle pesee',
+    dev_bilan: 'Bilan lombaire', dev_protection_active: 'Protection active', dev_standby: 'En veille',
+    // Dorsi
+    dorsi_bilan: 'Bilan lombaire', dorsi_program: 'Programme Dorsi',
+    dorsi_evaluate: 'Evaluez votre mobilite dans 4 directions.',
+    dorsi_sit: 'Asseyez-vous au centre du coussin', dorsi_back: 'Dos droit contre le dossier',
+    dorsi_feet: 'Pieds a plat au sol', dorsi_breathe: 'Respirez normalement',
+    dorsi_start: 'Commencer', dorsi_connect: 'Connexion coussin', dorsi_connected: 'connecte',
+    dorsi_connect_cushion: 'Connecter le coussin', dorsi_continue_without: 'Continuer sans coussin',
+    dorsi_continue: 'Continuer', dorsi_calibration: 'Calibration',
+    dorsi_calibration_desc: 'Restez immobile, dos droit. Le capteur se calibre.',
+    dorsi_calibration_done: 'Tarage OK — Continuer', dorsi_direction: 'Direction',
+    dorsi_measure: 'Mesurer', dorsi_measuring: 'Inclinez au maximum...',
+    dorsi_validate: 'Valider', dorsi_pain_level: 'Niveau de douleur',
+    dorsi_no_pain: 'Aucune', dorsi_max_pain: 'Maximale',
+    dorsi_next_direction: 'Direction suivante', dorsi_see_results: 'Voir les resultats',
+    dorsi_results: 'Resultats', dorsi_mobility: 'mobilite', dorsi_pain: 'Douleur',
+    dorsi_generate_program: 'Generer un programme', dorsi_play: 'Jouer',
+    dorsi_free_games: 'Jeux libres', dorsi_games_available: 'jeux disponibles',
+    dorsi_progression: 'Progression', dorsi_sessions: 'sessions',
+    dorsi_day: 'Jour', dorsi_today: "Aujourd'hui", dorsi_reevaluation: 'Reevaluation',
+    // Health
+    at_rest: 'Au repos', not_connected: 'Non connecte',
+    no_health_data: 'Aucune donnee de sante', recent_measure: 'Mesure recente', no_data: 'Aucune donnee',
+    // Status
+    pending: 'En attente', en_route: 'En route', dispatched: 'Dispatchee',
+    intervention: 'Intervention', accept_intervene: "J'accepte d'intervenir",
   },
   EN: {
     home: 'Home', health: 'Health', alerts: 'Alerts', devices: 'Devices', profile: 'Profile', programs: 'Programs',
@@ -145,6 +185,40 @@ const T: Record<string, Record<string, string>> = {
     pathologies: 'Pathologies', allergies_label: 'Allergies', treating_doctor: 'Treating doctor',
     emergency_contact: 'Emergency contact', call: 'Call',
     message: 'Message', bracelet: 'Bracelet', vest: 'Vest', scale: 'Scale',
+    phone_placeholder: 'Your phone number', password_placeholder: 'Password', sign_in: 'Sign in',
+    no_account: 'No account yet?', create_account: 'Create account', forgot_password: 'Forgot password?',
+    phone_required: 'Phone and password required', connecting_dots: 'Connecting...',
+    create_your_account: 'Create your account', first_name: 'First name', last_name: 'Last name',
+    step_role: 'Choose your space', im_beneficiary: 'Beneficiary', im_guardian: 'Guardian',
+    next: 'Next', previous: 'Previous',
+    ecg_title: 'Electrocardiogram', ecg_ready: 'I am ready',
+    ecg_sit: 'Sit comfortably', ecg_calm: 'Stay calm and relaxed',
+    ecg_silent: 'Avoid talking during measurement', ecg_recording: 'Recording',
+    dev_title: 'Connected devices', dev_subtitle: 'Manage your Chutex health devices',
+    dev_associate: 'Pair', dev_discover: 'Discover', dev_new_weighing: 'New weighing',
+    dev_bilan: 'Lumbar assessment', dev_protection_active: 'Protection active', dev_standby: 'Standby',
+    dorsi_bilan: 'Lumbar assessment', dorsi_program: 'Dorsi Program',
+    dorsi_evaluate: 'Evaluate your mobility in 4 directions.',
+    dorsi_sit: 'Sit in the center of the cushion', dorsi_back: 'Back straight against backrest',
+    dorsi_feet: 'Feet flat on the floor', dorsi_breathe: 'Breathe normally',
+    dorsi_start: 'Start', dorsi_connect: 'Cushion connection', dorsi_connected: 'connected',
+    dorsi_connect_cushion: 'Connect cushion', dorsi_continue_without: 'Continue without cushion',
+    dorsi_continue: 'Continue', dorsi_calibration: 'Calibration',
+    dorsi_calibration_desc: 'Stay still, back straight. The sensor is calibrating.',
+    dorsi_calibration_done: 'Calibration OK — Continue', dorsi_direction: 'Direction',
+    dorsi_measure: 'Measure', dorsi_measuring: 'Tilt to maximum...',
+    dorsi_validate: 'Validate', dorsi_pain_level: 'Pain level',
+    dorsi_no_pain: 'None', dorsi_max_pain: 'Maximum',
+    dorsi_next_direction: 'Next direction', dorsi_see_results: 'See results',
+    dorsi_results: 'Results', dorsi_mobility: 'mobility', dorsi_pain: 'Pain',
+    dorsi_generate_program: 'Generate a program', dorsi_play: 'Play',
+    dorsi_free_games: 'Free games', dorsi_games_available: 'games available',
+    dorsi_progression: 'Progress', dorsi_sessions: 'sessions',
+    dorsi_day: 'Day', dorsi_today: 'Today', dorsi_reevaluation: 'Reassessment',
+    at_rest: 'At rest', not_connected: 'Not connected',
+    no_health_data: 'No health data', recent_measure: 'Recent measure', no_data: 'No data',
+    pending: 'Pending', en_route: 'En route', dispatched: 'Dispatched',
+    intervention: 'Intervention', accept_intervene: 'I accept to intervene',
   },
   DE: {
     home: 'Start', health: 'Gesundheit', alerts: 'Alarme', devices: 'Gerate', profile: 'Profil', programs: 'Programme',
@@ -487,8 +561,8 @@ export const useI18n = () => useContext(I18nContext);
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
   const [lang, setLangState] = useState('FR');
-  useEffect(() => { AsyncStorage.getItem('chutex_lang').then(l => { if (l && T[l]) setLangState(l); }).catch(() => {}); }, []);
-  const setLang = (l: string) => { setLangState(l); AsyncStorage.setItem('chutex_lang', l).catch(() => {}); };
+  useEffect(() => { AsyncStorage.getItem('chutex_lang').then(l => { if (l) { const up = l.toUpperCase(); if (T[up]) setLangState(up); } }).catch(() => {}); }, []);
+  const setLang = (l: string) => { const up = l.toUpperCase(); setLangState(up); AsyncStorage.setItem('chutex_lang', up).catch(() => {}); };
   const t = (key: string) => T[lang]?.[key] || T['FR']?.[key] || key;
   const value = useMemo(() => ({ lang, setLang, t }), [lang]);
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
