@@ -11,7 +11,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://dorsi-cushion.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://chutex-i18n-fix.preview.emergentagent.com").rstrip("/")
 
 
 class TestAdminNewEndpoints:

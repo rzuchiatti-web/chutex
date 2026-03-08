@@ -1,200 +1,198 @@
 <analysis>**original_problem_statement:**
-The project's primary objective is to create Chutex Care, a sophisticated preventative health application. The central goal is to transform the app into a guided, engaging, and personalized health and longevity transformation engine.
+The user wants to enhance Chutex Care, a preventative health application.
 
-Recent user requests have focused on:
--   Implementing a body age metric calculated by the AI (Nora) over time.
--   Refactoring the daily goals system to be coherent, user-configurable, and consistent.
--   Adding a comprehensive activity card to the health page and dashboard.
--   Completely refactoring the Programs section to create a simple, engaging, and clinically sound user experience with guided tasks.
--   Making program tasks dynamically personalized by Nora based on the user's health profile.
--   Implementing a new global loader using a background video.
--   Fully implementing the SOS alert system, including a voice AI (VAPI) for call escalation and a dispatch system for SAAD (Service d'Aide et d'Accompagnement à Domicile) agencies based on geolocation.
--   Integrating Vivoo urine tests into the application.
+The work involves several major feature requests and bug fixes:
+1.  **Dorsi Cushion Integration:**
+    *   Initially, a simulated version with a bilan (assessment), radar chart, and 3 mini-games.
+    *   Later, integration with the real HeloKine01 cushion using BLE, based on a provided specification document ().
+    *   The bilan and games must be accessible at any time, decoupled from the 10-day program.
+    *   The number of mini-games was expanded from 3 to 10, and then to 15, with a dedicated full-screen, immersive game page.
+    *   The bilan process needed significant UI/UX improvements: a stepper, better animations, pain assessment after each movement, and a superimposed radar chart for progress tracking.
+    *   A dashboard card was requested to show program progress and provide quick access.
+    *   Nora (the AI) should recommend specific games based on the user's bilan results.
+
+2.  **VAPI (Voice AI) Overhaul:**
+    *   Fix bugs related to API keys, call initiation, and alert detail page crashes.
+    *   Improve Nora's responsiveness: make her less hesitant, more direct, and use a more natural voice (ElevenLabs).
+    *   Implement parallel calling: Nora must stay on the line with the beneficiary while simultaneously calling guardians and providing live updates.
+
+3.  **UI/UX & Styling:**
+    *   Apply the orange ECG theme (orange fabric background, glassmorphism cards, white text) to all Dorsi-related pages.
+    *   Fix unreadable text on buttons (white on white).
+
+4.  **Full Internationalization (i18n):**
+    *   Translate the entire application (beneficiary and guardian spaces) across 7 languages. This became a massive task involving fixing the language switcher, adding hundreds of translation keys, and refactoring dozens of components to use the  function.
+
+5.  **Guardian Management & SOS Flow:**
+    *   Update and add new guardians for a test user.
+    *   Fix the frontend SOS button, which was not triggering alerts correctly.
+    *   Ensure the alert protocol correctly calls multiple guardians in sequence.
 
 **User's preferred language**: French
 
 **what currently exists?**
-The application is a full-stack platform with a React frontend and a FastAPI/MongoDB backend.
+The application is in a feature-rich but unstable state. The full Dorsi cushion feature, including 15 mini-games on a dedicated full-screen page and BLE integration logic, is implemented. The VAPI voice agent has been significantly upgraded for parallel calling and improved responsiveness. The UI for Dorsi pages has been styled to match the user's ECG theme request.
 
-In this extensive session, the agent performed a major overhaul of several core features:
-1.  **Body Age & Daily Goals**: Implemented Nora-driven body age calculation (requiring 7 days of data) and refactored the daily goals system to be coherent, user-configurable, and consistent across the app.
-2.  **Programs Refactor**: Completely rebuilt the programs feature. It now includes a unified page for the active program and catalogue, dynamically personalized tasks by Nora, and a new UI with immersive, step-by-step guided task popups for all 573 tasks across 10 programs. Programs are now conditionally available based on the user's connected devices.
-3.  **Alerts & VAPI Integration**: Fully integrated a voice AI (VAPI) for handling SOS alerts. This includes creating dynamic AI assistants (using GPT-4o and ElevenLabs) that call the beneficiary and guardians, understand context (call my daughter), and escalate appropriately.
-4.  **SAAD Dispatch System**: Implemented a backend system that, upon failed call escalation, finds the nearest SAAD partner agency based on the alert's geolocation and the agency's intervention radius, and dispatches an intervention mission.
-5.  **UI/UX Overhaul**: Created a new shared  for the dashboard and health page, removed simulated data (e.g., sleep graph), and implemented a new global video-based loader.
-6.  **Critical Bug Fixes**: Resolved major recurring issues related to data persistence, including program tasks not saving (by switching from text to index-based IDs) and program content being wiped by a faulty seeder script.
-
-The agent has just completed the backend logic for dispatching an intervention to a SAAD and is about to implement the frontend for a SAAD agent to accept that mission.
+However, a massive internationalization effort, which involved modifying over 80 files, introduced critical instability. This led to a recurring issue where the main dashboard page crashes with a 404 error, blocking all user access post-login. The agent attempted to fix this multiple times, including reverting the i18n changes, which caused the translation work to be lost. The agent was in the process of re-doing the translations properly when the last session ended.
 
 **Last working item**:
-The agent was working on the full end-to-end flow for SAAD (care service) interventions. After confirming the backend correctly dispatches a mission to the nearest agency, the user pointed out that no one in the SAAD could actually see or accept the mission in the app. The next step is to build this functionality.
+The agent was in the middle of a complete and proper re-implementation of the internationalization (i18n) feature. This was necessary because a previous attempt was reverted to fix a critical application crash. The agent successfully prepared the central translation file, , by fixing language code casing issues and re-adding all the necessary translation keys (~115 keys per language) for all 7 languages.
 
--   **Last item agent was working**: Implementing the UI for a SAAD agent to view and accept a dispatched Care intervention mission.
--   **Status**: NOT STARTED
--   **Agent Testing Done**: N
--   **Which testing method agent to use?**: both. The agent needs to test the full flow:
-    1.  **Backend**: Trigger an SOS alert via  that escalates to a SAAD dispatch.
-    2.  **Frontend**: Log in as a SAAD guardian (e.g., Fabrice COMMEAT) and verify the new mission appears on their dashboard and can be accepted.
+-   **Last item agent was working**: Re-building the  file to support full-app internationalization.
+-   **Status**: IN PROGRESS
+-   **Agent Testing Done**: N (The core context file was prepared, but components have not been updated to use it yet).
+-   **Which testing method agent to use?**: both. After applying translations, the agent must first manually verify the dashboard loads using a screenshot. Once stable,  should be used to perform a full regression test, focusing on both frontend rendering and backend functionality, as the i18n changes touched almost every part of the app.
 -   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1 (P0)**: SAAD intervention mission is not visible or actionable by SAAD agents.
--   **Issue 2 (P1)**: VAPI voice quality is still slightly robotic.
-
-**Issues Detail**:
--   **Issue 1: SAAD intervention mission is not visible or actionable by SAAD agents.**
-    -   **Attempted fixes**: None. The agent just diagnosed the problem. The backend dispatches the mission and sends an SMS, but the UI for the SAAD agent to see and accept it is missing.
+-   **Issue 1: Critical - Application is Unstable and Crashes on Dashboard (P0)**
+    -   **Description**: The application is unusable for logged-in users because it consistently fails to render the main dashboard, resulting in a 404 error screen. This bug was introduced during a large-scale internationalization refactoring and has persisted through multiple fix attempts, including cache clearing and file reversions.
+    -   **Attempted fixes**: Reverting i18n changes, clearing Metro cache, restarting services, using a troubleshoot agent to remove unused imports, and manually checking file syntax. The root cause was eventually traced to a combination of faulty  scripts removing necessary imports and Metro bundler caching issues. Reverting files fixed the crash but lost the translation work.
     -   **Next debug checklist**:
-        1.  Verify if a SAAD-affiliated guardian has their Care intervention space activated. If not, activate it for a test user (e.g., Fabrice COMMEAT).
-        2.  Create/modify the SAAD dashboard () to fetch and display pending  assigned to their agency.
-        3.  Add Accept Intervention and Decline buttons to the mission card.
-        4.  Implement the backend endpoints () and frontend logic to handle these actions.
-        5.  Upon acceptance, the intervenor's location should become trackable by other guardians of the beneficiary.
-    -   **Why fix this issue and what will be achieved with the fix?**: This is the final and most critical link in the SOS alert chain. Without it, the entire SAAD dispatch system is useless as no physical intervention can be confirmed or tracked.
-    -   **Status**: NOT STARTED
-    -   **Is recurring issue?**: N
-    -   **Should Test frontend/backend/both after fix?**: Both
-    -   **Blocked on other issue**: None
-
--   **Issue 2: VAPI voice quality is still slightly robotic.**
-    -   **Attempted fixes**: The agent iterated through multiple voice models (Azure, various ElevenLabs models like Bella and Charlotte) and settings (speed, stability, style). The current configuration (ElevenLabs Lily) is the best so far but still has minor hesitations and artifacts.
-    -   **Next debug checklist**:
-        1.  As suggested by the agent, the ultimate solution is to use ElevenLabs' voice cloning feature.
-        2.  Guide the user on how to record 3-5 minutes of a clear, French-speaking voice.
-        3.  Use the VAPI API to create a new cloned voice and update the assistants to use it.
-    -   **Why fix this issue and what will be achieved with the fix?**: To provide a seamless, human-like experience during a stressful emergency call, which increases user trust and the perceived quality of the service.
-    -   **Status**: IN PROGRESS
+        1.  Do NOT use mass  or  scripts.
+        2.  Continue the careful, file-by-file re-implementation of i18n.
+        3.  After modifying a batch of files, immediately restart the frontend with cache clearing: frontend: ERROR (no such process)
+frontend: ERROR (no such process).
+        4.  Take a screenshot of the root URL () to verify the app loads past the login screen into the dashboard.
+        5.  The issue is almost certainly in the frontend. The file  or one of its direct/indirect imports ( was a past culprit) is the most likely source of the crash.
+    -   **Why fix this issue and what will be achieved with the fix?**: This is an absolute blocker. Fixing it will restore access to the entire application for logged-in users.
+    -   **Status**: BLOCKED (The  task is blocked by this, and vice-versa. They must be solved together).
     -   **Is recurring issue?**: Y
-    -   **Should Test frontend/backend/both after fix?**: Backend (by triggering a call).
+    -   **Should Test frontend/backend/both after fix?**: frontend
+    -   **Blocked on other issue**: This issue is blocking all other progress.
 
 **In progress Task List**:
-None.
+-   **Task 1: Complete Internationalization (i18n) (P0)**
+    -   **Description**: The user wants the entire application translated into 7 languages. The  file has been correctly prepared, but the components themselves still contain hardcoded French text.
+    -   **Where to resume**: Go through all component files (especially those in , , , and ) and replace hardcoded strings with the  function, ensuring the  hook is imported and called correctly in each file.
+    -   **What will be achieved with this?**: A fully translated application that respects the user's selected language. This is a critical step to resolve the dashboard crash.
+    -   **Status**: IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?**: both
+    -   **Blocked on something**: This task is intertwined with the Critical - Application is Unstable issue.
 
 **Upcoming and Future Tasks**
 **Upcoming Tasks**:
--   **P1: Vivoo Urine Test Integration**: The agent drafted a response to the distributor. The next step is to act on their technical feedback (they support Flutter/iOS/Android SDKs) and plan the integration. The agent will likely need to use the  for this.
+-   **P1: Generate Native iOS Build for BLE Testing**: The user wants to test the real Dorsi cushion with their iPhone. The agent has already implemented the platform-aware BLE logic using . The next step is to inform the user that a native iOS build must be generated (a process the agent cannot perform) to enable this functionality.
 
 **Future Tasks**:
--   **Guardian Referral System**: Allow guardians to invite new beneficiaries.
--   **Free 7-Day Trial**: Create a limited program for non-subscribed users.
--   **View Contract PDF**: Implement the functionality to display the user's contract PDF from the subscription page.
+-   Guardian Referral System.
+-   Free 7-Day Trial.
+-   View Contract PDF functionality.
+-   Vivoo Urine Test Integration.
+-   A minor UI issue where the standby badge for the vest should be orange, not green.
 
 **Completed work in this session**
--   **Programs Feature Overhaul (DONE)**:
-    -   Rebuilt the entire user experience into a single, unified page () showing the active program and the full catalogue.
-    -   Populated all **573 tasks** across all 10 programs with AI-generated **guided steps**, presented in an immersive glass popup with choice-based inputs.
-    -   Implemented **dynamic personalization**, where Nora adapts daily tasks based on the user's health profile (e.g., age, pathologies).
-    -   Fixed a critical persistence bug by switching from text-based to **index-based task IDs**, ensuring user progress is saved reliably.
-    -   Added **device requirements** to programs, disabling them if the user lacks the necessary hardware (e.g., bracelet for sleep program).
--   **VAPI Voice AI Integration (DONE)**:
-    -   Created and configured dynamic VAPI assistants for patient and guardian calls using **GPT-4o** and **ElevenLabs**.
-    -   Implemented advanced conversational logic, including contextual handoffs (call my daughter), handling user hesitation, and auto-resolving alerts with detailed call summaries.
--   **SAAD Dispatch Logic (DONE)**:
-    -   Implemented a geolocation-based system in  to find the nearest SAAD agency within its intervention radius and dispatch a mission.
--   **UI/UX Enhancements (DONE)**:
-    -   Created a new  component with steps, kcal, distance, streak, and a new recovery score, and added it to the dashboard and health pages.
-    -   Implemented a new global video-based .
-    -   Removed the confusing How are you feeling? popup from the dashboard.
--   **Critical Bug Stomping (DONE)**:
-    -   Fixed the seeder script in  that was wiping all  data on every server restart.
-    -   Corrected the AI personalization caching logic to prevent it from ever overwriting the master program templates.
+-   **Dorsi Cushion Feature (V1 & V2)**:
+    -   Implemented the full Dorsi feature, starting with simulation and then adding real BLE connectivity logic ().
+    -   Created 15 distinct mini-games with a dedicated, full-screen, immersive UI ().
+    -   Built a comprehensive Bilan (assessment) page with a stepper, improved animations, and superimposed radar charts ().
+    -   Developed a 10-day program page with score history and AI-driven game recommendations ().
+    -   Added a dynamic dashboard card for program tracking.
+-   **VAPI Voice AI Overhaul**:
+    -   Rewrote the VAPI engine () to support parallel calls (calling guardians while staying on the line with the patient).
+    -   Improved AI voice quality (using ElevenLabs ), responsiveness, and escalation logic.
+    -   Fixed critical bugs related to corrupted API keys that prevented calls from being made.
+-   **UI/UX and Guardian Updates**:
+    -   Successfully applied the user's requested ECG style (orange background, glassmorphism cards, white text) to all Dorsi pages.
+    -   Updated, added, and verified guardian information in the database.
+-   **SOS Flow Debugging**:
+    -   Fixed the frontend SOS button, which was blocked by a geolocation timeout and was sending an incorrect alert type.
+    -   Successfully tested the end-to-end alert protocol with multiple guardians.
 
 **Earlier issues found/mentioned but not fixed**
--   **Vest Status Badge Color**: A minor UI issue from a previous session; the standby badge for the vest should be orange, not green. This remains pending.
+-   A minor UI issue from the initial handoff: the standby badge for the vest should be orange, not green.
 
 **Known issue recurrence from previous fork**
--   **Issue recurrence in this session**:  data being wiped.
--   **Recurrence count**: Critical. This happened multiple times during the session.
--   **Status**: RESOLVED. The agent finally identified and fixed the two root causes: 1) a faulty seeder script () that overwrote templates on restart, and 2) a caching mechanism in the personalization logic () that saved an incomplete version of the data. Both have been corrected.
+-   **Dashboard Crashing (404 Error)**: This is a severe, recurring issue. It is triggered by large-scale frontend changes, particularly related to the i18n refactoring. The combination of batch file modifications () and Metro bundler caching problems makes the application highly fragile.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Conversational AI Integration (VAPI)**: Deep integration with a voice AI platform, including creating dynamic assistants via API, handling webhooks, and fine-tuning voice models (ElevenLabs, Azure) and prompts (GPT-4o) for natural, low-latency conversation.
--   **Dynamic AI Content Generation**: Using GPT-4o to personalize program tasks in real-time based on a user's health profile, with results cached for 24 hours.
--   **Geolocation-based Dispatch**: Using  library to calculate haversine distance to find the nearest service provider (SAAD agency) within its defined intervention radius.
--   **Robust Data Persistence**: Resolved a critical data loss bug by switching from mutable text-based identifiers to immutable index-based identifiers () for tracking user progress.
--   **Batch Scripting & Data Seeding**: Using a Python script () to bulk-populate the MongoDB database with AI-generated content. Fixed a critical flaw in the main  that was destroying this data on every server restart.
--   **Frontend State Management & UI**: Using React Portals () to create immersive, full-screen popups that escape parent  constraints.
+-   **Internationalization (i18n) at Scale**: Managing translations for >80 components across 7 languages. Debugging issues caused by context providers, bundler caches, and incorrect scripting.
+-   **Advanced Voice AI Orchestration**: Using  in Python to implement complex, parallel call flows with a third-party API (VAPI).
+-   **Hybrid BLE Implementation**: Creating a platform-aware React hook () that abstracts the difference between the Web Bluetooth API (for browsers) and  (for native iOS/Android).
+-   **Application Instability & Debugging**: Diagnosing a critical, recurring frontend crash by analyzing bundler behavior, reverting git commits, and identifying flawed refactoring scripts.
 
 **key DB schema**
--   ****:  field now populated for all tasks.
--   ****:  (Array of strings) has been replaced by  (Array of numbers).
--   ****: A new collection to auto-save individual task progress, including , , and .
--   ****:  field added to store a summary of VAPI calls.
--   ****: , ,  fields added and populated.
--   ****: A new collection to track dispatched SAAD missions, linking an  to an  with a  (e.g., ).
+-   ****:  array updated to support multiple guardians.  field used to gate VAPI SOS calls.
+-   ** (New)**: Stores assessment results, including mobility scores and pain levels for each direction.
+-   ** (New)**: Stores the user's 10-day program, including daily sessions and game history with scores.
 
 **changes in tech stack**
--   No changes to the core stack, but **VAPI.ai** is now a critical external dependency for the alert system.
+-   None. The agent correctly identified the need for  which was already in .
 
 **All files of reference**
--    (SOS, VAPI webhook, SAAD dispatch)
--    (Nora's dynamic personalization)
--    (The main unified Programs page)
--    (UI for the active program)
--    (UI for guided tasks)
--    (Dashboard for SAAD agents - to be modified next)
--    files for both backend and frontend.
+-    (The core of the i18n effort and a major source of instability).
+-    (The main dashboard and a frequent crash point).
+-    (The heavily rewritten parallel voice AI engine).
+-    (New feature page).
+-    (New feature page).
+-    (New feature page).
+-    (User-provided technical specifications for the Dorsi cushion).
 
 **Areas that need refactoring**:
--   The VAPI integration logic in  and  is becoming large. It could be neatly extracted into a dedicated .
+-   The entire approach to internationalization needs to be more robust. Using mass  commands proved to be a failure. The current, file-by-file approach should be completed.
+-   Many components in the  and  directory had their i18n imports incorrectly removed by a script. These need to be carefully audited and fixed.
 
 **key api endpoints**
--   : Triggers the full VAPI/SAAD escalation flow.
--   : Receives call results from VAPI, which then drives the backend logic (e.g., auto-close alert, escalate to guardian).
--   : New endpoint for auto-saving task progress using .
--   : Returns the active program, now with dynamically personalized tasks from Nora.
--   : A test endpoint created to trigger SAAD dispatch directly.
+-   : Triggers the SOS flow.
+-   : Retrieves bilan history.
+-   : Creates a new bilan.
+-   : Retrieves the current exercise program.
+-   : Creates a new program.
+-   : Gets AI-recommended games based on the last bilan.
 
 **Critical Info for New Agent**
--   **Your immediate priority is to build the UI for a SAAD agent to accept an intervention mission.** The backend dispatches it, but no one can act on it. This is the final piece of the SOS flow.
--   **The  data loss issue is resolved.** The root causes (a faulty seeder and incorrect caching) have been fixed. All program content (573/575 tasks) was regenerated at the end of the session and should now be stable.
--   **User progress in programs now uses  (integer), not task text.** This was a critical fix to ensure progress is saved correctly even when Nora personalizes the task descriptions. All related logic (frontend and backend) has been updated.
--   **The VAPI integration is fully configured in the  file but uses a US-based Twilio number.** This works for testing calls to French numbers but is not ideal for production.
+-   **Your immediate and highest priority is to stabilize the application.** The dashboard is inaccessible due to a recurring crash linked to the internationalization (i18n) effort. Do not attempt any new features until the app is stable.
+-   **Resume the i18n task carefully.** The  file is ready. You must now go through the application's components one by one (or in small, logical batches) and replace hardcoded French text with  calls.
+-   **AVOID massive, automated file modifications.** The previous agent's use of  to modify >80 files at once was the primary cause of instability and massive rework. Be methodical and test incrementally.
+-   **Be prepared to clear the Metro bundler cache frequently.** After any significant frontend change, run frontend: ERROR (no such process)
+frontend: ERROR (no such process) to avoid serving stale, broken code.
+-   **Native BLE on iOS requires a native build.** The user wants to test the real cushion on their iPhone. You must communicate that while the code is ready, you cannot generate the required native app binary; this is a step the user/platform must take.
 
 **documents and test reports created in this job**
--    (Script to bulk-generate program content)
--   Multiple test reports in  from the testing agent.
+-   
+-   
+-   
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **USER**: The VAPI voice is still a bit robotic and has an accent.
-2.  **AGENT**: Switched to Azure  and GPT-4o-mini for maximum speed and no accent.
-3.  **USER**: Better, but now it says stay safe when I say I have knee pain. Simulate all possible scenarios.
-4.  **AGENT**: Updated VAPI prompts to handle all scenarios (pain, call my daughter, etc.) and pass patient context to guardian calls.
-5.  **USER**: Better! More natural. It still hesitates a little but it's the best version yet.
-6.  **AGENT**: Confirmed this is the current limit of the technology.
-7.  **USER**: If I test an alert now where guardians don't answer, it should dispatch to the nearest SAAD, right?
-8.  **AGENT**: Correct, but there is no UI for the SAAD agent to accept the mission. Do you want me to build that now or fork?
-9.  **AGENT**: (Continues) The agent found the  were wiped again due to a seeder bug, fixed it, and regenerated all the steps.
-10. **USER**: I'm on day 2 of my fall prevention program and there are still no steps for the tasks. It just shows a completed popup.
+1.  **USER:** Finish the translations and launch the build. (The agent explained it can't launch a native build).
+2.  **USER:** Asks for clarification on translations, you havent finished yet?".
+3.  **USER:** "Yes, translate the app in the guardian and beneficiary spaces, all pages."
+4.  **USER:** Asks to connect the real cushion via iPhone.
+5.  **USER:** Asks for clarification on how to connect via iOS.
+6.  **USER:** Chooses option 2: "Implement the native connection".
+7.  **AGENT:** Explains the crash is due to a faulty cleanup script that removed necessary imports.
+8.  **USER:** "The SOS button doesnt work.
+9.  **AGENT:** Re-implements parallel VAPI calls.
+10. **USER:** Can Nora call guardians in parallel while staying on the phone with Josette?
 
 **Project Health Check:**
--   **Broken**: The SAAD intervention acceptance flow. A mission is dispatched via SMS, but no SAAD agent can view or accept it within the application UI.
--   **Mocked**: None.
+-   **Broken**: The main application dashboard () is critically broken. It fails to load after login, showing a 404 error page, which makes the app unusable.
 
 **3rd Party Integrations**
--   **VAPI.ai (Voice AI)**: Fully integrated for handling SOS calls. Uses Emergent LLM Key via GPT-4o and GPT-4o-mini models, and ElevenLabs/Azure for voice synthesis.
+-   **VAPI.ai (Voice AI)**: Heavily customized for parallel calling using GPT-4o-mini and ElevenLabs.
 -   **Stripe**: Payments, Subscriptions.
--   **OpenAI GPT**: Used for Nora's AI analysis and program personalization (via Emergent LLM Key).
+-   **OpenAI GPT**: For Nora's AI analysis (bilan recommendations, morning briefing).
 -   **Mailjet**: Transactional emails.
 -   **SMSMode**: SMS notifications.
--   **Lefu Cloud API**: For body composition analysis from the smart scale.
+-   **Lefu Cloud API**: Smart scale integration.
+-   **react-native-ble-plx**: For native Bluetooth LE communication on iOS/Android (code is present but requires a native build to be used).
 
 **Testing status**
--   **Testing agent used after significant changes**: YES, extensively.
--   **Troubleshoot agent used after agent stuck in loop**: NO
+-   **Testing agent used after significant changes**: YES, multiple times. However, the current issue is a runtime crash that the testing agent's navigation scripts also hit, making it less effective until the app is stabilized.
+-   **Troubleshoot agent used after agent stuck in loop**: YES, the agent used it to debug the i18n-related crash, which helped identify a flawed cleanup script.
 -   **Test files created**: None.
--   **Known regressions**: None.
+-   **Known regressions**: The entire i18n feature was regressed when files were reverted to fix the dashboard crash. The dashboard's stability has significantly regressed.
 
 **Credentials to test flow:**
 | Role | Email / Phone | Password | Notes |
 |---|---|---|---|
-| **Beneficiary** |  |  | Main test account (Josette Zuchiatti). Currently in a Fall Prevention program. |
-| **Guardian** |  |  | Claire Martin (Fille), linked to Josette. |
-| **SAAD Admin** |  |  | Marie Dupont (SAAD Aide à Domicile Loire). |
-| **SAAD Guardian** |  |  | Fabrice COMMEAT, attached to the SAAD. This is the user to test the intervention acceptance flow with. |
+| **Beneficiary** |  |  | Josette Zuchiatti. Main test account. |
+| **Guardian 1** |  |  | Clément Zuchiatti (replaces Myriam). |
+| **Guardian 2** |  |  | Julianne Zuchiatti (new). |
+| **SAAD Guardian** |  |  | Sophie MARTIN. |
 
 **What agent forgot to execute**
-The agent correctly diagnosed all major issues and was in the process of fixing the final, most complex one: the complete end-to-end alert flow. The last piece of the puzzle—the UI for a SAAD guardian to accept an intervention—was identified but not started. The user's last messages confirm that this is the highest priority. The agent did not forget but was systematically working through a very large and complex set of interconnected tasks.</analysis>
+The agent did not forget a task, but its implementation strategy for the large-scale i18n task was flawed. Using massive batch scripts () on a complex frontend codebase proved to be brittle and counter-productive, leading to significant debugging loops and rework. A more careful, incremental approach should have been used from the start.</analysis>
