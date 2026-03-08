@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
-import { useDorsiBLE } from '../src/hooks/useDorsiBLE';
+import { useSharedDorsiBLE } from '../src/context/DorsiBLEContext';
 import { useI18n } from '../src/context/I18nContext';
 
 const BG = '#0A0A14';
@@ -478,7 +478,7 @@ function CanvasGame({ gameId, meta, onScoreUpdate, onComboUpdate, onTimeUpdate, 
 export default function DorsiGamePage() {
   const { token } = useAuth();
   const router = useRouter();
-  const ble = useDorsiBLE();
+  const ble = useSharedDorsiBLE();
   const params = useLocalSearchParams();
   const gameId = (params.gameId as string) || 'moutons';
   const programId = params.programId as string;

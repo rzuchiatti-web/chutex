@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { ThemeProvider } from '../src/context/ThemeContext';
 import { I18nProvider } from '../src/context/I18nContext';
+import { DorsiBLEProvider } from '../src/context/DorsiBLEContext';
 import { View, ActivityIndicator, StyleSheet, Platform, Image, Text, TouchableOpacity } from 'react-native';
 import { PastelMistBackground } from '../src/components/PastelMistBackground';
 import { ensureFirstLaunchLocationPermission, openSystemLocationSettings, requestLocationPermission } from '../src/services/locationPermissions';
@@ -274,11 +275,13 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <I18nProvider>
-        <AuthProvider>
-          <PastelMistBackground />
-          <WebLocationPermissionGate />
-          <RootNav />
-        </AuthProvider>
+        <DorsiBLEProvider>
+          <AuthProvider>
+            <PastelMistBackground />
+            <WebLocationPermissionGate />
+            <RootNav />
+          </AuthProvider>
+        </DorsiBLEProvider>
       </I18nProvider>
     </ThemeProvider>
   );

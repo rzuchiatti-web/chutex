@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
-import { useDorsiBLE } from '../src/hooks/useDorsiBLE';
+import { useSharedDorsiBLE } from '../src/context/DorsiBLEContext';
 import { useI18n } from '../src/context/I18nContext';
 import { SerpentGame, LabyrintheGame, SlalomGame, EtoilesGame, SimonGame, CerclesGame, CourseGame } from '../src/components/dorsi/ExtraGames';
 
@@ -450,7 +450,7 @@ function ProprioceptionGame({ difficulty, onFinish, bleAngles, bleConnected }: a
 export default function DorsiProgramPage() {
   const { token } = useAuth();
   const router = useRouter();
-  const ble = useDorsiBLE();
+  const ble = useSharedDorsiBLE();
   const { t } = useI18n();
   const [program, setProgram] = useState<any>(null);
   const [loading, setLoading] = useState(true);

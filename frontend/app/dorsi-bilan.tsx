@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
-import { useDorsiBLE } from '../src/hooks/useDorsiBLE';
+import { useSharedDorsiBLE } from '../src/context/DorsiBLEContext';
 import { useI18n } from '../src/context/I18nContext';
 
 const BG_IMG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
@@ -167,7 +167,7 @@ function PainSlider({ value, onChange }: { value: number; onChange: (v: number) 
 export default function DorsiBilanPage() {
   const { token } = useAuth();
   const router = useRouter();
-  const ble = useDorsiBLE();
+  const ble = useSharedDorsiBLE();
   const { t } = useI18n();
   // Steps: 0=intro, 1=connect, 2=tare, 3-6=direction+pain (4 dirs), 7=results
   const [step, setStep] = useState(0);
@@ -261,7 +261,8 @@ export default function DorsiBilanPage() {
           <h2 style={{ fontSize: 20, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>{ble.connected ? `${ble.deviceName} ${t('dorsi_connected')}` : t('dorsi_connect')}</h2>
           {!ble.connected && <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 16px' }}>{t('dorsi_continue_without')}.</p>}
           {!ble.connected && <div onClick={ble.connect} style={{ ...BTN, marginBottom: 12 }} data-testid="ble-connect-btn">{ble.connecting ? '...' : t('dorsi_connect_cushion')}</div>}
-          {ble.connected && <div style={{ fontSize: 13, color: '#10B981', marginBottom: 16 }}>Batterie {ble.battery}%</div>}
+          {ble.connected && ble.battery >= 0 && <div style={{ fontSize: 13, color: '#10B981', marginBottom: 16 }}>Batterie {ble.battery}%</div>}
+          {ble.connected && ble.battery < 0 && <div style={{ fontSize: 13, color: '#10B981', marginBottom: 16 }}>Connecte</div>}
         </div>
         <div onClick={() => setStep(2)} style={{ ...BTN, background: ble.connected ? '#FFF' : 'rgba(255,255,255,0.15)', color: ble.connected ? '#1a1a2e' : '#FFF' } as any} data-testid="skip-ble-btn">
           {ble.connected ? t('dorsi_continue') : t('dorsi_continue_without')}

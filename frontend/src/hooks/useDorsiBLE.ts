@@ -72,7 +72,7 @@ function useNativeBLE() {
               deviceRef.current = connected;
 
               // Read battery
-              let battery = 100;
+              let battery = -1;
               try {
                 const battChar = await connected.readCharacteristicForService(BATTERY_SERVICE, BATTERY_CHAR);
                 if (battChar.value) {
@@ -170,7 +170,7 @@ function useWebBLE() {
       charY.addEventListener('characteristicvaluechanged', (e: any) => { anglesRef.current = { ...anglesRef.current, y: parseAngle(e.target.value), timestamp: Date.now() }; setState(s => ({ ...s, angles: { ...anglesRef.current } })); });
       await charY.startNotifications();
       try { const charZ = await svc.getCharacteristic(ANGLE_Z_CHAR); charZ.addEventListener('characteristicvaluechanged', (e: any) => { anglesRef.current = { ...anglesRef.current, z: parseAngle(e.target.value), timestamp: Date.now() }; setState(s => ({ ...s, angles: { ...anglesRef.current } })); }); await charZ.startNotifications(); } catch {}
-      let battery = 100;
+      let battery = -1;
       try { const bs = await server.getPrimaryService(BATTERY_SERVICE); const bc = await bs.getCharacteristic(BATTERY_CHAR); const bv = await bc.readValue(); battery = bv.getUint8(0); } catch {}
       setState(s => ({ ...s, connected: true, connecting: false, deviceName: device.name || 'HeloKine', battery, error: '' }));
       return true;
