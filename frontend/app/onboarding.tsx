@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LanguagePicker from '../src/components/LanguagePicker';
 import NativePageView from '../src/components/NativePageView';
+import { useI18n } from '../src/context/I18nContext';
 
 const LOGO = 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429';
 
@@ -17,9 +18,7 @@ function Typewriter({ text, speed = 30, delay = 300, color = '#FFF' }: any) {
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const [lang, setLang] = useState('fr');
-
-  useEffect(() => { AsyncStorage.getItem('chutex_lang').then(v => { if (v) setLang(v); }).catch(() => {}); }, []);
+  const { lang, setLang, t } = useI18n();
 
   const finish = async () => { await AsyncStorage.setItem('chutex_onboarding_done', 'true'); router.replace('/'); };
 
@@ -41,7 +40,7 @@ export default function OnboardingScreen() {
 
         <img src={LOGO} alt="Chutex" style={{ height: 70, width: 'auto', marginBottom: 28, filter: 'drop-shadow(0 0 40px rgba(255,255,255,0.2)) drop-shadow(0 0 80px rgba(255,255,255,0.08))' } as any} />
         <div style={{ textAlign: 'center', maxWidth: 340 } as any}>
-          <Typewriter text="Construire un avenir ou la longevite, la vitalite et la sante sont portees par la prevention." speed={28} delay={600} color="#FFF" />
+          <Typewriter text={t('onboarding_tagline')} speed={28} delay={600} color="#FFF" />
         </div>
       </div>
 
@@ -94,7 +93,7 @@ export default function OnboardingScreen() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </div>
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.7)', fontSize: 15, fontWeight: 600, pointerEvents: 'none', paddingLeft: 40 } as any}>
-            Glisser pour commencer
+            {t('slide_start')}
           </div>
         </div>
       </div>

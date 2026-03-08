@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useI18n } from '../../src/context/I18nContext';
 import { Colors } from '../../src/constants/colors';
 import { DeviceManagement } from '../../src/components/devices/DeviceManagement';
 import PrescriptionManagement from '../../src/components/devices/PrescriptionManagement';
@@ -12,6 +13,7 @@ import SubscribersList from '../../src/components/devices/SubscribersList';
 export default function DevicesScreen() {
   const { user, token } = useAuth();
   const { colors } = useTheme();
+  const { t } = useI18n();
   if (!user || !token) return null;
   const r = user.active_role || user.role;
   // Guardian: full screen, no wrapper header
@@ -32,7 +34,7 @@ export default function DevicesScreen() {
   return (
     <View key={r} style={[styles.safeArea, { backgroundColor: '#FFFFFF' }]} testID="devices-screen">
       <View style={styles.header}>
-        <Text style={[styles.title, { color: '#111827' }]}>{r === 'admin' ? 'Prescripteurs' : r === 'prescriber_company' ? 'Prescriptions' : r === 'teleassistance' ? 'Abonnes' : 'Mes Appareils'}</Text>
+        <Text style={[styles.title, { color: '#111827' }]}>{r === 'admin' ? t('prescribers') : r === 'prescriber_company' ? t('prescriptions') : r === 'teleassistance' ? t('subscribers') : t('my_devices_tab')}</Text>
       </View>
       {r === 'admin' ? <AdminPrescripteurs token={token} />
         : r === 'prescriber_company' ? <CompanyPrescriptionsTab token={token} user={user} />

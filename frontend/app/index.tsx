@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import { PREFIXES } from '../src/components/register/RegisterUI';
 import { PrefixPicker } from '../src/components/GlassPickers';
@@ -15,6 +16,7 @@ const INPUT = { padding: '13px 16px', borderRadius: 999, background: 'rgba(255,2
 
 export default function AuthScreen() {
   const { user, loading, login } = useAuth();
+  const { lang, setLang, t } = useI18n();
   const router = useRouter();
   const hasRedirected = useRef(false);
   const phoneRef = useRef('');
@@ -25,7 +27,6 @@ export default function AuthScreen() {
   const [phone, setPhone] = useState('');
   const [prefix, setPrefix] = useState('+33');
   const [password, setPassword] = useState('');
-  const [lang, setLang] = useState('fr');
   const [showForgot, setShowForgot] = useState(false);
   const [forgotPhone, setForgotPhone] = useState('');
   const [forgotMsg, setForgotMsg] = useState('');
@@ -36,12 +37,8 @@ export default function AuthScreen() {
   const selectedPfx = PREFIXES.find((p: any) => p.value === prefix) || PREFIXES[0];
 
   useEffect(() => {
-    Promise.all([
-      AsyncStorage.getItem('chutex_onboarding_done'),
-      AsyncStorage.getItem('chutex_lang'),
-    ]).then(([onb, lng]) => {
+    AsyncStorage.getItem('chutex_onboarding_done').then((onb) => {
       if (!onb) router.replace('/onboarding'); else setReady(true);
-      if (lng) setLang(lng);
     }).catch(() => setReady(true));
   }, []);
 
@@ -53,7 +50,7 @@ export default function AuthScreen() {
   const handleSubmit = async (e?: any) => {
     if (e) e.preventDefault();
     setError('');
-    if (!phone.trim() || !password) return setError('Telephone et mot de passe requis');
+    if (!phone.trim() || !password) return setError(t('phone_required'));
     setSubmitting(true);
     try {
       let id = phone.trim().replace(/\s/g, '');
@@ -62,7 +59,7 @@ export default function AuthScreen() {
       await login(id, password);
       hasRedirected.current = true;
       router.replace('/(tabs)');
-    } catch (err: any) { setError(err.message || 'Erreur de connexion'); } finally { setSubmitting(false); }
+    } catch (err: any) { setError(err.message || t('error_connection')); } finally { setSubmitting(false); }
   };
 
   if (loading || user || !ready) {
@@ -92,8 +89,8 @@ export default function AuthScreen() {
 
             {/* Title centered */}
             <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Connexion</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Accedez a votre espace sante</div>
+              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>{t('login')}</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{t('access_health_space')}</div>
             </div>
 
             {error && <div data-testid="login-error" style={{ padding: '10px 14px', borderRadius: 999, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 16, fontSize: 12, color: '#FCA5A5', textAlign: 'center' } as any}>{error}</div>}
@@ -109,21 +106,21 @@ export default function AuthScreen() {
               </div>
 
               <div style={{ marginBottom: 24 } as any}>
-                <input name="password" type="password" autoComplete="current-password" data-testid="login-password-input" placeholder="Votre mot de passe" value={password} onChange={(e: any) => setPassword(e.target.value)} style={{ ...INPUT, width: '100%' }} />
+                  <input name="password" type="password" autoComplete="current-password" data-testid="login-password-input" placeholder={t('your_pw_placeholder')} value={password} onChange={(e: any) => setPassword(e.target.value)} style={{ ...INPUT, width: '100%' }} />
               </div>
 
               <button type="submit" disabled={submitting} data-testid="login-form-submit-button" style={{ width: '100%', padding: '15px', borderRadius: 999, background: '#FFF', border: 'none', color: '#111', fontSize: 15, fontWeight: 800, fontFamily: 'inherit', cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.6 : 1 } as any}>
-                {submitting ? 'Connexion...' : 'Se connecter'}
+                {submitting ? t('connecting_dots') : t('sign_in')}
               </button>
             </form>
 
-            <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); setForgotStep(0); setForgotCode(''); setForgotNewPw(''); }} style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: 'rgba(255,255,255,0.4)', cursor: 'pointer' } as any}>Mot de passe oublie ?</div>
+            <div onClick={() => { setShowForgot(true); setForgotPhone(''); setForgotMsg(''); setForgotStep(0); setForgotCode(''); setForgotNewPw(''); }} style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: 'rgba(255,255,255,0.4)', cursor: 'pointer' } as any}>{t('forgot_password')}</div>
 
             <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '24px 0 20px' } as any} />
 
             <div style={{ textAlign: 'center' } as any}>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>Pas encore de compte ? </span>
-              <span data-testid="register-link" onClick={() => router.push('/register' as any)} style={{ fontSize: 13, color: '#FFF', fontWeight: 700, cursor: 'pointer' }}>S'inscrire</span>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>{t('no_account')} </span>
+              <span data-testid="register-link" onClick={() => router.push('/register' as any)} style={{ fontSize: 13, color: '#FFF', fontWeight: 700, cursor: 'pointer' }}>{t('register_link')}</span>
             </div>
 
             {showForgot && (
@@ -136,8 +133,8 @@ export default function AuthScreen() {
                     <div style={{ width: 56, height: 56, borderRadius: 16, background: forgotStep === 2 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', border: `1px solid ${forgotStep === 2 ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)'}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
                       <i className={forgotStep === 0 ? 'ri-lock-unlock-line' : forgotStep === 1 ? 'ri-shield-keyhole-line' : 'ri-check-line'} style={{ fontSize: 28, color: forgotStep === 2 ? '#10B981' : '#F59E0B' }} />
                     </div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{forgotStep === 0 ? 'Mot de passe oublie' : forgotStep === 1 ? 'Code de verification' : 'Nouveau mot de passe'}</div>
-                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{forgotStep === 0 ? 'Entrez votre numero pour recevoir un code par SMS.' : forgotStep === 1 ? 'Entrez le code a 6 chiffres recu par SMS.' : 'Choisissez votre nouveau mot de passe.'}</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{forgotStep === 0 ? t('forgot_password_title') : forgotStep === 1 ? t('verification_code_title') : t('new_password_title')}</div>
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{forgotStep === 0 ? t('enter_phone_sms') : forgotStep === 1 ? t('enter_6digit') : t('choose_new_pw')}</div>
                     {/* Step dots */}
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 14 } as any}>
                       {[0, 1, 2].map(s => <div key={s} style={{ width: s <= forgotStep ? 20 : 8, height: 6, borderRadius: 3, background: s <= forgotStep ? '#F59E0B' : 'rgba(255,255,255,0.1)', transition: 'all 0.3s' }} />)}
@@ -155,15 +152,15 @@ export default function AuthScreen() {
                         <input type="tel" placeholder="06 12 34 56 78" value={forgotPhone} onChange={(e: any) => setForgotPhone(e.target.value)} style={{ ...INPUT, flex: 1, width: 'auto' }} />
                       </div>
                       <div data-testid="forgot-send-btn" onClick={async () => {
-                        if (!forgotPhone.trim()) return setForgotMsg('Veuillez entrer votre numero.');
+                        if (!forgotPhone.trim()) return setForgotMsg(t('enter_your_number'));
                         setForgotLoading(true); setForgotMsg('');
                         try {
                           await apiFetch('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ phone: forgotPhone.trim() }) });
-                          setForgotMsg('Code envoye par SMS !');
+                          setForgotMsg(t('code_sent'));
                           setForgotStep(1);
                         } catch (e: any) { setForgotMsg(e.message || 'Erreur'); }
                         finally { setForgotLoading(false); }
-                      }} style={{ padding: '16px', borderRadius: 999, background: forgotPhone.trim() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotPhone.trim() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: forgotPhone.trim() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotPhone.trim() ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>{forgotLoading ? 'Envoi...' : 'Recevoir le code'}</div>
+                      }} style={{ padding: '16px', borderRadius: 999, background: forgotPhone.trim() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotPhone.trim() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: forgotPhone.trim() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotPhone.trim() ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>{forgotLoading ? t('sending') : t('receive_code')}</div>
                     </div>
                   )}
                   {/* Step 1: Code */}
@@ -179,24 +176,24 @@ export default function AuthScreen() {
                           />
                         ))}
                       </div>
-                      <div data-testid="forgot-verify-btn" onClick={() => { if (forgotCode.length === 6) { setForgotMsg(''); setForgotStep(2); } else { setForgotMsg('Entrez le code a 6 chiffres.'); } }} style={{ padding: '16px', borderRadius: 999, background: forgotCode.length === 6 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotCode.length === 6 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: forgotCode.length === 6 ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotCode.length === 6 ? '#FFF' : 'rgba(255,255,255,0.2)', marginBottom: 12 } as any}>Verifier le code</div>
-                      <div onClick={async () => { setForgotLoading(true); try { await apiFetch('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ phone: forgotPhone.trim() }) }); setForgotMsg('Nouveau code envoye !'); } catch {} finally { setForgotLoading(false); } }} style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.35)', cursor: 'pointer' } as any}>{forgotLoading ? 'Envoi...' : 'Renvoyer le code'}</div>
+                      <div data-testid="forgot-verify-btn" onClick={() => { if (forgotCode.length === 6) { setForgotMsg(''); setForgotStep(2); } else { setForgotMsg(t('enter_6digit')); } }} style={{ padding: '16px', borderRadius: 999, background: forgotCode.length === 6 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotCode.length === 6 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: forgotCode.length === 6 ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotCode.length === 6 ? '#FFF' : 'rgba(255,255,255,0.2)', marginBottom: 12 } as any}>{t('verify_code')}</div>
+                      <div onClick={async () => { setForgotLoading(true); try { await apiFetch('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ phone: forgotPhone.trim() }) }); setForgotMsg(t('new_code_sent')); } catch {} finally { setForgotLoading(false); } }} style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.35)', cursor: 'pointer' } as any}>{forgotLoading ? t('sending') : t('resend_code')}</div>
                     </div>
                   )}
                   {/* Step 2: New password */}
                   {forgotStep === 2 && (
                     <div>
-                      <input type="password" placeholder="Nouveau mot de passe" value={forgotNewPw} onChange={(e: any) => setForgotNewPw(e.target.value)} style={{ ...INPUT, width: '100%', marginBottom: 16 }} />
+                      <input type="password" placeholder={t('new_pw_placeholder')} value={forgotNewPw} onChange={(e: any) => setForgotNewPw(e.target.value)} style={{ ...INPUT, width: '100%', marginBottom: 16 }} />
                       <div data-testid="forgot-reset-btn" onClick={async () => {
-                        if (forgotNewPw.length < 4) return setForgotMsg('Le mot de passe doit contenir au moins 4 caracteres.');
+                        if (forgotNewPw.length < 4) return setForgotMsg(t('pw_min_chars'));
                         setForgotLoading(true); setForgotMsg('');
                         try {
                           await apiFetch('/api/auth/reset-password', { method: 'POST', body: JSON.stringify({ phone: forgotPhone.trim(), code: forgotCode, new_password: forgotNewPw }) });
-                          setForgotMsg('Mot de passe reinitialise avec succes !');
+                          setForgotMsg(t('pw_reset_success'));
                           setTimeout(() => { setShowForgot(false); }, 2000);
-                        } catch (e: any) { setForgotMsg(e.message || 'Erreur — verifiez votre code.'); setForgotStep(1); setForgotCode(''); }
+                        } catch (e: any) { setForgotMsg(e.message || t('error_verify_code')); setForgotStep(1); setForgotCode(''); }
                         finally { setForgotLoading(false); }
-                      }} style={{ padding: '16px', borderRadius: 999, background: forgotNewPw.length >= 4 ? '#FFF' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotNewPw.length >= 4 ? '#FFF' : 'rgba(255,255,255,0.06)'}`, cursor: forgotNewPw.length >= 4 ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotNewPw.length >= 4 ? '#0a0a1a' : 'rgba(255,255,255,0.2)' } as any}>{forgotLoading ? 'Reinitialisation...' : 'Changer le mot de passe'}</div>
+                      }} style={{ padding: '16px', borderRadius: 999, background: forgotNewPw.length >= 4 ? '#FFF' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotNewPw.length >= 4 ? '#FFF' : 'rgba(255,255,255,0.06)'}`, cursor: forgotNewPw.length >= 4 ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotNewPw.length >= 4 ? '#0a0a1a' : 'rgba(255,255,255,0.2)' } as any}>{forgotLoading ? t('resetting') : t('change_pw')}</div>
                     </div>
                   )}
                 </div>

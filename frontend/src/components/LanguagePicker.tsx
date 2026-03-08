@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useI18n } from '../context/I18nContext';
 
 const LANGUAGES = [
   { code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', label: 'Francais' },
@@ -14,6 +15,7 @@ const LANGUAGES = [
 
 export default function LanguagePicker({ lang, setLang }: { lang: string; setLang: (l: string) => void }) {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
   const current = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0];
 
   const select = (code: string) => {
@@ -52,7 +54,7 @@ export default function LanguagePicker({ lang, setLang }: { lang: string; setLan
             {/* Title */}
             <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
               <i className="ri-global-line" style={{ fontSize: 28, color: 'rgba(255,255,255,0.5)', marginBottom: 8, display: 'block' }} />
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>Langue</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{t('language')}</div>
             </div>
 
             {/* Language list */}
