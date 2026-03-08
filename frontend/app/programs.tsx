@@ -16,7 +16,6 @@ export default function ProgramsScreen() {
   const { token } = useAuth();
   const router = useRouter();
   const [activeProgram, setActiveProgram] = useState<any>(null);
-  const [activeMinceur, setActiveMinceur] = useState<any>(null);
   const [catalog, setCatalog] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasDevices, setHasDevices] = useState<any>({ bracelet: false, scale: false, any: false });
@@ -27,12 +26,10 @@ export default function ProgramsScreen() {
       apiFetch('/api/programs/active', {}, token).catch(() => null),
       apiFetch('/api/programs/catalog', {}, token).catch(() => null),
       apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
-      apiFetch('/api/minceur/active', {}, token).catch(() => null),
-    ]).then(([prog, cat, dev, minceur]) => {
+    ]).then(([prog, cat, dev]) => {
       if (prog) setActiveProgram(prog);
       if (cat?.programs) setCatalog(cat.programs);
       setHasDevices({ bracelet: !!(dev?.bracelet?.paired), scale: !!(dev?.scale?.paired), any: !!(dev?.bracelet?.paired || dev?.scale?.paired) });
-      if (minceur?.active) setActiveMinceur(minceur);
       setLoading(false);
     });
   }, []);
@@ -86,8 +83,6 @@ export default function ProgramsScreen() {
             );
           })()}
 
-          {/* Programme Minceur - in the list like other programs */}
-
           {/* Category filters */}
           <div style={{ display: 'flex', gap: 6, overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 4, marginBottom: 14 } as any}>
             {categories.map((cat: string) => {
@@ -136,43 +131,6 @@ export default function ProgramsScreen() {
               </div>
             );
           })}
-
-          {/* Programme Minceur — same style as other programs */}
-          {(selectedCategory === 'all' || selectedCategory === 'nutrition') && (
-            <div onClick={() => router.push('/minceur' as any)} data-testid="minceur-card"
-              style={{ padding: '18px 20px', borderRadius: 22, marginBottom: 10, cursor: 'pointer',
-                border: `1px solid ${activeMinceur ? '#F59E0B40' : '#F59E0B25'}`,
-                background: activeMinceur ? 'rgba(249,115,22,0.06)' : 'rgba(255,255,255,0.08)', ...g, transition: 'transform 180ms' } as any}
-              onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 } as any}>
-                <div style={{ width: 48, height: 48, borderRadius: 16, background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className="ri-scales-3-line" style={{ fontSize: 24, color: '#F59E0B' }} />
-                </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>Programme Minceur</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>
-                    {activeMinceur ? `${activeMinceur.progress?.current_kg}kg → ${activeMinceur.target_kg}kg` : 'Objectif poids sur-mesure avec suivi IA'}
-                  </div>
-                </div>
-                {activeMinceur ? (
-                  <div style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(249,115,22,0.15)', fontSize: 10, fontWeight: 800, color: '#F59E0B' }}>En cours</div>
-                ) : (
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} />
-                )}
-              </div>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
-                <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.18)', fontSize: 10, fontWeight: 700, color: '#F59E0B' }}>Sur-mesure</span>
-                <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>Balance requise</span>
-                <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.18)', fontSize: 10, fontWeight: 700, color: '#A78BFA' }}>Nora IA</span>
-              </div>
-              {activeMinceur && (
-                <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginTop: 10 } as any}>
-                  <div style={{ height: 4, borderRadius: 2, width: `${activeMinceur.progress?.progress_pct || 0}%`, background: '#F59E0B' } as any} />
-                </div>
-              )}
-            </div>
-          )}
 
           {loading && <Loader />}
         </div>
