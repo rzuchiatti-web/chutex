@@ -482,6 +482,18 @@ export function PastelMistBackground() {
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
       }
+
+      /* Fix Expo Router screen containers */
+      [data-testid="login-screen"],
+      #root > div > div > div > div,
+      main > div > div {
+        background: transparent !important;
+        border-radius: 0 !important;
+      }
+      /* Remove any default card/modal styling from Expo screens */
+      div[style*="borderRadius"] {
+        border-radius: 0 !important;
+      }
     `;
   }, []);
 

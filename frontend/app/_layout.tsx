@@ -180,7 +180,7 @@ function WebLocationPermissionGate() {
   if (!visible) return null;
 
   return (
-    <div data-testid="web-location-permission-guide" style={{ position: 'fixed', right: 16, bottom: 80, zIndex: 9999, width: 300, maxWidth: 'calc(100vw - 32px)', borderRadius: 14, background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: '0 8px 30px rgba(0,0,0,0.3)', padding: '12px 14px', fontFamily: "'Inter', system-ui, sans-serif" } as any}>
+    <div data-testid="web-location-permission-guide" style={{ position: 'fixed', right: 16, bottom: 80, zIndex: 9999, width: 300, maxWidth: 'calc(100vw - 32px)', maxHeight: 140, overflow: 'hidden', borderRadius: 14, background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: '0 8px 30px rgba(0,0,0,0.3)', padding: '12px 14px', fontFamily: "'Inter', system-ui, sans-serif" } as any}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
         <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }} data-testid="web-location-permission-guide-title">Localisation</div>
         <div data-testid="web-location-dismiss" onClick={() => setVisible(false)} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
@@ -191,7 +191,7 @@ function WebLocationPermissionGate() {
         {message || 'Pour les safe zones et le suivi SOS.'}
       </div>
       <div style={{ display: 'flex', gap: 6 } as any}>
-        <div data-testid="web-location-retry-button" onClick={retry} style={{ flex: 1, textAlign: 'center', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', color: '#34D399', fontSize: 11, fontWeight: 700, padding: '7px 10px', cursor: 'pointer', opacity: retrying ? 0.6 : 1 } as any}>
+        <div data-testid="web-location-retry-button" onClick={retry} style={{ textAlign: 'center', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', color: '#34D399', fontSize: 11, fontWeight: 700, padding: '7px 10px', cursor: 'pointer', opacity: retrying ? 0.6 : 1 } as any}>
           {retrying ? '...' : 'Autoriser'}
         </div>
       </div>
@@ -220,7 +220,7 @@ function RootNav() {
     return (
       <>
         <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#FFFFFF' }, animation: 'none' }}>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' }, animation: 'none' }}>
           <Stack.Screen name="index" options={{ animation: 'none' }} />
           <Stack.Screen name="onboarding" options={{ animation: 'none' }} />
           <Stack.Screen name="register" options={{ animation: 'none' }} />
@@ -278,7 +278,6 @@ export default function RootLayout() {
         <DorsiBLEProvider>
           <AuthProvider>
             <PastelMistBackground />
-            <WebLocationPermissionGate />
             <RootNav />
           </AuthProvider>
         </DorsiBLEProvider>
