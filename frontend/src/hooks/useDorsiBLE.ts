@@ -63,7 +63,7 @@ function useNativeBLE() {
         let found = false;
         mgr.startDeviceScan(null, null, async (error: any, device: any) => {
           if (error) { setState(s => ({ ...s, connecting: false, error: error.message })); resolve(false); return; }
-          if (device && device.name && device.name.startsWith('HeloKine') && !found) {
+          if (device && device.name && (device.name.startsWith('HeloKine') || device.name.startsWith('HELOKINE') || device.name.startsWith('Helo') || device.name.startsWith('CDC') || device.name.startsWith('Englab') || device.name.startsWith('Dorsi')) && !found) {
             found = true;
             mgr.stopDeviceScan();
             try {
@@ -155,7 +155,28 @@ function useWebBLE() {
     if (!navigator.bluetooth) { setState(s => ({ ...s, error: 'Web Bluetooth non supporte. Utilisez Chrome.' })); return false; }
     setState(s => ({ ...s, connecting: true, error: '' }));
     try {
-      const device = await navigator.bluetooth.requestDevice({ filters: [{ namePrefix: 'HeloKine' }], optionalServices: [ANGULAR_SERVICE, BATTERY_SERVICE] });
+      // Try with HeloKine filter first, fallback to all devices
+      let device: any;
+      try {
+        device = await navigator.bluetooth.requestDevice({
+          filters: [
+            { namePrefix: 'HeloKine' },
+            { namePrefix: 'HELOKINE' },
+            { namePrefix: 'Helo' },
+            { namePrefix: 'CDC' },
+            { namePrefix: 'Englab' },
+            { namePrefix: 'Dorsi' },
+          ],
+          optionalServices: [ANGULAR_SERVICE, BATTERY_SERVICE]
+        });
+      } catch (e: any) {
+        // If no device found with filters, try showing all devices
+        if (e.message?.includes('cancelled')) throw e;
+        device = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: [ANGULAR_SERVICE, BATTERY_SERVICE]
+        });
+      }
       device.addEventListener('gattserverdisconnected', () => setState(s => ({ ...s, connected: false, deviceName: '' })));
       const server = await device.gatt!.connect();
       serverRef.current = server;
