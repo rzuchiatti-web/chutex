@@ -309,3 +309,16 @@ async def validate_goal(data: dict, user=Depends(get_current_user)):
         "daily_deficit": round(daily_deficit),
         "final_days": final_days,
     }
+
+
+@router.post("/minceur/stop")
+async def stop_minceur(user=Depends(get_current_user)):
+    """Stop the active weight loss program."""
+    uid = user["id"]
+    result = await db.minceur_programs.update_one(
+        {"user_id": uid, "status": "active"},
+        {"$set": {"status": "stopped", "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(404, "Aucun programme actif.")
+    return {"status": "stopped"}
