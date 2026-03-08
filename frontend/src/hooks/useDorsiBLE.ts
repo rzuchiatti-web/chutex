@@ -1,238 +1,195 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { Platform, Alert } from 'react-native';
 
 // HeloKine BLE UUIDs from CDC spec
-const ANGULAR_SERVICE_UUID = '00001101-0000-1000-8000-00805f9b34fb';
-const ANGLE_X_CHAR_UUID = '00002101-0000-1000-8000-00805f9b34fb';
-const ANGLE_Y_CHAR_UUID = '00002102-0000-1000-8000-00805f9b34fb';
-const ANGLE_Z_CHAR_UUID = '00002103-0000-1000-8000-00805f9b34fb';
-const BATTERY_SERVICE_UUID = 0x180F;
-const BATTERY_LEVEL_CHAR_UUID = 0x2A19;
+const ANGULAR_SERVICE = '00001101-0000-1000-8000-00805f9b34fb';
+const ANGLE_X_CHAR = '00002101-0000-1000-8000-00805f9b34fb';
+const ANGLE_Y_CHAR = '00002102-0000-1000-8000-00805f9b34fb';
+const ANGLE_Z_CHAR = '00002103-0000-1000-8000-00805f9b34fb';
+const BATTERY_SERVICE = '0000180f-0000-1000-8000-00805f9b34fb';
+const BATTERY_CHAR = '00002a19-0000-1000-8000-00805f9b34fb';
 
 export interface DorsiAngles {
-  x: number;
-  y: number;
-  z: number;
-  timestamp: number;
+  x: number; y: number; z: number; timestamp: number;
 }
 
 export interface DorsiBLEState {
-  connected: boolean;
-  connecting: boolean;
-  deviceName: string;
-  battery: number;
-  angles: DorsiAngles;
-  error: string;
-  supported: boolean;
+  connected: boolean; connecting: boolean; deviceName: string; battery: number;
+  angles: DorsiAngles; error: string; supported: boolean;
 }
 
-export function useDorsiBLE() {
+// ── Native BLE (iOS/Android) via react-native-ble-plx ──
+function useNativeBLE() {
   const [state, setState] = useState<DorsiBLEState>({
-    connected: false,
-    connecting: false,
-    deviceName: '',
-    battery: 0,
-    angles: { x: 0, y: 0, z: 0, timestamp: 0 },
-    error: '',
-    supported: typeof navigator !== 'undefined' && 'bluetooth' in navigator,
+    connected: false, connecting: false, deviceName: '', battery: 0,
+    angles: { x: 0, y: 0, z: 0, timestamp: 0 }, error: '', supported: true,
   });
-
+  const managerRef = useRef<any>(null);
   const deviceRef = useRef<any>(null);
-  const serverRef = useRef<any>(null);
-  const charXRef = useRef<any>(null);
-  const charYRef = useRef<any>(null);
-  const charZRef = useRef<any>(null);
   const anglesRef = useRef<DorsiAngles>({ x: 0, y: 0, z: 0, timestamp: 0 });
-  const listenersRef = useRef<Set<(angles: DorsiAngles) => void>>(new Set());
+  const subsRef = useRef<any[]>([]);
 
-  // Parse BLE characteristic value (UTF-8 string like "45.1")
-  const parseAngle = (value: DataView): number => {
-    const decoder = new TextDecoder('utf-8');
-    const str = decoder.decode(value.buffer);
-    return parseFloat(str) || 0;
-  };
-
-  // Notify all listeners of angle update
-  const notifyListeners = useCallback(() => {
-    listenersRef.current.forEach(cb => cb(anglesRef.current));
+  useEffect(() => {
+    let BleManager: any;
+    try { BleManager = require('react-native-ble-plx').BleManager; } catch { setState(s => ({ ...s, supported: false })); return; }
+    managerRef.current = new BleManager();
+    return () => { managerRef.current?.destroy(); };
   }, []);
 
-  // Handle angle X notification
-  const handleAngleX = useCallback((event: any) => {
-    const val = parseAngle(event.target.value);
-    anglesRef.current = { ...anglesRef.current, x: val, timestamp: Date.now() };
-    setState(s => ({ ...s, angles: { ...anglesRef.current } }));
-    notifyListeners();
-  }, [notifyListeners]);
+  const parseAngle = (base64: string): number => {
+    try {
+      const decoded = typeof atob !== 'undefined' ? atob(base64) : Buffer.from(base64, 'base64').toString('utf8');
+      return parseFloat(decoded) || 0;
+    } catch { return 0; }
+  };
 
-  // Handle angle Y notification
-  const handleAngleY = useCallback((event: any) => {
-    const val = parseAngle(event.target.value);
-    anglesRef.current = { ...anglesRef.current, y: val, timestamp: Date.now() };
-    setState(s => ({ ...s, angles: { ...anglesRef.current } }));
-    notifyListeners();
-  }, [notifyListeners]);
-
-  // Handle angle Z notification
-  const handleAngleZ = useCallback((event: any) => {
-    const val = parseAngle(event.target.value);
-    anglesRef.current = { ...anglesRef.current, z: val, timestamp: Date.now() };
-    setState(s => ({ ...s, angles: { ...anglesRef.current } }));
-    notifyListeners();
-  }, [notifyListeners]);
-
-  // Connect to HeloKine cushion
   const connect = useCallback(async () => {
-    if (!navigator.bluetooth) {
-      setState(s => ({ ...s, error: 'Web Bluetooth non supporte par ce navigateur. Utilisez Chrome.' }));
-      return false;
-    }
-
+    const mgr = managerRef.current;
+    if (!mgr) { setState(s => ({ ...s, error: 'BLE non disponible' })); return false; }
     setState(s => ({ ...s, connecting: true, error: '' }));
 
     try {
-      const device = await navigator.bluetooth.requestDevice({
-        filters: [{ namePrefix: 'HeloKine' }],
-        optionalServices: [ANGULAR_SERVICE_UUID, BATTERY_SERVICE_UUID],
-      });
+      // Wait for powered on
+      const bleState = await mgr.state();
+      if (bleState !== 'PoweredOn') {
+        await new Promise<void>((resolve) => {
+          const sub = mgr.onStateChange((st: string) => { if (st === 'PoweredOn') { sub.remove(); resolve(); } }, true);
+          setTimeout(() => { sub.remove(); resolve(); }, 5000);
+        });
+      }
 
-      deviceRef.current = device;
-      device.addEventListener('gattserverdisconnected', () => {
-        setState(s => ({ ...s, connected: false, deviceName: '' }));
-        charXRef.current = null;
-        charYRef.current = null;
-        charZRef.current = null;
-      });
+      // Scan for HeloKine
+      return await new Promise<boolean>((resolve) => {
+        let found = false;
+        mgr.startDeviceScan(null, null, async (error: any, device: any) => {
+          if (error) { setState(s => ({ ...s, connecting: false, error: error.message })); resolve(false); return; }
+          if (device && device.name && device.name.startsWith('HeloKine') && !found) {
+            found = true;
+            mgr.stopDeviceScan();
+            try {
+              const connected = await device.connect({ timeout: 10000 });
+              await connected.discoverAllServicesAndCharacteristics();
+              deviceRef.current = connected;
 
+              // Read battery
+              let battery = 100;
+              try {
+                const battChar = await connected.readCharacteristicForService(BATTERY_SERVICE, BATTERY_CHAR);
+                if (battChar.value) {
+                  const decoded = typeof atob !== 'undefined' ? atob(battChar.value) : Buffer.from(battChar.value, 'base64').toString('binary');
+                  battery = decoded.charCodeAt(0);
+                }
+              } catch {}
+
+              // Monitor angle characteristics
+              const monX = connected.monitorCharacteristicForService(ANGULAR_SERVICE, ANGLE_X_CHAR, (err: any, char: any) => {
+                if (char?.value) { anglesRef.current = { ...anglesRef.current, x: parseAngle(char.value), timestamp: Date.now() }; setState(s => ({ ...s, angles: { ...anglesRef.current } })); }
+              });
+              const monY = connected.monitorCharacteristicForService(ANGULAR_SERVICE, ANGLE_Y_CHAR, (err: any, char: any) => {
+                if (char?.value) { anglesRef.current = { ...anglesRef.current, y: parseAngle(char.value), timestamp: Date.now() }; setState(s => ({ ...s, angles: { ...anglesRef.current } })); }
+              });
+              let monZ: any = null;
+              try {
+                monZ = connected.monitorCharacteristicForService(ANGULAR_SERVICE, ANGLE_Z_CHAR, (err: any, char: any) => {
+                  if (char?.value) { anglesRef.current = { ...anglesRef.current, z: parseAngle(char.value), timestamp: Date.now() }; setState(s => ({ ...s, angles: { ...anglesRef.current } })); }
+                });
+              } catch {}
+              subsRef.current = [monX, monY, monZ].filter(Boolean);
+
+              // Monitor disconnect
+              connected.onDisconnected(() => {
+                setState(s => ({ ...s, connected: false, deviceName: '' }));
+                deviceRef.current = null;
+              });
+
+              setState(s => ({ ...s, connected: true, connecting: false, deviceName: device.name || 'HeloKine', battery, error: '' }));
+              resolve(true);
+            } catch (e: any) {
+              setState(s => ({ ...s, connecting: false, error: e.message || 'Connexion echouee' }));
+              resolve(false);
+            }
+          }
+        });
+        // Timeout scan after 10s
+        setTimeout(() => { if (!found) { mgr.stopDeviceScan(); setState(s => ({ ...s, connecting: false, error: 'Coussin HeloKine non trouve. Verifiez qu\'il est allume.' })); resolve(false); } }, 10000);
+      });
+    } catch (e: any) {
+      setState(s => ({ ...s, connecting: false, error: e.message || 'Erreur BLE' }));
+      return false;
+    }
+  }, []);
+
+  const disconnect = useCallback(() => {
+    subsRef.current.forEach(s => { try { s.remove(); } catch {} });
+    subsRef.current = [];
+    if (deviceRef.current) { try { deviceRef.current.cancelConnection(); } catch {} }
+    deviceRef.current = null;
+    setState(s => ({ ...s, connected: false, deviceName: '' }));
+  }, []);
+
+  const tare = useCallback(() => ({ ...anglesRef.current }), []);
+  const onAngleUpdate = useCallback(() => () => {}, []);
+  const readAngles = useCallback(async () => anglesRef.current, []);
+
+  useEffect(() => { return () => { disconnect(); }; }, [disconnect]);
+
+  return { ...state, connect, disconnect, onAngleUpdate, tare, readAngles, anglesRef };
+}
+
+// ── Web BLE (Chrome desktop) ──
+function useWebBLE() {
+  const [state, setState] = useState<DorsiBLEState>({
+    connected: false, connecting: false, deviceName: '', battery: 0,
+    angles: { x: 0, y: 0, z: 0, timestamp: 0 }, error: '',
+    supported: typeof navigator !== 'undefined' && 'bluetooth' in navigator,
+  });
+  const anglesRef = useRef<DorsiAngles>({ x: 0, y: 0, z: 0, timestamp: 0 });
+  const serverRef = useRef<any>(null);
+
+  const parseAngle = (value: DataView): number => {
+    const decoder = new TextDecoder('utf-8');
+    return parseFloat(decoder.decode(value.buffer)) || 0;
+  };
+
+  const connect = useCallback(async () => {
+    if (!navigator.bluetooth) { setState(s => ({ ...s, error: 'Web Bluetooth non supporte. Utilisez Chrome.' })); return false; }
+    setState(s => ({ ...s, connecting: true, error: '' }));
+    try {
+      const device = await navigator.bluetooth.requestDevice({ filters: [{ namePrefix: 'HeloKine' }], optionalServices: [ANGULAR_SERVICE, BATTERY_SERVICE] });
+      device.addEventListener('gattserverdisconnected', () => setState(s => ({ ...s, connected: false, deviceName: '' })));
       const server = await device.gatt!.connect();
       serverRef.current = server;
-
-      // Get angular service
-      const angularService = await server.getPrimaryService(ANGULAR_SERVICE_UUID);
-
-      // Subscribe to angle characteristics
-      const charX = await angularService.getCharacteristic(ANGLE_X_CHAR_UUID);
-      charX.addEventListener('characteristicvaluechanged', handleAngleX);
+      const svc = await server.getPrimaryService(ANGULAR_SERVICE);
+      const charX = await svc.getCharacteristic(ANGLE_X_CHAR);
+      charX.addEventListener('characteristicvaluechanged', (e: any) => { anglesRef.current = { ...anglesRef.current, x: parseAngle(e.target.value), timestamp: Date.now() }; setState(s => ({ ...s, angles: { ...anglesRef.current } })); });
       await charX.startNotifications();
-      charXRef.current = charX;
-
-      const charY = await angularService.getCharacteristic(ANGLE_Y_CHAR_UUID);
-      charY.addEventListener('characteristicvaluechanged', handleAngleY);
+      const charY = await svc.getCharacteristic(ANGLE_Y_CHAR);
+      charY.addEventListener('characteristicvaluechanged', (e: any) => { anglesRef.current = { ...anglesRef.current, y: parseAngle(e.target.value), timestamp: Date.now() }; setState(s => ({ ...s, angles: { ...anglesRef.current } })); });
       await charY.startNotifications();
-      charYRef.current = charY;
-
-      try {
-        const charZ = await angularService.getCharacteristic(ANGLE_Z_CHAR_UUID);
-        charZ.addEventListener('characteristicvaluechanged', handleAngleZ);
-        await charZ.startNotifications();
-        charZRef.current = charZ;
-      } catch {
-        // Z axis is optional per CDC spec
-        console.log('Axe Z non disponible');
-      }
-
-      // Read battery
+      try { const charZ = await svc.getCharacteristic(ANGLE_Z_CHAR); charZ.addEventListener('characteristicvaluechanged', (e: any) => { anglesRef.current = { ...anglesRef.current, z: parseAngle(e.target.value), timestamp: Date.now() }; setState(s => ({ ...s, angles: { ...anglesRef.current } })); }); await charZ.startNotifications(); } catch {}
       let battery = 100;
-      try {
-        const batteryService = await server.getPrimaryService(BATTERY_SERVICE_UUID);
-        const batteryChar = await batteryService.getCharacteristic(BATTERY_LEVEL_CHAR_UUID);
-        const batteryValue = await batteryChar.readValue();
-        battery = batteryValue.getUint8(0);
-      } catch {
-        console.log('Service batterie non disponible');
-      }
-
-      setState(s => ({
-        ...s,
-        connected: true,
-        connecting: false,
-        deviceName: device.name || 'HeloKine',
-        battery,
-        error: '',
-      }));
-
+      try { const bs = await server.getPrimaryService(BATTERY_SERVICE); const bc = await bs.getCharacteristic(BATTERY_CHAR); const bv = await bc.readValue(); battery = bv.getUint8(0); } catch {}
+      setState(s => ({ ...s, connected: true, connecting: false, deviceName: device.name || 'HeloKine', battery, error: '' }));
       return true;
     } catch (e: any) {
-      const msg = e.message?.includes('cancelled') || e.message?.includes('User cancelled')
-        ? '' // User cancelled picker - not an error
-        : e.message || 'Erreur de connexion BLE';
+      const msg = e.message?.includes('cancelled') ? '' : e.message || 'Erreur BLE';
       setState(s => ({ ...s, connecting: false, error: msg }));
       return false;
     }
-  }, [handleAngleX, handleAngleY, handleAngleZ]);
-
-  // Disconnect
-  const disconnect = useCallback(() => {
-    try {
-      if (charXRef.current) {
-        charXRef.current.removeEventListener('characteristicvaluechanged', handleAngleX);
-        charXRef.current.stopNotifications().catch(() => {});
-      }
-      if (charYRef.current) {
-        charYRef.current.removeEventListener('characteristicvaluechanged', handleAngleY);
-        charYRef.current.stopNotifications().catch(() => {});
-      }
-      if (charZRef.current) {
-        charZRef.current.removeEventListener('characteristicvaluechanged', handleAngleZ);
-        charZRef.current.stopNotifications().catch(() => {});
-      }
-      if (serverRef.current?.connected) {
-        serverRef.current.disconnect();
-      }
-    } catch {}
-    deviceRef.current = null;
-    serverRef.current = null;
-    charXRef.current = null;
-    charYRef.current = null;
-    charZRef.current = null;
-    setState(s => ({ ...s, connected: false, deviceName: '' }));
-  }, [handleAngleX, handleAngleY, handleAngleZ]);
-
-  // Subscribe to real-time angle updates (for games)
-  const onAngleUpdate = useCallback((cb: (angles: DorsiAngles) => void) => {
-    listenersRef.current.add(cb);
-    return () => { listenersRef.current.delete(cb); };
   }, []);
 
-  // Tare / zero calibration
-  const tare = useCallback(() => {
-    // Store current angles as zero reference
-    const offset = { ...anglesRef.current };
-    return offset;
-  }, []);
+  const disconnect = useCallback(() => { if (serverRef.current?.connected) serverRef.current.disconnect(); setState(s => ({ ...s, connected: false })); }, []);
+  const tare = useCallback(() => ({ ...anglesRef.current }), []);
+  const onAngleUpdate = useCallback(() => () => {}, []);
+  const readAngles = useCallback(async () => anglesRef.current, []);
 
-  // Read current angles once (polling mode)
-  const readAngles = useCallback(async (): Promise<DorsiAngles> => {
-    if (!charXRef.current || !charYRef.current) {
-      return anglesRef.current;
-    }
-    try {
-      const xVal = await charXRef.current.readValue();
-      const yVal = await charYRef.current.readValue();
-      let z = anglesRef.current.z;
-      if (charZRef.current) {
-        const zVal = await charZRef.current.readValue();
-        z = parseAngle(zVal);
-      }
-      const angles = { x: parseAngle(xVal), y: parseAngle(yVal), z, timestamp: Date.now() };
-      anglesRef.current = angles;
-      return angles;
-    } catch {
-      return anglesRef.current;
-    }
-  }, []);
+  return { ...state, connect, disconnect, onAngleUpdate, tare, readAngles, anglesRef };
+}
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => { disconnect(); };
-  }, [disconnect]);
-
-  return {
-    ...state,
-    connect,
-    disconnect,
-    onAngleUpdate,
-    tare,
-    readAngles,
-    anglesRef,
-  };
+// ── Unified hook — picks native or web automatically ──
+export function useDorsiBLE() {
+  if (Platform.OS === 'web') {
+    return useWebBLE();
+  }
+  return useNativeBLE();
 }
