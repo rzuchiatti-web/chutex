@@ -58,7 +58,7 @@ function HUD({ score, timeLeft, combo, bestScore, gameName, gameColor, onBack }:
 }
 
 /* ── Start/End Screens ── */
-function StartScreen({ meta, bestScore, onStart }: any) {
+function StartScreen({ meta, bestScore, onStart, ble }: any) {
   return (
     <div style={{ position: 'absolute', inset: 0, background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 30, overflowY: 'auto' } as any}>
       <div style={{ textAlign: 'center', padding: '32px 24px', maxWidth: 400 } as any}>
@@ -88,8 +88,28 @@ function StartScreen({ meta, bestScore, onStart }: any) {
         </div>
 
         {bestScore > 0 && <div style={{ fontSize: 13, color: meta.color, marginBottom: 16 }}>Record : <strong>{bestScore}</strong> pts</div>}
+
+        {/* BLE Connection */}
+        <div style={{ padding: '12px 16px', borderRadius: 14, background: ble?.connected ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${ble?.connected ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)'}`, marginBottom: 16 } as any}>
+          {ble?.connected ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', boxShadow: '0 0 6px rgba(16,185,129,0.5)' } as any} />
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#10B981' }}>Coussin {ble.deviceName} connecte</span>
+            </div>
+          ) : (
+            <div onClick={ble?.connect} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' } as any}>
+              <i className="ri-bluetooth-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }} />
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{ble?.connecting ? 'Connexion...' : 'Connecter le coussin Dorsi'}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Ou jouez avec les touches du clavier</div>
+              </div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }} />
+            </div>
+          )}
+        </div>
+
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20 } as any}>
-          {[{ icon: 'ri-timer-line', text: '60s' }, { icon: 'ri-keyboard-box-line', text: 'Fleches / WASD' }].map((b, i) => (
+          {[{ icon: 'ri-timer-line', text: '60s' }, { icon: ble?.connected ? 'ri-bluetooth-connect-line' : 'ri-keyboard-box-line', text: ble?.connected ? 'Coussin Dorsi' : 'Fleches / WASD' }].map((b, i) => (
             <div key={i} style={{ padding: '8px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', fontSize: 11, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className={b.icon} style={{ fontSize: 14 }} />{b.text}</div>
           ))}
         </div>
@@ -484,7 +504,7 @@ export default function DorsiGamePage() {
 
   return (
     <div data-testid="dorsi-game-page" style={{ position: 'absolute', inset: 0, background: BG, fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-      {phase === 'start' && <StartScreen meta={meta} bestScore={bestScore} onStart={() => setPhase('playing')} />}
+      {phase === 'start' && <StartScreen meta={meta} bestScore={bestScore} onStart={() => setPhase('playing')} ble={ble} />}
       {phase === 'playing' && (
         <>
           {isSimon ? <SimonFullScreen onScoreUpdate={setScore} onTimeUpdate={setTimeLeft} onFinish={handleFinish} />

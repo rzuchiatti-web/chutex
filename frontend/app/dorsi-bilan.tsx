@@ -275,12 +275,13 @@ export default function DorsiBilanPage() {
         <div style={{ ...G, marginBottom: 20 } as any}>
           <i className="ri-compass-3-line" style={{ fontSize: 40, color: '#FFF', display: 'block', marginBottom: 16 }} />
           <h2 style={{ fontSize: 20, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>{t('dorsi_calibration')}</h2>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 20px' }}>{t('dorsi_calibration_desc')}</p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 8px' }}>Asseyez-vous bien droit, dos contre le dossier.</p>
+          <p style={{ fontSize: 13, color: '#F97316', fontWeight: 700, margin: '0 0 20px' }}>Restez immobile puis appuyez sur le bouton ci-dessous.</p>
           <div style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.3)', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'pulseRing 2s ease-out infinite', position: 'relative' } as any}>
             <i className="ri-check-line" style={{ fontSize: 32, color: '#FFF' }} />
           </div>
         </div>
-        <div onClick={() => { const t = ble.tare(); setTareAngles(t); setStep(3); }} style={BTN} data-testid="tare-done-btn">{t('dorsi_calibration_done')}</div>
+        <div onClick={() => { const t = ble.tare(); setTareAngles(t); setStep(3); }} style={BTN} data-testid="tare-done-btn">Valider la position neutre</div>
       </div>
     );
 
@@ -331,15 +332,15 @@ export default function DorsiBilanPage() {
           </div>
 
           {/* Summary cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 } as any}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20, padding: '0 4px' } as any}>
             {DIRS.map(dir => { const m = data[dir.key]; if (!m) return null; return (
-              <div key={dir.key} style={{ ...G, padding: 14, textAlign: 'left' } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
-                  <i className={dir.icon} style={{ fontSize: 14, color: '#FFF' }} />
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>{dir.label}</span>
+              <div key={dir.key} style={{ ...G, padding: '12px 10px', textAlign: 'left', overflow: 'hidden' } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 } as any}>
+                  <i className={dir.icon} style={{ fontSize: 12, color: '#FFF', flexShrink: 0 }} />
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{dir.label}</span>
                 </div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{m.mobility}%</div>
-                <div style={{ fontSize: 10, color: m.pain > 6 ? '#EF4444' : m.pain > 3 ? '#F59E0B' : 'rgba(255,255,255,0.4)' }}>Douleur {m.pain}/10</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{m.mobility}%</div>
+                <div style={{ fontSize: 9, color: m.pain > 6 ? '#EF4444' : m.pain > 3 ? '#F59E0B' : 'rgba(255,255,255,0.4)' }}>Douleur {m.pain}/10</div>
               </div>
             ); })}
           </div>

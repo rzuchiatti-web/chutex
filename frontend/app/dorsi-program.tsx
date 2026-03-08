@@ -671,41 +671,33 @@ export default function DorsiProgramPage() {
 
             {/* ═══ STREAKS & CALENDAR ═══ */}
             {streaks && (
-              <div data-testid="streaks-card" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: streaks.current_streak > 0 ? 'rgba(249,115,22,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${streaks.current_streak > 0 ? 'rgba(249,115,22,0.3)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                      <i className="ri-fire-line" style={{ fontSize: 18, color: streaks.current_streak > 0 ? '#F97316' : 'rgba(255,255,255,0.3)' }} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{streaks.current_streak}</div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>jours consecutifs</div>
-                    </div>
+              <div data-testid="streaks-card" style={{ ...GLASS, padding: '14px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 } as any}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: streaks.current_streak > 0 ? 'rgba(249,115,22,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${streaks.current_streak > 0 ? 'rgba(249,115,22,0.3)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className="ri-fire-line" style={{ fontSize: 16, color: streaks.current_streak > 0 ? '#F97316' : 'rgba(255,255,255,0.3)' }} />
                   </div>
-                  <div style={{ textAlign: 'right' } as any}>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Record</div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: '#F97316' }}>{streaks.best_streak}j</div>
+                  <div>
+                    <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{streaks.current_streak}j</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>serie</div>
                   </div>
                 </div>
-                {/* Mini calendar — last 28 days */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3 } as any}>
-                  {Array.from({ length: 28 }).map((_, i) => {
-                    const d = new Date(Date.now() - (27 - i) * 86400000);
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(14, 1fr)', gap: 2, flex: 1 } as any}>
+                  {Array.from({ length: 14 }).map((_, i) => {
+                    const d = new Date(Date.now() - (13 - i) * 86400000);
                     const key = d.toISOString().split('T')[0];
                     const active = streaks.calendar?.[key];
                     return (
-                      <div key={i} title={key} style={{
-                        width: '100%', paddingTop: '100%', borderRadius: 4, position: 'relative',
+                      <div key={i} style={{
+                        width: '100%', paddingTop: '100%', borderRadius: 3,
                         background: active ? 'rgba(249,115,22,0.6)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${active ? 'rgba(249,115,22,0.4)' : 'rgba(255,255,255,0.06)'}`,
-                        boxShadow: active ? '0 0 6px rgba(249,115,22,0.3)' : 'none',
+                        boxShadow: active ? '0 0 4px rgba(249,115,22,0.3)' : 'none',
                       } as any} />
                     );
                   })}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 } as any}>
-                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>il y a 4 semaines</span>
-                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>aujourd'hui</span>
+                <div style={{ textAlign: 'right', flexShrink: 0 } as any}>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>Record</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#F97316' }}>{streaks.best_streak}j</div>
                 </div>
               </div>
             )}
