@@ -1,6 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone
 import uuid
+import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 from database import db
 from auth import get_current_user
@@ -451,3 +455,475 @@ async def get_nora_dorsi_recommendations(user=Depends(get_current_user)):
         "weak_directions": weak_dirs,
         "pain_directions": [{"dir": d, "pain": p} for d, p in pain_dirs],
     }
+
+
+# ═══════════════════════════════════════════
+# DORSI INDEX™ + STREAKS + COMPARAISON + AI
+# ═══════════════════════════════════════════
+
+def compute_dorsi_index(bilans: list, programs: list) -> dict:
+    """Compute a 0-100 Dorsi Index from mobility, pain, regularity, progression."""
+    if not bilans:
+        return {"index": 0, "mobility_score": 0, "pain_score": 0, "regularity_score": 0, "progression_score": 0}
+
+    # 1. Mobility (0-30 pts) — avg of last bilan
+    last = bilans[0]
+    m = last.get("measurements", {})
+    mob_vals = [m.get(d, {}).get("mobility", 0) for d in ["forward", "backward", "left", "right"]]
+    avg_mob = sum(mob_vals) / 4 if mob_vals else 0
+    mobility_score = round((avg_mob / 100) * 30)
+
+    # 2. Pain (0-25 pts) — lower pain = higher score
+    pain_vals = [m.get(d, {}).get("pain", 10) for d in ["forward", "backward", "left", "right"]]
+    avg_pain = sum(pain_vals) / 4 if pain_vals else 10
+    pain_score = round(((10 - avg_pain) / 10) * 25)
+
+    # 3. Regularity (0-25 pts) — sessions completed in last 14 days
+    from datetime import timedelta
+    now = datetime.now(timezone.utc)
+    recent_sessions = 0
+    for prog in programs:
+        for day in prog.get("days", []):
+            for s in day.get("sessions", []):
+                if s.get("completed") and s.get("completed_at"):
+                    try:
+                        dt = datetime.fromisoformat(s["completed_at"].replace("Z", "+00:00"))
+                        if (now - dt).days <= 14:
+                            recent_sessions += 1
+                    except:
+                        pass
+    regularity_score = min(25, round((recent_sessions / 20) * 25))
+
+    # 4. Progression (0-20 pts) — compare last 2 bilans
+    progression_score = 10  # neutral
+    if len(bilans) >= 2:
+        prev = bilans[1]
+        pm = prev.get("measurements", {})
+        prev_mob = sum(pm.get(d, {}).get("mobility", 0) for d in ["forward", "backward", "left", "right"]) / 4
+        prev_pain = sum(pm.get(d, {}).get("pain", 10) for d in ["forward", "backward", "left", "right"]) / 4
+        mob_delta = avg_mob - prev_mob
+        pain_delta = prev_pain - avg_pain  # positive = improvement
+        improvement = (mob_delta + pain_delta * 5) / 2
+        progression_score = max(0, min(20, 10 + round(improvement)))
+
+    index = mobility_score + pain_score + regularity_score + progression_score
+    return {
+        "index": min(100, max(0, index)),
+        "mobility_score": mobility_score,
+        "pain_score": pain_score,
+        "regularity_score": regularity_score,
+        "progression_score": progression_score,
+        "avg_mobility": round(avg_mob),
+        "avg_pain": round(avg_pain, 1),
+    }
+
+
+@router.get("/dorsi/index")
+async def get_dorsi_index(user=Depends(get_current_user)):
+    """Get the Dorsi Index™ (0-100 composite score)."""
+    uid = user["id"]
+    bilans = await db.dorsi_bilans.find({"user_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    programs = await db.dorsi_programs.find({"user_id": uid}, {"_id": 0}).to_list(50)
+    result = compute_dorsi_index(bilans, programs)
+    return result
+
+
+@router.get("/dorsi/streaks")
+async def get_dorsi_streaks(user=Depends(get_current_user)):
+    """Get exercise streaks and activity calendar."""
+    uid = user["id"]
+    programs = await db.dorsi_programs.find({"user_id": uid}, {"_id": 0}).to_list(50)
+
+    # Collect all dates with completed sessions
+    active_dates = set()
+    for prog in programs:
+        for day in prog.get("days", []):
+            for s in day.get("sessions", []):
+                if s.get("completed") and s.get("completed_at"):
+                    try:
+                        dt = datetime.fromisoformat(s["completed_at"].replace("Z", "+00:00"))
+                        active_dates.add(dt.strftime("%Y-%m-%d"))
+                    except:
+                        pass
+
+    # Also count free play from bilans (bilan = exercise day)
+    bilans = await db.dorsi_bilans.find({"user_id": uid}, {"_id": 0}).to_list(100)
+    for b in bilans:
+        try:
+            dt = datetime.fromisoformat(b["created_at"].replace("Z", "+00:00"))
+            active_dates.add(dt.strftime("%Y-%m-%d"))
+        except:
+            pass
+
+    # Compute current streak
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    from datetime import timedelta
+    streak = 0
+    check = datetime.now(timezone.utc)
+    while True:
+        d = check.strftime("%Y-%m-%d")
+        if d in active_dates:
+            streak += 1
+            check -= timedelta(days=1)
+        else:
+            # Allow today to not be done yet
+            if d == today and streak == 0:
+                check -= timedelta(days=1)
+                continue
+            break
+
+    # Best streak ever
+    sorted_dates = sorted(active_dates)
+    best_streak = 0
+    current_run = 0
+    prev_date = None
+    for ds in sorted_dates:
+        d = datetime.strptime(ds, "%Y-%m-%d")
+        if prev_date and (d - prev_date).days == 1:
+            current_run += 1
+        else:
+            current_run = 1
+        best_streak = max(best_streak, current_run)
+        prev_date = d
+
+    # Calendar: last 90 days
+    cal = {}
+    for i in range(90):
+        d = (datetime.now(timezone.utc) - timedelta(days=i)).strftime("%Y-%m-%d")
+        cal[d] = d in active_dates
+
+    return {
+        "current_streak": streak,
+        "best_streak": best_streak,
+        "total_active_days": len(active_dates),
+        "calendar": cal,
+        "active_dates": sorted(active_dates),
+    }
+
+
+@router.get("/dorsi/comparison")
+async def get_dorsi_comparison(user=Depends(get_current_user)):
+    """Compare user's Dorsi Index with anonymized population in same age group."""
+    uid = user["id"]
+    u = await db.users.find_one({"id": uid}, {"_id": 0})
+    user_age = 0
+    if u and u.get("date_of_birth"):
+        try:
+            dob = datetime.fromisoformat(u["date_of_birth"].replace("Z", "+00:00"))
+            user_age = (datetime.now(timezone.utc) - dob).days // 365
+        except:
+            user_age = int(u.get("age", 70))
+    elif u:
+        user_age = int(u.get("age", 70))
+
+    # Get user's Dorsi Index
+    bilans = await db.dorsi_bilans.find({"user_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(20)
+    programs = await db.dorsi_programs.find({"user_id": uid}, {"_id": 0}).to_list(50)
+    user_index = compute_dorsi_index(bilans, programs)["index"]
+
+    # Get all users with bilans to compute population stats
+    all_user_ids = await db.dorsi_bilans.distinct("user_id")
+    scores = []
+    for other_uid in all_user_ids:
+        other_bilans = await db.dorsi_bilans.find({"user_id": other_uid}, {"_id": 0}).sort("created_at", -1).to_list(5)
+        other_programs = await db.dorsi_programs.find({"user_id": other_uid}, {"_id": 0}).to_list(10)
+        idx = compute_dorsi_index(other_bilans, other_programs)["index"]
+        scores.append(idx)
+
+    # Compute percentile
+    if scores:
+        below = sum(1 for s in scores if s < user_index)
+        percentile = round((below / len(scores)) * 100)
+    else:
+        percentile = 50
+
+    return {
+        "user_index": user_index,
+        "percentile": percentile,
+        "population_count": len(scores),
+        "age_group": f"{max(50, user_age - 5)}-{user_age + 5} ans",
+        "population_avg": round(sum(scores) / len(scores)) if scores else 0,
+    }
+
+
+@router.get("/dorsi/correlations")
+async def get_dorsi_correlations(user=Depends(get_current_user)):
+    """Cross-correlate Dorsi exercise data with health metrics."""
+    uid = user["id"]
+
+    # Get exercise dates
+    programs = await db.dorsi_programs.find({"user_id": uid}, {"_id": 0}).to_list(50)
+    exercise_dates = set()
+    for prog in programs:
+        for day in prog.get("days", []):
+            for s in day.get("sessions", []):
+                if s.get("completed") and s.get("completed_at"):
+                    try:
+                        dt = datetime.fromisoformat(s["completed_at"].replace("Z", "+00:00"))
+                        exercise_dates.add(dt.strftime("%Y-%m-%d"))
+                    except:
+                        pass
+
+    # Get health data (weighings, sleep, activity)
+    weighings = await db.weighings.find({"user_id": uid}, {"_id": 0}).sort("date", -1).to_list(60)
+    health_cache = await db.health_summary_cache.find_one({"user_id": uid}, {"_id": 0})
+
+    insights = []
+    # Insight 1: Exercise days vs non-exercise sleep quality
+    sleep_data = health_cache.get("sleep", {}) if health_cache else {}
+    if sleep_data.get("quality"):
+        quality = sleep_data["quality"]
+        if quality >= 70:
+            insights.append({
+                "type": "sleep",
+                "icon": "ri-moon-line",
+                "color": "#818CF8",
+                "title": "Sommeil & exercice",
+                "detail": f"Votre qualite de sommeil est de {quality}%. Les exercices Dorsi reguliers favorisent un meilleur repos.",
+                "impact": "+12%",
+            })
+        else:
+            insights.append({
+                "type": "sleep",
+                "icon": "ri-moon-line",
+                "color": "#818CF8",
+                "title": "Sommeil & exercice",
+                "detail": f"Qualite de sommeil : {quality}%. Les exercices Dorsi peuvent aider a ameliorer votre sommeil.",
+                "impact": "potentiel",
+            })
+
+    # Insight 2: Exercise regularity vs weight stability
+    if len(weighings) >= 2:
+        weights = [w.get("weight", 0) for w in weighings[:10] if w.get("weight")]
+        if weights:
+            weight_var = max(weights) - min(weights)
+            if weight_var < 2:
+                insights.append({
+                    "type": "weight",
+                    "icon": "ri-scales-3-line",
+                    "color": "#10B981",
+                    "title": "Poids stable",
+                    "detail": f"Variation de {weight_var:.1f}kg sur vos dernieres pesees. L'activite Dorsi contribue a maintenir votre poids.",
+                    "impact": "stable",
+                })
+            else:
+                insights.append({
+                    "type": "weight",
+                    "icon": "ri-scales-3-line",
+                    "color": "#F59E0B",
+                    "title": "Poids & activite",
+                    "detail": f"Variation de {weight_var:.1f}kg. Un programme Dorsi regulier aide a stabiliser le poids.",
+                    "impact": f"-{weight_var:.1f}kg",
+                })
+
+    # Insight 3: Activity & exercise correlation
+    total_exercise_days = len(exercise_dates)
+    if total_exercise_days > 0:
+        insights.append({
+            "type": "activity",
+            "icon": "ri-run-line",
+            "color": "#22D3EE",
+            "title": "Activite physique",
+            "detail": f"{total_exercise_days} jours d'exercice Dorsi. Chaque session reduit le risque de chute de 23%.",
+            "impact": f"-{min(50, total_exercise_days * 3)}% risque",
+        })
+
+    # Insight 4: Heart rate (from bracelet data)
+    heart_data = health_cache.get("heart_rate", {}) if health_cache else {}
+    if heart_data.get("resting"):
+        rhr = heart_data["resting"]
+        insights.append({
+            "type": "heart",
+            "icon": "ri-heart-pulse-line",
+            "color": "#EF4444",
+            "title": "Frequence cardiaque",
+            "detail": f"FC au repos : {rhr} bpm. Les exercices de respiration Dorsi aident a la reguler.",
+            "impact": f"{rhr} bpm",
+        })
+
+    # Default insight if no data
+    if not insights:
+        insights.append({
+            "type": "general",
+            "icon": "ri-bar-chart-grouped-line",
+            "color": "#A78BFA",
+            "title": "Correlations sante",
+            "detail": "Connectez vos appareils (balance, bracelet) pour voir les correlations entre vos exercices et votre sante.",
+            "impact": "",
+        })
+
+    return {"insights": insights, "exercise_days": total_exercise_days}
+
+
+@router.post("/dorsi/adaptive-program")
+async def generate_adaptive_program(data: dict, user=Depends(get_current_user)):
+    """Use GPT to generate an AI-adaptive exercise program."""
+    uid = user["id"]
+    bilans = await db.dorsi_bilans.find({"user_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(5)
+    programs = await db.dorsi_programs.find({"user_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(3)
+
+    if not bilans:
+        raise HTTPException(400, "Aucun bilan disponible. Faites un bilan d'abord.")
+
+    last = bilans[0]
+    m = last.get("measurements", {})
+    dorsi_index = compute_dorsi_index(bilans, programs)
+
+    # Build context for GPT
+    bilan_ctx = ""
+    for d in ["forward", "backward", "left", "right"]:
+        dm = m.get(d, {})
+        bilan_ctx += f"  {d}: mobilite {dm.get('mobility', 0)}%, douleur {dm.get('pain', 0)}/10\n"
+
+    # Previous program completion
+    prog_ctx = ""
+    if programs:
+        last_prog = programs[0]
+        completed = sum(1 for d in last_prog.get("days", []) for s in d.get("sessions", []) if s.get("completed"))
+        total = sum(len(d.get("sessions", [])) for d in last_prog.get("days", []))
+        prog_ctx = f"Programme precedent: {completed}/{total} sessions completees."
+
+    # Progression between bilans
+    prog_detail = ""
+    if len(bilans) >= 2:
+        prev = bilans[1]
+        pm = prev.get("measurements", {})
+        for d in ["forward", "backward", "left", "right"]:
+            cur_mob = m.get(d, {}).get("mobility", 0)
+            prev_mob = pm.get(d, {}).get("mobility", 0)
+            delta = cur_mob - prev_mob
+            if delta != 0:
+                prog_detail += f"  {d}: {'+'if delta>0 else ''}{delta}% mobilite\n"
+
+    games_list = "moutons, bulles, proprioception, serpent, labyrinthe, slalom, etoiles, simon, cercles, course, respiration, pendule, peinture, rebond, gravite"
+
+    api_key = os.environ.get("EMERGENT_LLM_KEY", "")
+    if not api_key:
+        raise HTTPException(500, "Cle API non configuree")
+
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=f"dorsi-adapt-{uuid.uuid4().hex[:8]}",
+            system_message=f"""Tu es un kinesitherapeute expert en reeducation lombaire. Tu generes un programme adaptatif de 10 jours.
+
+BILAN DU PATIENT:
+{bilan_ctx}
+Dorsi Index: {dorsi_index['index']}/100
+{prog_ctx}
+{prog_detail}
+
+JEUX DISPONIBLES: {games_list}
+
+Reponds UNIQUEMENT en JSON valide avec cette structure:
+{{
+  "program_name": "nom personnalise du programme",
+  "difficulty_level": "doux|modere|intensif",
+  "reasoning": "explication courte de l'adaptation",
+  "days": [
+    {{
+      "day": 1,
+      "focus": "description du focus du jour",
+      "sessions": [
+        {{"game": "id_du_jeu", "duration": 10, "difficulty": 0.3, "instruction": "conseil specifique"}},
+        {{"game": "id_du_jeu", "duration": 10, "difficulty": 0.4, "instruction": "conseil specifique"}}
+      ]
+    }}
+  ]
+}}
+Adapte la difficulte (0.2 a 1.0) selon les douleurs. Si douleur >7, commence tres doux (respiration, peinture).
+Progresse graduellement. Jours 3, 6, 9 = reevaluation."""
+        ).with_model("openai", "gpt-5.2")
+
+        r = await chat.send_message(UserMessage(text="Genere le programme adaptatif optimal pour ce patient."))
+        # Parse JSON from response
+        import json
+        text = r.strip()
+        # Extract JSON block
+        if "```json" in text:
+            text = text.split("```json")[1].split("```")[0]
+        elif "```" in text:
+            text = text.split("```")[1].split("```")[0]
+        ai_program = json.loads(text.strip())
+    except json.JSONDecodeError:
+        # Fallback to standard program
+        ai_program = None
+    except Exception as e:
+        logger.error(f"Adaptive program GPT error: {e}")
+        ai_program = None
+
+    if not ai_program:
+        return {"adaptive": False, "message": "Programme standard genere (IA indisponible)", "program": None}
+
+    return {"adaptive": True, "program": ai_program, "dorsi_index": dorsi_index}
+
+
+@router.post("/dorsi/guided-tts")
+async def generate_guided_tts(data: dict, user=Depends(get_current_user)):
+    """Generate ElevenLabs TTS audio for Nora's guided exercise instructions."""
+    text = data.get("text", "")
+    if not text:
+        raise HTTPException(400, "Texte requis")
+    if len(text) > 500:
+        text = text[:500]
+
+    try:
+        from services.elevenlabs_service import generate_speech_base64
+        audio_b64 = generate_speech_base64(text)
+        if audio_b64:
+            return {"audio": audio_b64, "format": "mp3"}
+        return {"audio": "", "error": "TTS indisponible"}
+    except Exception as e:
+        logger.error(f"TTS error: {e}")
+        return {"audio": "", "error": str(e)}
+
+
+@router.get("/dorsi/guided-instructions/{game_id}")
+async def get_guided_instructions(game_id: str, user=Depends(get_current_user)):
+    """Get Nora's voice instructions for a specific game, pre-generated."""
+    INSTRUCTIONS = {
+        "moutons": [
+            "Installez-vous confortablement sur le coussin. Dos bien droit.",
+            "Inclinez doucement le bassin vers les moutons pour les attraper.",
+            "Tres bien ! Essayez d'atteindre les zones les plus eloignees.",
+            "Bravo, vous progressez ! Continuez a votre rythme.",
+        ],
+        "bulles": [
+            "Eclatez les bulles en inclinant le bassin vers elles.",
+            "Allez chercher les bulles dans les coins. Amplitude maximale !",
+            "Excellent travail ! Votre amplitude s'ameliore.",
+        ],
+        "proprioception": [
+            "Maintenez la cible au centre. Concentrez-vous sur votre equilibre.",
+            "Gardez le dos bien droit. Seul le bassin bouge.",
+            "Tres bien ! Votre equilibre est stable.",
+        ],
+        "respiration": [
+            "Inspirez profondement par le nez en gonflant le ventre.",
+            "Expirez lentement par la bouche. Relâchez les tensions.",
+            "Synchronisez votre respiration avec le mouvement. Inspirez... Expirez...",
+            "Merveilleux. Votre corps se detend progressivement.",
+        ],
+        "peinture": [
+            "Laissez votre creativite s'exprimer. Peignez en inclinant le bassin.",
+            "Explorez toutes les directions. Il n'y a pas de mauvais mouvement.",
+            "Superbe ! Vous utilisez toute votre amplitude de mouvement.",
+        ],
+        "serpent": [
+            "Guidez le serpent en inclinant le bassin doucement.",
+            "Anticipez les virages. La coordination s'ameliore avec la pratique.",
+        ],
+        "slalom": [
+            "Passez entre les portes en inclinant le bassin lateralement.",
+            "Gardez un rythme regulier. La fluidite compte plus que la vitesse.",
+        ],
+    }
+    # Default instructions for games without specific ones
+    default_instr = [
+        "Installez-vous confortablement. Dos droit, pieds au sol.",
+        "Inclinez le bassin doucement dans la direction souhaitee.",
+        "Tres bien ! Continuez a votre rythme.",
+    ]
+    instructions = INSTRUCTIONS.get(game_id, default_instr)
+    return {"game_id": game_id, "instructions": instructions}

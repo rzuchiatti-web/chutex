@@ -459,6 +459,15 @@ export default function DorsiProgramPage() {
   const [freePlay, setFreePlay] = useState(false);
   const [scoreHistory, setScoreHistory] = useState<any[]>([]);
   const [noraRecs, setNoraRecs] = useState<any>(null);
+  const [dorsiIndex, setDorsiIndex] = useState<any>(null);
+  const [streaks, setStreaks] = useState<any>(null);
+  const [comparison, setComparison] = useState<any>(null);
+  const [correlations, setCorrelations] = useState<any>(null);
+  const [guidedAudio, setGuidedAudio] = useState<string>('');
+  const [guidedInstructions, setGuidedInstructions] = useState<string[]>([]);
+  const [guidedIdx, setGuidedIdx] = useState(0);
+  const [isGuiding, setIsGuiding] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const fetchProgram = useCallback(async () => {
     try {
@@ -470,11 +479,15 @@ export default function DorsiProgramPage() {
 
   useEffect(() => { fetchProgram(); }, [fetchProgram]);
 
-  // Fetch score history + Nora recommendations
+  // Fetch score history + Nora recommendations + new features
   useEffect(() => {
     if (token) {
       apiFetch('/api/dorsi/score-history', {}, token).then(setScoreHistory).catch(() => {});
       apiFetch('/api/dorsi/nora-recommendations', {}, token).then(setNoraRecs).catch(() => {});
+      apiFetch('/api/dorsi/index', {}, token).then(setDorsiIndex).catch(() => {});
+      apiFetch('/api/dorsi/streaks', {}, token).then(setStreaks).catch(() => {});
+      apiFetch('/api/dorsi/comparison', {}, token).then(setComparison).catch(() => {});
+      apiFetch('/api/dorsi/correlations', {}, token).then(setCorrelations).catch(() => {});
     }
   }, [token]);
 
@@ -497,7 +510,40 @@ export default function DorsiProgramPage() {
     } catch (e: any) { console.error(e); }
   };
 
-  const backToCalendar = () => { setActiveGame(null); setView('calendar'); };
+  const playNora = async (text: string) => {
+    try {
+      const res = await apiFetch('/api/dorsi/guided-tts', { method: 'POST', body: JSON.stringify({ text }) }, token);
+      if (res.audio) {
+        const audio = new Audio(`data:audio/mp3;base64,${res.audio}`);
+        audioRef.current = audio;
+        await audio.play();
+      }
+    } catch { /* silent */ }
+  };
+
+  const startGuidedSession = async (gameId: string) => {
+    try {
+      const res = await apiFetch(`/api/dorsi/guided-instructions/${gameId}`, {}, token);
+      if (res.instructions?.length) {
+        setGuidedInstructions(res.instructions);
+        setGuidedIdx(0);
+        setIsGuiding(true);
+        playNora(res.instructions[0]);
+      }
+    } catch { /* silent */ }
+  };
+
+  const nextGuidedInstruction = () => {
+    if (guidedIdx < guidedInstructions.length - 1) {
+      const next = guidedIdx + 1;
+      setGuidedIdx(next);
+      playNora(guidedInstructions[next]);
+    } else {
+      setIsGuiding(false);
+    }
+  };
+
+  const backToCalendar = () => { setActiveGame(null); setView('calendar'); setIsGuiding(false); if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } };
 
   if (Platform.OS !== 'web') return null;
 
@@ -574,6 +620,169 @@ export default function DorsiProgramPage() {
         {/* CALENDAR VIEW */}
         {view === 'calendar' && !loading && (
           <div style={{ maxWidth: 480, margin: '0 auto' } as any}>
+
+            {/* ═══ DORSI INDEX™ ═══ */}
+            {dorsiIndex && dorsiIndex.index > 0 && (
+              <div data-testid="dorsi-index-card" style={{ ...GLASS, padding: 20, marginBottom: 16, position: 'relative', overflow: 'hidden' } as any}>
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: `rgba(255,255,255,${dorsiIndex.index > 70 ? '0.04' : '0.02'})` } as any} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 } as any}>
+                  <div style={{ position: 'relative', width: 72, height: 72 } as any}>
+                    <svg viewBox="0 0 72 72" style={{ width: 72, height: 72, transform: 'rotate(-90deg)' } as any}>
+                      <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                      <circle cx="36" cy="36" r="30" fill="none"
+                        stroke={dorsiIndex.index >= 70 ? '#10B981' : dorsiIndex.index >= 40 ? '#F59E0B' : '#EF4444'}
+                        strokeWidth="6" strokeLinecap="round"
+                        strokeDasharray={`${(dorsiIndex.index / 100) * 188.5} 188.5`}
+                        style={{ transition: 'stroke-dasharray 1s ease' }} />
+                    </svg>
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: '#FFF' } as any}>{dorsiIndex.index}</div>
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 4 }}>Dorsi Index</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>
+                      {dorsiIndex.index >= 70 ? 'Excellent' : dorsiIndex.index >= 50 ? 'Bon' : dorsiIndex.index >= 30 ? 'Modere' : 'A ameliorer'}
+                    </div>
+                    {comparison && comparison.population_count > 0 && (
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>
+                        Meilleur que <span style={{ color: '#10B981', fontWeight: 700 }}>{comparison.percentile}%</span> des {comparison.age_group}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* Score breakdown */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 6 } as any}>
+                  {[
+                    { label: 'Mobilite', val: dorsiIndex.mobility_score, max: 30, color: '#22D3EE' },
+                    { label: 'Douleur', val: dorsiIndex.pain_score, max: 25, color: '#10B981' },
+                    { label: 'Regularite', val: dorsiIndex.regularity_score, max: 25, color: '#A78BFA' },
+                    { label: 'Progression', val: dorsiIndex.progression_score, max: 20, color: '#F59E0B' },
+                  ].map(s => (
+                    <div key={s.label} style={{ textAlign: 'center' } as any}>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginBottom: 4, fontWeight: 600 }}>{s.label}</div>
+                      <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                        <div style={{ height: '100%', borderRadius: 2, width: `${(s.val / s.max) * 100}%`, background: s.color, transition: 'width 0.8s' } as any} />
+                      </div>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: s.color, marginTop: 3 }}>{s.val}/{s.max}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ═══ STREAKS & CALENDAR ═══ */}
+            {streaks && (
+              <div data-testid="streaks-card" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: streaks.current_streak > 0 ? 'rgba(249,115,22,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${streaks.current_streak > 0 ? 'rgba(249,115,22,0.3)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className="ri-fire-line" style={{ fontSize: 18, color: streaks.current_streak > 0 ? '#F97316' : 'rgba(255,255,255,0.3)' }} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{streaks.current_streak}</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>jours consecutifs</div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' } as any}>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Record</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#F97316' }}>{streaks.best_streak}j</div>
+                  </div>
+                </div>
+                {/* Mini calendar — last 28 days */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3 } as any}>
+                  {Array.from({ length: 28 }).map((_, i) => {
+                    const d = new Date(Date.now() - (27 - i) * 86400000);
+                    const key = d.toISOString().split('T')[0];
+                    const active = streaks.calendar?.[key];
+                    return (
+                      <div key={i} title={key} style={{
+                        width: '100%', paddingTop: '100%', borderRadius: 4, position: 'relative',
+                        background: active ? 'rgba(249,115,22,0.6)' : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${active ? 'rgba(249,115,22,0.4)' : 'rgba(255,255,255,0.06)'}`,
+                        boxShadow: active ? '0 0 6px rgba(249,115,22,0.3)' : 'none',
+                      } as any} />
+                    );
+                  })}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 } as any}>
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>il y a 4 semaines</span>
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>aujourd'hui</span>
+                </div>
+              </div>
+            )}
+
+            {/* ═══ NORA GUIDED SESSION ═══ */}
+            <div data-testid="nora-guided-section" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
+                <div style={{ width: 36, height: 36, borderRadius: 12, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(236,72,153,0.2))', border: '1px solid rgba(167,139,250,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-mic-line" style={{ fontSize: 18, color: '#A78BFA' }} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Seance guidee par Nora</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Nora vous accompagne vocalement</div>
+                </div>
+              </div>
+              {isGuiding ? (
+                <div style={{ background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.2)', borderRadius: 16, padding: 16 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#A78BFA', animation: 'pulse 1.5s infinite' } as any} />
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Nora parle...</span>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>{guidedIdx + 1}/{guidedInstructions.length}</span>
+                  </div>
+                  <div style={{ fontSize: 14, color: '#FFF', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 12 }}>{guidedInstructions[guidedIdx]}</div>
+                  <div style={{ display: 'flex', gap: 8 } as any}>
+                    <div onClick={nextGuidedInstruction} style={{ flex: 1, padding: '10px', borderRadius: 999, background: 'rgba(167,139,250,0.2)', border: '1px solid rgba(167,139,250,0.3)', cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: 700, color: '#A78BFA' } as any}>
+                      {guidedIdx < guidedInstructions.length - 1 ? 'Suivant' : 'Terminer'}
+                    </div>
+                    <div onClick={() => { setIsGuiding(false); if (audioRef.current) audioRef.current.pause(); }} style={{ padding: '10px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>
+                      Arreter
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
+                  {[
+                    { id: 'respiration', name: 'Respiration', icon: 'ri-lungs-line', color: '#60A5FA' },
+                    { id: 'proprioception', name: 'Equilibre', icon: 'ri-focus-3-line', color: '#10B981' },
+                    { id: 'peinture', name: 'Peinture', icon: 'ri-brush-line', color: '#FBBF24' },
+                    { id: 'moutons', name: 'Moutons', icon: 'ri-ghost-smile-line', color: '#22D3EE' },
+                  ].map(g => (
+                    <div key={g.id} data-testid={`guided-${g.id}`} onClick={() => startGuidedSession(g.id)} style={{ padding: '12px', borderRadius: 14, cursor: 'pointer', background: `${g.color}08`, border: `1px solid ${g.color}20`, display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                      <i className={g.icon} style={{ fontSize: 18, color: g.color }} />
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{g.name}</div>
+                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>Guidee par Nora</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ═══ CORRELATIONS SANTE ═══ */}
+            {correlations?.insights?.length > 0 && (
+              <div data-testid="correlations-card" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+                  <i className="ri-bar-chart-grouped-line" style={{ fontSize: 18, color: '#22D3EE' }} />
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Correlations sante</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 } as any}>
+                  {correlations.insights.map((ins: any, i: number) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px', borderRadius: 14, background: `${ins.color}08`, border: `1px solid ${ins.color}15` } as any}>
+                      <div style={{ width: 36, height: 36, borderRadius: 10, background: `${ins.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                        <i className={ins.icon} style={{ fontSize: 16, color: ins.color }} />
+                      </div>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 } as any}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{ins.title}</span>
+                          {ins.impact && <span style={{ fontSize: 10, fontWeight: 800, color: ins.color, background: `${ins.color}15`, padding: '2px 8px', borderRadius: 999 }}>{ins.impact}</span>}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{ins.detail}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {/* Free play section - always available */}
             <div data-testid="free-play-section" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
               <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{t('dorsi_free_games')}</div>
@@ -727,7 +936,7 @@ export default function DorsiProgramPage() {
           </div>
         )}
       </div>
-      <style dangerouslySetInnerHTML={{ __html: '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}' }} />
+      <style dangerouslySetInnerHTML={{ __html: '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}' }} />
     </div>
   );
 }
