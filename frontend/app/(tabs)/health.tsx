@@ -254,21 +254,49 @@ export default function HealthScreen() {
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '16px 20px 16px' } as any} />
           <SleepCard d={d} />
 
-          {/* Poids & Nutrition — permanent card below sleep */}
+          {/* Poids & Nutrition — card with mini weight chart */}
           <div data-testid="weight-nutrition-card" onClick={() => router.push('/minceur' as any)}
-            style={{ borderRadius: 18, background: 'rgba(249,115,22,0.04)', border: '1px solid rgba(249,115,22,0.15)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '0 16px 0 0', minHeight: 80, transition: 'transform 0.15s' } as any}
+            style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, cursor: 'pointer', padding: 16, transition: 'transform 0.15s' } as any}
             onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
             onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-            <div style={{ width: 70, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 0 8px 12px' } as any}>
-              <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(249,115,22,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <i className="ri-scales-3-line" style={{ fontSize: 26, color: '#F59E0B' }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(249,115,22,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-scales-3-line" style={{ fontSize: 18, color: '#F59E0B' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Poids & Nutrition</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Suivi, repas, exercices</div>
+                </div>
               </div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.15)' }} />
             </div>
-            <div style={{ flex: 1, padding: '16px 0' } as any}>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>Poids & Nutrition</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{d.weight ? `${d.weight}kg — IMC ${d.bmi || ''}` : 'Suivi poids, repas, exercices'}</div>
+            {/* Weight data row */}
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16 } as any}>
+              <div style={{ flexShrink: 0 } as any}>
+                {Number(d.weight || 0) > 0 ? (
+                  <>
+                    <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{d.weight}<span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>kg</span></div>
+                    {d.bmi > 0 && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>IMC {d.bmi}</div>}
+                  </>
+                ) : (
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Aucune pesee</div>
+                )}
+              </div>
+              {/* Mini sparkline chart */}
+              {weighings.length >= 2 && (
+                <div style={{ flex: 1, height: 40, display: 'flex', alignItems: 'flex-end', gap: 2 } as any}>
+                  {weighings.slice(0, 8).reverse().map((w: any, i: number, arr: any[]) => {
+                    const ws = arr.map((x: any) => x.weight);
+                    const min = Math.min(...ws) - 1;
+                    const max = Math.max(...ws) + 1;
+                    const pct = Math.max(12, ((w.weight - min) / (max - min)) * 100);
+                    const last = i === arr.length - 1;
+                    return <div key={i} style={{ flex: 1, height: `${pct}%`, borderRadius: 3, background: last ? '#F59E0B' : 'rgba(249,115,22,0.2)' } as any} />;
+                  })}
+                </div>
+              )}
             </div>
-            <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(249,115,22,0.3)', flexShrink: 0 }} />
           </div>
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
