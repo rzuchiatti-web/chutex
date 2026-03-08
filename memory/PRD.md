@@ -25,6 +25,22 @@ Build "Chutex Care," a preventative health application for elderly care with con
 ### i18n - 7 Languages, VAPI Voice AI, Previous features
 - All implemented and working
 
+### Poids & Nutrition (Weight & Nutrition) - Complete (March 2026)
+- **Backend**: New endpoint `GET /api/minceur/weight-details` — fetches user profile, weight history from scale, calculates IMC/BMR/TDEE, body composition, generates daily AI recommendations (meals + exercises) via GPT-5.2 with daily caching
+- **Backend**: `POST /api/minceur/weight-goal` — optional weight goal setter, invalidates cache
+- **Backend**: `DELETE /api/minceur/weight-goal` — remove goal
+- **Backend**: `POST /api/minceur/refresh-recommendations` — force refresh
+- **Frontend**: Complete rewrite of `/minceur.tsx` as permanent health dashboard:
+  - Weight Hero Card: current weight, BMI with color-coded gauge, weight evolution SVG chart
+  - Body Composition: animated ring charts (fat%, muscle%, hydration%, visceral fat) + bone mass, body age, protein
+  - Optional Goal Setter: +/- weight target with week duration selector
+  - AI Recommendations: Nora insight, daily calorie budget with macros, water intake
+  - Meals Tab: 4 detailed meal cards with ingredients, portions, calories, timing
+  - Exercises Tab: home exercises adapted for seniors with duration, intensity, calories
+  - Tip of the Day
+  - Premium clinical UI with animations, glass morphism
+- **Testing**: 100% pass (backend 19/19, frontend 100%)
+
 ## Prioritized Backlog
 ### P1
 - Guardian referral system, Free 7-day trial
