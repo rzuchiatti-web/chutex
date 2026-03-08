@@ -428,6 +428,20 @@ function CanvasGame({ gameId, meta, onScoreUpdate, onComboUpdate, onTimeUpdate, 
           oGrad.addColorStop(0, `${meta.color}35`); oGrad.addColorStop(1, `${meta.color}15`);
           ctx.fillStyle = oGrad;
           if (gameId === 'slalom') { ctx.fillRect(0, o.y, o.x, o.h + 4); ctx.fillRect(o.x + o.w, o.y, w, o.h + 4); } else { ctx.beginPath(); ctx.roundRect(o.x, o.y, o.w, o.h, 8); ctx.fill(); }
+          // Collision check for course
+          if (gameId === 'course') {
+            const cx = cursorRef.current.x, cy = cursorRef.current.y;
+            if (cx > o.x - 12 && cx < o.x + o.w + 12 && cy > o.y - 12 && cy < o.y + o.h + 12) {
+              gameOverRef.current = true; onFinish(scoreRef.current); return;
+            }
+          }
+          // Collision check for slalom (hit the walls)
+          if (gameId === 'slalom') {
+            const cy = cursorRef.current.y, cx = cursorRef.current.x;
+            if (Math.abs(cy - o.y) < 12 && (cx < o.x || cx > o.x + o.w)) {
+              comboRef.current = 0; onComboUpdate(0);
+            }
+          }
           if (o.y > h + 20 || o.x < -40) { if (gameId === 'slalom') addPts(12); obstacles.splice(i, 1); }
         }
         if (gameId === 'course' && f % 4 === 0) { scoreRef.current++; onScoreUpdate(scoreRef.current); }
@@ -442,6 +456,10 @@ function CanvasGame({ gameId, meta, onScoreUpdate, onComboUpdate, onTimeUpdate, 
           if (keysRef.current.has('ArrowUp') || keysRef.current.has('w')) snakeDir = { x: 0, y: -1 };
           if (keysRef.current.has('ArrowDown') || keysRef.current.has('s')) snakeDir = { x: 0, y: 1 };
           const head = { x: (snakeBody[0].x + snakeDir.x + cols) % cols, y: (snakeBody[0].y + snakeDir.y + rows) % rows };
+          // GAME OVER: self-bite check
+          if (snakeBody.some((s, i) => i > 0 && s.x === head.x && s.y === head.y)) {
+            gameOverRef.current = true; onFinish(scoreRef.current); return;
+          }
           snakeBody.unshift(head);
           if (head.x === snakeFood.x && head.y === snakeFood.y) { addPts(25, snakeFood.x * gs + gs / 2, snakeFood.y * gs + 100); snakeFood = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) }; }
           else snakeBody.pop();
@@ -576,7 +594,7 @@ function CanvasGame({ gameId, meta, onScoreUpdate, onComboUpdate, onTimeUpdate, 
           ctx.fillStyle = pGrad; ctx.beginPath(); ctx.arc(p.x, p.y, p.w, 0, Math.PI * 2); ctx.fill();
           ctx.strokeStyle = `hsl(${p.hue || 200}, 70%, 60%)`; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.w + 12, 5, 0.3, 0, Math.PI * 2); ctx.stroke();
           const dx = cursorRef.current.x - p.x, dy = cursorRef.current.y - p.y;
-          if (Math.sqrt(dx * dx + dy * dy) < p.w + 14) { comboRef.current = 0; onComboUpdate(0); }
+          if (Math.sqrt(dx * dx + dy * dy) < p.w + 14) { gameOverRef.current = true; onFinish(scoreRef.current); return; }
           if (p.y > h + 40) { obstacles.splice(i, 1); }
         }
         if (f % 5 === 0) { scoreRef.current++; onScoreUpdate(scoreRef.current); }

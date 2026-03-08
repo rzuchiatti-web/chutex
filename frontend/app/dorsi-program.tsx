@@ -462,12 +462,7 @@ export default function DorsiProgramPage() {
   const [dorsiIndex, setDorsiIndex] = useState<any>(null);
   const [streaks, setStreaks] = useState<any>(null);
   const [comparison, setComparison] = useState<any>(null);
-  const [correlations, setCorrelations] = useState<any>(null);
-  const [guidedAudio, setGuidedAudio] = useState<string>('');
-  const [guidedInstructions, setGuidedInstructions] = useState<string[]>([]);
-  const [guidedIdx, setGuidedIdx] = useState(0);
-  const [isGuiding, setIsGuiding] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [showInfo, setShowInfo] = useState('');
 
   const fetchProgram = useCallback(async () => {
     try {
@@ -479,7 +474,7 @@ export default function DorsiProgramPage() {
 
   useEffect(() => { fetchProgram(); }, [fetchProgram]);
 
-  // Fetch score history + Nora recommendations + new features
+  // Fetch score history + new features
   useEffect(() => {
     if (token) {
       apiFetch('/api/dorsi/score-history', {}, token).then(setScoreHistory).catch(() => {});
@@ -487,7 +482,6 @@ export default function DorsiProgramPage() {
       apiFetch('/api/dorsi/index', {}, token).then(setDorsiIndex).catch(() => {});
       apiFetch('/api/dorsi/streaks', {}, token).then(setStreaks).catch(() => {});
       apiFetch('/api/dorsi/comparison', {}, token).then(setComparison).catch(() => {});
-      apiFetch('/api/dorsi/correlations', {}, token).then(setCorrelations).catch(() => {});
     }
   }, [token]);
 
@@ -510,40 +504,7 @@ export default function DorsiProgramPage() {
     } catch (e: any) { console.error(e); }
   };
 
-  const playNora = async (text: string) => {
-    try {
-      const res = await apiFetch('/api/dorsi/guided-tts', { method: 'POST', body: JSON.stringify({ text }) }, token);
-      if (res.audio) {
-        const audio = new Audio(`data:audio/mp3;base64,${res.audio}`);
-        audioRef.current = audio;
-        await audio.play();
-      }
-    } catch { /* silent */ }
-  };
-
-  const startGuidedSession = async (gameId: string) => {
-    try {
-      const res = await apiFetch(`/api/dorsi/guided-instructions/${gameId}`, {}, token);
-      if (res.instructions?.length) {
-        setGuidedInstructions(res.instructions);
-        setGuidedIdx(0);
-        setIsGuiding(true);
-        playNora(res.instructions[0]);
-      }
-    } catch { /* silent */ }
-  };
-
-  const nextGuidedInstruction = () => {
-    if (guidedIdx < guidedInstructions.length - 1) {
-      const next = guidedIdx + 1;
-      setGuidedIdx(next);
-      playNora(guidedInstructions[next]);
-    } else {
-      setIsGuiding(false);
-    }
-  };
-
-  const backToCalendar = () => { setActiveGame(null); setView('calendar'); setIsGuiding(false); if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } };
+  const backToCalendar = () => { setActiveGame(null); setView('calendar'); };
 
   if (Platform.OS !== 'web') return null;
 
@@ -621,83 +582,112 @@ export default function DorsiProgramPage() {
         {view === 'calendar' && !loading && (
           <div style={{ maxWidth: 480, margin: '0 auto' } as any}>
 
-            {/* ═══ DORSI INDEX™ ═══ */}
-            {dorsiIndex && dorsiIndex.index > 0 && (
-              <div data-testid="dorsi-index-card" style={{ ...GLASS, padding: 20, marginBottom: 16, position: 'relative', overflow: 'hidden' } as any}>
-                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: `rgba(255,255,255,${dorsiIndex.index > 70 ? '0.04' : '0.02'})` } as any} />
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 } as any}>
-                  <div style={{ position: 'relative', width: 72, height: 72 } as any}>
-                    <svg viewBox="0 0 72 72" style={{ width: 72, height: 72, transform: 'rotate(-90deg)' } as any}>
-                      <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
-                      <circle cx="36" cy="36" r="30" fill="none"
-                        stroke={dorsiIndex.index >= 70 ? '#10B981' : dorsiIndex.index >= 40 ? '#F59E0B' : '#EF4444'}
-                        strokeWidth="6" strokeLinecap="round"
-                        strokeDasharray={`${(dorsiIndex.index / 100) * 188.5} 188.5`}
-                        style={{ transition: 'stroke-dasharray 1s ease' }} />
-                    </svg>
-                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: '#FFF' } as any}>{dorsiIndex.index}</div>
-                  </div>
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 4 }}>Dorsi Index</div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>
-                      {dorsiIndex.index >= 70 ? 'Excellent' : dorsiIndex.index >= 50 ? 'Bon' : dorsiIndex.index >= 30 ? 'Modere' : 'A ameliorer'}
+            {/* ═══ INFO POPUP ═══ */}
+            {showInfo && (
+              <div onClick={() => setShowInfo('')} style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 } as any}>
+                <div onClick={(e: any) => e.stopPropagation()} style={{ ...GLASS, padding: 24, maxWidth: 360, width: '100%' } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as any}>
+                    <span style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>
+                      {showInfo === 'index' ? 'Dorsi Index' : showInfo === 'streak' ? 'Serie d\'exercices' : 'Bilan lombaire'}
+                    </span>
+                    <div onClick={() => setShowInfo('')} style={{ width: 28, height: 28, borderRadius: 99, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                      <i className="ri-close-line" style={{ fontSize: 14, color: '#FFF' }} />
                     </div>
-                    {comparison && comparison.population_count > 0 && (
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>
-                        Meilleur que <span style={{ color: '#10B981', fontWeight: 700 }}>{comparison.percentile}%</span> des {comparison.age_group}
-                      </div>
-                    )}
                   </div>
-                </div>
-                {/* Score breakdown */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 6 } as any}>
-                  {[
-                    { label: 'Mobilite', val: dorsiIndex.mobility_score, max: 30, color: '#22D3EE' },
-                    { label: 'Douleur', val: dorsiIndex.pain_score, max: 25, color: '#10B981' },
-                    { label: 'Regularite', val: dorsiIndex.regularity_score, max: 25, color: '#A78BFA' },
-                    { label: 'Progression', val: dorsiIndex.progression_score, max: 20, color: '#F59E0B' },
-                  ].map(s => (
-                    <div key={s.label} style={{ textAlign: 'center' } as any}>
-                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginBottom: 4, fontWeight: 600 }}>{s.label}</div>
-                      <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-                        <div style={{ height: '100%', borderRadius: 2, width: `${(s.val / s.max) * 100}%`, background: s.color, transition: 'width 0.8s' } as any} />
-                      </div>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: s.color, marginTop: 3 }}>{s.val}/{s.max}</div>
-                    </div>
-                  ))}
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
+                    {showInfo === 'index' && 'Votre Dorsi Index est un score de 0 a 100 qui mesure votre sante lombaire. Il combine votre mobilite (30pts), votre niveau de douleur (25pts), la regularite de vos exercices (25pts) et votre progression (20pts). Plus il est eleve, mieux c\'est !'}
+                    {showInfo === 'streak' && 'Votre serie represente le nombre de jours consecutifs ou vous avez fait au moins un exercice Dorsi. Essayez de maintenir la serie ! Chaque jour compte pour ameliorer votre Dorsi Index.'}
+                    {showInfo === 'bilan' && 'Le bilan mesure votre mobilite lombaire dans 4 directions (avant, arriere, gauche, droite) et votre niveau de douleur. Faites-le regulierement pour suivre votre evolution et adapter votre programme.'}
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* ═══ STREAKS & CALENDAR ═══ */}
+            {/* ═══ DORSI INDEX + BILAN CTA (fusionnes) ═══ */}
+            <div data-testid="dorsi-hero-card" style={{ ...GLASS, padding: 20, marginBottom: 16, position: 'relative', overflow: 'hidden' } as any}>
+              <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.02)' } as any} />
+
+              {dorsiIndex && dorsiIndex.index > 0 ? (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 } as any}>
+                    <div style={{ position: 'relative', width: 68, height: 68 } as any}>
+                      <svg viewBox="0 0 72 72" style={{ width: 68, height: 68, transform: 'rotate(-90deg)' } as any}>
+                        <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                        <circle cx="36" cy="36" r="30" fill="none"
+                          stroke={dorsiIndex.index >= 70 ? '#10B981' : dorsiIndex.index >= 40 ? '#F59E0B' : '#EF4444'}
+                          strokeWidth="6" strokeLinecap="round"
+                          strokeDasharray={`${(dorsiIndex.index / 100) * 188.5} 188.5`} />
+                      </svg>
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900, color: '#FFF' } as any}>{dorsiIndex.index}</div>
+                    </div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase' }}>Dorsi Index</span>
+                        <div onClick={() => setShowInfo('index')} style={{ width: 18, height: 18, borderRadius: 99, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                          <i className="ri-question-line" style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }} />
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginTop: 2 }}>
+                        {dorsiIndex.index >= 70 ? 'Excellent' : dorsiIndex.index >= 50 ? 'Bon' : dorsiIndex.index >= 30 ? 'Modere' : 'A ameliorer'}
+                      </div>
+                      {comparison && comparison.population_count > 0 && (
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
+                          Top <span style={{ color: '#10B981', fontWeight: 700 }}>{comparison.percentile}%</span> des {comparison.age_group}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {/* Mini bars */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 5, marginBottom: 14 } as any}>
+                    {[
+                      { label: 'Mobilite', val: dorsiIndex.mobility_score, max: 30, color: '#22D3EE' },
+                      { label: 'Douleur', val: dorsiIndex.pain_score, max: 25, color: '#10B981' },
+                      { label: 'Regularite', val: dorsiIndex.regularity_score, max: 25, color: '#A78BFA' },
+                      { label: 'Progres', val: dorsiIndex.progression_score, max: 20, color: '#F59E0B' },
+                    ].map(s => (
+                      <div key={s.label} style={{ textAlign: 'center' } as any}>
+                        <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                          <div style={{ height: '100%', borderRadius: 2, width: `${(s.val / s.max) * 100}%`, background: s.color } as any} />
+                        </div>
+                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{s.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
+                  <i className="ri-bar-chart-box-line" style={{ fontSize: 32, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 8 }} />
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>Evaluez votre dos</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Faites un bilan pour calculer votre Dorsi Index</div>
+                </div>
+              )}
+              <div onClick={() => router.push('/dorsi-bilan' as any)} data-testid="bilan-cta" style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                <i className="ri-bar-chart-box-line" style={{ fontSize: 18, color: '#FFF' }} />
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{dorsiIndex?.index > 0 ? 'Nouveau bilan' : 'Commencer le bilan'}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Mesurez votre mobilite en 4 directions</div>
+                </div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
+              </div>
+            </div>
+
+            {/* ═══ STREAKS ═══ */}
             {streaks && (
-              <div data-testid="streaks-card" style={{ ...GLASS, padding: '14px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 } as any}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: streaks.current_streak > 0 ? 'rgba(249,115,22,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${streaks.current_streak > 0 ? 'rgba(249,115,22,0.3)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-fire-line" style={{ fontSize: 16, color: streaks.current_streak > 0 ? '#F97316' : 'rgba(255,255,255,0.3)' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{streaks.current_streak}j</div>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>serie</div>
-                  </div>
+              <div data-testid="streaks-card" style={{ ...GLASS, padding: '12px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 } as any}>
+                  <i className="ri-fire-line" style={{ fontSize: 18, color: streaks.current_streak > 0 ? '#F97316' : 'rgba(255,255,255,0.2)' }} />
+                  <span style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{streaks.current_streak}j</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(14, 1fr)', gap: 2, flex: 1 } as any}>
                   {Array.from({ length: 14 }).map((_, i) => {
                     const d = new Date(Date.now() - (13 - i) * 86400000);
                     const key = d.toISOString().split('T')[0];
                     const active = streaks.calendar?.[key];
-                    return (
-                      <div key={i} style={{
-                        width: '100%', paddingTop: '100%', borderRadius: 3,
-                        background: active ? 'rgba(249,115,22,0.6)' : 'rgba(255,255,255,0.04)',
-                        boxShadow: active ? '0 0 4px rgba(249,115,22,0.3)' : 'none',
-                      } as any} />
-                    );
+                    return (<div key={i} style={{ width: '100%', paddingTop: '100%', borderRadius: 2, background: active ? 'rgba(249,115,22,0.6)' : 'rgba(255,255,255,0.04)' } as any} />);
                   })}
                 </div>
-                <div style={{ textAlign: 'right', flexShrink: 0 } as any}>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>Record</div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#F97316' }}>{streaks.best_streak}j</div>
+                <div onClick={() => setShowInfo('streak')} style={{ width: 20, height: 20, borderRadius: 99, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
+                  <i className="ri-question-line" style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }} />
                 </div>
               </div>
             )}
@@ -756,36 +746,22 @@ export default function DorsiProgramPage() {
 
             {/* Score History */}
             {scoreHistory.length > 0 && (
-              <div style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as any}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>Meilleurs scores</div>
-                  <i className="ri-trophy-line" style={{ fontSize: 18, color: '#F59E0B' }} />
+              <div style={{ ...GLASS, padding: '14px 16px', marginBottom: 16 } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Meilleurs scores</span>
+                  <i className="ri-trophy-line" style={{ fontSize: 16, color: '#F59E0B' }} />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
-                  {scoreHistory.slice(0, 6).map((h: any) => (
-                    <div key={h.game_id} onClick={() => startFreeGame(h.game_id)} style={{ padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-                      <div>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>{h.name}</div>
-                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{h.scores.length} parties</div>
-                      </div>
-                      <div style={{ fontSize: 16, fontWeight: 900, color: '#F59E0B' }}>{h.best}</div>
+                <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', padding: '2px 0' } as any}>
+                  {scoreHistory.slice(0, 8).map((h: any) => (
+                    <div key={h.game_id} onClick={() => startFreeGame(h.game_id)} style={{ minWidth: 90, padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', textAlign: 'center', flexShrink: 0 } as any}>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: '#F59E0B' }}>{h.best}</div>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{h.name}</div>
+                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>{h.scores.length} parties</div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-
-            {/* Bilan reminder */}
-            <div onClick={() => router.push('/dorsi-bilan' as any)} style={{ ...GLASS, padding: 16, marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                <i className="ri-bar-chart-box-line" style={{ fontSize: 22, color: '#FFF' }} />
-              </div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Faire un bilan</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Evaluez votre mobilite et comparez avec les precedents</div>
-              </div>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
-            </div>
 
             {/* Program progress */}
             {program && (
