@@ -155,28 +155,10 @@ function useWebBLE() {
     if (!navigator.bluetooth) { setState(s => ({ ...s, error: 'Web Bluetooth non supporte. Utilisez Chrome.' })); return false; }
     setState(s => ({ ...s, connecting: true, error: '' }));
     try {
-      // Try with HeloKine filter first, fallback to all devices
-      let device: any;
-      try {
-        device = await navigator.bluetooth.requestDevice({
-          filters: [
-            { namePrefix: 'HeloKine' },
-            { namePrefix: 'HELOKINE' },
-            { namePrefix: 'Helo' },
-            { namePrefix: 'CDC' },
-            { namePrefix: 'Englab' },
-            { namePrefix: 'Dorsi' },
-          ],
-          optionalServices: [ANGULAR_SERVICE, BATTERY_SERVICE]
-        });
-      } catch (e: any) {
-        // If no device found with filters, try showing all devices
-        if (e.message?.includes('cancelled')) throw e;
-        device = await navigator.bluetooth.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: [ANGULAR_SERVICE, BATTERY_SERVICE]
-        });
-      }
+      const device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: [ANGULAR_SERVICE, BATTERY_SERVICE]
+      });
       device.addEventListener('gattserverdisconnected', () => setState(s => ({ ...s, connected: false, deviceName: '' })));
       const server = await device.gatt!.connect();
       serverRef.current = server;
