@@ -15,234 +15,351 @@ def mifflin_st_jeor(weight_kg: float, height_cm: float, age: int, is_male: bool)
     return 10 * weight_kg + 6.25 * height_cm - 5 * age - 161
 
 
-def validate_weight_goal(current_kg: float, target_kg: float, days: int) -> dict:
-    diff = current_kg - target_kg
-    if diff <= 0:
-        return {"valid": False, "reason": "Le poids cible doit etre inferieur au poids actuel."}
-    weeks = days / 7
-    kg_per_week = diff / weeks if weeks > 0 else 99
-    if kg_per_week > 1.0:
-        safe_weeks = math.ceil(diff / 0.7)
-        return {
-            "valid": False,
-            "reason": f"Perdre {diff:.1f}kg en {days} jours ({kg_per_week:.1f}kg/sem) est trop rapide.",
-            "recommended_days": safe_weeks * 7, "recommended_weeks": safe_weeks, "kg_per_week": round(kg_per_week, 1),
-        }
-    return {"valid": True, "kg_per_week": round(kg_per_week, 1)}
+def calc_bmi(weight_kg: float, height_cm: float) -> float:
+    if height_cm <= 0:
+        return 0
+    h_m = height_cm / 100
+    return round(weight_kg / (h_m * h_m), 1)
 
 
-@router.post("/minceur/validate-goal")
-async def validate_goal(data: dict, user=Depends(get_current_user)):
-    current_kg = data.get("current_kg", 0)
-    target_kg = data.get("target_kg", 0)
-    days = data.get("days", 90)
-    if current_kg <= 0 or target_kg <= 0:
-        raise HTTPException(400, "Poids requis.")
-    if target_kg >= current_kg:
-        raise HTTPException(400, "Le poids cible doit etre inferieur au poids actuel.")
-    validation = validate_weight_goal(current_kg, target_kg, days)
-    u = await db.users.find_one({"id": user["id"]}, {"_id": 0})
-    height_cm = u.get("height_cm", 170)
-    age = 70
-    if u.get("date_of_birth"):
-        try:
-            dob = datetime.fromisoformat(u["date_of_birth"].replace("Z", "+00:00"))
-            age = (datetime.now(timezone.utc) - dob).days // 365
-        except:
-            pass
-    is_male = u.get("gender", "").lower() in ("m", "male", "homme", "masculin")
-    bmr = mifflin_st_jeor(current_kg, height_cm, age, is_male)
-    tdee = bmr * 1.3
-    final_days = validation.get("recommended_days", days) if not validation.get("valid") else days
-    weeks = final_days / 7
-    kg_per_week = (current_kg - target_kg) / weeks if weeks > 0 else 0
-    daily_deficit = (kg_per_week * 7700) / 7
-    daily_calories = max(1200, round(tdee - daily_deficit))
-    return {**validation, "daily_calories": daily_calories, "bmr": round(bmr), "tdee": round(tdee), "daily_deficit": round(daily_deficit), "final_days": final_days}
+def bmi_category(bmi: float) -> dict:
+    if bmi < 18.5:
+        return {"label": "Insuffisance ponderale", "color": "#60A5FA", "level": "low"}
+    elif bmi < 25:
+        return {"label": "Poids normal", "color": "#10B981", "level": "normal"}
+    elif bmi < 30:
+        return {"label": "Surpoids", "color": "#F59E0B", "level": "high"}
+    elif bmi < 35:
+        return {"label": "Obesite moderee", "color": "#F97316", "level": "very_high"}
+    else:
+        return {"label": "Obesite severe", "color": "#EF4444", "level": "severe"}
 
 
-@router.post("/minceur/create")
-async def create_minceur_program(data: dict, user=Depends(get_current_user)):
-    uid = user["id"]
-    target_kg = data.get("target_kg", 0)
-    days = data.get("days", 56)
-
-    last_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
-    current_kg = data.get("current_kg", 0) or (last_reading.get("weight", 0) if last_reading else 0)
-    if current_kg <= 0:
-        raise HTTPException(400, "Poids actuel requis. Pesez-vous d'abord.")
-    if target_kg <= 0 or target_kg >= current_kg:
-        raise HTTPException(400, "Poids cible invalide.")
-
-    validation = validate_weight_goal(current_kg, target_kg, days)
-    if not validation.get("valid") and validation.get("recommended_days"):
-        days = validation["recommended_days"]
-
-    u = await db.users.find_one({"id": uid}, {"_id": 0})
-    height_cm = u.get("height_cm", 170)
-    age = 70
-    if u.get("date_of_birth"):
-        try:
-            dob = datetime.fromisoformat(u["date_of_birth"].replace("Z", "+00:00"))
-            age = (datetime.now(timezone.utc) - dob).days // 365
-        except:
-            pass
-    is_male = u.get("gender", "").lower() in ("m", "male", "homme", "masculin")
-    bmr = mifflin_st_jeor(current_kg, height_cm, age, is_male)
-    tdee = bmr * 1.3
-    diff_kg = current_kg - target_kg
-    weeks_total = days / 7
-    kg_per_week = diff_kg / weeks_total
-    daily_deficit = (kg_per_week * 7700) / 7
-    daily_calories = max(1200, round(tdee - daily_deficit))
-    now = datetime.now(timezone.utc).isoformat()
-
-    await db.minceur_programs.update_many({"user_id": uid, "status": "active"}, {"$set": {"status": "replaced", "updated_at": now}})
-
-    # Generate 7-day plan with GPT (repeats each week)
-    week_plan = []
-    api_key = os.environ.get("EMERGENT_LLM_KEY", "")
-    if api_key:
-        try:
-            from emergentintegrations.llm.chat import LlmChat, UserMessage
-            chat = LlmChat(api_key=api_key, session_id=f"minc-{uuid.uuid4().hex[:6]}",
-                system_message="Coach minceur senior expert. JSON strict. Pas d'emoji."
-            ).with_model("openai", "gpt-5.2")
-            prompt = f"""Genere un programme minceur 7 jours pour: {'Homme' if is_male else 'Femme'}, {age} ans, {current_kg}kg, objectif {target_kg}kg.
-Budget calorique: {daily_calories}kcal/jour. Exercices adaptes a une personne agee (pas de Dorsi, pas de course).
-
-JSON STRICT — tableau de 7 jours:
-[{{
-  "day": 1,
-  "meals": {{
-    "breakfast": {{"name": "...", "calories": 300, "desc": "description courte"}},
-    "lunch": {{"name": "...", "calories": 450, "desc": "..."}},
-    "snack": {{"name": "...", "calories": 100, "desc": "..."}},
-    "dinner": {{"name": "...", "calories": 350, "desc": "..."}}
-  }},
-  "exercises": [
-    {{"name": "...", "duration": "15 min", "icon": "ri-walk-line", "desc": "...", "intensity": "leger"}},
-    {{"name": "...", "duration": "10 min", "icon": "ri-heart-pulse-line", "desc": "...", "intensity": "modere"}}
-  ],
-  "tip": "conseil du jour personnalise",
-  "water_ml": 1500
-}}]
-
-Exercices possibles: marche, gainage adapte, squats chaise, lever de jambes, etirements, montee de marches, equilibre, pompes murales, rotation du tronc, bras avec bouteilles d'eau.
-Icones: ri-walk-line, ri-heart-pulse-line, ri-boxing-line, ri-run-line, ri-body-scan-line, ri-armchair-line.
-Varie les repas et exercices chaque jour. Repas equilibres, mediteraneens, adaptes seniors."""
-            r = (await chat.send_message(UserMessage(text=prompt))).strip()
-            if "```json" in r: r = r.split("```json")[1].split("```")[0]
-            elif "```" in r: r = r.split("```")[1].split("```")[0]
-            week_plan = json.loads(r.strip())
-        except Exception as e:
-            logger.error(f"Minceur plan gen error: {e}")
-
-    # Fallback plan if GPT fails
-    if not week_plan:
-        for d in range(1, 8):
-            week_plan.append({
-                "day": d, "tip": "Buvez 1.5L d'eau et marchez 30 minutes.", "water_ml": 1500,
-                "meals": {
-                    "breakfast": {"name": "Yaourt & fruits", "calories": 280, "desc": "Yaourt nature, fruits frais, muesli"},
-                    "lunch": {"name": "Poulet & legumes", "calories": 420, "desc": "Blanc de poulet grille, legumes vapeur, riz complet"},
-                    "snack": {"name": "Pomme & amandes", "calories": 120, "desc": "1 pomme, 10 amandes"},
-                    "dinner": {"name": "Soupe & poisson", "calories": 380, "desc": "Soupe de legumes, filet de poisson, salade"},
-                },
-                "exercises": [
-                    {"name": "Marche", "duration": "30 min", "icon": "ri-walk-line", "desc": "Marche rapide en exterieur", "intensity": "leger"},
-                    {"name": "Gainage", "duration": "10 min", "icon": "ri-body-scan-line", "desc": "Planche 3x30s, gainage lateral", "intensity": "modere"},
-                ],
-            })
-
-    program = {
-        "id": str(uuid.uuid4()), "user_id": uid, "status": "active",
-        "current_kg": current_kg, "target_kg": target_kg, "days": days,
-        "start_date": now, "end_date": (datetime.now(timezone.utc) + timedelta(days=days)).isoformat(),
-        "kg_per_week": round(kg_per_week, 2), "bmr": round(bmr), "tdee": round(tdee),
-        "daily_calories": daily_calories, "daily_deficit": round(daily_deficit),
-        "height_cm": height_cm, "age": age, "is_male": is_male,
-        "week_plan": week_plan,
-        "weigh_ins": [{"date": now, "weight": current_kg}],
-        "created_at": now, "updated_at": now,
-    }
-    await db.minceur_programs.insert_one(program)
-    program.pop("_id", None)
-    return program
-
-
-@router.get("/minceur/active")
-async def get_active_minceur(user=Depends(get_current_user)):
-    uid = user["id"]
-    prog = await db.minceur_programs.find_one({"user_id": uid, "status": "active"}, {"_id": 0})
-    if not prog:
-        return {"active": False}
-
-    weigh_ins = prog.get("weigh_ins", [])
-    current = weigh_ins[-1]["weight"] if weigh_ins else prog["current_kg"]
-    lost = prog["current_kg"] - current
-    total_to_lose = prog["current_kg"] - prog["target_kg"]
-    progress_pct = min(100, round((lost / total_to_lose) * 100)) if total_to_lose > 0 else 0
+def parse_age(date_of_birth: str) -> int:
+    if not date_of_birth:
+        return 70
     try:
-        start = datetime.fromisoformat(prog["start_date"].replace("Z", "+00:00"))
-        elapsed = (datetime.now(timezone.utc) - start).days
-    except:
-        elapsed = 0
+        dob = datetime.fromisoformat(date_of_birth.replace("Z", "+00:00"))
+        return (datetime.now(timezone.utc) - dob).days // 365
+    except Exception:
+        return 70
 
-    # Get today's plan from week_plan (cycle weekly)
-    day_of_week = (elapsed % 7) + 1
-    week_plan = prog.get("week_plan", [])
-    today_plan = next((d for d in week_plan if d.get("day") == day_of_week), week_plan[0] if week_plan else {})
 
-    # Check for new weigh-in from scale
-    last_scale = await db.device_readings.find_one(
-        {"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)]
+async def get_weight_history(user_id: str) -> list:
+    """Get weight history from device_readings (scale), filtering out outliers"""
+    readings = await db.device_readings.find(
+        {"user_id": user_id, "device_type": "scale"},
+        {"_id": 0}
+    ).sort("timestamp", -1).to_list(60)
+
+    history = []
+    for r in readings:
+        data = r.get("data", {})
+        w = data.get("weight", 0)
+        if w and 30 < w < 200:  # Filter unreasonable weights
+            history.append({
+                "date": r.get("timestamp", ""),
+                "weight": round(w, 1),
+                "bmi": data.get("bmi"),
+                "body_fat_pct": data.get("body_fat_pct"),
+                "muscle_pct": data.get("muscle_pct"),
+                "water_pct": data.get("water_pct"),
+                "visceral_fat": data.get("visceral_fat"),
+                "bone_mass_kg": data.get("bone_mass_kg"),
+                "body_age": data.get("body_age"),
+                "basal_metabolism": data.get("basal_metabolism"),
+                "protein_pct": data.get("protein_pct"),
+            })
+    return history
+
+
+async def generate_daily_recommendations(user_id: str, user_data: dict, latest_reading: dict, goal: dict | None) -> dict | None:
+    """Generate or return cached daily AI recommendations"""
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # Check cache
+    cached = await db.minceur_daily_cache.find_one(
+        {"user_id": user_id, "date": today_str},
+        {"_id": 0}
     )
-    if last_scale and last_scale.get("weight"):
-        last_wi_date = weigh_ins[-1].get("date", "") if weigh_ins else ""
-        scale_ts = last_scale.get("timestamp", "")
-        if scale_ts > last_wi_date:
-            new_wi = {"date": scale_ts, "weight": last_scale["weight"], "auto": True}
-            await db.minceur_programs.update_one({"id": prog["id"]}, {"$push": {"weigh_ins": new_wi}})
-            weigh_ins.append(new_wi)
-            current = last_scale["weight"]
-            lost = prog["current_kg"] - current
-            progress_pct = min(100, round((lost / total_to_lose) * 100)) if total_to_lose > 0 else 0
+    if cached and cached.get("recommendations"):
+        return cached["recommendations"]
 
-    prog["progress"] = {
-        "current_kg": round(current, 1), "lost_kg": round(lost, 1),
-        "progress_pct": progress_pct, "days_elapsed": elapsed,
-        "days_remaining": max(0, prog["days"] - elapsed), "day_of_week": day_of_week,
+    # Generate new recommendations
+    api_key = os.environ.get("EMERGENT_LLM_KEY", "")
+    if not api_key:
+        return None
+
+    age = parse_age(user_data.get("date_of_birth", ""))
+    is_male = user_data.get("gender", "").lower() in ("m", "male", "homme", "masculin")
+    weight = latest_reading.get("weight", user_data.get("weight_kg", 75))
+    height = user_data.get("height_cm", 170)
+    bmi = calc_bmi(weight, height)
+    bmr = mifflin_st_jeor(weight, height, age, is_male)
+    tdee = bmr * 1.3
+    body_fat = latest_reading.get("body_fat_pct", 0)
+    muscle = latest_reading.get("muscle_pct", 0)
+
+    goal_context = ""
+    daily_target_cal = round(tdee)
+    if goal and goal.get("target_kg"):
+        diff = weight - goal["target_kg"]
+        if diff > 0:
+            weeks = max(1, goal.get("weeks", 12))
+            kg_per_week = diff / weeks
+            daily_deficit = min(500, (kg_per_week * 7700) / 7)
+            daily_target_cal = max(1200, round(tdee - daily_deficit))
+            goal_context = f"\nOBJECTIF: Atteindre {goal['target_kg']}kg (actuellement {weight}kg, -{diff:.1f}kg en {weeks} semaines). Budget calorique: {daily_target_cal}kcal/jour."
+        elif diff < 0:
+            surplus = min(300, abs(diff) * 100)
+            daily_target_cal = round(tdee + surplus)
+            goal_context = f"\nOBJECTIF: Prise de poids vers {goal['target_kg']}kg (actuellement {weight}kg). Budget calorique: {daily_target_cal}kcal/jour."
+
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=f"wn-{user_id[:8]}-{today_str}",
+            system_message="Tu es un nutritionniste-coach sportif specialise seniors. Reponds en JSON strict uniquement. Pas d'emoji. Francais."
+        ).with_model("openai", "gpt-5.2")
+
+        prompt = f"""Profil patient: {'Homme' if is_male else 'Femme'}, {age} ans, {weight}kg, {height}cm, IMC {bmi}.
+{'Masse grasse: ' + str(body_fat) + '%' if body_fat else ''}
+{'Masse musculaire: ' + str(muscle) + '%' if muscle else ''}
+Metabolisme de base: {round(bmr)}kcal. Depense totale estimee: {round(tdee)}kcal.
+{goal_context}
+
+Genere un plan nutritionnel et sportif QUOTIDIEN personnalise. JSON strict:
+{{
+  "daily_calories": {daily_target_cal},
+  "macros": {{"proteines_g": 65, "glucides_g": 200, "lipides_g": 55}},
+  "meals": [
+    {{
+      "type": "breakfast",
+      "label": "Petit-dejeuner",
+      "name": "Nom du repas",
+      "description": "Description detaillee des ingredients et portions",
+      "calories": 350,
+      "time": "07:30"
+    }},
+    {{
+      "type": "lunch",
+      "label": "Dejeuner",
+      "name": "Nom du repas",
+      "description": "Description detaillee",
+      "calories": 500,
+      "time": "12:30"
+    }},
+    {{
+      "type": "snack",
+      "label": "Collation",
+      "name": "Nom de la collation",
+      "description": "Description",
+      "calories": 150,
+      "time": "16:00"
+    }},
+    {{
+      "type": "dinner",
+      "label": "Diner",
+      "name": "Nom du repas",
+      "description": "Description detaillee",
+      "calories": 400,
+      "time": "19:30"
+    }}
+  ],
+  "exercises": [
+    {{
+      "name": "Nom de l'exercice",
+      "duration": "20 min",
+      "intensity": "leger",
+      "description": "Instructions claires et detaillees, adaptees a une personne agee",
+      "calories_burned": 80,
+      "category": "cardio"
+    }},
+    {{
+      "name": "Nom de l'exercice",
+      "duration": "15 min",
+      "intensity": "modere",
+      "description": "Instructions detaillees",
+      "calories_burned": 60,
+      "category": "renforcement"
+    }}
+  ],
+  "water_ml": 1500,
+  "tip_of_the_day": "Conseil sante personnalise base sur le profil du patient",
+  "nora_insight": "Analyse courte et bienveillante de Nora sur l'etat de sante actuel du patient et les progres"
+}}
+
+REGLES STRICTES:
+- Exercices adaptes seniors a domicile: marche, gainage adapte sur chaise, squats chaise, lever de jambes, etirements, montee de marches, equilibre, pompes murales, rotation du tronc, bras avec bouteilles d'eau, tai-chi. PAS de course ni exercices intenses.
+- Repas equilibres, mediterraneens, simples a preparer, adaptes seniors
+- Calories des 4 repas = total daily_calories
+- Varier par rapport aux jours precedents
+- Sois precis sur les portions (ex: 150g de poulet, 1 pomme, 2 cuilleres a soupe d'huile d'olive)"""
+
+        r = (await chat.send_message(UserMessage(text=prompt))).strip()
+        if "```json" in r:
+            r = r.split("```json")[1].split("```")[0]
+        elif "```" in r:
+            r = r.split("```")[1].split("```")[0]
+        recommendations = json.loads(r.strip())
+
+        # Cache for today
+        await db.minceur_daily_cache.update_one(
+            {"user_id": user_id, "date": today_str},
+            {"$set": {
+                "user_id": user_id,
+                "date": today_str,
+                "recommendations": recommendations,
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+            }},
+            upsert=True
+        )
+        return recommendations
+
+    except Exception as e:
+        logger.error(f"AI recommendation gen error: {e}")
+        return None
+
+
+@router.get("/minceur/weight-details")
+async def get_weight_details(user=Depends(get_current_user)):
+    """Main endpoint: returns complete weight & nutrition dashboard data"""
+    uid = user["id"]
+    u = await db.users.find_one({"id": uid}, {"_id": 0})
+    if not u:
+        raise HTTPException(404, "Utilisateur introuvable")
+
+    age = parse_age(u.get("date_of_birth", ""))
+    is_male = u.get("gender", "").lower() in ("m", "male", "homme", "masculin")
+    height_cm = u.get("height_cm") or 170
+    profile_weight = u.get("weight_kg") or 0
+
+    # Weight history from scale
+    history = await get_weight_history(uid)
+
+    # Latest reading
+    latest = history[0] if history else {}
+    current_weight = latest.get("weight") or profile_weight
+    current_bmi = latest.get("bmi") or calc_bmi(current_weight, height_cm) if current_weight > 0 else 0
+    bmi_info = bmi_category(current_bmi) if current_bmi > 0 else None
+
+    # Body composition from latest scale reading
+    body_composition = {
+        "body_fat_pct": latest.get("body_fat_pct"),
+        "muscle_pct": latest.get("muscle_pct"),
+        "water_pct": latest.get("water_pct"),
+        "visceral_fat": latest.get("visceral_fat"),
+        "bone_mass_kg": latest.get("bone_mass_kg"),
+        "body_age": latest.get("body_age"),
+        "protein_pct": latest.get("protein_pct"),
     }
-    prog["today"] = today_plan
-    prog["active"] = True
-    return prog
+
+    # Metabolic data
+    bmr = round(mifflin_st_jeor(current_weight, height_cm, age, is_male)) if current_weight > 0 else 0
+    tdee = round(bmr * 1.3) if bmr > 0 else 0
+
+    # Weight goal (optional)
+    goal = await db.minceur_goals.find_one({"user_id": uid}, {"_id": 0})
+
+    # Weight evolution stats
+    weight_stats = {}
+    if len(history) >= 2:
+        weights = [h["weight"] for h in history]
+        first_w = history[-1]["weight"]
+        last_w = history[0]["weight"]
+        weight_stats = {
+            "total_change": round(last_w - first_w, 1),
+            "min_weight": min(weights),
+            "max_weight": max(weights),
+            "readings_count": len(history),
+            "first_date": history[-1].get("date"),
+            "last_date": history[0].get("date"),
+        }
+        if len(history) >= 2:
+            w_7d = [h for h in history if h.get("date", "") >= (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()]
+            if len(w_7d) >= 2:
+                weight_stats["week_change"] = round(w_7d[0]["weight"] - w_7d[-1]["weight"], 1)
+
+    # AI recommendations (cached daily)
+    recommendations = await generate_daily_recommendations(uid, u, latest, goal)
+
+    return {
+        "profile": {
+            "name": u.get("name", ""),
+            "age": age,
+            "gender": "Homme" if is_male else "Femme",
+            "height_cm": height_cm,
+        },
+        "current": {
+            "weight": current_weight,
+            "bmi": current_bmi,
+            "bmi_info": bmi_info,
+            "bmr": bmr,
+            "tdee": tdee,
+        },
+        "body_composition": body_composition,
+        "weight_history": history[:30],
+        "weight_stats": weight_stats,
+        "goal": {
+            "target_kg": goal["target_kg"],
+            "weeks": goal.get("weeks"),
+            "created_at": goal.get("created_at"),
+        } if goal else None,
+        "recommendations": recommendations,
+        "last_reading_date": history[0].get("date") if history else None,
+    }
 
 
-@router.post("/minceur/weigh-in")
-async def add_weigh_in(data: dict, user=Depends(get_current_user)):
+@router.post("/minceur/weight-goal")
+async def set_weight_goal(data: dict, user=Depends(get_current_user)):
+    """Set or update an optional weight goal"""
     uid = user["id"]
-    weight = data.get("weight", 0)
-    if weight <= 0:
-        raise HTTPException(400, "Poids requis.")
-    prog = await db.minceur_programs.find_one({"user_id": uid, "status": "active"}, {"_id": 0})
-    if not prog:
-        raise HTTPException(404, "Aucun programme minceur actif.")
+    target_kg = data.get("target_kg")
+    weeks = data.get("weeks", 12)
+
+    if not target_kg or target_kg <= 0:
+        raise HTTPException(400, "Poids cible requis")
+    if weeks < 2 or weeks > 52:
+        raise HTTPException(400, "Duree entre 2 et 52 semaines")
+
     now = datetime.now(timezone.utc).isoformat()
-    await db.minceur_programs.update_one({"id": prog["id"]}, {"$push": {"weigh_ins": {"date": now, "weight": weight}}, "$set": {"updated_at": now}})
-    if weight <= prog["target_kg"]:
-        await db.minceur_programs.update_one({"id": prog["id"]}, {"$set": {"status": "completed", "updated_at": now}})
-        return {"status": "completed", "message": "Objectif atteint !"}
-    return {"status": "ok", "weight": weight, "lost_total": round(prog["current_kg"] - weight, 1)}
-
-
-@router.post("/minceur/stop")
-async def stop_minceur(user=Depends(get_current_user)):
-    uid = user["id"]
-    result = await db.minceur_programs.update_one(
-        {"user_id": uid, "status": "active"},
-        {"$set": {"status": "stopped", "updated_at": datetime.now(timezone.utc).isoformat()}}
+    await db.minceur_goals.update_one(
+        {"user_id": uid},
+        {"$set": {
+            "user_id": uid,
+            "target_kg": round(target_kg, 1),
+            "weeks": weeks,
+            "created_at": now,
+            "updated_at": now,
+        }},
+        upsert=True
     )
-    if result.modified_count == 0:
-        raise HTTPException(404, "Aucun programme actif.")
-    return {"status": "stopped"}
+
+    # Invalidate today's cache so recommendations refresh with new goal
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    await db.minceur_daily_cache.delete_one({"user_id": uid, "date": today_str})
+
+    return {"status": "saved", "target_kg": round(target_kg, 1), "weeks": weeks}
+
+
+@router.delete("/minceur/weight-goal")
+async def delete_weight_goal(user=Depends(get_current_user)):
+    """Remove weight goal"""
+    uid = user["id"]
+    await db.minceur_goals.delete_one({"user_id": uid})
+
+    # Invalidate cache
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    await db.minceur_daily_cache.delete_one({"user_id": uid, "date": today_str})
+
+    return {"status": "deleted"}
+
+
+@router.post("/minceur/refresh-recommendations")
+async def refresh_recommendations(user=Depends(get_current_user)):
+    """Force refresh AI recommendations"""
+    uid = user["id"]
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    await db.minceur_daily_cache.delete_one({"user_id": uid, "date": today_str})
+    return {"status": "cache_cleared"}

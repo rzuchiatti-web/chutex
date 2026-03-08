@@ -1,5 +1,5 @@
 {
-  "summary": "Iteration 93: Tested 6 new Dorsi innovations - All backend APIs working (11/11 tests pass). Frontend properly renders Nora guided sessions (4 exercises) and Free Play (15 games). Dorsi Index, Streaks, Correlations cards conditionally render based on user data.",
+  "summary": "Iteration 93: Poids & Nutrition (Minceur) dashboard feature - permanent health section. Backend 100% pass (19/19 tests). Frontend fully functional with all required components working correctly.",
   "backend_issues": {
     "critical": [],
     "minor": []
@@ -10,86 +10,60 @@
     "design_issues": []
   },
   "test_report_links": [
-    "/app/backend/tests/test_dorsi_innovations_iter93.py",
-    "/app/test_reports/pytest/pytest_results_iter93.xml"
+    "/app/backend/tests/test_minceur_weight_nutrition.py",
+    "/app/test_reports/pytest/pytest_results_iter93_minceur.xml"
   ],
   "action_items": [],
   "critical_code_review_comments": [
-    "Dorsi Index card only shows when dorsiIndex.index > 0 (requires user bilan data) - CORRECT behavior",
-    "Streaks card only shows when streaks API returns data - CORRECT behavior",
-    "Correlations card only shows when insights array not empty - CORRECT behavior",
-    "All 6 backend endpoints return valid response structures matching CDC specs"
+    "minceur_routes.py: Clean implementation with proper BMI calculation, body composition, and AI recommendations via GPT-5.2",
+    "minceur.tsx: Well-structured with data-testid attributes on all major sections for testing",
+    "AI recommendations are cached daily per user (minceur_daily_cache collection)",
+    "Weight data properly filtered (30-200kg range) from device_readings collection"
   ],
   "updated_files": [
-    "/app/backend/tests/test_dorsi_innovations_iter93.py"
+    "/app/backend/tests/test_minceur_weight_nutrition.py"
   ],
   "success_rate": {
-    "backend": "100% (11/11 tests passed)",
-    "frontend": "100% - Nora guided section, Free Play section rendering correctly"
+    "backend": "100% (19/19 tests passed)",
+    "frontend": "100%"
   },
   "test_credentials": {
-    "beneficiary": {"phone": "0651245918", "password": "test123"}
+    "phone": "0651245918",
+    "password": "test123",
+    "user": "Josette Zuchiatti (beneficiary)"
   },
-  "seed_data_creation": "N/A - testing with existing user data",
+  "seed_data_creation": "Test used existing device_readings (scale) data and minceur_goals created/deleted via API",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "6 Dorsi innovations fully tested. Backend all pass. Frontend displays: Nora guided (4 exercises), Free play (15 games), Faire un bilan button. Dorsi Index/Streaks/Correlations cards are conditionally rendered - only appear when user has bilan data. Test user 0651245918 has no bilans so these cards don't show. ElevenLabs TTS returns empty audio when service unavailable (graceful degradation).",
+  "context_for_next_testing_agent": "Minceur feature at /minceur page with /api/minceur/* endpoints. Backend uses GPT-5.2 for AI meal/exercise recommendations. Weight data from device_readings collection (scale type). Goal setting invalidates daily cache to regenerate recommendations with new calorie budget.",
   "verified_features": {
-    "backend_apis": {
-      "GET /api/dorsi/index": {
-        "status": "PASS",
-        "returns": "index (0-100), mobility_score, pain_score, regularity_score, progression_score",
-        "notes": "Returns index=0 when no bilans exist"
-      },
-      "GET /api/dorsi/streaks": {
-        "status": "PASS",
-        "returns": "current_streak, best_streak, total_active_days, calendar (90 days), active_dates"
-      },
-      "GET /api/dorsi/comparison": {
-        "status": "PASS",
-        "returns": "user_index, percentile (0-100), population_count, age_group"
-      },
-      "GET /api/dorsi/correlations": {
-        "status": "PASS",
-        "returns": "insights array with type, icon, color, title, detail, impact"
-      },
-      "GET /api/dorsi/guided-instructions/{game_id}": {
-        "status": "PASS",
-        "returns": "instructions array - works for respiration, moutons, unknown games",
-        "notes": "Returns default instructions for unknown game IDs"
-      },
-      "POST /api/dorsi/guided-tts": {
-        "status": "PASS",
-        "returns": "audio (base64), format='mp3'",
-        "notes": "Returns empty audio with error message if ElevenLabs unavailable"
-      },
-      "POST /api/dorsi/adaptive-program": {
-        "status": "PASS",
-        "returns": "AI-generated program or message if GPT unavailable / no bilan",
-        "notes": "Uses GPT-5.2 for adaptive program generation"
-      }
-    },
-    "frontend_components": {
-      "dorsi_index_card": {
-        "status": "CONDITIONAL",
-        "notes": "Only renders when dorsiIndex.index > 0. Has circular SVG gauge."
-      },
-      "streaks_card": {
-        "status": "CONDITIONAL",
-        "notes": "Only renders when streaks data exists. Has fire icon and 28-day calendar grid."
-      },
-      "nora_guided_section": {
-        "status": "PASS",
-        "notes": "Always renders. 4 guided exercise options: Respiration, Equilibre, Peinture, Moutons"
-      },
-      "correlations_card": {
-        "status": "CONDITIONAL",
-        "notes": "Only renders when correlations.insights.length > 0"
-      },
-      "free_play_section": {
-        "status": "PASS",
-        "notes": "Always renders. 15 games with icons and colors"
-      }
-    }
+    "backend_endpoints": [
+      "GET /api/minceur/weight-details - returns profile, current weight/BMI, body composition, weight history, recommendations",
+      "POST /api/minceur/weight-goal - saves target weight and duration (2-52 weeks)",
+      "DELETE /api/minceur/weight-goal - removes weight goal",
+      "POST /api/minceur/refresh-recommendations - clears daily cache"
+    ],
+    "frontend_components": [
+      "minceur-page: Main page container with dark theme",
+      "weight-hero: Current weight 79.2kg, BMI 25.9 (Surpoids), weight evolution chart",
+      "bmi-gauge: Color-coded gauge showing BMI position (blue/green/yellow/red zones)",
+      "body-composition: 4 rings (Graisse 26.4%, Muscle 40.5%, Hydratation 53.7%, Viscerale 10.9) + bone mass, body age, protein",
+      "goal-section: Definir un objectif button opens form with +/- weight selector and week duration (4s/8s/12s/16s/24s)",
+      "nora-insight: ANALYSE NORA AI insight on user's health status",
+      "calories-summary: Daily calorie budget with macros (proteins, carbs, lipids) and water intake",
+      "tab-meals / tab-exercises: Tab switching between Repas and Exercices",
+      "meals-section: 4 meal cards (breakfast, lunch, snack, dinner) with names, descriptions, calories, times",
+      "exercises-section: 2 exercise cards with name, duration, intensity badge, description, calories burned",
+      "tip-of-day: CONSEIL DU JOUR with daily health tip"
+    ],
+    "health_tab_integration": [
+      "weight-nutrition-card in health.tsx at line 258",
+      "Card shows current weight, IMC, mini sparkline chart",
+      "Click navigates to /minceur page successfully"
+    ]
+  },
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "note": "All APIs use real data from MongoDB and real GPT-5.2 via Emergent LLM Key for AI recommendations"
   }
 }
