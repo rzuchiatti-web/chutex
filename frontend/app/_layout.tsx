@@ -256,6 +256,7 @@ function RootNav() {
         <Stack.Screen name="activate-guardian" options={{ presentation: 'card' }} />
         <Stack.Screen name="programs" options={{ presentation: 'card' }} />
         <Stack.Screen name="program-detail" options={{ presentation: 'card' }} />
+        <Stack.Screen name="minceur" options={{ presentation: 'card' }} />
         <Stack.Screen name="chat-ia" options={{ presentation: 'card', animation: 'slide_from_bottom' }} />
         <Stack.Screen name="morning-briefing" options={{ presentation: 'card', animation: 'fade' }} />
         <Stack.Screen name="nora-welcome" options={{ presentation: 'card', animation: 'fade' }} />
