@@ -16,6 +16,7 @@ export default function ProgramsScreen() {
   const { token } = useAuth();
   const router = useRouter();
   const [activeProgram, setActiveProgram] = useState<any>(null);
+  const [activeMinceur, setActiveMinceur] = useState<any>(null);
   const [catalog, setCatalog] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasDevices, setHasDevices] = useState<any>({ bracelet: false, scale: false, any: false });
@@ -26,10 +27,12 @@ export default function ProgramsScreen() {
       apiFetch('/api/programs/active', {}, token).catch(() => null),
       apiFetch('/api/programs/catalog', {}, token).catch(() => null),
       apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
-    ]).then(([prog, cat, dev]) => {
+      apiFetch('/api/minceur/active', {}, token).catch(() => null),
+    ]).then(([prog, cat, dev, minceur]) => {
       if (prog) setActiveProgram(prog);
       if (cat?.programs) setCatalog(cat.programs);
       setHasDevices({ bracelet: !!(dev?.bracelet?.paired), scale: !!(dev?.scale?.paired), any: !!(dev?.bracelet?.paired || dev?.scale?.paired) });
+      if (minceur?.active) setActiveMinceur(minceur);
       setLoading(false);
     });
   }, []);
@@ -82,6 +85,33 @@ export default function ProgramsScreen() {
               </div>
             );
           })()}
+
+          {/* Programme Minceur card */}
+          <div onClick={() => router.push('/minceur' as any)} data-testid="minceur-card" style={{ padding: '18px 20px', borderRadius: 22, marginBottom: 14, cursor: 'pointer', background: activeMinceur ? 'rgba(249,115,22,0.06)' : 'rgba(255,255,255,0.08)', border: `1px solid ${activeMinceur ? 'rgba(249,115,22,0.25)' : 'rgba(255,255,255,0.12)'}`, ...g, transition: 'transform 180ms' } as any}
+            onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: activeMinceur ? 10 : 0 } as any}>
+              <div style={{ width: 48, height: 48, borderRadius: 16, background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <i className="ri-scales-3-line" style={{ fontSize: 24, color: '#F59E0B' }} />
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>Programme Minceur</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>
+                  {activeMinceur ? `${activeMinceur.progress?.current_kg}kg → ${activeMinceur.target_kg}kg` : 'Objectif poids personnalise avec suivi IA'}
+                </div>
+              </div>
+              {activeMinceur ? (
+                <div style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(249,115,22,0.15)', fontSize: 11, fontWeight: 800, color: '#F59E0B' }}>{activeMinceur.progress?.progress_pct || 0}%</div>
+              ) : (
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} />
+              )}
+            </div>
+            {activeMinceur && (
+              <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                <div style={{ height: 4, borderRadius: 2, width: `${activeMinceur.progress?.progress_pct || 0}%`, background: '#F59E0B' } as any} />
+              </div>
+            )}
+          </div>
 
           {/* Category filters */}
           <div style={{ display: 'flex', gap: 6, overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 4, marginBottom: 14 } as any}>
