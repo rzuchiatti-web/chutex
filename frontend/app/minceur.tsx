@@ -141,6 +141,18 @@ export default function MinceurPage() {
   };
   useEffect(() => { fetchData(); }, [token]);
 
+  // Refetch tracking when page gains focus (coming back from detail pages)
+  useEffect(() => {
+    const onFocus = () => { if (token && data) {
+      apiFetch('/api/minceur/today-tracking', {}, token).then(t => {
+        if (t?.completed) setTracked(t.completed);
+        if (t?.streak) setTrackStreak(t.streak);
+      }).catch(() => {});
+    }};
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [token, data]);
+
   const saveGoal = async () => { setSaving(true); try { await apiFetch('/api/minceur/weight-goal', { method: 'POST', body: JSON.stringify({ target_kg: targetKg, weeks: goalWeeks }) }, token); setShowGoalForm(false); setLoading(true); await fetchData(); } catch (e: any) { alert(e.message); } finally { setSaving(false); } };
   const removeGoal = async () => { try { await apiFetch('/api/minceur/weight-goal', { method: 'DELETE' }, token); setShowGoalForm(false); setLoading(true); await fetchData(); } catch {} };
   const refreshRecs = async () => { setRefreshing(true); try { await apiFetch('/api/minceur/refresh-recommendations', { method: 'POST' }, token); await fetchData(); } catch { setRefreshing(false); } };
@@ -305,21 +317,9 @@ export default function MinceurPage() {
                 {data.last_reading_date && <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.12)', textAlign: 'right', marginTop: 10 }}>Pesee : {new Date(data.last_reading_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>}
               </div>
 
-              {/* ══ NORA ANALYSIS ══ */}
+              {/* ══ RECOMMENDATIONS ══ */}
               {recs && (
                 <div style={{ ...fade(0.2) } as any}>
-                  {recs.nora_insight && (
-                    <div data-testid="nora-insight" style={{ ...C, padding: '14px 16px', marginBottom: 14, display: 'flex', gap: 12, alignItems: 'flex-start' } as any}>
-                      <div style={{ width: 30, height: 30, borderRadius: 10, flexShrink: 0, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.05))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                        <span style={{ fontSize: 11, fontWeight: 900, color: PURPLE }}>N</span>
-                      </div>
-                      <div style={{ flex: 1 } as any}>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: PURPLE, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Analyse de Nora</div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{recs.nora_insight}{recs.tip_of_the_day ? ` ${recs.tip_of_the_day}` : ''}</div>
-                      </div>
-                    </div>
-                  )}
-
                   {/* Calories + Macros */}
                   <div data-testid="calories-summary" style={{ ...C, padding: 16, marginBottom: 14 } as any}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
@@ -387,7 +387,7 @@ export default function MinceurPage() {
                         const ic = int === 'leger' ? GREEN : int === 'modere' ? ACCENT : RED;
                         const done = tracked[`exercise_${i}`];
                         return (
-                          <div key={i} data-testid={`exercise-${i}`} style={{ ...C, padding: '14px 16px', border: `1px solid ${done ? GREEN + '25' : 'rgba(255,255,255,0.08)'}`, opacity: done ? 0.65 : 1, transition: 'all 0.25s' } as any} onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }} onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                          <div key={i} data-testid={`exercise-${i}`} onClick={() => router.push({ pathname: '/exercise-detail' as any, params: { index: i } })} style={{ ...C, padding: '14px 16px', border: `1px solid ${done ? GREEN + '25' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', opacity: done ? 0.65 : 1, transition: 'all 0.25s' } as any} onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }} onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                               <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, background: `${GREEN}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={icon} style={{ fontSize: 17, color: GREEN }} /></div>
                               <div style={{ flex: 1 } as any}>
@@ -395,19 +395,33 @@ export default function MinceurPage() {
                                   <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF', textDecoration: done ? 'line-through' : 'none', textDecorationColor: 'rgba(255,255,255,0.15)' }}>{ex.name}</span>
                                   <span style={{ fontSize: 7, fontWeight: 700, color: ic, padding: '2px 5px', borderRadius: 5, background: `${ic}12`, textTransform: 'uppercase' }}>{int}</span>
                                 </div>
-                                {ex.description && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5, marginBottom: 3 }}>{ex.description}</div>}
-                                <div style={{ display: 'flex', gap: 10 } as any}>
+                                {ex.description && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5, marginBottom: 3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' } as any}>{ex.description}</div>}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
                                   <span style={{ fontSize: 10, fontWeight: 700, color: GREEN }}><i className="ri-timer-line" style={{ fontSize: 9, marginRight: 2 }} />{ex.duration}</span>
                                   {ex.calories_burned > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)' }}><i className="ri-fire-line" style={{ fontSize: 9, marginRight: 2 }} />{ex.calories_burned}kcal</span>}
+                                  <span style={{ fontSize: 9, color: GREEN, fontWeight: 700 }}>Details <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
                                 </div>
                               </div>
-                              <div data-testid={`track-exercise-${i}`} onClick={() => toggleTrack('exercise', i)} style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, background: done ? GREEN : 'rgba(255,255,255,0.03)', border: `1.5px solid ${done ? GREEN : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s' } as any}>
+                              <div data-testid={`track-exercise-${i}`} onClick={(e) => { e.stopPropagation(); toggleTrack('exercise', i); }} style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, background: done ? GREEN : 'rgba(255,255,255,0.03)', border: `1.5px solid ${done ? GREEN : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s' } as any}>
                                 <i className="ri-check-line" style={{ fontSize: 15, color: done ? '#FFF' : 'rgba(255,255,255,0.12)' }} />
                               </div>
                             </div>
                           </div>
                         );
                       })}
+                    </div>
+                  )}
+
+                  {/* ══ NORA ANALYSIS — at the bottom ══ */}
+                  {recs.nora_insight && (
+                    <div data-testid="nora-insight" style={{ ...C, padding: '14px 16px', marginBottom: 14, display: 'flex', gap: 12, alignItems: 'flex-start' } as any}>
+                      <div style={{ width: 30, height: 30, borderRadius: 10, flexShrink: 0, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.05))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                        <span style={{ fontSize: 11, fontWeight: 900, color: PURPLE }}>N</span>
+                      </div>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: PURPLE, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Analyse de Nora</div>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{recs.nora_insight}{recs.tip_of_the_day ? ` ${recs.tip_of_the_day}` : ''}</div>
+                      </div>
                     </div>
                   )}
                 </div>
