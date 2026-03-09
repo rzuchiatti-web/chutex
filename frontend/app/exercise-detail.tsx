@@ -9,11 +9,11 @@ const ACCENT = '#F59E0B';
 const GREEN = '#10B981';
 const RED = '#EF4444';
 const C: any = { borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' };
-const CAT_META: Record<string, { icon: string; label: string; color: string }> = {
-  cardio: { icon: 'ri-heart-pulse-line', label: 'Cardio', color: RED },
-  renforcement: { icon: 'ri-boxing-line', label: 'Renforcement', color: ACCENT },
-  souplesse: { icon: 'ri-body-scan-line', label: 'Souplesse', color: '#A78BFA' },
-  equilibre: { icon: 'ri-walk-line', label: 'Equilibre', color: '#60A5FA' },
+const CAT_META: Record<string, { icon: string; label: string; color: string; img: string }> = {
+  cardio: { icon: 'ri-heart-pulse-line', label: 'Cardio', color: RED, img: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/05d45697f644e6b656496155421c6e39c60b73d67f7fb18522a76692b56fa394.png' },
+  renforcement: { icon: 'ri-boxing-line', label: 'Renforcement', color: ACCENT, img: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/b50d815f482c848c380f0e911d719876a2f9f0ff00967feef900297d858f39ef.png' },
+  souplesse: { icon: 'ri-body-scan-line', label: 'Souplesse', color: '#A78BFA', img: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/05d45697f644e6b656496155421c6e39c60b73d67f7fb18522a76692b56fa394.png' },
+  equilibre: { icon: 'ri-walk-line', label: 'Equilibre', color: '#60A5FA', img: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/05d45697f644e6b656496155421c6e39c60b73d67f7fb18522a76692b56fa394.png' },
 };
 
 export default function ExerciseDetailPage() {
@@ -73,10 +73,12 @@ export default function ExerciseDetailPage() {
           {!loading && ex && (
             <>
               {/* Exercise Hero */}
-              <div data-testid="exercise-hero" style={{ ...C, padding: 20, marginBottom: 12 } as any}>
+              <div data-testid="exercise-hero" style={{ ...C, padding: 0, marginBottom: 12, overflow: 'hidden' } as any}>
+                <img src={cat.img} alt="" style={{ width: '100%', height: 140, objectFit: 'cover' } as any} />
+                <div style={{ padding: '16px 20px' } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 } as any}>
-                  <div style={{ width: 52, height: 52, borderRadius: 16, background: `${GREEN}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className={cat.icon} style={{ fontSize: 24, color: GREEN }} />
+                  <div style={{ width: 44, height: 44, borderRadius: 14, background: `${GREEN}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className={cat.icon} style={{ fontSize: 22, color: GREEN }} />
                   </div>
                   <div style={{ flex: 1 } as any}>
                     <div style={{ fontSize: 9, fontWeight: 700, color: GREEN, textTransform: 'uppercase', letterSpacing: 1 }}>{cat.label}</div>
@@ -113,6 +115,7 @@ export default function ExerciseDetailPage() {
                 } as any}>
                   <i className={isDone ? 'ri-check-line' : 'ri-checkbox-blank-circle-line'} style={{ fontSize: 16, color: isDone ? '#FFF' : 'rgba(255,255,255,0.3)' }} />
                   <span style={{ fontSize: 13, fontWeight: 800, color: isDone ? '#FFF' : 'rgba(255,255,255,0.4)' }}>{isDone ? 'Exercice valide' : 'Valider cet exercice'}</span>
+                </div>
                 </div>
               </div>
 
