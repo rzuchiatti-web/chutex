@@ -42,7 +42,6 @@ export default function HealthScreen() {
   const [healthProgData, setHealthProgData] = useState<any>(null);
   const [healthProgCatalog, setHealthProgCatalog] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [miniMetric, setMiniMetric] = useState<'weight' | 'body_fat_pct' | 'muscle_pct'>('weight');
 
   const fetchData = useCallback(async () => {
     try {
@@ -255,87 +254,38 @@ export default function HealthScreen() {
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '16px 20px 16px' } as any} />
           <SleepCard d={d} />
 
-          {/* Poids & Nutrition — card with tabbed mini charts (Poids/Graisse/Muscle) */}
-          <div data-testid="weight-nutrition-card"
-            style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, padding: 16, transition: 'transform 0.15s' } as any}>
-            <div onClick={() => router.push('/minceur' as any)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, cursor: 'pointer' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.parentElement.style.transform = 'translateY(-1px)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.parentElement.style.transform = ''; }}>
+          {/* Poids & Nutrition — clean card with 3 key metrics */}
+          <div data-testid="weight-nutrition-card" onClick={() => router.push('/minceur' as any)}
+            style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, padding: 16, cursor: 'pointer', transition: 'transform 0.15s' } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
                 <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(249,115,22,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                   <i className="ri-scales-3-line" style={{ fontSize: 18, color: '#F59E0B' }} />
                 </div>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Poids & Nutrition</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Suivi, repas, exercices</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Repas, exercices, suivi</div>
                 </div>
               </div>
               <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.15)' }} />
             </div>
-            {/* Mini metric tabs */}
-            {(() => {
-              const MINI_TABS = [
-                { key: 'weight' as const, label: 'Poids', icon: 'ri-scales-3-line', color: '#F59E0B', val: d.weight, unit: 'kg', field: 'weight' },
-                { key: 'body_fat_pct' as const, label: 'Graisse', icon: 'ri-fire-line', color: '#F97316', val: weighings[0]?.body_fat_pct, unit: '%', field: 'body_fat_pct' },
-                { key: 'muscle_pct' as const, label: 'Muscle', icon: 'ri-boxing-line', color: '#10B981', val: weighings[0]?.muscle_pct, unit: '%', field: 'muscle_pct' },
-              ];
-              const activeColor = MINI_TABS.find(t => t.key === miniMetric)?.color || '#F59E0B';
-              return (
-                <>
-                  <div data-testid="mini-metric-tabs" style={{ display: 'flex', gap: 3, marginBottom: 10, background: 'rgba(255,255,255,0.02)', borderRadius: 10, padding: 2 } as any}>
-                    {MINI_TABS.map(tab => {
-                      const active = miniMetric === tab.key;
-                      const hasVal = Number(tab.val || 0) > 0;
-                      return (
-                        <div key={tab.key} data-testid={`mini-tab-${tab.key}`}
-                          onClick={(e) => { e.stopPropagation(); if (hasVal) setMiniMetric(tab.key); }}
-                          style={{
-                            flex: 1, padding: '6px 4px', borderRadius: 8, textAlign: 'center',
-                            cursor: hasVal ? 'pointer' : 'default',
-                            background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
-                            border: active ? `1px solid ${tab.color}30` : '1px solid transparent',
-                            opacity: hasVal ? 1 : 0.3,
-                            transition: 'all 0.25s',
-                          } as any}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, marginBottom: 1 } as any}>
-                            <i className={tab.icon} style={{ fontSize: 9, color: active ? tab.color : 'rgba(255,255,255,0.25)' }} />
-                            <span style={{ fontSize: 8, fontWeight: 700, color: active ? tab.color : 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{tab.label}</span>
-                          </div>
-                          {hasVal && <div style={{ fontSize: 13, fontWeight: 900, color: active ? '#FFF' : 'rgba(255,255,255,0.3)', lineHeight: 1 }}>{tab.val}<span style={{ fontSize: 7, color: 'rgba(255,255,255,0.2)' }}>{tab.unit}</span></div>}
-                        </div>
-                      );
-                    })}
+            <div style={{ display: 'flex', gap: 8 } as any}>
+              {[
+                { label: 'Poids', val: d.weight, unit: 'kg', color: '#F59E0B', icon: 'ri-scales-3-line' },
+                { label: 'Graisse', val: weighings[0]?.body_fat_pct, unit: '%', color: '#F97316', icon: 'ri-fire-line' },
+                { label: 'Muscle', val: weighings[0]?.muscle_pct, unit: '%', color: '#10B981', icon: 'ri-boxing-line' },
+              ].map((m, i) => (
+                <div key={i} style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
+                  <i className={m.icon} style={{ fontSize: 13, color: m.color, marginBottom: 4, display: 'block' }} />
+                  <div style={{ fontSize: 18, fontWeight: 900, color: Number(m.val || 0) > 0 ? '#FFF' : 'rgba(255,255,255,0.15)', lineHeight: 1 }}>
+                    {Number(m.val || 0) > 0 ? m.val : '--'}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>{m.unit}</span>
                   </div>
-                  {/* Mini sparkline for selected metric */}
-                  {weighings.length >= 2 && (() => {
-                    const field = miniMetric;
-                    const filtered = weighings.slice(0, 10).filter((w: any) => Number(w[field] || 0) > 0).reverse();
-                    if (filtered.length < 2) return <div style={{ textAlign: 'center', padding: '6px 0', fontSize: 10, color: 'rgba(255,255,255,0.15)' }}>Pas assez de donnees</div>;
-                    const vals = filtered.map((w: any) => w[field]);
-                    const min = Math.min(...vals) - (field === 'weight' ? 1 : 0.3);
-                    const max = Math.max(...vals) + (field === 'weight' ? 1 : 0.3);
-                    return (
-                      <div onClick={() => router.push('/minceur' as any)} style={{ height: 44, display: 'flex', alignItems: 'flex-end', gap: 2, cursor: 'pointer' } as any}>
-                        {filtered.map((w: any, i: number) => {
-                          const pct = Math.max(12, ((w[field] - min) / (max - min || 1)) * 100);
-                          const last = i === filtered.length - 1;
-                          return <div key={i} style={{ flex: 1, height: `${pct}%`, borderRadius: 3, background: last ? activeColor : `${activeColor}33`, transition: 'height 0.5s ease, background 0.3s' } as any} />;
-                        })}
-                      </div>
-                    );
-                  })()}
-                  {weighings.length < 2 && Number(d.weight || 0) > 0 && (
-                    <div onClick={() => router.push('/minceur' as any)} style={{ cursor: 'pointer' } as any}>
-                      <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{d.weight}<span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>kg</span></div>
-                      {d.bmi > 0 && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>IMC {d.bmi}</div>}
-                    </div>
-                  )}
-                  {weighings.length < 2 && !Number(d.weight || 0) && (
-                    <div onClick={() => router.push('/minceur' as any)} style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', cursor: 'pointer' } as any}>Aucune pesee</div>
-                  )}
-                </>
-              );
-            })()}
+                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700, marginTop: 2 }}>{m.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />

@@ -1,24 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
 
-/* ── Design tokens ── */
 const ACCENT = '#F59E0B';
-const ACCENT_DIM = 'rgba(245,158,11,0.12)';
 const GREEN = '#10B981';
 const RED = '#EF4444';
 const BLUE = '#60A5FA';
 const PURPLE = '#A78BFA';
-const CARD: any = {
-  borderRadius: 20,
-  background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.08)',
-  backdropFilter: 'blur(24px)',
-  WebkitBackdropFilter: 'blur(24px)',
-};
+const C: any = { borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' };
 const MEAL_META: Record<string, { icon: string; gradient: string }> = {
   breakfast: { icon: 'ri-cup-line', gradient: 'linear-gradient(135deg, #F59E0B22, #F59E0B08)' },
   lunch: { icon: 'ri-restaurant-2-line', gradient: 'linear-gradient(135deg, #10B98122, #10B98108)' },
@@ -28,146 +20,59 @@ const MEAL_META: Record<string, { icon: string; gradient: string }> = {
 const MEAL_COLORS: Record<string, string> = { breakfast: '#F59E0B', lunch: '#10B981', snack: '#A78BFA', dinner: '#60A5FA' };
 const EX_ICONS: Record<string, string> = { cardio: 'ri-heart-pulse-line', renforcement: 'ri-boxing-line', souplesse: 'ri-body-scan-line', equilibre: 'ri-walk-line' };
 
-/* ── Generic SVG Metric Chart ── */
-type MetricKey = 'weight' | 'body_fat_pct' | 'muscle_pct';
-const METRIC_CFG: Record<MetricKey, { color: string; unit: string; label: string; gradId: string }> = {
-  weight: { color: ACCENT, unit: 'kg', label: 'Poids', gradId: 'gw' },
-  body_fat_pct: { color: '#F97316', unit: '%', label: 'Graisse', gradId: 'gf' },
-  muscle_pct: { color: GREEN, unit: '%', label: 'Muscle', gradId: 'gm' },
+type MK = 'weight' | 'body_fat_pct' | 'muscle_pct';
+const MCFG: Record<MK, { color: string; unit: string; label: string; gid: string }> = {
+  weight: { color: ACCENT, unit: 'kg', label: 'Poids', gid: 'gw' },
+  body_fat_pct: { color: '#F97316', unit: '%', label: 'Graisse', gid: 'gf' },
+  muscle_pct: { color: GREEN, unit: '%', label: 'Muscle', gid: 'gm' },
 };
 
-function MetricChart({ history, metric }: { history: any[]; metric: MetricKey }) {
-  const cfg = METRIC_CFG[metric];
-  const filtered = [...history].reverse().filter(d => d[metric] > 0).slice(-14);
-  if (filtered.length < 2) return (
-    <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>
-      Pas assez de donnees pour {cfg.label.toLowerCase()}
-    </div>
-  );
-  const values = filtered.map(d => d[metric]);
-  const minV = Math.min(...values) - (metric === 'weight' ? 1 : 0.5);
-  const maxV = Math.max(...values) + (metric === 'weight' ? 1 : 0.5);
-  const range = maxV - minV || 1;
-  const W = 340, H = 120, PX = 12, PY = 16;
-  const plotW = W - PX * 2, plotH = H - PY * 2;
-  const step = plotW / (filtered.length - 1);
-
-  const points = filtered.map((d, i) => ({
-    x: PX + i * step,
-    y: PY + plotH - ((d[metric] - minV) / range) * plotH,
-    v: d[metric],
-  }));
-
-  const linePath = points.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' ');
-  const areaPath = linePath + ` L${points[points.length - 1].x},${H - PY} L${points[0].x},${H - PY} Z`;
-
+function Chart({ history, metric }: { history: any[]; metric: MK }) {
+  const cfg = MCFG[metric];
+  const f = [...history].reverse().filter(d => d[metric] > 0).slice(-14);
+  if (f.length < 2) return <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 11, color: 'rgba(255,255,255,0.15)' }}>Pas assez de mesures</div>;
+  const vals = f.map(d => d[metric]);
+  const mn = Math.min(...vals) - (metric === 'weight' ? 1 : 0.5), mx = Math.max(...vals) + (metric === 'weight' ? 1 : 0.5);
+  const rng = mx - mn || 1, W = 340, H = 110, PX = 10, PY = 14, pW = W - PX * 2, pH = H - PY * 2;
+  const step = pW / (f.length - 1);
+  const pts = f.map((d, i) => ({ x: PX + i * step, y: PY + pH - ((d[metric] - mn) / rng) * pH, v: d[metric] }));
+  const lp = pts.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' ');
+  const ap = lp + ` L${pts[pts.length - 1].x},${H - PY} L${pts[0].x},${H - PY} Z`;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 130, display: 'block' }}>
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 120, display: 'block' }}>
       <defs>
-        <linearGradient id={`${cfg.gradId}a`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={cfg.color} stopOpacity="0.25" />
-          <stop offset="100%" stopColor={cfg.color} stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id={`${cfg.gradId}l`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor={cfg.color} stopOpacity="0.4" />
-          <stop offset="100%" stopColor={cfg.color} stopOpacity="1" />
-        </linearGradient>
+        <linearGradient id={`${cfg.gid}a`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={cfg.color} stopOpacity="0.2" /><stop offset="100%" stopColor={cfg.color} stopOpacity="0" /></linearGradient>
+        <linearGradient id={`${cfg.gid}l`} x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor={cfg.color} stopOpacity="0.3" /><stop offset="100%" stopColor={cfg.color} stopOpacity="1" /></linearGradient>
       </defs>
-      {[0, 0.25, 0.5, 0.75, 1].map((f, i) => (
-        <line key={i} x1={PX} x2={W - PX} y1={PY + plotH * (1 - f)} y2={PY + plotH * (1 - f)} stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
-      ))}
-      <path d={areaPath} fill={`url(#${cfg.gradId}a)`}>
-        <animate attributeName="opacity" from="0" to="1" dur="0.8s" fill="freeze" />
-      </path>
-      <path d={linePath} fill="none" stroke={`url(#${cfg.gradId}l)`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <animate attributeName="stroke-dashoffset" from="1000" to="0" dur="1.2s" fill="freeze" />
-        <animate attributeName="stroke-dasharray" from="1000" to="1000" dur="0.01s" fill="freeze" />
-      </path>
-      {points.map((p, i) => (
-        <g key={i}>
-          {i === points.length - 1 && (
-            <>
-              <circle cx={p.x} cy={p.y} r="6" fill={cfg.color} opacity="0.2">
-                <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.2;0.05;0.2" dur="2s" repeatCount="indefinite" />
-              </circle>
-              <circle cx={p.x} cy={p.y} r="4" fill={cfg.color} stroke="#1a1a2e" strokeWidth="2" />
-              <text x={p.x} y={p.y - 12} textAnchor="middle" fill={cfg.color} fontSize="11" fontWeight="800">{p.v}{cfg.unit}</text>
-            </>
-          )}
-          {i === 0 && points.length > 2 && (
-            <text x={p.x} y={p.y - 10} textAnchor="start" fill="rgba(255,255,255,0.25)" fontSize="9" fontWeight="600">{p.v}{cfg.unit}</text>
-          )}
-          {i > 0 && i < points.length - 1 && (
-            <circle cx={p.x} cy={p.y} r="2" fill="rgba(255,255,255,0.15)" />
-          )}
-        </g>
-      ))}
+      {[0, 0.5, 1].map((v, i) => <line key={i} x1={PX} x2={W - PX} y1={PY + pH * (1 - v)} y2={PY + pH * (1 - v)} stroke="rgba(255,255,255,0.03)" strokeWidth="1" />)}
+      <path d={ap} fill={`url(#${cfg.gid}a)`}><animate attributeName="opacity" from="0" to="1" dur="0.6s" fill="freeze" /></path>
+      <path d={lp} fill="none" stroke={`url(#${cfg.gid}l)`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      {pts.map((p, i) => <g key={i}>
+        {i === pts.length - 1 && <><circle cx={p.x} cy={p.y} r="5" fill={cfg.color} opacity="0.15"><animate attributeName="r" values="5;9;5" dur="2s" repeatCount="indefinite" /></circle><circle cx={p.x} cy={p.y} r="3.5" fill={cfg.color} stroke="#1a1a2e" strokeWidth="2" /><text x={p.x} y={p.y - 10} textAnchor="middle" fill={cfg.color} fontSize="10" fontWeight="800">{p.v}{cfg.unit}</text></>}
+        {i === 0 && f.length > 2 && <text x={p.x} y={p.y - 8} textAnchor="start" fill="rgba(255,255,255,0.2)" fontSize="9" fontWeight="600">{p.v}</text>}
+        {i > 0 && i < pts.length - 1 && <circle cx={p.x} cy={p.y} r="1.5" fill="rgba(255,255,255,0.1)" />}
+      </g>)}
     </svg>
   );
 }
 
-/* ── BMI Gauge ── */
-function BMIGauge({ bmi, info }: { bmi: number; info: any }) {
-  if (!bmi || bmi <= 0) return null;
-  const min = 15, max = 40;
-  const pct = Math.max(0, Math.min(100, ((bmi - min) / (max - min)) * 100));
-  const zones = [
-    { start: 0, end: ((18.5 - min) / (max - min)) * 100, color: '#60A5FA' },
-    { start: ((18.5 - min) / (max - min)) * 100, end: ((25 - min) / (max - min)) * 100, color: '#10B981' },
-    { start: ((25 - min) / (max - min)) * 100, end: ((30 - min) / (max - min)) * 100, color: '#F59E0B' },
-    { start: ((30 - min) / (max - min)) * 100, end: 100, color: '#EF4444' },
-  ];
-
+function BMIBar({ bmi, info }: { bmi: number; info: any }) {
+  if (!bmi) return null;
+  const pct = Math.max(0, Math.min(100, ((bmi - 15) / 25) * 100));
   return (
-    <div data-testid="bmi-gauge" style={{ position: 'relative', padding: '0 4px' } as any}>
-      <div style={{ height: 8, borderRadius: 4, display: 'flex', overflow: 'hidden', background: 'rgba(255,255,255,0.04)' } as any}>
-        {zones.map((z, i) => (
-          <div key={i} style={{ width: `${z.end - z.start}%`, height: '100%', background: z.color, opacity: 0.5 } as any} />
-        ))}
+    <div data-testid="bmi-gauge" style={{ marginTop: 8 } as any}>
+      <div style={{ height: 6, borderRadius: 3, display: 'flex', overflow: 'hidden', background: 'rgba(255,255,255,0.03)' } as any}>
+        {[{ w: 14, c: '#60A5FA' }, { w: 26, c: '#10B981' }, { w: 20, c: '#F59E0B' }, { w: 40, c: '#EF4444' }].map((z, i) =>
+          <div key={i} style={{ width: `${z.w}%`, height: '100%', background: z.c, opacity: 0.4 } as any} />
+        )}
       </div>
-      <div style={{
-        position: 'absolute', top: -3, left: `calc(${pct}% - 7px)`,
-        width: 14, height: 14, borderRadius: '50%',
-        background: info?.color || ACCENT, border: '2px solid rgba(0,0,0,0.6)',
-        boxShadow: `0 0 12px ${info?.color || ACCENT}60`,
-        transition: 'left 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
-      } as any} />
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 } as any}>
-        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>15</span>
-        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>18.5</span>
-        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>25</span>
-        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>30</span>
-        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>40</span>
+      <div style={{ position: 'relative', height: 12, marginTop: -9 } as any}>
+        <div style={{ position: 'absolute', left: `calc(${pct}% - 5px)`, width: 10, height: 10, borderRadius: '50%', background: info?.color || ACCENT, border: '2px solid rgba(0,0,0,0.5)', boxShadow: `0 0 8px ${info?.color || ACCENT}50`, transition: 'left 1s ease' } as any} />
       </div>
     </div>
   );
 }
 
-/* ── Body Composition Ring ── */
-function CompositionRing({ value, max, color, label, unit }: { value: number; max: number; color: string; label: string; unit: string }) {
-  if (!value || value <= 0) return null;
-  const pct = Math.min(100, (value / max) * 100);
-  const r = 28, circ = 2 * Math.PI * r;
-  const offset = circ - (pct / 100) * circ;
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 } as any}>
-      <svg width="68" height="68" viewBox="0 0 68 68">
-        <circle cx="34" cy="34" r={r} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="5" />
-        <circle cx="34" cy="34" r={r} fill="none" stroke={color} strokeWidth="5"
-          strokeDasharray={circ} strokeDashoffset={offset}
-          strokeLinecap="round" transform="rotate(-90 34 34)"
-          style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)' }} />
-        <text x="34" y="32" textAnchor="middle" fill="#FFF" fontSize="14" fontWeight="900">{value}</text>
-        <text x="34" y="43" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="8">{unit}</text>
-      </svg>
-      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textAlign: 'center', fontWeight: 700 }}>{label}</div>
-    </div>
-  );
-}
-
-/* ── Main Page ── */
 export default function MinceurPage() {
   const { token } = useAuth();
   const router = useRouter();
@@ -180,7 +85,7 @@ export default function MinceurPage() {
   const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'meals' | 'exercises'>('meals');
-  const [chartMetric, setChartMetric] = useState<'weight' | 'body_fat_pct' | 'muscle_pct'>('weight');
+  const [chartMetric, setChartMetric] = useState<MK>('weight');
   const [tracked, setTracked] = useState<Record<string, boolean>>({});
   const [trackStreak, setTrackStreak] = useState(0);
   const [mounted, setMounted] = useState(false);
@@ -194,485 +99,209 @@ export default function MinceurPage() {
       setData(d);
       if (d.tracking?.completed) setTracked(d.tracking.completed);
       if (d.tracking?.streak) setTrackStreak(d.tracking.streak);
-      if (d.current?.weight > 0 && !d.goal) {
-        setTargetKg(Math.round(d.current.weight - 3));
-      }
-      if (d.goal?.target_kg) {
-        setTargetKg(d.goal.target_kg);
-        if (d.goal.weeks) setGoalWeeks(d.goal.weeks);
-      }
-    } catch (e: any) {
-      setError(e.message || 'Erreur de chargement');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+      if (d.current?.weight > 0 && !d.goal) setTargetKg(Math.round(d.current.weight - 3));
+      if (d.goal?.target_kg) { setTargetKg(d.goal.target_kg); if (d.goal.weeks) setGoalWeeks(d.goal.weeks); }
+    } catch (e: any) { setError(e.message || 'Erreur'); } finally { setLoading(false); setRefreshing(false); }
   };
-
   useEffect(() => { fetchData(); }, [token]);
 
-  const saveGoal = async () => {
-    setSaving(true);
-    try {
-      await apiFetch('/api/minceur/weight-goal', {
-        method: 'POST',
-        body: JSON.stringify({ target_kg: targetKg, weeks: goalWeeks }),
-      }, token);
-      setShowGoalForm(false);
-      setLoading(true);
-      await fetchData();
-    } catch (e: any) { alert(e.message); }
-    finally { setSaving(false); }
-  };
-
-  const removeGoal = async () => {
-    try {
-      await apiFetch('/api/minceur/weight-goal', { method: 'DELETE' }, token);
-      setShowGoalForm(false);
-      setLoading(true);
-      await fetchData();
-    } catch {}
-  };
-
-  const refreshRecs = async () => {
-    setRefreshing(true);
-    try {
-      await apiFetch('/api/minceur/refresh-recommendations', { method: 'POST' }, token);
-      await fetchData();
-    } catch { setRefreshing(false); }
-  };
-
+  const saveGoal = async () => { setSaving(true); try { await apiFetch('/api/minceur/weight-goal', { method: 'POST', body: JSON.stringify({ target_kg: targetKg, weeks: goalWeeks }) }, token); setShowGoalForm(false); setLoading(true); await fetchData(); } catch (e: any) { alert(e.message); } finally { setSaving(false); } };
+  const removeGoal = async () => { try { await apiFetch('/api/minceur/weight-goal', { method: 'DELETE' }, token); setShowGoalForm(false); setLoading(true); await fetchData(); } catch {} };
+  const refreshRecs = async () => { setRefreshing(true); try { await apiFetch('/api/minceur/refresh-recommendations', { method: 'POST' }, token); await fetchData(); } catch { setRefreshing(false); } };
   const toggleTrack = async (type: 'meal' | 'exercise', index: number) => {
     const key = `${type}_${index}`;
-    const wasDone = tracked[key];
-    setTracked(prev => ({ ...prev, [key]: !wasDone }));
-    if (!wasDone) setTrackStreak(s => Math.max(s, 1));
-    try {
-      await apiFetch('/api/minceur/track', {
-        method: 'POST',
-        body: JSON.stringify({ type, index }),
-      }, token);
-    } catch {
-      setTracked(prev => ({ ...prev, [key]: wasDone }));
-    }
+    const was = tracked[key];
+    setTracked(prev => ({ ...prev, [key]: !was }));
+    if (!was) setTrackStreak(s => Math.max(s, 1));
+    try { await apiFetch('/api/minceur/track', { method: 'POST', body: JSON.stringify({ type, index }) }, token); } catch { setTracked(prev => ({ ...prev, [key]: was })); }
   };
 
   if (Platform.OS !== 'web') return null;
-
-  const c = data?.current || {};
+  const cr = data?.current || {};
   const bc = data?.body_composition || {};
   const recs = data?.recommendations;
   const history = data?.weight_history || [];
-  const stats = data?.weight_stats || {};
   const goal = data?.goal;
+  const fade = (d: number) => mounted ? { opacity: 1, transform: 'translateY(0)', transition: `opacity 0.5s ${d}s ease, transform 0.5s ${d}s ease` } : { opacity: 0, transform: 'translateY(12px)' };
 
-  const fadeIn = (delay: number) => mounted ? {
-    opacity: 1, transform: 'translateY(0)',
-    transition: `opacity 0.6s ${delay}s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s ${delay}s cubic-bezier(0.16, 1, 0.3, 1)`,
-  } : { opacity: 0, transform: 'translateY(16px)' };
+  const totalItems = recs ? (recs.meals?.length || 0) + (recs.exercises?.length || 0) : 0;
+  const doneCount = Object.values(tracked).filter(Boolean).length;
+  const pctDone = totalItems > 0 ? Math.round((doneCount / totalItems) * 100) : 0;
 
   return (
     <div data-testid="minceur-page" style={{ position: 'absolute', inset: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
       <img src={BG_IMAGES.beneficiary} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
-
       <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 120px' } as any}>
 
-          {/* ── Header ── */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24, ...fadeIn(0) } as any}>
-            <div data-testid="back-button" onClick={() => router.back()} style={{
-              width: 44, height: 44, borderRadius: 14,
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-              transition: 'all 0.2s',
-            } as any}
-            onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, ...fade(0) } as any}>
+            <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
               <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
             </div>
             <div style={{ flex: 1 } as any}>
               <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3 }}>Poids & Nutrition</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Tableau de bord sante</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Tableau de bord sante</div>
             </div>
-            <div data-testid="refresh-button" onClick={refreshRecs} style={{
-              width: 40, height: 40, borderRadius: 12,
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-              transition: 'all 0.2s',
-            } as any}
-            onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
-              <i className="ri-refresh-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
+            {/* Daily progress pill */}
+            {recs && totalItems > 0 && (
+              <div data-testid="daily-progress" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, background: pctDone === 100 ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)', border: `1px solid ${pctDone === 100 ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}` } as any}>
+                {trackStreak > 0 && <><i className="ri-fire-fill" style={{ fontSize: 12, color: ACCENT }} /><span style={{ fontSize: 11, fontWeight: 800, color: ACCENT }}>{trackStreak}j</span><span style={{ width: 1, height: 12, background: 'rgba(255,255,255,0.08)' } as any} /></>}
+                <span style={{ fontSize: 11, fontWeight: 800, color: pctDone === 100 ? GREEN : '#FFF' }}>{doneCount}/{totalItems}</span>
+                {pctDone === 100 && <i className="ri-check-double-line" style={{ fontSize: 13, color: GREEN }} />}
+              </div>
+            )}
+            <div data-testid="refresh-button" onClick={refreshRecs} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+              <i className="ri-refresh-line" style={{ fontSize: 15, color: 'rgba(255,255,255,0.35)', animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
             </div>
           </div>
 
-          {loading && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 20px', gap: 16 } as any}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.06)', borderTopColor: ACCENT, animation: 'spin 0.8s linear infinite' } as any} />
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Analyse en cours...</div>
-            </div>
-          )}
-
-          {error && !loading && (
-            <div style={{ ...CARD, padding: 24, textAlign: 'center' } as any}>
-              <i className="ri-error-warning-line" style={{ fontSize: 32, color: RED, marginBottom: 8 }} />
-              <div style={{ fontSize: 14, color: '#FFF', fontWeight: 700 }}>{error}</div>
-            </div>
-          )}
+          {loading && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '80px 20px', gap: 14 } as any}><div style={{ width: 44, height: 44, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.06)', borderTopColor: ACCENT, animation: 'spin 0.8s linear infinite' } as any} /><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>Analyse en cours...</div></div>}
+          {error && !loading && <div style={{ ...C, padding: 24, textAlign: 'center' } as any}><i className="ri-error-warning-line" style={{ fontSize: 32, color: RED }} /><div style={{ fontSize: 14, color: '#FFF', fontWeight: 700, marginTop: 8 }}>{error}</div></div>}
 
           {!loading && data && (
             <>
-              {/* ══════ 1. WEIGHT HERO CARD ══════ */}
-              <div data-testid="weight-hero" style={{ ...CARD, padding: 20, marginBottom: 12, ...fadeIn(0.1) } as any}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 } as any}>
+              {/* ══ CARD 1: BODY STATS (Weight + Graph + IMC + Goal) ══ */}
+              <div data-testid="weight-hero" style={{ ...C, padding: 20, marginBottom: 14, ...fade(0.1) } as any}>
+
+                {/* Row: Weight + IMC */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 } as any}>
                   <div>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 4 }}>Poids actuel</div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1 }}>Poids actuel</div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 } as any}>
-                      <span style={{ fontSize: 44, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{c.weight > 0 ? c.weight : '--'}</span>
-                      <span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.25)' }}>kg</span>
+                      <span style={{ fontSize: 42, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{cr.weight > 0 ? cr.weight : '--'}</span>
+                      <span style={{ fontSize: 15, fontWeight: 600, color: 'rgba(255,255,255,0.2)' }}>kg</span>
                     </div>
-                    {stats.total_change != null && history.length > 1 && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 } as any}>
-                        <i className={stats.total_change <= 0 ? 'ri-arrow-down-line' : 'ri-arrow-up-line'} style={{ fontSize: 11, color: stats.total_change <= 0 ? GREEN : RED }} />
-                        <span style={{ fontSize: 11, fontWeight: 700, color: stats.total_change <= 0 ? GREEN : RED }}>{Math.abs(stats.total_change)}kg</span>
-                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>depuis le debut</span>
-                      </div>
-                    )}
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 } as any}>
-                    {c.bmi > 0 && (
-                      <div style={{ textAlign: 'right' } as any}>
-                        <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{c.bmi}</div>
-                        <div style={{ fontSize: 8, fontWeight: 700, color: c.bmi_info?.color || 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>IMC - {c.bmi_info?.label || ''}</div>
-                      </div>
-                    )}
-                    {c.bmr > 0 && (
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', textAlign: 'right' }}>
-                        MB: {c.bmr}kcal · DET: {c.tdee}kcal
-                      </div>
-                    )}
-                  </div>
+                  {cr.bmi > 0 && (
+                    <div style={{ textAlign: 'right' } as any}>
+                      <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{cr.bmi}</div>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: cr.bmi_info?.color || 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>IMC · {cr.bmi_info?.label}</div>
+                    </div>
+                  )}
                 </div>
+                {cr.bmi > 0 && <BMIBar bmi={cr.bmi} info={cr.bmi_info} />}
 
-                {/* BMI Gauge */}
-                {c.bmi > 0 && <BMIGauge bmi={c.bmi} info={c.bmi_info} />}
-
-                {/* Metric Tabs: Poids / Graisse / Muscle */}
+                {/* Chart Tabs */}
                 {history.length >= 2 && (
-                  <div style={{ marginTop: 16 } as any}>
-                    <div data-testid="chart-tabs" style={{ display: 'flex', gap: 3, marginBottom: 10, background: 'rgba(255,255,255,0.02)', borderRadius: 10, padding: 2 } as any}>
+                  <div style={{ marginTop: 14 } as any}>
+                    <div data-testid="chart-tabs" style={{ display: 'flex', gap: 2, marginBottom: 6, background: 'rgba(255,255,255,0.02)', borderRadius: 10, padding: 2 } as any}>
                       {([
-                        { key: 'weight' as MetricKey, label: 'Poids', icon: 'ri-scales-3-line', color: ACCENT, val: c.weight, unit: 'kg' },
-                        { key: 'body_fat_pct' as MetricKey, label: 'Graisse', icon: 'ri-fire-line', color: '#F97316', val: bc.body_fat_pct, unit: '%' },
-                        { key: 'muscle_pct' as MetricKey, label: 'Muscle', icon: 'ri-boxing-line', color: GREEN, val: bc.muscle_pct, unit: '%' },
-                      ]).map(tab => {
-                        const active = chartMetric === tab.key;
-                        const hasData = history.some((h: any) => h[tab.key] > 0);
+                        { key: 'weight' as MK, label: 'Poids', icon: 'ri-scales-3-line', color: ACCENT, val: cr.weight, unit: 'kg' },
+                        { key: 'body_fat_pct' as MK, label: 'Graisse', icon: 'ri-fire-line', color: '#F97316', val: bc.body_fat_pct, unit: '%' },
+                        { key: 'muscle_pct' as MK, label: 'Muscle', icon: 'ri-boxing-line', color: GREEN, val: bc.muscle_pct, unit: '%' },
+                      ]).map(t => {
+                        const a = chartMetric === t.key, has = history.some((h: any) => h[t.key] > 0);
                         return (
-                          <div key={tab.key} data-testid={`chart-tab-${tab.key}`}
-                            onClick={() => hasData && setChartMetric(tab.key)}
-                            style={{
-                              flex: 1, padding: '8px 4px', borderRadius: 8, textAlign: 'center',
-                              cursor: hasData ? 'pointer' : 'default',
-                              background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
-                              border: active ? `1px solid ${tab.color}30` : '1px solid transparent',
-                              opacity: hasData ? 1 : 0.3,
-                              transition: 'all 0.25s',
-                            } as any}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 2 } as any}>
-                              <i className={tab.icon} style={{ fontSize: 10, color: active ? tab.color : 'rgba(255,255,255,0.25)' }} />
-                              <span style={{ fontSize: 9, fontWeight: 700, color: active ? tab.color : 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{tab.label}</span>
+                          <div key={t.key} data-testid={`chart-tab-${t.key}`} onClick={() => has && setChartMetric(t.key)} style={{
+                            flex: 1, padding: '7px 4px', borderRadius: 8, textAlign: 'center', cursor: has ? 'pointer' : 'default',
+                            background: a ? 'rgba(255,255,255,0.07)' : 'transparent', border: a ? `1px solid ${t.color}25` : '1px solid transparent', opacity: has ? 1 : 0.25, transition: 'all 0.2s',
+                          } as any}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 } as any}>
+                              <i className={t.icon} style={{ fontSize: 9, color: a ? t.color : 'rgba(255,255,255,0.2)' }} />
+                              <span style={{ fontSize: 8, fontWeight: 700, color: a ? t.color : 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>{t.label}</span>
                             </div>
-                            {tab.val > 0 && (
-                              <div style={{ fontSize: 14, fontWeight: 900, color: active ? '#FFF' : 'rgba(255,255,255,0.3)', lineHeight: 1 }}>
-                                {tab.val}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>{tab.unit}</span>
-                              </div>
-                            )}
+                            {t.val > 0 && <div style={{ fontSize: 13, fontWeight: 900, color: a ? '#FFF' : 'rgba(255,255,255,0.25)', lineHeight: 1, marginTop: 2 }}>{t.val}<span style={{ fontSize: 7, color: 'rgba(255,255,255,0.15)' }}>{t.unit}</span></div>}
                           </div>
                         );
                       })}
                     </div>
-                    <MetricChart history={history} metric={chartMetric} />
+                    <Chart history={history} metric={chartMetric} />
                   </div>
                 )}
 
-                {history.length === 0 && (
-                  <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>
-                    <i className="ri-scales-3-line" style={{ fontSize: 24, display: 'block', marginBottom: 6, opacity: 0.3 }} />
-                    Pesez-vous sur la Balance Vita pour commencer le suivi
+                {history.length === 0 && <div style={{ textAlign: 'center', padding: '14px 0', fontSize: 12, color: 'rgba(255,255,255,0.15)' }}><i className="ri-scales-3-line" style={{ fontSize: 22, display: 'block', marginBottom: 4, opacity: 0.25 }} />Pesez-vous pour commencer le suivi</div>}
+
+                {/* Separator */}
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '14px 0' } as any} />
+
+                {/* Goal: inline */}
+                {!goal && !showGoalForm && (
+                  <div data-testid="set-goal-button" onClick={() => setShowGoalForm(true)} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '4px 0' } as any}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(245,158,11,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-focus-3-line" style={{ fontSize: 15, color: ACCENT }} /></div>
+                    <div style={{ flex: 1 } as any}><span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Definir un objectif de poids</span></div>
+                    <i className="ri-add-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.12)' }} />
                   </div>
                 )}
-
-                {data.last_reading_date && (
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', textAlign: 'right', marginTop: 8 }}>
-                    Derniere pesee : {new Date(data.last_reading_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                  </div>
-                )}
-              </div>
-
-              {/* ══════ 2. BODY COMPOSITION ══════ */}
-              {(bc.body_fat_pct || bc.muscle_pct || bc.water_pct) && (
-                <div data-testid="body-composition" style={{ ...CARD, padding: '18px 12px', marginBottom: 12, ...fadeIn(0.2) } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 14, paddingLeft: 6 }}>Composition corporelle</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: 8 } as any}>
-                    <CompositionRing value={bc.body_fat_pct} max={50} color="#F97316" label="Graisse" unit="%" />
-                    <CompositionRing value={bc.muscle_pct} max={60} color="#10B981" label="Muscle" unit="%" />
-                    <CompositionRing value={bc.water_pct} max={70} color="#60A5FA" label="Hydratation" unit="%" />
-                    <CompositionRing value={bc.visceral_fat} max={20} color="#EF4444" label="Viscerale" unit="" />
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 12 } as any}>
-                    {bc.bone_mass_kg > 0 && (
-                      <div style={{ textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{bc.bone_mass_kg}<span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>kg</span></div>
-                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>Masse osseuse</div>
-                      </div>
-                    )}
-                    {bc.body_age > 0 && (
-                      <div style={{ textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 16, fontWeight: 900, color: PURPLE }}>{bc.body_age}<span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}> ans</span></div>
-                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>Age corporel</div>
-                      </div>
-                    )}
-                    {bc.protein_pct > 0 && (
-                      <div style={{ textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{bc.protein_pct}<span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>%</span></div>
-                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>Proteines</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* ══════ 3. OPTIONAL GOAL ══════ */}
-              <div data-testid="goal-section" style={{ ...CARD, marginBottom: 12, overflow: 'hidden', ...fadeIn(0.25) } as any}>
-                {!showGoalForm && !goal && (
-                  <div data-testid="set-goal-button" onClick={() => setShowGoalForm(true)} style={{
-                    padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
-                    transition: 'background 0.2s',
-                  } as any}
-                  onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
-                  onMouseLeave={(e: any) => { e.currentTarget.style.background = 'transparent'; }}>
-                    <div style={{ width: 38, height: 38, borderRadius: 12, background: ACCENT_DIM, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                      <i className="ri-focus-3-line" style={{ fontSize: 18, color: ACCENT }} />
-                    </div>
-                    <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Definir un objectif</div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>Personnaliser les recommandations</div>
-                    </div>
-                    <i className="ri-add-circle-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} />
-                  </div>
-                )}
-
                 {goal && !showGoalForm && (
-                  <div style={{ padding: '14px 16px' } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                        <i className="ri-focus-3-line" style={{ fontSize: 16, color: ACCENT }} />
-                        <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>Objectif</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                    <i className="ri-focus-3-line" style={{ fontSize: 15, color: ACCENT }} />
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>Objectif</span>
+                        <span style={{ fontSize: 16, fontWeight: 900, color: ACCENT }}>{goal.target_kg}kg</span>
+                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>en {goal.weeks}s</span>
                       </div>
-                      <div style={{ display: 'flex', gap: 8 } as any}>
-                        <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 10, color: ACCENT, cursor: 'pointer', fontWeight: 700 }}>Modifier</span>
-                        <span data-testid="remove-goal" onClick={removeGoal} style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', cursor: 'pointer', fontWeight: 700 }}>Retirer</span>
-                      </div>
+                      {cr.weight > 0 && (
+                        <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.03)', overflow: 'hidden', marginTop: 4 } as any}>
+                          {(() => { const diff = cr.weight - goal.target_kg; const total = (history[history.length - 1]?.weight || cr.weight) - goal.target_kg; const p = total > 0 ? Math.max(2, Math.min(100, ((total - diff) / total) * 100)) : 0; return <div style={{ height: '100%', borderRadius: 2, width: `${p}%`, background: `linear-gradient(90deg, ${ACCENT}, ${GREEN})`, transition: 'width 0.8s ease' } as any} />; })()}
+                        </div>
+                      )}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                      <div style={{ fontSize: 28, fontWeight: 900, color: ACCENT }}>{goal.target_kg}<span style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>kg</span></div>
-                      <div style={{ flex: 1 } as any}>
-                        <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}>
-                          {c.weight > 0 && goal.target_kg > 0 && (() => {
-                            const diff = c.weight - goal.target_kg;
-                            const total = (data?.weight_history?.[data.weight_history.length - 1]?.weight || c.weight) - goal.target_kg;
-                            const pct = total > 0 ? Math.max(2, Math.min(100, ((total - diff) / total) * 100)) : 0;
-                            return <div style={{ height: '100%', borderRadius: 3, width: `${pct}%`, background: `linear-gradient(90deg, ${ACCENT}, ${GREEN})`, transition: 'width 1s ease' } as any} />;
-                          })()}
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 } as any}>
-                          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>-{Math.max(0, c.weight - goal.target_kg).toFixed(1)}kg restant</span>
-                          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>{goal.weeks} semaines</span>
-                        </div>
-                      </div>
+                    <div style={{ display: 'flex', gap: 6 } as any}>
+                      <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 9, color: ACCENT, cursor: 'pointer', fontWeight: 700 }}>Modifier</span>
+                      <span data-testid="remove-goal" onClick={removeGoal} style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', cursor: 'pointer', fontWeight: 700 }}>Retirer</span>
                     </div>
                   </div>
                 )}
-
                 {showGoalForm && (
-                  <div style={{ padding: 18 } as any}>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Objectif de poids</div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, marginBottom: 18 } as any}>
-                      <div data-testid="goal-minus" onClick={() => setTargetKg(Math.max(30, targetKg - 0.5))} style={{
-                        width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.06)',
-                        border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer', fontSize: 22, fontWeight: 700, color: '#FFF', transition: 'all 0.15s',
-                      } as any}
-                      onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
-                      onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>-</div>
+                  <div style={{ paddingTop: 4 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginBottom: 12 } as any}>
+                      <div data-testid="goal-minus" onClick={() => setTargetKg(Math.max(30, targetKg - 0.5))} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, fontWeight: 700, color: '#FFF' } as any}>-</div>
                       <div style={{ textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 42, fontWeight: 900, color: ACCENT, lineHeight: 1, letterSpacing: -1 }}>{targetKg}<span style={{ fontSize: 16, color: `${ACCENT}60` }}>kg</span></div>
-                        {c.weight > 0 && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{targetKg < c.weight ? '-' : '+'}{Math.abs(c.weight - targetKg).toFixed(1)}kg</div>}
+                        <div style={{ fontSize: 36, fontWeight: 900, color: ACCENT, lineHeight: 1 }}>{targetKg}<span style={{ fontSize: 14, color: `${ACCENT}50` }}>kg</span></div>
+                        {cr.weight > 0 && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>{targetKg < cr.weight ? '-' : '+'}{Math.abs(cr.weight - targetKg).toFixed(1)}kg</div>}
                       </div>
-                      <div data-testid="goal-plus" onClick={() => setTargetKg(targetKg + 0.5)} style={{
-                        width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.06)',
-                        border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer', fontSize: 22, fontWeight: 700, color: '#FFF', transition: 'all 0.15s',
-                      } as any}
-                      onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
-                      onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>+</div>
+                      <div data-testid="goal-plus" onClick={() => setTargetKg(targetKg + 0.5)} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, fontWeight: 700, color: '#FFF' } as any}>+</div>
                     </div>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', marginBottom: 8 }}>Duree</div>
-                    <div style={{ display: 'flex', gap: 6, marginBottom: 18 } as any}>
-                      {[4, 8, 12, 16, 24].map(w => (
-                        <div key={w} data-testid={`weeks-${w}`} onClick={() => setGoalWeeks(w)} style={{
-                          flex: 1, padding: '10px 0', borderRadius: 12, cursor: 'pointer', textAlign: 'center',
-                          background: goalWeeks === w ? `${ACCENT}18` : 'rgba(255,255,255,0.03)',
-                          border: `1px solid ${goalWeeks === w ? `${ACCENT}50` : 'rgba(255,255,255,0.06)'}`,
-                          fontSize: 12, fontWeight: 800,
-                          color: goalWeeks === w ? ACCENT : 'rgba(255,255,255,0.3)',
-                          transition: 'all 0.2s',
-                        } as any}>{w}s</div>
-                      ))}
+                    <div style={{ display: 'flex', gap: 4, marginBottom: 12 } as any}>
+                      {[4, 8, 12, 16, 24].map(w => <div key={w} data-testid={`weeks-${w}`} onClick={() => setGoalWeeks(w)} style={{ flex: 1, padding: '8px 0', borderRadius: 10, cursor: 'pointer', textAlign: 'center', background: goalWeeks === w ? `${ACCENT}15` : 'rgba(255,255,255,0.02)', border: `1px solid ${goalWeeks === w ? `${ACCENT}40` : 'rgba(255,255,255,0.05)'}`, fontSize: 11, fontWeight: 800, color: goalWeeks === w ? ACCENT : 'rgba(255,255,255,0.25)' } as any}>{w}s</div>)}
                     </div>
                     <div style={{ display: 'flex', gap: 8 } as any}>
-                      <div data-testid="save-goal" onClick={saveGoal} style={{
-                        flex: 1, padding: 14, borderRadius: 999, background: ACCENT,
-                        cursor: saving ? 'wait' : 'pointer', textAlign: 'center',
-                        fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1,
-                        transition: 'all 0.2s',
-                      } as any}>{saving ? 'Enregistrement...' : 'Valider'}</div>
-                      <div onClick={() => setShowGoalForm(false)} style={{
-                        padding: '14px 20px', borderRadius: 999,
-                        background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-                        cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.35)',
-                      } as any}>Annuler</div>
+                      <div data-testid="save-goal" onClick={saveGoal} style={{ flex: 1, padding: 12, borderRadius: 999, background: ACCENT, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1 } as any}>{saving ? '...' : 'Valider'}</div>
+                      <div onClick={() => setShowGoalForm(false)} style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>Annuler</div>
                     </div>
                   </div>
                 )}
+
+                {data.last_reading_date && <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.12)', textAlign: 'right', marginTop: 10 }}>Pesee : {new Date(data.last_reading_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>}
               </div>
 
-              {/* ══════ 4. AI RECOMMENDATIONS ══════ */}
+              {/* ══ NORA ANALYSIS ══ */}
               {recs && (
-                <div style={{ ...fadeIn(0.3) } as any}>
-                  {/* Daily Progress Bar */}
-                  {(() => {
-                    const totalItems = (recs.meals?.length || 0) + (recs.exercises?.length || 0);
-                    const doneCount = Object.values(tracked).filter(Boolean).length;
-                    const pct = totalItems > 0 ? Math.round((doneCount / totalItems) * 100) : 0;
-                    return (
-                      <div data-testid="daily-progress" style={{ ...CARD, padding: '14px 16px', marginBottom: 12 } as any}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                            <i className="ri-check-double-line" style={{ fontSize: 16, color: pct === 100 ? GREEN : ACCENT }} />
-                            <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>Suivi du jour</span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                            {trackStreak > 0 && (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 8, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' } as any}>
-                                <i className="ri-fire-fill" style={{ fontSize: 11, color: ACCENT }} />
-                                <span style={{ fontSize: 10, fontWeight: 800, color: ACCENT }}>{trackStreak}j</span>
-                              </div>
-                            )}
-                            <span style={{ fontSize: 12, fontWeight: 900, color: pct === 100 ? GREEN : '#FFF' }}>{doneCount}/{totalItems}</span>
-                          </div>
-                        </div>
-                        <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}>
-                          <div style={{
-                            height: '100%', borderRadius: 3, width: `${Math.max(2, pct)}%`,
-                            background: pct === 100 ? GREEN : `linear-gradient(90deg, ${ACCENT}, ${GREEN})`,
-                            transition: 'width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                          } as any} />
-                        </div>
-                        {pct === 100 && (
-                          <div style={{ fontSize: 10, color: GREEN, fontWeight: 700, textAlign: 'center', marginTop: 6 }}>
-                            <i className="ri-trophy-line" style={{ marginRight: 4 }} />Journee completee !
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  {/* Allergy reminder if not set */}
-                  {data?.profile?.allergies && (!data.profile.allergies || data.profile.allergies.toLowerCase() === 'aucune' || data.profile.allergies === '') && (
-                    <div data-testid="allergy-reminder" onClick={() => router.push('/(tabs)/profile' as any)} style={{
-                      ...CARD, padding: '12px 14px', marginBottom: 12, cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)',
-                    } as any}>
-                      <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        <i className="ri-alert-line" style={{ fontSize: 16, color: ACCENT }} />
+                <div style={{ ...fade(0.2) } as any}>
+                  {recs.nora_insight && (
+                    <div data-testid="nora-insight" style={{ ...C, padding: '14px 16px', marginBottom: 14, display: 'flex', gap: 12, alignItems: 'flex-start' } as any}>
+                      <div style={{ width: 30, height: 30, borderRadius: 10, flexShrink: 0, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.05))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                        <span style={{ fontSize: 11, fontWeight: 900, color: PURPLE }}>N</span>
                       </div>
                       <div style={{ flex: 1 } as any}>
-                        <div style={{ fontSize: 11, fontWeight: 800, color: ACCENT }}>Completez vos allergies</div>
-                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Pour des recommandations 100% adaptees a votre profil</div>
-                      </div>
-                      <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }} />
-                    </div>
-                  )}
-
-                  {/* Nora Insight */}
-                  {recs.nora_insight && (
-                    <div data-testid="nora-insight" style={{ ...CARD, padding: '14px 16px', marginBottom: 12, display: 'flex', gap: 12, alignItems: 'flex-start' } as any}>
-                      <div style={{
-                        width: 32, height: 32, borderRadius: 10, flexShrink: 0,
-                        background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.05))',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      } as any}>
-                        <span style={{ fontSize: 12, fontWeight: 900, color: PURPLE }}>N</span>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: PURPLE, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Analyse Nora</div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>{recs.nora_insight}</div>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: PURPLE, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Analyse de Nora</div>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{recs.nora_insight}{recs.tip_of_the_day ? ` ${recs.tip_of_the_day}` : ''}</div>
                       </div>
                     </div>
                   )}
 
-                  {/* Calories + Macros summary */}
-                  <div data-testid="calories-summary" style={{ ...CARD, padding: 16, marginBottom: 12 } as any}>
+                  {/* Calories + Macros */}
+                  <div data-testid="calories-summary" style={{ ...C, padding: 16, marginBottom: 14 } as any}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
                       <div>
                         <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1 }}>Budget calorique</div>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginTop: 2 } as any}>
-                          <span style={{ fontSize: 32, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{recs.daily_calories}</span>
-                          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>kcal/jour</span>
+                          <span style={{ fontSize: 30, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{recs.daily_calories}</span>
+                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>kcal/jour</span>
                         </div>
                       </div>
-                      {recs.water_ml && (
-                        <div style={{ textAlign: 'center', padding: '8px 12px', borderRadius: 12, background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.15)' } as any}>
-                          <i className="ri-drop-fill" style={{ fontSize: 16, color: BLUE }} />
-                          <div style={{ fontSize: 12, fontWeight: 800, color: BLUE }}>{(recs.water_ml / 1000).toFixed(1)}L</div>
-                          <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>EAU</div>
-                        </div>
-                      )}
+                      {recs.water_ml && <div style={{ textAlign: 'center', padding: '6px 10px', borderRadius: 10, background: 'rgba(96,165,250,0.06)', border: '1px solid rgba(96,165,250,0.12)' } as any}><i className="ri-drop-fill" style={{ fontSize: 14, color: BLUE }} /><div style={{ fontSize: 11, fontWeight: 800, color: BLUE }}>{(recs.water_ml / 1000).toFixed(1)}L</div></div>}
                     </div>
-                    {recs.macros && (
-                      <div style={{ display: 'flex', gap: 6 } as any}>
-                        {[
-                          { label: 'Proteines', value: recs.macros.proteines_g, unit: 'g', color: '#10B981' },
-                          { label: 'Glucides', value: recs.macros.glucides_g, unit: 'g', color: '#F59E0B' },
-                          { label: 'Lipides', value: recs.macros.lipides_g, unit: 'g', color: '#EF4444' },
-                        ].map((m, i) => (
-                          <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
-                            <div style={{ width: '100%', height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.04)', marginBottom: 6, overflow: 'hidden' } as any}>
-                              <div style={{ height: '100%', borderRadius: 2, width: '60%', background: m.color, transition: 'width 1s ease' } as any} />
-                            </div>
-                            <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{m.value}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>{m.unit}</span></div>
-                            <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700, marginTop: 1 }}>{m.label}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {recs.macros && <div style={{ display: 'flex', gap: 6 } as any}>{[{ l: 'Prot.', v: recs.macros.proteines_g, c: GREEN }, { l: 'Gluc.', v: recs.macros.glucides_g, c: ACCENT }, { l: 'Lip.', v: recs.macros.lipides_g, c: RED }].map((m, i) => <div key={i} style={{ flex: 1, padding: '8px 4px', borderRadius: 10, background: 'rgba(255,255,255,0.02)', textAlign: 'center' } as any}><div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{m.v}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>g</span></div><div style={{ fontSize: 8, color: m.c, fontWeight: 700, marginTop: 1 }}>{m.l}</div></div>)}</div>}
                   </div>
 
-                  {/* Tabs: Meals / Exercises */}
-                  <div style={{ display: 'flex', gap: 4, marginBottom: 12, background: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: 3 } as any}>
+                  {/* Tabs: Repas / Exercices */}
+                  <div style={{ display: 'flex', gap: 4, marginBottom: 12, background: 'rgba(255,255,255,0.02)', borderRadius: 14, padding: 3 } as any}>
                     {(['meals', 'exercises'] as const).map(tab => (
-                      <div key={tab} data-testid={`tab-${tab}`} onClick={() => setActiveTab(tab)} style={{
-                        flex: 1, padding: '10px 0', borderRadius: 12, textAlign: 'center',
-                        fontSize: 12, fontWeight: 800, cursor: 'pointer',
-                        background: activeTab === tab ? 'rgba(255,255,255,0.08)' : 'transparent',
-                        color: activeTab === tab ? '#FFF' : 'rgba(255,255,255,0.3)',
-                        transition: 'all 0.25s',
-                      } as any}>
+                      <div key={tab} data-testid={`tab-${tab}`} onClick={() => setActiveTab(tab)} style={{ flex: 1, padding: '10px 0', borderRadius: 12, textAlign: 'center', fontSize: 12, fontWeight: 800, cursor: 'pointer', background: activeTab === tab ? 'rgba(255,255,255,0.07)' : 'transparent', color: activeTab === tab ? '#FFF' : 'rgba(255,255,255,0.25)', transition: 'all 0.2s' } as any}>
                         <i className={tab === 'meals' ? 'ri-restaurant-2-line' : 'ri-heart-pulse-line'} style={{ marginRight: 6 }} />
                         {tab === 'meals' ? 'Repas' : 'Exercices'}
                       </div>
@@ -681,47 +310,29 @@ export default function MinceurPage() {
 
                   {/* Meals */}
                   {activeTab === 'meals' && recs.meals && (
-                    <div data-testid="meals-section" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 } as any}>
+                    <div data-testid="meals-section" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 } as any}>
                       {recs.meals.map((meal: any, i: number) => {
                         const type = meal.type || ['breakfast', 'lunch', 'snack', 'dinner'][i] || 'lunch';
                         const meta = MEAL_META[type] || MEAL_META.lunch;
                         const color = MEAL_COLORS[type] || '#FFF';
-                        const isDone = tracked[`meal_${i}`];
+                        const done = tracked[`meal_${i}`];
                         return (
-                          <div key={i} data-testid={`meal-${type}`} style={{
-                            ...CARD, padding: '14px 16px', background: meta.gradient,
-                            border: `1px solid ${isDone ? GREEN + '30' : color + '15'}`,
-                            transition: 'all 0.3s', cursor: 'pointer',
-                            opacity: isDone ? 0.7 : 1,
-                          } as any}
-                          onClick={() => router.push({ pathname: '/meal-detail' as any, params: { index: i } })}
-                          onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                          onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                          <div key={i} data-testid={`meal-${type}`} onClick={() => router.push({ pathname: '/meal-detail' as any, params: { index: i } })} style={{ ...C, padding: '14px 16px', background: meta.gradient, border: `1px solid ${done ? GREEN + '25' : color + '12'}`, cursor: 'pointer', opacity: done ? 0.65 : 1, transition: 'all 0.25s' } as any} onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }} onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                              <div style={{ width: 42, height: 42, borderRadius: 13, flexShrink: 0, background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                                <i className={meta.icon} style={{ fontSize: 18, color }} />
-                              </div>
+                              <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, background: `${color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={meta.icon} style={{ fontSize: 17, color }} /></div>
                               <div style={{ flex: 1, minWidth: 0 } as any}>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 } as any}>
-                                  <div style={{ fontSize: 8, fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: 0.8 }}>{meal.label || meal.type} {meal.time ? `· ${meal.time}` : ''}</div>
-                                  <div style={{ fontSize: 13, fontWeight: 900, color: 'rgba(255,255,255,0.5)' }}>{meal.calories}<span style={{ fontSize: 8 }}>kcal</span></div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                                  <span style={{ fontSize: 8, fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: 0.6 }}>{meal.label} {meal.time ? `· ${meal.time}` : ''}</span>
+                                  <span style={{ fontSize: 12, fontWeight: 900, color: 'rgba(255,255,255,0.4)' }}>{meal.calories}<span style={{ fontSize: 7 }}>kcal</span></span>
                                 </div>
-                                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 2, textDecoration: isDone ? 'line-through' : 'none', textDecorationColor: 'rgba(255,255,255,0.2)' }}>{meal.name}</div>
-                                {meal.description && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' } as any}>{meal.description}</div>}
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 } as any}>
-                                  {meal.prep_time && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}><i className="ri-timer-line" style={{ fontSize: 8, marginRight: 2 }} />{meal.prep_time}</span>}
-                                  {meal.ingredients?.length > 0 && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>{meal.ingredients.length} ingredients</span>}
-                                  <span style={{ fontSize: 9, color: color, fontWeight: 700 }}>Voir la recette <i className="ri-arrow-right-s-line" style={{ fontSize: 9 }} /></span>
+                                <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', textDecoration: done ? 'line-through' : 'none', textDecorationColor: 'rgba(255,255,255,0.15)' }}>{meal.name}</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 } as any}>
+                                  {meal.prep_time && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.18)' }}><i className="ri-timer-line" style={{ fontSize: 8 }} /> {meal.prep_time}</span>}
+                                  <span style={{ fontSize: 9, color, fontWeight: 700 }}>Voir la recette <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
                                 </div>
                               </div>
-                              <div data-testid={`track-meal-${i}`} onClick={(e) => { e.stopPropagation(); toggleTrack('meal', i); }} style={{
-                                width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                                background: isDone ? GREEN : 'rgba(255,255,255,0.04)',
-                                border: `1.5px solid ${isDone ? GREEN : 'rgba(255,255,255,0.12)'}`,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                              } as any}>
-                                <i className="ri-check-line" style={{ fontSize: 16, color: isDone ? '#FFF' : 'rgba(255,255,255,0.15)' }} />
+                              <div data-testid={`track-meal-${i}`} onClick={(e) => { e.stopPropagation(); toggleTrack('meal', i); }} style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, background: done ? GREEN : 'rgba(255,255,255,0.03)', border: `1.5px solid ${done ? GREEN : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s' } as any}>
+                                <i className="ri-check-line" style={{ fontSize: 15, color: done ? '#FFF' : 'rgba(255,255,255,0.12)' }} />
                               </div>
                             </div>
                           </div>
@@ -732,53 +343,29 @@ export default function MinceurPage() {
 
                   {/* Exercises */}
                   {activeTab === 'exercises' && recs.exercises && (
-                    <div data-testid="exercises-section" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 } as any}>
+                    <div data-testid="exercises-section" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 } as any}>
                       {recs.exercises.map((ex: any, i: number) => {
                         const icon = EX_ICONS[ex.category] || 'ri-heart-pulse-line';
-                        const intensity = ex.intensity || 'modere';
-                        const intColor = intensity === 'leger' ? GREEN : intensity === 'modere' ? ACCENT : RED;
-                        const isDone = tracked[`exercise_${i}`];
+                        const int = ex.intensity || 'modere';
+                        const ic = int === 'leger' ? GREEN : int === 'modere' ? ACCENT : RED;
+                        const done = tracked[`exercise_${i}`];
                         return (
-                          <div key={i} data-testid={`exercise-${i}`} style={{
-                            ...CARD, padding: '14px 16px',
-                            border: `1px solid ${isDone ? GREEN + '30' : 'rgba(255,255,255,0.08)'}`,
-                            transition: 'all 0.3s',
-                            opacity: isDone ? 0.7 : 1,
-                          } as any}
-                          onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                          onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                          <div key={i} data-testid={`exercise-${i}`} style={{ ...C, padding: '14px 16px', border: `1px solid ${done ? GREEN + '25' : 'rgba(255,255,255,0.08)'}`, opacity: done ? 0.65 : 1, transition: 'all 0.25s' } as any} onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }} onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                              <div style={{
-                                width: 42, height: 42, borderRadius: 13, flexShrink: 0,
-                                background: `${GREEN}12`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              } as any}>
-                                <i className={icon} style={{ fontSize: 18, color: GREEN }} />
-                              </div>
+                              <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, background: `${GREEN}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={icon} style={{ fontSize: 17, color: GREEN }} /></div>
                               <div style={{ flex: 1 } as any}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 } as any}>
-                                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF', textDecoration: isDone ? 'line-through' : 'none', textDecorationColor: 'rgba(255,255,255,0.2)' }}>{ex.name}</span>
-                                  <span style={{
-                                    fontSize: 8, fontWeight: 700, color: intColor,
-                                    padding: '2px 6px', borderRadius: 6, background: `${intColor}15`,
-                                    textTransform: 'uppercase',
-                                  }}>{intensity}</span>
+                                  <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF', textDecoration: done ? 'line-through' : 'none', textDecorationColor: 'rgba(255,255,255,0.15)' }}>{ex.name}</span>
+                                  <span style={{ fontSize: 7, fontWeight: 700, color: ic, padding: '2px 5px', borderRadius: 5, background: `${ic}12`, textTransform: 'uppercase' }}>{int}</span>
                                 </div>
-                                {ex.description && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5, marginBottom: 4 }}>{ex.description}</div>}
-                                <div style={{ display: 'flex', gap: 12 } as any}>
-                                  <span style={{ fontSize: 11, fontWeight: 700, color: GREEN }}><i className="ri-timer-line" style={{ fontSize: 10, marginRight: 3 }} />{ex.duration}</span>
-                                  {ex.calories_burned > 0 && <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}><i className="ri-fire-line" style={{ fontSize: 10, marginRight: 3 }} />{ex.calories_burned}kcal</span>}
+                                {ex.description && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5, marginBottom: 3 }}>{ex.description}</div>}
+                                <div style={{ display: 'flex', gap: 10 } as any}>
+                                  <span style={{ fontSize: 10, fontWeight: 700, color: GREEN }}><i className="ri-timer-line" style={{ fontSize: 9, marginRight: 2 }} />{ex.duration}</span>
+                                  {ex.calories_burned > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)' }}><i className="ri-fire-line" style={{ fontSize: 9, marginRight: 2 }} />{ex.calories_burned}kcal</span>}
                                 </div>
                               </div>
-                              <div data-testid={`track-exercise-${i}`} onClick={() => toggleTrack('exercise', i)} style={{
-                                width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                                background: isDone ? GREEN : 'rgba(255,255,255,0.04)',
-                                border: `1.5px solid ${isDone ? GREEN : 'rgba(255,255,255,0.12)'}`,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                              } as any}
-                              onMouseEnter={(e: any) => { if (!isDone) e.currentTarget.style.borderColor = GREEN; }}
-                              onMouseLeave={(e: any) => { if (!isDone) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}>
-                                <i className="ri-check-line" style={{ fontSize: 16, color: isDone ? '#FFF' : 'rgba(255,255,255,0.15)' }} />
+                              <div data-testid={`track-exercise-${i}`} onClick={() => toggleTrack('exercise', i)} style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, background: done ? GREEN : 'rgba(255,255,255,0.03)', border: `1.5px solid ${done ? GREEN : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s' } as any}>
+                                <i className="ri-check-line" style={{ fontSize: 15, color: done ? '#FFF' : 'rgba(255,255,255,0.12)' }} />
                               </div>
                             </div>
                           </div>
@@ -786,40 +373,15 @@ export default function MinceurPage() {
                       })}
                     </div>
                   )}
-
-                  {/* Tip of the day */}
-                  {recs.tip_of_the_day && (
-                    <div data-testid="tip-of-day" style={{ ...CARD, padding: '14px 16px', marginBottom: 12, display: 'flex', gap: 10 } as any}>
-                      <div style={{ width: 32, height: 32, borderRadius: 10, background: `${ACCENT}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        <i className="ri-lightbulb-line" style={{ fontSize: 16, color: ACCENT }} />
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Conseil du jour</div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{recs.tip_of_the_day}</div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
 
-              {/* Loading recommendations */}
-              {!recs && !loading && (
-                <div style={{ ...CARD, padding: 32, textAlign: 'center', ...fadeIn(0.3) } as any}>
-                  <div style={{ width: 36, height: 36, margin: '0 auto 12px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.06)', borderTopColor: PURPLE, animation: 'spin 0.8s linear infinite' } as any} />
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Generation des recommandations...</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', marginTop: 4 }}>Nora analyse votre profil</div>
-                </div>
-              )}
-
+              {!recs && !loading && <div style={{ ...C, padding: 28, textAlign: 'center', ...fade(0.2) } as any}><div style={{ width: 32, height: 32, margin: '0 auto 10px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.05)', borderTopColor: PURPLE, animation: 'spin 0.8s linear infinite' } as any} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>Generation des recommandations...</div></div>}
             </>
           )}
         </div>
       </div>
-
-      {/* Global CSS for animations */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      `}} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }` }} />
     </div>
   );
 }

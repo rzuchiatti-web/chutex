@@ -28,6 +28,7 @@ export default function MealDetailPage() {
   const [meal, setMeal] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isDone, setIsDone] = useState(false);
+  const [allergies, setAllergies] = useState('');
 
   useEffect(() => {
     if (!token) return;
@@ -36,6 +37,7 @@ export default function MealDetailPage() {
       if (meals[mealIndex]) setMeal(meals[mealIndex]);
       const completed = d?.tracking?.completed || {};
       setIsDone(!!completed[`meal_${mealIndex}`]);
+      setAllergies(d?.profile?.allergies || '');
     }).catch(() => {}).finally(() => setLoading(false));
   }, [token, mealIndex]);
 
@@ -195,6 +197,14 @@ export default function MealDetailPage() {
                       <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, flex: 1 }}>{step}</div>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Small allergy note */}
+              {allergies && allergies.toLowerCase() !== 'aucune' && allergies !== '' && (
+                <div style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.08)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <i className="ri-shield-check-line" style={{ fontSize: 13, color: ACCENT, flexShrink: 0 }} />
+                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Recette adaptee a vos allergies ({allergies})</span>
                 </div>
               )}
             </>
