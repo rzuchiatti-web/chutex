@@ -32,6 +32,7 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - **Backend**: `POST /api/minceur/refresh-recommendations` — force refresh
 - **Frontend**: Complete rewrite of `/minceur.tsx` as permanent health dashboard:
   - Weight Hero Card: current weight, BMI with color-coded gauge, weight evolution SVG chart
+  - **Tabbed Charts**: 3 onglets Poids/Graisse/Muscle — chaque indicateur a son propre graphique SVG animé avec couleurs distinctes (ambre/orange/vert)
   - Body Composition: animated ring charts (fat%, muscle%, hydration%, visceral fat) + bone mass, body age, protein
   - Optional Goal Setter: +/- weight target with week duration selector
   - AI Recommendations: Nora insight, daily calorie budget with macros, water intake
@@ -39,7 +40,8 @@ Build "Chutex Care," a preventative health application for elderly care with con
   - Exercises Tab: home exercises adapted for seniors with duration, intensity, calories
   - Tip of the Day
   - Premium clinical UI with animations, glass morphism
-- **Testing**: 100% pass (backend 19/19, frontend 100%)
+- **Health Tab Card**: Mini-tabs Poids/Graisse/Muscle avec mini sparkline bars qui changent selon l'onglet sélectionné
+- **Testing**: 100% pass (iteration_93 backend 19/19 + iteration_94 frontend 100%)
 
 ## Prioritized Backlog
 ### P1
