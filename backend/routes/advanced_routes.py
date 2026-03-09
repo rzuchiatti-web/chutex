@@ -15,6 +15,70 @@ router = APIRouter()
 
 
 # ═══════════════════════════════════════════
+#  0. WEEKLY REPORT IN-APP (GET)
+# ═══════════════════════════════════════════
+
+@router.get("/nora/weekly-report")
+async def get_weekly_report_data(user=Depends(get_current_user)):
+    """Return weekly Nora report data for in-app display."""
+    uid = user['id']
+    now = datetime.now(timezone.utc)
+    seven_ago = (now - timedelta(days=7)).isoformat()
+
+    # Minceur tracking this week
+    tracking_docs = await db.minceur_tracking.find(
+        {"user_id": uid, "date": {"$gte": (now - timedelta(days=7)).strftime("%Y-%m-%d")}},
+        {"_id": 0}
+    ).to_list(7)
+    meals_done = sum(1 for d in tracking_docs for k, v in d.get("completed", {}).items() if k.startswith("meal") and v)
+    exercises_done = sum(1 for d in tracking_docs for k, v in d.get("completed", {}).items() if k.startswith("exercise") and v)
+    days_active = len(tracking_docs)
+
+    # Weight trend this week
+    weighings = await db.weighings.find(
+        {"user_id": uid}, {"_id": 0}
+    ).sort("timestamp", -1).to_list(14)
+    weight_change = 0
+    if len(weighings) >= 2:
+        weight_change = round(weighings[0].get("weight", 0) - weighings[-1].get("weight", 0), 1)
+
+    current_weight = weighings[0].get("weight", 0) if weighings else 0
+    goal = await db.users.find_one({"id": uid}, {"_id": 0, "minceur_goal": 1})
+    goal_data = goal.get("minceur_goal") if goal else None
+
+    # Generate Nora weekly message
+    nora_message = ""
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if api_key:
+        try:
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
+            context = f"Patient: {user.get('name','')}, {user.get('gender','')}, poids: {current_weight}kg."
+            if goal_data:
+                context += f" Objectif: {goal_data.get('target_kg')}kg en {goal_data.get('weeks')} semaines."
+            context += f" Cette semaine: {meals_done} repas valides, {exercises_done} exercices valides sur {days_active} jours actifs."
+            if weight_change != 0:
+                context += f" Evolution poids: {'+' if weight_change > 0 else ''}{weight_change}kg."
+            prompt = f"{context}\nGenere un bilan hebdomadaire encourageant en 3-4 phrases. Ton bienveillant et motivant. Vouvoyez. Pas d'emoji. Donnez un conseil concret pour la semaine prochaine."
+            chat = LlmChat(api_key=api_key, session_id=f"wr-{uuid.uuid4().hex[:6]}", system_message="Coach sante bienveillant. 3-4 phrases. Vouvoyez.").with_model("openai", "gpt-5.2")
+            nora_message = (await chat.send_message(UserMessage(text=prompt))).strip()
+        except Exception as e:
+            nora_message = "Continuez vos efforts cette semaine. Chaque repas valide et chaque exercice compte pour votre sante."
+
+    return {
+        "week_summary": {
+            "meals_validated": meals_done,
+            "exercises_validated": exercises_done,
+            "days_active": days_active,
+            "weight_change": weight_change,
+            "current_weight": current_weight,
+        },
+        "goal": goal_data,
+        "nora_message": nora_message,
+        "generated_at": now.isoformat(),
+    }
+
+
+# ═══════════════════════════════════════════
 #  1. WEEKLY REPORT EMAIL
 # ═══════════════════════════════════════════
 

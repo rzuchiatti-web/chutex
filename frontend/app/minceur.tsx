@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
@@ -79,6 +79,111 @@ function Insight({ metric, value, gender, weight }: { metric: MK; value: number;
   );
 }
 
+/* ═══ Swipe Picker Component ═══ */
+function SwipePicker({ values, selected, onChange, unit, color }: { values: number[]; selected: number; onChange: (v: number) => void; unit: string; color: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const ITEM_W = 60;
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollStart = useRef(0);
+  const snapTimer = useRef<any>(null);
+
+  const scrollToIdx = useCallback((idx: number, smooth = true) => {
+    if (!ref.current || idx < 0) return;
+    const center = ref.current.clientWidth / 2;
+    ref.current.scrollTo({ left: idx * ITEM_W - center + ITEM_W / 2, behavior: smooth ? 'smooth' : 'auto' });
+  }, []);
+
+  // Initial scroll to selected value
+  useEffect(() => {
+    const idx = values.indexOf(selected);
+    if (idx < 0 || !ref.current) return;
+    const doScroll = () => {
+      if (!ref.current) return;
+      const center = ref.current.clientWidth / 2;
+      ref.current.scrollLeft = idx * ITEM_W - center + ITEM_W / 2;
+    };
+    doScroll();
+    const t1 = setTimeout(doScroll, 50);
+    const t2 = setTimeout(doScroll, 200);
+    const t3 = setTimeout(doScroll, 500);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [values.length]);
+
+  const getClosestIdx = useCallback(() => {
+    if (!ref.current) return -1;
+    const center = ref.current.scrollLeft + ref.current.clientWidth / 2;
+    let closest = 0, minDist = Infinity;
+    values.forEach((_, i) => {
+      const pos = i * ITEM_W + ITEM_W / 2;
+      const dist = Math.abs(pos - center);
+      if (dist < minDist) { minDist = dist; closest = i; }
+    });
+    return closest;
+  }, [values]);
+
+  const snap = useCallback(() => {
+    const idx = getClosestIdx();
+    if (idx >= 0 && values[idx] !== selected) onChange(values[idx]);
+    scrollToIdx(idx);
+  }, [values, selected, onChange, getClosestIdx, scrollToIdx]);
+
+  const scheduleSnap = useCallback(() => {
+    if (snapTimer.current) clearTimeout(snapTimer.current);
+    snapTimer.current = setTimeout(snap, 80);
+  }, [snap]);
+
+  const onMouseDown = (e: any) => { isDragging.current = true; startX.current = e.clientX; scrollStart.current = ref.current?.scrollLeft || 0; e.preventDefault(); };
+  const onMouseMove = (e: any) => { if (!isDragging.current || !ref.current) return; ref.current.scrollLeft = scrollStart.current - (e.clientX - startX.current); };
+  const onMouseUp = () => { if (isDragging.current) { isDragging.current = false; snap(); } };
+  const onTouchStart = (e: any) => { startX.current = e.touches[0].clientX; scrollStart.current = ref.current?.scrollLeft || 0; };
+  const onTouchMove = (e: any) => { if (!ref.current) return; ref.current.scrollLeft = scrollStart.current - (e.touches[0].clientX - startX.current); };
+
+  useEffect(() => {
+    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mousemove', onMouseMove);
+    return () => { document.removeEventListener('mouseup', onMouseUp); document.removeEventListener('mousemove', onMouseMove); };
+  }, [snap]);
+
+  // Snap on scroll end
+  const onScroll = useCallback(() => {
+    if (!isDragging.current) scheduleSnap();
+    // Update selected while scrolling for visual feedback
+    const idx = getClosestIdx();
+    if (idx >= 0 && values[idx] !== selected) onChange(values[idx]);
+  }, [scheduleSnap, getClosestIdx, values, selected, onChange]);
+
+  return (
+    <div data-testid="swipe-picker" style={{ position: 'relative', height: 72 } as any}>
+      {/* Center indicator line */}
+      <div style={{ position: 'absolute', left: '50%', top: 8, bottom: 8, width: 2, marginLeft: -1, zIndex: 2, background: color, borderRadius: 2, opacity: 0.4, pointerEvents: 'none' } as any} />
+      <div style={{ position: 'absolute', left: '50%', top: '50%', width: 44, height: 44, marginLeft: -22, marginTop: -22, zIndex: 1, borderRadius: 12, border: `2px solid ${color}50`, background: `${color}08`, pointerEvents: 'none' } as any} />
+      {/* Fade edges */}
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 80, zIndex: 3, background: 'linear-gradient(90deg, rgba(13,13,30,0.95) 0%, transparent 100%)', pointerEvents: 'none' } as any} />
+      <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 80, zIndex: 3, background: 'linear-gradient(270deg, rgba(13,13,30,0.95) 0%, transparent 100%)', pointerEvents: 'none' } as any} />
+      {/* Scroll area */}
+      <div ref={ref} onMouseDown={onMouseDown} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={snap} onScroll={onScroll}
+        style={{ display: 'flex', height: '100%', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', cursor: 'grab', userSelect: 'none' } as any}>
+        <style dangerouslySetInnerHTML={{ __html: `[data-testid="swipe-picker"] div::-webkit-scrollbar{display:none}` }} />
+        <div style={{ minWidth: `calc(50% - ${ITEM_W / 2}px)`, flexShrink: 0 } as any} />
+        {values.map((v) => {
+          const isSel = v === selected;
+          return (
+            <div key={v} onClick={() => { onChange(v); const idx = values.indexOf(v); scrollToIdx(idx); }}
+              style={{ width: ITEM_W, flexShrink: 0, textAlign: 'center', cursor: 'pointer', transition: 'transform 0.15s ease' } as any}>
+              <div style={{ fontSize: isSel ? 26 : 14, fontWeight: isSel ? 900 : 400, color: isSel ? color : 'rgba(255,255,255,0.15)', transition: 'all 0.15s ease', textShadow: isSel ? `0 0 24px ${color}50` : 'none', lineHeight: 1.2 }}>
+                {Number.isInteger(v) ? v : v.toFixed(1)}
+              </div>
+              {isSel && <div style={{ fontSize: 9, fontWeight: 700, color: `${color}70`, marginTop: 2 }}>{unit}</div>}
+            </div>
+          );
+        })}
+        <div style={{ minWidth: `calc(50% - ${ITEM_W / 2}px)`, flexShrink: 0 } as any} />
+      </div>
+    </div>
+  );
+}
+
 export default function MinceurPage() {
   const { token } = useAuth();
   const router = useRouter();
@@ -96,6 +201,7 @@ export default function MinceurPage() {
   const [streak, setStreak] = useState(0);
   const [showStreakInfo, setShowStreakInfo] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [weeklyReport, setWeeklyReport] = useState<any>(null);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -111,6 +217,7 @@ export default function MinceurPage() {
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setLoading(false); setRefreshing(false); }
   };
   useEffect(() => { fetchData(); }, [token]);
+  useEffect(() => { if (token) apiFetch('/api/nora/weekly-report', {}, token).then(setWeeklyReport).catch(() => {}); }, [token]);
 
   useEffect(() => {
     const sync = () => { if (token && data) { apiFetch('/api/minceur/today-tracking', {}, token).then(t => { if (t?.completed) setTracked(t.completed); if (t?.streak) setStreak(t.streak); }).catch(() => {}); } };
@@ -332,33 +439,31 @@ export default function MinceurPage() {
                   const kgPerWeek = goalWeeks > 0 ? Math.abs(diff) / goalWeeks : 0;
                   const tooFast = diff > 0 && kgPerWeek > 0.7;
                   const tooSlow = diff > 0 && kgPerWeek < 0.2 && goalWeeks < 24;
+                  // Generate weight options: integers only for cleaner picker
+                  const baseW = cr.weight > 0 ? cr.weight : 75;
+                  const wOpts: number[] = [];
+                  for (let w = Math.max(40, Math.round(baseW) - 15); w <= Math.round(baseW) + 5; w++) wOpts.push(w);
+                  const dOpts = [2, 4, 6, 8, 10, 12, 16, 20, 24];
                   return (
-                    <div style={{ padding: '16px 18px', animation: 'fadeSlide 0.3s ease' } as any}>
-                      <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Poids cible</div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 } as any}>
-                          <div data-testid="goal-minus" onClick={() => setTargetKg(Math.max(30, targetKg - 0.5))} style={{ width: 48, height: 48, borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 22, fontWeight: 300, color: '#FFF' } as any}>-</div>
-                          <div style={{ textAlign: 'center', minWidth: 100 } as any}>
-                            <div style={{ fontSize: 44, fontWeight: 900, color: A, lineHeight: 1, letterSpacing: -2, textShadow: `0 0 40px ${A}30` }}>{targetKg}</div>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: `${A}60`, marginTop: 2 }}>kg</div>
-                            {cr.weight > 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{diff > 0 ? `-${diff.toFixed(1)}` : `+${Math.abs(diff).toFixed(1)}`}kg</div>}
-                          </div>
-                          <div data-testid="goal-plus" onClick={() => setTargetKg(targetKg + 0.5)} style={{ width: 48, height: 48, borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 22, fontWeight: 300, color: '#FFF' } as any}>+</div>
-                        </div>
+                    <div style={{ padding: '16px 0', animation: 'fadeSlide 0.3s ease' } as any}>
+                      {/* Weight swipe picker */}
+                      <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>Poids cible</div>
+                        <SwipePicker values={wOpts} selected={targetKg} onChange={setTargetKg} unit="kg" color={A} />
+                        {cr.weight > 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>{diff > 0 ? `-${diff.toFixed(1)}` : `+${Math.abs(diff).toFixed(1)}`}kg par rapport a aujourd'hui</div>}
                       </div>
-                      <div style={{ textAlign: 'center', marginBottom: 10 } as any}>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Duree</div>
-                        <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
-                          {[4, 8, 12, 16, 24].map(w => <div key={w} data-testid={`weeks-${w}`} onClick={() => setGoalWeeks(w)} style={{ padding: '6px 12px', borderRadius: 999, cursor: 'pointer', background: goalWeeks === w ? 'rgba(255,255,255,0.12)' : 'transparent', color: goalWeeks === w ? '#FFF' : 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: 700, transition: 'all 0.2s' } as any}>{w}s</div>)}
-                        </div>
+                      {/* Duration swipe picker */}
+                      <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>Duree du programme</div>
+                        <SwipePicker values={dOpts} selected={goalWeeks} onChange={setGoalWeeks} unit="sem" color={G} />
                       </div>
                       {diff > 0 && (
-                        <div style={{ textAlign: 'center', marginBottom: 12, padding: '8px 12px', borderRadius: 12, background: tooFast ? 'rgba(239,68,68,0.08)' : tooSlow ? 'rgba(96,165,250,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${tooFast ? 'rgba(239,68,68,0.15)' : tooSlow ? 'rgba(96,165,250,0.15)' : 'rgba(16,185,129,0.15)'}` } as any}>
+                        <div style={{ textAlign: 'center', marginBottom: 12, padding: '8px 16px', borderRadius: 12, background: tooFast ? 'rgba(239,68,68,0.08)' : tooSlow ? 'rgba(96,165,250,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${tooFast ? 'rgba(239,68,68,0.15)' : tooSlow ? 'rgba(96,165,250,0.15)' : 'rgba(16,185,129,0.15)'}`, margin: '0 18px 12px' } as any}>
                           <div style={{ fontSize: 11, fontWeight: 700, color: tooFast ? R : tooSlow ? B : G }}>{tooFast ? 'Rythme trop rapide' : tooSlow ? 'Rythme tres progressif' : 'Rythme recommande'}</div>
                           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{kgPerWeek.toFixed(1)}kg/semaine {tooFast ? '· max 0.7kg/sem recommande' : ''}</div>
                         </div>
                       )}
-                      <div style={{ display: 'flex', gap: 8 } as any}>
+                      <div style={{ display: 'flex', gap: 8, padding: '0 18px' } as any}>
                         <div data-testid="save-goal" onClick={saveGoal} style={{ flex: 1, padding: 14, borderRadius: 999, background: tooFast ? 'rgba(255,255,255,0.08)' : `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1, boxShadow: tooFast ? 'none' : `0 8px 24px ${A}30` } as any}>{saving ? '...' : 'Lancer le programme'}</div>
                         <div onClick={() => setShowGoalForm(false)} style={{ padding: '14px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>Annuler</div>
                       </div>
@@ -453,6 +558,39 @@ export default function MinceurPage() {
 
                   {/* Nora at bottom */}
                   {recs.nora_insight && <div data-testid="nora-insight" style={{ ...CD, padding: '14px 16px', marginBottom: 14, display: 'flex', gap: 12, alignItems: 'flex-start' } as any}><div style={{ width: 30, height: 30, borderRadius: 10, flexShrink: 0, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.05))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 11, fontWeight: 900, color: P }}>N</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: P, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Analyse de Nora</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{recs.nora_insight}{recs.tip_of_the_day ? ` ${recs.tip_of_the_day}` : ''}</div></div></div>}
+
+                  {/* Nora Weekly Report */}
+                  {weeklyReport?.nora_message && (
+                    <div data-testid="nora-weekly-report" style={{ ...CD, padding: 0, marginBottom: 14, overflow: 'hidden', background: 'linear-gradient(135deg, rgba(167,139,250,0.06), rgba(96,165,250,0.04))' } as any}>
+                      <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                          <div style={{ width: 28, height: 28, borderRadius: 9, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(96,165,250,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                            <i className="ri-calendar-check-line" style={{ fontSize: 13, color: P }} />
+                          </div>
+                          <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Bilan hebdomadaire</span>
+                        </div>
+                        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>Cette semaine</span>
+                      </div>
+                      {/* Weekly stats */}
+                      <div style={{ display: 'flex', padding: '0 12px 12px', gap: 6 } as any}>
+                        {[
+                          { v: weeklyReport.week_summary?.meals_validated || 0, l: 'Repas', icon: 'ri-restaurant-2-line', c: A },
+                          { v: weeklyReport.week_summary?.exercises_validated || 0, l: 'Exercices', icon: 'ri-heart-pulse-line', c: G },
+                          { v: weeklyReport.week_summary?.days_active || 0, l: 'Jours actifs', icon: 'ri-fire-line', c: '#F97316' },
+                        ].map((s, i) => (
+                          <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
+                            <i className={s.icon} style={{ fontSize: 14, color: s.c, display: 'block', marginBottom: 3 }} />
+                            <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{s.v}</div>
+                            <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>{s.l}</div>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Nora message */}
+                      <div style={{ padding: '10px 16px 14px', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>{weeklyReport.nora_message}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               {!recs && !loading && <div style={{ ...CD, padding: 28, textAlign: 'center', ...fade(0.2) } as any}><div style={{ width: 32, height: 32, margin: '0 auto 10px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.05)', borderTopColor: P, animation: 'spin 0.8s linear infinite' } as any} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>Generation des recommandations...</div></div>}
