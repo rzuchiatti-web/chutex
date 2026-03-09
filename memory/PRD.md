@@ -65,19 +65,34 @@ Build "Chutex Care," a preventative health application for elderly care with con
 
 ### Interprétation Métriques & Graphiques Pleine Largeur - Complete (March 2026)
 - Graphiques SVG prennent toute la largeur de la carte (edge-to-edge)
-- MetricInsight animé sous le graphique : badge contextuel (Normal/Excellent/Faible/Elevé) + plage de référence + explication en langage clair (ex: "Soit 20.9kg de masse grasse sur 79.2kg", "Inclut tous les muscles: coeur, dos, membres, organes")
+- MetricInsight animé sous le graphique : badge contextuel (Normal/Excellent/Faible/Elevé) + plage de référence + explication en langage clair
 - Interprétation adaptée au genre (plages différentes homme/femme)
 - Animation fadeSlideIn au changement d'onglet
 
 ### Nora en bas, Sync tracking, Page exercice - Complete (March 2026)
 - Analyse Nora déplacée en bas de page (après repas/exercices)
-- Bug fix: synchronisation tracking corrigée — validation depuis page détail se reflète au retour via window focus event
-- Page détail exercice (`exercise-detail.tsx`): Hero avec nom/catégorie, stats (durée/calories/intensité), instructions, note de sécurité, bouton de validation
-- Cartes exercices cliquables avec "Details >" navigant vers /exercise-detail
+- Bug fix: synchronisation tracking corrigée
+- Page détail exercice (`exercise-detail.tsx`)
 - **Testing**: 100% pass (iteration_98)
 
+### UI/UX Fixes - March 2026 (Latest)
+- **Streak popup**: Réécriture complète en popup glassmorphism plein écran (style page profil) avec bouton X, compteur streak, compteur progression, liste détaillée des repas/exercices du jour avec statut
+- **Carte objectif indépendante**: Séparée de la carte poids. Affiche "79.2 → 70 kg" avec flèche, barre de progression, stats (kcal/jour, repas/jour, exercices)
+- **Images cartes repas**: Remplissent toute la hauteur de la carte (position absolute, inset 0, objectFit cover) — plus d'espace blanc en bas quand le titre est sur 3 lignes
+- **Pages détail (repas/exercice)**: Corrigé l'overlap — carte sous l'image hero ne cache plus le titre (marginTop: 12px au lieu de -30px)
+- **Onglets graphiques**: Style plus subtil, contenus dans la carte (pas de débordement)
+- **Testing**: 100% pass (iteration_99 frontend 100%)
+
 ## Prioritized Backlog
+### P0
+- Weekly Nora Report (push notification/summary)
+
 ### P1
 - Guardian referral system, Free 7-day trial
+
 ### P2
 - Correlations sante (infrastructure ready), Contract PDF, Vivoo, Build natif iOS
+
+### Known Items for Future Polish
+- Visuals for preparation steps in meal detail
+- Swipe animation for goal setter
