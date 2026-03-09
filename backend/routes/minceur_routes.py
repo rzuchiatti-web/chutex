@@ -284,6 +284,32 @@ async def get_weight_details(user=Depends(get_current_user)):
     # AI recommendations (cached daily)
     recommendations = await generate_daily_recommendations(uid, u, latest, goal)
 
+    # Today's tracking
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    tracking = await db.minceur_tracking.find_one(
+        {"user_id": uid, "date": today_str}, {"_id": 0}
+    )
+    completed = tracking.get("completed", {}) if tracking else {}
+
+    # Streak
+    all_days = await db.minceur_tracking.find(
+        {"user_id": uid}, {"_id": 0, "date": 1, "completed": 1}
+    ).sort("date", -1).to_list(60)
+    streak = 0
+    check_date = datetime.now(timezone.utc).date()
+    for day_doc in all_days:
+        day_completed = day_doc.get("completed", {})
+        done_count = sum(1 for v in day_completed.values() if v)
+        try:
+            day_date = datetime.strptime(day_doc.get("date", ""), "%Y-%m-%d").date()
+        except Exception:
+            continue
+        if day_date == check_date and done_count > 0:
+            streak += 1
+            check_date -= timedelta(days=1)
+        elif day_date < check_date:
+            break
+
     return {
         "profile": {
             "name": u.get("name", ""),
@@ -307,6 +333,7 @@ async def get_weight_details(user=Depends(get_current_user)):
             "created_at": goal.get("created_at"),
         } if goal else None,
         "recommendations": recommendations,
+        "tracking": {"completed": completed, "streak": streak},
         "last_reading_date": history[0].get("date") if history else None,
     }
 
@@ -363,3 +390,91 @@ async def refresh_recommendations(user=Depends(get_current_user)):
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     await db.minceur_daily_cache.delete_one({"user_id": uid, "date": today_str})
     return {"status": "cache_cleared"}
+
+
+@router.post("/minceur/track")
+async def toggle_tracking(data: dict, user=Depends(get_current_user)):
+    """Toggle a meal or exercise as completed/uncompleted for today"""
+    uid = user["id"]
+    item_type = data.get("type")  # "meal" or "exercise"
+    item_index = data.get("index")  # 0-based index
+    if item_type not in ("meal", "exercise") or item_index is None:
+        raise HTTPException(400, "type (meal/exercise) et index requis")
+
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    key = f"{item_type}_{item_index}"
+
+    tracking = await db.minceur_tracking.find_one(
+        {"user_id": uid, "date": today_str}, {"_id": 0}
+    )
+    completed = tracking.get("completed", {}) if tracking else {}
+    was_done = completed.get(key, False)
+    completed[key] = not was_done
+
+    now = datetime.now(timezone.utc).isoformat()
+    await db.minceur_tracking.update_one(
+        {"user_id": uid, "date": today_str},
+        {"$set": {
+            "user_id": uid, "date": today_str,
+            "completed": completed, "updated_at": now,
+        }},
+        upsert=True
+    )
+
+    total = sum(1 for v in completed.values() if v)
+    return {"status": "ok", "key": key, "done": not was_done, "total_done": total}
+
+
+@router.get("/minceur/today-tracking")
+async def get_today_tracking(user=Depends(get_current_user)):
+    """Get today's tracking status + adherence stats"""
+    uid = user["id"]
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    tracking = await db.minceur_tracking.find_one(
+        {"user_id": uid, "date": today_str}, {"_id": 0}
+    )
+    completed = tracking.get("completed", {}) if tracking else {}
+
+    # Adherence: last 7 days
+    week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d")
+    recent = await db.minceur_tracking.find(
+        {"user_id": uid, "date": {"$gte": week_ago}}, {"_id": 0}
+    ).to_list(7)
+
+    # Streak: count consecutive days with >= 1 tracked item
+    all_days = await db.minceur_tracking.find(
+        {"user_id": uid}, {"_id": 0, "date": 1, "completed": 1}
+    ).sort("date", -1).to_list(60)
+
+    streak = 0
+    check_date = datetime.now(timezone.utc).date()
+    for day_doc in all_days:
+        day_completed = day_doc.get("completed", {})
+        done_count = sum(1 for v in day_completed.values() if v)
+        day_date_str = day_doc.get("date", "")
+        try:
+            day_date = datetime.strptime(day_date_str, "%Y-%m-%d").date()
+        except Exception:
+            continue
+        if day_date == check_date and done_count > 0:
+            streak += 1
+            check_date -= timedelta(days=1)
+        elif day_date < check_date:
+            break
+
+    # Weekly adherence rate
+    week_total = 0
+    week_done = 0
+    for d in recent:
+        c = d.get("completed", {})
+        week_total += len(c)
+        week_done += sum(1 for v in c.values() if v)
+
+    return {
+        "completed": completed,
+        "streak": streak,
+        "week_adherence": round(week_done / week_total * 100) if week_total > 0 else 0,
+        "days_tracked": len([d for d in recent if sum(1 for v in d.get("completed", {}).values() if v) > 0]),
+    }
+

@@ -181,6 +181,8 @@ export default function MinceurPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'meals' | 'exercises'>('meals');
   const [chartMetric, setChartMetric] = useState<'weight' | 'body_fat_pct' | 'muscle_pct'>('weight');
+  const [tracked, setTracked] = useState<Record<string, boolean>>({});
+  const [trackStreak, setTrackStreak] = useState(0);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
@@ -190,6 +192,8 @@ export default function MinceurPage() {
     try {
       const d = await apiFetch('/api/minceur/weight-details', {}, token);
       setData(d);
+      if (d.tracking?.completed) setTracked(d.tracking.completed);
+      if (d.tracking?.streak) setTrackStreak(d.tracking.streak);
       if (d.current?.weight > 0 && !d.goal) {
         setTargetKg(Math.round(d.current.weight - 3));
       }
@@ -236,6 +240,21 @@ export default function MinceurPage() {
       await apiFetch('/api/minceur/refresh-recommendations', { method: 'POST' }, token);
       await fetchData();
     } catch { setRefreshing(false); }
+  };
+
+  const toggleTrack = async (type: 'meal' | 'exercise', index: number) => {
+    const key = `${type}_${index}`;
+    const wasDone = tracked[key];
+    setTracked(prev => ({ ...prev, [key]: !wasDone }));
+    if (!wasDone) setTrackStreak(s => Math.max(s, 1));
+    try {
+      await apiFetch('/api/minceur/track', {
+        method: 'POST',
+        body: JSON.stringify({ type, index }),
+      }, token);
+    } catch {
+      setTracked(prev => ({ ...prev, [key]: wasDone }));
+    }
   };
 
   if (Platform.OS !== 'web') return null;
@@ -534,6 +553,43 @@ export default function MinceurPage() {
               {/* ══════ 4. AI RECOMMENDATIONS ══════ */}
               {recs && (
                 <div style={{ ...fadeIn(0.3) } as any}>
+                  {/* Daily Progress Bar */}
+                  {(() => {
+                    const totalItems = (recs.meals?.length || 0) + (recs.exercises?.length || 0);
+                    const doneCount = Object.values(tracked).filter(Boolean).length;
+                    const pct = totalItems > 0 ? Math.round((doneCount / totalItems) * 100) : 0;
+                    return (
+                      <div data-testid="daily-progress" style={{ ...CARD, padding: '14px 16px', marginBottom: 12 } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                            <i className="ri-check-double-line" style={{ fontSize: 16, color: pct === 100 ? GREEN : ACCENT }} />
+                            <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>Suivi du jour</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                            {trackStreak > 0 && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 8, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' } as any}>
+                                <i className="ri-fire-fill" style={{ fontSize: 11, color: ACCENT }} />
+                                <span style={{ fontSize: 10, fontWeight: 800, color: ACCENT }}>{trackStreak}j</span>
+                              </div>
+                            )}
+                            <span style={{ fontSize: 12, fontWeight: 900, color: pct === 100 ? GREEN : '#FFF' }}>{doneCount}/{totalItems}</span>
+                          </div>
+                        </div>
+                        <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}>
+                          <div style={{
+                            height: '100%', borderRadius: 3, width: `${Math.max(2, pct)}%`,
+                            background: pct === 100 ? GREEN : `linear-gradient(90deg, ${ACCENT}, ${GREEN})`,
+                            transition: 'width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                          } as any} />
+                        </div>
+                        {pct === 100 && (
+                          <div style={{ fontSize: 10, color: GREEN, fontWeight: 700, textAlign: 'center', marginTop: 6 }}>
+                            <i className="ri-trophy-line" style={{ marginRight: 4 }} />Journee completee !
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                   {/* Nora Insight */}
                   {recs.nora_insight && (
                     <div data-testid="nora-insight" style={{ ...CARD, padding: '14px 16px', marginBottom: 12, display: 'flex', gap: 12, alignItems: 'flex-start' } as any}>
@@ -611,11 +667,13 @@ export default function MinceurPage() {
                         const type = meal.type || ['breakfast', 'lunch', 'snack', 'dinner'][i] || 'lunch';
                         const meta = MEAL_META[type] || MEAL_META.lunch;
                         const color = MEAL_COLORS[type] || '#FFF';
+                        const isDone = tracked[`meal_${i}`];
                         return (
                           <div key={i} data-testid={`meal-${type}`} style={{
                             ...CARD, padding: '14px 16px', background: meta.gradient,
-                            border: `1px solid ${color}15`,
-                            transition: 'transform 0.15s',
+                            border: `1px solid ${isDone ? GREEN + '30' : color + '15'}`,
+                            transition: 'all 0.3s',
+                            opacity: isDone ? 0.7 : 1,
                           } as any}
                           onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
                           onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
@@ -631,8 +689,20 @@ export default function MinceurPage() {
                                   <div style={{ fontSize: 8, fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: 0.8 }}>{meal.label || meal.type} {meal.time ? `· ${meal.time}` : ''}</div>
                                   <div style={{ fontSize: 13, fontWeight: 900, color: 'rgba(255,255,255,0.5)' }}>{meal.calories}<span style={{ fontSize: 8 }}>kcal</span></div>
                                 </div>
-                                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{meal.name}</div>
+                                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 2, textDecoration: isDone ? 'line-through' : 'none', textDecorationColor: 'rgba(255,255,255,0.2)' }}>{meal.name}</div>
                                 {meal.description && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{meal.description}</div>}
+                              </div>
+                              <div data-testid={`track-meal-${i}`} onClick={() => toggleTrack('meal', i)} style={{
+                                width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+                                background: isDone ? GREEN : 'rgba(255,255,255,0.04)',
+                                border: `1.5px solid ${isDone ? GREEN : 'rgba(255,255,255,0.12)'}`,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                transform: isDone ? 'scale(1)' : 'scale(1)',
+                              } as any}
+                              onMouseEnter={(e: any) => { if (!isDone) e.currentTarget.style.borderColor = GREEN; }}
+                              onMouseLeave={(e: any) => { if (!isDone) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}>
+                                <i className={isDone ? 'ri-check-line' : 'ri-check-line'} style={{ fontSize: 16, color: isDone ? '#FFF' : 'rgba(255,255,255,0.15)' }} />
                               </div>
                             </div>
                           </div>
@@ -648,10 +718,13 @@ export default function MinceurPage() {
                         const icon = EX_ICONS[ex.category] || 'ri-heart-pulse-line';
                         const intensity = ex.intensity || 'modere';
                         const intColor = intensity === 'leger' ? GREEN : intensity === 'modere' ? ACCENT : RED;
+                        const isDone = tracked[`exercise_${i}`];
                         return (
                           <div key={i} data-testid={`exercise-${i}`} style={{
                             ...CARD, padding: '14px 16px',
-                            transition: 'transform 0.15s',
+                            border: `1px solid ${isDone ? GREEN + '30' : 'rgba(255,255,255,0.08)'}`,
+                            transition: 'all 0.3s',
+                            opacity: isDone ? 0.7 : 1,
                           } as any}
                           onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
                           onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
@@ -664,7 +737,7 @@ export default function MinceurPage() {
                               </div>
                               <div style={{ flex: 1 } as any}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 } as any}>
-                                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{ex.name}</span>
+                                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF', textDecoration: isDone ? 'line-through' : 'none', textDecorationColor: 'rgba(255,255,255,0.2)' }}>{ex.name}</span>
                                   <span style={{
                                     fontSize: 8, fontWeight: 700, color: intColor,
                                     padding: '2px 6px', borderRadius: 6, background: `${intColor}15`,
@@ -676,6 +749,17 @@ export default function MinceurPage() {
                                   <span style={{ fontSize: 11, fontWeight: 700, color: GREEN }}><i className="ri-timer-line" style={{ fontSize: 10, marginRight: 3 }} />{ex.duration}</span>
                                   {ex.calories_burned > 0 && <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}><i className="ri-fire-line" style={{ fontSize: 10, marginRight: 3 }} />{ex.calories_burned}kcal</span>}
                                 </div>
+                              </div>
+                              <div data-testid={`track-exercise-${i}`} onClick={() => toggleTrack('exercise', i)} style={{
+                                width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+                                background: isDone ? GREEN : 'rgba(255,255,255,0.04)',
+                                border: `1.5px solid ${isDone ? GREEN : 'rgba(255,255,255,0.12)'}`,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                              } as any}
+                              onMouseEnter={(e: any) => { if (!isDone) e.currentTarget.style.borderColor = GREEN; }}
+                              onMouseLeave={(e: any) => { if (!isDone) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}>
+                                <i className="ri-check-line" style={{ fontSize: 16, color: isDone ? '#FFF' : 'rgba(255,255,255,0.15)' }} />
                               </div>
                             </div>
                           </div>
