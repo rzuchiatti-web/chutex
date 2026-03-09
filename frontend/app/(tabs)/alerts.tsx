@@ -324,7 +324,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
   const [selectedPerson, setSelectedPerson] = useState<any>(null);
 
   useEffect(() => {
-    apiFetch(`/api/alerts/${alert.id}/detail`, {}, token).then(setAlertDetail).catch(() => {});
+    apiFetch(`/api/alerts/${alert.id}/detail`, {}, token).then(setAlertDetail).catch((e) => { console.error('Alert detail error:', e); setTimeout(() => apiFetch(`/api/alerts/${alert.id}/detail`, {}, token).then(setAlertDetail).catch(() => {}), 2000); });
   }, [alert.id, token]);
 
   const isResolved = alert.status === 'resolved';
