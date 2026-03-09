@@ -419,11 +419,6 @@ async def delete_weight_goal(user=Depends(get_current_user)):
     """Remove weight goal"""
     uid = user["id"]
     await db.minceur_goals.delete_one({"user_id": uid})
-
-    # Invalidate cache
-    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    await db.minceur_daily_cache.delete_one({"user_id": uid, "date": today_str})
-
     return {"status": "deleted"}
 
 

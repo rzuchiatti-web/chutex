@@ -157,24 +157,23 @@ export default function MinceurPage() {
                   {done === total && <i className="ri-check-double-line" style={{ fontSize: 12, color: G }} />}
                 </div>
                 {showStreakInfo && (
-                  <div data-testid="streak-popup" style={{ position: 'fixed', inset: 0, zIndex: 999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any} onClick={() => setShowStreakInfo(false)}>
-                    <div style={{ width: 280, padding: 24, borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', animation: 'fadeSlide 0.25s ease' } as any} onClick={(e: any) => e.stopPropagation()}>
-                      <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 16, textAlign: 'center' }}>Votre suivi quotidien</div>
-                      <div style={{ display: 'flex', gap: 10, marginBottom: 16 } as any}>
-                        <div style={{ flex: 1, padding: 12, borderRadius: 14, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                          <i className="ri-fire-fill" style={{ fontSize: 20, color: A, display: 'block', marginBottom: 6 }} />
-                          <div style={{ fontSize: 24, fontWeight: 900, color: A }}>{streak}</div>
-                          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Jours consecutifs</div>
-                        </div>
-                        <div style={{ flex: 1, padding: 12, borderRadius: 14, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                          <i className="ri-check-double-line" style={{ fontSize: 20, color: done === total ? G : '#FFF', display: 'block', marginBottom: 6 }} />
-                          <div style={{ fontSize: 24, fontWeight: 900, color: done === total ? G : '#FFF' }}>{done}/{total}</div>
-                          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Valides aujourd'hui</div>
-                        </div>
+                  <div data-testid="streak-popup" style={{ position: 'fixed', inset: 0, zIndex: 999, backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', background: 'rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32 } as any} onClick={() => setShowStreakInfo(false)}>
+                    <div style={{ fontSize: 17, fontWeight: 900, color: '#FFF', marginBottom: 24 }}>Votre suivi quotidien</div>
+                    <div style={{ display: 'flex', gap: 16, marginBottom: 24 } as any}>
+                      <div style={{ textAlign: 'center' } as any}>
+                        <i className="ri-fire-fill" style={{ fontSize: 28, color: A, display: 'block', marginBottom: 8 }} />
+                        <div style={{ fontSize: 36, fontWeight: 900, color: A }}>{streak}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>jours consecutifs</div>
                       </div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6, textAlign: 'center' }}>Validez vos repas et exercices chaque jour. Nora adapte ses recommandations selon votre regularite.</div>
-                      <div onClick={() => setShowStreakInfo(false)} style={{ marginTop: 14, padding: '10px 0', borderRadius: 999, background: 'rgba(255,255,255,0.06)', textAlign: 'center', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', cursor: 'pointer' } as any}>Fermer</div>
+                      <div style={{ width: 1, background: 'rgba(255,255,255,0.08)' } as any} />
+                      <div style={{ textAlign: 'center' } as any}>
+                        <i className="ri-check-double-line" style={{ fontSize: 28, color: done === total ? G : '#FFF', display: 'block', marginBottom: 8 }} />
+                        <div style={{ fontSize: 36, fontWeight: 900, color: done === total ? G : '#FFF' }}>{done}/{total}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>valides aujourd'hui</div>
+                      </div>
                     </div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6, textAlign: 'center', maxWidth: 280 }}>Validez vos repas et exercices chaque jour. Nora adapte ses recommandations selon votre regularite.</div>
+                    <div style={{ marginTop: 20, padding: '10px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)', cursor: 'pointer' } as any}>Fermer</div>
                   </div>
                 )}
               </div>
@@ -299,22 +298,14 @@ export default function MinceurPage() {
                     )}
                   </div>
 
-                  {/* Pill tabs: Repas / Exercices */}
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-                    {(['meals', 'exercises'] as const).map(t => {
-                      const active = tab === t;
-                      return (
-                        <div key={t} data-testid={`tab-${t}`} onClick={() => setTab(t)} style={{
-                          display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
-                          background: active ? (t === 'meals' ? 'rgba(245,158,11,0.14)' : 'rgba(16,185,129,0.14)') : 'rgba(255,255,255,0.04)',
-                          border: `1px solid ${active ? (t === 'meals' ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)') : 'rgba(255,255,255,0.06)'}`,
-                          transition: 'all 0.25s',
-                        } as any}>
-                          <i className={t === 'meals' ? 'ri-restaurant-2-line' : 'ri-heart-pulse-line'} style={{ fontSize: 13, color: active ? (t === 'meals' ? A : G) : 'rgba(255,255,255,0.25)' }} />
-                          <span style={{ fontSize: 12, fontWeight: 700, color: active ? (t === 'meals' ? A : G) : 'rgba(255,255,255,0.35)' }}>{t === 'meals' ? 'Repas' : 'Exercices'}</span>
-                        </div>
-                      );
-                    })}
+                  {/* Pill tabs: Repas / Exercices — alert page style */}
+                  <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 14 } as any}>
+                    {(['meals', 'exercises'] as const).map(t => (
+                      <div key={t} data-testid={`tab-${t}`} onClick={() => setTab(t)} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: tab === t ? '#FFF' : 'transparent', color: tab === t ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                        <i className={t === 'meals' ? 'ri-restaurant-2-line' : 'ri-heart-pulse-line'} style={{ fontSize: 14 }} />
+                        {t === 'meals' ? 'Repas' : 'Exercices'}
+                      </div>
+                    ))}
                   </div>
 
                   {/* Meals */}
