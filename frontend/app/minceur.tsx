@@ -18,6 +18,12 @@ const MEAL_META: Record<string, { icon: string; gradient: string }> = {
   dinner: { icon: 'ri-moon-line', gradient: 'linear-gradient(135deg, #60A5FA22, #60A5FA08)' },
 };
 const MEAL_COLORS: Record<string, string> = { breakfast: '#F59E0B', lunch: '#10B981', snack: '#A78BFA', dinner: '#60A5FA' };
+const MEAL_IMGS: Record<string, string> = {
+  breakfast: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/ccd32d626e54c78fac3e5a12346ad156c67fb52d47febfdedc24d0f29e171ac6.png',
+  lunch: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/528ae850a1d0143524ec5cc75d58c126e9cec798303da7ceb8ac4a1ca68374d8.png',
+  snack: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/95af5f12498ba3ce4c96135afbe07e314012e9ff8da9410d9e9ac56376d9cb02.png',
+  dinner: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/3b64345e4d34dc8d5bacd6f55747323e3202d76c19e319a024b7214ca02e9877.png',
+};
 const EX_ICONS: Record<string, string> = { cardio: 'ri-heart-pulse-line', renforcement: 'ri-boxing-line', souplesse: 'ri-body-scan-line', equilibre: 'ri-walk-line' };
 
 type MK = 'weight' | 'body_fat_pct' | 'muscle_pct';
@@ -354,10 +360,10 @@ export default function MinceurPage() {
                         const color = MEAL_COLORS[type] || '#FFF';
                         const done = tracked[`meal_${i}`];
                         return (
-                          <div key={i} data-testid={`meal-${type}`} onClick={() => router.push({ pathname: '/meal-detail' as any, params: { index: i } })} style={{ ...C, padding: '14px 16px', background: meta.gradient, border: `1px solid ${done ? GREEN + '25' : color + '12'}`, cursor: 'pointer', opacity: done ? 0.65 : 1, transition: 'all 0.25s' } as any} onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }} onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                              <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, background: `${color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={meta.icon} style={{ fontSize: 17, color }} /></div>
-                              <div style={{ flex: 1, minWidth: 0 } as any}>
+                          <div key={i} data-testid={`meal-${type}`} onClick={() => router.push({ pathname: '/meal-detail' as any, params: { index: i } })} style={{ ...C, padding: 0, background: meta.gradient, border: `1px solid ${done ? GREEN + '25' : color + '12'}`, cursor: 'pointer', opacity: done ? 0.65 : 1, transition: 'all 0.25s', overflow: 'hidden' } as any} onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }} onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                            <div style={{ display: 'flex', alignItems: 'stretch' } as any}>
+                              <img src={MEAL_IMGS[type] || MEAL_IMGS.lunch} alt="" style={{ width: 72, height: 72, objectFit: 'cover', flexShrink: 0 } as any} />
+                              <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
                                   <span style={{ fontSize: 8, fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: 0.6 }}>{meal.label} {meal.time ? `· ${meal.time}` : ''}</span>
                                   <span style={{ fontSize: 12, fontWeight: 900, color: 'rgba(255,255,255,0.4)' }}>{meal.calories}<span style={{ fontSize: 7 }}>kcal</span></span>

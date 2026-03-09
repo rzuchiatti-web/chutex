@@ -39,7 +39,12 @@ def parse_age(date_of_birth: str) -> int:
     if not date_of_birth:
         return 70
     try:
-        dob = datetime.fromisoformat(date_of_birth.replace("Z", "+00:00"))
+        dob_str = date_of_birth.replace("Z", "+00:00")
+        if "T" not in dob_str:
+            dob_str += "T00:00:00+00:00"
+        elif "+" not in dob_str and not dob_str.endswith("Z"):
+            dob_str += "+00:00"
+        dob = datetime.fromisoformat(dob_str)
         return (datetime.now(timezone.utc) - dob).days // 365
     except Exception:
         return 70

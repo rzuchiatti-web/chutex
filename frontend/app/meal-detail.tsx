@@ -13,11 +13,11 @@ const CARD: any = {
   border: '1px solid rgba(255,255,255,0.08)',
   backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
 };
-const TYPE_META: Record<string, { icon: string; color: string; bg: string }> = {
-  breakfast: { icon: 'ri-cup-line', color: '#F59E0B', bg: 'linear-gradient(135deg, #F59E0B18, #F59E0B05)' },
-  lunch: { icon: 'ri-restaurant-2-line', color: '#10B981', bg: 'linear-gradient(135deg, #10B98118, #10B98105)' },
-  snack: { icon: 'ri-apple-line', color: '#A78BFA', bg: 'linear-gradient(135deg, #A78BFA18, #A78BFA05)' },
-  dinner: { icon: 'ri-moon-line', color: '#60A5FA', bg: 'linear-gradient(135deg, #60A5FA18, #60A5FA05)' },
+const TYPE_META: Record<string, { icon: string; color: string; bg: string; img: string }> = {
+  breakfast: { icon: 'ri-cup-line', color: '#F59E0B', bg: 'linear-gradient(135deg, #F59E0B18, #F59E0B05)', img: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/ccd32d626e54c78fac3e5a12346ad156c67fb52d47febfdedc24d0f29e171ac6.png' },
+  lunch: { icon: 'ri-restaurant-2-line', color: '#10B981', bg: 'linear-gradient(135deg, #10B98118, #10B98105)', img: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/528ae850a1d0143524ec5cc75d58c126e9cec798303da7ceb8ac4a1ca68374d8.png' },
+  snack: { icon: 'ri-apple-line', color: '#A78BFA', bg: 'linear-gradient(135deg, #A78BFA18, #A78BFA05)', img: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/95af5f12498ba3ce4c96135afbe07e314012e9ff8da9410d9e9ac56376d9cb02.png' },
+  dinner: { icon: 'ri-moon-line', color: '#60A5FA', bg: 'linear-gradient(135deg, #60A5FA18, #60A5FA05)', img: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/3b64345e4d34dc8d5bacd6f55747323e3202d76c19e319a024b7214ca02e9877.png' },
 };
 
 export default function MealDetailPage() {
@@ -99,34 +99,25 @@ export default function MealDetailPage() {
           {!loading && m && (
             <>
               {/* Meal Hero */}
-              <div data-testid="meal-hero" style={{ ...CARD, padding: 20, marginBottom: 12, background: meta.bg } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 } as any}>
-                  <div style={{ width: 52, height: 52, borderRadius: 16, background: `${meta.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className={meta.icon} style={{ fontSize: 24, color: meta.color }} />
-                  </div>
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: meta.color, textTransform: 'uppercase', letterSpacing: 1 }}>{m.label} {m.time ? `· ${m.time}` : ''}</div>
-                    <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', lineHeight: 1.2 }}>{m.name}</div>
-                  </div>
-                </div>
-                {m.description && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 14 }}>{m.description}</div>}
-
-                {/* Prep time + Track button */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-                  {m.prep_time && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                      <i className="ri-timer-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} />
-                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Preparation: {m.prep_time}</span>
+              <div data-testid="meal-hero" style={{ ...CARD, padding: 0, marginBottom: 12, overflow: 'hidden', background: meta.bg } as any}>
+                <img src={meta.img} alt="" style={{ width: '100%', height: 160, objectFit: 'cover' } as any} />
+                <div style={{ padding: '16px 20px' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 } as any}>
+                    <div style={{ width: 42, height: 42, borderRadius: 14, background: `${meta.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className={meta.icon} style={{ fontSize: 20, color: meta.color }} />
                     </div>
-                  )}
-                  <div data-testid="track-meal-btn" onClick={toggleTrack} style={{
-                    display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 999,
-                    background: isDone ? GREEN : 'rgba(255,255,255,0.06)',
-                    border: `1.5px solid ${isDone ? GREEN : 'rgba(255,255,255,0.12)'}`,
-                    cursor: 'pointer', transition: 'all 0.3s',
-                  } as any}>
-                    <i className={isDone ? 'ri-check-line' : 'ri-checkbox-blank-circle-line'} style={{ fontSize: 16, color: isDone ? '#FFF' : 'rgba(255,255,255,0.3)' }} />
-                    <span style={{ fontSize: 12, fontWeight: 800, color: isDone ? '#FFF' : 'rgba(255,255,255,0.4)' }}>{isDone ? 'Valide' : 'Valider ce repas'}</span>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: meta.color, textTransform: 'uppercase', letterSpacing: 1 }}>{m.label} {m.time ? `· ${m.time}` : ''}</div>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', lineHeight: 1.2 }}>{m.name}</div>
+                    </div>
+                  </div>
+                  {m.description && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 14 }}>{m.description}</div>}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                    {m.prep_time ? <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-timer-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} /><span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Preparation: {m.prep_time}</span></div> : <span />}
+                    <div data-testid="track-meal-btn" onClick={toggleTrack} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 999, background: isDone ? GREEN : 'rgba(255,255,255,0.06)', border: `1.5px solid ${isDone ? GREEN : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', transition: 'all 0.3s' } as any}>
+                      <i className={isDone ? 'ri-check-line' : 'ri-checkbox-blank-circle-line'} style={{ fontSize: 16, color: isDone ? '#FFF' : 'rgba(255,255,255,0.3)' }} />
+                      <span style={{ fontSize: 12, fontWeight: 800, color: isDone ? '#FFF' : 'rgba(255,255,255,0.4)' }}>{isDone ? 'Valide' : 'Valider ce repas'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
