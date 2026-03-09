@@ -43,6 +43,11 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - **Health Tab Card**: Mini-tabs Poids/Graisse/Muscle avec mini sparkline bars qui changent selon l'onglet sélectionné
 - **Testing**: 100% pass (iteration_93 backend 19/19 + iteration_94 frontend 100%)
 
+### Suivi Quotidien (Daily Tracking) - Complete (March 2026)
+- **Backend**: `POST /api/minceur/track` — toggle repas/exercice comme fait/non-fait pour aujourd'hui. `GET /api/minceur/today-tracking` — statut du jour + streak + adherence hebdo. Tracking intégré dans la réponse weight-details.
+- **Frontend**: Boutons de validation (check) sur chaque carte repas et exercice. Barre de progression "Suivi du jour" (ex: 4/6) avec badge streak en feu. Items validés: opacité réduite, texte barré, check vert. Toggle instantané (optimistic UI). Persistance MongoDB.
+- **Testing**: 100% pass (iteration_95 backend 15/15 + frontend 100%)
+
 ## Prioritized Backlog
 ### P1
 - Guardian referral system, Free 7-day trial
