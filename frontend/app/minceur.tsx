@@ -140,7 +140,7 @@ export default function MinceurPage() {
   return (
     <div data-testid="minceur-page" style={{ position: 'absolute', inset: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
       <img src={BG_IMAGES.beneficiary} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
       <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 120px' } as any}>
 
@@ -157,19 +157,24 @@ export default function MinceurPage() {
                   {done === total && <i className="ri-check-double-line" style={{ fontSize: 12, color: G }} />}
                 </div>
                 {showStreakInfo && (
-                  <div data-testid="streak-popup" onClick={() => setShowStreakInfo(false)} style={{ position: 'absolute', top: 44, right: 0, width: 240, padding: 14, borderRadius: 16, background: 'rgba(15,15,30,0.95)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', zIndex: 50, animation: 'fadeSlide 0.2s ease' } as any}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Votre suivi quotidien</div>
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
-                      <div style={{ flex: 1, padding: 8, borderRadius: 10, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 18, fontWeight: 900, color: A }}>{streak}</div>
-                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)' }}>Jours consecutifs</div>
+                  <div data-testid="streak-popup" style={{ position: 'fixed', inset: 0, zIndex: 999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any} onClick={() => setShowStreakInfo(false)}>
+                    <div style={{ width: 280, padding: 24, borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', animation: 'fadeSlide 0.25s ease' } as any} onClick={(e: any) => e.stopPropagation()}>
+                      <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 16, textAlign: 'center' }}>Votre suivi quotidien</div>
+                      <div style={{ display: 'flex', gap: 10, marginBottom: 16 } as any}>
+                        <div style={{ flex: 1, padding: 12, borderRadius: 14, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
+                          <i className="ri-fire-fill" style={{ fontSize: 20, color: A, display: 'block', marginBottom: 6 }} />
+                          <div style={{ fontSize: 24, fontWeight: 900, color: A }}>{streak}</div>
+                          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Jours consecutifs</div>
+                        </div>
+                        <div style={{ flex: 1, padding: 12, borderRadius: 14, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
+                          <i className="ri-check-double-line" style={{ fontSize: 20, color: done === total ? G : '#FFF', display: 'block', marginBottom: 6 }} />
+                          <div style={{ fontSize: 24, fontWeight: 900, color: done === total ? G : '#FFF' }}>{done}/{total}</div>
+                          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Valides aujourd'hui</div>
+                        </div>
                       </div>
-                      <div style={{ flex: 1, padding: 8, borderRadius: 10, background: 'rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 18, fontWeight: 900, color: done === total ? G : '#FFF' }}>{done}/{total}</div>
-                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)' }}>Repas et exercices valides aujourd'hui</div>
-                      </div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6, textAlign: 'center' }}>Validez vos repas et exercices chaque jour. Nora adapte ses recommandations selon votre regularite.</div>
+                      <div onClick={() => setShowStreakInfo(false)} style={{ marginTop: 14, padding: '10px 0', borderRadius: 999, background: 'rgba(255,255,255,0.06)', textAlign: 'center', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', cursor: 'pointer' } as any}>Fermer</div>
                     </div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5 }}>Validez vos repas et exercices chaque jour pour maintenir votre serie. Nora adapte ses recommandations en fonction de votre regularite.</div>
                   </div>
                 )}
               </div>
@@ -231,23 +236,30 @@ export default function MinceurPage() {
                   </div>
                 )}
                 {showGoalForm && (
-                  <div style={{ padding: '8px 0' } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, marginBottom: 16 } as any}>
-                      <div data-testid="goal-minus" onClick={() => setTargetKg(Math.max(30, targetKg - 0.5))} style={{ width: 48, height: 48, borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 22, fontWeight: 700, color: '#FFF', transition: 'transform 0.15s' } as any}>-</div>
-                      <div style={{ textAlign: 'center', minWidth: 100 } as any}>
-                        <div style={{ fontSize: 44, fontWeight: 900, color: A, lineHeight: 1, letterSpacing: -1 }}>{targetKg}<span style={{ fontSize: 16, color: `${A}50` }}>kg</span></div>
-                        {cr.weight > 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>{targetKg < cr.weight ? '' : '+'}{(targetKg - cr.weight).toFixed(1)}kg</div>}
+                  <div style={{ padding: '12px 0', animation: 'fadeSlide 0.3s ease' } as any}>
+                    <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Poids cible</div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 } as any}>
+                        <div data-testid="goal-minus" onClick={() => setTargetKg(Math.max(30, targetKg - 0.5))} style={{ width: 52, height: 52, borderRadius: 999, background: 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 24, fontWeight: 300, color: '#FFF', transition: 'all 0.15s', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' } as any}>-</div>
+                        <div style={{ textAlign: 'center', minWidth: 120, padding: '8px 0' } as any}>
+                          <div style={{ fontSize: 52, fontWeight: 900, color: A, lineHeight: 1, letterSpacing: -2, textShadow: `0 0 40px ${A}30` }}>{targetKg}</div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: `${A}60`, marginTop: 2 }}>kg</div>
+                          {cr.weight > 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{targetKg < cr.weight ? '' : '+'}{(targetKg - cr.weight).toFixed(1)}kg vs actuel</div>}
+                        </div>
+                        <div data-testid="goal-plus" onClick={() => setTargetKg(targetKg + 0.5)} style={{ width: 52, height: 52, borderRadius: 999, background: 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 24, fontWeight: 300, color: '#FFF', transition: 'all 0.15s', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' } as any}>+</div>
                       </div>
-                      <div data-testid="goal-plus" onClick={() => setTargetKg(targetKg + 0.5)} style={{ width: 48, height: 48, borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 22, fontWeight: 700, color: '#FFF', transition: 'transform 0.15s' } as any}>+</div>
                     </div>
-                    <div style={{ display: 'flex', gap: 4, marginBottom: 14 } as any}>
-                      {[4, 8, 12, 16, 24].map(w => <div key={w} data-testid={`weeks-${w}`} onClick={() => setGoalWeeks(w)} style={{ flex: 1, padding: '9px 0', borderRadius: 999, cursor: 'pointer', textAlign: 'center', background: goalWeeks === w ? `${A}15` : 'rgba(255,255,255,0.02)', border: `1px solid ${goalWeeks === w ? `${A}40` : 'rgba(255,255,255,0.05)'}`, fontSize: 11, fontWeight: 800, color: goalWeeks === w ? A : 'rgba(255,255,255,0.25)', transition: 'all 0.2s' } as any}>{w}s</div>)}
+                    <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Duree</div>
+                      <div style={{ display: 'inline-flex', gap: 4, padding: 3, borderRadius: 999, background: 'rgba(255,255,255,0.03)' } as any}>
+                        {[4, 8, 12, 16, 24].map(w => <div key={w} data-testid={`weeks-${w}`} onClick={() => setGoalWeeks(w)} style={{ padding: '8px 14px', borderRadius: 999, cursor: 'pointer', background: goalWeeks === w ? `${A}18` : 'transparent', border: `1px solid ${goalWeeks === w ? `${A}35` : 'transparent'}`, fontSize: 12, fontWeight: 800, color: goalWeeks === w ? A : 'rgba(255,255,255,0.25)', transition: 'all 0.2s' } as any}>{w}s</div>)}
+                      </div>
                     </div>
                     <div style={{ display: 'flex', gap: 8 } as any}>
-                      <div data-testid="save-goal" onClick={saveGoal} style={{ flex: 1, padding: 13, borderRadius: 999, background: A, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1 } as any}>{saving ? '...' : 'Valider'}</div>
-                      <div onClick={() => setShowGoalForm(false)} style={{ padding: '13px 18px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>Annuler</div>
-                      {goal && <div data-testid="remove-goal" onClick={removeGoal} style={{ padding: '13px 14px', borderRadius: 999, background: 'rgba(239,68,68,0.06)', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: 'rgba(239,68,68,0.5)' } as any}>Supprimer</div>}
+                      <div data-testid="save-goal" onClick={saveGoal} style={{ flex: 1, padding: 14, borderRadius: 999, background: `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1, boxShadow: `0 8px 24px ${A}30` } as any}>{saving ? '...' : 'Valider l\'objectif'}</div>
+                      <div onClick={() => setShowGoalForm(false)} style={{ padding: '14px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>Annuler</div>
                     </div>
+                    {goal && <div data-testid="remove-goal" onClick={removeGoal} style={{ textAlign: 'center', padding: 10, marginTop: 6, fontSize: 11, color: 'rgba(239,68,68,0.4)', cursor: 'pointer' } as any}>Supprimer l'objectif</div>}
                   </div>
                 )}
                 {data.last_reading_date && <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.12)', textAlign: 'right', marginTop: 8 }}>Pesee : {new Date(data.last_reading_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>}
@@ -256,16 +268,53 @@ export default function MinceurPage() {
               {/* ══ RECOMMENDATIONS ══ */}
               {recs && (
                 <div style={{ ...fade(0.2) } as any}>
-                  <div data-testid="calories-summary" style={{ ...CD, padding: 16, marginBottom: 14 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
-                      <div><div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1 }}>Budget calorique</div><div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginTop: 2 } as any}><span style={{ fontSize: 30, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{recs.daily_calories}</span><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>kcal/jour</span></div></div>
-                      {recs.water_ml && <div style={{ textAlign: 'center', padding: '6px 10px', borderRadius: 10, background: 'rgba(96,165,250,0.06)', border: '1px solid rgba(96,165,250,0.12)' } as any}><i className="ri-drop-fill" style={{ fontSize: 14, color: B }} /><div style={{ fontSize: 11, fontWeight: 800, color: B }}>{(recs.water_ml / 1000).toFixed(1)}L</div></div>}
+                  {/* Budget calorique — futuristic */}
+                  <div data-testid="calories-summary" style={{ ...CD, padding: 0, marginBottom: 14, overflow: 'hidden' } as any}>
+                    <div style={{ padding: '18px 18px 14px', background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(16,185,129,0.04))' } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                        <div>
+                          <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5 }}>Budget calorique journalier</div>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 4 } as any}>
+                            <span style={{ fontSize: 38, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{recs.daily_calories}</span>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.2)' }}>kcal</span>
+                          </div>
+                        </div>
+                        {recs.water_ml && (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 14px', borderRadius: 14, background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.12)' } as any}>
+                            <i className="ri-drop-fill" style={{ fontSize: 18, color: B }} />
+                            <span style={{ fontSize: 14, fontWeight: 900, color: B, marginTop: 2 }}>{(recs.water_ml / 1000).toFixed(1)}L</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    {recs.macros && <div style={{ display: 'flex', gap: 6 } as any}>{[{ l: 'Prot.', v: recs.macros.proteines_g, c: G }, { l: 'Gluc.', v: recs.macros.glucides_g, c: A }, { l: 'Lip.', v: recs.macros.lipides_g, c: R }].map((m, i) => <div key={i} style={{ flex: 1, padding: '8px 4px', borderRadius: 10, background: 'rgba(255,255,255,0.02)', textAlign: 'center' } as any}><div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{m.v}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>g</span></div><div style={{ fontSize: 8, color: m.c, fontWeight: 700, marginTop: 1 }}>{m.l}</div></div>)}</div>}
+                    {recs.macros && (
+                      <div style={{ display: 'flex', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+                        {[{ l: 'Proteines', v: recs.macros.proteines_g, c: G, icon: 'ri-leaf-line' }, { l: 'Glucides', v: recs.macros.glucides_g, c: A, icon: 'ri-seedling-line' }, { l: 'Lipides', v: recs.macros.lipides_g, c: R, icon: 'ri-drop-line' }].map((m, i) => (
+                          <div key={i} style={{ flex: 1, padding: '12px 8px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.03)' : 'none' } as any}>
+                            <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{m.v}<span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>g</span></div>
+                            <div style={{ fontSize: 8, color: m.c, fontWeight: 700, marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>{m.l}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
-                  <div style={{ display: 'flex', gap: 4, marginBottom: 12, background: 'rgba(255,255,255,0.02)', borderRadius: 14, padding: 3 } as any}>
-                    {(['meals', 'exercises'] as const).map(t => <div key={t} data-testid={`tab-${t}`} onClick={() => setTab(t)} style={{ flex: 1, padding: '10px 0', borderRadius: 12, textAlign: 'center', fontSize: 12, fontWeight: 800, cursor: 'pointer', background: tab === t ? 'rgba(255,255,255,0.07)' : 'transparent', color: tab === t ? '#FFF' : 'rgba(255,255,255,0.25)', transition: 'all 0.2s' } as any}><i className={t === 'meals' ? 'ri-restaurant-2-line' : 'ri-heart-pulse-line'} style={{ marginRight: 6 }} />{t === 'meals' ? 'Repas' : 'Exercices'}</div>)}
+                  {/* Pill tabs: Repas / Exercices */}
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
+                    {(['meals', 'exercises'] as const).map(t => {
+                      const active = tab === t;
+                      return (
+                        <div key={t} data-testid={`tab-${t}`} onClick={() => setTab(t)} style={{
+                          display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
+                          background: active ? (t === 'meals' ? 'rgba(245,158,11,0.14)' : 'rgba(16,185,129,0.14)') : 'rgba(255,255,255,0.04)',
+                          border: `1px solid ${active ? (t === 'meals' ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)') : 'rgba(255,255,255,0.06)'}`,
+                          transition: 'all 0.25s',
+                        } as any}>
+                          <i className={t === 'meals' ? 'ri-restaurant-2-line' : 'ri-heart-pulse-line'} style={{ fontSize: 13, color: active ? (t === 'meals' ? A : G) : 'rgba(255,255,255,0.25)' }} />
+                          <span style={{ fontSize: 12, fontWeight: 700, color: active ? (t === 'meals' ? A : G) : 'rgba(255,255,255,0.35)' }}>{t === 'meals' ? 'Repas' : 'Exercices'}</span>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Meals */}
