@@ -590,6 +590,25 @@ export default function MinceurPage() {
                       </div>
                     );
                   })()}
+
+                  {/* Allergy reminder if not set */}
+                  {data?.profile?.allergies && (!data.profile.allergies || data.profile.allergies.toLowerCase() === 'aucune' || data.profile.allergies === '') && (
+                    <div data-testid="allergy-reminder" onClick={() => router.push('/(tabs)/profile' as any)} style={{
+                      ...CARD, padding: '12px 14px', marginBottom: 12, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)',
+                    } as any}>
+                      <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                        <i className="ri-alert-line" style={{ fontSize: 16, color: ACCENT }} />
+                      </div>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: ACCENT }}>Completez vos allergies</div>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Pour des recommandations 100% adaptees a votre profil</div>
+                      </div>
+                      <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }} />
+                    </div>
+                  )}
+
                   {/* Nora Insight */}
                   {recs.nora_insight && (
                     <div data-testid="nora-insight" style={{ ...CARD, padding: '14px 16px', marginBottom: 12, display: 'flex', gap: 12, alignItems: 'flex-start' } as any}>
@@ -672,16 +691,14 @@ export default function MinceurPage() {
                           <div key={i} data-testid={`meal-${type}`} style={{
                             ...CARD, padding: '14px 16px', background: meta.gradient,
                             border: `1px solid ${isDone ? GREEN + '30' : color + '15'}`,
-                            transition: 'all 0.3s',
+                            transition: 'all 0.3s', cursor: 'pointer',
                             opacity: isDone ? 0.7 : 1,
                           } as any}
+                          onClick={() => router.push({ pathname: '/meal-detail' as any, params: { index: i } })}
                           onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
                           onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                              <div style={{
-                                width: 42, height: 42, borderRadius: 13, flexShrink: 0,
-                                background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              } as any}>
+                              <div style={{ width: 42, height: 42, borderRadius: 13, flexShrink: 0, background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                                 <i className={meta.icon} style={{ fontSize: 18, color }} />
                               </div>
                               <div style={{ flex: 1, minWidth: 0 } as any}>
@@ -690,19 +707,21 @@ export default function MinceurPage() {
                                   <div style={{ fontSize: 13, fontWeight: 900, color: 'rgba(255,255,255,0.5)' }}>{meal.calories}<span style={{ fontSize: 8 }}>kcal</span></div>
                                 </div>
                                 <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 2, textDecoration: isDone ? 'line-through' : 'none', textDecorationColor: 'rgba(255,255,255,0.2)' }}>{meal.name}</div>
-                                {meal.description && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{meal.description}</div>}
+                                {meal.description && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' } as any}>{meal.description}</div>}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 } as any}>
+                                  {meal.prep_time && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}><i className="ri-timer-line" style={{ fontSize: 8, marginRight: 2 }} />{meal.prep_time}</span>}
+                                  {meal.ingredients?.length > 0 && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>{meal.ingredients.length} ingredients</span>}
+                                  <span style={{ fontSize: 9, color: color, fontWeight: 700 }}>Voir la recette <i className="ri-arrow-right-s-line" style={{ fontSize: 9 }} /></span>
+                                </div>
                               </div>
-                              <div data-testid={`track-meal-${i}`} onClick={() => toggleTrack('meal', i)} style={{
+                              <div data-testid={`track-meal-${i}`} onClick={(e) => { e.stopPropagation(); toggleTrack('meal', i); }} style={{
                                 width: 34, height: 34, borderRadius: 10, flexShrink: 0,
                                 background: isDone ? GREEN : 'rgba(255,255,255,0.04)',
                                 border: `1.5px solid ${isDone ? GREEN : 'rgba(255,255,255,0.12)'}`,
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                                transform: isDone ? 'scale(1)' : 'scale(1)',
-                              } as any}
-                              onMouseEnter={(e: any) => { if (!isDone) e.currentTarget.style.borderColor = GREEN; }}
-                              onMouseLeave={(e: any) => { if (!isDone) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}>
-                                <i className={isDone ? 'ri-check-line' : 'ri-check-line'} style={{ fontSize: 16, color: isDone ? '#FFF' : 'rgba(255,255,255,0.15)' }} />
+                              } as any}>
+                                <i className="ri-check-line" style={{ fontSize: 16, color: isDone ? '#FFF' : 'rgba(255,255,255,0.15)' }} />
                               </div>
                             </div>
                           </div>

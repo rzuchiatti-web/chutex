@@ -1,0 +1,79 @@
+{
+  "summary": "Iteration 96: Meal Detail Page & Allergies Integration for Poids & Nutrition. Backend 100% (13/13 tests passed). Frontend 100% - all new features verified: clickable meal cards, meal-detail page with ingredients/recipe/macros, allergy reminder banner, track button stopPropagation.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_minceur_meal_detail_iter96.py",
+    "/app/test_reports/pytest/pytest_results_iter96_meal_detail.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "minceur_routes.py: Allergy context properly included in GPT prompt with INTERDICTION ABSOLUE warning",
+    "minceur_routes.py: profile.allergies correctly returned in weight-details response",
+    "minceur_routes.py: Meal data enriched with ingredients[], recipe[], proteines_g, glucides_g, lipides_g, prep_time",
+    "minceur.tsx: Meal cards are clickable and navigate to /meal-detail?index=N via router.push()",
+    "minceur.tsx: Track buttons use e.stopPropagation() to prevent navigation on track click",
+    "minceur.tsx: Allergy reminder banner shows when profile.allergies is empty or 'Aucune'",
+    "meal-detail.tsx: NEW page with data-testids: meal-detail-page, meal-hero, meal-nutrition, meal-ingredients, meal-recipe, track-meal-btn, back-button",
+    "meal-detail.tsx: Shows complete meal info: name, label, time, description, calories, macros, ingredients with quantities/calories, numbered prep steps"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_minceur_meal_detail_iter96.py"
+  ],
+  "success_rate": {
+    "backend": "100% (13/13 tests passed)",
+    "frontend": "100%"
+  },
+  "test_credentials": {
+    "phone": "0651245918",
+    "password": "test123",
+    "user": "Josette Zuchiatti (beneficiary)"
+  },
+  "seed_data_creation": "None - using existing cached AI recommendations",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Meal detail feature fully working. Click any meal card on minceur page to navigate to /meal-detail?index=N. Meal detail page shows: meal name/label/time in hero section, calories with macros breakdown (proteines_g, glucides_g, lipides_g), list of ingredients with quantities and calories, numbered recipe steps. Track button at data-testid='track-meal-btn' toggles validation state. Allergy reminder banner at data-testid='allergy-reminder' only appears when profile.allergies is 'Aucune' or empty - clicking it goes to profile page.",
+  "verified_features": {
+    "backend_api": {
+      "GET /api/minceur/weight-details": {
+        "profile.allergies": "PASS - Returns 'Aucune' for test user",
+        "recommendations.meals[].ingredients": "PASS - Array of {name, quantity, calories}",
+        "recommendations.meals[].recipe": "PASS - Array of step strings",
+        "recommendations.meals[].proteines_g": "PASS - Individual meal macros",
+        "recommendations.meals[].glucides_g": "PASS - Individual meal macros",
+        "recommendations.meals[].lipides_g": "PASS - Individual meal macros",
+        "recommendations.meals[].prep_time": "PASS - e.g. '7 min'"
+      },
+      "POST /api/minceur/track": "PASS - Toggle meal tracking from meal-detail page",
+      "POST /api/minceur/refresh-recommendations": "PASS - Clears cache for new allergies"
+    },
+    "frontend_minceur_page": {
+      "allergy-reminder banner": "PASS - Shows 'Completez vos allergies' when allergies='Aucune'",
+      "clickable meal cards": "PASS - Clicking card navigates to /meal-detail?index=N",
+      "'Voir la recette >' link": "PASS - 4 links found on meal cards",
+      "track button stopPropagation": "PASS - Clicking track button does NOT navigate to detail page",
+      "daily-progress": "PASS - Shows 'Suivi du jour 3/7' with streak badge"
+    },
+    "frontend_meal_detail_page": {
+      "meal-detail-page": "PASS - Page renders at /meal-detail?index=N",
+      "meal-hero": "PASS - Shows meal name, label (PETIT-DEJEUNER), time (07:30), description",
+      "meal-nutrition": "PASS - Shows 320 kcal with 25g Protéines, 33g Glucides, 10g Lipides",
+      "meal-ingredients": "PASS - Shows 5 ingredients with quantities (170g, 25g, etc) and calories (140kcal, etc)",
+      "meal-recipe": "PASS - Shows 4 numbered preparation steps",
+      "track-meal-btn": "PASS - Toggle button works, text changes to 'Validé' when tracked",
+      "back-button": "PASS - Navigates back to minceur page"
+    }
+  },
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "note": "All APIs use real data. AI recommendations are cached daily in minceur_daily_cache collection."
+  },
+  "allergy_integration_notes": "Allergies are included in GPT prompt via allergy_context variable. When allergies != 'Aucune', the prompt includes: 'ALLERGIES ET INTOLERANCES: {allergies}. INTERDICTION ABSOLUE d'inclure ces ingredients dans les repas.' This ensures AI-generated meals avoid allergens."
+}

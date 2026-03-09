@@ -99,6 +99,14 @@ async def generate_daily_recommendations(user_id: str, user_data: dict, latest_r
     tdee = bmr * 1.3
     body_fat = latest_reading.get("body_fat_pct", 0)
     muscle = latest_reading.get("muscle_pct", 0)
+    allergies = user_data.get("allergies", "")
+    medical_conditions = user_data.get("medical_conditions", "")
+
+    allergy_context = ""
+    if allergies and allergies.lower() not in ("aucune", "none", ""):
+        allergy_context = f"\nALLERGIES ET INTOLERANCES: {allergies}. INTERDICTION ABSOLUE d'inclure ces ingredients dans les repas."
+    if medical_conditions and medical_conditions.lower() not in ("aucune", "none", ""):
+        allergy_context += f"\nCONDITIONS MEDICALES: {medical_conditions}. Adapter les repas en consequence."
 
     goal_context = ""
     daily_target_cal = round(tdee)
@@ -127,6 +135,7 @@ async def generate_daily_recommendations(user_id: str, user_data: dict, latest_r
 {'Masse grasse: ' + str(body_fat) + '%' if body_fat else ''}
 {'Masse musculaire: ' + str(muscle) + '%' if muscle else ''}
 Metabolisme de base: {round(bmr)}kcal. Depense totale estimee: {round(tdee)}kcal.
+{allergy_context}
 {goal_context}
 
 Genere un plan nutritionnel et sportif QUOTIDIEN personnalise. JSON strict:
@@ -138,33 +147,60 @@ Genere un plan nutritionnel et sportif QUOTIDIEN personnalise. JSON strict:
       "type": "breakfast",
       "label": "Petit-dejeuner",
       "name": "Nom du repas",
-      "description": "Description detaillee des ingredients et portions",
+      "description": "Resume court du repas (1-2 lignes)",
       "calories": 350,
-      "time": "07:30"
+      "proteines_g": 15,
+      "glucides_g": 45,
+      "lipides_g": 12,
+      "time": "07:30",
+      "ingredients": [
+        {{"name": "Ingredient 1", "quantity": "150g", "calories": 120}},
+        {{"name": "Ingredient 2", "quantity": "1 c.a.s.", "calories": 50}}
+      ],
+      "recipe": ["Etape 1: Faire chauffer...", "Etape 2: Ajouter..."],
+      "prep_time": "10 min"
     }},
     {{
       "type": "lunch",
       "label": "Dejeuner",
       "name": "Nom du repas",
-      "description": "Description detaillee",
+      "description": "Resume court",
       "calories": 500,
-      "time": "12:30"
+      "proteines_g": 30,
+      "glucides_g": 55,
+      "lipides_g": 18,
+      "time": "12:30",
+      "ingredients": [{{"name": "...", "quantity": "...", "calories": 0}}],
+      "recipe": ["Etape 1: ...", "Etape 2: ..."],
+      "prep_time": "20 min"
     }},
     {{
       "type": "snack",
       "label": "Collation",
       "name": "Nom de la collation",
-      "description": "Description",
+      "description": "Resume court",
       "calories": 150,
-      "time": "16:00"
+      "proteines_g": 5,
+      "glucides_g": 20,
+      "lipides_g": 6,
+      "time": "16:00",
+      "ingredients": [{{"name": "...", "quantity": "...", "calories": 0}}],
+      "recipe": ["Preparer simplement..."],
+      "prep_time": "5 min"
     }},
     {{
       "type": "dinner",
       "label": "Diner",
       "name": "Nom du repas",
-      "description": "Description detaillee",
+      "description": "Resume court",
       "calories": 400,
-      "time": "19:30"
+      "proteines_g": 25,
+      "glucides_g": 40,
+      "lipides_g": 14,
+      "time": "19:30",
+      "ingredients": [{{"name": "...", "quantity": "...", "calories": 0}}],
+      "recipe": ["Etape 1: ...", "Etape 2: ..."],
+      "prep_time": "25 min"
     }}
   ],
   "exercises": [
@@ -195,7 +231,9 @@ REGLES STRICTES:
 - Repas equilibres, mediterraneens, simples a preparer, adaptes seniors
 - Calories des 4 repas = total daily_calories
 - Varier par rapport aux jours precedents
-- Sois precis sur les portions (ex: 150g de poulet, 1 pomme, 2 cuilleres a soupe d'huile d'olive)"""
+- Sois precis sur les portions et ingredients (quantites en grammes ou unites)
+- Chaque repas DOIT avoir la liste d'ingredients avec quantites et calories, les etapes de preparation, et les macros (proteines_g, glucides_g, lipides_g)
+- Si le patient a des allergies, NE JAMAIS inclure ces ingredients"""
 
         r = (await chat.send_message(UserMessage(text=prompt))).strip()
         if "```json" in r:
@@ -316,6 +354,7 @@ async def get_weight_details(user=Depends(get_current_user)):
             "age": age,
             "gender": "Homme" if is_male else "Femme",
             "height_cm": height_cm,
+            "allergies": u.get("allergies", ""),
         },
         "current": {
             "weight": current_weight,
