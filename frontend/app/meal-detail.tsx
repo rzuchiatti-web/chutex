@@ -14,22 +14,8 @@ const IMGS: Record<string, string> = {
   dinner: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/3b64345e4d34dc8d5bacd6f55747323e3202d76c19e319a024b7214ca02e9877.png',
 };
 const COLORS: Record<string, string> = { breakfast: A, lunch: G, snack: P, dinner: B };
-const FOOD_ICONS: Record<string, string> = { oeuf: 'ri-checkbox-blank-circle-fill', lait: 'ri-drop-fill', yaourt: 'ri-cup-fill', fromage: 'ri-cake-2-fill', beurre: 'ri-square-fill', huile: 'ri-drop-fill', poulet: 'ri-restaurant-fill', poisson: 'ri-restaurant-fill', saumon: 'ri-restaurant-fill', cabillaud: 'ri-restaurant-fill', viande: 'ri-restaurant-fill', riz: 'ri-seedling-fill', quinoa: 'ri-seedling-fill', pate: 'ri-seedling-fill', pain: 'ri-cake-fill', avoine: 'ri-seedling-fill', flocon: 'ri-seedling-fill', lentille: 'ri-seedling-fill', pomme: 'ri-apple-fill', fruit: 'ri-apple-fill', banane: 'ri-apple-fill', kiwi: 'ri-apple-fill', tomate: 'ri-plant-fill', legume: 'ri-plant-fill', salade: 'ri-leaf-fill', epinard: 'ri-leaf-fill', brocoli: 'ri-plant-fill', carotte: 'ri-plant-fill', courgette: 'ri-plant-fill', oignon: 'ri-plant-fill', ail: 'ri-plant-fill', amande: 'ri-heart-fill', noix: 'ri-heart-fill', graine: 'ri-heart-fill', miel: 'ri-drop-fill', sucre: 'ri-square-fill', sel: 'ri-square-fill', poivre: 'ri-square-fill', citron: 'ri-apple-fill', eau: 'ri-drop-fill', chia: 'ri-heart-fill', patate: 'ri-plant-fill' };
-function foodIcon(name: string): string {
-  const n = name.toLowerCase();
-  for (const [k, v] of Object.entries(FOOD_ICONS)) { if (n.includes(k)) return v; }
-  return 'ri-checkbox-blank-circle-fill';
-}
-function foodColor(name: string): string {
-  const n = name.toLowerCase();
-  if (['fruit','pomme','banane','kiwi','citron','orange','rouge'].some(k => n.includes(k))) return '#EF4444';
-  if (['legume','salade','epinard','brocoli','courgette','leaf','vert'].some(k => n.includes(k))) return G;
-  if (['poulet','poisson','saumon','viande','cabillaud','oeuf'].some(k => n.includes(k))) return A;
-  if (['lait','yaourt','fromage','eau','beurre'].some(k => n.includes(k))) return B;
-  if (['riz','quinoa','avoine','pain','pate','flocon','lentille','patate'].some(k => n.includes(k))) return '#D4A574';
-  if (['amande','noix','graine','chia','miel'].some(k => n.includes(k))) return '#C4956A';
-  return 'rgba(255,255,255,0.3)';
-}
+const FOOD_E: Record<string, string> = { oeuf: '🥚', lait: '🥛', yaourt: '🥛', fromage: '🧀', beurre: '🧈', huile: '🫒', poulet: '🍗', poisson: '🐟', saumon: '🐟', cabillaud: '🐟', viande: '🥩', riz: '🍚', quinoa: '🌾', pate: '🍝', pain: '🍞', avoine: '🌾', flocon: '🌾', lentille: '🫘', pomme: '🍎', fruit: '🍇', banane: '🍌', kiwi: '🥝', orange: '🍊', tomate: '🍅', legume: '🥬', salade: '🥗', epinard: '🥬', brocoli: '🥦', carotte: '🥕', courgette: '🥒', oignon: '🧅', ail: '🧄', amande: '🥜', noix: '🥜', graine: '🌰', miel: '🍯', sucre: '🍬', sel: '🧂', citron: '🍋', eau: '💧', chia: '🌰', patate: '🥔', pomme_de_terre: '🥔', olive: '🫒', poivron: '🫑', champignon: '🍄', creme: '🥛', pois: '🫛', haricot: '🫘', concombre: '🥒', chou: '🥬', persil: '🌿', herbe: '🌿', basilic: '🌿', thym: '🌿', cannelle: '✨', epice: '✨', chocolat: '🍫', cafe: '☕', the: '🍵' };
+function foodEmoji(name: string): string { const n = name.toLowerCase(); for (const [k, v] of Object.entries(FOOD_E)) { if (n.includes(k)) return v; } return '🍽️'; }
 const ICONS: Record<string, string> = { breakfast: 'ri-cup-line', lunch: 'ri-restaurant-2-line', snack: 'ri-apple-line', dinner: 'ri-moon-line' };
 
 export default function MealDetailPage() {
@@ -59,9 +45,9 @@ export default function MealDetailPage() {
 
           {/* Hero Image with overlay */}
           {!loading && m && (
-            <div style={{ position: 'relative', width: '100%', height: 280, overflow: 'hidden' } as any}>
+            <div style={{ position: 'relative', width: '100%', height: 300, overflow: 'hidden' } as any}>
               <img src={IMGS[tp] || IMGS.lunch} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.75) 70%)' } as any} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.8) 75%)' } as any} />
               <div data-testid="back-button" onClick={() => router.back()} style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 16px) + 8px)', left: 16, width: 40, height: 40, borderRadius: 12, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
               <div style={{ position: 'absolute', bottom: 20, left: 20, right: 20 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
@@ -122,8 +108,8 @@ export default function MealDetailPage() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
                       {m.ingredients.map((ing: any, i: number) => (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '8px 10px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', animation: `fadeSlide 0.3s ${i * 0.05}s ease both` } as any}>
-                          <div style={{ width: 28, height: 28, borderRadius: 8, background: `${foodColor(ing.name)}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginRight: 10 } as any}>
-                            <i className={foodIcon(ing.name)} style={{ fontSize: 10, color: foodColor(ing.name) }} />
+                          <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginRight: 10, fontSize: 16 } as any}>
+                            {foodEmoji(ing.name)}
                           </div>
                           <div style={{ flex: 1 } as any}>
                             <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{ing.name}</div>

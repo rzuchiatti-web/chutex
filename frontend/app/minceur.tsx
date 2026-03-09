@@ -197,7 +197,7 @@ export default function MinceurPage() {
                 {/* Pill tabs — alert page style */}
                 {history.length >= 2 && (
                   <div style={{ marginTop: 14 } as any}>
-                    <div data-testid="chart-tabs" style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 8 } as any}>
+                    <div data-testid="chart-tabs" style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 } as any}><div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
                       {([{ key: 'weight' as MK, label: 'Poids', val: cr.weight, unit: 'kg' }, { key: 'body_fat_pct' as MK, label: 'Graisse', val: bc.body_fat_pct, unit: '%' }, { key: 'muscle_pct' as MK, label: 'Muscle', val: bc.muscle_pct, unit: '%' }]).map(t => {
                         const act = cm === t.key, has = history.some((h: any) => h[t.key] > 0);
                         return (
@@ -206,7 +206,7 @@ export default function MinceurPage() {
                           </div>
                         );
                       })}
-                    </div>
+                    </div></div>
                     <Chart history={history} metric={cm} />
                     <Insight metric={cm} value={cm === 'weight' ? cr.weight : cm === 'body_fat_pct' ? bc.body_fat_pct : bc.muscle_pct} gender={data?.profile?.gender || ''} weight={cr.weight || 0} />
                   </div>
@@ -217,38 +217,24 @@ export default function MinceurPage() {
 
                 {/* Goal — with progress + validation */}
                 {!goal && !showGoalForm && (
-                  <div data-testid="set-goal-button" onClick={() => setShowGoalForm(true)} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '6px 0' } as any}>
-                    <div style={{ width: 36, height: 36, borderRadius: 12, background: `${A}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-focus-3-line" style={{ fontSize: 16, color: A }} /></div>
-                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.45)' }}>Definir un objectif</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>Personnalise vos recommandations</div></div>
-                    <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.1)' }} />
+                  <div data-testid="set-goal-button" onClick={() => setShowGoalForm(true)} style={{ padding: '12px 14px', borderRadius: 16, cursor: 'pointer', background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(16,185,129,0.04))', border: '1px solid rgba(245,158,11,0.12)' } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                      <div style={{ width: 36, height: 36, borderRadius: 12, background: `${A}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-focus-3-line" style={{ fontSize: 16, color: A }} /></div>
+                      <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Definir un objectif</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>Programme adapte : repas, exercices et calories calibres</div></div>
+                      <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: A }} />
+                    </div>
                   </div>
                 )}
                 {goal && !showGoalForm && (() => {
-                  const diff = cr.weight - goal.target_kg;
-                  const remaining = Math.max(0, diff).toFixed(1);
-                  const startW = history.length > 0 ? history[history.length - 1]?.weight : cr.weight;
-                  const totalToLose = startW - goal.target_kg;
-                  const pct = totalToLose > 0 ? Math.max(2, Math.min(100, ((totalToLose - diff) / totalToLose) * 100)) : (diff <= 0 ? 100 : 0);
+                  const kpw = goal.weeks > 0 ? Math.abs(cr.weight - goal.target_kg) / goal.weeks : 0;
                   return (
-                    <div style={{ animation: 'fadeSlide 0.3s ease' } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 } as any}>
-                        <div style={{ width: 36, height: 36, borderRadius: 12, background: `${A}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-focus-3-line" style={{ fontSize: 16, color: A }} /></div>
-                        <div style={{ flex: 1 } as any}>
-                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
-                            <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>Objectif</span>
-                            <span style={{ fontSize: 20, fontWeight: 900, color: A }}>{goal.target_kg}kg</span>
-                          </div>
-                        </div>
-                        <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 10, color: A, cursor: 'pointer', fontWeight: 700, padding: '4px 10px', borderRadius: 999, background: `${A}10` } as any}>Modifier</span>
+                    <div style={{ padding: '12px 14px', borderRadius: 16, background: 'linear-gradient(135deg, rgba(245,158,11,0.06), rgba(16,185,129,0.03))', border: '1px solid rgba(245,158,11,0.1)' } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-focus-3-line" style={{ fontSize: 14, color: A }} /><span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1 }}>Programme actif</span></div>
+                        <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 10, color: A, cursor: 'pointer', fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: `${A}10` } as any}>Modifier</span>
                       </div>
-                      {/* Progress bar */}
-                      <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', marginBottom: 6 } as any}>
-                        <div style={{ height: '100%', borderRadius: 3, width: `${pct}%`, background: pct >= 100 ? G : `linear-gradient(90deg, ${A}, ${G})`, transition: 'width 1s ease' } as any} />
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10 } as any}>
-                        <span style={{ color: 'rgba(255,255,255,0.25)' }}>{diff > 0 ? `${remaining}kg restant` : 'Objectif atteint !'}</span>
-                        <span style={{ color: 'rgba(255,255,255,0.15)' }}>{goal.weeks} semaines · {Math.round(pct)}%</span>
-                      </div>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 } as any}><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Objectif</span><span style={{ fontSize: 22, fontWeight: 900, color: A }}>{goal.target_kg}kg</span><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>en {goal.weeks} semaines</span></div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5 }}>Repas et exercices calibres a {recs?.daily_calories || '~1200'}kcal/jour ({kpw.toFixed(1)}kg/sem)</div>
                     </div>
                   );
                 })()}
@@ -285,7 +271,7 @@ export default function MinceurPage() {
                         </div>
                       )}
                       <div style={{ display: 'flex', gap: 8 } as any}>
-                        <div data-testid="save-goal" onClick={saveGoal} style={{ flex: 1, padding: 14, borderRadius: 999, background: tooFast ? 'rgba(255,255,255,0.08)' : `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1, boxShadow: tooFast ? 'none' : `0 8px 24px ${A}30` } as any}>{saving ? '...' : tooFast ? 'Valider quand meme' : 'Valider l\'objectif'}</div>
+                        <div data-testid="save-goal" onClick={saveGoal} style={{ flex: 1, padding: 14, borderRadius: 999, background: tooFast ? 'rgba(255,255,255,0.08)' : `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1, boxShadow: tooFast ? 'none' : `0 8px 24px ${A}30` } as any}>{saving ? '...' : 'Lancer le programme'}</div>
                         <div onClick={() => setShowGoalForm(false)} style={{ padding: '14px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>Annuler</div>
                       </div>
                       {goal && <div data-testid="remove-goal" onClick={removeGoal} style={{ textAlign: 'center', padding: 10, marginTop: 6, fontSize: 11, color: 'rgba(239,68,68,0.4)', cursor: 'pointer' } as any}>Supprimer l'objectif</div>}
@@ -330,13 +316,15 @@ export default function MinceurPage() {
                   </div>
 
                   {/* Pill tabs: Repas / Exercices — alert page style */}
-                  <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 } as any}>
+                  <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
                     {(['meals', 'exercises'] as const).map(t => (
                       <div key={t} data-testid={`tab-${t}`} onClick={() => setTab(t)} style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: tab === t ? '#FFF' : 'transparent', color: tab === t ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 } as any}>
                         <i className={t === 'meals' ? 'ri-restaurant-2-line' : 'ri-heart-pulse-line'} style={{ fontSize: 14 }} />
                         {t === 'meals' ? 'Repas' : 'Exercices'}
                       </div>
                     ))}
+                  </div>
                   </div>
 
                   {/* Meals */}
