@@ -28,23 +28,34 @@ const MEAL_META: Record<string, { icon: string; gradient: string }> = {
 const MEAL_COLORS: Record<string, string> = { breakfast: '#F59E0B', lunch: '#10B981', snack: '#A78BFA', dinner: '#60A5FA' };
 const EX_ICONS: Record<string, string> = { cardio: 'ri-heart-pulse-line', renforcement: 'ri-boxing-line', souplesse: 'ri-body-scan-line', equilibre: 'ri-walk-line' };
 
-/* ── SVG Weight Chart ── */
-function WeightChart({ history }: { history: any[] }) {
-  if (history.length < 2) return null;
-  const data = [...history].reverse().slice(-14);
-  const weights = data.map(d => d.weight);
-  const minW = Math.min(...weights) - 1;
-  const maxW = Math.max(...weights) + 1;
-  const range = maxW - minW || 1;
+/* ── Generic SVG Metric Chart ── */
+type MetricKey = 'weight' | 'body_fat_pct' | 'muscle_pct';
+const METRIC_CFG: Record<MetricKey, { color: string; unit: string; label: string; gradId: string }> = {
+  weight: { color: ACCENT, unit: 'kg', label: 'Poids', gradId: 'gw' },
+  body_fat_pct: { color: '#F97316', unit: '%', label: 'Graisse', gradId: 'gf' },
+  muscle_pct: { color: GREEN, unit: '%', label: 'Muscle', gradId: 'gm' },
+};
+
+function MetricChart({ history, metric }: { history: any[]; metric: MetricKey }) {
+  const cfg = METRIC_CFG[metric];
+  const filtered = [...history].reverse().filter(d => d[metric] > 0).slice(-14);
+  if (filtered.length < 2) return (
+    <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>
+      Pas assez de donnees pour {cfg.label.toLowerCase()}
+    </div>
+  );
+  const values = filtered.map(d => d[metric]);
+  const minV = Math.min(...values) - (metric === 'weight' ? 1 : 0.5);
+  const maxV = Math.max(...values) + (metric === 'weight' ? 1 : 0.5);
+  const range = maxV - minV || 1;
   const W = 340, H = 120, PX = 12, PY = 16;
   const plotW = W - PX * 2, plotH = H - PY * 2;
-  const step = plotW / (data.length - 1);
+  const step = plotW / (filtered.length - 1);
 
-  const points = data.map((d, i) => ({
+  const points = filtered.map((d, i) => ({
     x: PX + i * step,
-    y: PY + plotH - ((d.weight - minW) / range) * plotH,
-    w: d.weight,
-    date: d.date,
+    y: PY + plotH - ((d[metric] - minV) / range) * plotH,
+    v: d[metric],
   }));
 
   const linePath = points.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' ');
@@ -53,22 +64,22 @@ function WeightChart({ history }: { history: any[] }) {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 130, display: 'block' }}>
       <defs>
-        <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={ACCENT} stopOpacity="0.25" />
-          <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
+        <linearGradient id={`${cfg.gradId}a`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={cfg.color} stopOpacity="0.25" />
+          <stop offset="100%" stopColor={cfg.color} stopOpacity="0" />
         </linearGradient>
-        <linearGradient id="wl" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor={ACCENT} stopOpacity="0.4" />
-          <stop offset="100%" stopColor={ACCENT} stopOpacity="1" />
+        <linearGradient id={`${cfg.gradId}l`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor={cfg.color} stopOpacity="0.4" />
+          <stop offset="100%" stopColor={cfg.color} stopOpacity="1" />
         </linearGradient>
       </defs>
       {[0, 0.25, 0.5, 0.75, 1].map((f, i) => (
         <line key={i} x1={PX} x2={W - PX} y1={PY + plotH * (1 - f)} y2={PY + plotH * (1 - f)} stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
       ))}
-      <path d={areaPath} fill="url(#wg)">
+      <path d={areaPath} fill={`url(#${cfg.gradId}a)`}>
         <animate attributeName="opacity" from="0" to="1" dur="0.8s" fill="freeze" />
       </path>
-      <path d={linePath} fill="none" stroke="url(#wl)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d={linePath} fill="none" stroke={`url(#${cfg.gradId}l)`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <animate attributeName="stroke-dashoffset" from="1000" to="0" dur="1.2s" fill="freeze" />
         <animate attributeName="stroke-dasharray" from="1000" to="1000" dur="0.01s" fill="freeze" />
       </path>
@@ -76,16 +87,16 @@ function WeightChart({ history }: { history: any[] }) {
         <g key={i}>
           {i === points.length - 1 && (
             <>
-              <circle cx={p.x} cy={p.y} r="6" fill={ACCENT} opacity="0.2">
+              <circle cx={p.x} cy={p.y} r="6" fill={cfg.color} opacity="0.2">
                 <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite" />
                 <animate attributeName="opacity" values="0.2;0.05;0.2" dur="2s" repeatCount="indefinite" />
               </circle>
-              <circle cx={p.x} cy={p.y} r="4" fill={ACCENT} stroke="#1a1a2e" strokeWidth="2" />
-              <text x={p.x} y={p.y - 12} textAnchor="middle" fill={ACCENT} fontSize="11" fontWeight="800">{p.w}kg</text>
+              <circle cx={p.x} cy={p.y} r="4" fill={cfg.color} stroke="#1a1a2e" strokeWidth="2" />
+              <text x={p.x} y={p.y - 12} textAnchor="middle" fill={cfg.color} fontSize="11" fontWeight="800">{p.v}{cfg.unit}</text>
             </>
           )}
           {i === 0 && points.length > 2 && (
-            <text x={p.x} y={p.y - 10} textAnchor="start" fill="rgba(255,255,255,0.25)" fontSize="9" fontWeight="600">{p.w}kg</text>
+            <text x={p.x} y={p.y - 10} textAnchor="start" fill="rgba(255,255,255,0.25)" fontSize="9" fontWeight="600">{p.v}{cfg.unit}</text>
           )}
           {i > 0 && i < points.length - 1 && (
             <circle cx={p.x} cy={p.y} r="2" fill="rgba(255,255,255,0.15)" />
@@ -169,6 +180,7 @@ export default function MinceurPage() {
   const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'meals' | 'exercises'>('meals');
+  const [chartMetric, setChartMetric] = useState<'weight' | 'body_fat_pct' | 'muscle_pct'>('weight');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
@@ -328,11 +340,42 @@ export default function MinceurPage() {
                 {/* BMI Gauge */}
                 {c.bmi > 0 && <BMIGauge bmi={c.bmi} info={c.bmi_info} />}
 
-                {/* Weight chart */}
+                {/* Metric Tabs: Poids / Graisse / Muscle */}
                 {history.length >= 2 && (
                   <div style={{ marginTop: 16 } as any}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Evolution du poids</div>
-                    <WeightChart history={history} />
+                    <div data-testid="chart-tabs" style={{ display: 'flex', gap: 3, marginBottom: 10, background: 'rgba(255,255,255,0.02)', borderRadius: 10, padding: 2 } as any}>
+                      {([
+                        { key: 'weight' as MetricKey, label: 'Poids', icon: 'ri-scales-3-line', color: ACCENT, val: c.weight, unit: 'kg' },
+                        { key: 'body_fat_pct' as MetricKey, label: 'Graisse', icon: 'ri-fire-line', color: '#F97316', val: bc.body_fat_pct, unit: '%' },
+                        { key: 'muscle_pct' as MetricKey, label: 'Muscle', icon: 'ri-boxing-line', color: GREEN, val: bc.muscle_pct, unit: '%' },
+                      ]).map(tab => {
+                        const active = chartMetric === tab.key;
+                        const hasData = history.some((h: any) => h[tab.key] > 0);
+                        return (
+                          <div key={tab.key} data-testid={`chart-tab-${tab.key}`}
+                            onClick={() => hasData && setChartMetric(tab.key)}
+                            style={{
+                              flex: 1, padding: '8px 4px', borderRadius: 8, textAlign: 'center',
+                              cursor: hasData ? 'pointer' : 'default',
+                              background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
+                              border: active ? `1px solid ${tab.color}30` : '1px solid transparent',
+                              opacity: hasData ? 1 : 0.3,
+                              transition: 'all 0.25s',
+                            } as any}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 2 } as any}>
+                              <i className={tab.icon} style={{ fontSize: 10, color: active ? tab.color : 'rgba(255,255,255,0.25)' }} />
+                              <span style={{ fontSize: 9, fontWeight: 700, color: active ? tab.color : 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{tab.label}</span>
+                            </div>
+                            {tab.val > 0 && (
+                              <div style={{ fontSize: 14, fontWeight: 900, color: active ? '#FFF' : 'rgba(255,255,255,0.3)', lineHeight: 1 }}>
+                                {tab.val}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>{tab.unit}</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <MetricChart history={history} metric={chartMetric} />
                   </div>
                 )}
 
