@@ -54,6 +54,15 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - **Frontend - Rappel allergies**: Bandeau "Complétez vos allergies" si non renseignées, redirige vers le profil.
 - **Testing**: 100% pass (iteration_96 backend 13/13 + frontend 100%)
 
+### Refonte UI Poids & Nutrition - Complete (March 2026)
+- Carte unique fusionnée: Poids + IMC avec jauge + onglets graphiques (Poids/Graisse/Muscle) + objectif intégré. Plus de MB/DET confus.
+- Supprimé: section composition corporelle séparée, bandeau allergies permanent, conseil du jour séparé
+- Suivi quotidien: déplacé en pill compact dans le header (streak + compteur)
+- Analyse Nora: fusionnée avec le conseil en une seule carte
+- Note allergies: discrète en bas de la page détail repas uniquement
+- Carte santé simplifiée: 3 valeurs claires (Poids/Graisse/Muscle) sans graphiques
+- **Testing**: 100% pass (iteration_97 frontend 100%)
+
 ## Prioritized Backlog
 ### P1
 - Guardian referral system, Free 7-day trial
