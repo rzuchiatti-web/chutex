@@ -69,6 +69,13 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - Interprétation adaptée au genre (plages différentes homme/femme)
 - Animation fadeSlideIn au changement d'onglet
 
+### Nora en bas, Sync tracking, Page exercice - Complete (March 2026)
+- Analyse Nora déplacée en bas de page (après repas/exercices)
+- Bug fix: synchronisation tracking corrigée — validation depuis page détail se reflète au retour via window focus event
+- Page détail exercice (`exercise-detail.tsx`): Hero avec nom/catégorie, stats (durée/calories/intensité), instructions, note de sécurité, bouton de validation
+- Cartes exercices cliquables avec "Details >" navigant vers /exercise-detail
+- **Testing**: 100% pass (iteration_98)
+
 ## Prioritized Backlog
 ### P1
 - Guardian referral system, Free 7-day trial
