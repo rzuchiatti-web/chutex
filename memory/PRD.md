@@ -97,7 +97,8 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - **Bilan Hebdomadaire Nora**: Carte "BILAN HEBDOMADAIRE" avec stats hebdo et message IA personnalisé. Endpoint: `GET /api/nora/weekly-report`
 - **Label calories**: Changé "Budget calorique journalier" → "Vous devez consommer par jour" (plus clair)
 - **Skeleton loading**: Remplacé le spinner "Analyse en cours" par des cartes skeleton avec animation pulse (chargement perçu plus rapide)
-- **Garde-fou calories seniors**: Minimum relevé à 1400kcal (femme) / 1500kcal (homme) pour seniors >65 ans ou conditions médicales (était 1200). Josette passe de 1201 → 1400 kcal/jour
+- **Garde-fou calories seniors**: Minimum basé sur le BMR réel (BMR × 1.08 pour femmes seniors) au lieu de nombres ronds. Josette obtient 1413→1447 kcal/jour (calcul précis personnalisé, pas de nombre rond type 1200/1400)
+- **Semaines objectif**: Toutes les semaines de 2 à 24 (au lieu de 2 par 2)
 - **Recalcul objectif**: Vérification que le changement d'objectif invalide le cache et regénère les recommandations IA
 - **Testing**: 100% pass (iteration_100 + 101)
 

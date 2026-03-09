@@ -89,8 +89,13 @@ function SwipePicker({ values, selected, onChange, unit, color }: { values: numb
     const idx = values.indexOf(selected);
     if (idx < 0) return;
     const go = () => { if (ref.current) ref.current.scrollLeft = idx * IW - ref.current.clientWidth / 2 + IW / 2; };
-    go(); setTimeout(go, 100); setTimeout(go, 400);
-  }, [values.length]);
+    requestAnimationFrame(go);
+    requestAnimationFrame(() => requestAnimationFrame(go));
+    const t1 = setTimeout(go, 100);
+    const t2 = setTimeout(go, 300);
+    const t3 = setTimeout(go, 600);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [values.length, selected]);
 
   const snapTo = () => {
     if (!ref.current) return;
@@ -398,7 +403,8 @@ export default function MinceurPage() {
                   const baseW = cr.weight > 0 ? cr.weight : 75;
                   const wOpts: number[] = [];
                   for (let w = Math.max(40, Math.round(baseW) - 15); w <= Math.round(baseW) + 5; w++) wOpts.push(w);
-                  const dOpts = [2, 4, 6, 8, 10, 12, 16, 20, 24];
+                  const dOpts: number[] = [];
+                  for (let w = 2; w <= 24; w++) dOpts.push(w);
                   return (
                     <div style={{ padding: '16px 0', animation: 'fadeSlide 0.3s ease' } as any}>
                       {/* Weight swipe picker */}
