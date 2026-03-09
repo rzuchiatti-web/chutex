@@ -93,12 +93,13 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - **Testing**: Vérifié — changement de mot de passe persiste après reset DB + restart serveur
 
 ### Swipe Picker Objectif + Bilan Hebdo Nora - March 2026
-- **SwipePicker**: Composant de sélection par glissement horizontal pour le poids cible (entiers) et la durée du programme (semaines). Remplace les boutons +/- et les pills. Animation snap-to, indicateur central, fade edges, support tactile/souris.
-- **Bilan Hebdomadaire Nora**: Nouvelle carte en bas de page minceur avec:
-  - Stats hebdomadaires: repas validés, exercices validés, jours actifs
-  - Message IA personnalisé de Nora (GPT-5.2) avec bilan et conseil pour la semaine prochaine
-  - Endpoint: `GET /api/nora/weekly-report`
-- **Testing**: 100% pass (iteration_100 backend 6/6 + frontend 100%)
+- **SwipePicker**: Composant de sélection par glissement horizontal avec design glass transparent, scroll-snap natif CSS, indicateur central subtil, fade edges transparents. Poids (entiers) et durée (semaines).
+- **Bilan Hebdomadaire Nora**: Carte "BILAN HEBDOMADAIRE" avec stats hebdo et message IA personnalisé. Endpoint: `GET /api/nora/weekly-report`
+- **Label calories**: Changé "Budget calorique journalier" → "Vous devez consommer par jour" (plus clair)
+- **Skeleton loading**: Remplacé le spinner "Analyse en cours" par des cartes skeleton avec animation pulse (chargement perçu plus rapide)
+- **Garde-fou calories seniors**: Minimum relevé à 1400kcal (femme) / 1500kcal (homme) pour seniors >65 ans ou conditions médicales (était 1200). Josette passe de 1201 → 1400 kcal/jour
+- **Recalcul objectif**: Vérification que le changement d'objectif invalide le cache et regénère les recommandations IA
+- **Testing**: 100% pass (iteration_100 + 101)
 
 ## Prioritized Backlog
 ### P0
