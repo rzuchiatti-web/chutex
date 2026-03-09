@@ -48,6 +48,12 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - **Frontend**: Boutons de validation (check) sur chaque carte repas et exercice. Barre de progression "Suivi du jour" (ex: 4/6) avec badge streak en feu. Items validés: opacité réduite, texte barré, check vert. Toggle instantané (optimistic UI). Persistance MongoDB.
 - **Testing**: 100% pass (iteration_95 backend 15/15 + frontend 100%)
 
+### Allergies & Page Detail Repas - Complete (March 2026)
+- **Backend**: Allergies du profil intégrées dans le prompt GPT (INTERDICTION ABSOLUE des allergènes). Conditions médicales aussi prises en compte. Données repas enrichies: ingrédients avec quantités/calories, étapes de recette, macros par repas (protéines, glucides, lipides), temps de préparation.
+- **Frontend - Page detail repas** (`meal-detail.tsx`): Page dédiée cliquable depuis chaque carte repas. Affiche: hero avec nom/type/heure, valeurs nutritionnelles (calories + macros), liste d'ingrédients avec quantités et calories unitaires, étapes de préparation numérotées, bouton de validation.
+- **Frontend - Rappel allergies**: Bandeau "Complétez vos allergies" si non renseignées, redirige vers le profil.
+- **Testing**: 100% pass (iteration_96 backend 13/13 + frontend 100%)
+
 ## Prioritized Backlog
 ### P1
 - Guardian referral system, Free 7-day trial
