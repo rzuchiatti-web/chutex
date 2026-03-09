@@ -32,27 +32,63 @@ function Chart({ history, metric }: { history: any[]; metric: MK }) {
   const f = [...history].reverse().filter(d => d[metric] > 0).slice(-14);
   if (f.length < 2) return <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 11, color: 'rgba(255,255,255,0.15)' }}>Pas assez de mesures</div>;
   const vals = f.map(d => d[metric]);
-  const mn = Math.min(...vals) - (metric === 'weight' ? 1 : 0.5), mx = Math.max(...vals) + (metric === 'weight' ? 1 : 0.5);
-  const rng = mx - mn || 1, W = 340, H = 110, PX = 10, PY = 14, pW = W - PX * 2, pH = H - PY * 2;
+  const mn = Math.min(...vals) - (metric === 'weight' ? 1 : 0.3), mx = Math.max(...vals) + (metric === 'weight' ? 1 : 0.3);
+  const rng = mx - mn || 1, W = 440, H = 120, PX = 2, PY = 16, pW = W - PX * 2, pH = H - PY * 2;
   const step = pW / (f.length - 1);
   const pts = f.map((d, i) => ({ x: PX + i * step, y: PY + pH - ((d[metric] - mn) / rng) * pH, v: d[metric] }));
   const lp = pts.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' ');
   const ap = lp + ` L${pts[pts.length - 1].x},${H - PY} L${pts[0].x},${H - PY} Z`;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 120, display: 'block' }}>
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 'calc(100% + 40px)', height: 130, display: 'block', margin: '0 -20px' }}>
       <defs>
         <linearGradient id={`${cfg.gid}a`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={cfg.color} stopOpacity="0.2" /><stop offset="100%" stopColor={cfg.color} stopOpacity="0" /></linearGradient>
         <linearGradient id={`${cfg.gid}l`} x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor={cfg.color} stopOpacity="0.3" /><stop offset="100%" stopColor={cfg.color} stopOpacity="1" /></linearGradient>
       </defs>
-      {[0, 0.5, 1].map((v, i) => <line key={i} x1={PX} x2={W - PX} y1={PY + pH * (1 - v)} y2={PY + pH * (1 - v)} stroke="rgba(255,255,255,0.03)" strokeWidth="1" />)}
-      <path d={ap} fill={`url(#${cfg.gid}a)`}><animate attributeName="opacity" from="0" to="1" dur="0.6s" fill="freeze" /></path>
+      {[0, 0.5, 1].map((v, i) => <line key={i} x1={0} x2={W} y1={PY + pH * (1 - v)} y2={PY + pH * (1 - v)} stroke="rgba(255,255,255,0.025)" strokeWidth="1" />)}
+      <path d={ap} fill={`url(#${cfg.gid}a)`}><animate attributeName="opacity" from="0" to="1" dur="0.5s" fill="freeze" /></path>
       <path d={lp} fill="none" stroke={`url(#${cfg.gid}l)`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       {pts.map((p, i) => <g key={i}>
-        {i === pts.length - 1 && <><circle cx={p.x} cy={p.y} r="5" fill={cfg.color} opacity="0.15"><animate attributeName="r" values="5;9;5" dur="2s" repeatCount="indefinite" /></circle><circle cx={p.x} cy={p.y} r="3.5" fill={cfg.color} stroke="#1a1a2e" strokeWidth="2" /><text x={p.x} y={p.y - 10} textAnchor="middle" fill={cfg.color} fontSize="10" fontWeight="800">{p.v}{cfg.unit}</text></>}
-        {i === 0 && f.length > 2 && <text x={p.x} y={p.y - 8} textAnchor="start" fill="rgba(255,255,255,0.2)" fontSize="9" fontWeight="600">{p.v}</text>}
-        {i > 0 && i < pts.length - 1 && <circle cx={p.x} cy={p.y} r="1.5" fill="rgba(255,255,255,0.1)" />}
+        {i === pts.length - 1 && <><circle cx={p.x} cy={p.y} r="5" fill={cfg.color} opacity="0.15"><animate attributeName="r" values="5;9;5" dur="2s" repeatCount="indefinite" /></circle><circle cx={p.x} cy={p.y} r="3.5" fill={cfg.color} stroke="#1a1a2e" strokeWidth="2" /><text x={Math.min(p.x, W - 30)} y={p.y - 10} textAnchor={p.x > W - 40 ? 'end' : 'middle'} fill={cfg.color} fontSize="10" fontWeight="800">{p.v}{cfg.unit}</text></>}
+        {i === 0 && f.length > 2 && <text x={Math.max(p.x, 25)} y={p.y - 8} textAnchor="start" fill="rgba(255,255,255,0.18)" fontSize="9" fontWeight="600">{p.v}</text>}
+        {i > 0 && i < pts.length - 1 && <circle cx={p.x} cy={p.y} r="1.5" fill="rgba(255,255,255,0.08)" />}
       </g>)}
     </svg>
+  );
+}
+
+function MetricInsight({ metric, value, gender, weight }: { metric: MK; value: number; gender: string; weight: number }) {
+  if (!value || value <= 0) return null;
+  const isFemale = gender?.toLowerCase().includes('femme') || gender?.toLowerCase().includes('f');
+  const info = (() => {
+    if (metric === 'weight') return null; // IMC already handles weight interpretation
+    if (metric === 'body_fat_pct') {
+      const ranges = isFemale
+        ? [{ max: 20, label: 'Faible', color: '#60A5FA', desc: 'Taux de graisse bas' }, { max: 33, label: 'Normal', color: GREEN, desc: 'Taux de graisse sain pour une femme' }, { max: 39, label: 'Eleve', color: ACCENT, desc: 'Legere surcharge graisseuse' }, { max: 100, label: 'Tres eleve', color: RED, desc: 'Surcharge graisseuse importante' }]
+        : [{ max: 14, label: 'Faible', color: '#60A5FA', desc: 'Taux de graisse bas' }, { max: 25, label: 'Normal', color: GREEN, desc: 'Taux de graisse sain pour un homme' }, { max: 30, label: 'Eleve', color: ACCENT, desc: 'Legere surcharge graisseuse' }, { max: 100, label: 'Tres eleve', color: RED, desc: 'Surcharge graisseuse importante' }];
+      const r = ranges.find(r => value <= r.max) || ranges[ranges.length - 1];
+      const ref = isFemale ? '20-33%' : '14-25%';
+      const kgFat = weight > 0 ? Math.round(value / 100 * weight * 10) / 10 : 0;
+      return { ...r, ref, equiv: kgFat > 0 ? `Soit ${kgFat}kg de masse grasse sur ${weight}kg` : '' };
+    }
+    if (metric === 'muscle_pct') {
+      const ranges = isFemale
+        ? [{ max: 24, label: 'Faible', color: RED, desc: 'Masse musculaire insuffisante' }, { max: 30, label: 'Normal', color: ACCENT, desc: 'Masse musculaire correcte' }, { max: 100, label: 'Excellent', color: GREEN, desc: 'Tres bonne masse musculaire, protectrice contre les chutes' }]
+        : [{ max: 33, label: 'Faible', color: RED, desc: 'Masse musculaire insuffisante' }, { max: 39, label: 'Normal', color: ACCENT, desc: 'Masse musculaire correcte' }, { max: 100, label: 'Excellent', color: GREEN, desc: 'Excellente masse musculaire' }];
+      const r = ranges.find(r => value <= r.max) || ranges[ranges.length - 1];
+      const ref = isFemale ? '24-30%+' : '33-39%+';
+      return { ...r, ref, equiv: `Inclut tous les muscles : coeur, dos, membres, organes` };
+    }
+    return null;
+  })();
+  if (!info) return null;
+  return (
+    <div data-testid="metric-insight" style={{ padding: '10px 0 2px', animation: 'fadeSlideIn 0.35s ease' } as any}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } as any}>
+        <span style={{ padding: '3px 8px', borderRadius: 6, background: `${info.color}15`, border: `1px solid ${info.color}25`, fontSize: 10, fontWeight: 800, color: info.color }}>{info.label}</span>
+        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>Ref: {info.ref}</span>
+      </div>
+      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{info.desc}. {info.equiv}.</div>
+    </div>
   );
 }
 
@@ -208,6 +244,7 @@ export default function MinceurPage() {
                       })}
                     </div>
                     <Chart history={history} metric={chartMetric} />
+                    <MetricInsight metric={chartMetric} value={chartMetric === 'weight' ? cr.weight : chartMetric === 'body_fat_pct' ? bc.body_fat_pct : bc.muscle_pct} gender={data?.profile?.gender || ''} weight={cr.weight || 0} />
                   </div>
                 )}
 
@@ -381,7 +418,7 @@ export default function MinceurPage() {
           )}
         </div>
       </div>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }` }} />
     </div>
   );
 }

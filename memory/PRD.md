@@ -63,6 +63,12 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - Carte santé simplifiée: 3 valeurs claires (Poids/Graisse/Muscle) sans graphiques
 - **Testing**: 100% pass (iteration_97 frontend 100%)
 
+### Interprétation Métriques & Graphiques Pleine Largeur - Complete (March 2026)
+- Graphiques SVG prennent toute la largeur de la carte (edge-to-edge)
+- MetricInsight animé sous le graphique : badge contextuel (Normal/Excellent/Faible/Elevé) + plage de référence + explication en langage clair (ex: "Soit 20.9kg de masse grasse sur 79.2kg", "Inclut tous les muscles: coeur, dos, membres, organes")
+- Interprétation adaptée au genre (plages différentes homme/femme)
+- Animation fadeSlideIn au changement d'onglet
+
 ## Prioritized Backlog
 ### P1
 - Guardian referral system, Free 7-day trial
