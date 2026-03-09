@@ -92,6 +92,14 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - **Endpoints impactés**: `PUT /api/auth/change-password`, `POST /api/auth/reset-password`
 - **Testing**: Vérifié — changement de mot de passe persiste après reset DB + restart serveur
 
+### Swipe Picker Objectif + Bilan Hebdo Nora - March 2026
+- **SwipePicker**: Composant de sélection par glissement horizontal pour le poids cible (entiers) et la durée du programme (semaines). Remplace les boutons +/- et les pills. Animation snap-to, indicateur central, fade edges, support tactile/souris.
+- **Bilan Hebdomadaire Nora**: Nouvelle carte en bas de page minceur avec:
+  - Stats hebdomadaires: repas validés, exercices validés, jours actifs
+  - Message IA personnalisé de Nora (GPT-5.2) avec bilan et conseil pour la semaine prochaine
+  - Endpoint: `GET /api/nora/weekly-report`
+- **Testing**: 100% pass (iteration_100 backend 6/6 + frontend 100%)
+
 ## Prioritized Backlog
 ### P0
 - Weekly Nora Report (push notification/summary)
