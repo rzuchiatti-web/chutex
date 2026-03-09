@@ -65,7 +65,7 @@ export default function MealDetailPage() {
             {!loading && m && (
               <>
                 {/* Description + Track */}
-                <div data-testid="meal-hero" style={{ ...GL, padding: 16, marginTop: -30, marginBottom: 12, position: 'relative', zIndex: 10 } as any}>
+                <div data-testid="meal-hero" style={{ ...GL, padding: 16, marginTop: 12, marginBottom: 12 } as any}>
                   {m.description && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 12 }}>{m.description}</div>}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
                     {m.prep_time ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.04)' } as any}><i className="ri-timer-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }} /><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{m.prep_time}</span></div> : <span />}

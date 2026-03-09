@@ -59,8 +59,8 @@ export default function ExerciseDetailPage() {
 
             {!loading && ex && (
               <>
-                {/* Stats — futuristic bar */}
-                <div data-testid="exercise-hero" style={{ ...GL, padding: 0, marginTop: -30, marginBottom: 12, position: 'relative', zIndex: 10, overflow: 'hidden' } as any}>
+                {/* Stats bar */}
+                <div data-testid="exercise-hero" style={{ ...GL, padding: 0, marginTop: 12, marginBottom: 12, overflow: 'hidden' } as any}>
                   <div style={{ display: 'flex' } as any}>
                     <div style={{ flex: 1, padding: '14px 12px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.04)' } as any}>
                       <i className="ri-timer-line" style={{ fontSize: 18, color: G, display: 'block', marginBottom: 4 }} />
