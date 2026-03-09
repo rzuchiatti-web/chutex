@@ -233,7 +233,7 @@ export default function DorsiBilanPage() {
       <div style={{ textAlign: 'center', maxWidth: 400, margin: '0 auto' } as any}>
         <div style={{ ...G, marginBottom: 20, padding: '32px 24px' } as any}>
           <i className="ri-body-scan-line" style={{ fontSize: 44, color: '#FFF', display: 'none', marginBottom: 16 }} />
-          <img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/9s6gmyyj_img4_gardien%282%29.png" alt="Dorsi" style={{ width: 80, height: 80, borderRadius: 999, objectFit: 'cover', display: 'block', margin: '0 auto 16px', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' } as any} />
+          <img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/9s6gmyyj_img4_gardien%282%29.png" alt="Dorsi" style={{ width: 140, height: 140, borderRadius: 999, objectFit: 'cover', display: 'block', margin: '0 auto 20px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' } as any} />
           <h2 style={{ fontSize: 24, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>{t('dorsi_bilan')}</h2>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, margin: 0 }}>{t('dorsi_evaluate')}</p>
         </div>

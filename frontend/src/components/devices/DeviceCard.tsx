@@ -39,8 +39,8 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
         )}
       </div>
       <div style={{ padding: '0 20px 20px' } as any}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{meta.name}</div>
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 16 }}>{meta.desc}</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4, textAlign: 'center' }}>{meta.name}</div>
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 16, textAlign: 'center' }}>{meta.desc}</div>
         {isAssociated ? (
           <div>
             {realBattery > 0 && (
