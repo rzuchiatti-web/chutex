@@ -124,7 +124,7 @@ function SwipePicker({ values, selected, onChange, unit, color }: { values: numb
       if (el && containerRef.current) {
         containerRef.current.scrollTo({ left: el.offsetLeft - containerRef.current.clientWidth / 2 + el.clientWidth / 2, behavior: 'smooth' });
       }
-    }, 120);
+    }, 250);
   };
 
   return (
@@ -134,13 +134,13 @@ function SwipePicker({ values, selected, onChange, unit, color }: { values: numb
       {/* Fade edges */}
       <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 70, zIndex: 3, background: 'linear-gradient(90deg, rgba(255,255,255,0.05) 0%, transparent 100%)', pointerEvents: 'none', borderRadius: '20px 0 0 20px' } as any} />
       <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 70, zIndex: 3, background: 'linear-gradient(270deg, rgba(255,255,255,0.05) 0%, transparent 100%)', pointerEvents: 'none', borderRadius: '0 20px 20px 0' } as any} />
-      <div ref={containerRef} onScroll={onScroll} style={{ display: 'flex', height: '100%', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', cursor: 'grab', userSelect: 'none', scrollSnapType: 'x mandatory' } as any}>
+      <div ref={containerRef} onScroll={onScroll} style={{ display: 'flex', height: '100%', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', cursor: 'grab', userSelect: 'none' } as any}>
         <style dangerouslySetInnerHTML={{ __html: `div[style*="scroll-snap"]::-webkit-scrollbar{display:none}` }} />
         <div style={{ minWidth: `calc(50% - ${IW / 2}px)`, flexShrink: 0 } as any} />
         {values.map(v => {
           const sel = v === selected;
           return (
-            <div key={v} ref={el => { itemRefs.current[v] = el; }} onClick={() => { onChange(v); setTimeout(() => scrollToSelected(v), 10); }} style={{ width: IW, flexShrink: 0, textAlign: 'center', scrollSnapAlign: 'center', cursor: 'pointer', padding: '8px 0' } as any}>
+            <div key={v} ref={el => { itemRefs.current[v] = el; }} onClick={() => { onChange(v); setTimeout(() => scrollToSelected(v), 10); }} style={{ width: IW, flexShrink: 0, textAlign: 'center', cursor: 'pointer', padding: '8px 0' } as any}>
               <div style={{ fontSize: sel ? 24 : 14, fontWeight: sel ? 900 : 400, color: sel ? color : 'rgba(255,255,255,0.15)', transition: 'all 0.15s', textShadow: sel ? `0 0 20px ${color}40` : 'none', lineHeight: 1.2 }}>
                 {Number.isInteger(v) ? v : v.toFixed(1)}
               </div>
@@ -308,7 +308,7 @@ export default function MinceurPage() {
 
           {!loading && data && (
             <>
-              {/* ══ CARTE UNIQUE: Poids + Programme ══ */}
+              {/* ══ CARTE UNIQUE: Poids + Objectif ══ */}
               <div data-testid="weight-hero" style={{ ...CD, padding: 20, marginBottom: 14, ...fade(0.1) } as any}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 } as any}>
                   <div><div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1 }}>Poids actuel</div><div style={{ display: 'flex', alignItems: 'baseline', gap: 2 } as any}><span style={{ fontSize: 42, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{cr.weight > 0 ? cr.weight : '--'}</span><span style={{ fontSize: 15, fontWeight: 600, color: 'rgba(255,255,255,0.2)' }}>kg</span></div></div>
@@ -340,7 +340,7 @@ export default function MinceurPage() {
                 {/* ── Separator ── */}
                 <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '14px 0' } as any} />
 
-                {/* ── Goal / Programme section (inside same card) ── */}
+                {/* ── Goal / Objectif section (inside same card) ── */}
                 <div data-testid="goal-card">
                 {!goal && !showGoalForm && (
                   <div data-testid="set-goal-button" onClick={() => setShowGoalForm(true)} style={{ padding: '10px 0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
@@ -348,7 +348,7 @@ export default function MinceurPage() {
                       <i className="ri-focus-3-line" style={{ fontSize: 18, color: A }} />
                     </div>
                     <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Definir un programme</div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Definir un objectif</div>
                       <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>Repas, exercices et calories sur-mesure</div>
                     </div>
                     <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: A }} />
@@ -366,7 +366,7 @@ export default function MinceurPage() {
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
                           <i className="ri-focus-3-line" style={{ fontSize: 14, color: A }} />
-                          <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Votre programme</span>
+                          <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Votre objectif</span>
                         </div>
                         <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 10, color: A, cursor: 'pointer', fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: `${A}10` } as any}>Modifier</span>
                       </div>
@@ -436,7 +436,7 @@ export default function MinceurPage() {
                         {cr.weight > 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>{diff > 0 ? `-${diff.toFixed(1)}` : `+${Math.abs(diff).toFixed(1)}`}kg par rapport a aujourd'hui</div>}
                       </div>
                       <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Duree du programme</div>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Duree de l'objectif</div>
                         <SwipePicker values={dOpts} selected={goalWeeks} onChange={setGoalWeeks} unit="sem" color={G} />
                       </div>
                       {diff > 0 && (
@@ -446,7 +446,7 @@ export default function MinceurPage() {
                         </div>
                       )}
                       <div style={{ display: 'flex', gap: 8 } as any}>
-                        <div data-testid="save-goal" onClick={saveGoal} style={{ flex: 1, padding: 14, borderRadius: 999, background: tooFast ? 'rgba(255,255,255,0.08)' : `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1, boxShadow: tooFast ? 'none' : `0 8px 24px ${A}30` } as any}>{saving ? '...' : 'Lancer le programme'}</div>
+                        <div data-testid="save-goal" onClick={saveGoal} style={{ flex: 1, padding: 14, borderRadius: 999, background: tooFast ? 'rgba(255,255,255,0.08)' : `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1, boxShadow: tooFast ? 'none' : `0 8px 24px ${A}30` } as any}>{saving ? '...' : 'Lancer l\'objectif'}</div>
                         <div onClick={() => setShowGoalForm(false)} style={{ padding: '14px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>Annuler</div>
                       </div>
                       {goal && <div data-testid="remove-goal" onClick={removeGoal} style={{ textAlign: 'center', padding: 10, marginTop: 6, fontSize: 11, color: 'rgba(239,68,68,0.4)', cursor: 'pointer' } as any}>Supprimer l'objectif</div>}
