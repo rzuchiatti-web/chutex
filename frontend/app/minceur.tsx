@@ -308,7 +308,7 @@ export default function MinceurPage() {
 
           {!loading && data && (
             <>
-              {/* == CARD 1: Weight + Graph + IMC (NO goal inside) == */}
+              {/* ══ CARTE UNIQUE: Poids + Programme ══ */}
               <div data-testid="weight-hero" style={{ ...CD, padding: 20, marginBottom: 14, ...fade(0.1) } as any}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 } as any}>
                   <div><div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1 }}>Poids actuel</div><div style={{ display: 'flex', alignItems: 'baseline', gap: 2 } as any}><span style={{ fontSize: 42, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{cr.weight > 0 ? cr.weight : '--'}</span><span style={{ fontSize: 15, fontWeight: 600, color: 'rgba(255,255,255,0.2)' }}>kg</span></div></div>
@@ -316,7 +316,7 @@ export default function MinceurPage() {
                 </div>
                 {cr.bmi > 0 && <BMIBar bmi={cr.bmi} info={cr.bmi_info} />}
 
-                {/* Chart tabs — contained inside card */}
+                {/* Chart tabs */}
                 {history.length >= 2 && (
                   <div style={{ marginTop: 14 } as any}>
                     <div data-testid="chart-tabs" style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 } as any}>
@@ -336,21 +336,22 @@ export default function MinceurPage() {
                   </div>
                 )}
                 {history.length === 0 && <div style={{ textAlign: 'center', padding: '14px 0', fontSize: 12, color: 'rgba(255,255,255,0.15)' }}><i className="ri-scales-3-line" style={{ fontSize: 22, display: 'block', marginBottom: 4, opacity: 0.25 }} />Pesez-vous pour commencer le suivi</div>}
-                {data.last_reading_date && <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.12)', textAlign: 'right', marginTop: 8 }}>Pesee : {new Date(data.last_reading_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>}
-              </div>
 
-              {/* == CARD 2: Goal / Programme — INDEPENDENT CARD == */}
-              <div data-testid="goal-card" style={{ ...CD, padding: 0, marginBottom: 14, overflow: 'hidden', ...fade(0.15) } as any}>
+                {/* ── Separator ── */}
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '14px 0' } as any} />
+
+                {/* ── Goal / Programme section (inside same card) ── */}
+                <div data-testid="goal-card">
                 {!goal && !showGoalForm && (
-                  <div data-testid="set-goal-button" onClick={() => setShowGoalForm(true)} style={{ padding: '16px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                    <div style={{ width: 44, height: 44, borderRadius: 14, background: `linear-gradient(135deg, ${A}20, ${G}10)`, border: `1px solid ${A}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                      <i className="ri-focus-3-line" style={{ fontSize: 20, color: A }} />
+                  <div data-testid="set-goal-button" onClick={() => setShowGoalForm(true)} style={{ padding: '10px 0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                    <div style={{ width: 40, height: 40, borderRadius: 12, background: `linear-gradient(135deg, ${A}20, ${G}10)`, border: `1px solid ${A}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className="ri-focus-3-line" style={{ fontSize: 18, color: A }} />
                     </div>
                     <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Definir un programme</div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Repas, exercices et calories calibres pour votre objectif</div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Definir un programme</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>Repas, exercices et calories sur-mesure</div>
                     </div>
-                    <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: A }} />
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: A }} />
                   </div>
                 )}
                 {goal && !showGoalForm && (() => {
@@ -358,55 +359,60 @@ export default function MinceurPage() {
                   const kpw = goal.weeks > 0 ? Math.abs(diff) / goal.weeks : 0;
                   const progressPct = diff > 0 ? Math.max(0, Math.min(100, (1 - (cr.weight - goal.target_kg) / (diff || 1)) * 100)) : 0;
                   const weeksLeft = goal.weeks || 0;
+                  // Calculate days since goal creation
+                  const goalDays = goal.created_at ? Math.max(1, Math.floor((Date.now() - new Date(goal.created_at).getTime()) / 86400000)) : 1;
                   return (
-                    <div style={{ padding: '16px 18px' } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                          <div style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg, ${A}20, ${G}10)`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                            <i className="ri-focus-3-line" style={{ fontSize: 15, color: A }} />
-                          </div>
-                          <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Programme actif</span>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                          <i className="ri-focus-3-line" style={{ fontSize: 14, color: A }} />
+                          <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Votre programme</span>
                         </div>
-                        <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 10, color: A, cursor: 'pointer', fontWeight: 700, padding: '4px 12px', borderRadius: 999, background: `${A}10`, border: `1px solid ${A}15` } as any}>Modifier</span>
+                        <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 10, color: A, cursor: 'pointer', fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: `${A}10` } as any}>Modifier</span>
                       </div>
-                      {/* Target display */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 14 } as any}>
+                      {/* Target + progress */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 } as any}>
                         <div style={{ flex: 1 } as any}>
-                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
-                            <span style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{cr.weight > 0 ? cr.weight : '--'}</span>
-                            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>kg</span>
-                            <i className="ri-arrow-right-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.15)', margin: '0 4px' }} />
-                            <span style={{ fontSize: 28, fontWeight: 900, color: A }}>{goal.target_kg}</span>
-                            <span style={{ fontSize: 11, color: `${A}60` }}>kg</span>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 } as any}>
+                            <span style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{cr.weight > 0 ? cr.weight : '--'}</span>
+                            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>kg</span>
+                            <i className="ri-arrow-right-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.12)', margin: '0 2px' }} />
+                            <span style={{ fontSize: 24, fontWeight: 900, color: A }}>{goal.target_kg}</span>
+                            <span style={{ fontSize: 10, color: `${A}50` }}>kg</span>
                           </div>
-                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>
-                            {diff > 0 ? `-${diff.toFixed(1)}kg` : `+${Math.abs(diff).toFixed(1)}kg`} en {weeksLeft} semaines ({kpw.toFixed(1)}kg/sem)
-                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' } as any}>
+                          <div style={{ fontSize: 20, fontWeight: 900, color: G }}>{goalDays}<span style={{ fontSize: 9, color: `${G}60` }}> j</span></div>
+                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>ACTIF</div>
                         </div>
                       </div>
                       {/* Progress bar */}
-                      <div style={{ marginBottom: 10 } as any}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 } as any}>
-                          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>Progression</span>
-                          <span style={{ fontSize: 9, color: A, fontWeight: 800 }}>{Math.round(progressPct)}%</span>
-                        </div>
-                        <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}>
+                      <div style={{ marginBottom: 8 } as any}>
+                        <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}>
                           <div style={{ height: '100%', borderRadius: 3, background: `linear-gradient(90deg, ${A}, ${G})`, width: `${progressPct}%`, transition: 'width 1s ease' } as any} />
                         </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 } as any}>
+                          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>{diff > 0 ? `-${diff.toFixed(1)}kg` : `+${Math.abs(diff).toFixed(1)}kg`} · {kpw.toFixed(1)}kg/sem</span>
+                          <span style={{ fontSize: 9, color: A, fontWeight: 700 }}>{Math.round(progressPct)}%</span>
+                        </div>
                       </div>
-                      {/* What it implies */}
-                      <div style={{ display: 'flex', gap: 8 } as any}>
-                        <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                          <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{recs?.daily_calories || '~1200'}</div>
-                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>kcal/jour</div>
+                      {/* Program stats row */}
+                      <div style={{ display: 'flex', gap: 6 } as any}>
+                        <div style={{ flex: 1, padding: '6px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
+                          <div style={{ fontSize: 13, fontWeight: 900, color: '#FFF' }}>{recs?.daily_calories || '--'}</div>
+                          <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>KCAL/JOUR</div>
                         </div>
-                        <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                          <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{recs?.meals?.length || 4}</div>
-                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>repas/jour</div>
+                        <div style={{ flex: 1, padding: '6px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
+                          <div style={{ fontSize: 13, fontWeight: 900, color: '#FFF' }}>{weeksLeft}</div>
+                          <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>SEMAINES</div>
                         </div>
-                        <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                          <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{recs?.exercises?.length || 2}</div>
-                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>exercices</div>
+                        <div style={{ flex: 1, padding: '6px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
+                          <div style={{ fontSize: 13, fontWeight: 900, color: '#FFF' }}>{recs?.meals?.length || 4}</div>
+                          <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>REPAS</div>
+                        </div>
+                        <div style={{ flex: 1, padding: '6px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
+                          <div style={{ fontSize: 13, fontWeight: 900, color: '#FFF' }}>{recs?.exercises?.length || 2}</div>
+                          <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>EXERCICES</div>
                         </div>
                       </div>
                     </div>
@@ -417,32 +423,29 @@ export default function MinceurPage() {
                   const kgPerWeek = goalWeeks > 0 ? Math.abs(diff) / goalWeeks : 0;
                   const tooFast = diff > 0 && kgPerWeek > 0.7;
                   const tooSlow = diff > 0 && kgPerWeek < 0.2 && goalWeeks < 24;
-                  // Generate weight options: integers only for cleaner picker
                   const baseW = cr.weight > 0 ? cr.weight : 75;
                   const wOpts: number[] = [];
                   for (let w = Math.max(40, Math.round(baseW) - 15); w <= Math.round(baseW) + 5; w++) wOpts.push(w);
                   const dOpts: number[] = [];
                   for (let w = 2; w <= 24; w++) dOpts.push(w);
                   return (
-                    <div style={{ padding: '16px 0', animation: 'fadeSlide 0.3s ease' } as any}>
-                      {/* Weight swipe picker */}
-                      <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>Poids cible</div>
+                    <div style={{ padding: '4px 0 0', animation: 'fadeSlide 0.3s ease' } as any}>
+                      <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Poids cible</div>
                         <SwipePicker values={wOpts} selected={targetKg} onChange={setTargetKg} unit="kg" color={A} />
                         {cr.weight > 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>{diff > 0 ? `-${diff.toFixed(1)}` : `+${Math.abs(diff).toFixed(1)}`}kg par rapport a aujourd'hui</div>}
                       </div>
-                      {/* Duration swipe picker */}
-                      <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>Duree du programme</div>
+                      <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Duree du programme</div>
                         <SwipePicker values={dOpts} selected={goalWeeks} onChange={setGoalWeeks} unit="sem" color={G} />
                       </div>
                       {diff > 0 && (
-                        <div style={{ textAlign: 'center', marginBottom: 12, padding: '8px 16px', borderRadius: 12, background: tooFast ? 'rgba(239,68,68,0.08)' : tooSlow ? 'rgba(96,165,250,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${tooFast ? 'rgba(239,68,68,0.15)' : tooSlow ? 'rgba(96,165,250,0.15)' : 'rgba(16,185,129,0.15)'}`, margin: '0 18px 12px' } as any}>
+                        <div style={{ textAlign: 'center', marginBottom: 12, padding: '8px 14px', borderRadius: 12, background: tooFast ? 'rgba(239,68,68,0.08)' : tooSlow ? 'rgba(96,165,250,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${tooFast ? 'rgba(239,68,68,0.15)' : tooSlow ? 'rgba(96,165,250,0.15)' : 'rgba(16,185,129,0.15)'}` } as any}>
                           <div style={{ fontSize: 11, fontWeight: 700, color: tooFast ? R : tooSlow ? B : G }}>{tooFast ? 'Rythme trop rapide' : tooSlow ? 'Rythme tres progressif' : 'Rythme recommande'}</div>
                           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{kgPerWeek.toFixed(1)}kg/semaine {tooFast ? '· max 0.7kg/sem recommande' : ''}</div>
                         </div>
                       )}
-                      <div style={{ display: 'flex', gap: 8, padding: '0 18px' } as any}>
+                      <div style={{ display: 'flex', gap: 8 } as any}>
                         <div data-testid="save-goal" onClick={saveGoal} style={{ flex: 1, padding: 14, borderRadius: 999, background: tooFast ? 'rgba(255,255,255,0.08)' : `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1, boxShadow: tooFast ? 'none' : `0 8px 24px ${A}30` } as any}>{saving ? '...' : 'Lancer le programme'}</div>
                         <div onClick={() => setShowGoalForm(false)} style={{ padding: '14px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>Annuler</div>
                       </div>
@@ -450,12 +453,14 @@ export default function MinceurPage() {
                     </div>
                   );
                 })()}
+                </div>
+                {data.last_reading_date && <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.12)', textAlign: 'right', marginTop: 8 }}>Pesee : {new Date(data.last_reading_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>}
               </div>
 
-              {/* == RECOMMENDATIONS == */}
+              {/* ══ RECOMMENDATIONS ══ */}
               {recs && (
                 <div style={{ ...fade(0.2) } as any}>
-                  {/* Budget calorique */}
+                  {/* Apport calorique */}
                   <div data-testid="calories-summary" style={{ ...CD, padding: 0, marginBottom: 14, overflow: 'hidden' } as any}>
                     <div style={{ padding: '18px 18px 14px', background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(16,185,129,0.04))' } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
@@ -486,11 +491,11 @@ export default function MinceurPage() {
                     )}
                   </div>
 
-                  {/* Pill tabs: Repas / Exercices */}
+                  {/* Pill tabs: Repas / Exercices — WHITE pills */}
                   <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 } as any}>
-                    <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                    <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
                       {(['meals', 'exercises'] as const).map(t => (
-                        <div key={t} data-testid={`tab-${t}`} onClick={() => setTab(t)} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: tab === t ? 'rgba(255,255,255,0.12)' : 'transparent', color: tab === t ? '#FFF' : 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                        <div key={t} data-testid={`tab-${t}`} onClick={() => setTab(t)} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: tab === t ? '#FFF' : 'transparent', color: tab === t ? '#111' : 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6, boxShadow: tab === t ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
                           <i className={t === 'meals' ? 'ri-restaurant-2-line' : 'ri-heart-pulse-line'} style={{ fontSize: 13 }} />
                           {t === 'meals' ? 'Repas' : 'Exercices'}
                         </div>
