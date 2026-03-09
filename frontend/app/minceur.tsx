@@ -81,33 +81,51 @@ function Insight({ metric, value, gender, weight }: { metric: MK; value: number;
 
 /* ═══ Swipe Picker — Glass transparent design ═══ */
 function SwipePicker({ values, selected, onChange, unit, color }: { values: number[]; selected: number; onChange: (v: number) => void; unit: string; color: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const IW = 54;
 
+  // Scroll selected item into center using offsetLeft
+  const scrollToSelected = useCallback((val: number) => {
+    const el = itemRefs.current[val];
+    const container = containerRef.current;
+    if (el && container) {
+      container.scrollLeft = el.offsetLeft - container.clientWidth / 2 + el.clientWidth / 2;
+    }
+  }, []);
+
+  // Block snap during initial scroll
+  const isInit = useRef(true);
+
+  // Initial centering
   useEffect(() => {
-    if (!ref.current) return;
-    const idx = values.indexOf(selected);
-    if (idx < 0) return;
-    const go = () => { if (ref.current) ref.current.scrollLeft = idx * IW - ref.current.clientWidth / 2 + IW / 2; };
-    requestAnimationFrame(go);
-    requestAnimationFrame(() => requestAnimationFrame(go));
-    const t1 = setTimeout(go, 100);
-    const t2 = setTimeout(go, 300);
-    const t3 = setTimeout(go, 600);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [values.length, selected]);
+    isInit.current = true;
+    const go = () => scrollToSelected(selected);
+    go();
+    const t1 = setTimeout(go, 30);
+    const t2 = setTimeout(go, 150);
+    const t3 = setTimeout(go, 400);
+    const t4 = setTimeout(() => { go(); isInit.current = false; }, 700);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+  }, [selected, values.length, scrollToSelected]);
 
-  const snapTo = () => {
-    if (!ref.current) return;
-    const cx = ref.current.scrollLeft + ref.current.clientWidth / 2;
-    let best = 0, md = Infinity;
-    values.forEach((_, i) => { const d = Math.abs(i * IW + IW / 2 - cx); if (d < md) { md = d; best = i; } });
-    onChange(values[best]);
-    ref.current.scrollTo({ left: best * IW - ref.current.clientWidth / 2 + IW / 2, behavior: 'smooth' });
+  // Snap to nearest on scroll end
+  const snapTimer = useRef<any>(null);
+  const onScroll = () => {
+    if (isInit.current) return; // Don't snap during initialization
+    clearTimeout(snapTimer.current);
+    snapTimer.current = setTimeout(() => {
+      if (!containerRef.current || isInit.current) return;
+      const cx = containerRef.current.scrollLeft + containerRef.current.clientWidth / 2;
+      let best = 0, md = Infinity;
+      values.forEach((_, i) => { const d = Math.abs(i * IW + IW / 2 - cx); if (d < md) { md = d; best = i; } });
+      if (values[best] !== selected) onChange(values[best]);
+      const el = itemRefs.current[values[best]];
+      if (el && containerRef.current) {
+        containerRef.current.scrollTo({ left: el.offsetLeft - containerRef.current.clientWidth / 2 + el.clientWidth / 2, behavior: 'smooth' });
+      }
+    }, 120);
   };
-
-  let timer: any = null;
-  const onScroll = () => { clearTimeout(timer); timer = setTimeout(snapTo, 100); };
 
   return (
     <div style={{ position: 'relative', height: 64, margin: '0 -18px' } as any}>
@@ -116,13 +134,13 @@ function SwipePicker({ values, selected, onChange, unit, color }: { values: numb
       {/* Fade edges */}
       <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 70, zIndex: 3, background: 'linear-gradient(90deg, rgba(255,255,255,0.05) 0%, transparent 100%)', pointerEvents: 'none', borderRadius: '20px 0 0 20px' } as any} />
       <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 70, zIndex: 3, background: 'linear-gradient(270deg, rgba(255,255,255,0.05) 0%, transparent 100%)', pointerEvents: 'none', borderRadius: '0 20px 20px 0' } as any} />
-      <div ref={ref} onScroll={onScroll} style={{ display: 'flex', height: '100%', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', cursor: 'grab', userSelect: 'none', scrollSnapType: 'x mandatory' } as any}>
+      <div ref={containerRef} onScroll={onScroll} style={{ display: 'flex', height: '100%', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', cursor: 'grab', userSelect: 'none', scrollSnapType: 'x mandatory' } as any}>
         <style dangerouslySetInnerHTML={{ __html: `div[style*="scroll-snap"]::-webkit-scrollbar{display:none}` }} />
         <div style={{ minWidth: `calc(50% - ${IW / 2}px)`, flexShrink: 0 } as any} />
         {values.map(v => {
           const sel = v === selected;
           return (
-            <div key={v} onClick={() => { onChange(v); if (ref.current) { const i = values.indexOf(v); ref.current.scrollTo({ left: i * IW - ref.current.clientWidth / 2 + IW / 2, behavior: 'smooth' }); } }} style={{ width: IW, flexShrink: 0, textAlign: 'center', scrollSnapAlign: 'center', cursor: 'pointer', padding: '8px 0' } as any}>
+            <div key={v} ref={el => { itemRefs.current[v] = el; }} onClick={() => { onChange(v); setTimeout(() => scrollToSelected(v), 10); }} style={{ width: IW, flexShrink: 0, textAlign: 'center', scrollSnapAlign: 'center', cursor: 'pointer', padding: '8px 0' } as any}>
               <div style={{ fontSize: sel ? 24 : 14, fontWeight: sel ? 900 : 400, color: sel ? color : 'rgba(255,255,255,0.15)', transition: 'all 0.15s', textShadow: sel ? `0 0 20px ${color}40` : 'none', lineHeight: 1.2 }}>
                 {Number.isInteger(v) ? v : v.toFixed(1)}
               </div>
