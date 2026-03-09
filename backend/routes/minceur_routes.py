@@ -121,8 +121,15 @@ async def generate_daily_recommendations(user_id: str, user_data: dict, latest_r
             weeks = max(1, goal.get("weeks", 12))
             kg_per_week = diff / weeks
             daily_deficit = min(500, (kg_per_week * 7700) / 7)
-            daily_target_cal = max(1200, round(tdee - daily_deficit))
-            goal_context = f"\nOBJECTIF: Atteindre {goal['target_kg']}kg (actuellement {weight}kg, -{diff:.1f}kg en {weeks} semaines). Budget calorique: {daily_target_cal}kcal/jour."
+            # Safety minimums: higher for seniors (>65), post-AVC, or medical conditions
+            is_senior = age >= 65
+            has_medical = bool(medical_conditions and medical_conditions.lower() not in ("aucune", "none", ""))
+            if is_senior or has_medical:
+                cal_min = 1500 if is_male else 1400
+            else:
+                cal_min = 1500 if is_male else 1200
+            daily_target_cal = max(cal_min, round(tdee - daily_deficit))
+            goal_context = f"\nOBJECTIF: Atteindre {goal['target_kg']}kg (actuellement {weight}kg, -{diff:.1f}kg en {weeks} semaines). Budget calorique: {daily_target_cal}kcal/jour. IMPORTANT: Ne jamais descendre en dessous de {cal_min}kcal/jour pour ce profil (senior {'avec conditions medicales' if has_medical else ''})."
         elif diff < 0:
             surplus = min(300, abs(diff) * 100)
             daily_target_cal = round(tdee + surplus)

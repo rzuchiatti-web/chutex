@@ -79,106 +79,53 @@ function Insight({ metric, value, gender, weight }: { metric: MK; value: number;
   );
 }
 
-/* ═══ Swipe Picker Component ═══ */
+/* ═══ Swipe Picker — Glass transparent design ═══ */
 function SwipePicker({ values, selected, onChange, unit, color }: { values: number[]; selected: number; onChange: (v: number) => void; unit: string; color: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const ITEM_W = 60;
-  const isDragging = useRef(false);
-  const startX = useRef(0);
-  const scrollStart = useRef(0);
-  const snapTimer = useRef<any>(null);
+  const IW = 54;
 
-  const scrollToIdx = useCallback((idx: number, smooth = true) => {
-    if (!ref.current || idx < 0) return;
-    const center = ref.current.clientWidth / 2;
-    ref.current.scrollTo({ left: idx * ITEM_W - center + ITEM_W / 2, behavior: smooth ? 'smooth' : 'auto' });
-  }, []);
-
-  // Initial scroll to selected value
   useEffect(() => {
+    if (!ref.current) return;
     const idx = values.indexOf(selected);
-    if (idx < 0 || !ref.current) return;
-    const doScroll = () => {
-      if (!ref.current) return;
-      const center = ref.current.clientWidth / 2;
-      ref.current.scrollLeft = idx * ITEM_W - center + ITEM_W / 2;
-    };
-    doScroll();
-    const t1 = setTimeout(doScroll, 50);
-    const t2 = setTimeout(doScroll, 200);
-    const t3 = setTimeout(doScroll, 500);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    if (idx < 0) return;
+    const go = () => { if (ref.current) ref.current.scrollLeft = idx * IW - ref.current.clientWidth / 2 + IW / 2; };
+    go(); setTimeout(go, 100); setTimeout(go, 400);
   }, [values.length]);
 
-  const getClosestIdx = useCallback(() => {
-    if (!ref.current) return -1;
-    const center = ref.current.scrollLeft + ref.current.clientWidth / 2;
-    let closest = 0, minDist = Infinity;
-    values.forEach((_, i) => {
-      const pos = i * ITEM_W + ITEM_W / 2;
-      const dist = Math.abs(pos - center);
-      if (dist < minDist) { minDist = dist; closest = i; }
-    });
-    return closest;
-  }, [values]);
+  const snapTo = () => {
+    if (!ref.current) return;
+    const cx = ref.current.scrollLeft + ref.current.clientWidth / 2;
+    let best = 0, md = Infinity;
+    values.forEach((_, i) => { const d = Math.abs(i * IW + IW / 2 - cx); if (d < md) { md = d; best = i; } });
+    onChange(values[best]);
+    ref.current.scrollTo({ left: best * IW - ref.current.clientWidth / 2 + IW / 2, behavior: 'smooth' });
+  };
 
-  const snap = useCallback(() => {
-    const idx = getClosestIdx();
-    if (idx >= 0 && values[idx] !== selected) onChange(values[idx]);
-    scrollToIdx(idx);
-  }, [values, selected, onChange, getClosestIdx, scrollToIdx]);
-
-  const scheduleSnap = useCallback(() => {
-    if (snapTimer.current) clearTimeout(snapTimer.current);
-    snapTimer.current = setTimeout(snap, 80);
-  }, [snap]);
-
-  const onMouseDown = (e: any) => { isDragging.current = true; startX.current = e.clientX; scrollStart.current = ref.current?.scrollLeft || 0; e.preventDefault(); };
-  const onMouseMove = (e: any) => { if (!isDragging.current || !ref.current) return; ref.current.scrollLeft = scrollStart.current - (e.clientX - startX.current); };
-  const onMouseUp = () => { if (isDragging.current) { isDragging.current = false; snap(); } };
-  const onTouchStart = (e: any) => { startX.current = e.touches[0].clientX; scrollStart.current = ref.current?.scrollLeft || 0; };
-  const onTouchMove = (e: any) => { if (!ref.current) return; ref.current.scrollLeft = scrollStart.current - (e.touches[0].clientX - startX.current); };
-
-  useEffect(() => {
-    document.addEventListener('mouseup', onMouseUp);
-    document.addEventListener('mousemove', onMouseMove);
-    return () => { document.removeEventListener('mouseup', onMouseUp); document.removeEventListener('mousemove', onMouseMove); };
-  }, [snap]);
-
-  // Snap on scroll end
-  const onScroll = useCallback(() => {
-    if (!isDragging.current) scheduleSnap();
-    // Update selected while scrolling for visual feedback
-    const idx = getClosestIdx();
-    if (idx >= 0 && values[idx] !== selected) onChange(values[idx]);
-  }, [scheduleSnap, getClosestIdx, values, selected, onChange]);
+  let timer: any = null;
+  const onScroll = () => { clearTimeout(timer); timer = setTimeout(snapTo, 100); };
 
   return (
-    <div data-testid="swipe-picker" style={{ position: 'relative', height: 72 } as any}>
-      {/* Center indicator line */}
-      <div style={{ position: 'absolute', left: '50%', top: 8, bottom: 8, width: 2, marginLeft: -1, zIndex: 2, background: color, borderRadius: 2, opacity: 0.4, pointerEvents: 'none' } as any} />
-      <div style={{ position: 'absolute', left: '50%', top: '50%', width: 44, height: 44, marginLeft: -22, marginTop: -22, zIndex: 1, borderRadius: 12, border: `2px solid ${color}50`, background: `${color}08`, pointerEvents: 'none' } as any} />
+    <div style={{ position: 'relative', height: 64, margin: '0 -18px' } as any}>
+      {/* Center highlight */}
+      <div style={{ position: 'absolute', left: '50%', top: 6, bottom: 6, width: IW - 4, marginLeft: -(IW - 4) / 2, zIndex: 2, borderRadius: 14, background: `${color}10`, border: `1.5px solid ${color}30`, pointerEvents: 'none' } as any} />
       {/* Fade edges */}
-      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 80, zIndex: 3, background: 'linear-gradient(90deg, rgba(13,13,30,0.95) 0%, transparent 100%)', pointerEvents: 'none' } as any} />
-      <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 80, zIndex: 3, background: 'linear-gradient(270deg, rgba(13,13,30,0.95) 0%, transparent 100%)', pointerEvents: 'none' } as any} />
-      {/* Scroll area */}
-      <div ref={ref} onMouseDown={onMouseDown} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={snap} onScroll={onScroll}
-        style={{ display: 'flex', height: '100%', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', cursor: 'grab', userSelect: 'none' } as any}>
-        <style dangerouslySetInnerHTML={{ __html: `[data-testid="swipe-picker"] div::-webkit-scrollbar{display:none}` }} />
-        <div style={{ minWidth: `calc(50% - ${ITEM_W / 2}px)`, flexShrink: 0 } as any} />
-        {values.map((v) => {
-          const isSel = v === selected;
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 70, zIndex: 3, background: 'linear-gradient(90deg, rgba(255,255,255,0.05) 0%, transparent 100%)', pointerEvents: 'none', borderRadius: '20px 0 0 20px' } as any} />
+      <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 70, zIndex: 3, background: 'linear-gradient(270deg, rgba(255,255,255,0.05) 0%, transparent 100%)', pointerEvents: 'none', borderRadius: '0 20px 20px 0' } as any} />
+      <div ref={ref} onScroll={onScroll} style={{ display: 'flex', height: '100%', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', cursor: 'grab', userSelect: 'none', scrollSnapType: 'x mandatory' } as any}>
+        <style dangerouslySetInnerHTML={{ __html: `div[style*="scroll-snap"]::-webkit-scrollbar{display:none}` }} />
+        <div style={{ minWidth: `calc(50% - ${IW / 2}px)`, flexShrink: 0 } as any} />
+        {values.map(v => {
+          const sel = v === selected;
           return (
-            <div key={v} onClick={() => { onChange(v); const idx = values.indexOf(v); scrollToIdx(idx); }}
-              style={{ width: ITEM_W, flexShrink: 0, textAlign: 'center', cursor: 'pointer', transition: 'transform 0.15s ease' } as any}>
-              <div style={{ fontSize: isSel ? 26 : 14, fontWeight: isSel ? 900 : 400, color: isSel ? color : 'rgba(255,255,255,0.15)', transition: 'all 0.15s ease', textShadow: isSel ? `0 0 24px ${color}50` : 'none', lineHeight: 1.2 }}>
+            <div key={v} onClick={() => { onChange(v); if (ref.current) { const i = values.indexOf(v); ref.current.scrollTo({ left: i * IW - ref.current.clientWidth / 2 + IW / 2, behavior: 'smooth' }); } }} style={{ width: IW, flexShrink: 0, textAlign: 'center', scrollSnapAlign: 'center', cursor: 'pointer', padding: '8px 0' } as any}>
+              <div style={{ fontSize: sel ? 24 : 14, fontWeight: sel ? 900 : 400, color: sel ? color : 'rgba(255,255,255,0.15)', transition: 'all 0.15s', textShadow: sel ? `0 0 20px ${color}40` : 'none', lineHeight: 1.2 }}>
                 {Number.isInteger(v) ? v : v.toFixed(1)}
               </div>
-              {isSel && <div style={{ fontSize: 9, fontWeight: 700, color: `${color}70`, marginTop: 2 }}>{unit}</div>}
+              {sel && <div style={{ fontSize: 8, fontWeight: 700, color: `${color}60`, marginTop: 1 }}>{unit}</div>}
             </div>
           );
         })}
-        <div style={{ minWidth: `calc(50% - ${ITEM_W / 2}px)`, flexShrink: 0 } as any} />
+        <div style={{ minWidth: `calc(50% - ${IW / 2}px)`, flexShrink: 0 } as any} />
       </div>
     </div>
   );
@@ -325,7 +272,15 @@ export default function MinceurPage() {
             </div>
           )}
 
-          {loading && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '80px 20px', gap: 14 } as any}><div style={{ width: 44, height: 44, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.06)', borderTopColor: A, animation: 'spin 0.8s linear infinite' } as any} /><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>Analyse en cours...</div></div>}
+          {loading && <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: '20px 0' } as any}>
+            {/* Skeleton loading */}
+            {[1, 2, 3].map(i => (
+              <div key={i} style={{ ...CD, padding: 20, animation: 'pulse 1.5s ease infinite' } as any}>
+                <div style={{ width: '40%', height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', marginBottom: 8 } as any} />
+                <div style={{ width: '60%', height: 24, borderRadius: 5, background: 'rgba(255,255,255,0.04)' } as any} />
+              </div>
+            ))}
+          </div>}
           {error && !loading && <div style={{ ...CD, padding: 24, textAlign: 'center' } as any}><i className="ri-error-warning-line" style={{ fontSize: 32, color: R }} /><div style={{ fontSize: 14, color: '#FFF', fontWeight: 700, marginTop: 8 }}>{error}</div></div>}
 
           {!loading && data && (
@@ -481,7 +436,7 @@ export default function MinceurPage() {
                     <div style={{ padding: '18px 18px 14px', background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(16,185,129,0.04))' } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
                         <div>
-                          <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5 }}>Budget calorique journalier</div>
+                          <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5 }}>Vous devez consommer par jour</div>
                           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 4 } as any}>
                             <span style={{ fontSize: 38, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{recs.daily_calories}</span>
                             <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.2)' }}>kcal</span>
@@ -598,7 +553,7 @@ export default function MinceurPage() {
           )}
         </div>
       </div>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}` }} />
     </div>
   );
 }
