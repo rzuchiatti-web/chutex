@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Backend URL configuration
-BASE_URL = "https://wellness-metrics-16.preview.emergentagent.com/api"
+BASE_URL = "https://nutrition-ai-beta.preview.emergentagent.com/api"
 
 # Test credentials (all passwords work)
 TEST_USERS = {

@@ -13,7 +13,7 @@ import re
 # Base URL from environment
 BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', '').rstrip('/')
 if not BASE_URL:
-    BASE_URL = "https://wellness-metrics-16.preview.emergentagent.com"
+    BASE_URL = "https://nutrition-ai-beta.preview.emergentagent.com"
 
 # MongoDB connection for direct DB operations
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
