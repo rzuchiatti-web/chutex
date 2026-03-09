@@ -84,6 +84,23 @@ app.add_middleware(SecurityHeadersMiddleware)
 
 
 @app.on_event("startup")
+async def apply_password_overrides():
+    """Apply persisted password overrides on startup (survives DB snapshots)."""
+    import json, os
+    override_path = os.path.join(os.path.dirname(__file__), "password_overrides.json")
+    if os.path.exists(override_path):
+        try:
+            with open(override_path, "r") as f:
+                overrides = json.load(f)
+            for user_id, pw_hash in overrides.items():
+                result = await db.users.update_one({"id": user_id}, {"$set": {"password_hash": pw_hash}})
+                if result.modified_count > 0:
+                    logger.info(f"Password override applied for user {user_id}")
+        except Exception as e:
+            logger.error(f"Error applying password overrides: {e}")
+
+
+@app.on_event("startup")
 async def seed_demo_data():
     """Seed disabled — clean database for production testing"""
     logger.info("Seed disabled - base propre")

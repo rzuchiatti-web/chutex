@@ -83,6 +83,15 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - **Onglets graphiques**: Style plus subtil, contenus dans la carte (pas de débordement)
 - **Testing**: 100% pass (iteration_99 frontend 100%)
 
+### Bug Fix: Mot de passe persistant - March 2026
+- **Problème**: Le mot de passe changé par l'utilisateur se réinitialisait entre les sessions (snapshots DB)
+- **Solution**: Système de persistance fichier (`password_overrides.json`). Quand un utilisateur change son mot de passe:
+  1. Le hash est sauvegardé dans MongoDB (comportement normal)
+  2. Le hash est AUSSI sauvegardé dans `/app/backend/password_overrides.json` (persiste entre forks)
+  3. Au démarrage du serveur, les overrides sont appliqués automatiquement à la DB
+- **Endpoints impactés**: `PUT /api/auth/change-password`, `POST /api/auth/reset-password`
+- **Testing**: Vérifié — changement de mot de passe persiste après reset DB + restart serveur
+
 ## Prioritized Backlog
 ### P0
 - Weekly Nora Report (push notification/summary)

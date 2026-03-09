@@ -153,7 +153,21 @@ async def reset_password(data: dict):
         if not user:
             raise HTTPException(status_code=404, detail="Utilisateur introuvable")
         user_id = user['id']
-    await db.users.update_one({"id": user_id}, {"$set": {"password_hash": hash_password(new_password)}})
+    new_hash = hash_password(new_password)
+    await db.users.update_one({"id": user_id}, {"$set": {"password_hash": new_hash}})
+    # Persist password override to survive DB snapshots
+    import json, os
+    override_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "password_overrides.json")
+    overrides = {}
+    if os.path.exists(override_path):
+        try:
+            with open(override_path, "r") as f:
+                overrides = json.load(f)
+        except Exception:
+            pass
+    overrides[user_id] = new_hash
+    with open(override_path, "w") as f:
+        json.dump(overrides, f)
     await db.verification_codes.delete_many({"phone": cleaned, "type": "reset"})
     return {"status": "ok", "message": "Mot de passe reinitialise avec succes"}
 
@@ -272,7 +286,21 @@ async def change_password(data: dict, user=Depends(get_current_user)):
     new_pw = data.get('new_password', '')
     if len(new_pw) < 6:
         raise HTTPException(status_code=400, detail="Min. 6 caracteres")
-    await db.users.update_one({"id": user['id']}, {"$set": {"password_hash": hash_password(new_pw)}})
+    new_hash = hash_password(new_pw)
+    await db.users.update_one({"id": user['id']}, {"$set": {"password_hash": new_hash}})
+    # Persist password override to survive DB snapshots between forks
+    import json, os
+    override_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "password_overrides.json")
+    overrides = {}
+    if os.path.exists(override_path):
+        try:
+            with open(override_path, "r") as f:
+                overrides = json.load(f)
+        except Exception:
+            pass
+    overrides[user['id']] = new_hash
+    with open(override_path, "w") as f:
+        json.dump(overrides, f)
     return {"status": "password_changed"}
 
 
