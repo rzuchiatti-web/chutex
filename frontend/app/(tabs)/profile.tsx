@@ -383,13 +383,13 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             </div>
           )}
 
-          {/* SAAD Stripe Connect Card */}
+          {/* SAAD Mollie Payment Card */}
           {effectiveRole === 'prescriber_company' && (
             <div onClick={() => setShowStripeConfig(true)} style={{ padding: '18px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(124,58,237,0.15)', marginBottom: 14, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
                 <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-bank-card-line" style={{ fontSize: 22, color: '#7C3AED' }} /></div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{user.stripe_account_id ? 'Stripe Connect' : 'Configurer les paiements'}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Configuration paiements</div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{user.commission_type === 'oneshot' ? 'Commission unique (100/200 EUR)' : user.commission_type === 'monthly' ? 'Commission mensuelle (8/15 EUR)' : 'Non configure'}</div>
                 </div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: user.stripe_account_id ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' } as any}>

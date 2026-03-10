@@ -102,30 +102,35 @@ async def update_subscription_info(data: dict, user=Depends(get_current_user)):
 @router.post("/subscriptions/my/cancel")
 async def cancel_my_subscription(user=Depends(get_current_user)):
     """Cancel user's active subscription"""
-    import os, stripe as stripe_lib
-    stripe_lib.api_key = os.environ.get("STRIPE_API_KEY", "")
-
     sub = await db.subscriptions.find_one(
         {"$or": [{"beneficiary_id": user['id']}, {"beneficiary_phone": normalize_phone(user.get('phone', ''))}], "status": "active"}, {"_id": 0}
     )
     if not sub:
         raise HTTPException(status_code=404, detail="Aucun abonnement actif")
     now = datetime.now(timezone.utc).isoformat()
-    # Cancel on Stripe if subscription ID exists (check both sub and contract)
+    # Cancel on Mollie if payment exists
+    mollie_id = sub.get('mollie_payment_id') or sub.get('mollie_subscription_id')
+    if not mollie_id and sub.get('contract_id'):
+        contract = await db.contracts.find_one({"id": sub['contract_id']}, {"_id": 0})
+        if contract:
+            mollie_id = contract.get('mollie_payment_id')
+    # Legacy: also try Stripe cancel for old subscriptions
     stripe_sub_id = sub.get('stripe_subscription_id')
     if not stripe_sub_id and sub.get('contract_id'):
         contract = await db.contracts.find_one({"id": sub['contract_id']}, {"_id": 0})
         if contract:
             stripe_sub_id = contract.get('stripe_subscription_id')
-    if stripe_sub_id and stripe_lib.api_key:
+    if stripe_sub_id:
         try:
-            stripe_lib.Subscription.cancel(stripe_sub_id)
+            import stripe as stripe_lib
+            stripe_lib.api_key = os.environ.get("STRIPE_API_KEY", "")
+            if stripe_lib.api_key:
+                stripe_lib.Subscription.cancel(stripe_sub_id)
         except Exception as e:
             logger.warning(f"Stripe cancel error: {e}")
     # Update DB
     await db.subscriptions.update_one({"id": sub['id']}, {"$set": {"status": "cancelled", "cancelled_at": now, "updated_at": now}})
     await db.users.update_one({"id": user['id']}, {"$set": {"has_subscription": False, "subscription_type": "none"}})
-    # Send cancellation email
     if user.get('email'):
         import asyncio
         from services.email_service import send_cancellation_email
@@ -135,35 +140,14 @@ async def cancel_my_subscription(user=Depends(get_current_user)):
 
 @router.post("/subscriptions/my/billing-portal")
 async def get_billing_portal(data: dict, user=Depends(get_current_user)):
-    """Create a Stripe billing portal session for the user"""
-    import os, stripe as stripe_lib
-    stripe_lib.api_key = os.environ.get("STRIPE_API_KEY", "")
-
+    """Redirect to Mollie dashboard or return payment management info"""
     sub = await db.subscriptions.find_one(
         {"$or": [{"beneficiary_id": user['id']}, {"beneficiary_phone": normalize_phone(user.get('phone', ''))}], "status": "active"}, {"_id": 0}
     )
     if not sub:
-        raise HTTPException(status_code=404, detail="Aucun abonnement Stripe actif")
-    # Get stripe_subscription_id from sub or from linked contract
-    stripe_sub_id = sub.get('stripe_subscription_id')
-    if not stripe_sub_id and sub.get('contract_id'):
-        contract = await db.contracts.find_one({"id": sub['contract_id']}, {"_id": 0})
-        if contract:
-            stripe_sub_id = contract.get('stripe_subscription_id')
-    if not stripe_sub_id:
-        raise HTTPException(status_code=404, detail="Aucun abonnement Stripe actif")
-    # Find the Stripe customer
-    try:
-        stripe_sub = stripe_lib.Subscription.retrieve(stripe_sub_id)
-        customer_id = stripe_sub.customer
-        session = stripe_lib.billing_portal.Session.create(
-            customer=customer_id,
-            return_url=data.get('return_url', 'https://nutrition-ai-beta.preview.emergentagent.com/profile'),
-        )
-        return {"url": session.url}
-    except Exception as e:
-        logger.error(f"Billing portal error: {e}")
-        raise HTTPException(status_code=500, detail="Impossible de creer la session de paiement")
+        raise HTTPException(status_code=404, detail="Aucun abonnement actif")
+    # For Mollie: no billing portal equivalent, return subscription info
+    return {"url": "", "provider": "mollie", "message": "Gerez votre abonnement depuis l'application."}
 
 
 @router.get("/guardians/pending-invites")

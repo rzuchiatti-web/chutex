@@ -3,7 +3,6 @@ import { Platform, View, Text } from 'react-native';
 import Loader from '../src/components/Loader';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
-let STRIPE_PK = '';
 const IMG_BRACELET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg';
 const IMG_GILET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg';
 
@@ -62,8 +61,7 @@ export default function SubscriptionPage() {
   const [contractRead, setContractRead] = useState(false);
   const [contractId, setContractId] = useState('');
   const [contractNumber, setContractNumber] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
-  const [stripeReady, setStripeReady] = useState(false);
+  const [checkoutUrl, setCheckoutUrl] = useState('');
   const [paymentDone, setPaymentDone] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -75,16 +73,6 @@ export default function SubscriptionPage() {
 
   useEffect(() => {
     fetch(`${API}/api/plans`).then(r => r.json()).then(setPlans).catch(() => {});
-    fetch(`${API}/api/stripe/config`).then(r => r.json()).then(d => { STRIPE_PK = d.publishable_key; }).catch(() => {});
-    // Load Stripe.js
-    if (typeof window !== 'undefined' && !(window as any).Stripe) {
-      const s = document.createElement('script');
-      s.src = 'https://js.stripe.com/v3/';
-      s.onload = () => setStripeReady(true);
-      document.head.appendChild(s);
-    } else if (typeof window !== 'undefined') {
-      setStripeReady(true);
-    }
   }, []);
 
   // Force white background over global dark CSS (web only)
@@ -107,7 +95,7 @@ export default function SubscriptionPage() {
   const plan = plans.find(p => p.id === selectedPlan);
   const deliveryDate = (() => { const d = new Date(); d.setDate(d.getDate() + 5); while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); })();
 
-  // Step 7a: Create contract + mount Stripe Elements
+  // Step 7a: Create contract + redirect to Mollie
   const handleCreateContract = async () => {
     setLoading(true); setError('');
     try {
@@ -115,37 +103,28 @@ export default function SubscriptionPage() {
       const res = await fetch(`${API}/api/contract/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: selectedPlan, subscriber_type: subType, beneficiary: ben, housing, guardians, delivery, billing }) });
       if (!res.ok) throw new Error((await res.json()).detail || 'Erreur');
       const c = await res.json();
-      setContractId(c.id); setContractNumber(c.contract_number); setClientSecret(c.client_secret);
+      setContractId(c.id); setContractNumber(c.contract_number);
       // Sign contract
       await fetch(`${API}/api/contract/sign/${c.id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ signer_name: signerName }) });
-      // Mount Stripe Elements after a tick
-      setTimeout(() => mountStripeElements(c.client_secret), 300);
+      // Redirect to Mollie checkout
+      if (c.checkout_url) {
+        setCheckoutUrl(c.checkout_url);
+        window.location.href = c.checkout_url;
+      } else {
+        setError('Erreur lors de la creation du paiement');
+      }
     } catch (e: any) { setError(e.message); }
     setLoading(false);
   };
 
-  const mountStripeElements = (secret: string) => {
-    const container = document.getElementById('stripe-payment-element');
-    if (!container || !(window as any).Stripe) return;
-    container.innerHTML = '';
-    const pk = STRIPE_PK;
-    const stripeObj = (window as any).Stripe(pk);
-    (window as any)._stripe = stripeObj;
-    const elements = stripeObj.elements({ clientSecret: secret, appearance: { theme: 'flat', variables: { fontFamily: "'Inter', system-ui", colorPrimary: '#7C3AED', borderRadius: '12px' } } });
-    const payEl = elements.create('payment', { layout: 'tabs' });
-    payEl.mount('#stripe-payment-element');
-    (window as any)._stripeElements = elements;
-  };
-
   const handleConfirmPayment = async () => {
+    // With Mollie, payment is confirmed via redirect — poll for status
     setLoading(true); setError('');
-    const stripeObj = (window as any)._stripe;
-    const elements = (window as any)._stripeElements;
-    if (!stripeObj || !elements) { setError('Stripe non charge'); setLoading(false); return; }
-    const { error: stripeError } = await stripeObj.confirmPayment({ elements, confirmParams: { return_url: `${window.location.origin}/subscription?step=confirmation&contract_id=${contractId}` }, redirect: 'if_required' });
-    if (stripeError) { setError(stripeError.message); setLoading(false); return; }
-    // Payment succeeded inline
-    pollPay(contractId);
+    if (checkoutUrl) {
+      window.location.href = checkoutUrl;
+    } else {
+      pollPay(contractId);
+    }
     setLoading(false);
   };
 
@@ -317,7 +296,11 @@ export default function SubscriptionPage() {
         {!clientSecret && !paymentDone && (<div data-testid="setup-payment-btn" onClick={() => { if (!contractRead) return setError('Veuillez lire le contrat en entier'); if (!signerName.trim()) return setError('Veuillez signer le contrat'); handleCreateContract(); }} style={{ padding: 16, borderRadius: C.pill, background: loading ? C.card : V, color: '#FFF', cursor: loading ? 'wait' : 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, opacity: loading ? 0.6 : 1, boxShadow: loading ? 'none' : `0 4px 14px ${V}40`, marginBottom: 12 }}>{loading ? 'Preparation du paiement...' : 'Configurer le paiement'}</div>)}
         {clientSecret && !paymentDone && (<div style={{ background: '#FFF', borderRadius: C.r, border: `2px solid ${V}30`, padding: 20, marginBottom: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><svg width="16" height="16" fill="none" stroke={V} strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Paiement securise</div>
-          <div id="stripe-payment-element" style={{ minHeight: 100, marginBottom: 16 }}><div style={{ textAlign: 'center', padding: 20, color: C.muted, fontSize: 13 }}>Chargement du formulaire de paiement...</div></div>
+          <div style={{ textAlign: 'center', padding: '20px 0', marginBottom: 16 }}>
+            <i className="ri-secure-payment-line" style={{ fontSize: 40, color: C.primary, display: 'block', marginBottom: 12 }} />
+            <div style={{ fontSize: 14, color: C.body, marginBottom: 8 }}>Paiement securise par Mollie</div>
+            <div style={{ fontSize: 12, color: C.muted }}>Vous allez etre redirige vers la page de paiement securisee.</div>
+          </div>
           <div data-testid="confirm-pay-btn" onClick={handleConfirmPayment} style={{ padding: 16, borderRadius: C.pill, background: loading ? C.card : V, color: '#FFF', cursor: loading ? 'wait' : 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, opacity: loading ? 0.6 : 1, boxShadow: loading ? 'none' : `0 4px 14px ${V}40` }}>{loading ? 'Traitement en cours...' : `Payer ${plan?.price.toFixed(2).replace('.',',')} EUR/mois`}</div>
           <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: C.light }}>Abonnement mensuel — CB ou prelevement SEPA</div>
         </div>)}
