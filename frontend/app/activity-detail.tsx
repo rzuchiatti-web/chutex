@@ -6,15 +6,14 @@ import { apiFetch } from '../src/services/api';
 
 const G = '#10B981', A = '#F59E0B', B = '#38BDF8', R = '#EF4444', P = '#A78BFA', CY = '#22D3EE';
 const GL: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
-const BG_GREEN = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
+const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 const SHOE_IMG = 'https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/ei43qs8n_img_activity.png';
 
-function GaugeRing({ pct, color, size = 48, strokeW = 4, children }: { pct: number; color: string; size?: number; strokeW?: number; children?: any }) {
-  const r = (size - strokeW) / 2;
-  const circ = 2 * Math.PI * r;
+function GaugeRing({ pct, color, size = 56, children }: { pct: number; color: string; size?: number; children?: any }) {
+  const r = (size - 5) / 2, circ = 2 * Math.PI * r;
   return (
     <div style={{ width: size, height: size, position: 'relative' } as any}>
-      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}><circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={strokeW} /><circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={strokeW} strokeDasharray={`${(pct/100)*circ} ${circ}`} strokeLinecap="round" style={{ transition: 'stroke-dasharray 0.8s ease' }} /></svg>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}><circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="5" /><circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="5" strokeDasharray={`${(pct/100)*circ} ${circ}`} strokeLinecap="round" style={{ transition: 'stroke-dasharray 0.8s ease' }} /></svg>
       <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>{children}</div>
     </div>
   );
@@ -26,6 +25,7 @@ export default function ActivityDetailPage() {
   const [d, setD] = useState<any>(null);
   const [streak, setStreak] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showExplain, setShowExplain] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -38,9 +38,9 @@ export default function ActivityDetailPage() {
   if (Platform.OS !== 'web') return null;
 
   const steps = d?.steps || 0, cal = d?.calories || 0, dist = d?.distance_km || 0;
-  const hr = d?.heart_rate || 0, hrv = d?.hrv || 0, spo2 = d?.spo2 || 0;
+  const hr = d?.heart_rate || 0, hrv = d?.hrv || 0;
   const vo2 = d?.vo2_max || 0, stress = d?.stress_level || 0, recovery = d?.recovery_score || 0;
-  const slQ = d?.sleep_quality || 0, temp = d?.temperature || 0;
+  const slQ = d?.sleep_quality || 0;
 
   let recPct = recovery;
   if (recPct === 0 && (slQ > 0 || stress > 0 || hr > 0)) {
@@ -52,15 +52,15 @@ export default function ActivityDetailPage() {
   }
   const recCol = recPct >= 80 ? G : recPct >= 60 ? CY : recPct >= 40 ? A : R;
   const recLabel = recPct >= 80 ? 'Optimale' : recPct >= 60 ? 'Bonne' : recPct >= 40 ? 'Moderee' : 'Faible';
+  // Estimated recovery time
+  const recHours = recPct >= 80 ? '4-6h' : recPct >= 60 ? '8-12h' : recPct >= 40 ? '12-18h' : '18-24h';
   const vo2Label = vo2 >= 40 ? 'Excellent' : vo2 >= 30 ? 'Bon' : vo2 >= 20 ? 'Moyen' : vo2 > 0 ? 'Faible' : '--';
   const vo2Col = vo2 >= 40 ? G : vo2 >= 30 ? CY : vo2 >= 20 ? A : R;
-  const stressLabel = stress <= 30 ? 'Faible' : stress <= 60 ? 'Modere' : 'Eleve';
-  const stressCol = stress <= 30 ? G : stress <= 60 ? A : R;
   const st = streak || {};
 
   return (
     <div data-testid="activity-detail-page" style={{ position: 'absolute', inset: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
-      <img src={BG_GREEN} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+      <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
       <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 120px' } as any}>
@@ -69,7 +69,7 @@ export default function ActivityDetailPage() {
             <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
           </div>
 
-          {loading && <div style={{ textAlign: 'center', padding: '80px 0' } as any}><div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.06)', borderTopColor: G, animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>}
+          {loading && <div style={{ textAlign: 'center', padding: '80px 0' } as any}><div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.06)', borderTopColor: A, animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>}
 
           {!loading && (
             <>
@@ -78,7 +78,7 @@ export default function ActivityDetailPage() {
                 <img src={SHOE_IMG} alt="" style={{ width: 200, height: 200, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', position: 'relative', zIndex: 3, marginBottom: -50 } as any} />
               </div>
 
-              {/* ══ CARTE 1: Activité du jour ══ */}
+              {/* ══ CARTE 1: Activité + Récupération + VO2 ══ */}
               <div style={{ ...GL, padding: '60px 20px 20px', position: 'relative', zIndex: 1, marginBottom: 14 } as any}>
                 <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5 }}>Activite du jour</div>
@@ -99,8 +99,7 @@ export default function ActivityDetailPage() {
                         <i className={m.icon} style={{ fontSize: 14, color: m.color, display: 'block', marginBottom: 4 }} />
                         <div style={{ fontSize: 20, fontWeight: 900, color: has ? '#FFF' : 'rgba(255,255,255,0.15)', lineHeight: 1 }}>{has ? (m.decimal ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}</div>
                         <div style={{ fontSize: 8, color: m.color, fontWeight: 700, marginTop: 2, textTransform: 'uppercase' }}>{m.label}</div>
-                        <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: '100%', borderRadius: 2, width: `${pct}%`, background: m.color, opacity: 0.7, transition: 'width 0.8s' } as any} /></div>
-                        <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.2)', fontWeight: 700, marginTop: 2 }}>{pct}% obj.</div>
+                        <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: '100%', borderRadius: 2, width: `${pct}%`, background: m.color, opacity: 0.7 } as any} /></div>
                       </div>
                     );
                   })}
@@ -108,105 +107,98 @@ export default function ActivityDetailPage() {
 
                 <div style={{ height: 1, background: 'rgba(255,255,255,0.04)' } as any} />
 
-                {/* Recovery */}
+                {/* Récupération + estimation temps */}
                 <div style={{ padding: '14px 0' } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-battery-charge-line" style={{ fontSize: 14, color: recCol }} /><span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Recuperation</span></div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><span style={{ fontSize: 16, fontWeight: 900, color: recCol }}>{recPct}%</span><span style={{ padding: '2px 8px', borderRadius: 999, background: `${recCol}15`, fontSize: 9, fontWeight: 700, color: recCol }}>{recLabel}</span></div>
+                    <span style={{ fontSize: 16, fontWeight: 900, color: recCol }}>{recPct}%</span>
                   </div>
-                  <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}><div style={{ height: '100%', borderRadius: 4, width: `${recPct}%`, background: `linear-gradient(90deg, ${recCol}80, ${recCol})`, transition: 'width 0.8s' } as any} /></div>
-                </div>
-              </div>
-
-              {/* ══ CARTE 2: Performance physiologique ══ */}
-              <div style={{ ...GL, padding: 20, marginBottom: 14 } as any}>
-                <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>Performance physiologique</div>
-
-                {/* VO2 Max + HRV + Stress in rings */}
-                <div style={{ display: 'flex', gap: 10, marginBottom: 16, justifyContent: 'center' } as any}>
-                  {/* VO2 Max */}
-                  <div style={{ flex: 1, textAlign: 'center', padding: '12px 4px', borderRadius: 16, background: 'rgba(255,255,255,0.02)' } as any}>
-                    <GaugeRing pct={vo2 > 0 ? Math.min(100, (vo2 / 50) * 100) : 0} color={vo2Col} size={56}>
-                      <span style={{ fontSize: 14, fontWeight: 900, color: vo2 > 0 ? vo2Col : 'rgba(255,255,255,0.15)' }}>{vo2 > 0 ? vo2 : '--'}</span>
-                    </GaugeRing>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: '#FFF', marginTop: 6 }}>VO2 Max</div>
-                    <div style={{ fontSize: 8, color: vo2Col, fontWeight: 700, marginTop: 1 }}>{vo2Label}</div>
-                    <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.15)', marginTop: 2 }}>ml/kg/min</div>
-                  </div>
-                  {/* HRV */}
-                  <div style={{ flex: 1, textAlign: 'center', padding: '12px 4px', borderRadius: 16, background: 'rgba(255,255,255,0.02)' } as any}>
-                    <GaugeRing pct={hrv > 0 ? Math.min(100, (hrv / 80) * 100) : 0} color={hrv >= 40 ? G : hrv >= 25 ? A : R} size={56}>
-                      <span style={{ fontSize: 14, fontWeight: 900, color: hrv > 0 ? (hrv >= 40 ? G : hrv >= 25 ? A : R) : 'rgba(255,255,255,0.15)' }}>{hrv > 0 ? hrv : '--'}</span>
-                    </GaugeRing>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: '#FFF', marginTop: 6 }}>HRV</div>
-                    <div style={{ fontSize: 8, color: hrv >= 40 ? G : hrv >= 25 ? A : R, fontWeight: 700, marginTop: 1 }}>{hrv >= 40 ? 'Bon' : hrv >= 25 ? 'Moyen' : hrv > 0 ? 'Bas' : '--'}</div>
-                    <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.15)', marginTop: 2 }}>ms</div>
-                  </div>
-                  {/* Stress */}
-                  <div style={{ flex: 1, textAlign: 'center', padding: '12px 4px', borderRadius: 16, background: 'rgba(255,255,255,0.02)' } as any}>
-                    <GaugeRing pct={stress > 0 ? stress : 0} color={stressCol} size={56}>
-                      <span style={{ fontSize: 14, fontWeight: 900, color: stress > 0 ? stressCol : 'rgba(255,255,255,0.15)' }}>{stress > 0 ? stress : '--'}</span>
-                    </GaugeRing>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: '#FFF', marginTop: 6 }}>Stress</div>
-                    <div style={{ fontSize: 8, color: stressCol, fontWeight: 700, marginTop: 1 }}>{stress > 0 ? stressLabel : '--'}</div>
-                    <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.15)', marginTop: 2 }}>/100</div>
-                  </div>
-                </div>
-
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '0 0 14px' } as any} />
-
-                {/* Vitals grid */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 } as any}>
-                  {[
-                    { label: 'Frequence cardiaque', value: hr, unit: 'bpm', icon: 'ri-heart-pulse-line', color: R, explain: 'Repos: 60-80 bpm' },
-                    { label: 'SpO2', value: spo2, unit: '%', icon: 'ri-lungs-line', color: B, explain: 'Normal: >95%' },
-                    { label: 'Temperature', value: temp, unit: '°C', icon: 'ri-temp-cold-line', color: A, explain: 'Normal: 36.5-37.5', decimal: true },
-                    { label: 'Sommeil', value: slQ, unit: '%', icon: 'ri-moon-line', color: P, explain: 'Qualite nuit' },
-                  ].map((v, i) => (
-                    <div key={i} style={{ width: 'calc(50% - 4px)', padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 } as any}>
-                        <i className={v.icon} style={{ fontSize: 12, color: v.color }} />
-                        <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>{v.label}</span>
-                      </div>
-                      <div style={{ fontSize: 20, fontWeight: 900, color: v.value > 0 ? '#FFF' : 'rgba(255,255,255,0.12)', lineHeight: 1 }}>{v.value > 0 ? (v.decimal ? v.value.toFixed(1) : v.value) : '--'}<span style={{ fontSize: 9, fontWeight: 500, color: 'rgba(255,255,255,0.2)' }}> {v.unit}</span></div>
-                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)', marginTop: 2 }}>{v.explain}</div>
+                  <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', marginBottom: 8 } as any}><div style={{ height: '100%', borderRadius: 4, width: `${recPct}%`, background: `linear-gradient(90deg, ${recCol}80, ${recCol})`, transition: 'width 0.8s' } as any} /></div>
+                  <div style={{ display: 'flex', gap: 8 } as any}>
+                    <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
+                      <div style={{ fontSize: 14, fontWeight: 900, color: recCol }}>{recLabel}</div>
+                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>NIVEAU</div>
                     </div>
-                  ))}
+                    <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
+                      <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{recHours}</div>
+                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>TEMPS ESTIME</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.04)' } as any} />
+
+                {/* VO2 Max */}
+                <div style={{ padding: '14px 0', display: 'flex', alignItems: 'center', gap: 16 } as any}>
+                  <GaugeRing pct={vo2 > 0 ? Math.min(100, (vo2 / 50) * 100) : 0} color={vo2Col}>
+                    <span style={{ fontSize: 16, fontWeight: 900, color: vo2 > 0 ? vo2Col : 'rgba(255,255,255,0.15)' }}>{vo2 > 0 ? vo2 : '--'}</span>
+                  </GaugeRing>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>VO2 Max</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Capacite aerobique maximale</div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: `${vo2Col}15`, marginTop: 4 } as any}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: vo2Col }}>{vo2Label}</span>
+                      <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>ml/kg/min</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Button explicatif */}
+                <div onClick={() => setShowExplain(true)} style={{ textAlign: 'center', padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer', marginTop: 4 } as any}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: P }}><i className="ri-information-line" style={{ fontSize: 12, marginRight: 4 }} />Comprendre mes indicateurs</span>
                 </div>
               </div>
 
-              {/* ══ CARTE 3: Explications VO2/HRV ══ */}
-              <div style={{ ...GL, padding: 16, marginBottom: 14 } as any}>
-                <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Comprendre vos indicateurs</div>
-                {[
-                  { title: 'VO2 Max', color: G, desc: 'Capacite maximale d\'utilisation de l\'oxygene. Plus elle est elevee, meilleure est votre endurance cardiovasculaire. Se mesure en ml/kg/min.' },
-                  { title: 'HRV (Variabilite cardiaque)', color: CY, desc: 'Variation entre chaque battement du coeur. Un HRV eleve indique une bonne capacite d\'adaptation au stress et une bonne recuperation.' },
-                  { title: 'Score de stress', color: A, desc: 'Mesure par la variabilite cardiaque. Un score bas indique un etat de calme. Un score eleve necessite du repos.' },
-                  { title: 'Recuperation', color: recCol, desc: 'Indique si votre corps est pret pour l\'effort. Se base sur le sommeil, le stress et la frequence cardiaque.' },
-                ].map((e, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.03)' : 'none' } as any}>
-                    <div style={{ width: 3, borderRadius: 2, background: e.color, flexShrink: 0 } as any} />
-                    <div><span style={{ fontSize: 11, fontWeight: 800, color: e.color }}>{e.title}</span><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 1, lineHeight: 1.5 }}>{e.desc}</div></div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Nora */}
+              {/* ══ Nora ══ */}
               <div style={{ ...GL, padding: 16, marginBottom: 14 } as any}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' } as any}>
                   <div style={{ width: 28, height: 28, borderRadius: 9, flexShrink: 0, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.05))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 10, fontWeight: 900, color: P }}>N</span></div>
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: P, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Conseil de Nora</div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: P, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Analyse de Nora</div>
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
-                      {recPct >= 80 ? 'Excellente recuperation ! Votre corps est pret pour une activite soutenue. Profitez-en pour une marche rapide, du renforcement musculaire ou une seance de gymnastique douce.' :
-                       recPct >= 60 ? 'Bonne recuperation. Privilegiez une activite moderee : marche en exterieur, yoga doux ou etirements. Restez a l\'ecoute de votre corps et hydratez-vous regulierement.' :
-                       recPct >= 40 ? 'Recuperation moyenne. Optez pour du repos actif : stretching leger, mobilite articulaire, respiration profonde. Hydratez-vous bien tout au long de la journee.' :
-                       'Recuperation insuffisante. Accordez-vous du repos aujourd\'hui. Hydratez-vous, privilegiez des repas legers et couchez-vous tot ce soir. Votre corps a besoin de recuperer.'}
+                      {recPct >= 80 ? `Excellente recuperation a ${recPct}% ! Votre corps est pret pour une activite soutenue. Profitez-en pour une marche rapide, du renforcement musculaire ou une seance de gymnastique douce. ${vo2 > 0 ? `Votre VO2 Max de ${vo2} ml/kg/min est ${vo2Label.toLowerCase()}.` : ''} Temps de recuperation estime : ${recHours}.` :
+                       recPct >= 60 ? `Bonne recuperation a ${recPct}%. Privilegiez une activite moderee : marche en exterieur, yoga doux ou etirements. ${vo2 > 0 ? `Votre capacite aerobique (VO2 Max ${vo2}) est ${vo2Label.toLowerCase()}.` : ''} Votre corps aura besoin d'environ ${recHours} pour recuperer pleinement.` :
+                       recPct >= 40 ? `Recuperation moyenne a ${recPct}%. Optez pour du repos actif : stretching leger, mobilite articulaire, respiration profonde. ${vo2 > 0 ? `VO2 Max: ${vo2} (${vo2Label.toLowerCase()}).` : ''} Estimation de recuperation : ${recHours}. Hydratez-vous bien.` :
+                       `Recuperation insuffisante a ${recPct}%. Accordez-vous du repos aujourd'hui. Hydratez-vous, privilegiez des repas legers et couchez-vous tot. ${vo2 > 0 ? `VO2 Max: ${vo2} (${vo2Label.toLowerCase()}).` : ''} Temps necessaire : ${recHours}.`}
                     </div>
                   </div>
                 </div>
               </div>
             </>
+          )}
+
+          {/* ══ POPUP EXPLICATIVE (glass, profile-style) ══ */}
+          {showExplain && (
+            <div data-testid="explain-popup" onClick={() => setShowExplain(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
+              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                  <div onClick={() => setShowExplain(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-heart-pulse-fill" style={{ fontSize: 26, color: G }} /></div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Vos indicateurs</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Comprendre votre activite physique</div>
+                </div>
+                {[
+                  { title: 'VO2 Max', icon: 'ri-lungs-line', color: G, desc: 'La quantite maximale d\'oxygene que votre corps peut utiliser pendant l\'effort. C\'est le meilleur indicateur de votre condition cardiovasculaire. Plus il est eleve, meilleure est votre endurance.', ranges: 'Faible: <20 · Moyen: 20-30 · Bon: 30-40 · Excellent: >40 ml/kg/min' },
+                  { title: 'Recuperation', icon: 'ri-battery-charge-line', color: CY, desc: 'Indique si votre corps a suffisamment recupere pour un nouvel effort. Se base sur votre sommeil, votre niveau de stress et votre frequence cardiaque au repos.', ranges: 'Faible: <40% · Moderee: 40-60% · Bonne: 60-80% · Optimale: >80%' },
+                  { title: 'Temps de recuperation', icon: 'ri-time-line', color: A, desc: 'Estimation du temps necessaire avant que votre corps soit pret pour un effort intense. Varie selon votre recuperation actuelle, votre sommeil et votre activite recente.', ranges: 'Optimale: 4-6h · Bonne: 8-12h · Moderee: 12-18h · Faible: 18-24h' },
+                  { title: 'Nombre de pas', icon: 'ri-footprint-line', color: G, desc: 'Le nombre de pas est un indicateur simple mais puissant de votre activite quotidienne. L\'objectif recommande pour les seniors est de 6000 pas par jour.', ranges: 'Sedentaire: <3000 · Actif: 3000-6000 · Tres actif: >6000 pas' },
+                  { title: 'Calories brulees', icon: 'ri-fire-line', color: A, desc: 'Les calories depensees par votre activite physique dans la journee (hors metabolisme de base). L\'objectif est d\'en bruler au moins 300 par jour.', ranges: 'Faible: <150 · Modere: 150-300 · Actif: >300 kcal' },
+                ].map((e, i) => (
+                  <div key={i} style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 12 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 } as any}>
+                      <div style={{ width: 32, height: 32, borderRadius: 10, background: `${e.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={e.icon} style={{ fontSize: 16, color: e.color }} /></div>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{e.title}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, marginBottom: 8 }}>{e.desc}</div>
+                    <div style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{e.ranges}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </div>
