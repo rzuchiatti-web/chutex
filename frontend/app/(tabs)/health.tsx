@@ -306,37 +306,41 @@ export default function HealthScreen() {
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '16px 20px 16px' } as any} />
           <SleepCard d={d} />
 
-          {/* Poids & Nutrition — clean card with 3 key metrics */}
+          {/* Poids & Nutrition — style page detail with blue bg */}
           <div data-testid="weight-nutrition-card" onClick={() => router.push('/minceur' as any)}
-            style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, padding: 16, cursor: 'pointer', transition: 'transform 0.15s' } as any}
+            style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', position: 'relative', transition: 'transform 0.15s' } as any}
             onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
             onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(249,115,22,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className="ri-scales-3-line" style={{ fontSize: 18, color: '#F59E0B' }} />
+            <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
+            <div style={{ position: 'relative', zIndex: 2 } as any}>
+              <div style={{ textAlign: 'center', paddingTop: 16 } as any}>
+                <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg" alt="" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.4))' } as any} />
+              </div>
+              <div style={{ padding: '10px 16px 14px' } as any}>
+                <div style={{ textAlign: 'center', marginBottom: 10 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>Poids & Nutrition</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Repas, exercices, objectif</div>
                 </div>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Poids & Nutrition</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Repas, exercices, suivi</div>
+                <div style={{ display: 'flex', gap: 6 } as any}>
+                  {[
+                    { label: 'Poids', val: d.weight, unit: 'kg', color: '#F59E0B' },
+                    { label: 'Graisse', val: weighings[0]?.body_fat_pct, unit: '%', color: '#F97316' },
+                    { label: 'Muscle', val: weighings[0]?.muscle_pct, unit: '%', color: '#10B981' },
+                  ].map((m, i) => (
+                    <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, background: 'rgba(0,0,0,0.2)', textAlign: 'center' } as any}>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: Number(m.val || 0) > 0 ? '#FFF' : 'rgba(255,255,255,0.15)', lineHeight: 1 }}>
+                        {Number(m.val || 0) > 0 ? m.val : '--'}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span>
+                      </div>
+                      <div style={{ fontSize: 8, color: m.color, fontWeight: 700, marginTop: 2 }}>{m.label}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.15)' }} />
-            </div>
-            <div style={{ display: 'flex', gap: 8 } as any}>
-              {[
-                { label: 'Poids', val: d.weight, unit: 'kg', color: '#F59E0B', icon: 'ri-scales-3-line' },
-                { label: 'Graisse', val: weighings[0]?.body_fat_pct, unit: '%', color: '#F97316', icon: 'ri-fire-line' },
-                { label: 'Muscle', val: weighings[0]?.muscle_pct, unit: '%', color: '#10B981', icon: 'ri-boxing-line' },
-              ].map((m, i) => (
-                <div key={i} style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
-                  <i className={m.icon} style={{ fontSize: 13, color: m.color, marginBottom: 4, display: 'block' }} />
-                  <div style={{ fontSize: 18, fontWeight: 900, color: Number(m.val || 0) > 0 ? '#FFF' : 'rgba(255,255,255,0.15)', lineHeight: 1 }}>
-                    {Number(m.val || 0) > 0 ? m.val : '--'}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>{m.unit}</span>
-                  </div>
-                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700, marginTop: 2 }}>{m.label}</div>
-                </div>
-              ))}
+              <div style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>Suivi quotidien personnalise</span>
+                <span style={{ fontSize: 9, fontWeight: 700, color: '#60A5FA' }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 10 }} /></span>
+              </div>
             </div>
           </div>
 
