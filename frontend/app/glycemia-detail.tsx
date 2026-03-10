@@ -7,7 +7,7 @@ import { apiFetch } from '../src/services/api';
 const P = '#A78BFA', G = '#10B981', A = '#F59E0B', R = '#EF4444', B = '#60A5FA';
 const GL: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 const META_IMG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png';
-const BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
+const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
 export default function GlycemiaDetailPage() {
   const { token } = useAuth();
@@ -77,25 +77,44 @@ export default function GlycemiaDetailPage() {
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>{data.estimated_range}</div>
                 </div>
 
-                {/* Full-width gauge graph */}
+                {/* Full-width estimation graph */}
                 <div style={{ margin: '0 -20px 16px', padding: '0 20px' } as any}>
-                  <svg viewBox="0 0 400 50" style={{ width: '100%', height: 50, display: 'block' }}>
-                    {/* 3-zone background bars */}
-                    <rect x="0" y="16" width="130" height="18" rx="4" fill={G} opacity={data.zone === 'normal' ? 0.6 : 0.08} />
-                    <rect x="135" y="16" width="130" height="18" rx="4" fill={A} opacity={data.zone === 'vigilance' ? 0.6 : 0.08} />
-                    <rect x="270" y="16" width="130" height="18" rx="4" fill={R} opacity={data.zone === 'alert' ? 0.6 : 0.08} />
-                    {/* Labels */}
-                    <text x="65" y="44" textAnchor="middle" fill="rgba(255,255,255,0.15)" fontSize="8">Normal</text>
-                    <text x="200" y="44" textAnchor="middle" fill="rgba(255,255,255,0.15)" fontSize="8">Vigilance</text>
-                    <text x="335" y="44" textAnchor="middle" fill="rgba(255,255,255,0.15)" fontSize="8">Alerte</text>
-                    {/* Zone labels */}
-                    <text x="65" y="12" textAnchor="middle" fill="rgba(255,255,255,0.12)" fontSize="7">0.70 - 1.00</text>
-                    <text x="200" y="12" textAnchor="middle" fill="rgba(255,255,255,0.12)" fontSize="7">1.00 - 1.26</text>
-                    <text x="335" y="12" textAnchor="middle" fill="rgba(255,255,255,0.12)" fontSize="7">{'>'}1.26 g/L</text>
-                    {/* Indicator dot */}
+                  <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Estimation glycemique</div>
+                  <svg viewBox="0 0 400 100" style={{ width: '100%', height: 90, display: 'block' }}>
+                    {/* Background gradient zones */}
+                    <defs>
+                      <linearGradient id="glycGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor={G} stopOpacity="0.25" />
+                        <stop offset="40%" stopColor={G} stopOpacity="0.15" />
+                        <stop offset="50%" stopColor={A} stopOpacity="0.2" />
+                        <stop offset="70%" stopColor={A} stopOpacity="0.15" />
+                        <stop offset="80%" stopColor={R} stopOpacity="0.2" />
+                        <stop offset="100%" stopColor={R} stopOpacity="0.25" />
+                      </linearGradient>
+                    </defs>
+                    <rect x="0" y="20" width="400" height="40" rx="6" fill="url(#glycGrad)" />
+                    {/* Zone separators */}
+                    <line x1="160" y1="20" x2="160" y2="60" stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="3" />
+                    <line x1="280" y1="20" x2="280" y2="60" stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="3" />
+                    {/* Zone labels top */}
+                    <text x="80" y="14" textAnchor="middle" fill={G} fontSize="9" fontWeight="700" opacity="0.6">Normal</text>
+                    <text x="220" y="14" textAnchor="middle" fill={A} fontSize="9" fontWeight="700" opacity="0.6">Vigilance</text>
+                    <text x="340" y="14" textAnchor="middle" fill={R} fontSize="9" fontWeight="700" opacity="0.6">Alerte</text>
+                    {/* Value labels bottom */}
+                    <text x="0" y="78" textAnchor="start" fill="rgba(255,255,255,0.12)" fontSize="8">0.70</text>
+                    <text x="160" y="78" textAnchor="middle" fill="rgba(255,255,255,0.12)" fontSize="8">1.00</text>
+                    <text x="280" y="78" textAnchor="middle" fill="rgba(255,255,255,0.12)" fontSize="8">1.26</text>
+                    <text x="400" y="78" textAnchor="end" fill="rgba(255,255,255,0.12)" fontSize="8">2.00 g/L</text>
+                    {/* Score indicator */}
                     {(() => {
-                      const cx = data.zone === 'normal' ? 65 : data.zone === 'vigilance' ? 200 : 335;
-                      return <><circle cx={cx} cy="25" r="8" fill={col} opacity="0.2"><animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite" /></circle><circle cx={cx} cy="25" r="5" fill={col} stroke="#111" strokeWidth="2" /></>;
+                      const score = data.risk_score || 50;
+                      const cx = Math.max(12, Math.min(388, (score / 100) * 400));
+                      return <>
+                        <line x1={cx} y1="16" x2={cx} y2="64" stroke={col} strokeWidth="2" opacity="0.5" />
+                        <circle cx={cx} cy="40" r="10" fill={col} opacity="0.15"><animate attributeName="r" values="10;14;10" dur="2s" repeatCount="indefinite" /></circle>
+                        <circle cx={cx} cy="40" r="7" fill={col} stroke="rgba(0,0,0,0.4)" strokeWidth="2" />
+                        <text x={cx} y="94" textAnchor="middle" fill={col} fontSize="10" fontWeight="900">{data.estimated_range}</text>
+                      </>;
                     })()}
                   </svg>
                 </div>
