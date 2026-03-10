@@ -40,7 +40,7 @@ export default function SleepCard({ d }: Props) {
         <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
         <div style={{ position: 'relative', zIndex: 2 } as any}>
-          <div style={{ textAlign: 'center', paddingTop: 16 } as any}><i className="ri-moon-fill" style={{ fontSize: 48, color: 'rgba(255,255,255,0.6)', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.4))' }} /></div>
+          <div style={{ textAlign: 'center', paddingTop: 16 } as any}><img src="https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png" alt="" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.4))' } as any} /></div>
           <div style={{ padding: '10px 16px 14px', textAlign: 'center' } as any}>
             <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Sommeil</div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Portez votre bracelet Elio la nuit</div>
