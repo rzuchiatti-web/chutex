@@ -24,6 +24,8 @@ export default function ActivityDetailPage() {
   const router = useRouter();
   const [d, setD] = useState<any>(null);
   const [streak, setStreak] = useState<any>(null);
+  const [minceur, setMinceur] = useState<any>(null);
+  const [tracked, setTracked] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [showExplain, setShowExplain] = useState(false);
 
@@ -32,8 +34,19 @@ export default function ActivityDetailPage() {
     Promise.all([
       apiFetch('/api/health/daily-report', {}, token).catch(() => ({})),
       apiFetch('/api/health/activity-streak', {}, token).catch(() => ({})),
-    ]).then(([report, st]) => { setD(report); setStreak(st); }).finally(() => setLoading(false));
+      apiFetch('/api/minceur/weight-details', {}, token).catch(() => ({})),
+      apiFetch('/api/minceur/today-tracking', {}, token).catch(() => ({})),
+    ]).then(([report, st, minc, trk]) => {
+      setD(report); setStreak(st); setMinceur(minc);
+      if (trk?.completed) setTracked(trk.completed);
+    }).finally(() => setLoading(false));
   }, [token]);
+
+  const toggleTrack = async (index: number) => {
+    const k = `exercise_${index}`, was = tracked[k];
+    setTracked(p => ({ ...p, [k]: !was }));
+    try { await apiFetch('/api/minceur/track', { method: 'POST', body: JSON.stringify({ type: 'exercise', index }) }, token); } catch { setTracked(p => ({ ...p, [k]: was })); }
+  };
 
   if (Platform.OS !== 'web') return null;
 
@@ -170,6 +183,40 @@ export default function ActivityDetailPage() {
                   </div>
                 </div>
               </div>
+
+              {/* ══ EXERCICES DU JOUR ══ */}
+              {minceur?.recommendations?.exercises && minceur.recommendations.exercises.length > 0 && (
+                <div style={{ ...GL, padding: 16, marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                    <i className="ri-heart-pulse-line" style={{ fontSize: 14, color: G }} />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Vos exercices du jour</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 } as any}>
+                    {minceur.recommendations.exercises.map((ex: any, i: number) => {
+                      const int = ex.intensity || 'modere';
+                      const intC = int === 'leger' ? G : int === 'modere' ? A : R;
+                      const dn = tracked[`exercise_${i}`];
+                      return (
+                        <div key={i} onClick={() => router.push({ pathname: '/exercise-detail' as any, params: { index: i } })} style={{ borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: `1px solid ${dn ? G + '25' : 'rgba(255,255,255,0.05)'}`, padding: '10px 12px', cursor: 'pointer', opacity: dn ? 0.65 : 1, display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                          <div style={{ flex: 1 } as any}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                              <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF', textDecoration: dn ? 'line-through' : 'none' }}>{ex.name}</span>
+                              <span style={{ fontSize: 7, fontWeight: 700, color: intC, padding: '2px 5px', borderRadius: 5, background: `${intC}12`, textTransform: 'uppercase' }}>{int}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3 } as any}>
+                              <span style={{ fontSize: 10, fontWeight: 700, color: G }}><i className="ri-timer-line" style={{ fontSize: 9 }} /> {ex.duration}</span>
+                              {ex.calories_burned > 0 && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>{ex.calories_burned}kcal</span>}
+                            </div>
+                          </div>
+                          <div onClick={(e) => { e.stopPropagation(); toggleTrack(i); }} style={{ width: 36, height: 36, borderRadius: 10, background: dn ? `${G}15` : 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                            <i className="ri-check-line" style={{ fontSize: 16, color: dn ? G : 'rgba(255,255,255,0.1)' }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </>
           )}
 
