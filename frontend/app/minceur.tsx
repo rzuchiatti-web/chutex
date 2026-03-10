@@ -94,25 +94,26 @@ function SwipePicker({ values, selected, onChange, unit, color }: { values: numb
     }
   }, []);
 
-  // Block snap during initial scroll
+  // Block snap during scroll
   const isInit = useRef(true);
+  const userScrolling = useRef(false);
 
-  // Initial centering
+  // Initial centering — only on mount
   useEffect(() => {
     isInit.current = true;
     const go = () => scrollToSelected(selected);
     go();
-    const t1 = setTimeout(go, 30);
-    const t2 = setTimeout(go, 150);
-    const t3 = setTimeout(go, 400);
-    const t4 = setTimeout(() => { go(); isInit.current = false; }, 700);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
-  }, [selected, values.length, scrollToSelected]);
+    const t1 = setTimeout(go, 50);
+    const t2 = setTimeout(go, 200);
+    const t3 = setTimeout(() => { go(); isInit.current = false; }, 800);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [values.length]); // NOT selected — avoids infinite loop
 
   // Snap to nearest on scroll end
   const snapTimer = useRef<any>(null);
   const onScroll = () => {
-    if (isInit.current) return; // Don't snap during initialization
+    if (isInit.current) return;
+    userScrolling.current = true;
     clearTimeout(snapTimer.current);
     snapTimer.current = setTimeout(() => {
       if (!containerRef.current || isInit.current) return;
@@ -120,11 +121,8 @@ function SwipePicker({ values, selected, onChange, unit, color }: { values: numb
       let best = 0, md = Infinity;
       values.forEach((_, i) => { const d = Math.abs(i * IW + IW / 2 - cx); if (d < md) { md = d; best = i; } });
       if (values[best] !== selected) onChange(values[best]);
-      const el = itemRefs.current[values[best]];
-      if (el && containerRef.current) {
-        containerRef.current.scrollTo({ left: el.offsetLeft - containerRef.current.clientWidth / 2 + el.clientWidth / 2, behavior: 'smooth' });
-      }
-    }, 250);
+      userScrolling.current = false;
+    }, 300);
   };
 
   return (
@@ -165,13 +163,14 @@ export default function MinceurPage() {
   const [goalWeeks, setGoalWeeks] = useState(12);
   const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [tab, setTab] = useState<'meals' | 'exercises'>('meals');
+  const [tab, setTab] = useState<'meals'>('meals');
   const [cm, setCm] = useState<MK>('weight');
   const [tracked, setTracked] = useState<Record<string, boolean>>({});
   const [streak, setStreak] = useState(0);
   const [showStreakInfo, setShowStreakInfo] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [weeklyReport, setWeeklyReport] = useState<any>(null);
+  const [showGoalConfirm, setShowGoalConfirm] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -344,12 +343,10 @@ export default function MinceurPage() {
                 <div data-testid="goal-card">
                 {!goal && !showGoalForm && (
                   <div data-testid="set-goal-button" onClick={() => setShowGoalForm(true)} style={{ padding: '10px 0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                    <div style={{ width: 40, height: 40, borderRadius: 12, background: `linear-gradient(135deg, ${A}20, ${G}10)`, border: `1px solid ${A}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                      <i className="ri-focus-3-line" style={{ fontSize: 18, color: A }} />
-                    </div>
+                    <img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png" alt="" style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
                     <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Definir un objectif</div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>Repas, exercices et calories sur-mesure</div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Definir un objectif de poids</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>Nora adaptera vos repas et apports caloriques</div>
                     </div>
                     <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: A }} />
                   </div>
@@ -364,8 +361,8 @@ export default function MinceurPage() {
                   return (
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                          <i className="ri-focus-3-line" style={{ fontSize: 14, color: A }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                          <img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' } as any} />
                           <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Votre objectif</span>
                         </div>
                         <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 10, color: A, cursor: 'pointer', fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: `${A}10` } as any}>Modifier</span>
@@ -446,7 +443,7 @@ export default function MinceurPage() {
                         </div>
                       )}
                       <div style={{ display: 'flex', gap: 8 } as any}>
-                        <div data-testid="save-goal" onClick={saveGoal} style={{ flex: 1, padding: 14, borderRadius: 999, background: tooFast ? 'rgba(255,255,255,0.08)' : `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1, boxShadow: tooFast ? 'none' : `0 8px 24px ${A}30` } as any}>{saving ? '...' : 'Lancer l\'objectif'}</div>
+                        <div data-testid="save-goal" onClick={() => setShowGoalConfirm(true)} style={{ flex: 1, padding: 14, borderRadius: 999, background: tooFast ? 'rgba(255,255,255,0.08)' : `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1, boxShadow: tooFast ? 'none' : `0 8px 24px ${A}30` } as any}>{saving ? '...' : 'Valider l\'objectif'}</div>
                         <div onClick={() => setShowGoalForm(false)} style={{ padding: '14px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>Annuler</div>
                       </div>
                       {goal && <div data-testid="remove-goal" onClick={removeGoal} style={{ textAlign: 'center', padding: 10, marginTop: 6, fontSize: 11, color: 'rgba(239,68,68,0.4)', cursor: 'pointer' } as any}>Supprimer l'objectif</div>}
@@ -491,20 +488,14 @@ export default function MinceurPage() {
                     )}
                   </div>
 
-                  {/* Pill tabs: Repas / Exercices — WHITE pills */}
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 } as any}>
-                    <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
-                      {(['meals', 'exercises'] as const).map(t => (
-                        <div key={t} data-testid={`tab-${t}`} onClick={() => setTab(t)} style={{ padding: '8px 20px', borderRadius: 999, cursor: 'pointer', background: tab === t ? '#FFF' : 'transparent', color: tab === t ? '#111' : 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6, boxShadow: tab === t ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
-                          <i className={t === 'meals' ? 'ri-restaurant-2-line' : 'ri-heart-pulse-line'} style={{ fontSize: 13 }} />
-                          {t === 'meals' ? 'Repas' : 'Exercices'}
-                        </div>
-                      ))}
-                    </div>
+                  {/* Repas title */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, padding: '0 2px' } as any}>
+                    <i className="ri-restaurant-2-line" style={{ fontSize: 14, color: '#FFF' }} />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Vos repas du jour</span>
                   </div>
 
-                  {/* Meals — image fills entire left side */}
-                  {tab === 'meals' && recs.meals && <div data-testid="meals-section" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 } as any}>
+                  {/* Meals — always shown (no tab condition) */}
+                  {recs.meals && <div data-testid="meals-section" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 } as any}>
                     {recs.meals.map((meal: any, i: number) => { const tp = meal.type || ['breakfast', 'lunch', 'snack', 'dinner'][i] || 'lunch'; const meta = MM[tp] || MM.lunch; const col = MC[tp] || '#FFF'; const dn = tracked[`meal_${i}`]; return (
                       <div key={i} data-testid={`meal-${tp}`} onClick={() => router.push({ pathname: '/meal-detail' as any, params: { index: i } })} style={{ ...CD, padding: 0, background: meta.grad, border: `1px solid ${dn ? G + '25' : col + '12'}`, cursor: 'pointer', opacity: dn ? 0.65 : 1, transition: 'all 0.25s', overflow: 'hidden' } as any} onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }} onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                         <div style={{ display: 'flex', minHeight: 72 } as any}>
@@ -517,24 +508,6 @@ export default function MinceurPage() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 } as any}><span style={{ fontSize: 9, color: col, fontWeight: 700 }}>Voir la recette <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span></div>
                           </div>
                           <div data-testid={`track-meal-${i}`} onClick={(e) => { e.stopPropagation(); toggleTrack('meal', i); }} style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: dn ? `${G}15` : 'transparent', cursor: 'pointer', transition: 'all 0.3s' } as any}><i className="ri-check-line" style={{ fontSize: 16, color: dn ? G : 'rgba(255,255,255,0.1)' }} /></div>
-                        </div>
-                      </div>
-                    ); })}
-                  </div>}
-
-                  {/* Exercises — image fills entire left side */}
-                  {tab === 'exercises' && recs.exercises && <div data-testid="exercises-section" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 } as any}>
-                    {recs.exercises.map((ex: any, i: number) => { const ic = EI[ex.category] || 'ri-heart-pulse-line'; const int = ex.intensity || 'modere'; const intC = int === 'leger' ? G : int === 'modere' ? A : R; const dn = tracked[`exercise_${i}`]; const img = EX_IMG[ex.category] || EX_IMG.cardio; return (
-                      <div key={i} data-testid={`exercise-${i}`} onClick={() => router.push({ pathname: '/exercise-detail' as any, params: { index: i } })} style={{ ...CD, padding: 0, border: `1px solid ${dn ? G + '25' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', opacity: dn ? 0.65 : 1, transition: 'all 0.25s', overflow: 'hidden' } as any} onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }} onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                        <div style={{ display: 'flex', minHeight: 72 } as any}>
-                          <div style={{ width: 80, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
-                            <img src={img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><span style={{ fontSize: 13, fontWeight: 800, color: '#FFF', textDecoration: dn ? 'line-through' : 'none', textDecorationColor: 'rgba(255,255,255,0.15)' }}>{ex.name}</span><span style={{ fontSize: 7, fontWeight: 700, color: intC, padding: '2px 5px', borderRadius: 5, background: `${intC}12`, textTransform: 'uppercase' }}>{int}</span></div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3 } as any}><span style={{ fontSize: 10, fontWeight: 700, color: G }}><i className="ri-timer-line" style={{ fontSize: 9 }} /> {ex.duration}</span>{ex.calories_burned > 0 && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>{ex.calories_burned}kcal</span>}<span style={{ fontSize: 9, color: G, fontWeight: 700 }}>Details <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span></div>
-                          </div>
-                          <div data-testid={`track-exercise-${i}`} onClick={(e) => { e.stopPropagation(); toggleTrack('exercise', i); }} style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: dn ? `${G}15` : 'transparent', cursor: 'pointer', transition: 'all 0.3s' } as any}><i className="ri-check-line" style={{ fontSize: 16, color: dn ? G : 'rgba(255,255,255,0.1)' }} /></div>
                         </div>
                       </div>
                     ); })}
@@ -583,6 +556,51 @@ export default function MinceurPage() {
         </div>
       </div>
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}` }} />
+
+      {/* ══ GOAL CONFIRMATION POPUP (glass, profile-style) ══ */}
+      {showGoalConfirm && (
+        <div data-testid="goal-confirm-popup" onClick={() => setShowGoalConfirm(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+              <div onClick={() => setShowGoalConfirm(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
+              </div>
+            </div>
+            <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+              <img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png" alt="" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block', margin: '0 auto 16px' } as any} />
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Lancer votre objectif ?</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>Objectif : {targetKg}kg en {goalWeeks} semaines</div>
+            </div>
+            <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px', marginBottom: 16 } as any}>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>
+                En lancant cet objectif, Nora va adapter pour vous :
+              </div>
+              <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 } as any}>
+                {[
+                  { icon: 'ri-fire-line', color: A, text: 'Votre apport calorique quotidien sera ajuste pour atteindre votre poids cible dans le delai choisi.' },
+                  { icon: 'ri-restaurant-2-line', color: G, text: 'Des repas personnalises avec les bons macronutriments (proteines, glucides, lipides) seront generes chaque jour.' },
+                  { icon: 'ri-drop-line', color: B, text: 'Votre consommation d\'eau sera adaptee a votre profil et votre activite.' },
+                  { icon: 'ri-checkbox-circle-line', color: P, text: 'Validez vos repas chaque jour pour suivre votre progression et maintenir votre regularite.' },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' } as any}>
+                    <i className={item.icon} style={{ fontSize: 16, color: item.color, marginTop: 2, flexShrink: 0 }} />
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>{item.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '14px 16px', marginBottom: 20 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                <i className="ri-information-line" style={{ fontSize: 14, color: A, flexShrink: 0 }} />
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>Respectez les repas proposes et validez-les quotidiennement. Nora adaptera les recommandations selon votre progression.</div>
+              </div>
+            </div>
+            <div onClick={() => { setShowGoalConfirm(false); saveGoal(); }} style={{ padding: 16, borderRadius: 999, background: `linear-gradient(135deg, ${A}, #D97706)`, textAlign: 'center', fontSize: 16, fontWeight: 900, color: '#FFF', cursor: saving ? 'wait' : 'pointer', boxShadow: `0 8px 24px ${A}30`, opacity: saving ? 0.6 : 1 } as any}>
+              {saving ? 'Lancement en cours...' : 'Confirmer et lancer l\'objectif'}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
