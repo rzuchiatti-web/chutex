@@ -38,8 +38,8 @@ function GlycemiaCard({ token }: { token: string | null }) {
       <div style={{ padding: '16px 16px 14px' } as any}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-            <div style={{ width: 40, height: 40, borderRadius: 14, background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(96,165,250,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <i className="ri-drop-fill" style={{ fontSize: 20, color: '#A78BFA' }} />
+            <div style={{ width: 40, height: 40, borderRadius: 14, background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(96,165,250,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' } as any}>
+              <img src="https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png" alt="" style={{ width: 32, height: 32, objectFit: 'contain' } as any} />
             </div>
             <div>
               <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>Glycemie Estimee</div>
