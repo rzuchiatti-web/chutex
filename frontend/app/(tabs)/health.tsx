@@ -21,61 +21,53 @@ import CompanyAgencyScreen from '../company-agency';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
-/* ===== GLYCEMIA ESTIMATION CARD — Prominent ===== */
+/* ===== GLYCEMIA ESTIMATION CARD — Same style as detail page ===== */
 function GlycemiaCard({ token }: { token: string | null }) {
   const router = useRouter();
   const [data, setData] = React.useState<any>(null);
   React.useEffect(() => { if (token) apiFetch('/api/glycemia/estimate', {}, token).then(setData).catch(() => {}); }, [token]);
   if (!data || data.status === 'insufficient_data') return null;
-  const zoneColors: Record<string, string> = { normal: '#10B981', vigilance: '#F59E0B', alert: '#EF4444' };
-  const col = zoneColors[data.zone] || '#F59E0B';
-  const gaugePct = data.zone === 'normal' ? 25 : data.zone === 'vigilance' ? 55 : 82;
+  const zc: Record<string, string> = { normal: '#10B981', vigilance: '#F59E0B', alert: '#EF4444' };
+  const col = zc[data.zone] || '#F59E0B';
+  const META_IMG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png';
+  const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
   return (
     <div data-testid="glycemia-card" onClick={() => router.push('/glycemia-detail' as any)}
-      style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.15s' } as any}
+      style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', position: 'relative', transition: 'transform 0.15s' } as any}
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-      <div style={{ padding: '16px 16px 14px' } as any}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-            <div style={{ width: 40, height: 40, borderRadius: 14, background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(96,165,250,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' } as any}>
-              <img src="https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png" alt="" style={{ width: 32, height: 32, objectFit: 'contain' } as any} />
-            </div>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>Glycemie Estimee</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Tendance non-invasive</div>
+      {/* Red background */}
+      <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
+      <div style={{ position: 'relative', zIndex: 2 } as any}>
+        {/* Image centered */}
+        <div style={{ textAlign: 'center', paddingTop: 16 } as any}>
+          <img src={META_IMG} alt="" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.4))' } as any} />
+        </div>
+        <div style={{ padding: '10px 16px 14px' } as any}>
+          {/* Title + zone */}
+          <div style={{ textAlign: 'center', marginBottom: 10 } as any}>
+            <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Glycemie Estimee</div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: `${col}20`, border: `1px solid ${col}30` } as any}>
+              <span style={{ width: 7, height: 7, borderRadius: 4, background: col, boxShadow: `0 0 6px ${col}60` } as any} />
+              <span style={{ fontSize: 12, fontWeight: 800, color: col }}>{data.zone_label}</span>
             </div>
           </div>
-          <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.15)' }} />
+          {/* Mini gradient gauge */}
+          <svg viewBox="0 0 300 28" style={{ width: '100%', height: 24, display: 'block', marginBottom: 8 }}>
+            <defs><linearGradient id="glycGradMini" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#10B981" stopOpacity="0.4" /><stop offset="40%" stopColor="#F59E0B" stopOpacity="0.4" /><stop offset="100%" stopColor="#EF4444" stopOpacity="0.4" /></linearGradient></defs>
+            <rect x="0" y="6" width="300" height="10" rx="5" fill="url(#glycGradMini)" />
+            {(() => { const s = data.risk_score||50; const cx = Math.max(8,Math.min(292,(s/100)*300)); return <><circle cx={cx} cy="11" r="6" fill={col} opacity="0.2"><animate attributeName="r" values="6;9;6" dur="2s" repeatCount="indefinite" /></circle><circle cx={cx} cy="11" r="4" fill={col} stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" /></>; })()}
+            <text x="0" y="26" fill="rgba(255,255,255,0.15)" fontSize="7">Normal</text>
+            <text x="150" y="26" textAnchor="middle" fill="rgba(255,255,255,0.15)" fontSize="7">Vigilance</text>
+            <text x="300" y="26" textAnchor="end" fill="rgba(255,255,255,0.15)" fontSize="7">Alerte</text>
+          </svg>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.4, textAlign: 'center' }}>{data.estimated_range}</div>
         </div>
-        {/* Zone display + gauge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 } as any}>
-          <div style={{ flex: 1 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } as any}>
-              <span style={{ width: 10, height: 10, borderRadius: 5, background: col, boxShadow: `0 0 8px ${col}50` } as any} />
-              <span style={{ fontSize: 18, fontWeight: 900, color: col }}>{data.zone_label}</span>
-            </div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{data.estimated_range}</div>
-          </div>
-          <div style={{ width: 52, height: 52, position: 'relative' } as any}>
-            <svg viewBox="0 0 36 36" style={{ width: 52, height: 52, transform: 'rotate(-90deg)' }}>
-              <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="3" />
-              <circle cx="18" cy="18" r="15.5" fill="none" stroke={col} strokeWidth="3" strokeDasharray={`${gaugePct} ${100 - gaugePct}`} strokeLinecap="round" />
-            </svg>
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: col } as any}>{data.confidence_pct}%</div>
-          </div>
+        <div style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>Precision : {data.confidence_pct}%</span>
+          <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 10 }} /></span>
         </div>
-        {/* Mini gauge bar */}
-        <div style={{ height: 4, borderRadius: 2, display: 'flex', overflow: 'hidden', background: 'rgba(255,255,255,0.03)', marginBottom: 8 } as any}>
-          <div style={{ width: '33%', height: '100%', background: '#10B981', opacity: data.zone === 'normal' ? 0.8 : 0.15 } as any} />
-          <div style={{ width: '34%', height: '100%', background: '#F59E0B', opacity: data.zone === 'vigilance' ? 0.8 : 0.15 } as any} />
-          <div style={{ width: '33%', height: '100%', background: '#EF4444', opacity: data.zone === 'alert' ? 0.8 : 0.15 } as any} />
-        </div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{data.message}</div>
-      </div>
-      <div style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>Estimation algorithmique · Non medical</span>
-        <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>Voir le detail</span>
       </div>
     </div>
   );
