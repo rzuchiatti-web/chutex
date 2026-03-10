@@ -7,7 +7,7 @@ import { apiFetch } from '../src/services/api';
 const G = '#10B981', A = '#F59E0B', B = '#38BDF8', R = '#EF4444', P = '#A78BFA', CY = '#22D3EE';
 const GL: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
-const SHOE_IMG = 'https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/ei43qs8n_img_activity.png';
+const HERO_IMG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png';
 
 function GaugeRing({ pct, color, size = 56, children }: { pct: number; color: string; size?: number; children?: any }) {
   const r = (size - 5) / 2, circ = 2 * Math.PI * r;
@@ -52,8 +52,11 @@ export default function ActivityDetailPage() {
   }
   const recCol = recPct >= 80 ? G : recPct >= 60 ? CY : recPct >= 40 ? A : R;
   const recLabel = recPct >= 80 ? 'Optimale' : recPct >= 60 ? 'Bonne' : recPct >= 40 ? 'Moderee' : 'Faible';
-  // Estimated recovery time
-  const recHours = recPct >= 80 ? '4-6h' : recPct >= 60 ? '8-12h' : recPct >= 40 ? '12-18h' : '18-24h';
+  // Recovery time correlated with actual recovery percentage
+  const recMinutes = Math.round((100 - recPct) * 14.4); // 0% = 24h, 100% = 0h
+  const recH = Math.floor(recMinutes / 60);
+  const recM = recMinutes % 60;
+  const recTimeStr = recMinutes <= 0 ? 'Pret' : recH > 0 ? `${recH}h${recM > 0 ? String(recM).padStart(2, '0') : ''}` : `${recM}min`;
   const vo2Label = vo2 >= 40 ? 'Excellent' : vo2 >= 30 ? 'Bon' : vo2 >= 20 ? 'Moyen' : vo2 > 0 ? 'Faible' : '--';
   const vo2Col = vo2 >= 40 ? G : vo2 >= 30 ? CY : vo2 >= 20 ? A : R;
   const st = streak || {};
@@ -75,7 +78,7 @@ export default function ActivityDetailPage() {
             <>
               {/* Hero */}
               <div style={{ textAlign: 'center', position: 'relative', zIndex: 2 } as any}>
-                <img src={SHOE_IMG} alt="" style={{ width: 200, height: 200, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', position: 'relative', zIndex: 3, marginBottom: -50 } as any} />
+                <img src={HERO_IMG} alt="" style={{ width: 200, height: 200, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', position: 'relative', zIndex: 3, marginBottom: -50 } as any} />
               </div>
 
               {/* ══ CARTE 1: Activité + Récupération + VO2 ══ */}
@@ -119,9 +122,12 @@ export default function ActivityDetailPage() {
                       <div style={{ fontSize: 14, fontWeight: 900, color: recCol }}>{recLabel}</div>
                       <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>NIVEAU</div>
                     </div>
-                    <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{recHours}</div>
-                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>TEMPS ESTIME</div>
+                    <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', textAlign: 'center', position: 'relative', overflow: 'hidden' } as any}>
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, height: `${recPct}%`, width: '100%', background: `${recCol}08`, transition: 'height 1.5s ease', borderRadius: 10 } as any} />
+                      <div style={{ position: 'relative' } as any}>
+                        <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF', fontVariantNumeric: 'tabular-nums' }}>{recTimeStr}</div>
+                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>TEMPS ESTIME</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -156,10 +162,10 @@ export default function ActivityDetailPage() {
                   <div style={{ flex: 1 } as any}>
                     <div style={{ fontSize: 9, fontWeight: 700, color: P, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Analyse de Nora</div>
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
-                      {recPct >= 80 ? `Excellente recuperation a ${recPct}% ! Votre corps est pret pour une activite soutenue. Profitez-en pour une marche rapide, du renforcement musculaire ou une seance de gymnastique douce. ${vo2 > 0 ? `Votre VO2 Max de ${vo2} ml/kg/min est ${vo2Label.toLowerCase()}.` : ''} Temps de recuperation estime : ${recHours}.` :
-                       recPct >= 60 ? `Bonne recuperation a ${recPct}%. Privilegiez une activite moderee : marche en exterieur, yoga doux ou etirements. ${vo2 > 0 ? `Votre capacite aerobique (VO2 Max ${vo2}) est ${vo2Label.toLowerCase()}.` : ''} Votre corps aura besoin d'environ ${recHours} pour recuperer pleinement.` :
-                       recPct >= 40 ? `Recuperation moyenne a ${recPct}%. Optez pour du repos actif : stretching leger, mobilite articulaire, respiration profonde. ${vo2 > 0 ? `VO2 Max: ${vo2} (${vo2Label.toLowerCase()}).` : ''} Estimation de recuperation : ${recHours}. Hydratez-vous bien.` :
-                       `Recuperation insuffisante a ${recPct}%. Accordez-vous du repos aujourd'hui. Hydratez-vous, privilegiez des repas legers et couchez-vous tot. ${vo2 > 0 ? `VO2 Max: ${vo2} (${vo2Label.toLowerCase()}).` : ''} Temps necessaire : ${recHours}.`}
+                      {recPct >= 80 ? `Excellente recuperation a ${recPct}% ! Votre corps est pret pour une activite soutenue. Profitez-en pour une marche rapide, du renforcement musculaire ou une seance de gymnastique douce. ${vo2 > 0 ? `Votre VO2 Max de ${vo2} ml/kg/min est ${vo2Label.toLowerCase()}.` : ''} Temps de recuperation estime : ${recTimeStr}.` :
+                       recPct >= 60 ? `Bonne recuperation a ${recPct}%. Privilegiez une activite moderee : marche en exterieur, yoga doux ou etirements. ${vo2 > 0 ? `Votre capacite aerobique (VO2 Max ${vo2}) est ${vo2Label.toLowerCase()}.` : ''} Votre corps aura besoin d'environ ${recTimeStr} pour recuperer pleinement.` :
+                       recPct >= 40 ? `Recuperation moyenne a ${recPct}%. Optez pour du repos actif : stretching leger, mobilite articulaire, respiration profonde. ${vo2 > 0 ? `VO2 Max: ${vo2} (${vo2Label.toLowerCase()}).` : ''} Estimation de recuperation : ${recTimeStr}. Hydratez-vous bien.` :
+                       `Recuperation insuffisante a ${recPct}%. Accordez-vous du repos aujourd'hui. Hydratez-vous, privilegiez des repas legers et couchez-vous tot. ${vo2 > 0 ? `VO2 Max: ${vo2} (${vo2Label.toLowerCase()}).` : ''} Temps necessaire : ${recTimeStr}.`}
                     </div>
                   </div>
                 </div>

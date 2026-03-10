@@ -1,8 +1,8 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
 
-const BG_GREEN = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
-const SHOE_IMG = 'https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/ei43qs8n_img_activity.png';
+const BG_GREEN = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
+const MUSCLE_IMG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png';
 
 interface ActivityCardProps {
   steps: number;
@@ -50,7 +50,7 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
       <div style={{ position: 'relative', zIndex: 2 } as any}>
         {/* Hero image */}
         <div style={{ textAlign: 'center', paddingTop: 12 } as any}>
-          <img src={SHOE_IMG} alt="" style={{ width: 100, height: 100, objectFit: 'contain', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.5))' } as any} />
+          <img src={MUSCLE_IMG} alt="" style={{ width: 100, height: 100, objectFit: 'contain', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.5))' } as any} />
         </div>
         <div style={{ padding: '8px 16px 12px' } as any}>
           {/* Title + streak */}
