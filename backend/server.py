@@ -30,6 +30,7 @@ from routes.shopify_routes import router as shopify_router
 from routes.advanced_routes import router as advanced_router
 from routes.dorsi_routes import router as dorsi_router
 from routes.minceur_routes import router as minceur_router
+from routes.glycemia_routes import router as glycemia_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -61,6 +62,7 @@ api_router.include_router(shopify_router)
 api_router.include_router(advanced_router)
 api_router.include_router(dorsi_router)
 api_router.include_router(minceur_router)
+api_router.include_router(glycemia_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])

@@ -83,7 +83,15 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - **Onglets graphiques**: Style plus subtil, contenus dans la carte (pas de débordement)
 - **Testing**: 100% pass (iteration_99 frontend 100%)
 
-### Bug Fix: Mot de passe persistant - March 2026
+### Glycémie Estimée V1 — Complete (March 2026)
+- **Backend** : Algorithme V1 basé sur corrélations scientifiques (HRV, FC repos, graisse viscérale, IMC, SpO2, sommeil, activité, âge, conditions médicales)
+  - `GET /api/glycemia/estimate` : Retourne zone (normal/vigilance/alerte), message, plage estimée, confiance %, facteurs contributifs
+  - `POST /api/glycemia/calibrate` : Saisie glycémie capillaire (piqûre) pour calibration
+  - `GET /api/glycemia/calibrations` : Historique des calibrations
+- **Frontend** : Carte "Tendance Glycémique" sur la page Santé avec zone colorée, message explicatif, facteurs, bouton calibration, disclaimer médical
+- **Stockage ML-ready** : Toutes les calibrations horodatées et liées aux données capteurs pour futur entraînement ML
+- **Brevet** : Méthode documentée (combinaison PPG + impédancemétrie + profil médical + calibration capillaire)
+- **Testing** : Backend 3/3 endpoints OK (estimate, calibrate, post-calibration)
 - **Problème**: Le mot de passe changé par l'utilisateur se réinitialisait entre les sessions (snapshots DB)
 - **Solution**: Système de persistance fichier (`password_overrides.json`). Quand un utilisateur change son mot de passe:
   1. Le hash est sauvegardé dans MongoDB (comportement normal)

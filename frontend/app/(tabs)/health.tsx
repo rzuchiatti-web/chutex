@@ -21,6 +21,91 @@ import CompanyAgencyScreen from '../company-agency';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
 
+/* ===== GLYCEMIA ESTIMATION CARD ===== */
+function GlycemiaCard({ token }: { token: string | null }) {
+  const [data, setData] = React.useState<any>(null);
+  const [showCalibrate, setShowCalibrate] = React.useState(false);
+  const [calibValue, setCalibValue] = React.useState('');
+  const [saving, setSaving] = React.useState(false);
+  React.useEffect(() => { if (token) apiFetch('/api/glycemia/estimate', {}, token).then(setData).catch(() => {}); }, [token]);
+  if (!data || data.status === 'insufficient_data') return null;
+  const zoneColors: Record<string, string> = { normal: '#10B981', vigilance: '#F59E0B', alert: '#EF4444' };
+  const zoneIcons: Record<string, string> = { normal: 'ri-checkbox-circle-line', vigilance: 'ri-error-warning-line', alert: 'ri-alarm-warning-line' };
+  const col = zoneColors[data.zone] || '#F59E0B';
+  const icon = zoneIcons[data.zone] || 'ri-error-warning-line';
+  const saveCalibration = async () => {
+    const v = parseFloat(calibValue.replace(',', '.'));
+    if (!v || v <= 0 || v > 5) return;
+    setSaving(true);
+    try {
+      await apiFetch('/api/glycemia/calibrate', { method: 'POST', body: JSON.stringify({ glycemia_value: v }) }, token);
+      setShowCalibrate(false); setCalibValue('');
+      apiFetch('/api/glycemia/estimate', {}, token).then(setData).catch(() => {});
+    } catch {} finally { setSaving(false); }
+  };
+  return (
+    <div data-testid="glycemia-card" style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden' } as any}>
+      <div style={{ padding: '16px 16px 12px' } as any}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+            <div style={{ width: 36, height: 36, borderRadius: 12, background: `${col}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <i className="ri-drop-line" style={{ fontSize: 18, color: col }} />
+            </div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Tendance Glycemique</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Estimation non-invasive</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: `${col}15`, border: `1px solid ${col}25` } as any}>
+            <i className={icon} style={{ fontSize: 12, color: col }} />
+            <span style={{ fontSize: 10, fontWeight: 700, color: col }}>{data.zone_label}</span>
+          </div>
+        </div>
+        <div style={{ padding: '12px 14px', borderRadius: 14, background: `${col}08`, border: `1px solid ${col}12`, marginBottom: 10 } as any}>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>{data.message}</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 6 }}>Plage estimee : {data.estimated_range}</div>
+        </div>
+        {data.factors?.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 } as any}>
+            {data.factors.map((f: any, i: number) => (
+              <span key={i} style={{ padding: '3px 8px', borderRadius: 6, background: f.impact === 'high' ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${f.impact === 'high' ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.06)'}`, fontSize: 9, color: f.impact === 'high' ? '#FCA5A5' : 'rgba(255,255,255,0.3)' } as any}>
+                {f.name}: {f.value}
+              </span>
+            ))}
+          </div>
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>
+            Confiance: {data.confidence_pct}% · {data.data_points_used} indicateurs
+            {data.last_calibration && ` · Cal: ${new Date(data.last_calibration).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`}
+          </div>
+          <div data-testid="calibrate-btn" onClick={() => setShowCalibrate(!showCalibrate)} style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA', cursor: 'pointer', padding: '4px 10px', borderRadius: 999, background: 'rgba(167,139,250,0.1)' } as any}>
+            {showCalibrate ? 'Annuler' : 'Calibrer'}
+          </div>
+        </div>
+      </div>
+      {showCalibrate && (
+        <div style={{ padding: '0 16px 14px', animation: 'fadeSlide 0.2s ease' } as any}>
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', marginBottom: 10 } as any} />
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Saisissez votre glycemie capillaire (piqure) pour ameliorer la precision :</div>
+          <div style={{ display: 'flex', gap: 8 } as any}>
+            <input data-testid="glycemia-input" type="number" step="0.01" placeholder="Ex: 1.05" value={calibValue} onChange={(e: any) => setCalibValue(e.target.value)} style={{ flex: 1, padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', outline: 'none' } as any} />
+            <div data-testid="save-calibration" onClick={saveCalibration} style={{ padding: '10px 16px', borderRadius: 12, background: saving ? 'rgba(255,255,255,0.04)' : 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.25)', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#A78BFA', display: 'flex', alignItems: 'center', gap: 4 } as any}>
+              <i className="ri-check-line" style={{ fontSize: 14 }} />{saving ? '...' : 'g/L'}
+            </div>
+          </div>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', marginTop: 6 }}>
+            {data.calibrations_count} calibration{data.calibrations_count !== 1 ? 's' : ''} enregistree{data.calibrations_count !== 1 ? 's' : ''}
+          </div>
+        </div>
+      )}
+      <div style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.03)' } as any}>
+        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)', lineHeight: 1.4, textAlign: 'center' }}>Estimation algorithmique, ne constitue pas un diagnostic medical. Consultez votre medecin.</div>
+      </div>
+    </div>
+  );
+}
+
 /* ===== COMPANY: AGENCES — kept inline due to heavy local state ===== */
 function CompanyAgences({ token }: { token: string }) {
   return <CompanyAgencyScreen />;
@@ -289,6 +374,9 @@ export default function HealthScreen() {
           </div>
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+
+          {/* Glycemia Estimation Card */}
+          <GlycemiaCard token={token} />
 
           {/* 6. Health Sections */}
           <HealthSections d={d} subs={subs} />
