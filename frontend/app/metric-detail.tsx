@@ -157,11 +157,12 @@ export default function MetricDetailScreen() {
   const isBP = graphType === 'bp_dual';
 
   /* ── Chart SVG helpers ── */
-  const W = 400, H = 180, mV = 12;
+  const W = 360, H = 200, padL = 36, padR = 8, padT = 14, padB = 14;
+  const chartW = W - padL - padR, chartH = H - padT - padB;
   const rg = mx - mn || 1;
-  const dMn = mn - rg * 0.08, dMx = mx + rg * 0.08, dRg = dMx - dMn || 1;
-  const toX = (i: number) => (i / Math.max(sliced.length - 1, 1)) * W;
-  const toY = (v: number) => mV + (H - mV * 2) - ((v - dMn) / dRg) * (H - mV * 2);
+  const dMn = mn - rg * 0.1, dMx = mx + rg * 0.1, dRg = dMx - dMn || 1;
+  const toX = (i: number) => padL + (i / Math.max(sliced.length - 1, 1)) * chartW;
+  const toY = (v: number) => padT + chartH - ((v - dMn) / dRg) * chartH;
   const pts = sliced.map((h: any, i: number) => ({ x: toX(i), y: toY(h.value) }));
 
   /* ── Render CHART ── */
@@ -175,44 +176,46 @@ export default function MetricDetailScreen() {
     };
     return (
       <div onClick={handleClick} style={{ cursor: 'crosshair' }}>
-        <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block' }}>
+        <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
           {/* Grid lines with Y-axis values */}
-          {[0.25, 0.5, 0.75].map((p, i) => {
+          {[0, 0.25, 0.5, 0.75, 1].map((p, i) => {
             const yVal = dMx - (dMx - dMn) * p;
+            const yPos = padT + chartH * p;
             return <g key={i}>
-              <line x1={32} y1={mV + (H - mV * 2) * p} x2={W} y2={mV + (H - mV * 2) * p} stroke="rgba(255,255,255,0.04)" />
-              <text x={28} y={mV + (H - mV * 2) * p + 3} textAnchor="end" fill="rgba(255,255,255,0.25)" fontSize="8" fontWeight="600">{Number.isInteger(yVal) ? yVal : yVal.toFixed(1)}</text>
+              <line x1={padL} y1={yPos} x2={W - padR} y2={yPos} stroke="rgba(255,255,255,0.04)" />
+              <text x={padL - 6} y={yPos + 3} textAnchor="end" fill="rgba(255,255,255,0.25)" fontSize="8" fontWeight="600">{Number.isInteger(yVal) ? yVal : yVal.toFixed(1)}</text>
             </g>;
           })}
           {/* Normal zone band */}
           {nMin != null && !isBP && (
-            <rect x={0} y={toY(nMax)} width={W} height={Math.max(1, Math.abs(toY(nMin) - toY(nMax)))} fill="rgba(16,185,129,0.06)" rx={4} />
+            <rect x={padL} y={toY(nMax)} width={chartW} height={Math.max(1, Math.abs(toY(nMin) - toY(nMax)))} fill="rgba(16,185,129,0.06)" rx={4} />
           )}
 
           {isBP ? (
             /* Blood Pressure: side-by-side bars */
             sliced.map((h: any, i: number) => {
-              const bw = Math.max(3, W / sliced.length * 0.28);
+              const bw = Math.max(4, chartW / sliced.length * 0.3);
               const sys = h.systolic || h.value;
               const dia = h.diastolic || h.value * 0.62;
-              const sH = Math.max(2, ((sys - dMn) / dRg) * (H - mV * 2));
-              const dH = Math.max(2, ((dia - dMn) / dRg) * (H - mV * 2));
+              const sY = toY(sys), dY = toY(dia);
+              const baseY = padT + chartH;
               const isSel = sel === i;
               return <g key={i}>
-                <rect x={toX(i) - bw - 1} y={H - mV - sH} width={bw} height={sH} rx={3} fill="#8B5CF6" opacity={isSel ? 0.9 : 0.4} />
-                <rect x={toX(i) + 1} y={H - mV - dH} width={bw} height={dH} rx={3} fill="#C4B5FD" opacity={isSel ? 0.9 : 0.4} />
-                {isSel && <text x={toX(i)} y={H - mV - sH - 8} fill="#FFF" fontSize="9" fontWeight="800" textAnchor="middle">{sys}/{dia}</text>}
+                <rect x={toX(i) - bw - 1} y={sY} width={bw} height={Math.max(2, baseY - sY)} rx={3} fill="#8B5CF6" opacity={isSel ? 0.9 : 0.4} />
+                <rect x={toX(i) + 1} y={dY} width={bw} height={Math.max(2, baseY - dY)} rx={3} fill="#C4B5FD" opacity={isSel ? 0.9 : 0.4} />
+                {isSel && <text x={toX(i)} y={sY - 6} fill="#FFF" fontSize="9" fontWeight="800" textAnchor="middle">{sys}/{dia}</text>}
               </g>;
             })
           ) : graphType === 'bars' || graphType === 'bars_threshold' ? (
             /* Vertical bars (steps, calories, distance, water) */
             sliced.map((h: any, i: number) => {
-              const bw = Math.max(3, W / sliced.length * 0.55);
-              const bh = Math.max(2, ((h.value - dMn) / dRg) * (H - mV * 2));
+              const bw = Math.max(4, chartW / sliced.length * 0.6);
+              const barY = toY(h.value);
+              const baseY = padT + chartH;
               const isSel = sel === i;
               return <g key={i}>
-                <rect x={toX(i) - bw / 2} y={H - mV - bh} width={bw} height={bh} rx={4} fill={color} opacity={isSel ? 0.85 : 0.3} />
-                {isSel && <text x={toX(i)} y={H - mV - bh - 8} fill="#FFF" fontSize="9" fontWeight="800" textAnchor="middle">{typeof h.value === 'number' && h.value > 100 ? Math.round(h.value) : h.value}</text>}
+                <rect x={toX(i) - bw / 2} y={barY} width={bw} height={Math.max(2, baseY - barY)} rx={4} fill={color} opacity={isSel ? 0.85 : 0.35} />
+                {isSel && <text x={toX(i)} y={barY - 6} fill="#FFF" fontSize="9" fontWeight="800" textAnchor="middle">{typeof h.value === 'number' && h.value > 100 ? Math.round(h.value) : h.value}</text>}
               </g>;
             })
           ) : graphType === 'scatter' ? (
@@ -419,10 +422,10 @@ export default function MetricDetailScreen() {
             </div>
 
             {/* Chart card */}
-            <div data-testid="chart-card" style={{ ...G, padding: '12px 0', marginBottom: 14, overflow: 'hidden' } as any}>
+            <div data-testid="chart-card" style={{ ...G, padding: '16px 12px 10px', marginBottom: 14, overflow: 'hidden' } as any}>
               {renderChart()}
               {/* X-axis labels */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 12px 0' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 24px 0 36px' } as any}>
                 {sliced.filter((_: any, i: number) => {
                   const step = Math.max(1, Math.floor(sliced.length / 5));
                   return i === 0 || i === sliced.length - 1 || i % step === 0;
