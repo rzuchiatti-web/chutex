@@ -125,29 +125,31 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
               )}
             </div>
 
-            {/* Subscores — visual grid */}
-            <div style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '16px', marginBottom: 14 } as any}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Vos indicateurs</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
-                {Object.values(subs).map((s: any) => {
-                  const sc = s.score;
-                  const col = sc >= 80 ? '#10B981' : sc >= 60 ? '#F59E0B' : '#EF4444';
-                  return (
-                    <div key={s.label} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: `1px solid ${col}15` } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                          <i className={s.icon} style={{ fontSize: 13, color: col }} />
-                          <span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>{s.label}</span>
-                        </div>
-                        <span style={{ fontSize: 14, fontWeight: 900, color: col }}>{sc}</span>
-                      </div>
-                      <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}>
-                        <div style={{ height: 3, borderRadius: 2, width: `${sc}%`, background: col, opacity: 0.7 } as any} />
+            {/* Subscores — unique design, 1 per row, no cards */}
+            <div style={{ marginBottom: 20 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>Vos indicateurs</div>
+              {Object.values(subs).map((s: any) => {
+                const sc = s.score;
+                const col = sc >= 80 ? '#10B981' : sc >= 60 ? '#F59E0B' : '#EF4444';
+                const label = sc >= 80 ? 'Excellent' : sc >= 60 ? 'Bon' : sc < 40 ? 'Faible' : 'A surveiller';
+                return (
+                  <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
+                    <div style={{ width: 38, height: 38, borderRadius: 12, background: `${col}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className={s.icon} style={{ fontSize: 17, color: col }} />
+                    </div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{s.label}</div>
+                      <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.05)', marginTop: 6, overflow: 'hidden' } as any}>
+                        <div style={{ height: 4, borderRadius: 2, width: `${sc}%`, background: `linear-gradient(90deg, ${col}80, ${col})` } as any} />
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 } as any}>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: col, lineHeight: 1 }}>{sc}</div>
+                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{label}</div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Nora explanation */}

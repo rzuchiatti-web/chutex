@@ -28,7 +28,7 @@ import { SubscriptionBanner, SubscriptionGate } from '../../src/components/Subsc
 /*              WEIGHT GOAL CARD ON DASHBOARD              */
 /* ═══════════════════════════════════════════════════════ */
 const WEIGHT_BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
-const SCALE_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg';
+const TAPE_MEASURE_IMG = 'https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png';
 
 function WeightGoalDashCard({ token }: { token: string }) {
   const router = useRouter();
@@ -47,15 +47,13 @@ function WeightGoalDashCard({ token }: { token: string }) {
 
   return (
     <div data-testid="weight-goal-dash-card" onClick={() => router.push('/minceur' as any)}
-      style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 10, cursor: 'pointer', position: 'relative', height: 100, transition: 'transform 0.15s' } as any}
+      style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', position: 'relative', height: 100, transition: 'transform 0.15s' } as any}
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-      {/* Blue background image */}
       <img src={WEIGHT_BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
-      {/* Scale image floated right */}
-      <img src={SCALE_IMG} alt="" style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', width: 64, height: 64, objectFit: 'contain', zIndex: 2, opacity: 0.5, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' } as any} />
-      {/* Content */}
+      {/* Tape measure image — right side, directly on background */}
+      <img src={TAPE_MEASURE_IMG} alt="" style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', width: 60, height: 60, objectFit: 'contain', zIndex: 2, opacity: 0.6, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' } as any} />
       <div style={{ position: 'relative', zIndex: 3, padding: '16px 18px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
         <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Objectif poids en cours</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 } as any}>
@@ -65,7 +63,6 @@ function WeightGoalDashCard({ token }: { token: string }) {
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>kg</span>
           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 4 }}>· {goal.weeks} sem</span>
         </div>
-        {/* Progress dots */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 3, maxWidth: 200 } as any}>
           {Array.from({ length: 12 }, (_, i) => {
             const filled = i < Math.round(progressPct / 100 * 12);
@@ -527,7 +524,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── 4. PROGRAMME EN COURS ── */}
           {activeProgram?.active ? (
-            <div data-testid="active-program-card" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: `1px solid ${activeProgram.program.color}20`, padding: '18px', marginBottom: 10, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer' } as any}>
+            <div data-testid="active-program-card" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: `1px solid ${activeProgram.program.color}20`, padding: '18px', marginBottom: 14, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: 'pointer' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
                 <div style={{ width: 44, height: 44, borderRadius: 14, background: `${activeProgram.program.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                   <i className={activeProgram.program.icon} style={{ fontSize: 22, color: activeProgram.program.color }} />
@@ -554,7 +551,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               )}
             </div>
           ) : (
-            <div data-testid="discover-programs" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '14px 16px', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+            <div data-testid="discover-programs" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '14px 16px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
               <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                 <i className="ri-road-map-line" style={{ fontSize: 18, color: '#A78BFA' }} />
               </div>
