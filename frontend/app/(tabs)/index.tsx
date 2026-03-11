@@ -391,11 +391,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const vs = dashData?.vest || { fall_detected: false, posture_score: 0, chest_temp: 0, battery: 0, connected: false, wearing_hours_today: 0, alerts_today: 0, paired: false };
   const sl = dashData?.sleep || null;
 
-  /* Glass card helper — Neumorphic clinical style */
+  /* Card helper — Clinical clean */
   const GC = ({ children, style, onClick, testId }: any) => (
-    <div data-testid={testId} onClick={onClick} style={{ padding: '16px', borderRadius: 22, background: '#FFFFFF', marginBottom: 12, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s', boxShadow: '6px 6px 16px rgba(174,170,195,0.25), -4px -4px 12px rgba(255,255,255,0.8)', ...style } as any}
-      onMouseEnter={(e: any) => { if (onClick) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '8px 8px 24px rgba(174,170,195,0.3), -4px -4px 12px rgba(255,255,255,0.9), 0 0 0 1px rgba(107,92,231,0.08)'; }}}
-      onMouseLeave={(e: any) => { if (onClick) { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '6px 6px 16px rgba(174,170,195,0.25), -4px -4px 12px rgba(255,255,255,0.8)'; }}}>
+    <div data-testid={testId} onClick={onClick} style={{ padding: '24px', borderRadius: 24, background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.04)', marginBottom: 14, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.2s ease, box-shadow 0.2s ease', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.05)', ...style } as any}
+      onMouseEnter={(e: any) => { if (onClick) { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(0,0,0,0.08)'; }}}
+      onMouseLeave={(e: any) => { if (onClick) { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 10px 30px -10px rgba(0,0,0,0.05)'; }}}>
       {children}
     </div>
   );
@@ -404,92 +404,79 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   // Morning briefing effect — runs once on mount
   if (Platform.OS === 'web') {
     return (
-      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
-        {/* Animated mesh gradient background */}
-        <div style={{ position: 'absolute', inset: 0, background: '#F4F3FA', zIndex: 0 } as any} />
-        <div className="clinic-mesh" style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' } as any}>
-          <div className="mesh-blob mesh-blob-1" />
-          <div className="mesh-blob mesh-blob-2" />
-          <div className="mesh-blob mesh-blob-3" />
-        </div>
-        {/* Subtle noise texture overlay */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: 0.03, backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%270 0 256 256%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E")', backgroundSize: '200px 200px' } as any} />
+      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: '#F8FAFC' } as any}>
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* ── HEADER — Clinical premium with ECG line ── */}
-          <div data-testid="dashboard-header" style={{ background: 'linear-gradient(135deg, #4A3AE0 0%, #6B5CE7 30%, #8B6CF7 70%, #A78BFA 100%)', borderRadius: '0 0 32px 32px', padding: '28px 22px 24px', marginBottom: 20, position: 'relative', zIndex: 50, overflow: 'hidden', boxShadow: '0 8px 32px rgba(107,92,231,0.3)' } as any}>
-            {/* ECG line animation overlay */}
-            <svg className="ecg-line" style={{ position: 'absolute', bottom: 0, left: 0, width: '200%', height: 50, opacity: 0.12, zIndex: 0 } as any} viewBox="0 0 800 50" preserveAspectRatio="none">
-              <path d="M0,25 L50,25 L60,25 L70,10 L80,40 L90,5 L100,45 L110,20 L120,25 L200,25 L210,25 L220,10 L230,40 L240,5 L250,45 L260,20 L270,25 L350,25 L360,25 L370,10 L380,40 L390,5 L400,45 L410,20 L420,25 L500,25 L510,25 L520,10 L530,40 L540,5 L550,45 L560,20 L570,25 L650,25 L660,25 L670,10 L680,40 L690,5 L700,45 L710,20 L720,25 L800,25" fill="none" stroke="#FFF" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            {/* Top row */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, position: 'relative', zIndex: 2 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 48, height: 48, borderRadius: 16, background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.3)', flexShrink: 0, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
-                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 48, height: 48, borderRadius: 16, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 19, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+          {/* ── HEADER — Frosted glass, dark text, premium clinical ── */}
+          <div data-testid="dashboard-header" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(0,0,0,0.05)', padding: '20px 22px', marginBottom: 8, position: 'sticky', top: 0, zIndex: 50 } as any}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 48, height: 48, borderRadius: 16, background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,0,0,0.04)', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
+                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 48, height: 48, borderRadius: 16, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 19, fontWeight: 800, color: '#0F766E' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
                 </div>
                 <div>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 3 }}>{user.name}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase' }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: '#0F172A', letterSpacing: -0.5 }}>{user.name}</div>
+                  <div style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600, letterSpacing: 0.3, textTransform: 'uppercase' }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-                <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, lineHeight: 1 } as any}>
+                <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, lineHeight: 1 } as any}>
                   {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
                 </div>
-                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 40, height: 40, borderRadius: 13, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
-                  <i className="ri-notification-3-line" style={{ fontSize: 18, color: '#FFF' }} />
-                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -3, right: -3, width: 10, height: 10, borderRadius: 5, background: '#EF4444', border: '2.5px solid #5A4AD0' } as any} />}
+                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 40, height: 40, borderRadius: 13, background: '#F1F5F9', border: '1px solid rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' } as any}>
+                  <i className="ri-notification-3-line" style={{ fontSize: 18, color: '#64748B' }} />
+                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, background: '#EF4444', border: '2.5px solid #F8FAFC' } as any} />}
                 </div>
               </div>
-            </div>
-            {/* Nora greeting with pulse indicator */}
-            <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 18, padding: '14px 16px', display: 'flex', alignItems: 'flex-start', gap: 12, position: 'relative', zIndex: 2, border: '1px solid rgba(255,255,255,0.08)' } as any}>
-              <div style={{ position: 'relative', flexShrink: 0, marginTop: 2 } as any}>
-                <div style={{ width: 32, height: 32, borderRadius: 11, background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className="ri-heart-pulse-line" style={{ fontSize: 16, color: '#FFF' }} />
-                </div>
-                <div className="pulse-dot" style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, background: '#34D399' } as any} />
-              </div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 3 }}>Bonjour {user.name?.split(' ')[0]} !</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
-                  {healthSummary?.score > 70 ? 'Vos indicateurs sont au vert. Etat de sante optimal.' :
-                   healthSummary?.score > 50 ? 'Etat correct. Hydratez-vous et restez active.' :
-                   healthSummary?.score > 0 ? 'Quelques points a surveiller. Je reste vigilante.' :
-                   'Connectez vos appareils pour un suivi complet.'}
-                </div>
-              </div>
-              {healthSummary?.score > 0 && (
-                <div style={{ flexShrink: 0, textAlign: 'center' } as any}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{healthSummary.score}</div>
-                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.45)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Score</div>
-                </div>
-              )}
             </div>
           </div>
 
           <div style={{ padding: '0 20px' } as any}>
+
+          {/* ── Nora greeting card ── */}
+          <div style={{ background: 'linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%)', border: '1px solid #99F6E4', borderRadius: 24, padding: '20px 22px', marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 14, boxShadow: '0 4px 16px rgba(15,118,110,0.06)' } as any}>
+            <div style={{ width: 40, height: 40, borderRadius: 14, background: '#0F766E', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+              <i className="ri-heart-pulse-line" style={{ fontSize: 20, color: '#FFF' }} />
+            </div>
+            <div style={{ flex: 1 } as any}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 4, letterSpacing: -0.3 }}>Bonjour {user.name?.split(' ')[0]}</div>
+              <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>
+                {healthSummary?.score > 70 ? 'Vos indicateurs sont au vert. Continuez comme ca.' :
+                 healthSummary?.score > 50 ? 'Etat correct. Pensez a bien vous hydrater aujourd\'hui.' :
+                 healthSummary?.score > 0 ? 'Quelques points a surveiller. Je reste vigilante.' :
+                 'Connectez vos appareils pour un suivi personnalise.'}
+              </div>
+            </div>
+            {healthSummary?.score > 0 && (
+              <div style={{ flexShrink: 0, width: 52, height: 52, borderRadius: 16, background: '#FFFFFF', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,0,0,0.04)' } as any}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#0F766E', lineHeight: 1, letterSpacing: -1 }}>{healthSummary.score}</div>
+                <div style={{ fontSize: 7, color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Score</div>
+              </div>
+            )}
+          </div>
 
           <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} predictiveAlerts={predictiveAlerts} token={token} onRefresh={fetchData} />
 
           <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
           {/* ── SOS Button (top) ── */}
           <div data-testid="sos-button" onClick={handleSOS} style={{
-            padding: '18px', borderRadius: 18, textAlign: 'center', cursor: 'pointer', marginBottom: 16,
-            background: '#FFF',
-            border: '1px solid rgba(239,68,68,0.15)',
-            boxShadow: '0 2px 16px rgba(239,68,68,0.08)',
-          } as any}>
+            padding: '20px', borderRadius: 20, textAlign: 'center', cursor: 'pointer', marginBottom: 16,
+            background: '#FEF2F2',
+            border: '1px solid #FECACA',
+            boxShadow: '0 4px 12px rgba(239,68,68,0.08)',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+          } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(239,68,68,0.12)'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 12px rgba(239,68,68,0.08)'; }}>
             {sosLoading ? <div style={{ color: '#EF4444', fontSize: 14 }}>Envoi en cours...</div> : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 } as any}>
-                <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className="ri-alarm-warning-line" style={{ fontSize: 26, color: '#EF4444' }} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14 } as any}>
+                <div style={{ width: 52, height: 52, borderRadius: 16, background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-alarm-warning-line" style={{ fontSize: 28, color: '#DC2626' }} />
                 </div>
                 <div style={{ textAlign: 'left' } as any}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#EF4444', letterSpacing: 3 }}>SOS</div>
-                  <div style={{ fontSize: 10, color: '#9898AD' }}>{t('sos_sub')}</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#DC2626', letterSpacing: 3 }}>SOS</div>
+                  <div style={{ fontSize: 11, color: '#94A3B8' }}>{t('sos_sub')}</div>
                 </div>
               </div>
             )}
@@ -665,33 +652,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           </div> {/* end padding wrapper */}
         </div>
-        {/* ── Clinical Premium CSS Animations ── */}
-        <style dangerouslySetInnerHTML={{ __html: `
-          @keyframes spin { to { transform: rotate(360deg) } }
-          @keyframes meshFloat1 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(30px,-20px) scale(1.05); } 66% { transform: translate(-20px,15px) scale(0.95); } }
-          @keyframes meshFloat2 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-25px,30px) scale(1.08); } 66% { transform: translate(35px,-10px) scale(0.92); } }
-          @keyframes meshFloat3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(20px,25px) scale(1.1); } }
-          @keyframes ecgScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-          @keyframes pulseDot { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.4; } }
-          @keyframes cardReveal { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-          .clinic-mesh { pointer-events: none; }
-          .mesh-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.35; }
-          .mesh-blob-1 { width: 300px; height: 300px; background: radial-gradient(circle, #C4B5FD, transparent 70%); top: -60px; right: -80px; animation: meshFloat1 18s ease-in-out infinite; }
-          .mesh-blob-2 { width: 250px; height: 250px; background: radial-gradient(circle, #A5F3FC, transparent 70%); bottom: 30%; left: -60px; animation: meshFloat2 22s ease-in-out infinite; }
-          .mesh-blob-3 { width: 200px; height: 200px; background: radial-gradient(circle, #FDE68A, transparent 70%); bottom: -40px; right: 20%; animation: meshFloat3 15s ease-in-out infinite; opacity: 0.2; }
-          .ecg-line { animation: ecgScroll 4s linear infinite; }
-          .pulse-dot { animation: pulseDot 2s ease-in-out infinite; }
-          [data-testid="dashboard-objectives"] > div:last-child > div { animation: cardReveal 0.5s ease both; }
-          [data-testid="dashboard-objectives"] > div:last-child > div:nth-child(1) { animation-delay: 0.05s; }
-          [data-testid="dashboard-objectives"] > div:last-child > div:nth-child(2) { animation-delay: 0.1s; }
-          [data-testid="dashboard-objectives"] > div:last-child > div:nth-child(3) { animation-delay: 0.15s; }
-          [data-testid="dashboard-objectives"] > div:last-child > div:nth-child(4) { animation-delay: 0.2s; }
-          [data-testid="sos-button"] { animation: cardReveal 0.4s 0.1s ease both; }
-          [data-testid="active-program-card"], [data-testid="discover-programs"] { animation: cardReveal 0.5s 0.25s ease both; }
-          [data-testid="weight-goal-dash-card"] { animation: cardReveal 0.5s 0.3s ease both; }
-          [data-testid="reminders-section"] { animation: cardReveal 0.5s 0.35s ease both; }
-          [data-testid="guardians-section"] { animation: cardReveal 0.5s 0.4s ease both; }
-        ` }} />
+        <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{to{transform:rotate(360deg)}}` }} />
       </div>
     );
   }
