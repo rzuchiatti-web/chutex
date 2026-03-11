@@ -111,7 +111,7 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
               <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                 <i className={p.icon} style={{ fontSize: 16, color: p.color }} />
               </div>
-              {p.progress != null && <div style={{ fontSize: 11, fontWeight: 800, color: p.progress >= 100 ? '#34C759' : '#1A1A1A' }}>{Math.min(100, Math.round(p.progress))}%</div>}
+              {p.progress != null && <div style={{ fontSize: 11, fontWeight: 800, color: p.progress >= 100 ? '#34C759' : '#FFF' }}>{Math.min(100, Math.round(p.progress))}%</div>}
             </div>
             <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -1, marginBottom: 2 }}>{p.value}<span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginLeft: 4 }}>{p.unit}</span></div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>{p.label}</div>
@@ -389,7 +389,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
   };
 
-  if (loading) return Platform.OS === 'web' ? <Loader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}><ActivityIndicator size="large" color="#1A1A1A" /></View>;
+  if (loading) return Platform.OS === 'web' ? <Loader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}><ActivityIndicator size="large" color="#FFF" /></View>;
 
   const br = dashData?.bracelet || { heart_rate: 0, spo2: 0, steps: 0, blood_pressure: { systolic: 0, diastolic: 0 }, temperature: 0, battery: 0, connected: false, calories: 0, distance_km: 0, heart_rate_history: [], paired: false };
   const sc = dashData?.scale || { weight: 0, bmi: 0, body_fat: 0, muscle_mass: 0, water_pct: 0, battery: 0, connected: false, paired: false };
@@ -493,8 +493,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   <i className="ri-team-line" style={{ fontSize: 20, color: '#A78BFA' }} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#1A1A1A' }}>Invitation programme en equipe</div>
-                  <div style={{ fontSize: 11, color: '#8E8E93' }}>{inv.inviter_name} vous invite a faire "{inv.program_title}" ensemble</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Invitation programme en equipe</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{inv.inviter_name} vous invite a faire "{inv.program_title}" ensemble</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 } as any}>
@@ -510,7 +510,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     await apiFetch(`/api/programs/team/invitations/${inv.id}/reject`, { method: 'POST' }, token);
                     setTeamInvitations(prev => prev.filter(i => i.id !== inv.id));
                   } catch {}
-                }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: '#F5F5F8', border: '1px solid rgba(0,0,0,0.06)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#8E8E93' } as any}>Refuser</div>
+                }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.5)' } as any}>Refuser</div>
               </div>
             </div>
           ))}
@@ -525,7 +525,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   <i className={activeProgram.program.icon} style={{ fontSize: 22, color: activeProgram.program.color }} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A1A' }}>{activeProgram.program.title}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{activeProgram.program.title}</div>
                   <div style={{ fontSize: 11, color: activeProgram.program.color, fontWeight: 600 }}>{activeProgram.current_phase?.name || 'Phase en cours'} · Jour {activeProgram.current_day}/{activeProgram.program.duration_days}</div>
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 900, color: activeProgram.program.color }}>{activeProgram.progress_pct}%</div>
@@ -536,8 +536,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               {activeProgram.today_tasks && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1A1A1A', marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
-                    <div style={{ fontSize: 10, color: '#8E8E93' }}>{activeProgram.today_tasks.tasks?.length || 0} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider'}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{activeProgram.today_tasks.tasks?.length || 0} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider'}</div>
                   </div>
                   <div style={{ padding: '6px 12px', borderRadius: 999, background: activeProgram.today_checkin ? 'rgba(16,185,129,0.12)' : `${activeProgram.program.color}15`, border: `1px solid ${activeProgram.today_checkin ? 'rgba(16,185,129,0.25)' : activeProgram.program.color + '25'}` } as any}>
                     <span style={{ fontSize: 10, fontWeight: 700, color: activeProgram.today_checkin ? '#10B981' : activeProgram.program.color }}>{activeProgram.today_checkin ? 'Fait' : 'Ouvrir'}</span>
@@ -553,10 +553,10 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 <i className="ri-road-map-line" style={{ fontSize: 18, color: '#A78BFA' }} />
               </div>
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#1A1A1A' }}>Programmes prevention</div>
-                <div style={{ fontSize: 10, color: '#8E8E93' }}>Decouvrez nos parcours personnalises</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Programmes prevention</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Decouvrez nos parcours personnalises</div>
               </div>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#CDCDD8' }} />
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
             </div>
           )}
 
@@ -597,12 +597,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
                   <img src={cat.img} alt={cat.label} style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A1A' }}>{cat.label}</div>
-                    <div style={{ fontSize: 11, color: activeCount > 0 ? cat.color : '#8E8E93', fontWeight: 600 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{cat.label}</div>
+                    <div style={{ fontSize: 11, color: activeCount > 0 ? cat.color : 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
                       {activeCount > 0 ? `${activeCount} rappel${activeCount > 1 ? 's' : ''} actif${activeCount > 1 ? 's' : ''}${nextTime ? ` · dans ${nextTime}` : ''}` : 'Non configure'}
                     </div>
                   </div>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#CDCDD8' }} />
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
                 </div>
               );
             })}
@@ -610,15 +610,15 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Rappels — directly on background ── */}
           <GC testId="guardians-section">
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A1A', marginBottom: 12 }}>Mes gardiens</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Mes gardiens</div>
             {guardians.map((g: any, i: number) => (
               <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.04)' : 'none', cursor: 'pointer' } as any}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(79,195,247,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 14, fontWeight: 800, color: '#4FC3F7' }}>{g.name?.charAt(0)}</span></div>
-                <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>{g.name}</div><div style={{ fontSize: 10, color: '#8E8E93' }}>{g.relationship || t('guardian')}</div></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{g.name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{g.relationship || t('guardian')}</div></div>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }} />
               </div>
             ))}
-            {guardians.length === 0 && <div style={{ fontSize: 11, color: '#8E8E93', textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
+            {guardians.length === 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
             <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
