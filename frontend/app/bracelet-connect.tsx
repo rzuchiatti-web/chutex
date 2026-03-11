@@ -27,7 +27,7 @@ const V6_SERVICES = {
   ecg: { uuid: '0000fff0-0000-1000-8000-00805f9b34fb', char_data: '0000fff1-0000-1000-8000-00805f9b34fb', char_ctrl: '0000fff2-0000-1000-8000-00805f9b34fb' },
 };
 
-const V6_NAME_PREFIXES = ['V6', 'Elio-V6', 'ChutexV6', 'HB6'];
+const V6_NAME_PREFIXES: string[] = []; // Not used — auto-detect by services
 
 function calcCrc(data: number[]) { return data.reduce((s, b) => s + b, 0) & 0xFF; }
 
@@ -234,71 +234,73 @@ export default function BraceletConnectScreen() {
         setDevice(bd);
         setBleStatus('connecting');
 
-        // Detect if V6 by device name
-        const devName = bd.name || '';
-        const isV6 = V6_NAME_PREFIXES.some((p: string) => devName.toUpperCase().includes(p.toUpperCase()));
-        setBraceletModel(isV6 ? 'v6' : '2208a');
-
+        // Auto-detect device type by trying standard GATT health services first
         bd.addEventListener('gattserverdisconnected', () => { setBleStatus('idle'); if (pollRef.current) clearInterval(pollRef.current); });
         const server = await bd.gatt.connect();
 
-        if (isV6) {
-          // V6: Subscribe to standard GATT health services
-          setErrorMsg('V6 detecte — connexion aux services...');
-          const subscribeToService = async (serviceUuid: string, charUuid: string, dataType: string) => {
-            try {
-              const svc = await server.getPrimaryService(serviceUuid);
-              const char = await svc.getCharacteristic(charUuid);
-              if (char.properties.notify || char.properties.indicate) {
-                await char.startNotifications();
-                char.addEventListener('characteristicvaluechanged', (event: any) => {
-                  const dv = event.target.value as DataView;
-                  const bytes = new Uint8Array(dv.buffer);
-                  let parsed: any = {};
+        // Try standard GATT health services (V6 / modern bracelets)
+        let hasStandardServices = false;
+        setErrorMsg('Detection des services...');
 
-                  if (dataType === 'heart_rate') {
-                    const flags = bytes[0];
-                    parsed.heart_rate = (flags & 0x01) ? (bytes[1] | (bytes[2] << 8)) : bytes[1];
-                    // RR intervals for HRV
-                    if ((flags >> 4) & 0x01) {
-                      const rrOffset = (flags & 0x01) ? 3 : 2;
-                      const rrs: number[] = [];
-                      for (let i = rrOffset; i + 1 < bytes.length; i += 2) {
-                        rrs.push(Math.round((bytes[i] | (bytes[i+1] << 8)) / 1024 * 1000));
-                      }
-                      parsed.rr_intervals = rrs;
-                      if (rrs.length >= 2) {
-                        const diffs = rrs.slice(1).map((v, i) => Math.abs(v - rrs[i]));
-                        parsed.hrv = Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length);
-                      }
+        const subscribeToService = async (serviceUuid: string, charUuid: string, dataType: string) => {
+          try {
+            const svc = await server.getPrimaryService(serviceUuid);
+            const char = await svc.getCharacteristic(charUuid);
+            if (char.properties.notify || char.properties.indicate) {
+              await char.startNotifications();
+              char.addEventListener('characteristicvaluechanged', (event: any) => {
+                const dv = event.target.value as DataView;
+                const bytes = new Uint8Array(dv.buffer);
+                let parsed: any = {};
+
+                if (dataType === 'heart_rate') {
+                  const flags = bytes[0];
+                  parsed.heart_rate = (flags & 0x01) ? (bytes[1] | (bytes[2] << 8)) : bytes[1];
+                  if ((flags >> 4) & 0x01) {
+                    const rrOffset = (flags & 0x01) ? 3 : 2;
+                    const rrs: number[] = [];
+                    for (let i = rrOffset; i + 1 < bytes.length; i += 2) {
+                      rrs.push(Math.round((bytes[i] | (bytes[i+1] << 8)) / 1024 * 1000));
                     }
-                    if (parsed.heart_rate > 0 && parsed.heart_rate < 255) setVitals(v => ({ ...v, heart_rate: parsed.heart_rate, hrv: parsed.hrv || v.hrv }));
-                  } else if (dataType === 'spo2') {
-                    parsed.spo2 = Math.round((bytes[0] | (bytes[1] << 8)) / 10);
-                    if (parsed.spo2 > 0) setVitals(v => ({ ...v, spo2: parsed.spo2 }));
-                  } else if (dataType === 'temperature') {
-                    const mantissa = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16);
-                    parsed.temperature = Math.round(mantissa * Math.pow(10, new Int8Array([bytes[4]])[0]) * 10) / 10;
-                    if (parsed.temperature > 30) setVitals(v => ({ ...v, temperature: parsed.temperature }));
-                  } else if (dataType === 'blood_pressure') {
-                    parsed.systolic = Math.round((bytes[1] | (bytes[2] << 8)) / 10);
-                    parsed.diastolic = Math.round((bytes[3] | (bytes[4] << 8)) / 10);
-                    if (parsed.systolic > 0) setVitals(v => ({ ...v, systolic: parsed.systolic, diastolic: parsed.diastolic }));
-                  } else if (dataType === 'battery') {
-                    parsed.battery = bytes[0];
-                    if (parsed.battery > 0) setVitals(v => ({ ...v, battery: parsed.battery }));
+                    parsed.rr_intervals = rrs;
+                    if (rrs.length >= 2) {
+                      const diffs = rrs.slice(1).map((v, i) => Math.abs(v - rrs[i]));
+                      parsed.hrv = Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length);
+                    }
                   }
+                  if (parsed.heart_rate > 0 && parsed.heart_rate < 255) setVitals(v => ({ ...v, heart_rate: parsed.heart_rate, hrv: parsed.hrv || v.hrv }));
+                } else if (dataType === 'spo2') {
+                  parsed.spo2 = Math.round((bytes[0] | (bytes[1] << 8)) / 10);
+                  if (parsed.spo2 > 0) setVitals(v => ({ ...v, spo2: parsed.spo2 }));
+                } else if (dataType === 'temperature') {
+                  const mantissa = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16);
+                  parsed.temperature = Math.round(mantissa * Math.pow(10, new Int8Array([bytes[4]])[0]) * 10) / 10;
+                  if (parsed.temperature > 30) setVitals(v => ({ ...v, temperature: parsed.temperature }));
+                } else if (dataType === 'blood_pressure') {
+                  parsed.systolic = Math.round((bytes[1] | (bytes[2] << 8)) / 10);
+                  parsed.diastolic = Math.round((bytes[3] | (bytes[4] << 8)) / 10);
+                  if (parsed.systolic > 0) setVitals(v => ({ ...v, systolic: parsed.systolic, diastolic: parsed.diastolic }));
+                } else if (dataType === 'battery') {
+                  parsed.battery = bytes[0];
+                  if (parsed.battery > 0) setVitals(v => ({ ...v, battery: parsed.battery }));
+                }
 
-                  sendV6ToBackend(dataType, parsed);
-                });
-              }
-            } catch (e) {
-              // Service not available on this device
+                sendV6ToBackend(dataType, parsed);
+              });
+              return true;
             }
-          };
+          } catch (e) {
+            // Service not available
+          }
+          return false;
+        };
 
-          // Subscribe to all available V6 services
-          await subscribeToService(V6_SERVICES.heart_rate.uuid, V6_SERVICES.heart_rate.char, 'heart_rate');
+        // Try Heart Rate service — if available, it's a standard GATT device
+        const hrOk = await subscribeToService(V6_SERVICES.heart_rate.uuid, V6_SERVICES.heart_rate.char, 'heart_rate');
+        if (hrOk) {
+          hasStandardServices = true;
+          setBraceletModel('v6');
+          // Subscribe to other standard services
           await subscribeToService(V6_SERVICES.spo2.uuid, V6_SERVICES.spo2.char, 'spo2');
           await subscribeToService(V6_SERVICES.temperature.uuid, V6_SERVICES.temperature.char, 'temperature');
           await subscribeToService(V6_SERVICES.blood_pressure.uuid, V6_SERVICES.blood_pressure.char, 'blood_pressure');
@@ -323,8 +325,11 @@ export default function BraceletConnectScreen() {
 
           setBleStatus('connected');
           setErrorMsg('');
-        } else {
-          // 2208A legacy connection
+        }
+
+        if (!hasStandardServices) {
+          // Fallback: 2208A proprietary protocol
+          setBraceletModel('2208a');
           let notifyChar: any = null, wChar: any = null;
           for (const uuid of [BLE_SERVICE_UUID, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0000180d-0000-1000-8000-00805f9b34fb']) {
             try { const svc = await server.getPrimaryService(uuid); const chars = await svc.getCharacteristics(); for (const c of chars) { if ((c.properties.notify || c.properties.indicate) && !notifyChar) notifyChar = c; if ((c.properties.write || c.properties.writeWithoutResponse) && !wChar) wChar = c; } if (notifyChar) break; } catch {}

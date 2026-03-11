@@ -488,6 +488,9 @@ async def _activate_contract(contract: dict, contract_id: str):
             {"$set": {"updated_at": now}},
         )
 
+        # SAAD commission if prescribed
+        await _process_saad_commission(contract, contract_id, now)
+
     # Create/update subscription in app
     ben_phone = contract.get("beneficiary", {}).get("phone", "")
     sub_type = "care" if is_care else "standard"
@@ -585,30 +588,194 @@ async def mark_invoice_paid(invoice_id: str):
 #                 SAAD COMMISSION (Mollie)
 # ═══════════════════════════════════════════════════════
 
+SAAD_COMMISSIONS = {
+    "oneshot": {"bracelet": 100.00, "bracelet_gilet": 200.00},
+    "monthly": {"bracelet": 8.00, "bracelet_gilet": 15.00},
+}
+
+
+@router.post("/saad/onboarding")
+async def create_saad_account(request: Request):
+    """Register a SAAD for commission payments via Mollie."""
+    body = await request.json()
+    saad_id = body.get("saad_id", "")
+    company_name = body.get("company_name", "")
+    email = body.get("email", "")
+    iban = body.get("iban", "")
+    commission_type = body.get("commission_type", "monthly")
+
+    if not saad_id or not company_name:
+        raise HTTPException(400, "saad_id et company_name requis")
+
+    now = datetime.now(timezone.utc).isoformat()
+    existing = await db.saad_accounts.find_one({"saad_id": saad_id}, {"_id": 0})
+    if existing:
+        await db.saad_accounts.update_one(
+            {"saad_id": saad_id},
+            {"$set": {"company_name": company_name, "email": email, "iban": iban, "commission_type": commission_type, "updated_at": now}},
+        )
+        return {"status": "updated", "saad_id": saad_id, "already_exists": True}
+
+    await db.saad_accounts.insert_one({
+        "saad_id": saad_id,
+        "company_name": company_name,
+        "email": email,
+        "iban": iban,
+        "commission_type": commission_type,
+        "status": "active",
+        "created_at": now,
+        "updated_at": now,
+    })
+
+    await db.users.update_one(
+        {"id": saad_id},
+        {"$set": {"commission_type": commission_type, "saad_registered": True}},
+    )
+
+    return {"status": "registered", "saad_id": saad_id, "commission_type": commission_type}
+
+
+@router.get("/saad/status/{saad_id}")
+async def get_saad_status(saad_id: str):
+    """Check SAAD registration and commission status."""
+    doc = await db.saad_accounts.find_one({"saad_id": saad_id}, {"_id": 0})
+    if not doc:
+        return {"registered": False}
+
+    total_earned = await db.saad_commissions.find({"saad_id": saad_id, "status": "paid"}).to_list(500)
+    total_pending = await db.saad_commissions.find({"saad_id": saad_id, "status": "pending"}).to_list(500)
+
+    return {
+        "registered": True,
+        "company_name": doc.get("company_name", ""),
+        "commission_type": doc.get("commission_type", "monthly"),
+        "commission_display": f"{SAAD_COMMISSIONS.get(doc.get('commission_type', 'monthly'), {}).get('bracelet', 8)} EUR" + (" (unique)" if doc.get("commission_type") == "oneshot" else "/mois"),
+        "status": doc.get("status", "active"),
+        "total_earned": round(sum(c.get("amount", 0) for c in total_earned), 2),
+        "total_pending": round(sum(c.get("amount", 0) for c in total_pending), 2),
+        "commissions_count": len(total_earned) + len(total_pending),
+    }
+
+
+# Keep legacy route names for backward compatibility
 @router.post("/saad/stripe-onboarding")
-async def create_saad_stripe_account(request: Request):
-    """SAAD onboarding — migrating to Mollie. Currently returns a placeholder."""
-    return {"status": "pending_migration", "message": "Le systeme de commission SAAD est en cours de migration vers Mollie."}
+async def saad_stripe_onboarding_redirect(request: Request):
+    return await create_saad_account(request)
 
 
 @router.get("/saad/stripe-status/{saad_id}")
-async def get_saad_stripe_status(saad_id: str):
-    """SAAD payment status — migrating to Mollie."""
-    return {"has_stripe": False, "status": "pending_migration", "message": "Migration Mollie en cours."}
+async def saad_stripe_status_redirect(saad_id: str):
+    result = await get_saad_status(saad_id)
+    result["has_stripe"] = result.get("registered", False)
+    return result
 
 
 async def _process_saad_commission(contract: dict, contract_id: str, now: str):
-    """SAAD commission — will be implemented with Mollie. Currently logs only."""
+    """Process SAAD commission when a prescribed contract is activated via Mollie."""
     ben_phone = contract.get("beneficiary", {}).get("phone", "")
     if not ben_phone:
         return
+
     prescription = await db.prescriptions.find_one({
         "beneficiary_phone": {"$regex": ben_phone[-9:]},
         "status": {"$in": ["pending", "contract_created", "validated"]},
     })
     if not prescription:
         return
-    logger.info(f"SAAD commission pending Mollie migration for contract {contract.get('contract_number', '')}")
+
+    prescriber_id = prescription.get("prescriber_id", "")
+    if not prescriber_id:
+        return
+
+    prescriber = await db.users.find_one({"id": prescriber_id}, {"_id": 0})
+    if not prescriber:
+        return
+
+    saad_id = prescriber.get("company_id") or prescriber.get("id")
+    saad_account = await db.saad_accounts.find_one({"saad_id": saad_id, "status": "active"}, {"_id": 0})
+    if not saad_account:
+        logger.info(f"No active SAAD account for prescriber {prescriber_id}, skipping commission")
+        return
+
+    commission_type = saad_account.get("commission_type", "monthly")
+    plan_id = contract.get("plan", "bracelet")
+    amount = SAAD_COMMISSIONS.get(commission_type, {}).get(plan_id, SAAD_COMMISSIONS["monthly"]["bracelet"])
+
+    # Check if oneshot already paid
+    if commission_type == "oneshot":
+        existing = await db.saad_commissions.find_one({"contract_id": contract_id, "saad_id": saad_id, "status": "paid"})
+        if existing:
+            return
+
+    commission_id = str(uuid.uuid4())
+
+    # Create Mollie payment to SAAD
+    mollie_payment_id = ""
+    try:
+        saad_email = saad_account.get("email", "")
+        base_url = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "")
+        payment = mollie_client.payments.create({
+            "amount": {"currency": "EUR", "value": f"{amount:.2f}"},
+            "description": f"Commission SAAD {'unique' if commission_type == 'oneshot' else 'mensuelle'} - {contract.get('contract_number', '')}",
+            "webhookUrl": f"{base_url}/api/mollie/webhook-commission",
+            "metadata": {"commission_id": commission_id, "contract_id": contract_id, "saad_id": saad_id, "type": f"saad_commission_{commission_type}"},
+            "method": ["banktransfer"],
+        })
+        mollie_payment_id = payment.id
+        logger.info(f"Mollie commission payment {payment.id} created: {amount}EUR to {saad_account.get('company_name', '')}")
+    except Exception as e:
+        logger.error(f"Mollie SAAD commission payment failed: {e}")
+
+    await db.saad_commissions.insert_one({
+        "id": commission_id,
+        "contract_id": contract_id,
+        "contract_number": contract.get("contract_number", ""),
+        "saad_id": saad_id,
+        "saad_name": saad_account.get("company_name", ""),
+        "prescriber_id": prescriber_id,
+        "commission_type": commission_type,
+        "amount": amount,
+        "mollie_payment_id": mollie_payment_id,
+        "status": "pending" if mollie_payment_id else "manual",
+        "created_at": now,
+    })
+
+    logger.info(f"SAAD commission: {amount}EUR ({commission_type}) for {saad_account.get('company_name')} — contract {contract.get('contract_number')}")
+
+
+@router.post("/mollie/webhook-commission")
+async def mollie_commission_webhook(request: Request):
+    """Handle Mollie webhook for SAAD commission payments."""
+    form = await request.form()
+    payment_id = form.get("id", "")
+    now = datetime.now(timezone.utc).isoformat()
+
+    if not payment_id:
+        return {"status": "ok"}
+
+    try:
+        payment = mollie_client.payments.get(payment_id)
+        metadata = payment.get("metadata", {}) or {}
+        commission_id = metadata.get("commission_id", "")
+
+        if payment.is_paid() and commission_id:
+            await db.saad_commissions.update_one(
+                {"id": commission_id},
+                {"$set": {"status": "paid", "paid_at": now, "mollie_status": "paid"}},
+            )
+            logger.info(f"SAAD commission {commission_id} paid via Mollie")
+
+        elif payment.is_failed() or payment.is_expired():
+            if commission_id:
+                await db.saad_commissions.update_one(
+                    {"id": commission_id},
+                    {"$set": {"status": "failed", "mollie_status": payment.status, "updated_at": now}},
+                )
+
+    except Exception as e:
+        logger.error(f"Mollie commission webhook error: {e}")
+
+    return {"status": "ok"}
 
 
 # ─── Admin: SAAD commissions overview ───
@@ -617,4 +784,6 @@ async def get_saad_commissions():
     """Get all SAAD commissions."""
     commissions = await db.saad_commissions.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
     total = sum(c.get("amount", 0) for c in commissions)
-    return {"commissions": commissions, "total": round(total, 2), "count": len(commissions)}
+    paid = sum(c.get("amount", 0) for c in commissions if c.get("status") == "paid")
+    pending = sum(c.get("amount", 0) for c in commissions if c.get("status") == "pending")
+    return {"commissions": commissions, "total": round(total, 2), "paid": round(paid, 2), "pending": round(pending, 2), "count": len(commissions)}
