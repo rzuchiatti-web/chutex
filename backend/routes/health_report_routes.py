@@ -313,7 +313,7 @@ async def compute_daily_plan_async(d, score_info, uid):
                         minceur_cal = round(m_tdee)
                 else:
                     minceur_cal = round(m_tdee)
-                minceur_water = 1500
+                minceur_water = min(2000, max(1400, round(m_weight * 22)))  # ~22ml/kg, capped 1.4-2.0L
 
     if minceur_cal > 0:
         plan.append({"key": "calories_intake", "label": "Vous devez consommer par jour", "value": f"{minceur_cal}", "unit": "kcal",

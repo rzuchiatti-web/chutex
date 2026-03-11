@@ -25,6 +25,48 @@ import { requestNotificationPermission, startReminderChecker, notifyAlert } from
 import { SubscriptionBanner, SubscriptionGate } from '../../src/components/SubscriptionGate';
 
 /* ═══════════════════════════════════════════════════════ */
+/*               DAILY OBJECTIVES ON DASHBOARD             */
+/* ═══════════════════════════════════════════════════════ */
+function DailyObjectivesOnDashboard({ token }: { token: string }) {
+  const router = useRouter();
+  const [plan, setPlan] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => {
+    apiFetch('/api/health/daily-report', {}, token)
+      .then(d => setPlan(d?.daily_plan || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [token]);
+
+  if (loading) return <div style={{ padding: '12px 0', textAlign: 'center' } as any}><div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.06)', borderTopColor: '#A78BFA', animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>;
+  if (!plan.length) return null;
+
+  return (
+    <div data-testid="dashboard-objectives" style={{ marginBottom: 6 } as any}>
+      <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Objectifs du jour</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
+        {plan.filter((p: any) => p.key !== 'connect').map((p: any) => (
+          <div key={p.key} onClick={() => {
+            if (p.key === 'steps') router.push({ pathname: '/metric-detail' as any, params: { key: 'steps' } });
+            else if (p.key === 'sleep') router.push('/sleep' as any);
+            else if (p.key === 'calories_intake') router.push('/minceur' as any);
+            else if (p.key === 'hydration') router.push('/minceur' as any);
+          }} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
+              <i className={p.icon} style={{ fontSize: 14, color: p.color }} />
+              <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{p.status || p.label}</span>
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{p.value} <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{p.unit}</span></div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{p.label}</div>
+            {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', marginTop: 6, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${p.progress}%`, background: p.color } as any} /></div>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════ */
 /*                    BENEFICIARY HOME                     */
 /* ═══════════════════════════════════════════════════════ */
 function BeneficiaryHome({ token, user }: { token: string; user: any }) {
@@ -394,13 +436,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
-          {/* ── 2. VITALS ── */}
-            <VitalsRow br={br} />
-
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
-
-          {/* ── 3. ACTIVITE (remplace activite + sommeil) ── */}
-            <ActivityCard steps={br.steps || 0} calories={br.calories || 0} distance={br.distance_km || 0} recovery={br.recovery_score || 0} stress={br.stress_level || 0} sleepQuality={dashData?.sleep?.quality || 0} heartRate={br.heart_rate || 0} streak={activityStreakData} />
+          {/* ── 2. OBJECTIFS JOURNALIERS (remplace VitalsRow + ActivityCard) ── */}
+          <DailyObjectivesOnDashboard token={token} />
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
@@ -520,10 +557,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             })}
           </div>
 
-          {/* ── Teleconsultation ── */}
-          <DoctorCard onPress={() => router.push('/(tabs)/teleconsult')} />
-
-          {/* ── Guardians ── */}
+          {/* ── Rappels — directly on background ── */}
           <GC testId="guardians-section">
             <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Mes gardiens</div>
             {guardians.map((g: any, i: number) => (
@@ -541,6 +575,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Ajouter un gardien</span>
             </div>
           </GC>
+
+          {/* ── Teleconsultation (sous les gardiens) ── */}
+          <DoctorCard onPress={() => router.push('/(tabs)/teleconsult')} />
 
           <ReminderCRUDPopup show={showReminderCRUD} editReminder={editReminder} setEditReminder={setEditReminder} onClose={() => { setShowReminderCRUD(false); setEditReminder(null); }} reminders={reminders} reminderMeta={reminderMeta} token={token} fetchData={fetchData} deleteReminder={deleteReminder} />
 
