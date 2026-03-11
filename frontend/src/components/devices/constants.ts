@@ -12,9 +12,9 @@ export const confirmAction = (title: string, message: string, onConfirm: () => v
 };
 
 export const BRACELET_STEPS = [
-  { icon: 'ri-battery-charge-line', title: 'Chargez votre bracelet', desc: 'Placez le bracelet Elio sur son socle de charge. Attendez que le voyant LED clignote en vert.', tip: 'Le bracelet doit etre charge a au moins 20% pour demarrer l\'appairage.' },
-  { icon: 'ri-flashlight-line', title: 'Attendez le voyant bleu', desc: 'Maintenez le bouton lateral enfonce pendant 3 secondes. Attendez que le voyant clignote en bleu.', tip: 'Le voyant bleu clignotant signifie que le bracelet est en mode appairage.' },
-  { icon: 'ri-bluetooth-connect-line', title: 'Recherche en cours...', desc: 'Rapprochez le bracelet de votre telephone. L\'appairage Bluetooth va demarrer automatiquement.', tip: 'Assurez-vous que le Bluetooth est active sur votre telephone.' },
+  { icon: 'ri-link-unlink', title: 'Dissociez l\'app fabricant', desc: 'Si le bracelet est connecte a l\'app du fabricant (ex: WearFit Pro), dissociez-le d\'abord via "Unpair Device" dans l\'app fabricant.', tip: 'Un bracelet BLE ne peut etre connecte qu\'a une seule application a la fois.' },
+  { icon: 'ri-battery-charge-line', title: 'Verifiez la charge', desc: 'Assurez-vous que le bracelet est charge (au moins 20%). L\'ecran du bracelet doit etre allume.', tip: 'Maintenez le bouton lateral 3s si l\'ecran est eteint.' },
+  { icon: 'ri-bluetooth-connect-line', title: 'Lancer l\'appairage', desc: 'Rapprochez le bracelet de votre telephone (moins d\'1 metre). L\'app va scanner et detecter votre bracelet automatiquement.', tip: 'Assurez-vous que le Bluetooth est active dans les parametres de votre telephone.' },
 ];
 
 export const VEST_STEPS = [

@@ -20,7 +20,7 @@ router = APIRouter()
 # - Custom ECG Service -> raw ECG waveform
 
 V6_BLE_CONFIG = {
-    "device_name_prefixes": ["V6", "Elio-V6", "ChutexV6", "HB6"],
+    "device_name_prefixes": ["V6", "Elio-V6", "ChutexV6", "HB6", "2358"],
     "services": {
         "heart_rate": {"uuid": "0000180d-0000-1000-8000-00805f9b34fb", "char_measurement": "00002a37-0000-1000-8000-00805f9b34fb"},
         "blood_pressure": {"uuid": "00001810-0000-1000-8000-00805f9b34fb", "char_measurement": "00002a35-0000-1000-8000-00805f9b34fb"},

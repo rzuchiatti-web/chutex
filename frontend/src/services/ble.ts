@@ -70,6 +70,240 @@ export function base64ToBytes(b64: string): Uint8Array {
   return new Uint8Array(bytes);
 }
 
+// ─── V6 BRACELET BLE SERVICE (Native via react-native-ble-plx) ───
+
+// V6 GATT service UUIDs
+const V6_HEART_RATE_SVC = '0000180d-0000-1000-8000-00805f9b34fb';
+const V6_HEART_RATE_CHAR = '00002a37-0000-1000-8000-00805f9b34fb';
+const V6_BATTERY_SVC = '0000180f-0000-1000-8000-00805f9b34fb';
+const V6_BATTERY_CHAR = '00002a19-0000-1000-8000-00805f9b34fb';
+const V6_CUSTOM_PPG_SVC = '0000ffe0-0000-1000-8000-00805f9b34fb';
+const V6_CUSTOM_PPG_DATA = '0000ffe1-0000-1000-8000-00805f9b34fb';
+const V6_CUSTOM_ECG_SVC = '0000fff0-0000-1000-8000-00805f9b34fb';
+const V6_CUSTOM_ECG_DATA = '0000fff1-0000-1000-8000-00805f9b34fb';
+const V6_CUSTOM_ECG_CTRL = '0000fff2-0000-1000-8000-00805f9b34fb';
+
+// Known V6 bracelet name patterns
+const V6_NAME_PATTERNS = ['v6', 'hb6', 'elio', 'chutex', '2358'];
+
+export interface BraceletVitals {
+  heart_rate?: number;
+  spo2?: number;
+  hrv?: number;
+  temperature?: number;
+  steps?: number;
+  calories?: number;
+  systolic?: number;
+  diastolic?: number;
+  stress?: number;
+  battery?: number;
+  rr_intervals?: number[];
+}
+
+let braceletConnection: any = null;
+let braceletScanSub: any = null;
+let braceletMonitorSubs: any[] = [];
+
+function isV6Device(name: string): boolean {
+  const n = (name || '').toLowerCase();
+  return V6_NAME_PATTERNS.some(p => n.includes(p));
+}
+
+export async function scanForBracelet(
+  onFound: (device: { id: string; name: string; rssi: number; mac: string }) => void,
+  timeoutMs = 20000
+): Promise<void> {
+  if (Platform.OS === 'web' || !bleManagerInstance) return;
+  stopBraceletScan();
+
+  return new Promise((resolve) => {
+    const seen = new Set<string>();
+    braceletScanSub = bleManagerInstance.startDeviceScan(
+      null,
+      { allowDuplicates: false },
+      (error: any, device: any) => {
+        if (error) { console.warn('BLE bracelet scan error:', error); return; }
+        if (!device) return;
+        const name = device.name || device.localName || '';
+        if (name && isV6Device(name) && !seen.has(device.id)) {
+          seen.add(device.id);
+          onFound({ id: device.id, name, rssi: device.rssi, mac: device.id });
+        }
+      }
+    );
+    setTimeout(() => { stopBraceletScan(); resolve(); }, timeoutMs);
+  });
+}
+
+export function stopBraceletScan() {
+  if (bleManagerInstance) {
+    try { bleManagerInstance.stopDeviceScan(); } catch {}
+  }
+  braceletScanSub = null;
+}
+
+export async function connectToBracelet(
+  deviceId: string,
+  onVitals: (vitals: BraceletVitals) => void
+): Promise<{ connected: boolean; name: string; battery: number }> {
+  if (!bleManagerInstance) return { connected: false, name: '', battery: 0 };
+
+  try {
+    // Stop scanning before connecting
+    stopBraceletScan();
+
+    const device = await bleManagerInstance.connectToDevice(deviceId, { timeout: 15000 });
+    braceletConnection = device;
+    await device.discoverAllServicesAndCharacteristics();
+
+    let battery = 0;
+    let deviceName = device.name || device.localName || 'Bracelet V6';
+
+    // Read battery level
+    try {
+      const battChar = await device.readCharacteristicForService(V6_BATTERY_SVC, V6_BATTERY_CHAR);
+      if (battChar?.value) {
+        const bytes = base64ToBytes(battChar.value);
+        if (bytes.length > 0) battery = bytes[0];
+      }
+    } catch {}
+
+    // Monitor Heart Rate (standard BLE Heart Rate Measurement)
+    try {
+      const hrSub = device.monitorCharacteristicForService(V6_HEART_RATE_SVC, V6_HEART_RATE_CHAR, (error: any, char: any) => {
+        if (error || !char?.value) return;
+        const bytes = base64ToBytes(char.value);
+        const vitals: BraceletVitals = {};
+        if (bytes.length >= 2) {
+          const flags = bytes[0];
+          const hr16bit = flags & 0x01;
+          const rrPresent = (flags >> 4) & 0x01;
+          let offset = 1;
+          vitals.heart_rate = hr16bit ? (bytes[offset] | (bytes[offset + 1] << 8)) : bytes[offset];
+          offset += hr16bit ? 2 : 1;
+          if (rrPresent && offset + 1 < bytes.length) {
+            vitals.rr_intervals = [];
+            while (offset + 1 < bytes.length) {
+              const rr = (bytes[offset] | (bytes[offset + 1] << 8)) / 1024.0 * 1000;
+              vitals.rr_intervals.push(Math.round(rr * 10) / 10);
+              offset += 2;
+            }
+            if (vitals.rr_intervals.length >= 2) {
+              const diffs = vitals.rr_intervals.slice(1).map((v, i) => Math.abs(v - vitals.rr_intervals![i]));
+              vitals.hrv = Math.round(diffs.reduce((s, d) => s + d, 0) / diffs.length * 10) / 10;
+            }
+          }
+        }
+        if (vitals.heart_rate && vitals.heart_rate > 0 && vitals.heart_rate < 255) onVitals(vitals);
+      });
+      braceletMonitorSubs.push(hrSub);
+    } catch (e) { console.warn('HR monitor failed:', e); }
+
+    // Monitor custom PPG/ECG service for extended data (SpO2, temperature, BP, steps)
+    const customSvcs = [V6_CUSTOM_ECG_SVC, V6_CUSTOM_PPG_SVC];
+    for (const svcUuid of customSvcs) {
+      try {
+        const services = await device.services();
+        const svc = services.find((s: any) => s.uuid.toLowerCase() === svcUuid);
+        if (!svc) continue;
+        const chars = await svc.characteristics();
+        for (const char of chars) {
+          if (char.isNotifiable || char.isIndicatable) {
+            const sub = device.monitorCharacteristicForService(svcUuid, char.uuid, (error: any, c: any) => {
+              if (error || !c?.value) return;
+              const bytes = base64ToBytes(c.value);
+              if (bytes.length < 2) return;
+              const vitals = parseV6CustomPacket(bytes);
+              if (Object.keys(vitals).length > 0) onVitals(vitals);
+            });
+            braceletMonitorSubs.push(sub);
+          }
+          // Try to enable measurements by writing to control characteristics
+          if (char.isWritableWithResponse || char.isWritableWithoutResponse) {
+            try {
+              // Send command to start continuous measurement
+              const cmd = buildV6Cmd(0x28, [1, 1]); // Start HR+SpO2+HRV
+              await device.writeCharacteristicWithResponseForService(svcUuid, char.uuid, bytesToBase64(Array.from(cmd)));
+            } catch {}
+          }
+        }
+      } catch {}
+    }
+
+    // Try to send startup commands via ECG control characteristic
+    try {
+      const now = new Date();
+      const timeCmd = buildV6Cmd(0x01, [now.getFullYear() & 0xFF, (now.getFullYear() >> 8) & 0xFF, now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]);
+      await device.writeCharacteristicWithResponseForService(V6_CUSTOM_ECG_SVC, V6_CUSTOM_ECG_CTRL, bytesToBase64(Array.from(timeCmd)));
+      setTimeout(async () => {
+        try { await device.writeCharacteristicWithResponseForService(V6_CUSTOM_ECG_SVC, V6_CUSTOM_ECG_CTRL, bytesToBase64(Array.from(buildV6Cmd(0x0D)))); } catch {}
+      }, 500);
+      setTimeout(async () => {
+        try { await device.writeCharacteristicWithResponseForService(V6_CUSTOM_ECG_SVC, V6_CUSTOM_ECG_CTRL, bytesToBase64(Array.from(buildV6Cmd(0x28, [1, 1])))); } catch {}
+      }, 1000);
+      setTimeout(async () => {
+        try { await device.writeCharacteristicWithResponseForService(V6_CUSTOM_ECG_SVC, V6_CUSTOM_ECG_CTRL, bytesToBase64(Array.from(buildV6Cmd(0x28, [3, 1])))); } catch {}
+      }, 1500);
+      setTimeout(async () => {
+        try { await device.writeCharacteristicWithResponseForService(V6_CUSTOM_ECG_SVC, V6_CUSTOM_ECG_CTRL, bytesToBase64(Array.from(buildV6Cmd(0x09, [1, 1])))); } catch {}
+      }, 2000);
+    } catch {}
+
+    return { connected: true, name: deviceName, battery };
+  } catch (error) {
+    console.error('BLE bracelet connect error:', error);
+    return { connected: false, name: '', battery: 0 };
+  }
+}
+
+function buildV6Cmd(cmd: number, payload: number[] = []): Uint8Array {
+  const pkt = [cmd, ...payload, ...new Array(14 - payload.length).fill(0)];
+  pkt.push(pkt.reduce((s, b) => s + b, 0) & 0xFF);
+  return new Uint8Array(pkt);
+}
+
+function parseV6CustomPacket(bytes: Uint8Array): BraceletVitals {
+  const vitals: BraceletVitals = {};
+  if (bytes.length < 2) return vitals;
+  const cmd = bytes[0];
+
+  if (cmd === 0x09 && bytes.length >= 14) {
+    // Step data
+    vitals.steps = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16) | (bytes[4] << 24);
+    vitals.calories = ((bytes[5] | (bytes[6] << 8) | (bytes[7] << 16) | (bytes[8] << 24)) / 100);
+    if (bytes[13] > 0 && bytes[13] < 255) vitals.heart_rate = bytes[13];
+  } else if (cmd === 0x28 && bytes.length >= 10) {
+    // Health measurement
+    if (bytes[2] > 0 && bytes[2] < 255) vitals.heart_rate = bytes[2];
+    if (bytes[3] > 0 && bytes[3] <= 100) vitals.spo2 = bytes[3];
+    if (bytes[4] > 0) vitals.hrv = bytes[4];
+    if (bytes[5] > 0) vitals.stress = bytes[5];
+    if (bytes[6] > 0) vitals.systolic = bytes[6];
+    if (bytes[7] > 0) vitals.diastolic = bytes[7];
+    const temp = (bytes[8] | (bytes[9] << 8)) / 10;
+    if (temp > 30 && temp < 45) vitals.temperature = temp;
+  } else if (cmd === 0x0D && bytes.length >= 2) {
+    // Battery
+    if (bytes[1] > 0 && bytes[1] <= 100) vitals.battery = bytes[1];
+  }
+  return vitals;
+}
+
+export async function disconnectBracelet() {
+  for (const sub of braceletMonitorSubs) {
+    try { sub.remove(); } catch {}
+  }
+  braceletMonitorSubs = [];
+  if (braceletConnection) {
+    try { await braceletConnection.cancelConnection(); } catch {}
+    braceletConnection = null;
+  }
+}
+
+export function isBraceletConnected(): boolean {
+  return !!braceletConnection;
+}
+
 // ─── LEFU SCALE BLE SERVICE ───
 
 // Lefu scale BLE service UUIDs (common for Lefu body fat scales)

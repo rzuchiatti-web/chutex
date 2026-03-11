@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Platform } from 'react-native';
 import { apiFetch } from '../services/api';
 import { DEVICE_META } from '../components/devices/constants';
+import { isBleAvailable, scanForBracelet, connectToBracelet, disconnectBracelet } from '../services/ble';
+import type { BraceletVitals } from '../services/ble';
 
 /* ── BLE helpers ── */
 const readBatteryLevel = async (server: any): Promise<number> => {
@@ -61,17 +63,82 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
     setBleError('');
   };
 
-  /* ── Real BLE scan: Web Bluetooth OR native bridge ── */
+  /* ── Real BLE scan: Native BLE (react-native-ble-plx) OR Web Bluetooth OR WebView bridge ── */
   const launchBleScan = async (deviceType: string) => {
     setBleStatus('scanning');
     setBleError('');
 
     const hasWebBle = Platform.OS === 'web' && 'bluetooth' in navigator;
     const hasNativeBridge = typeof (window as any).ReactNativeWebView?.postMessage === 'function';
+    const hasNativeBle = Platform.OS !== 'web' && isBleAvailable();
 
-    if (!hasWebBle && !hasNativeBridge) {
+    if (!hasWebBle && !hasNativeBridge && !hasNativeBle) {
       setBleStatus('error');
       setBleError('Bluetooth non disponible. Verifiez que le Bluetooth est active sur votre appareil.');
+      return;
+    }
+
+    // ── Native BLE via react-native-ble-plx (iOS/Android) ──
+    if (hasNativeBle && deviceType === 'bracelet') {
+      setBleError('Recherche de votre bracelet V6...');
+      let foundDevice: { id: string; name: string; mac: string } | null = null;
+
+      await scanForBracelet((device) => {
+        if (!foundDevice) {
+          foundDevice = device;
+          setBleError(`Bracelet trouve: ${device.name}. Connexion...`);
+        }
+      }, 15000);
+
+      if (!foundDevice) {
+        setBleStatus('error');
+        setBleError('Bracelet V6 non detecte. Assurez-vous qu\'il est allume et a proximite.');
+        return;
+      }
+
+      const collectedData: Record<string, any> = {};
+
+      const result = await connectToBracelet(foundDevice.id, (vitals: BraceletVitals) => {
+        // Update collected data with each vitals update
+        if (vitals.heart_rate && vitals.heart_rate > 0) { collectedData.heart_rate = vitals.heart_rate; setBleVitals((prev: any) => ({ ...prev, heart_rate: vitals.heart_rate })); }
+        if (vitals.spo2 && vitals.spo2 > 0) { collectedData.spo2 = vitals.spo2; setBleVitals((prev: any) => ({ ...prev, spo2: vitals.spo2 })); }
+        if (vitals.temperature && vitals.temperature > 30) { collectedData.temperature = vitals.temperature; }
+        if (vitals.steps) collectedData.steps = vitals.steps;
+        if (vitals.calories) collectedData.calories = vitals.calories;
+        if (vitals.systolic) collectedData.blood_pressure = { systolic: vitals.systolic, diastolic: vitals.diastolic || 0 };
+        if (vitals.hrv) collectedData.hrv = vitals.hrv;
+        if (vitals.battery) { collectedData.battery = vitals.battery; setBleVitals((prev: any) => ({ ...prev, battery: vitals.battery })); }
+
+        // Push each reading to backend
+        const dataType = vitals.heart_rate ? 'heart_rate' : vitals.spo2 ? 'spo2' : vitals.temperature ? 'temperature' : vitals.steps ? 'steps' : vitals.battery ? 'battery' : '';
+        if (dataType) {
+          apiFetch('/api/bracelet/v6/push', {
+            method: 'POST',
+            body: JSON.stringify({ data_type: dataType, data: vitals, device_id: foundDevice!.id, source: 'ble' }),
+          }, token).catch(() => {});
+        }
+      });
+
+      if (result.connected) {
+        collectedData.battery = result.battery;
+        await apiFetch('/api/devices/associate', { method: 'POST', body: JSON.stringify({ device_type: 'bracelet', mac_address: foundDevice.mac || foundDevice.id }) }, token).catch(() => {});
+        await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: 'bracelet', data: collectedData }) }, token).catch(() => {});
+        setBleStatus('connected');
+        setBleError('');
+        setBleVitals({ name: result.name, id: foundDevice.id, battery: result.battery });
+        fetchDevices();
+
+        // Keep collecting data for 60s
+        setTimeout(async () => {
+          if (Object.keys(collectedData).length > 1) {
+            await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: 'bracelet', data: collectedData }) }, token).catch(() => {});
+            fetchDevices();
+          }
+        }, 60000);
+      } else {
+        setBleStatus('error');
+        setBleError('Impossible de se connecter au bracelet. Reessayez.');
+      }
       return;
     }
 
