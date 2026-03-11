@@ -574,7 +574,27 @@ export default function MetricDetailScreen() {
               <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Seuils d'alerte</span>
             </div>
             {!thEdit && (
-              <div data-testid="configure-threshold-btn" onClick={() => { setThEdit(true); if (!thMin && nMin != null) setThMin(String(Math.round(nMin * 0.9))); if (!thMax && nMax != null) setThMax(String(Math.round(nMax * 1.15))); }} style={{ padding: '6px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>
+              <div data-testid="configure-threshold-btn" onClick={() => {
+                setThEdit(true);
+                // Smart medical defaults per metric (not naive math)
+                const smartDefaults: Record<string, { min: string; max: string; minOnly?: boolean; maxOnly?: boolean }> = {
+                  heart_rate: { min: '50', max: '100' },
+                  spo2: { min: '92', max: '' },      // SpO2 max is always 100 — only low threshold matters
+                  blood_pressure: { min: '90', max: '140' },
+                  temperature: { min: '35.5', max: '38.5' },
+                  hrv: { min: '20', max: '' },         // Only low HRV is concerning
+                  stress_level: { min: '', max: '70' }, // Only high stress matters
+                  recovery_score: { min: '40', max: '' },
+                };
+                const defaults = smartDefaults[key || ''];
+                if (defaults) {
+                  if (!thMin) setThMin(defaults.min);
+                  if (!thMax) setThMax(defaults.max);
+                } else {
+                  if (!thMin && nMin != null) setThMin(String(nMin));
+                  if (!thMax && nMax != null) setThMax(String(nMax));
+                }
+              }} style={{ padding: '6px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>
                 {threshold?.min_val != null ? 'Modifier' : 'Configurer'}
               </div>
             )}
@@ -584,7 +604,19 @@ export default function MetricDetailScreen() {
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 12px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 12 } as any}>
               <div style={{ width: 20, height: 20, borderRadius: 6, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}><span style={{ fontSize: 8, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>
-                D'apres vos donnees, je vous suggere un seuil bas a <strong style={{ color: '#38BDF8' }}>{Math.round(nMin * 0.9)} {m.unit}</strong> et un seuil haut a <strong style={{ color: '#EF4444' }}>{Math.round(nMax * 1.15)} {m.unit}</strong>. Cliquez sur Configurer pour appliquer ou ajuster.
+                {(() => {
+                  const suggestions: Record<string, string> = {
+                    heart_rate: `Je vous suggere un seuil bas a <strong style="color:#38BDF8">50 bpm</strong> et haut a <strong style="color:#EF4444">100 bpm</strong>.`,
+                    spo2: `Pour la SpO2, seul le seuil bas compte. Je recommande <strong style="color:#38BDF8">92%</strong>. En dessous, contactez votre medecin.`,
+                    blood_pressure: `Je vous suggere un seuil bas a <strong style="color:#38BDF8">90 mmHg</strong> et haut a <strong style="color:#EF4444">140 mmHg</strong> (systolique).`,
+                    temperature: `Je vous suggere un seuil bas a <strong style="color:#38BDF8">35.5°C</strong> et haut a <strong style="color:#EF4444">38.5°C</strong>.`,
+                    hrv: `Pour le HRV, seul le seuil bas est pertinent. Je recommande <strong style="color:#38BDF8">20 ms</strong>.`,
+                    stress_level: `Pour le stress, seul le seuil haut compte. Je recommande <strong style="color:#EF4444">70/100</strong>.`,
+                    recovery_score: `Pour la recuperation, seul le seuil bas compte. Je recommande <strong style="color:#38BDF8">40/100</strong>.`,
+                  };
+                  const text = suggestions[key || ''] || `Je vous suggere un seuil bas a <strong style="color:#38BDF8">${nMin} ${m.unit}</strong> et haut a <strong style="color:#EF4444">${nMax} ${m.unit}</strong>.`;
+                  return <span dangerouslySetInnerHTML={{ __html: text + ' Cliquez sur Configurer pour appliquer ou ajuster.' }} />;
+                })()}
               </div>
             </div>
           )}

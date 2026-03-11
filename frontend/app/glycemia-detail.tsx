@@ -4,10 +4,18 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 
-const P = '#A78BFA', G = '#10B981', A = '#F59E0B', R = '#EF4444', B = '#60A5FA';
+const P = '#A78BFA', G = '#10B981', GL_H = '#84CC16', A = '#F59E0B', O = '#F97316', R = '#EF4444', B = '#60A5FA';
 const GL: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 const META_IMG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png';
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
+
+const ZONES_V2 = [
+  { zone: 'Normal', range: '0.70 - 0.99 g/L', color: G, desc: 'Metabolisme glucidique sain.' },
+  { zone: 'Normal haut', range: '0.90 - 1.05 g/L', color: GL_H, desc: 'Partie superieure de la norme. Surveillance recommandee.' },
+  { zone: 'Vigilance', range: '1.00 - 1.25 g/L', color: A, desc: 'Pre-diabete potentiel. Controle medical conseille.' },
+  { zone: 'Pre-alerte', range: '1.20 - 1.40 g/L', color: O, desc: 'Risque eleve. Bilan sanguin recommande rapidement.' },
+  { zone: 'Alerte', range: '> 1.26 g/L', color: R, desc: 'Risque important. Bilan sanguin urgent.' },
+];
 
 export default function GlycemiaDetailPage() {
   const { token } = useAuth();
@@ -16,6 +24,7 @@ export default function GlycemiaDetailPage() {
   const [calibrations, setCalibrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [calibValue, setCalibValue] = useState('');
+  const [calibContext, setCalibContext] = useState('random');
   const [saving, setSaving] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
@@ -34,204 +43,207 @@ export default function GlycemiaDetailPage() {
     if (!v || v <= 0 || v > 5) return;
     setSaving(true);
     try {
-      await apiFetch('/api/glycemia/calibrate', { method: 'POST', body: JSON.stringify({ glycemia_value: v }) }, token);
+      await apiFetch('/api/glycemia/calibrate', { method: 'POST', body: JSON.stringify({ glycemia_value: v, context: calibContext }) }, token);
       setCalibValue('');
       fetchAll();
     } catch {} finally { setSaving(false); }
   };
 
   if (Platform.OS !== 'web') return null;
-  const zc: Record<string, string> = { normal: G, vigilance: A, alert: R };
+  const zc: Record<string, string> = { normal: G, normal_high: GL_H, vigilance: A, pre_alert: O, alert: R };
   const col = data ? (zc[data.zone] || A) : A;
 
   return (
     <div data-testid="glycemia-detail-page" style={{ position: 'absolute', inset: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
       <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
       <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 120px' } as any}>
 
-          {/* Back button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 } as any}>
-            <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
-          </div>
+          {/* Back */}
+          <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 8 } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
 
           {loading && <div style={{ textAlign: 'center', padding: '80px 0' } as any}><div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.06)', borderTopColor: P, animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>}
 
           {!loading && data && (
             <>
-              {/* ══ HERO: Big centered image (same as health-detail) ══ */}
+              {/* Hero image */}
               <div style={{ textAlign: 'center', marginBottom: 0, position: 'relative', zIndex: 2 } as any}>
-                <img src={META_IMG} alt="Glycemie" style={{ width: 200, height: 200, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', position: 'relative', zIndex: 3, marginBottom: -50 } as any} />
+                <img src={META_IMG} alt="" style={{ width: 180, height: 180, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', position: 'relative', zIndex: 3, marginBottom: -45 } as any} />
               </div>
 
-              {/* ══ CARTE 1: Zone + Graph + Explication + Nora + Disclaimer ══ */}
-              <div style={{ ...GL, padding: '60px 20px 20px', marginBottom: 14, position: 'relative', zIndex: 1 } as any}>
-                {/* Zone title */}
+              {/* CARD 1: Zone + Estimated Value + Graph */}
+              <div style={{ ...GL, padding: '56px 20px 20px', marginBottom: 14, position: 'relative', zIndex: 1 } as any}>
+                {/* Zone + value */}
                 <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Glycemie Estimee</div>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 999, background: `${col}15`, border: `1px solid ${col}25` } as any}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Glycemie Estimee</div>
+                  {data.estimated_glycemia && (
+                    <div style={{ fontSize: 42, fontWeight: 900, color: '#FFF', lineHeight: 1, marginBottom: 6 }}>{data.estimated_glycemia} <span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>g/L</span></div>
+                  )}
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 999, background: `${col}18`, border: `1px solid ${col}30` } as any}>
                     <span style={{ width: 8, height: 8, borderRadius: 4, background: col, boxShadow: `0 0 8px ${col}60` } as any} />
-                    <span style={{ fontSize: 16, fontWeight: 900, color: col }}>{data.zone_label}</span>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: col }}>{data.zone_label}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>{data.estimated_range}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 8 }}>{data.estimated_range}</div>
                 </div>
 
-                {/* Full-width estimation graph */}
+                {/* 5-zone gradient gauge */}
                 <div style={{ margin: '0 -20px 16px', padding: '0 20px' } as any}>
-                  <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Estimation glycemique</div>
-                  <svg viewBox="0 0 400 100" style={{ width: '100%', height: 90, display: 'block' }}>
-                    {/* Background gradient zones */}
+                  <svg viewBox="0 0 400 80" style={{ width: '100%', height: 72, display: 'block' }}>
                     <defs>
-                      <linearGradient id="glycGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor={G} stopOpacity="0.25" />
-                        <stop offset="40%" stopColor={G} stopOpacity="0.15" />
-                        <stop offset="50%" stopColor={A} stopOpacity="0.2" />
-                        <stop offset="70%" stopColor={A} stopOpacity="0.15" />
-                        <stop offset="80%" stopColor={R} stopOpacity="0.2" />
-                        <stop offset="100%" stopColor={R} stopOpacity="0.25" />
+                      <linearGradient id="glycGrad5" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor={G} stopOpacity="0.3" />
+                        <stop offset="25%" stopColor={GL_H} stopOpacity="0.25" />
+                        <stop offset="45%" stopColor={A} stopOpacity="0.25" />
+                        <stop offset="70%" stopColor={O} stopOpacity="0.25" />
+                        <stop offset="100%" stopColor={R} stopOpacity="0.3" />
                       </linearGradient>
                     </defs>
-                    <rect x="0" y="20" width="400" height="40" rx="6" fill="url(#glycGrad)" />
-                    {/* Zone separators */}
-                    <line x1="160" y1="20" x2="160" y2="60" stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="3" />
-                    <line x1="280" y1="20" x2="280" y2="60" stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="3" />
-                    {/* Zone labels top */}
-                    <text x="80" y="14" textAnchor="middle" fill={G} fontSize="9" fontWeight="700" opacity="0.6">Normal</text>
-                    <text x="220" y="14" textAnchor="middle" fill={A} fontSize="9" fontWeight="700" opacity="0.6">Vigilance</text>
-                    <text x="340" y="14" textAnchor="middle" fill={R} fontSize="9" fontWeight="700" opacity="0.6">Alerte</text>
-                    {/* Value labels bottom */}
-                    <text x="0" y="78" textAnchor="start" fill="rgba(255,255,255,0.12)" fontSize="8">0.70</text>
-                    <text x="160" y="78" textAnchor="middle" fill="rgba(255,255,255,0.12)" fontSize="8">1.00</text>
-                    <text x="280" y="78" textAnchor="middle" fill="rgba(255,255,255,0.12)" fontSize="8">1.26</text>
-                    <text x="400" y="78" textAnchor="end" fill="rgba(255,255,255,0.12)" fontSize="8">2.00 g/L</text>
-                    {/* Score indicator */}
+                    <rect x="0" y="18" width="400" height="32" rx="6" fill="url(#glycGrad5)" />
+                    {/* 5 zone separators */}
+                    {[100, 180, 260, 320].map((x, i) => <line key={i} x1={x} y1="18" x2={x} y2="50" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="3" />)}
+                    {/* Zone labels */}
+                    <text x="50" y="12" textAnchor="middle" fill={G} fontSize="8" fontWeight="700" opacity="0.8">Normal</text>
+                    <text x="140" y="12" textAnchor="middle" fill={GL_H} fontSize="8" fontWeight="700" opacity="0.8">Normal+</text>
+                    <text x="220" y="12" textAnchor="middle" fill={A} fontSize="8" fontWeight="700" opacity="0.8">Vigilance</text>
+                    <text x="290" y="12" textAnchor="middle" fill={O} fontSize="8" fontWeight="700" opacity="0.8">Pre-alerte</text>
+                    <text x="360" y="12" textAnchor="middle" fill={R} fontSize="8" fontWeight="700" opacity="0.8">Alerte</text>
+                    {/* Value labels */}
+                    <text x="0" y="68" fill="rgba(255,255,255,0.2)" fontSize="8">0.70</text>
+                    <text x="100" y="68" textAnchor="middle" fill="rgba(255,255,255,0.2)" fontSize="8">1.00</text>
+                    <text x="180" y="68" textAnchor="middle" fill="rgba(255,255,255,0.2)" fontSize="8">1.10</text>
+                    <text x="260" y="68" textAnchor="middle" fill="rgba(255,255,255,0.2)" fontSize="8">1.26</text>
+                    <text x="400" y="68" textAnchor="end" fill="rgba(255,255,255,0.2)" fontSize="8">1.80+</text>
+                    {/* Indicator dot */}
                     {(() => {
                       const score = data.risk_score || 50;
                       const cx = Math.max(12, Math.min(388, (score / 100) * 400));
                       return <>
-                        <line x1={cx} y1="16" x2={cx} y2="64" stroke={col} strokeWidth="2" opacity="0.5" />
-                        <circle cx={cx} cy="40" r="10" fill={col} opacity="0.15"><animate attributeName="r" values="10;14;10" dur="2s" repeatCount="indefinite" /></circle>
-                        <circle cx={cx} cy="40" r="7" fill={col} stroke="rgba(0,0,0,0.4)" strokeWidth="2" />
-                        <text x={cx} y="94" textAnchor="middle" fill={col} fontSize="10" fontWeight="900">{data.estimated_range}</text>
+                        <circle cx={cx} cy="34" r="8" fill={col} opacity="0.15"><animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite" /></circle>
+                        <circle cx={cx} cy="34" r="5.5" fill={col} stroke="rgba(0,0,0,0.4)" strokeWidth="2" />
                       </>;
                     })()}
                   </svg>
                 </div>
 
-                {/* Explication des zones */}
-                <div style={{ marginBottom: 16 } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Comprendre les zones</div>
-                  {[
-                    { zone: 'Normal', range: '0.70 - 1.00 g/L', color: G, desc: 'Metabolisme glucidique sain. Aucune action requise.' },
-                    { zone: 'Vigilance', range: '1.00 - 1.26 g/L', color: A, desc: 'Pre-diabete potentiel. Un controle medical est conseille.' },
-                    { zone: 'Alerte', range: '> 1.26 g/L', color: R, desc: 'Risque diabetique. Bilan sanguin complet recommande.' },
-                  ].map((z, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 10, padding: '7px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.03)' : 'none' } as any}>
+                {/* Nora analysis */}
+                <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
+                    <div style={{ width: 30, height: 30, borderRadius: 10, flexShrink: 0, background: 'linear-gradient(135deg, rgba(167,139,250,0.25), rgba(167,139,250,0.08))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 11, fontWeight: 900, color: P }}>N</span></div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Analyse de Nora</div>
+                  </div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7 }}>{data.message}</div>
+                  {data.factors?.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 10 } as any}>
+                      {data.factors.map((f: any, i: number) => (
+                        <span key={i} style={{ padding: '4px 10px', borderRadius: 8, background: f.impact === 'high' ? 'rgba(239,68,68,0.1)' : f.impact === 'moderate' ? 'rgba(245,158,11,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${f.impact === 'high' ? 'rgba(239,68,68,0.18)' : f.impact === 'moderate' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.06)'}`, fontSize: 10, fontWeight: 700, color: f.impact === 'high' ? '#FCA5A5' : f.impact === 'moderate' ? '#FCD34D' : 'rgba(255,255,255,0.45)' } as any}>{f.name}: {f.value}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 5 Zones explanation */}
+                <div style={{ marginBottom: 14 } as any}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Les 5 zones glycemiques</div>
+                  {ZONES_V2.map((z, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
                       <div style={{ width: 3, borderRadius: 2, background: z.color, flexShrink: 0 } as any} />
                       <div style={{ flex: 1 } as any}>
-                        <span style={{ fontSize: 11, fontWeight: 800, color: z.color }}>{z.zone}</span>
-                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', marginLeft: 6 }}>{z.range}</span>
-                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{z.desc}</div>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: z.color }}>{z.zone}</span>
+                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 6 }}>{z.range}</span>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{z.desc}</div>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {/* Separator */}
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '0 0 14px' } as any} />
-
-                {/* Nora mini analysis */}
-                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 14 } as any}>
-                  <div style={{ width: 28, height: 28, borderRadius: 9, flexShrink: 0, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.05))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 10, fontWeight: 900, color: P }}>N</span></div>
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{data.message}</div>
-                    {data.factors?.length > 0 && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 8 } as any}>
-                        {data.factors.map((f: any, i: number) => (
-                          <span key={i} style={{ padding: '2px 7px', borderRadius: 6, background: f.impact === 'high' ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${f.impact === 'high' ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.05)'}`, fontSize: 9, color: f.impact === 'high' ? '#FCA5A5' : 'rgba(255,255,255,0.25)' } as any}>{f.name}: {f.value}</span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Disclaimer + precision */}
-                <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)' } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 } as any}>
-                    <i className="ri-flask-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.15)' }} />
-                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)' }}>Estimation en evolution</span>
-                  </div>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.18)', lineHeight: 1.6 }}>
-                    Cette analyse n'est pas un dispositif medical. Les estimations glycemiques sont en constante evolution et s'ameliorent de maniere permanente grace a vos calibrations et aux donnees de vos capteurs.
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 } as any}>
-                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>Precision actuelle :</span>
-                    <span style={{ fontSize: 11, fontWeight: 900, color: P }}>{data.confidence_pct}%</span>
-                    <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}>
-                      <div style={{ height: '100%', borderRadius: 2, background: P, width: `${data.confidence_pct}%`, opacity: 0.6 } as any} />
+                {/* Precision + disclaimer */}
+                <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                      <i className="ri-flask-line" style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }} />
+                      <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Precision</span>
                     </div>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: P }}>{data.confidence_pct}%</span>
+                  </div>
+                  <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', marginBottom: 8 } as any}>
+                    <div style={{ height: '100%', borderRadius: 2, background: `linear-gradient(90deg, ${P}60, ${P})`, width: `${data.confidence_pct}%` } as any} />
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
+                    Estimation non-medicale. La precision augmente avec vos calibrations et les donnees capteurs. Algorithme V2 a {data.data_points_used || 0} facteurs.
                   </div>
                 </div>
               </div>
 
-              {/* ══ CARTE 2: Calibrations manuelles ══ */}
+              {/* CARD 2: Calibration */}
               <div style={{ ...GL, padding: 20, marginBottom: 14 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                    <i className="ri-drop-fill" style={{ fontSize: 16, color: P }} />
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>Mesures manuelles</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 } as any}>
+                  <i className="ri-drop-fill" style={{ fontSize: 18, color: R }} />
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Calibration capillaire</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{calibrations.length} mesure{calibrations.length !== 1 ? 's' : ''}</div>
                   </div>
-                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>{calibrations.length} calibration{calibrations.length !== 1 ? 's' : ''}</span>
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, marginBottom: 14, padding: '10px 12px', borderRadius: 12, background: 'rgba(167,139,250,0.05)', border: '1px solid rgba(167,139,250,0.1)' } as any}>
+                  <i className="ri-information-line" style={{ fontSize: 13, color: P, marginRight: 6 }} />
+                  Saisissez votre glycemie capillaire (piqure au doigt) <strong style={{ color: '#FFF' }}>1 fois par mois</strong> pour ameliorer la precision de l'estimation. Plus vous calibrez, plus Nora est precise.
                 </div>
 
-                {/* Mini chart of calibrations */}
+                {/* Calibration graph */}
                 {calibrations.length > 0 && (
-                  <div style={{ margin: '0 -20px 14px', padding: '0 20px' } as any}>
-                    <svg viewBox="0 0 400 80" style={{ width: '100%', height: 70, display: 'block' }}>
-                      <line x1="0" x2="400" y1="40" y2="40" stroke="rgba(255,255,255,0.04)" strokeWidth="1" strokeDasharray="3" />
-                      <text x="396" y="38" textAnchor="end" fill="rgba(255,255,255,0.1)" fontSize="8">1.0</text>
-                      <line x1="0" x2="400" y1="18" y2="18" stroke="rgba(239,68,68,0.06)" strokeWidth="1" strokeDasharray="3" />
-                      <text x="396" y="16" textAnchor="end" fill="rgba(239,68,68,0.12)" fontSize="8">1.26</text>
+                  <div style={{ marginBottom: 14, padding: '12px', borderRadius: 14, background: 'rgba(0,0,0,0.15)' } as any}>
+                    <svg viewBox="0 0 400 90" style={{ width: '100%', height: 80, display: 'block' }}>
+                      <line x1="0" x2="400" y1="45" y2="45" stroke="rgba(255,255,255,0.06)" strokeWidth="1" strokeDasharray="4" />
+                      <text x="396" y="43" textAnchor="end" fill="rgba(255,255,255,0.15)" fontSize="8" fontWeight="600">1.0 g/L</text>
+                      <line x1="0" x2="400" y1="22" y2="22" stroke="rgba(239,68,68,0.08)" strokeWidth="1" strokeDasharray="4" />
+                      <text x="396" y="20" textAnchor="end" fill="rgba(239,68,68,0.15)" fontSize="8" fontWeight="600">1.26</text>
                       {calibrations.slice(0, 12).reverse().map((c: any, i: number, arr: any[]) => {
-                        const x = arr.length > 1 ? 16 + (i / (arr.length - 1)) * 368 : 200;
+                        const x = arr.length > 1 ? 20 + (i / (arr.length - 1)) * 360 : 200;
                         const val = c.glycemia_value || 1;
-                        const y = Math.max(5, Math.min(72, 68 - ((val - 0.5) / 1.5) * 60));
+                        const y = Math.max(6, Math.min(78, 72 - ((val - 0.5) / 1.5) * 64));
                         const ptCol = val < 1.0 ? G : val < 1.26 ? A : R;
                         return (
                           <g key={i}>
-                            {i > 0 && (() => { const prev = arr[i-1]; const px = 16+((i-1)/(arr.length-1))*368; const pv = prev.glycemia_value||1; const py = Math.max(5,Math.min(72,68-((pv-0.5)/1.5)*60)); return <line x1={px} y1={py} x2={x} y2={y} stroke={`${P}40`} strokeWidth="1.5" />; })()}
-                            <circle cx={x} cy={y} r="4.5" fill={ptCol} opacity="0.85" />
-                            <text x={x} y={y - 8} textAnchor="middle" fill={ptCol} fontSize="8" fontWeight="800">{val}</text>
+                            {i > 0 && (() => { const prev = arr[i-1]; const px = 20+((i-1)/(arr.length-1))*360; const pv = prev.glycemia_value||1; const py = Math.max(6,Math.min(78,72-((pv-0.5)/1.5)*64)); return <line x1={px} y1={py} x2={x} y2={y} stroke={`${P}50`} strokeWidth="2" />; })()}
+                            <circle cx={x} cy={y} r="5" fill={ptCol} stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" />
+                            <text x={x} y={y - 9} textAnchor="middle" fill="#FFF" fontSize="9" fontWeight="800">{val}</text>
                           </g>
                         );
                       })}
                     </svg>
                   </div>
                 )}
-                {calibrations.length === 0 && (
-                  <div style={{ textAlign: 'center', padding: '12px 0 14px', fontSize: 11, color: 'rgba(255,255,255,0.15)' }}>Aucune mesure manuelle enregistree</div>
-                )}
 
-                {/* Input */}
-                <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
-                  <input data-testid="glycemia-input" type="number" step="0.01" placeholder="Glycemie en g/L (ex: 1.05)" value={calibValue} onChange={(e: any) => setCalibValue(e.target.value)} style={{ flex: 1, padding: '11px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', outline: 'none' } as any} />
-                  <div data-testid="save-calibration" onClick={saveCalibration} style={{ padding: '11px 16px', borderRadius: 12, background: saving ? 'rgba(255,255,255,0.04)' : `linear-gradient(135deg, ${P}, ${B})`, cursor: saving ? 'wait' : 'pointer', fontSize: 12, fontWeight: 800, color: '#FFF', display: 'flex', alignItems: 'center', gap: 5 } as any}>
-                    <i className="ri-add-line" style={{ fontSize: 14 }} />{saving ? '...' : 'Ajouter'}
+                {/* Context selector */}
+                <div style={{ display: 'flex', gap: 6, marginBottom: 10 } as any}>
+                  {[
+                    { key: 'fasting', label: 'A jeun' },
+                    { key: 'postprandial', label: 'Apres repas' },
+                    { key: 'random', label: 'Aleatoire' },
+                  ].map(ctx => (
+                    <div key={ctx.key} onClick={() => setCalibContext(ctx.key)} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, background: calibContext === ctx.key ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.03)', border: `1px solid ${calibContext === ctx.key ? 'rgba(167,139,250,0.25)' : 'rgba(255,255,255,0.06)'}`, textAlign: 'center', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: calibContext === ctx.key ? P : 'rgba(255,255,255,0.35)' } as any}>{ctx.label}</div>
+                  ))}
+                </div>
+
+                {/* Input + button — responsive */}
+                <div style={{ display: 'flex', gap: 8 } as any}>
+                  <input data-testid="glycemia-input" type="number" step="0.01" placeholder="Ex: 1.05 g/L" value={calibValue} onChange={(e: any) => setCalibValue(e.target.value)} style={{ flex: 1, minWidth: 0, padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' } as any} />
+                  <div data-testid="save-calibration" onClick={saveCalibration} style={{ padding: '12px 18px', borderRadius: 12, background: saving ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', cursor: saving ? 'wait' : 'pointer', fontSize: 13, fontWeight: 800, color: '#FFF', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, whiteSpace: 'nowrap' } as any}>
+                    <i className="ri-add-line" style={{ fontSize: 15 }} />{saving ? '...' : 'Ajouter'}
                   </div>
                 </div>
 
-                {/* History button */}
+                {/* History */}
                 {calibrations.length > 0 && (
-                  <div data-testid="show-history" onClick={() => setShowHistory(true)} style={{ textAlign: 'center', padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: P } as any}>
-                    <i className="ri-history-line" style={{ fontSize: 13, marginRight: 6 }} />Voir l'historique detaille
+                  <div data-testid="show-history" onClick={() => setShowHistory(true)} style={{ textAlign: 'center', padding: '10px', marginTop: 10, borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: P } as any}>
+                    <i className="ri-history-line" style={{ fontSize: 13, marginRight: 6 }} />Voir l'historique
                   </div>
                 )}
               </div>
             </>
           )}
 
-          {/* ══ POPUP HISTORIQUE (glass, profile-style) ══ */}
+          {/* History popup */}
           {showHistory && (
             <div data-testid="history-popup" onClick={() => setShowHistory(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
               <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
@@ -241,22 +253,22 @@ export default function GlycemiaDetailPage() {
                   </div>
                 </div>
                 <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-drop-fill" style={{ fontSize: 26, color: P }} /></div>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Historique glycemie</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{calibrations.length} mesure{calibrations.length > 1 ? 's' : ''} enregistree{calibrations.length > 1 ? 's' : ''}</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{calibrations.length} mesure{calibrations.length > 1 ? 's' : ''}</div>
                 </div>
                 <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '12px 16px' } as any}>
                   {calibrations.map((c: any, i: number) => {
                     const val = c.glycemia_value || 0;
                     const ptCol = val < 1.0 ? G : val < 1.26 ? A : R;
                     const d = new Date(c.date);
+                    const ctxLabels: Record<string, string> = { fasting: 'A jeun', postprandial: 'Apres repas', random: '' };
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
                           <span style={{ width: 8, height: 8, borderRadius: 4, background: ptCol } as any} />
                           <div>
-                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
-                            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>{d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
+                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</div>
+                            {c.context && ctxLabels[c.context] && <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>{ctxLabels[c.context]}</div>}
                           </div>
                         </div>
                         <span style={{ fontSize: 17, fontWeight: 900, color: ptCol }}>{val} <span style={{ fontSize: 10, fontWeight: 600 }}>g/L</span></span>
