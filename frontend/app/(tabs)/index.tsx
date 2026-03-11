@@ -96,26 +96,28 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
   const items = plan.filter((p: any) => p.key !== 'connect');
   return (
     <div data-testid="dashboard-objectives" style={{ marginBottom: 8 } as any}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#94A3B8', letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 12 }}>Objectifs du jour</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 } as any}>
+      <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.3, marginBottom: 12 }}>Objectifs du jour</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
         {items.map((p: any, idx: number) => (
           <div key={p.key} className="clinic-card-enter" onClick={() => {
             if (p.key === 'steps') router.push({ pathname: '/metric-detail' as any, params: { key: 'steps' } });
             else if (p.key === 'sleep') router.push('/sleep' as any);
             else if (p.key === 'calories_intake') router.push('/minceur' as any);
             else if (p.key === 'hydration') router.push('/minceur' as any);
-          }} style={{ padding: '18px 16px', borderRadius: 20, background: '#FFF', border: '1px solid rgba(0,0,0,0.04)', cursor: 'pointer', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.05)', transition: 'transform 0.25s ease, box-shadow 0.25s ease', animationDelay: `${idx * 0.08}s` } as any}
-            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(0,0,0,0.1)'; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 10px 30px -10px rgba(0,0,0,0.05)'; }}>
+          }} style={{ padding: '16px 14px', borderRadius: 16, background: '#F4F4F5', cursor: 'pointer', transition: 'transform 0.15s ease, background 0.15s ease', animationDelay: `${idx * 0.08}s` } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = '#EBEBEC'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = '#F4F4F5'; }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-              <div style={{ width: 36, height: 36, borderRadius: 12, background: `${p.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <i className={p.icon} style={{ fontSize: 17, color: p.color }} />
+              <div style={{ width: 34, height: 34, borderRadius: 10, background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <i className={p.icon} style={{ fontSize: 16, color: p.color }} />
               </div>
-              {p.progress != null && <div style={{ fontSize: 11, fontWeight: 800, color: p.progress >= 100 ? '#10B981' : p.color }}>{Math.min(100, Math.round(p.progress))}%</div>}
+              {p.progress != null && <div style={{ fontSize: 11, fontWeight: 800, color: p.progress >= 100 ? '#34C759' : '#1A1A1A' }}>{Math.min(100, Math.round(p.progress))}%</div>}
             </div>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#0F172A', letterSpacing: -1, marginBottom: 2 }}>{p.value}<span style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', marginLeft: 4 }}>{p.unit}</span></div>
-            <div style={{ fontSize: 11, color: '#94A3B8', fontWeight: 500 }}>{p.label}</div>
-            {p.progress != null && <div style={{ height: 4, borderRadius: 2, background: '#F1F5F9', marginTop: 10, overflow: 'hidden' } as any}><div style={{ height: 4, borderRadius: 2, width: `${Math.min(100, p.progress)}%`, background: `linear-gradient(90deg, ${p.color}88, ${p.color})`, transition: 'width 1s ease' } as any} /></div>}
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#1A1A1A', letterSpacing: -1, marginBottom: 2 }}>{p.value}<span style={{ fontSize: 11, fontWeight: 600, color: '#8E8E93', marginLeft: 4 }}>{p.unit}</span></div>
+            <div style={{ fontSize: 11, color: '#8E8E93', fontWeight: 500 }}>{p.label}</div>
+            {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: '#E5E5EA', marginTop: 10, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${Math.min(100, p.progress)}%`, background: p.color, transition: 'width 1s ease' } as any} /></div>}
+          </div>
+        ))}
           </div>
         ))}
       </div>
@@ -389,18 +391,18 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
   };
 
-  if (loading) return Platform.OS === 'web' ? <Loader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#040E1A' }}><ActivityIndicator size="large" color="#4FC3F7" /></View>;
+  if (loading) return Platform.OS === 'web' ? <Loader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}><ActivityIndicator size="large" color="#1A1A1A" /></View>;
 
   const br = dashData?.bracelet || { heart_rate: 0, spo2: 0, steps: 0, blood_pressure: { systolic: 0, diastolic: 0 }, temperature: 0, battery: 0, connected: false, calories: 0, distance_km: 0, heart_rate_history: [], paired: false };
   const sc = dashData?.scale || { weight: 0, bmi: 0, body_fat: 0, muscle_mass: 0, water_pct: 0, battery: 0, connected: false, paired: false };
   const vs = dashData?.vest || { fall_detected: false, posture_score: 0, chest_temp: 0, battery: 0, connected: false, wearing_hours_today: 0, alerts_today: 0, paired: false };
   const sl = dashData?.sleep || null;
 
-  /* Card helper — Clinical clean */
+  /* Card helper — Uber grey */
   const GC = ({ children, style, onClick, testId }: any) => (
-    <div data-testid={testId} onClick={onClick} style={{ padding: '24px', borderRadius: 24, background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.04)', marginBottom: 14, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.2s ease, box-shadow 0.2s ease', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.05)', ...style } as any}
-      onMouseEnter={(e: any) => { if (onClick) { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(0,0,0,0.08)'; }}}
-      onMouseLeave={(e: any) => { if (onClick) { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 10px 30px -10px rgba(0,0,0,0.05)'; }}}>
+    <div data-testid={testId} onClick={onClick} style={{ padding: '20px', borderRadius: 16, background: '#F4F4F5', marginBottom: 12, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.15s ease, background 0.15s ease', ...style } as any}
+      onMouseEnter={(e: any) => { if (onClick) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = '#EBEBEC'; }}}
+      onMouseLeave={(e: any) => { if (onClick) { e.currentTarget.style.transform = ''; e.currentTarget.style.background = '#F4F4F5'; }}}>
       {children}
     </div>
   );
@@ -409,103 +411,90 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   // Morning briefing effect — runs once on mount
   if (Platform.OS === 'web') {
     return (
-      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: '#F8FAFC' } as any}>
+      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: '#FFFFFF' } as any}>
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* ══════ HERO SECTION — Dark clinical header ══════ */}
-          <div data-testid="dashboard-header" style={{ background: 'linear-gradient(160deg, #0F172A 0%, #1E293B 100%)', padding: '24px 22px 28px', position: 'relative', overflow: 'hidden' } as any}>
-            {/* Subtle grid pattern */}
-            <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'radial-gradient(circle at 1px 1px, #FFF 1px, transparent 0)', backgroundSize: '24px 24px' } as any} />
+          {/* ══════ HEADER — Clean white Uber-style ══════ */}
+          <div data-testid="dashboard-header" style={{ background: '#FFFFFF', padding: '20px 20px 0', position: 'relative' } as any}>
             {/* Top row */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, position: 'relative', zIndex: 2 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 48, height: 48, borderRadius: 16, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
-                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 48, height: 48, borderRadius: 16, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 19, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
+                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: '#1A1A1A' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
                 </div>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{user.name}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 500, letterSpacing: 0.3 }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.5 }}>Bonjour, {user.name?.split(' ')[0]}</div>
+                  <div style={{ fontSize: 12, color: '#8E8E93', fontWeight: 500 }}>
+                    {healthSummary?.score > 70 ? 'Tout va bien aujourd\'hui' :
+                     healthSummary?.score > 50 ? 'Quelques points d\'attention' :
+                     healthSummary?.score > 0 ? 'Des indicateurs a surveiller' :
+                     'Connectez vos appareils'}
+                  </div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-                <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, lineHeight: 1 } as any}>
+                <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 18, background: '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, lineHeight: 1 } as any}>
                   {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
                 </div>
-                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 40, height: 40, borderRadius: 13, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
-                  <i className="ri-notification-3-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
-                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, background: '#EF4444', border: '2.5px solid #0F172A' } as any} />}
+                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, background: '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                  <i className="ri-notification-4-line" style={{ fontSize: 18, color: '#1A1A1A' }} />
+                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#FF3B30', border: '2px solid #FFF' } as any} />}
                 </div>
               </div>
             </div>
 
-            {/* ── Health Score Gauge + Nora ── */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20, position: 'relative', zIndex: 2 } as any}>
-              {/* Animated circular gauge */}
-              <div style={{ flexShrink: 0, position: 'relative', width: 88, height: 88 } as any}>
-                <svg width="88" height="88" viewBox="0 0 88 88">
-                  <circle cx="44" cy="44" r="38" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
-                  <circle cx="44" cy="44" r="38" fill="none" stroke={healthSummary?.score > 70 ? '#10B981' : healthSummary?.score > 50 ? '#F59E0B' : healthSummary?.score > 0 ? '#EF4444' : 'rgba(255,255,255,0.1)'} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${(healthSummary?.score || 0) / 100 * 2 * Math.PI * 38} ${2 * Math.PI * 38}`} transform="rotate(-90 44 44)" style={{ transition: 'stroke-dasharray 1.5s ease' }} />
-                </svg>
-                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{healthSummary?.score || '--'}</div>
-                  <div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 }}>Score</div>
-                </div>
+            {/* ── Health Score + Vitals strip ── */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 20 } as any}>
+              {/* Score card */}
+              <div style={{ width: 80, height: 80, borderRadius: 20, background: '#F4F4F5', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#1A1A1A', lineHeight: 1, letterSpacing: -1 }}>{healthSummary?.score || '--'}</div>
+                <div style={{ fontSize: 9, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Score</div>
               </div>
-              {/* Nora message */}
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginBottom: 4, letterSpacing: -0.3 }}>Bonjour {user.name?.split(' ')[0]}</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
-                  {healthSummary?.score > 70 ? 'Vos indicateurs sont au vert. Etat de sante optimal.' :
-                   healthSummary?.score > 50 ? 'Etat correct. Pensez a bien vous hydrater.' :
-                   healthSummary?.score > 0 ? 'Quelques points meritent votre attention.' :
-                   'Connectez vos appareils pour un suivi complet.'}
-                </div>
+              {/* Vitals grid */}
+              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
+                {[
+                  { icon: 'ri-heart-pulse-line', val: br.heart_rate || '--', unit: 'bpm', color: '#FF3B30' },
+                  { icon: 'ri-drop-line', val: br.spo2 || '--', unit: '%SpO2', color: '#007AFF' },
+                  { icon: 'ri-footprint-line', val: br.steps || '--', unit: 'pas', color: '#34C759' },
+                  { icon: 'ri-temp-hot-line', val: br.temperature || '--', unit: 'C', color: '#FF9500' },
+                ].map((v, i) => (
+                  <div key={i} style={{ padding: '8px 10px', borderRadius: 12, background: '#F4F4F5', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                    <i className={v.icon} style={{ fontSize: 15, color: v.color }} />
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A1A', lineHeight: 1 }}>{v.val}</div>
+                      <div style={{ fontSize: 8, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: 0.3 }}>{v.unit}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-
-            {/* ── Vitals strip ── */}
-            <div style={{ display: 'flex', gap: 1, marginTop: 20, background: 'rgba(255,255,255,0.04)', borderRadius: 16, overflow: 'hidden', position: 'relative', zIndex: 2 } as any}>
-              {[
-                { icon: 'ri-heart-pulse-line', val: br.heart_rate || '--', unit: 'bpm', color: '#EF4444' },
-                { icon: 'ri-drop-line', val: br.spo2 || '--', unit: '%SpO2', color: '#3B82F6' },
-                { icon: 'ri-footprint-line', val: br.steps || '--', unit: 'pas', color: '#10B981' },
-                { icon: 'ri-temp-hot-line', val: br.temperature || '--', unit: '', color: '#F59E0B' },
-              ].map((v, i) => (
-                <div key={i} style={{ flex: 1, padding: '12px 8px', textAlign: 'center', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
-                  <i className={v.icon} style={{ fontSize: 14, color: v.color, display: 'block', marginBottom: 4 }} />
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{v.val}</div>
-                  <div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{v.unit}</div>
-                </div>
-              ))}
             </div>
           </div>
 
-          <div style={{ padding: '20px 20px 0' } as any}>
+          <div style={{ padding: '0 20px' } as any}>
 
           <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} predictiveAlerts={predictiveAlerts} token={token} onRefresh={fetchData} />
 
           <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
-          {/* ── SOS Button (top) ── */}
+          {/* ── SOS Button ── */}
           <div data-testid="sos-button" onClick={handleSOS} style={{
-            padding: '20px', borderRadius: 20, textAlign: 'center', cursor: 'pointer', marginBottom: 16,
-            background: '#FEF2F2',
-            border: '1px solid #FECACA',
-            boxShadow: '0 4px 12px rgba(239,68,68,0.08)',
-            transition: 'transform 0.2s, box-shadow 0.2s',
+            padding: '16px 20px', borderRadius: 16, cursor: 'pointer', marginBottom: 12,
+            background: '#F4F4F5', display: 'flex', alignItems: 'center', gap: 14,
+            transition: 'transform 0.15s, background 0.15s',
           } as any}
-            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(239,68,68,0.12)'; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 12px rgba(239,68,68,0.08)'; }}>
-            {sosLoading ? <div style={{ color: '#EF4444', fontSize: 14 }}>Envoi en cours...</div> : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14 } as any}>
-                <div style={{ width: 52, height: 52, borderRadius: 16, background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className="ri-alarm-warning-line" style={{ fontSize: 28, color: '#DC2626' }} />
+            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = '#EBEBEC'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = '#F4F4F5'; }}>
+            {sosLoading ? <div style={{ color: '#FF3B30', fontSize: 14, flex: 1, textAlign: 'center' }}>Envoi en cours...</div> : (
+              <>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: '#FF3B30', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className="ri-alarm-warning-line" style={{ fontSize: 24, color: '#FFF' }} />
                 </div>
-                <div style={{ textAlign: 'left' } as any}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#DC2626', letterSpacing: 3 }}>SOS</div>
-                  <div style={{ fontSize: 11, color: '#94A3B8' }}>{t('sos_sub')}</div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A1A', letterSpacing: 1 }}>SOS</div>
+                  <div style={{ fontSize: 11, color: '#8E8E93' }}>{t('sos_sub')}</div>
                 </div>
-              </div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: '#C7C7CC' }} />
+              </>
             )}
           </div>
 
@@ -519,12 +508,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── SUBSCRIPTION BANNER (si pas d'abo bracelet) ── */}
           {/* Health data shown even without subscription — values show -- when no data */}
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 8 } as any} />
 
           {/* ── 2. OBJECTIFS JOURNALIERS (remplace VitalsRow + ActivityCard) ── */}
           <DailyObjectivesOnDashboard token={token} />
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 8 } as any} />
 
           {/* ── TEAM INVITATIONS ── */}
           {teamInvitations.length > 0 && teamInvitations.map((inv: any) => (
@@ -534,8 +523,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   <i className="ri-team-line" style={{ fontSize: 20, color: '#A78BFA' }} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#1A1A2E' }}>Invitation programme en equipe</div>
-                  <div style={{ fontSize: 11, color: '#9898AD' }}>{inv.inviter_name} vous invite a faire "{inv.program_title}" ensemble</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#1A1A1A' }}>Invitation programme en equipe</div>
+                  <div style={{ fontSize: 11, color: '#8E8E93' }}>{inv.inviter_name} vous invite a faire "{inv.program_title}" ensemble</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 } as any}>
@@ -551,20 +540,22 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     await apiFetch(`/api/programs/team/invitations/${inv.id}/reject`, { method: 'POST' }, token);
                     setTeamInvitations(prev => prev.filter(i => i.id !== inv.id));
                   } catch {}
-                }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: '#F5F5F8', border: '1px solid rgba(0,0,0,0.06)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#9898AD' } as any}>Refuser</div>
+                }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: '#F5F5F8', border: '1px solid rgba(0,0,0,0.06)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#8E8E93' } as any}>Refuser</div>
               </div>
             </div>
           ))}
 
           {/* ── 4. PROGRAMME EN COURS ── */}
           {activeProgram?.active ? (
-            <div data-testid="active-program-card" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 20, background: '#FFF', border: '1px solid rgba(0,0,0,0.04)', padding: '18px', marginBottom: 14, cursor: 'pointer', boxShadow: '0 2px 16px rgba(0,0,0,0.04)' } as any}>
+            <div data-testid="active-program-card" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 16, background: '#F4F4F5', padding: '16px', marginBottom: 12, cursor: 'pointer', transition: 'transform 0.15s, background 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = '#EBEBEC'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = '#F4F4F5'; }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
                 <div style={{ width: 44, height: 44, borderRadius: 14, background: `${activeProgram.program.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                   <i className={activeProgram.program.icon} style={{ fontSize: 22, color: activeProgram.program.color }} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A2E' }}>{activeProgram.program.title}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A1A' }}>{activeProgram.program.title}</div>
                   <div style={{ fontSize: 11, color: activeProgram.program.color, fontWeight: 600 }}>{activeProgram.current_phase?.name || 'Phase en cours'} · Jour {activeProgram.current_day}/{activeProgram.program.duration_days}</div>
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 900, color: activeProgram.program.color }}>{activeProgram.progress_pct}%</div>
@@ -575,8 +566,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               {activeProgram.today_tasks && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1A1A2E', marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
-                    <div style={{ fontSize: 10, color: '#9898AD' }}>{activeProgram.today_tasks.tasks?.length || 0} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider'}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1A1A1A', marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
+                    <div style={{ fontSize: 10, color: '#8E8E93' }}>{activeProgram.today_tasks.tasks?.length || 0} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider'}</div>
                   </div>
                   <div style={{ padding: '6px 12px', borderRadius: 999, background: activeProgram.today_checkin ? 'rgba(16,185,129,0.12)' : `${activeProgram.program.color}15`, border: `1px solid ${activeProgram.today_checkin ? 'rgba(16,185,129,0.25)' : activeProgram.program.color + '25'}` } as any}>
                     <span style={{ fontSize: 10, fontWeight: 700, color: activeProgram.today_checkin ? '#10B981' : activeProgram.program.color }}>{activeProgram.today_checkin ? 'Fait' : 'Ouvrir'}</span>
@@ -585,13 +576,15 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               )}
             </div>
           ) : (
-            <div data-testid="discover-programs" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: '#FFF', border: '1px solid rgba(0,0,0,0.04)', padding: '14px 16px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 16px rgba(0,0,0,0.04)' } as any}>
+            <div data-testid="discover-programs" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 16, background: '#F4F4F5', padding: '14px 16px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'transform 0.15s, background 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = '#EBEBEC'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = '#F4F4F5'; }}>
               <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                 <i className="ri-road-map-line" style={{ fontSize: 18, color: '#A78BFA' }} />
               </div>
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#1A1A2E' }}>Programmes prevention</div>
-                <div style={{ fontSize: 10, color: '#9898AD' }}>Decouvrez nos parcours personnalises</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#1A1A1A' }}>Programmes prevention</div>
+                <div style={{ fontSize: 10, color: '#8E8E93' }}>Decouvrez nos parcours personnalises</div>
               </div>
               <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#CDCDD8' }} />
             </div>
@@ -600,12 +593,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── WEIGHT GOAL CARD (si objectif en cours) ── */}
           <WeightGoalDashCard token={token} />
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 8 } as any} />
 
           {/* ── 5. NORA IA ── */}
           <CopilotCard />
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 8 } as any} />
 
           {/* ── 6. DISPOSITIFS ── */}
           <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
@@ -614,12 +607,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* Les alertes sont affichées en haut du dashboard */}
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 8 } as any} />
 
 
           {/* ── Rappels — directly on background ── */}
           <div data-testid="reminders-section" style={{ marginBottom: 16 } as any}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A2E', marginBottom: 10 }}>{t('my_reminders')}</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A1A', marginBottom: 10 }}>{t('my_reminders')}</div>
             {[
               { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8' },
               { type: 'medication', label: 'Traitement', img: REMINDER_IMAGES.medication, color: '#F59E0B' },
@@ -629,13 +622,13 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               const activeCount = catRems.filter((r: any) => r.active).length;
               const nextTime = activeCount > 0 ? getNextReminderTime(catRems.find((r: any) => r.active)) : '';
               return (
-                <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 16, background: '#FFF', border: '1px solid rgba(0,0,0,0.04)', marginBottom: 8, cursor: 'pointer', transition: 'box-shadow 0.2s', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' } as any}
-                  onMouseEnter={(e: any) => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)'; }}
-                  onMouseLeave={(e: any) => { e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.04)'; }}>
+                <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 14, background: '#F4F4F5', marginBottom: 8, cursor: 'pointer', transition: 'background 0.15s' } as any}
+                  onMouseEnter={(e: any) => { e.currentTarget.style.background = '#EBEBEC'; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.background = '#F4F4F5'; }}>
                   <img src={cat.img} alt={cat.label} style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A2E' }}>{cat.label}</div>
-                    <div style={{ fontSize: 11, color: activeCount > 0 ? cat.color : '#9898AD', fontWeight: 600 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A1A' }}>{cat.label}</div>
+                    <div style={{ fontSize: 11, color: activeCount > 0 ? cat.color : '#8E8E93', fontWeight: 600 }}>
                       {activeCount > 0 ? `${activeCount} rappel${activeCount > 1 ? 's' : ''} actif${activeCount > 1 ? 's' : ''}${nextTime ? ` · dans ${nextTime}` : ''}` : 'Non configure'}
                     </div>
                   </div>
@@ -647,20 +640,20 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Rappels — directly on background ── */}
           <GC testId="guardians-section">
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A2E', marginBottom: 12 }}>Mes gardiens</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A1A', marginBottom: 12 }}>Mes gardiens</div>
             {guardians.map((g: any, i: number) => (
               <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.04)' : 'none', cursor: 'pointer' } as any}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(79,195,247,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 14, fontWeight: 800, color: '#4FC3F7' }}>{g.name?.charAt(0)}</span></div>
-                <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A2E' }}>{g.name}</div><div style={{ fontSize: 10, color: '#9898AD' }}>{g.relationship || t('guardian')}</div></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>{g.name}</div><div style={{ fontSize: 10, color: '#8E8E93' }}>{g.relationship || t('guardian')}</div></div>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }} />
               </div>
             ))}
-            {guardians.length === 0 && <div style={{ fontSize: 11, color: '#9898AD', textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
-            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 14, background: '#F5F5F8', border: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.2s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.background = '#EEEDF5'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.background = '#F5F5F8'; }}>
-              <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#6B5CE7' }} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#1A1A2E' }}>Ajouter un gardien</span>
+            {guardians.length === 0 && <div style={{ fontSize: 11, color: '#8E8E93', textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
+            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 14, background: '#F4F4F5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.background = '#EBEBEC'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.background = '#F4F4F5'; }}>
+              <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#1A1A1A' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A' }}>Ajouter un gardien</span>
             </div>
           </GC>
 
