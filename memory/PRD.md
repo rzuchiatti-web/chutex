@@ -22,17 +22,24 @@ Build "Chutex Care," a preventative health application for elderly care with con
 - Auto-detect by services (no name filtering)
 - 8 GATT services, PPG/ECG data collection
 
-### UI/UX Fixes — Mar 2026 (Latest)
-- **Dashboard background**: Changed to dark medical/clinical CSS gradient (navy blues, no image)
-- **Predictive notifications**: Now appear in the notification popup (bell icon, top-right). Dismiss button calls backend API. Red badge dot visible when alerts exist.
-- **Exercise validation persistence**: Uses `useFocusEffect` from Expo Router to re-fetch tracking data on both `exercise-detail.tsx` and `activity-detail.tsx` pages.
-- **Nora AI context**: Already enriched with weight goals, glycemia calibrations, sleep data, biological age, and recommendations.
+### Session Mar 11 2026 — UI Updates
+
+#### Batch 1 (from fork handoff)
+- **Dashboard gradient background**: Dark medical/clinical CSS gradient (navy blues)
+- **Predictive notifications in popup**: Alerts now appear in bell notification popup with dismiss button
+- **Exercise validation persistence**: `useFocusEffect` on exercise-detail and activity-detail pages
+- **Nora AI context**: Verified enriched with weight goals, glycemia, sleep, biological age
+
+#### Batch 2 (current user request)
+- **Device page buttons**: ECG, Nouvelle pesée, Bilan lombaire — white text, NO icons, transparent border
+- **WeighingFlow step 1**: Balance VITA SVG image replaces old icon
+- **Dorsi bilan intro**: Added posture instructions (dos droit, pas collé au dossier, bassin pas épaules)
+- **Dorsi bilan measurement steps**: Movement illustration images for each direction + detailed posture reminders
+- **Dorsi bilan results**: Two separate radar charts (current vs previous) with comparison metrics highlighted
 
 ### Previous UI/UX Fixes — Feb 2026
-- **Seuils d'alerte medicaux**: SpO2 (92%), temperature (35.5-38.5C), FC (50-100bpm), HRV (20ms), stress (70/100)
-- **Page glycemie redesignee**: 5 zones, valeur estimee en g/L, calibration card
-- **Carte activite redesignee**: Titre centre, recuperation avec pourcentage
-- **Objectif coucher visible**: Toujours affiche dans les objectifs journaliers
+- Seuils d'alerte medicaux, page glycemie redesignee, carte activite redesignee
+- Objectif coucher visible, marketing temps precis
 
 ### All Previous Features (Complete)
 - Dorsi Smart Cushion, i18n, VAPI Voice AI
