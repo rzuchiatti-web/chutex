@@ -10,7 +10,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://nutrition-ai-beta.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://mollie-payment-test.preview.emergentagent.com')
 
 # Test user: Marie Test (no devices, no subscription)
 TEST_USER_PHONE_NO_DATA = "0600000099"

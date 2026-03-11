@@ -239,7 +239,7 @@ async def create_contract(data: ContractCreate):
         mollie_customer_id = ""
 
     # Create Mollie first payment (creates mandate for recurring)
-    base_url = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://nutrition-ai-beta.preview.emergentagent.com")
+    base_url = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://mollie-payment-test.preview.emergentagent.com")
     try:
         payment = mollie_client.payments.create({
             "amount": {"currency": "EUR", "value": plan["price"]},
@@ -760,8 +760,8 @@ async def create_saad_stripe_account(request: Request):
         # Regenerate onboarding link
         link = stripe.AccountLink.create(
             account=existing["account_id"],
-            refresh_url=body.get("refresh_url", "https://nutrition-ai-beta.preview.emergentagent.com"),
-            return_url=body.get("return_url", "https://nutrition-ai-beta.preview.emergentagent.com"),
+            refresh_url=body.get("refresh_url", "https://mollie-payment-test.preview.emergentagent.com"),
+            return_url=body.get("return_url", "https://mollie-payment-test.preview.emergentagent.com"),
             type="account_onboarding",
         )
         return {"account_id": existing["account_id"], "onboarding_url": link.url, "already_exists": True}
@@ -779,8 +779,8 @@ async def create_saad_stripe_account(request: Request):
 
     link = stripe.AccountLink.create(
         account=account.id,
-        refresh_url=body.get("refresh_url", "https://nutrition-ai-beta.preview.emergentagent.com"),
-        return_url=body.get("return_url", "https://nutrition-ai-beta.preview.emergentagent.com"),
+        refresh_url=body.get("refresh_url", "https://mollie-payment-test.preview.emergentagent.com"),
+        return_url=body.get("return_url", "https://mollie-payment-test.preview.emergentagent.com"),
         type="account_onboarding",
     )
 

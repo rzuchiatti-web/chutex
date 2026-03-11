@@ -12,7 +12,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://nutrition-ai-beta.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://mollie-payment-test.preview.emergentagent.com').rstrip('/')
 
 # Test user credentials - API uses email field for both email and phone
 TEST_EMAIL = "0600000099"  # Phone number used as email field

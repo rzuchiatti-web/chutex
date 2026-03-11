@@ -12,7 +12,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://nutrition-ai-beta.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://mollie-payment-test.preview.emergentagent.com')
 
 class TestSubscriptionEndpoints:
     """Subscription management API tests"""
@@ -83,7 +83,7 @@ class TestSubscriptionEndpoints:
         response = requests.post(
             f"{BASE_URL}/api/subscriptions/my/billing-portal",
             headers={"Authorization": f"Bearer {self.token}"},
-            json={"return_url": "https://nutrition-ai-beta.preview.emergentagent.com/profile"}
+            json={"return_url": "https://mollie-payment-test.preview.emergentagent.com/profile"}
         )
         
         # Expected: either success (200 with url) or error because no real Stripe sub
