@@ -53,8 +53,8 @@ function WeightGoalDashCard({ token }: { token: string }) {
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
       <img src={WEIGHT_BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-      {/* Tape measure image — large, semi-transparent, fills right side */}
-      <img src={TAPE_MEASURE_IMG} alt="" style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 90, height: 90, objectFit: 'contain', zIndex: 2, opacity: 0.25 } as any} />
+      {/* Tape measure image — natural, fills right, no darkening */}
+      <img src={TAPE_MEASURE_IMG} alt="" style={{ position: 'absolute', right: -5, top: '50%', transform: 'translateY(-50%)', width: 100, height: 100, objectFit: 'contain', zIndex: 2, opacity: 0.4 } as any} />
       <div style={{ position: 'relative', zIndex: 3, padding: '16px 18px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
         <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Objectif poids en cours</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 } as any}>
