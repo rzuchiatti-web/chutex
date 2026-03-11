@@ -405,8 +405,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   if (Platform.OS === 'web') {
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, #040E1A 0%, #0A1628 25%, #0D1F35 45%, #091A2A 65%, #06101C 85%, #030B14 100%)', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 20% 20%, rgba(14,116,144,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, rgba(34,211,238,0.04) 0%, transparent 40%)', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, #A8ABD0 0%, #8A8FBD 12%, #7078AB 25%, #5A6298 40%, #485086 55%, #3A4272 70%, #303862 85%, #272D55 100%)', zIndex: 0 } as any} />
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
