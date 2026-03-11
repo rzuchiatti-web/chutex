@@ -118,8 +118,6 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
             {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: '#E5E5EA', marginTop: 10, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${Math.min(100, p.progress)}%`, background: p.color, transition: 'width 1s ease' } as any} /></div>}
           </div>
         ))}
-          </div>
-        ))}
       </div>
     </div>
   );
