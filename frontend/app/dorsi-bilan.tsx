@@ -11,10 +11,10 @@ const G: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border:
 const BTN: any = { padding: '16px 40px', borderRadius: 999, background: '#FFF', cursor: 'pointer', color: '#1a1a2e', fontSize: 15, fontWeight: 800, textAlign: 'center', display: 'inline-block' };
 
 const DIRS = [
-  { key: 'forward', label: 'Anteversion', desc: 'Inclinez le bassin vers l\'avant', icon: 'ri-arrow-up-line', axis: 'y' as const, sign: -1 },
-  { key: 'backward', label: 'Retroversion', desc: 'Inclinez le bassin vers l\'arriere', icon: 'ri-arrow-down-line', axis: 'y' as const, sign: 1 },
-  { key: 'left', label: 'Flexion gauche', desc: 'Inclinez le bassin vers la gauche', icon: 'ri-arrow-left-line', axis: 'x' as const, sign: -1 },
-  { key: 'right', label: 'Flexion droite', desc: 'Inclinez le bassin vers la droite', icon: 'ri-arrow-right-line', axis: 'x' as const, sign: 1 },
+  { key: 'forward', label: 'Anteversion', desc: 'Inclinez le bassin vers l\'avant', icon: 'ri-arrow-up-line', axis: 'y' as const, sign: -1, img: 'https://static.prod-images.emergentagent.com/jobs/d4cb6ccb-5171-476f-a516-d21f3db23d77/images/a910f41f743c31d57f7010c8b30cf6146fe4042ea8d3b826dba408332e9a57fd.png' },
+  { key: 'backward', label: 'Retroversion', desc: 'Inclinez le bassin vers l\'arriere', icon: 'ri-arrow-down-line', axis: 'y' as const, sign: 1, img: 'https://static.prod-images.emergentagent.com/jobs/d4cb6ccb-5171-476f-a516-d21f3db23d77/images/d723d777bc8ccb155c7c562cb38db14c8a78daa32762e06c918e2295c239f21c.png' },
+  { key: 'left', label: 'Flexion gauche', desc: 'Inclinez le bassin vers la gauche', icon: 'ri-arrow-left-line', axis: 'x' as const, sign: -1, img: 'https://static.prod-images.emergentagent.com/jobs/d4cb6ccb-5171-476f-a516-d21f3db23d77/images/87293416760eaefc039bb568767e81f9426ad1e89b8df9dfc0ab81330863f690.png' },
+  { key: 'right', label: 'Flexion droite', desc: 'Inclinez le bassin vers la droite', icon: 'ri-arrow-right-line', axis: 'x' as const, sign: 1, img: 'https://static.prod-images.emergentagent.com/jobs/d4cb6ccb-5171-476f-a516-d21f3db23d77/images/15d3a3598b35694b72ce4b8e9f09fcff3e0660b7dcfe317fd0d9546c3f2639e9.png' },
 ];
 
 // ── Stepper ──
@@ -240,8 +240,9 @@ export default function DorsiBilanPage() {
         <div style={{ ...G, textAlign: 'left', marginBottom: 20 } as any}>
           {[
             { icon: 'ri-armchair-line', text: t('dorsi_sit') },
-            { icon: 'ri-user-line', text: t('dorsi_back') },
+            { icon: 'ri-user-line', text: 'Dos droit, ne collez PAS le dos contre le dossier' },
             { icon: 'ri-footprint-line', text: t('dorsi_feet') },
+            { icon: 'ri-focus-3-line', text: 'Bougez uniquement le bassin, pas les epaules' },
             { icon: 'ri-lungs-line', text: t('dorsi_breathe') },
           ].map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
@@ -295,7 +296,33 @@ export default function DorsiBilanPage() {
         <div style={{ textAlign: 'center', maxWidth: 400, margin: '0 auto' } as any}>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 6 }}>{t('dorsi_direction')} {dirIdx + 1}/4</div>
           <h2 style={{ fontSize: 22, fontWeight: 900, color: '#FFF', margin: '0 0 4px' }}>{dir.label}</h2>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: '0 0 20px' }}>{dir.desc}</p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: '0 0 12px' }}>{dir.desc}</p>
+
+          {/* Movement illustration */}
+          <div style={{ ...G, padding: 0, marginBottom: 12, overflow: 'hidden', position: 'relative' } as any}>
+            <img src={dir.img} alt={dir.label} style={{ width: '100%', height: 180, objectFit: 'contain', display: 'block', background: 'rgba(0,0,0,0.2)' } as any} />
+          </div>
+
+          {/* Posture reminders */}
+          {!dirMeasured && (
+            <div style={{ ...G, padding: '12px 14px', marginBottom: 12, textAlign: 'left' } as any}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: '#F97316', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Consignes importantes</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 } as any}>
+                  <i className="ri-checkbox-circle-line" style={{ fontSize: 14, color: '#10B981', marginTop: 2, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>Cliquez sur le bouton pour lancer la mesure, puis penchez-vous dans la direction indiquee</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 } as any}>
+                  <i className="ri-checkbox-circle-line" style={{ fontSize: 14, color: '#10B981', marginTop: 2, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>Gardez le dos droit, ne collez pas le dos au dossier</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 } as any}>
+                  <i className="ri-checkbox-circle-line" style={{ fontSize: 14, color: '#10B981', marginTop: 2, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>Bougez uniquement le bassin, pas les epaules — le dos doit rester droit</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div style={{ ...G, marginBottom: 12 } as any}>
             {!dirMeasured ? (
@@ -314,38 +341,98 @@ export default function DorsiBilanPage() {
       );
     }
 
-    // ── Step 7: Results with superimposed radar ──
+    // ── Step 7: Results with separate radar charts ──
     if (step === 7) {
-      const bilanForChart = bilanResult ? [{ measurements: data, created_at: bilanResult.created_at }, ...allBilans.filter(b => b.id !== bilanResult.id).slice(0, 3)] : allBilans.slice(0, 4);
+      const currentBilan = bilanResult ? { measurements: data, created_at: bilanResult.created_at } : null;
+      const previousBilan = allBilans.filter(b => b.id !== bilanResult?.id)[0] || null;
+
       return (
         <div style={{ maxWidth: 440, margin: '0 auto', textAlign: 'center' } as any}>
           <h2 style={{ fontSize: 24, fontWeight: 900, color: '#FFF', margin: '0 0 6px' }}>{t('dorsi_results')}</h2>
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 20px' }}>
-            {allBilans.length > 1 ? `${allBilans.length} bilans superposes — Comparez votre evolution` : 'Diagramme de mobilite et douleur'}
-          </p>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 20px' }}>Votre bilan de mobilite lombaire</p>
 
+          {/* ── NEW BILAN (current) ── */}
           <div style={{ ...G, marginBottom: 16, padding: 20 } as any}>
-            <RadarChart allBilans={bilanForChart} />
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 12 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><div style={{ width: 12, height: 3, borderRadius: 2, background: '#F97316' } as any} /><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>Mobilite</span></div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><div style={{ width: 12, height: 3, borderRadius: 2, background: '#EF4444' } as any} /><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>Douleur</span></div>
-              {allBilans.length > 1 && <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><div style={{ width: 12, height: 3, borderRadius: 2, background: '#22D3EE', opacity: 0.5 } as any} /><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>Precedent</span></div>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+              <div style={{ width: 8, height: 8, borderRadius: 4, background: '#F97316' } as any} />
+              <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Bilan actuel</span>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>Aujourd'hui</span>
+            </div>
+            {currentBilan && <RadarChart allBilans={[currentBilan]} />}
+            {/* Metric cards for current bilan */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14 } as any}>
+              {DIRS.map(dir => { const m = data[dir.key]; if (!m) return null; return (
+                <div key={dir.key} style={{ padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'left' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 } as any}>
+                    <i className={dir.icon} style={{ fontSize: 12, color: '#F97316', flexShrink: 0 }} />
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF' }}>{dir.label}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{m.mobility}%</span>
+                    {previousBilan && previousBilan.measurements?.[dir.key] && (() => {
+                      const prev = previousBilan.measurements[dir.key].mobility;
+                      const diff = m.mobility - prev;
+                      if (Math.abs(diff) < 1) return null;
+                      return <span style={{ fontSize: 11, fontWeight: 700, color: diff > 0 ? '#10B981' : '#EF4444' }}>{diff > 0 ? '+' : ''}{diff}%</span>;
+                    })()}
+                  </div>
+                  <div style={{ fontSize: 9, color: m.pain > 6 ? '#EF4444' : m.pain > 3 ? '#F59E0B' : 'rgba(255,255,255,0.4)' }}>Douleur {m.pain}/10</div>
+                </div>
+              ); })}
             </div>
           </div>
 
-          {/* Summary cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20, padding: '0 4px' } as any}>
-            {DIRS.map(dir => { const m = data[dir.key]; if (!m) return null; return (
-              <div key={dir.key} style={{ ...G, padding: '12px 10px', textAlign: 'left', overflow: 'hidden' } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 } as any}>
-                  <i className={dir.icon} style={{ fontSize: 12, color: '#FFF', flexShrink: 0 }} />
-                  <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{dir.label}</span>
-                </div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{m.mobility}%</div>
-                <div style={{ fontSize: 9, color: m.pain > 6 ? '#EF4444' : m.pain > 3 ? '#F59E0B' : 'rgba(255,255,255,0.4)' }}>Douleur {m.pain}/10</div>
+          {/* ── PREVIOUS BILAN (comparison) ── */}
+          {previousBilan && (
+            <div style={{ ...G, marginBottom: 16, padding: 20, opacity: 0.85 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+                <div style={{ width: 8, height: 8, borderRadius: 4, background: '#22D3EE' } as any} />
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Bilan precedent</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>{previousBilan.created_at ? new Date(previousBilan.created_at).toLocaleDateString('fr-FR') : ''}</span>
               </div>
-            ); })}
-          </div>
+              <RadarChart allBilans={[{ ...previousBilan, _color: '#22D3EE' }]} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14 } as any}>
+                {DIRS.map(dir => { const m = previousBilan.measurements?.[dir.key]; if (!m) return null; return (
+                  <div key={dir.key} style={{ padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'left' } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 } as any}>
+                      <i className={dir.icon} style={{ fontSize: 12, color: '#22D3EE', flexShrink: 0 }} />
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF' }}>{dir.label}</span>
+                    </div>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{m.mobility}%</span>
+                    <div style={{ fontSize: 9, color: m.pain > 6 ? '#EF4444' : m.pain > 3 ? '#F59E0B' : 'rgba(255,255,255,0.4)' }}>Douleur {m.pain}/10</div>
+                  </div>
+                ); })}
+              </div>
+            </div>
+          )}
+
+          {/* ── COMPARISON SUMMARY ── */}
+          {previousBilan && (
+            <div style={{ ...G, marginBottom: 16, padding: '16px 18px', textAlign: 'left' } as any}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Comparaison</div>
+              {DIRS.map(dir => {
+                const curr = data[dir.key];
+                const prev = previousBilan.measurements?.[dir.key];
+                if (!curr || !prev) return null;
+                const mobDiff = curr.mobility - prev.mobility;
+                const painDiff = curr.pain - prev.pain;
+                return (
+                  <div key={dir.key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: '1px solid rgba(255,255,255,0.06)' } as any}>
+                    <i className={dir.icon} style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', flexShrink: 0 }} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF', flex: 1 }}>{dir.label}</span>
+                    <div style={{ display: 'flex', gap: 12 } as any}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: mobDiff > 0 ? '#10B981' : mobDiff < 0 ? '#EF4444' : 'rgba(255,255,255,0.3)' }}>
+                        {mobDiff > 0 ? '+' : ''}{mobDiff}% mob
+                      </span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: painDiff < 0 ? '#10B981' : painDiff > 0 ? '#EF4444' : 'rgba(255,255,255,0.3)' }}>
+                        {painDiff > 0 ? '+' : ''}{painDiff} douleur
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' } as any}>
             <div onClick={createProgram} style={BTN} data-testid="create-program-btn">{t('dorsi_generate_program')}</div>

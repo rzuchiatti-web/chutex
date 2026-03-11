@@ -281,7 +281,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
         {/* ── STEP 1: Instructions ── */}
         {step === 1 && (
           <div style={{ textAlign: 'center' } as any}>
-            <div style={{ width: 72, height: 72, borderRadius: 20, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.15))', border: '1px solid rgba(167,139,250,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}><i className="ri-scales-3-line" style={{ fontSize: 34, color: '#A78BFA' }} /></div>
+            <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg" alt="Balance Vita" style={{ width: 100, height: 100, objectFit: 'contain', display: 'block', margin: '0 auto 20px', filter: 'drop-shadow(0 8px 24px rgba(167,139,250,0.3))' } as any} />
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{t('weighing_title')}</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 28 }}>{t('weighing_subtitle')}</div>
             {[
