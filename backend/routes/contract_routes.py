@@ -226,7 +226,19 @@ async def create_contract(data: ContractCreate):
         bill_email = g.get("email", "")
         bill_phone = g.get("phone", "")
 
-    # Create Mollie first payment (redirect-based)
+    # Create Mollie customer first (needed for recurring)
+    try:
+        customer = mollie_client.customers.create({
+            "name": bill_name,
+            "email": bill_email or f"{ben_phone}@chutex.care",
+            "metadata": {"contract_number": contract_number, "beneficiary_phone": ben_phone},
+        })
+        mollie_customer_id = customer.id
+    except Exception as e:
+        logger.error(f"Mollie customer creation error: {e}")
+        mollie_customer_id = ""
+
+    # Create Mollie first payment (creates mandate for recurring)
     base_url = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://nutrition-ai-beta.preview.emergentagent.com")
     try:
         payment = mollie_client.payments.create({
@@ -235,8 +247,9 @@ async def create_contract(data: ContractCreate):
             "redirectUrl": f"{base_url}/contract-success?contract={contract_number}",
             "webhookUrl": f"{base_url}/api/mollie/webhook",
             "method": ["creditcard", "directdebit", "bancontact", "ideal"],
-            "metadata": {"contract_number": contract_number, "plan": data.plan, "beneficiary_phone": ben_phone},
+            "metadata": {"contract_number": contract_number, "plan": data.plan, "beneficiary_phone": ben_phone, "interval": plan.get("interval", "1 month")},
             "sequenceType": "first",
+            "customerId": mollie_customer_id,
         })
         mollie_payment_id = payment.id
         checkout_url = payment.checkout_url
@@ -260,6 +273,7 @@ async def create_contract(data: ContractCreate):
         "billing": data.billing,
         "signature": {"signed": False},
         "payment_provider": "mollie",
+        "mollie_customer_id": mollie_customer_id,
         "mollie_payment_id": mollie_payment_id,
         "status": "pending_payment",
         "prescriber_validated": False,
@@ -392,6 +406,27 @@ async def mollie_webhook(request: Request):
         if payment.is_paid():
             contract = await db.contracts.find_one({"mollie_payment_id": payment_id})
             if contract and contract.get("status") != "active":
+                # Create Mollie recurring subscription
+                customer_id = contract.get("mollie_customer_id")
+                if customer_id:
+                    try:
+                        plan_id = contract.get("plan", "bracelet")
+                        plan_info = PLANS.get(plan_id, PLANS["bracelet"])
+                        interval = plan_info.get("interval", "1 month")
+                        sub = mollie_client.customer_subscriptions.with_parent_id(customer_id).create({
+                            "amount": {"currency": "EUR", "value": plan_info["price"]},
+                            "interval": interval,
+                            "description": f"{plan_info['name']} — {contract.get('contract_number', '')}",
+                            "webhookUrl": f"{os.environ.get('EXPO_PUBLIC_BACKEND_URL', '')}/api/mollie/webhook",
+                            "metadata": {"contract_number": contract.get("contract_number"), "plan": plan_id},
+                        })
+                        await db.contracts.update_one(
+                            {"id": contract["id"]},
+                            {"$set": {"mollie_subscription_id": sub.id, "updated_at": now}},
+                        )
+                        logger.info(f"Mollie subscription {sub.id} created for {contract.get('contract_number')}")
+                    except Exception as e:
+                        logger.error(f"Mollie subscription creation error: {e}")
                 await _activate_contract(contract, contract["id"])
             logger.info(f"Mollie payment {payment_id} paid for {contract_number}")
 
