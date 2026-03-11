@@ -56,13 +56,13 @@ function WeightGoalDashCard({ token }: { token: string }) {
       {/* Tape measure — natural colors, no filter, centered-right */}
       <img src={TAPE_MEASURE_IMG} alt="" style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', width: 80, height: 80, objectFit: 'contain', zIndex: 2 } as any} />
       <div style={{ position: 'relative', zIndex: 3, padding: '16px 18px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Objectif poids en cours</div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Objectif poids en cours</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 } as any}>
           <span style={{ fontSize: 26, fontWeight: 900, color: '#FFF' }}>{goal.current > 0 ? goal.current : '--'}</span>
           <i className="ri-arrow-right-line" style={{ fontSize: 14, color: '#60A5FA' }} />
           <span style={{ fontSize: 26, fontWeight: 900, color: '#60A5FA' }}>{goal.target_kg}</span>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>kg</span>
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 4 }}>· {goal.weeks} sem</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>kg</span>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', marginLeft: 4 }}>· {goal.weeks} sem</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 3, maxWidth: 200 } as any}>
           {Array.from({ length: 12 }, (_, i) => {
@@ -407,67 +407,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   // Morning briefing effect — runs once on mount
   if (Platform.OS === 'web') {
     return (
-      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: '#0A0A12' } as any}>
-        {/* Ambient motion background */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' } as any}>
-          <div className="ambient-blob blob-1" />
-          <div className="ambient-blob blob-2" />
-          <div className="ambient-blob blob-3" />
-          <div className="ambient-blob blob-4" />
-        </div>
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,18,0.55)', zIndex: 1 } as any} />
-        <style dangerouslySetInnerHTML={{ __html: `
-          .ambient-blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.5;
-            will-change: transform;
-          }
-          .blob-1 {
-            width: 350px; height: 350px;
-            background: radial-gradient(circle, rgba(249,115,22,0.6) 0%, transparent 70%);
-            top: -80px; left: -60px;
-            animation: ambientFloat1 12s ease-in-out infinite;
-          }
-          .blob-2 {
-            width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(139,92,246,0.55) 0%, transparent 70%);
-            top: 30%; right: -80px;
-            animation: ambientFloat2 15s ease-in-out infinite;
-          }
-          .blob-3 {
-            width: 280px; height: 280px;
-            background: radial-gradient(circle, rgba(59,130,246,0.5) 0%, transparent 70%);
-            bottom: 10%; left: 10%;
-            animation: ambientFloat3 18s ease-in-out infinite;
-          }
-          .blob-4 {
-            width: 200px; height: 200px;
-            background: radial-gradient(circle, rgba(249,115,22,0.35) 0%, transparent 70%);
-            bottom: -40px; right: 20%;
-            animation: ambientFloat4 14s ease-in-out infinite;
-          }
-          @keyframes ambientFloat1 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(60px, 40px) scale(1.1); }
-            66% { transform: translate(-30px, 80px) scale(0.95); }
-          }
-          @keyframes ambientFloat2 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(-50px, -60px) scale(1.15); }
-            66% { transform: translate(40px, 30px) scale(0.9); }
-          }
-          @keyframes ambientFloat3 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(70px, -40px) scale(1.05); }
-            66% { transform: translate(-40px, -20px) scale(1.1); }
-          }
-          @keyframes ambientFloat4 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(-60px, -50px) scale(1.2); }
-          }
-        ` }} />
+      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
+        <img src="https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
