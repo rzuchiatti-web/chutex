@@ -83,11 +83,14 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
             })}
           </div>
 
-          {/* Recovery bar — clearer */}
+          {/* Recovery bar — with battery icon */}
           <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
-            <div style={{ flexShrink: 0 } as any}>
-              <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Recuperation</div>
-              <div style={{ fontSize: 18, fontWeight: 900, color: ri.color, lineHeight: 1.1 }}>{ri.pct > 0 ? `${ri.pct}%` : '--'}</div>
+            <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 } as any}>
+              <i className="ri-battery-charge-line" style={{ fontSize: 16, color: ri.color }} />
+              <div>
+                <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Recuperation</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: ri.color, lineHeight: 1.1 }}>{ri.pct > 0 ? `${ri.pct}%` : '--'}</div>
+              </div>
             </div>
             <div style={{ flex: 1 } as any}>
               <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>

@@ -273,10 +273,11 @@ async def compute_daily_plan_async(d, score_info, uid):
         for gl in goals_list:
             user_goals[gl.get("metric_id", "")] = gl
 
-    # CALORIE INTAKE: Use minceur recommendations (source of truth) if available
+    # CALORIE INTAKE: Always compute using Mifflin-St Jeor (same as minceur) for consistency
     minceur_cal = 0
     minceur_water = 0
     if uid:
+        # First try minceur cache (fastest)
         today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         cached_minceur = await db.minceur_daily_cache.find_one(
             {"user_id": uid, "date": today_str}, {"_id": 0}
@@ -285,6 +286,34 @@ async def compute_daily_plan_async(d, score_info, uid):
             recs = cached_minceur["recommendations"]
             minceur_cal = recs.get("daily_calories", 0)
             minceur_water = recs.get("water_ml", 0)
+
+        # If no cache, compute directly using same formula as minceur_routes
+        if minceur_cal == 0:
+            user_doc = await db.users.find_one({"id": uid}, {"_id": 0})
+            if user_doc:
+                from routes.minceur_routes import mifflin_st_jeor, parse_age
+                m_age = parse_age(user_doc.get("date_of_birth", ""))
+                m_male = user_doc.get("gender", "").lower() in ("m", "male", "homme", "masculin")
+                m_height = user_doc.get("height_cm") or 170
+                m_weight = g("weight") or user_doc.get("weight_kg") or 70
+                m_bmr = mifflin_st_jeor(m_weight, m_height, m_age, m_male)
+                m_tdee = m_bmr * 1.3
+                goal = await db.minceur_goals.find_one({"user_id": uid}, {"_id": 0})
+                if goal and goal.get("target_kg"):
+                    diff = m_weight - goal["target_kg"]
+                    if diff > 0:
+                        weeks = max(1, goal.get("weeks", 12))
+                        deficit = min(500, (diff / weeks * 7700) / 7)
+                        is_senior = m_age >= 65
+                        cal_min = round(m_bmr * (1.1 if m_male else 1.08)) if is_senior else round(m_bmr * 0.95)
+                        minceur_cal = max(cal_min, round(m_tdee - deficit))
+                    elif diff < 0:
+                        minceur_cal = round(m_tdee + min(300, abs(diff) * 100))
+                    else:
+                        minceur_cal = round(m_tdee)
+                else:
+                    minceur_cal = round(m_tdee)
+                minceur_water = 1500
 
     if minceur_cal > 0:
         plan.append({"key": "calories_intake", "label": "Vous devez consommer par jour", "value": f"{minceur_cal}", "unit": "kcal",

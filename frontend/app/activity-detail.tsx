@@ -101,17 +101,19 @@ export default function ActivityDetailPage() {
                   {st.current_streak > 0 && <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)', marginTop: 6 } as any}><i className="ri-fire-fill" style={{ fontSize: 11, color: A }} /><span style={{ fontSize: 11, fontWeight: 900, color: A }}>{st.current_streak}j consecutifs</span></div>}
                 </div>
 
-                {/* Steps + Calories + Distance */}
+                {/* Steps + Calories + Distance — clickable to metric detail */}
                 <div style={{ display: 'flex', gap: 8, marginBottom: 16 } as any}>
                   {[
-                    { label: 'Pas', value: steps, goal: 6000, icon: 'ri-footprint-line', color: G },
-                    { label: 'Calories', value: cal, goal: 300, icon: 'ri-fire-line', color: A },
-                    { label: 'Distance', value: dist, goal: 4, icon: 'ri-route-line', color: B, decimal: true },
+                    { label: 'Pas', value: steps, goal: 6000, icon: 'ri-footprint-line', color: G, key: 'steps' },
+                    { label: 'Calories', value: cal, goal: 300, icon: 'ri-fire-line', color: A, key: 'calories' },
+                    { label: 'Distance', value: dist, goal: 4, icon: 'ri-route-line', color: B, decimal: true, key: 'distance_km' },
                   ].map((m, i) => {
                     const pct = m.goal > 0 ? Math.min(100, Math.round((m.value / m.goal) * 100)) : 0;
                     const has = m.value > 0;
                     return (
-                      <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
+                      <div key={i} onClick={(e) => { e.stopPropagation(); router.push({ pathname: '/metric-detail' as any, params: { key: m.key } }); }} style={{ flex: 1, padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', textAlign: 'center', cursor: 'pointer', transition: 'background 0.15s' } as any}
+                        onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+                        onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}>
                         <i className={m.icon} style={{ fontSize: 14, color: m.color, display: 'block', marginBottom: 4 }} />
                         <div style={{ fontSize: 20, fontWeight: 900, color: has ? '#FFF' : 'rgba(255,255,255,0.15)', lineHeight: 1 }}>{has ? (m.decimal ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}</div>
                         <div style={{ fontSize: 8, color: m.color, fontWeight: 700, marginTop: 2, textTransform: 'uppercase' }}>{m.label}</div>
@@ -184,7 +186,7 @@ export default function ActivityDetailPage() {
                 </div>
               </div>
 
-              {/* ══ EXERCICES DU JOUR ══ */}
+              {/* ══ EXERCICES DU JOUR — style repas avec image ══ */}
               {minceur?.recommendations?.exercises && minceur.recommendations.exercises.length > 0 && (
                 <div style={{ ...GL, padding: 16, marginBottom: 14 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
@@ -196,20 +198,33 @@ export default function ActivityDetailPage() {
                       const int = ex.intensity || 'modere';
                       const intC = int === 'leger' ? G : int === 'modere' ? A : R;
                       const dn = tracked[`exercise_${i}`];
+                      const catKey = (ex.category || 'cardio').toLowerCase();
+                      const exImg: Record<string, string> = {
+                        cardio: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/05d45697f644e6b656496155421c6e39c60b73d67f7fb18522a76692b56fa394.png',
+                        renforcement: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/b50d815f482c848c380f0e911d719876a2f9f0ff00967feef900297d858f39ef.png',
+                      };
+                      const img = exImg[catKey] || exImg.cardio;
                       return (
-                        <div key={i} onClick={() => router.push({ pathname: '/exercise-detail' as any, params: { index: i } })} style={{ borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: `1px solid ${dn ? G + '25' : 'rgba(255,255,255,0.05)'}`, padding: '10px 12px', cursor: 'pointer', opacity: dn ? 0.65 : 1, display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                          <div style={{ flex: 1 } as any}>
+                        <div key={i} onClick={() => router.push({ pathname: '/exercise-detail' as any, params: { index: i } })} style={{ borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: `1px solid ${dn ? G + '25' : 'rgba(255,255,255,0.05)'}`, overflow: 'hidden', cursor: 'pointer', opacity: dn ? 0.65 : 1, display: 'flex', alignItems: 'stretch', height: 80 } as any}>
+                          {/* Image left */}
+                          <div style={{ width: 80, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
+                            <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.4))' } as any} />
+                          </div>
+                          {/* Content */}
+                          <div style={{ flex: 1, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                              <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF', textDecoration: dn ? 'line-through' : 'none' }}>{ex.name}</span>
+                              <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF', textDecoration: dn ? 'line-through' : 'none' }}>{ex.name}</span>
                               <span style={{ fontSize: 7, fontWeight: 700, color: intC, padding: '2px 5px', borderRadius: 5, background: `${intC}12`, textTransform: 'uppercase' }}>{int}</span>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3 } as any}>
-                              <span style={{ fontSize: 10, fontWeight: 700, color: G }}><i className="ri-timer-line" style={{ fontSize: 9 }} /> {ex.duration}</span>
-                              {ex.calories_burned > 0 && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>{ex.calories_burned}kcal</span>}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 } as any}>
+                              <span style={{ fontSize: 10, fontWeight: 700, color: A }}><i className="ri-timer-line" style={{ fontSize: 9 }} /> {ex.duration}</span>
+                              {ex.calories_burned > 0 && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{ex.calories_burned}kcal</span>}
                             </div>
                           </div>
-                          <div onClick={(e) => { e.stopPropagation(); toggleTrack(i); }} style={{ width: 36, height: 36, borderRadius: 10, background: dn ? `${G}15` : 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                            <i className="ri-check-line" style={{ fontSize: 16, color: dn ? G : 'rgba(255,255,255,0.1)' }} />
+                          {/* Check button */}
+                          <div onClick={(e) => { e.stopPropagation(); toggleTrack(i); }} style={{ width: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: dn ? `${G}08` : 'transparent' } as any}>
+                            <i className="ri-check-line" style={{ fontSize: 18, color: dn ? G : 'rgba(255,255,255,0.1)' }} />
                           </div>
                         </div>
                       );

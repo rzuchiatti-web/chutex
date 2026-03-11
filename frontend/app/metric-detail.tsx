@@ -176,8 +176,14 @@ export default function MetricDetailScreen() {
     return (
       <div onClick={handleClick} style={{ cursor: 'crosshair' }}>
         <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block' }}>
-          {/* Grid lines */}
-          {[0.25, 0.5, 0.75].map((p, i) => <line key={i} x1={0} y1={mV + (H - mV * 2) * p} x2={W} y2={mV + (H - mV * 2) * p} stroke="rgba(255,255,255,0.04)" />)}
+          {/* Grid lines with Y-axis values */}
+          {[0.25, 0.5, 0.75].map((p, i) => {
+            const yVal = dMx - (dMx - dMn) * p;
+            return <g key={i}>
+              <line x1={32} y1={mV + (H - mV * 2) * p} x2={W} y2={mV + (H - mV * 2) * p} stroke="rgba(255,255,255,0.04)" />
+              <text x={28} y={mV + (H - mV * 2) * p + 3} textAnchor="end" fill="rgba(255,255,255,0.25)" fontSize="8" fontWeight="600">{Number.isInteger(yVal) ? yVal : yVal.toFixed(1)}</text>
+            </g>;
+          })}
           {/* Normal zone band */}
           {nMin != null && !isBP && (
             <rect x={0} y={toY(nMax)} width={W} height={Math.max(1, Math.abs(toY(nMin) - toY(nMax)))} fill="rgba(16,185,129,0.06)" rx={4} />
