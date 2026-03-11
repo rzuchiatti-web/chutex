@@ -297,10 +297,11 @@ def estimate_glycemia_v2(profile: dict, bracelet: dict, scale: dict, calibration
         message = "Plusieurs indicateurs suggerent un risque important. Bilan sanguin urgent recommande."
         estimated_range = f"> {estimated_glycemia - 0.15:.2f} g/L"
 
-    # ─── Confidence scoring (V2: more nuanced) ───
+    # ─── Confidence scoring (V2: realistic, not misleading) ───
+    # This represents data quality/completeness, NOT medical accuracy
     data_completeness = len(available) / len(WEIGHTS) * 100
-    cal_bonus = {"none": 0, "low": 10, "medium": 20, "high": 30}.get(calibration_quality, 0)
-    confidence = min(95, round(25 + data_completeness * 0.45 + cal_bonus))
+    cal_bonus = {"none": 0, "low": 5, "medium": 12, "high": 18}.get(calibration_quality, 0)
+    confidence = min(68, round(15 + data_completeness * 0.35 + cal_bonus))
 
     # ─── Contributing factors ───
     factors = []

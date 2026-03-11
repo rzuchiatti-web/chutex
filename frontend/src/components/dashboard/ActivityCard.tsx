@@ -59,17 +59,18 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
             )}
           </div>
 
-          {/* 3 metrics */}
+          {/* 3 metrics with icons */}
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 } as any}>
             {[
-              { label: 'Pas', value: steps, goal: 6000, color: '#10B981' },
-              { label: 'Calories', value: calories, goal: 300, color: '#F59E0B' },
-              { label: 'Distance', value: distance, goal: 4, unit: 'km', color: '#38BDF8' },
+              { label: 'Pas', value: steps, goal: 6000, color: '#10B981', icon: 'ri-footprint-line' },
+              { label: 'Calories', value: calories, goal: 300, color: '#F59E0B', icon: 'ri-fire-line' },
+              { label: 'Distance', value: distance, goal: 4, unit: 'km', color: '#38BDF8', icon: 'ri-route-line' },
             ].map((m, i) => {
               const pct = m.goal > 0 ? Math.min(100, Math.round((m.value / m.goal) * 100)) : 0;
               const hasData = m.value > 0;
               return (
                 <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 12, background: 'rgba(0,0,0,0.25)', textAlign: 'center' } as any}>
+                  <i className={m.icon} style={{ fontSize: 13, color: m.color, marginBottom: 3, display: 'block' }} />
                   <div style={{ fontSize: 20, fontWeight: 900, color: hasData ? '#FFF' : 'rgba(255,255,255,0.15)', lineHeight: 1 }}>
                     {hasData ? (typeof m.value === 'number' && m.value % 1 !== 0 ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}
                   </div>
