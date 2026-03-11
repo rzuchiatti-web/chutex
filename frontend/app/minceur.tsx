@@ -84,8 +84,10 @@ function SwipePicker({ values, selected, onChange, unit, color }: { values: numb
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const IW = 54;
+  const pickerId = useRef(Math.random().toString(36).slice(2, 8));
+  const isTouching = useRef(false);
+  const lastUserValue = useRef(selected);
 
-  // Scroll selected item into center using offsetLeft
   const scrollToSelected = useCallback((val: number) => {
     const el = itemRefs.current[val];
     const container = containerRef.current;
@@ -94,11 +96,9 @@ function SwipePicker({ values, selected, onChange, unit, color }: { values: numb
     }
   }, []);
 
-  // Block snap during scroll
   const isInit = useRef(true);
-  const userScrolling = useRef(false);
 
-  // Initial centering — only on mount
+  // Initial centering — only on first mount
   useEffect(() => {
     isInit.current = true;
     const go = () => scrollToSelected(selected);
@@ -107,42 +107,54 @@ function SwipePicker({ values, selected, onChange, unit, color }: { values: numb
     const t2 = setTimeout(go, 200);
     const t3 = setTimeout(() => { go(); isInit.current = false; }, 800);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [values.length]); // NOT selected — avoids infinite loop
+  }, [values.length]);
 
-  // Snap to nearest on scroll end
+  // When selected changes externally (not from user scroll), re-center
+  useEffect(() => {
+    if (!isInit.current && !isTouching.current && selected !== lastUserValue.current) {
+      scrollToSelected(selected);
+      lastUserValue.current = selected;
+    }
+  }, [selected]);
+
   const snapTimer = useRef<any>(null);
   const onScroll = () => {
     if (isInit.current) return;
-    userScrolling.current = true;
+    // Only snap if THIS picker is being actively touched/scrolled
+    if (!isTouching.current) return;
     clearTimeout(snapTimer.current);
     snapTimer.current = setTimeout(() => {
       if (!containerRef.current || isInit.current) return;
       const cx = containerRef.current.scrollLeft + containerRef.current.clientWidth / 2;
       let best = 0, md = Infinity;
       values.forEach((_, i) => { const d = Math.abs(i * IW + IW / 2 - cx); if (d < md) { md = d; best = i; } });
-      if (values[best] !== selected) onChange(values[best]);
-      userScrolling.current = false;
-    }, 300);
+      if (values[best] !== selected) {
+        lastUserValue.current = values[best];
+        onChange(values[best]);
+      }
+      isTouching.current = false;
+    }, 250);
   };
+
+  const onTouchStart = () => { isTouching.current = true; };
+  const onMouseDown = () => { isTouching.current = true; };
 
   return (
     <div style={{ position: 'relative', height: 64, margin: '0 -18px' } as any}>
-      {/* Center highlight */}
       <div style={{ position: 'absolute', left: '50%', top: 6, bottom: 6, width: IW - 4, marginLeft: -(IW - 4) / 2, zIndex: 2, borderRadius: 14, background: `${color}10`, border: `1.5px solid ${color}30`, pointerEvents: 'none' } as any} />
-      {/* Fade edges */}
       <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 70, zIndex: 3, background: 'linear-gradient(90deg, rgba(255,255,255,0.05) 0%, transparent 100%)', pointerEvents: 'none', borderRadius: '20px 0 0 20px' } as any} />
       <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 70, zIndex: 3, background: 'linear-gradient(270deg, rgba(255,255,255,0.05) 0%, transparent 100%)', pointerEvents: 'none', borderRadius: '0 20px 20px 0' } as any} />
-      <div ref={containerRef} onScroll={onScroll} style={{ display: 'flex', height: '100%', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', cursor: 'grab', userSelect: 'none' } as any}>
+      <div ref={containerRef} onScroll={onScroll} onTouchStart={onTouchStart} onMouseDown={onMouseDown} style={{ display: 'flex', height: '100%', alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', cursor: 'grab', userSelect: 'none' } as any}>
         <style dangerouslySetInnerHTML={{ __html: `div[style*="scroll-snap"]::-webkit-scrollbar{display:none}` }} />
         <div style={{ minWidth: `calc(50% - ${IW / 2}px)`, flexShrink: 0 } as any} />
         {values.map(v => {
           const sel = v === selected;
           return (
-            <div key={v} ref={el => { itemRefs.current[v] = el; }} onClick={() => { onChange(v); setTimeout(() => scrollToSelected(v), 10); }} style={{ width: IW, flexShrink: 0, textAlign: 'center', cursor: 'pointer', padding: '8px 0' } as any}>
-              <div style={{ fontSize: sel ? 24 : 14, fontWeight: sel ? 900 : 400, color: sel ? color : 'rgba(255,255,255,0.15)', transition: 'all 0.15s', textShadow: sel ? `0 0 20px ${color}40` : 'none', lineHeight: 1.2 }}>
+            <div key={v} ref={el => { itemRefs.current[v] = el; }} onClick={() => { isTouching.current = true; lastUserValue.current = v; onChange(v); setTimeout(() => { scrollToSelected(v); isTouching.current = false; }, 10); }} style={{ width: IW, flexShrink: 0, textAlign: 'center', cursor: 'pointer', padding: '8px 0' } as any}>
+              <div style={{ fontSize: sel ? 24 : 14, fontWeight: sel ? 900 : 400, color: sel ? '#FFF' : 'rgba(255,255,255,0.15)', transition: 'all 0.15s', textShadow: sel ? `0 0 20px ${color}40` : 'none', lineHeight: 1.2 }}>
                 {Number.isInteger(v) ? v : v.toFixed(1)}
               </div>
-              {sel && <div style={{ fontSize: 8, fontWeight: 700, color: `${color}60`, marginTop: 1 }}>{unit}</div>}
+              {sel && <div style={{ fontSize: 8, fontWeight: 700, color: `${color}80`, marginTop: 1 }}>{unit}</div>}
             </div>
           );
         })}

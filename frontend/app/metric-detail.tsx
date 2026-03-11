@@ -402,11 +402,20 @@ export default function MetricDetailScreen() {
         {/* ══════════ CHART VIEW ══════════ */}
         {!isGauge && (
           <>
-            {/* Period selector */}
-            <div data-testid="period-selector" style={{ display: 'flex', gap: 6, marginBottom: 14 } as any}>
+            {/* Period selector + date picker */}
+            <div data-testid="period-selector" style={{ display: 'flex', gap: 6, marginBottom: 14, alignItems: 'center' } as any}>
               {['24h', '7j', '30j', '90j'].map(r => (
                 <div key={r} data-testid={`period-${r}`} onClick={() => changeRange(r)} style={{ padding: '8px 14px', borderRadius: 10, background: range === r ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${range === r ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 700, color: range === r ? '#FFF' : 'rgba(255,255,255,0.3)' } as any}>{r}</div>
               ))}
+              <div style={{ flex: 1 } as any} />
+              <input data-testid="date-picker" type="date" onChange={(e: any) => {
+                if (e.target.value) {
+                  const d = new Date(e.target.value);
+                  const label = `${d.getDate()}/${d.getMonth()+1}`;
+                  const found = sliced.findIndex((h: any) => h.label === label || h.date === e.target.value);
+                  if (found >= 0) setSel(found);
+                }
+              }} style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 11, fontFamily: 'inherit', outline: 'none', colorScheme: 'dark' } as any} />
             </div>
 
             {/* Chart card */}

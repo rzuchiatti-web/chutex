@@ -391,13 +391,49 @@ export default function BraceletConnectScreen() {
     }
   };
 
+  // Demo V6 simulation — pushes realistic data every 5s
+  const [simulating, setSimulating] = useState(false);
+  const simRef = useRef<any>(null);
+  const startSimulation = async () => {
+    setSimulating(true);
+    setBraceletModel('v6');
+    setBleStatus('connected');
+    setErrorMsg('');
+    const push = async () => {
+      const hr = 62 + Math.round(Math.random() * 20);
+      const hrv = 30 + Math.round(Math.random() * 25);
+      const spo2Val = 95 + Math.round(Math.random() * 4);
+      const temp = +(36.2 + Math.random() * 0.8).toFixed(1);
+      const stepsVal = 3000 + Math.round(Math.random() * 5000);
+      const bat = 70 + Math.round(Math.random() * 25);
+      setVitals({ battery: bat, heart_rate: hr, spo2: spo2Val, temperature: temp, steps: stepsVal, systolic: 120 + Math.round(Math.random() * 15), diastolic: 72 + Math.round(Math.random() * 10), stress: 20 + Math.round(Math.random() * 30), hrv });
+      try {
+        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'heart_rate', data: { heart_rate: hr, hrv, rr_intervals: [800 + Math.round(Math.random()*100), 820 + Math.round(Math.random()*80)] }, device_id: 'demo-v6', source: 'ble' }) }, token);
+        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'spo2', data: { spo2: spo2Val }, device_id: 'demo-v6', source: 'ble' }) }, token);
+        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'temperature', data: { temperature: temp }, device_id: 'demo-v6', source: 'ble' }) }, token);
+        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'steps', data: { steps: stepsVal, calories: Math.round(stepsVal * 0.04) }, device_id: 'demo-v6', source: 'ble' }) }, token);
+        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'blood_pressure', data: { systolic: 120 + Math.round(Math.random()*15), diastolic: 72 + Math.round(Math.random()*10) }, device_id: 'demo-v6', source: 'ble' }) }, token);
+        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'ppg', data: { samples: Array.from({length: 20}, () => 500 + Math.round(Math.random()*100)), timestamp: new Date().toISOString() }, device_id: 'demo-v6', source: 'ble' }) }, token);
+      } catch {}
+    };
+    await push();
+    simRef.current = setInterval(push, 8000);
+  };
+  const stopSimulation = () => {
+    if (simRef.current) clearInterval(simRef.current);
+    setSimulating(false);
+    setBleStatus('idle');
+    setBraceletModel(null);
+    setVitals({ battery: 0, heart_rate: 0, spo2: 0, temperature: 0, steps: 0, systolic: 0, diastolic: 0, stress: 0, hrv: 0 });
+  };
+
   const unpairBracelet = async () => {
     try {
       if (device?.gatt?.connected) device.gatt.disconnect();
       if (pollRef.current) clearInterval(pollRef.current);
       await apiFetch('/api/bracelet/unpair', { method: 'POST' }, token);
       setBraceletData(null);
-      setVitals({ battery: 0, heart_rate: 0, spo2: 0, temperature: 0, steps: 0, systolic: 0, diastolic: 0, stress: 0 });
+      setVitals({ battery: 0, heart_rate: 0, spo2: 0, temperature: 0, steps: 0, systolic: 0, diastolic: 0, stress: 0, hrv: 0 });
       setBleStatus('idle');
       setDevice(null);
     } catch {}
@@ -426,6 +462,9 @@ export default function BraceletConnectScreen() {
         <Text style={s.emptyDesc}>Connectez votre bracelet Elio via Bluetooth pour suivre vos constantes de sante.</Text>
         <TouchableOpacity style={s.pairBtn} onPress={connectBracelet}>
           <Icon name="bluetooth" size={20} color="#111827" /><Text style={s.pairBtnT}>Appairer le bracelet</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={startSimulation} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 28, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(167,139,250,0.3)', backgroundColor: 'rgba(167,139,250,0.08)', marginTop: 14 }}>
+          <Icon name="pulse" size={18} color="#A78BFA" /><Text style={{ color: '#A78BFA', fontSize: 14, fontWeight: '600' }}>Mode demo (donnees simulees)</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -493,6 +532,14 @@ export default function BraceletConnectScreen() {
           <Text style={{ flex: 1, fontSize: 15, fontWeight: '700', color: Colors.textPrimary }}>Voir le sommeil</Text>
           <Icon name="chevron-forward" size={16} color={Colors.textMuted} />
         </TouchableOpacity>
+
+        {/* Simulation controls */}
+        {simulating && (
+          <TouchableOpacity onPress={stopSimulation} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, marginBottom: 6, borderRadius: 12, backgroundColor: 'rgba(167,139,250,0.08)', borderWidth: 1, borderColor: 'rgba(167,139,250,0.2)' }}>
+            <Icon name="stop-circle" size={16} color="#A78BFA" />
+            <Text style={{ fontSize: 14, fontWeight: '600', color: '#A78BFA' }}>Arreter la simulation</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Unpair */}
         <TouchableOpacity style={s.unpairBtn} onPress={unpairBracelet}>
