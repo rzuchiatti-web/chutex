@@ -56,12 +56,12 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
             )}
             <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
               {dt === 'bracelet' && (
-                <div data-testid="bracelet-ecg-btn" onClick={() => router.push('/ecg' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
+                <div data-testid="bracelet-ecg-btn" onClick={() => router.push('/ecg' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#111' } as any}>
                   ECG
                 </div>
               )}
               {dt === 'scale' && (
-                <div data-testid="scale-weigh-btn" onClick={onScaleWeighing} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
+                <div data-testid="scale-weigh-btn" onClick={onScaleWeighing} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#111' } as any}>
                   Nouvelle pesee
                 </div>
               )}
@@ -71,7 +71,7 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
                 </div>
               )}
               {dt === 'dorsi' && (
-                <div data-testid="dorsi-bilan-btn" onClick={() => router.push('/dorsi-bilan' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
+                <div data-testid="dorsi-bilan-btn" onClick={() => router.push('/dorsi-bilan' as any)} style={{ flex: 1, padding: '11px 14px', borderRadius: 999, cursor: 'pointer', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#111' } as any}>
                   Bilan lombaire
                 </div>
               )}
