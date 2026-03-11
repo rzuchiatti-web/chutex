@@ -6,121 +6,62 @@ Build "Chutex Care," a preventative health application for elderly care with con
 ## Core Architecture
 - **Frontend**: React (Expo Router) - Web + iOS
 - **Backend**: FastAPI + MongoDB (vitallink_db)
-- **3rd Party**: VAPI.ai (voice), Mollie (payments), OpenAI GPT-5.2 (AI), Mailjet (email), SMSMode (SMS), Lefu (scale API), ElevenLabs (TTS)
+- **3rd Party**: VAPI.ai (voice), Mollie (payments + commissions), OpenAI GPT-5.2 (AI), Mailjet (email), SMSMode (SMS), Lefu (scale API), ElevenLabs (TTS)
 
 ## What's Been Implemented
 
-### Dorsi Smart Cushion - Complete
-- Shared BLE context (DorsiBLEContext) — persistent across pages
-- acceptAllDevices BLE scanning, real BLE measurements in bilan
-- 15 mini-games with cartoon visuals, animated backgrounds
-- Game logic fixes: serpent game-over on self-bite, course/gravite game-over on collision
-- Dorsi Index (0-100) merged with Bilan CTA + info popups
-- Streaks calendar (14 days), score history visible
-- Carousel swipable for free games with best scores
-- HUD: record comparison in real-time, "NOUVEAU RECORD!" indicator
-- Score history on game launch screen
-- Programme adaptatif IA (GPT-5.2)
-
-### i18n - 7 Languages, VAPI Voice AI, Previous features
-- All implemented and working
-
-### Poids & Nutrition (Weight & Nutrition) - Complete (March 2026)
-- **Backend**: New endpoint `GET /api/minceur/weight-details` — fetches user profile, weight history from scale, calculates IMC/BMR/TDEE, body composition, generates daily AI recommendations (meals + exercises) via GPT-5.2 with daily caching
-- **Backend**: `POST /api/minceur/weight-goal` — optional weight goal setter, invalidates cache
-- **Backend**: `DELETE /api/minceur/weight-goal` — remove goal
-- **Backend**: `POST /api/minceur/refresh-recommendations` — force refresh
-- **Frontend**: Complete rewrite of `/minceur.tsx` as permanent health dashboard:
-  - Weight Hero Card: current weight, BMI with color-coded gauge, weight evolution SVG chart
-  - **Tabbed Charts**: 3 onglets Poids/Graisse/Muscle — chaque indicateur a son propre graphique SVG anime avec couleurs distinctes (ambre/orange/vert)
-  - Body Composition: animated ring charts (fat%, muscle%, hydration%, visceral fat) + bone mass, body age, protein
-  - Optional Goal Setter: +/- weight target with week duration selector
-  - AI Recommendations: Nora insight, daily calorie budget with macros, water intake
-  - Meals Tab: 4 detailed meal cards with ingredients, portions, calories, timing
-  - Exercises Tab: home exercises adapted for seniors with duration, intensity, calories
-  - Tip of the Day
-  - Premium clinical UI with animations, glass morphism
-- **Health Tab Card**: Mini-tabs Poids/Graisse/Muscle avec mini sparkline bars qui changent selon l'onglet selectionne
-- **Testing**: 100% pass (iteration_93 backend 19/19 + iteration_94 frontend 100%)
-
-### Suivi Quotidien (Daily Tracking) - Complete (March 2026)
-- **Backend**: `POST /api/minceur/track`, `GET /api/minceur/today-tracking`
-- **Frontend**: Validation buttons, progress bar, streak badge
-- **Testing**: 100% pass (iteration_95)
-
-### Allergies & Page Detail Repas - Complete (March 2026)
-- **Testing**: 100% pass (iteration_96)
-
-### Glycemie Estimee V1 — Complete (March 2026)
-- **Backend** : Algorithme V1 base sur correlations scientifiques (HRV, FC repos, graisse viscerale, IMC, SpO2, sommeil, activite, age, conditions medicales)
-- **Frontend** : Carte "Tendance Glycemique" sur la page Sante
-- **Stockage ML-ready** : Toutes les calibrations horodatees
-- **Testing** : Backend 3/3 endpoints OK
-
-### Stripe-to-Mollie Migration — Complete (Feb 2026)
-- Full payment provider migration from Stripe to Mollie
-- Backend: contract_routes.py completely rewritten for Mollie
-- Frontend: SubscriptionPage.tsx uses Mollie redirect flow
-- Webhook handling for Mollie payment status
+### Payment System — Mollie (Complete)
+- Full Stripe-to-Mollie migration (contracts, subscriptions, webhooks)
 - Recurring subscription creation on first payment
-- SAAD commission system stubbed (pending Mollie migration)
-- Stripe code fully removed (no more import stripe, no STRIPE_CARE_ACCOUNT)
-- **Testing**: 100% pass (iteration_102 — 17/17 backend)
+- SAAD Commission system via Mollie (onboarding, status, payment, webhook)
+- Commission types: oneshot (100/200 EUR) or monthly (8/15 EUR) per plan
 
-### Calorie Data Coherence Fix — Complete (Feb 2026)
-- `compute_daily_plan_async` in health_report_routes.py now checks `minceur_daily_cache` first
-- If user has minceur recommendations (with goal), those calorie values are used
-- Otherwise falls back to `basal_metabolism * 1.2`
-- Water intake also aligned with minceur recommendations
-- Ensures consistency across morning briefing, health page, and minceur page
-- **Testing**: 100% pass (iteration_102)
+### SAAD Commission System — Complete (Feb 2026)
+- `POST /api/saad/onboarding` — Register SAAD with IBAN, commission_type (oneshot/monthly)
+- `GET /api/saad/status/{saad_id}` — Registered status, earnings, pending amounts
+- `POST /api/mollie/webhook-commission` — Webhook for commission payment status
+- `GET /api/admin/saad-commissions` — Admin overview with paid/pending/total
+- Auto-triggered when prescribed contract is activated
+- Legacy routes (`/api/saad/stripe-*`) redirect to new endpoints
+
+### Glycemia Estimation V2 — Complete (Feb 2026)
+- **12 weighted factors**: HRV (18%), visceral fat (16%), HR rest (12%), BMI (8%), body fat (8%), muscle-to-fat ratio (6%), SpO2 (6%), sleep (6%), activity (5%), temperature deviation (4%), age (5%), medical conditions (6%)
+- **5 zones**: normal, normal_high, vigilance, pre_alert, alert
+- **Estimated glycemia value** in g/L (not just zone)
+- **Multi-calibration regression**: time-weighted offsets from all calibrations (not just latest)
+- **Calibration quality**: none/low/medium/high based on count
+- **Sensor snapshots**: Each calibration captures current bracelet + scale data for future ML
+- **Trend analysis**: GET /api/glycemia/trend tracks improving/stable/worsening
+- **Personalized confidence**: based on data completeness + calibration quality
 
 ### V6 Bracelet BLE Integration — Complete (Feb 2026)
-- **Backend**: 
-  - V6 BLE GATT config with 8 standard health services (heart_rate, blood_pressure, spo2, temperature, battery, device_info, ppg_custom, ecg_custom)
-  - `POST /api/bracelet/v6/push` — accepts all data types (heart_rate, spo2, temperature, blood_pressure, ppg, ecg, steps, battery)
-  - Consolidated readings for health report compatibility
-  - Anomaly detection for V6 data
-  - `GET /api/bracelet/v6/config` — BLE service UUIDs for frontend
-  - `GET /api/bracelet/v6/ppg-history` — PPG data for ML glycemia
-  - `GET /api/bracelet/v6/ecg-history` — ECG waveform data
-- **Frontend**: 
-  - Auto-detection of V6 vs 2208A by device name prefix
-  - V6: Subscribes to standard GATT services (HR, SpO2, BP, temp, battery, PPG)
-  - Real-time data parsing and display (HR, HRV from RR intervals, SpO2, BP, temp)
-  - Enhanced vitals grid with HRV, SpO2, BP when available
-  - Model indicator ("V6" shown in status card)
-- **Testing**: 100% pass (iteration_102 — all V6 endpoints verified)
+- Backend: 8 GATT services (HR, BP, SpO2, temp, battery, device_info, PPG, ECG)
+- Frontend: **Auto-detect by available services** (no name filtering)
+- Tries standard GATT Heart Rate first → if found, subscribes to all standard services
+- Fallback to 2208A proprietary protocol if no standard services
+- PPG waveform data collection for future ML glycemia
+- Real-time vitals: HR, HRV (from RR intervals), SpO2, BP, temperature
 
-### Patent Documentation — Complete (Feb 2026)
-- Full technical documentation at `/app/memory/PATENT_GLYCEMIA_V1.md`
-- Covers: V1 algorithm, V2 calibration system, V3 ML architecture
-- 3 revendications (method, system, ML extension)
-- Scientific references for each correlation factor
-- Implementation details and data collection architecture
-
-### Password Persistence System — Complete
-- File-based system (`password_overrides.json`) survives server/DB resets
-- **Testing**: Verified
+### All Previous Features (Complete)
+- Dorsi Smart Cushion, i18n, VAPI Voice AI
+- Poids & Nutrition (Weight & Nutrition) with daily tracking
+- Allergies & Meal Detail, Exercise Detail
+- Health Dashboard redesign
+- Password persistence system
+- Morning briefing, Weekly Nora report
+- Calorie data coherence fix
 
 ## Prioritized Backlog
 ### P0
-- User verification of end-to-end Mollie payment flow (real payment test)
-- Weekly Nora Report (push notification/summary)
+- User verification of end-to-end Mollie payment flow
+- Demo/simulation mode for V6 bracelet (requested by user)
 
 ### P1
 - Guardian referral system
 - Free 7-day trial
-- V2 calibrated glycemia algorithm (with real finger-prick data)
 
 ### P2
 - V3 ML glycemia (LSTM + Attention model)
 - Correlations sante UI
-- Contract PDF view
-- Vivoo urine test integration
-- Build natif iOS
-- SAAD commission migration to Mollie
-
-### Known Items for Future Polish
-- Visuals for preparation steps in meal detail
-- Swipe animation for goal setter
+- Contract PDF, Vivoo, build iOS natif
+- Visuals for meal preparation steps
