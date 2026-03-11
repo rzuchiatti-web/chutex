@@ -16,6 +16,19 @@ const BLE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
 const BLE_NOTIFY_UUID = '0000fff6-0000-1000-8000-00805f9b34fb';
 const BLE_WRITE_UUID = '0000fff7-0000-1000-8000-00805f9b34fb';
 
+// V6 BLE Standard GATT Services
+const V6_SERVICES = {
+  heart_rate: { uuid: '0000180d-0000-1000-8000-00805f9b34fb', char: '00002a37-0000-1000-8000-00805f9b34fb' },
+  blood_pressure: { uuid: '00001810-0000-1000-8000-00805f9b34fb', char: '00002a35-0000-1000-8000-00805f9b34fb' },
+  spo2: { uuid: '00001822-0000-1000-8000-00805f9b34fb', char: '00002a5e-0000-1000-8000-00805f9b34fb' },
+  temperature: { uuid: '00001809-0000-1000-8000-00805f9b34fb', char: '00002a1c-0000-1000-8000-00805f9b34fb' },
+  battery: { uuid: '0000180f-0000-1000-8000-00805f9b34fb', char: '00002a19-0000-1000-8000-00805f9b34fb' },
+  ppg: { uuid: '0000ffe0-0000-1000-8000-00805f9b34fb', char_data: '0000ffe1-0000-1000-8000-00805f9b34fb', char_ctrl: '0000ffe2-0000-1000-8000-00805f9b34fb' },
+  ecg: { uuid: '0000fff0-0000-1000-8000-00805f9b34fb', char_data: '0000fff1-0000-1000-8000-00805f9b34fb', char_ctrl: '0000fff2-0000-1000-8000-00805f9b34fb' },
+};
+
+const V6_NAME_PREFIXES = ['V6', 'Elio-V6', 'ChutexV6', 'HB6'];
+
 function calcCrc(data: number[]) { return data.reduce((s, b) => s + b, 0) & 0xFF; }
 
 function buildCmd(cmd: number, payload: number[] = []) {
@@ -54,9 +67,10 @@ export default function BraceletConnectScreen() {
   const [device, setDevice] = useState<any>(null);
   const [braceletData, setBraceletData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [vitals, setVitals] = useState({ battery: 0, heart_rate: 0, spo2: 0, temperature: 0, steps: 0, systolic: 0, diastolic: 0, stress: 0 });
+  const [vitals, setVitals] = useState({ battery: 0, heart_rate: 0, spo2: 0, temperature: 0, steps: 0, systolic: 0, diastolic: 0, stress: 0, hrv: 0 });
   const writeCharRef = useRef<any>(null);
   const pollRef = useRef<any>(null);
+  const [braceletModel, setBraceletModel] = useState<'2208a'|'v6'|null>(null);
 
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -88,6 +102,12 @@ export default function BraceletConnectScreen() {
   const sendToBackend = useCallback(async (parsed: Record<string, any>, rawHex: string) => {
     try {
       await apiFetch('/api/bracelet/push', { method: 'POST', body: JSON.stringify({ parsed, raw_hex: rawHex, device_id: device?.id || '' }) }, token);
+    } catch {}
+  }, [token, device]);
+
+  const sendV6ToBackend = useCallback(async (dataType: string, data: Record<string, any>) => {
+    try {
+      await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: dataType, data, device_id: device?.id || device?.name || '', source: 'ble' }) }, token);
     } catch {}
   }, [token, device]);
 
@@ -199,20 +219,119 @@ export default function BraceletConnectScreen() {
       if (!('bluetooth' in navigator)) { setErrorMsg('Web Bluetooth non disponible'); setBleStatus('idle'); return; }
       try {
         const nav = navigator as any;
+        const allServices = [
+          BLE_SERVICE_UUID, 'generic_access', 'heart_rate', 'battery_service',
+          '0000ffe0-0000-1000-8000-00805f9b34fb', '0000fee7-0000-1000-8000-00805f9b34fb',
+          '0000ffc0-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+          '0000180d-0000-1000-8000-00805f9b34fb', '0000180f-0000-1000-8000-00805f9b34fb',
+          '0000180a-0000-1000-8000-00805f9b34fb', '00001809-0000-1000-8000-00805f9b34fb',
+          '00001810-0000-1000-8000-00805f9b34fb', '00001822-0000-1000-8000-00805f9b34fb',
+        ];
         const bd = await nav.bluetooth.requestDevice({
           acceptAllDevices: true,
-          optionalServices: [BLE_SERVICE_UUID, 'generic_access', 'heart_rate', 'battery_service', '0000ffe0-0000-1000-8000-00805f9b34fb', '0000fee7-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0000180d-0000-1000-8000-00805f9b34fb', '0000180f-0000-1000-8000-00805f9b34fb', '0000180a-0000-1000-8000-00805f9b34fb', '00001809-0000-1000-8000-00805f9b34fb'],
+          optionalServices: allServices,
         });
         setDevice(bd);
         setBleStatus('connecting');
+
+        // Detect if V6 by device name
+        const devName = bd.name || '';
+        const isV6 = V6_NAME_PREFIXES.some((p: string) => devName.toUpperCase().includes(p.toUpperCase()));
+        setBraceletModel(isV6 ? 'v6' : '2208a');
+
         bd.addEventListener('gattserverdisconnected', () => { setBleStatus('idle'); if (pollRef.current) clearInterval(pollRef.current); });
         const server = await bd.gatt.connect();
-        let notifyChar: any = null, wChar: any = null;
-        for (const uuid of [BLE_SERVICE_UUID, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0000180d-0000-1000-8000-00805f9b34fb']) {
-          try { const svc = await server.getPrimaryService(uuid); const chars = await svc.getCharacteristics(); for (const c of chars) { if ((c.properties.notify || c.properties.indicate) && !notifyChar) notifyChar = c; if ((c.properties.write || c.properties.writeWithoutResponse) && !wChar) wChar = c; } if (notifyChar) break; } catch {}
+
+        if (isV6) {
+          // V6: Subscribe to standard GATT health services
+          setErrorMsg('V6 detecte — connexion aux services...');
+          const subscribeToService = async (serviceUuid: string, charUuid: string, dataType: string) => {
+            try {
+              const svc = await server.getPrimaryService(serviceUuid);
+              const char = await svc.getCharacteristic(charUuid);
+              if (char.properties.notify || char.properties.indicate) {
+                await char.startNotifications();
+                char.addEventListener('characteristicvaluechanged', (event: any) => {
+                  const dv = event.target.value as DataView;
+                  const bytes = new Uint8Array(dv.buffer);
+                  let parsed: any = {};
+
+                  if (dataType === 'heart_rate') {
+                    const flags = bytes[0];
+                    parsed.heart_rate = (flags & 0x01) ? (bytes[1] | (bytes[2] << 8)) : bytes[1];
+                    // RR intervals for HRV
+                    if ((flags >> 4) & 0x01) {
+                      const rrOffset = (flags & 0x01) ? 3 : 2;
+                      const rrs: number[] = [];
+                      for (let i = rrOffset; i + 1 < bytes.length; i += 2) {
+                        rrs.push(Math.round((bytes[i] | (bytes[i+1] << 8)) / 1024 * 1000));
+                      }
+                      parsed.rr_intervals = rrs;
+                      if (rrs.length >= 2) {
+                        const diffs = rrs.slice(1).map((v, i) => Math.abs(v - rrs[i]));
+                        parsed.hrv = Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length);
+                      }
+                    }
+                    if (parsed.heart_rate > 0 && parsed.heart_rate < 255) setVitals(v => ({ ...v, heart_rate: parsed.heart_rate, hrv: parsed.hrv || v.hrv }));
+                  } else if (dataType === 'spo2') {
+                    parsed.spo2 = Math.round((bytes[0] | (bytes[1] << 8)) / 10);
+                    if (parsed.spo2 > 0) setVitals(v => ({ ...v, spo2: parsed.spo2 }));
+                  } else if (dataType === 'temperature') {
+                    const mantissa = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16);
+                    parsed.temperature = Math.round(mantissa * Math.pow(10, new Int8Array([bytes[4]])[0]) * 10) / 10;
+                    if (parsed.temperature > 30) setVitals(v => ({ ...v, temperature: parsed.temperature }));
+                  } else if (dataType === 'blood_pressure') {
+                    parsed.systolic = Math.round((bytes[1] | (bytes[2] << 8)) / 10);
+                    parsed.diastolic = Math.round((bytes[3] | (bytes[4] << 8)) / 10);
+                    if (parsed.systolic > 0) setVitals(v => ({ ...v, systolic: parsed.systolic, diastolic: parsed.diastolic }));
+                  } else if (dataType === 'battery') {
+                    parsed.battery = bytes[0];
+                    if (parsed.battery > 0) setVitals(v => ({ ...v, battery: parsed.battery }));
+                  }
+
+                  sendV6ToBackend(dataType, parsed);
+                });
+              }
+            } catch (e) {
+              // Service not available on this device
+            }
+          };
+
+          // Subscribe to all available V6 services
+          await subscribeToService(V6_SERVICES.heart_rate.uuid, V6_SERVICES.heart_rate.char, 'heart_rate');
+          await subscribeToService(V6_SERVICES.spo2.uuid, V6_SERVICES.spo2.char, 'spo2');
+          await subscribeToService(V6_SERVICES.temperature.uuid, V6_SERVICES.temperature.char, 'temperature');
+          await subscribeToService(V6_SERVICES.blood_pressure.uuid, V6_SERVICES.blood_pressure.char, 'blood_pressure');
+          await subscribeToService(V6_SERVICES.battery.uuid, V6_SERVICES.battery.char, 'battery');
+
+          // Try PPG custom service
+          try {
+            const ppgSvc = await server.getPrimaryService(V6_SERVICES.ppg.uuid);
+            const ppgData = await ppgSvc.getCharacteristic(V6_SERVICES.ppg.char_data);
+            if (ppgData.properties.notify) {
+              await ppgData.startNotifications();
+              ppgData.addEventListener('characteristicvaluechanged', (event: any) => {
+                const dv = event.target.value as DataView;
+                const samples: number[] = [];
+                for (let i = 0; i < dv.byteLength; i += 2) {
+                  if (i + 1 < dv.byteLength) samples.push(dv.getUint16(i, true));
+                }
+                sendV6ToBackend('ppg', { samples, timestamp: new Date().toISOString() });
+              });
+            }
+          } catch {}
+
+          setBleStatus('connected');
+          setErrorMsg('');
+        } else {
+          // 2208A legacy connection
+          let notifyChar: any = null, wChar: any = null;
+          for (const uuid of [BLE_SERVICE_UUID, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0000180d-0000-1000-8000-00805f9b34fb']) {
+            try { const svc = await server.getPrimaryService(uuid); const chars = await svc.getCharacteristics(); for (const c of chars) { if ((c.properties.notify || c.properties.indicate) && !notifyChar) notifyChar = c; if ((c.properties.write || c.properties.writeWithoutResponse) && !wChar) wChar = c; } if (notifyChar) break; } catch {}
+          }
+          if (notifyChar) { await notifyChar.startNotifications(); notifyChar.addEventListener('characteristicvaluechanged', handleBleData); writeCharRef.current = wChar; setBleStatus('connected'); setErrorMsg(''); startPolling(); }
+          else { setErrorMsg('Aucun service BLE compatible'); setBleStatus('idle'); }
         }
-        if (notifyChar) { await notifyChar.startNotifications(); notifyChar.addEventListener('characteristicvaluechanged', handleBleData); writeCharRef.current = wChar; setBleStatus('connected'); setErrorMsg(''); startPolling(); }
-        else { setErrorMsg('Aucun service BLE compatible'); setBleStatus('idle'); }
       } catch (e: any) { setErrorMsg(`Erreur: ${e?.message || String(e)}`); setBleStatus('idle'); }
     } else {
       // Native BLE via react-native-ble-plx
@@ -338,8 +457,8 @@ export default function BraceletConnectScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <Icon name="watch" size={32} color={stColor} />
             <View style={{ flex: 1 }}>
-              <Text style={s.cardTitle}>Bracelet Elio</Text>
-              <Text style={[s.cardStatus, { color: stColor }]}>{isActive || bleStatus === 'connected' ? 'Actif' : 'Eteint'}</Text>
+              <Text style={s.cardTitle}>Bracelet Elio {braceletModel === 'v6' ? 'V6' : ''}</Text>
+              <Text style={[s.cardStatus, { color: stColor }]}>{isActive || bleStatus === 'connected' ? 'Actif' : 'Eteint'}{braceletModel === 'v6' ? ' — PPG + HRV' : ''}</Text>
             </View>
             {vitals.battery > 0 && <View style={{ alignItems: 'center' }}>
               <Icon name={vitals.battery > 50 ? "battery-full" : vitals.battery > 20 ? "battery-half" : "battery-dead"} size={24} color={vitals.battery > 20 ? Colors.success : Colors.destructive} />
@@ -357,6 +476,9 @@ export default function BraceletConnectScreen() {
             <VitalCard icon="heart" label="Pouls" value={vitals.heart_rate || '-'} unit="bpm" color="#E53935" />
             <VitalCard icon="thermometer" label="Temp." value={vitals.temperature || '-'} unit="°C" color="#FB8C00" />
             <VitalCard icon="footsteps" label="Pas" value={vitals.steps || '-'} unit="" color={Colors.success} />
+            {vitals.hrv > 0 && <VitalCard icon="pulse" label="HRV" value={vitals.hrv} unit="ms" color="#A78BFA" />}
+            {vitals.spo2 > 0 && <VitalCard icon="water" label="SpO2" value={vitals.spo2} unit="%" color="#38BDF8" />}
+            {vitals.systolic > 0 && <VitalCard icon="pulse" label="Tension" value={`${vitals.systolic}/${vitals.diastolic}`} unit="mmHg" color="#8B5CF6" />}
           </View>
         </View>
 

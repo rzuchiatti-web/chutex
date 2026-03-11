@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
 import uuid
 import random
@@ -252,7 +252,8 @@ def evaluate_objectives_met(d):
 
 
 async def compute_daily_plan_async(d, score_info, uid):
-    """Generate DAILY actionable objectives. Nora sets defaults, user can override."""
+    """Generate DAILY actionable objectives. Nora sets defaults, user can override.
+    Calorie/water data comes from minceur recommendations (source of truth) if available."""
     from database import db
 
     if score_info.get("no_data") or not _has_meaningful_data(d):
@@ -272,17 +273,40 @@ async def compute_daily_plan_async(d, score_info, uid):
         for gl in goals_list:
             user_goals[gl.get("metric_id", "")] = gl
 
-    # CALORIE INTAKE: Based on basal metabolism
-    bm = g("basal_metabolism", 0)
-    if bm > 0:
-        rec_cal = round(bm * 1.2)
-        plan.append({"key": "calories_intake", "label": "Calories a consommer", "value": f"{rec_cal}", "unit": "kcal",
-                     "status": "objectif", "icon": "ri-restaurant-line", "color": "#F59E0B",
-                     "detail": f"Base sur votre metabolisme de {bm} kcal."})
+    # CALORIE INTAKE: Use minceur recommendations (source of truth) if available
+    minceur_cal = 0
+    minceur_water = 0
+    if uid:
+        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        cached_minceur = await db.minceur_daily_cache.find_one(
+            {"user_id": uid, "date": today_str}, {"_id": 0}
+        )
+        if cached_minceur and cached_minceur.get("recommendations"):
+            recs = cached_minceur["recommendations"]
+            minceur_cal = recs.get("daily_calories", 0)
+            minceur_water = recs.get("water_ml", 0)
 
-    # HYDRATION: Drink water today
+    if minceur_cal > 0:
+        plan.append({"key": "calories_intake", "label": "Vous devez consommer par jour", "value": f"{minceur_cal}", "unit": "kcal",
+                     "status": "objectif", "icon": "ri-restaurant-line", "color": "#F59E0B",
+                     "detail": "Base sur votre plan nutritionnel personnalise."})
+    else:
+        bm = g("basal_metabolism", 0)
+        if bm > 0:
+            rec_cal = round(bm * 1.2)
+            plan.append({"key": "calories_intake", "label": "Calories a consommer", "value": f"{rec_cal}", "unit": "kcal",
+                         "status": "objectif", "icon": "ri-restaurant-line", "color": "#F59E0B",
+                         "detail": f"Base sur votre metabolisme de {bm} kcal."})
+
+    # HYDRATION: Use minceur water target if available
     wp = g("water_pct")
-    if wp > 0:
+    if minceur_water > 0:
+        water_l = round(minceur_water / 1000, 1)
+        plan.append({"key": "hydration", "label": "Eau a boire", "value": f"{water_l}L", "unit": "minimum",
+                     "status": "OK" if wp >= 55 else "objectif",
+                     "icon": "ri-drop-line", "color": "#38BDF8",
+                     "detail": "Base sur votre plan nutritionnel personnalise."})
+    elif wp > 0:
         water_goal = 1.5 if wp >= 55 else 2.0
         plan.append({"key": "hydration", "label": "Eau a boire", "value": f"{water_goal}L", "unit": "minimum",
                      "status": "OK" if wp >= 55 else "priorite",

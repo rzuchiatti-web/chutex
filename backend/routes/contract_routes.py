@@ -6,7 +6,6 @@ import uuid
 import logging
 import os
 import re
-import stripe
 from io import BytesIO
 
 from reportlab.lib.pagesizes import A4
@@ -153,11 +152,6 @@ Chutex Innovation met en oeuvre tous les moyens raisonnables de continuite de se
     return buffer.getvalue()
 
 
-async def _ensure_stripe_prices():
-    """Legacy — no longer needed with Mollie."""
-    pass
-
-
 # ─── Models ───
 class ContractCreate(BaseModel):
     plan: str
@@ -185,7 +179,6 @@ async def create_contract(data: ContractCreate):
     if data.plan not in PLANS:
         raise HTTPException(400, "Plan invalide")
 
-    await _ensure_stripe_prices()
     plan = PLANS[data.plan]
     now = datetime.now(timezone.utc).isoformat()
     ben_phone = normalize_phone(data.beneficiary.get("phone", ""))
@@ -296,7 +289,7 @@ async def create_contract(data: ContractCreate):
     await db.payment_transactions.insert_one({
         "id": str(uuid.uuid4()),
         "contract_id": contract["id"],
-        "stripe_subscription_id": subscription.id,
+        "mollie_payment_id": mollie_payment_id,
         "amount": plan["display"],
         "currency": "eur",
         "payment_status": "pending",
@@ -318,7 +311,7 @@ async def create_contract(data: ContractCreate):
     }
 
 
-# ─── Confirm Payment (after inline payment) ───
+# ─── Confirm Payment (check Mollie payment status) ───
 @router.get("/contract/confirm/{contract_id}")
 @router.post("/contract/confirm/{contract_id}")
 async def confirm_contract(contract_id: str):
@@ -326,15 +319,19 @@ async def confirm_contract(contract_id: str):
     if not contract:
         raise HTTPException(404, "Contrat introuvable")
 
-    sub_id = contract.get("stripe_subscription_id", "")
-    if sub_id:
-        sub = stripe.Subscription.retrieve(sub_id)
-        if sub.status in ("active", "trialing"):
-            await _activate_contract(contract, contract_id)
-            return {"status": "active", "subscription_status": sub.status}
-        return {"status": contract.get("status"), "subscription_status": sub.status}
+    mollie_pid = contract.get("mollie_payment_id", "")
+    if mollie_pid:
+        try:
+            payment = mollie_client.payments.get(mollie_pid)
+            if payment.is_paid():
+                if contract.get("status") != "active":
+                    await _activate_contract(contract, contract_id)
+                return {"status": "active", "payment_status": "paid"}
+            return {"status": contract.get("status"), "payment_status": payment.status}
+        except Exception as e:
+            logger.error(f"Mollie payment check error: {e}")
 
-    return {"status": contract.get("status"), "subscription_status": "unknown"}
+    return {"status": contract.get("status"), "payment_status": "unknown"}
 
 
 # ─── Sign Contract ───
@@ -447,130 +444,12 @@ async def mollie_webhook(request: Request):
 
 @router.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
-    body = await request.body()
-    now = datetime.now(timezone.utc).isoformat()
-
-    try:
-        event = stripe.Event.construct_from(stripe.util.convert_to_stripe_object(
-            __import__('json').loads(body)
-        ), stripe.api_key)
-    except Exception as e:
-        logger.error(f"Webhook parse error: {e}")
-        return {"status": "ok"}
-
-    etype = event.type
-    data = event.data.object
-    logger.info(f"Stripe webhook: {etype}")
-
-    if etype == "invoice.payment_succeeded":
-        sub_id = data.get("subscription")
-        if sub_id:
-            # Handle contracts collection
-            contract = await db.contracts.find_one({"stripe_subscription_id": sub_id})
-            if contract and contract.get("status") != "active":
-                await _activate_contract(contract, contract["id"])
-            await db.payment_transactions.update_one(
-                {"stripe_subscription_id": sub_id, "payment_status": "pending"},
-                {"$set": {"payment_status": "paid", "updated_at": now}},
-            )
-            # Handle subscriptions collection (Shopify/direct)
-            app_sub = await db.subscriptions.find_one({"stripe_subscription_id": sub_id})
-            if app_sub and app_sub.get("status") != "active":
-                await db.subscriptions.update_one(
-                    {"id": app_sub["id"]},
-                    {"$set": {"status": "active", "updated_at": now}},
-                )
-                # Update user record
-                if app_sub.get("beneficiary_id"):
-                    await db.users.update_one(
-                        {"id": app_sub["beneficiary_id"]},
-                        {"$set": {"has_subscription": True, "subscription_type": app_sub.get("subscription_type", "bracelet_only")}},
-                    )
-                logger.info(f"Subscription {app_sub['id']} reactivated via payment success")
-
-    elif etype == "invoice.payment_failed":
-        sub_id = data.get("subscription")
-        if sub_id:
-            attempt = data.get("attempt_count", 1)
-            # Handle contracts collection
-            contract = await db.contracts.find_one({"stripe_subscription_id": sub_id})
-            if contract:
-                logger.warning(f"Payment failed for {contract.get('contract_number')} (attempt {attempt})")
-                if attempt >= 3:
-                    await db.contracts.update_one(
-                        {"id": contract["id"]},
-                        {"$set": {"status": "payment_failed", "updated_at": now}},
-                    )
-                    ben_phone = contract.get("beneficiary", {}).get("phone", "")
-                    if ben_phone:
-                        await db.subscriptions.update_one(
-                            {"beneficiary_phone": ben_phone, "status": "active"},
-                            {"$set": {"status": "suspended", "suspended_reason": "payment_failed", "updated_at": now}},
-                        )
-            # Handle subscriptions collection (Shopify/direct)
-            app_sub = await db.subscriptions.find_one({"stripe_subscription_id": sub_id, "status": "active"})
-            if app_sub and attempt >= 3:
-                await db.subscriptions.update_one(
-                    {"id": app_sub["id"]},
-                    {"$set": {"status": "suspended", "suspended_reason": "payment_failed", "updated_at": now}},
-                )
-                if app_sub.get("beneficiary_id"):
-                    await db.users.update_one(
-                        {"id": app_sub["beneficiary_id"]},
-                        {"$set": {"has_subscription": False}},
-                    )
-                logger.warning(f"Subscription {app_sub['id']} suspended after {attempt} failed payments")
-
-    elif etype == "customer.subscription.deleted":
-        sub_id = data.get("id")
-        if sub_id:
-            # Handle contracts collection
-            contract = await db.contracts.find_one({"stripe_subscription_id": sub_id})
-            if contract:
-                await db.contracts.update_one({"id": contract["id"]}, {"$set": {"status": "cancelled", "updated_at": now}})
-                ben_phone = contract.get("beneficiary", {}).get("phone", "")
-                if ben_phone:
-                    await db.subscriptions.update_one(
-                        {"beneficiary_phone": ben_phone, "status": {"$in": ["active", "suspended"]}},
-                        {"$set": {"status": "cancelled", "cancelled_at": now, "updated_at": now}},
-                    )
-            # Handle subscriptions collection (Shopify/direct)
-            app_sub = await db.subscriptions.find_one({"stripe_subscription_id": sub_id, "status": {"$in": ["active", "suspended"]}})
-            if app_sub:
-                await db.subscriptions.update_one(
-                    {"id": app_sub["id"]},
-                    {"$set": {"status": "cancelled", "cancelled_at": now, "updated_at": now}},
-                )
-                if app_sub.get("beneficiary_id"):
-                    await db.users.update_one(
-                        {"id": app_sub["beneficiary_id"]},
-                        {"$set": {"has_subscription": False, "subscription_type": "none"}},
-                    )
-                logger.info(f"Subscription {app_sub['id']} cancelled via Stripe webhook")
-
-    elif etype == "customer.subscription.updated":
-        sub_id = data.get("id")
-        status = data.get("status")  # active, past_due, canceled, unpaid
-        if sub_id:
-            app_sub = await db.subscriptions.find_one({"stripe_subscription_id": sub_id})
-            if app_sub:
-                new_status = "active" if status == "active" else "suspended" if status in ("past_due", "unpaid") else "cancelled" if status == "canceled" else app_sub.get("status")
-                await db.subscriptions.update_one(
-                    {"id": app_sub["id"]},
-                    {"$set": {"status": new_status, "updated_at": now}},
-                )
-                if app_sub.get("beneficiary_id"):
-                    await db.users.update_one(
-                        {"id": app_sub["beneficiary_id"]},
-                        {"$set": {"has_subscription": new_status == "active", "subscription_type": app_sub.get("subscription_type") if new_status == "active" else "none"}},
-                    )
-                logger.info(f"Subscription {app_sub['id']} updated to {new_status} via Stripe")
-
-    return {"status": "ok"}
+    """Legacy Stripe webhook — no longer used. Payments are handled via Mollie."""
+    return {"status": "ok", "message": "Stripe webhook deprecated. Use Mollie."}
 
 
 async def _activate_contract(contract: dict, contract_id: str):
-    """Activate contract, create subscription, transfer to Chutex Care, send SMS."""
+    """Activate contract, create subscription, send SMS. Payment via Mollie."""
     now = datetime.now(timezone.utc).isoformat()
     await db.contracts.update_one({"id": contract_id}, {"$set": {"status": "active", "activated_at": now, "updated_at": now}})
 
@@ -578,25 +457,8 @@ async def _activate_contract(contract: dict, contract_id: str):
     plan = PLANS.get(plan_id, {})
     is_care = plan_id in ("bracelet", "bracelet_gilet")
 
-    # Stripe Connect: transfer to Chutex Care for Care plans
-    if is_care and STRIPE_CARE_ACCOUNT:
-        transfer_amount = plan.get("price", 0) - plan.get("chutex_fee", 500)
-
-        # Always transfer full monthly amount to Chutex Care
-        if transfer_amount > 0:
-            try:
-                transfer = stripe.Transfer.create(
-                    amount=transfer_amount,
-                    currency="eur",
-                    destination=STRIPE_CARE_ACCOUNT,
-                    description=f"Care {contract.get('contract_number', '')} - monthly",
-                    metadata={"contract_id": contract_id, "plan": plan_id},
-                )
-                logger.info(f"Transfer {transfer.id}: {transfer_amount/100}EUR to Chutex Care")
-            except Exception as e:
-                logger.error(f"Transfer to Chutex Care failed: {e}")
-
-        # Auto-charge Chutex Care for bracelet (130.80€ TTC) via Stripe Connect
+    # Internal invoice for bracelet purchase (tracked, not auto-charged via Mollie)
+    if is_care:
         existing_invoice = await db.internal_invoices.find_one({"contract_id": contract_id, "type": "bracelet_purchase"})
         if not existing_invoice:
             inv_count = await db.internal_invoices.count_documents({}) + 1
@@ -618,31 +480,12 @@ async def _activate_contract(contract: dict, contract_id: str):
                 "beneficiary_name": f"{contract.get('beneficiary', {}).get('first_name', '')} {contract.get('beneficiary', {}).get('last_name', '')}".strip(),
                 "created_at": now,
             }
-            # Auto-charge Chutex Care via Stripe Connect (reverse transfer)
-            try:
-                charge = stripe.Charge.create(
-                    amount=13080,  # 130.80€ TTC
-                    currency="eur",
-                    source=STRIPE_CARE_ACCOUNT,
-                    description=f"Achat bracelet Elio - {contract.get('contract_number', '')}",
-                    metadata={"invoice_id": invoice["id"], "contract_id": contract_id, "type": "bracelet_purchase"},
-                )
-                invoice["status"] = "paid"
-                invoice["paid_at"] = now
-                invoice["stripe_charge_id"] = charge.id
-                logger.info(f"Bracelet auto-charged: {charge.id} - 130.80EUR from Chutex Care")
-            except Exception as e:
-                logger.warning(f"Bracelet auto-charge failed (will invoice manually): {e}")
-
             await db.internal_invoices.insert_one(invoice)
             logger.info(f"Bracelet invoice {invoice['invoice_number']}: 130.80EUR TTC for {contract.get('contract_number')}")
 
-        # SAAD commission if prescribed
-        await _process_saad_commission(contract, contract_id, now)
-
         await db.payment_transactions.update_one(
             {"contract_id": contract_id},
-            {"$set": {"transfer_amount": transfer_amount / 100, "chutex_fee": plan.get("chutex_fee", 500) / 100, "updated_at": now}},
+            {"$set": {"updated_at": now}},
         )
 
     # Create/update subscription in app
@@ -739,172 +582,33 @@ async def mark_invoice_paid(invoice_id: str):
 
 
 # ═══════════════════════════════════════════════════════
-#                 SAAD STRIPE CONNECT
+#                 SAAD COMMISSION (Mollie)
 # ═══════════════════════════════════════════════════════
 
 @router.post("/saad/stripe-onboarding")
 async def create_saad_stripe_account(request: Request):
-    """Create Stripe Connect account for a SAAD entity and return onboarding link."""
-    body = await request.json()
-    saad_id = body.get("saad_id", "")
-    company_name = body.get("company_name", "")
-    email = body.get("email", "")
-    commission_type = body.get("commission_type", "monthly")  # "oneshot" (100€) or "monthly" (8€/mois)
-
-    if not saad_id or not company_name:
-        raise HTTPException(400, "saad_id et company_name requis")
-
-    # Check if already has Stripe account
-    existing = await db.saad_stripe.find_one({"saad_id": saad_id}, {"_id": 0})
-    if existing and existing.get("account_id"):
-        # Regenerate onboarding link
-        link = stripe.AccountLink.create(
-            account=existing["account_id"],
-            refresh_url=body.get("refresh_url", "https://mollie-payment-test.preview.emergentagent.com"),
-            return_url=body.get("return_url", "https://mollie-payment-test.preview.emergentagent.com"),
-            type="account_onboarding",
-        )
-        return {"account_id": existing["account_id"], "onboarding_url": link.url, "already_exists": True}
-
-    # Create new Express account
-    account = stripe.Account.create(
-        type="express",
-        country="FR",
-        email=email or None,
-        business_type="company",
-        company={"name": company_name},
-        capabilities={"card_payments": {"requested": True}, "transfers": {"requested": True}},
-        metadata={"saad_id": saad_id, "entity": "saad", "commission_type": commission_type},
-    )
-
-    link = stripe.AccountLink.create(
-        account=account.id,
-        refresh_url=body.get("refresh_url", "https://mollie-payment-test.preview.emergentagent.com"),
-        return_url=body.get("return_url", "https://mollie-payment-test.preview.emergentagent.com"),
-        type="account_onboarding",
-    )
-
-    now = datetime.now(timezone.utc).isoformat()
-    await db.saad_stripe.update_one(
-        {"saad_id": saad_id},
-        {"$set": {
-            "saad_id": saad_id,
-            "account_id": account.id,
-            "company_name": company_name,
-            "email": email,
-            "commission_type": commission_type,  # "oneshot" = 100€ one-time, "monthly" = 8€/month
-            "commission_amount": 10000 if commission_type == "oneshot" else 800,  # in cents
-            "status": "onboarding",
-            "created_at": now,
-        }},
-        upsert=True,
-    )
-
-    # Update the company/saad record
-    await db.users.update_one(
-        {"id": saad_id},
-        {"$set": {"stripe_account_id": account.id, "commission_type": commission_type}},
-    )
-
-    return {"account_id": account.id, "onboarding_url": link.url}
+    """SAAD onboarding — migrating to Mollie. Currently returns a placeholder."""
+    return {"status": "pending_migration", "message": "Le systeme de commission SAAD est en cours de migration vers Mollie."}
 
 
 @router.get("/saad/stripe-status/{saad_id}")
 async def get_saad_stripe_status(saad_id: str):
-    """Check if SAAD has completed Stripe onboarding."""
-    doc = await db.saad_stripe.find_one({"saad_id": saad_id}, {"_id": 0})
-    if not doc:
-        return {"has_stripe": False}
-
-    acct = stripe.Account.retrieve(doc["account_id"])
-    status = "active" if acct.charges_enabled and acct.payouts_enabled else "onboarding"
-    if status != doc.get("status"):
-        await db.saad_stripe.update_one({"saad_id": saad_id}, {"$set": {"status": status}})
-
-    return {
-        "has_stripe": True,
-        "account_id": doc["account_id"],
-        "status": status,
-        "charges_enabled": acct.charges_enabled,
-        "payouts_enabled": acct.payouts_enabled,
-        "commission_type": doc.get("commission_type", "monthly"),
-        "commission_display": "100 EUR (unique)" if doc.get("commission_type") == "oneshot" else "8 EUR/mois",
-    }
+    """SAAD payment status — migrating to Mollie."""
+    return {"has_stripe": False, "status": "pending_migration", "message": "Migration Mollie en cours."}
 
 
-# ─── SAAD Commission Processing ───
 async def _process_saad_commission(contract: dict, contract_id: str, now: str):
-    """Auto-send commission to SAAD when a prescribed contract is activated."""
+    """SAAD commission — will be implemented with Mollie. Currently logs only."""
     ben_phone = contract.get("beneficiary", {}).get("phone", "")
     if not ben_phone:
         return
-
-    # Find prescription matching this beneficiary
     prescription = await db.prescriptions.find_one({
         "beneficiary_phone": {"$regex": ben_phone[-9:]},
         "status": {"$in": ["pending", "contract_created", "validated"]},
     })
     if not prescription:
         return
-
-    prescriber_id = prescription.get("prescriber_id", "")
-    if not prescriber_id:
-        return
-
-    # Find the prescriber's SAAD
-    prescriber = await db.users.find_one({"id": prescriber_id}, {"_id": 0})
-    if not prescriber:
-        return
-
-    # The prescriber might be a guardian linked to a SAAD, or a SAAD directly
-    saad_id = prescriber.get("company_id") or prescriber.get("id")
-    saad_stripe = await db.saad_stripe.find_one({"saad_id": saad_id, "status": "active"}, {"_id": 0})
-    if not saad_stripe:
-        logger.info(f"No active SAAD Stripe account for prescriber {prescriber_id}, skipping commission")
-        return
-
-    commission_type = saad_stripe.get("commission_type", "monthly")
-    # Commission depends on plan AND commission type
-    plan_id = contract.get("plan", "bracelet")
-    if commission_type == "oneshot":
-        commission_amount = 20000 if plan_id == "bracelet_gilet" else 10000  # 200€ or 100€
-    else:
-        commission_amount = 1500 if plan_id == "bracelet_gilet" else 800  # 15€ or 8€
-    account_id = saad_stripe["account_id"]
-
-    # Check if commission already sent for this contract
-    existing_commission = await db.saad_commissions.find_one({"contract_id": contract_id, "saad_id": saad_id})
-    if existing_commission and commission_type == "oneshot":
-        return  # Already paid one-shot
-
-    try:
-        # Commission paid by Chutex Care (connected account) to SAAD
-        # Use Stripe Transfer from platform, funded by Chutex Care's balance
-        transfer = stripe.Transfer.create(
-            amount=commission_amount,
-            currency="eur",
-            destination=account_id,
-            description=f"Commission SAAD {'unique' if commission_type == 'oneshot' else 'mensuelle'} - {contract.get('contract_number', '')}",
-            metadata={"contract_id": contract_id, "saad_id": saad_id, "type": f"saad_commission_{commission_type}", "paid_by": "chutex_care"},
-        )
-
-        await db.saad_commissions.insert_one({
-            "id": str(uuid.uuid4()),
-            "contract_id": contract_id,
-            "contract_number": contract.get("contract_number", ""),
-            "saad_id": saad_id,
-            "saad_name": saad_stripe.get("company_name", ""),
-            "prescriber_id": prescriber_id,
-            "commission_type": commission_type,
-            "amount": commission_amount / 100,
-            "stripe_transfer_id": transfer.id,
-            "status": "paid",
-            "created_at": now,
-        })
-
-        logger.info(f"SAAD commission: {commission_amount/100}EUR ({commission_type}) to {saad_stripe.get('company_name')} for {contract.get('contract_number')}")
-    except Exception as e:
-        logger.error(f"SAAD commission transfer failed: {e}")
+    logger.info(f"SAAD commission pending Mollie migration for contract {contract.get('contract_number', '')}")
 
 
 # ─── Admin: SAAD commissions overview ───
