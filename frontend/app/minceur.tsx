@@ -208,7 +208,23 @@ export default function MinceurPage() {
     return () => { window.removeEventListener('focus', sync); window.removeEventListener('popstate', sync); intervals.forEach(clearTimeout); };
   }, [token, data]);
 
-  const saveGoal = async () => { setSaving(true); try { await apiFetch('/api/minceur/weight-goal', { method: 'POST', body: JSON.stringify({ target_kg: targetKg, weeks: goalWeeks }) }, token); setShowGoalForm(false); setLoading(true); await fetchData(); } catch (e: any) { alert(e.message); } finally { setSaving(false); } };
+  const saveGoal = async () => {
+    setSaving(true);
+    try {
+      const result = await apiFetch('/api/minceur/weight-goal', { method: 'POST', body: JSON.stringify({ target_kg: targetKg, weeks: goalWeeks }) }, token);
+      setShowGoalForm(false);
+      // Update goal and calorie display immediately (no loading screen)
+      if (data && result.daily_calories) {
+        setData((prev: any) => ({
+          ...prev,
+          goal: { target_kg: targetKg, weeks: goalWeeks },
+          recommendations: prev.recommendations ? { ...prev.recommendations, daily_calories: result.daily_calories } : null,
+        }));
+      }
+      // Refresh AI recommendations in background (don't block UI)
+      fetchData();
+    } catch (e: any) { alert(e.message); } finally { setSaving(false); }
+  };
   const removeGoal = async () => { try { await apiFetch('/api/minceur/weight-goal', { method: 'DELETE' }, token); setShowGoalForm(false); setLoading(true); await fetchData(); } catch {} };
   const refreshRecs = async () => { setRefreshing(true); try { await apiFetch('/api/minceur/refresh-recommendations', { method: 'POST' }, token); await fetchData(); } catch { setRefreshing(false); } };
   const toggleTrack = async (type: 'meal' | 'exercise', index: number) => { const k = `${type}_${index}`, w = tracked[k]; setTracked(p => ({ ...p, [k]: !w })); if (!w) setStreak(s => Math.max(s, 1)); try { await apiFetch('/api/minceur/track', { method: 'POST', body: JSON.stringify({ type, index }) }, token); } catch { setTracked(p => ({ ...p, [k]: w })); } };

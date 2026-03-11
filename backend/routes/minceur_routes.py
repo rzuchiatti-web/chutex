@@ -391,7 +391,7 @@ async def get_weight_details(user=Depends(get_current_user)):
 
 @router.post("/minceur/weight-goal")
 async def set_weight_goal(data: dict, user=Depends(get_current_user)):
-    """Set or update an optional weight goal"""
+    """Set or update an optional weight goal. Returns new calorie budget immediately."""
     uid = user["id"]
     target_kg = data.get("target_kg")
     weeks = data.get("weeks", 12)
@@ -418,7 +418,28 @@ async def set_weight_goal(data: dict, user=Depends(get_current_user)):
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     await db.minceur_daily_cache.delete_one({"user_id": uid, "date": today_str})
 
-    return {"status": "saved", "target_kg": round(target_kg, 1), "weeks": weeks}
+    # Compute new calorie budget immediately (no AI, just math)
+    u = await db.users.find_one({"id": uid}, {"_id": 0})
+    new_calories = 0
+    if u:
+        age = parse_age(u.get("date_of_birth", ""))
+        is_male = u.get("gender", "").lower() in ("m", "male", "homme", "masculin")
+        height = u.get("height_cm") or 170
+        history = await get_weight_history(uid)
+        weight = history[0]["weight"] if history else (u.get("weight_kg") or 70)
+        bmr = mifflin_st_jeor(weight, height, age, is_male)
+        tdee = bmr * 1.3
+        diff = weight - target_kg
+        if diff > 0:
+            deficit = min(500, (diff / max(1, weeks) * 7700) / 7)
+            cal_min = round(bmr * (1.1 if is_male else 1.08)) if age >= 65 else round(bmr * 0.95)
+            new_calories = max(cal_min, round(tdee - deficit))
+        elif diff < 0:
+            new_calories = round(tdee + min(300, abs(diff) * 100))
+        else:
+            new_calories = round(tdee)
+
+    return {"status": "saved", "target_kg": round(target_kg, 1), "weeks": weeks, "daily_calories": new_calories}
 
 
 @router.delete("/minceur/weight-goal")

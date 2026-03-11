@@ -13,6 +13,8 @@ interface ActivityCardProps {
   sleepQuality?: number;
   heartRate?: number;
   streak?: { current_streak: number; max_streak: number; badge: any; objectives_today: string[] };
+  stepGoal?: number;
+  calGoal?: number;
 }
 
 function getRecoveryInfo(recovery: number, stress: number, sleepQuality: number, heartRate: number) {
@@ -32,7 +34,7 @@ function getRecoveryInfo(recovery: number, stress: number, sleepQuality: number,
   return { level: 'faible', pct, color: '#EF4444', barColor: '#EF4444', label: 'Faible', note: 'Repos conseille' };
 }
 
-export default function ActivityCard({ steps, calories, distance, recovery = 0, stress = 0, sleepQuality = 0, heartRate = 0, streak }: ActivityCardProps) {
+export default function ActivityCard({ steps, calories, distance, recovery = 0, stress = 0, sleepQuality = 0, heartRate = 0, streak, stepGoal = 6000, calGoal = 300 }: ActivityCardProps) {
   const router = useRouter();
   const st = streak || { current_streak: 0, max_streak: 0, badge: null, objectives_today: [] };
   const ri = getRecoveryInfo(recovery, stress, sleepQuality, heartRate);
@@ -62,8 +64,8 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
           {/* 3 metrics with icons */}
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 } as any}>
             {[
-              { label: 'Pas', value: steps, goal: 6000, color: '#10B981', icon: 'ri-footprint-line' },
-              { label: 'Calories', value: calories, goal: 300, color: '#F59E0B', icon: 'ri-fire-line' },
+              { label: 'Pas', value: steps, goal: stepGoal, color: '#10B981', icon: 'ri-footprint-line' },
+              { label: 'Calories', value: calories, goal: calGoal, color: '#F59E0B', icon: 'ri-fire-line' },
               { label: 'Distance', value: distance, goal: 4, unit: 'km', color: '#38BDF8', icon: 'ri-route-line' },
             ].map((m, i) => {
               const pct = m.goal > 0 ? Math.min(100, Math.round((m.value / m.goal) * 100)) : 0;

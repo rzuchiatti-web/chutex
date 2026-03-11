@@ -297,8 +297,12 @@ export default function HealthScreen() {
             ))}
           </div>
 
-          {/* 4b. Activity Card — full width with streak */}
-          <ActivityCard steps={d.steps || 0} calories={d.calories || 0} distance={d.distance_km || 0} recovery={d.recovery_score || 0} stress={d.stress_level || 0} sleepQuality={d.sleep_quality || 0} heartRate={d.heart_rate || 0} streak={activityStreak} />
+          {/* 4b. Activity Card — uses same goals as daily objectives */}
+          {(() => {
+            const stepPlan = filteredPlan.find((p: any) => p.key === 'steps');
+            const sGoal = stepPlan ? parseInt(stepPlan.value) || 6000 : 6000;
+            return <ActivityCard steps={d.steps || 0} calories={d.calories || 0} distance={d.distance_km || 0} recovery={d.recovery_score || 0} stress={d.stress_level || 0} sleepQuality={d.sleep_quality || 0} heartRate={d.heart_rate || 0} streak={activityStreak} stepGoal={sGoal} />;
+          })()}
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '16px 20px 16px' } as any} />
           <SleepCard d={d} />
