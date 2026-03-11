@@ -149,7 +149,9 @@ async def associate_device(data: dict, user=Depends(get_current_user)):
 @router.delete("/devices/{device_id}/remove")
 async def remove_device(device_id: str, user=Depends(get_current_user)):
     """Remove/dissociate a device"""
-    await db.devices.update_one({"id": device_id}, {"$set": {"connected": False, "battery": 0, "removed": True}})
+    uid = user["id"]
+    await db.devices.delete_one({"id": device_id, "user_id": uid})
+    await db.device_readings.delete_many({"device_id": device_id})
     return {"status": "removed"}
 
 
@@ -157,7 +159,7 @@ async def remove_device(device_id: str, user=Depends(get_current_user)):
 async def remove_device_by_type(data: dict, user=Depends(get_current_user)):
     uid = user["id"]
     device_type = data.get("device_type", "")
-    await db.devices.update_many({"user_id": uid, "device_type": device_type}, {"$set": {"connected": False, "battery": 0, "removed": True}})
+    await db.devices.delete_many({"user_id": uid, "device_type": device_type})
     field_map = {"bracelet": "bracelet", "vest": "vest", "scale": "scale", "dorsi": "dorsi"}
     field = field_map.get(device_type)
     if field:

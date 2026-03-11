@@ -39,8 +39,8 @@ export function DeviceManagement({ token }: { token: string }) {
     ble.launchScaleWeighing();
   };
 
-  const handleRemoveDevice = async (deviceId: string) => {
-    await removeDevice(deviceId);
+  const handleRemoveDevice = async (deviceId: string | undefined, deviceType: string) => {
+    await removeDevice(deviceId, deviceType);
     setSelectedDevice(null);
   };
 

@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://nora-health-1.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://premium-clinical-ui.preview.emergentagent.com')
 
 # Updated credentials for Care Watch / Chutex
 CREDENTIALS = {

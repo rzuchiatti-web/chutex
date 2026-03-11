@@ -36,10 +36,14 @@ export function useDeviceData(token: string) {
     return () => clearInterval(interval);
   }, [fetchDevices]);
 
-  const removeDevice = async (deviceId: string) => {
+  const removeDevice = async (deviceId?: string, deviceType?: string) => {
     setRemoving(true);
     try {
-      await apiFetch(`/api/devices/${deviceId}/remove`, { method: 'DELETE' }, token);
+      if (deviceId) {
+        await apiFetch(`/api/devices/${deviceId}/remove`, { method: 'DELETE' }, token);
+      } else if (deviceType) {
+        await apiFetch('/api/devices/remove-by-type', { method: 'POST', body: JSON.stringify({ device_type: deviceType }) }, token);
+      }
       fetchDevices();
     } catch {} finally {
       setRemoving(false);
