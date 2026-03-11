@@ -147,8 +147,9 @@ export default function HealthScreen() {
   const filteredPlan = (Array.isArray(plan) ? plan : []).filter((p: any) => {
     if (p.key === 'steps') return Number(d.steps || 0) > 0;
     if (p.key === 'hydration') return Number(d.water_pct || 0) > 0;
-    if (p.key === 'sleep') return Number(d.sleep_quality || 0) > 0 || Number(d.sleep_duration_min || 0) > 0;
+    if (p.key === 'sleep') return true; // Always show bedtime recommendation
     if (p.key === 'calories') return Number(d.calories || 0) > 0;
+    if (p.key === 'calories_intake') return true; // Always show calorie target
     return p?.value != null && `${p.value}` !== '' && `${p.value}` !== '0';
   });
 
