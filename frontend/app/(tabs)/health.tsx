@@ -90,6 +90,7 @@ export default function HealthScreen() {
   const [healthProgData, setHealthProgData] = useState<any>(null);
   const [healthProgCatalog, setHealthProgCatalog] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [agingRate, setAgingRate] = useState<any>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -106,7 +107,7 @@ export default function HealthScreen() {
   const fetchDashData = useCallback(async () => { try { setDashData(await apiFetch('/api/devices/dashboard-summary', {}, token)); } catch {} }, [token]);
   const fetchReport = useCallback(async () => { try { setReport(await apiFetch('/api/health/daily-report', {}, token)); } catch {} finally { setReportLoading(false); } }, [token]);
 
-  useEffect(() => { fetchData(); fetchDashData(); fetchReport(); }, [fetchData, fetchDashData, fetchReport]);
+  useEffect(() => { fetchData(); fetchDashData(); fetchReport(); apiFetch('/api/health/aging-rate', {}, token).then(setAgingRate).catch(() => {}); }, [fetchData, fetchDashData, fetchReport]);
   useEffect(() => {
     Promise.all([
       apiFetch('/api/programs/active', {}, token).catch(() => null),
@@ -199,7 +200,7 @@ export default function HealthScreen() {
 
           {/* 1. Hero BioAge — hidden during analysis phase */}
           {!analysisPhase && (hasMeaningfulVitals || hasBodyAge) && (
-            <HeroScore bioAge={noraBodyAge || d.body_age || 0} realAge={user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} bodyAgeNora={bodyAgeNora} />
+            <HeroScore bioAge={noraBodyAge || d.body_age || 0} realAge={user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} bodyAgeNora={bodyAgeNora} agingRate={agingRate} />
           )}
           {!analysisPhase && !hasMeaningfulVitals && !hasBodyAge && (
             <div data-testid="health-score-unavailable" style={{ padding: '18px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.22)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>

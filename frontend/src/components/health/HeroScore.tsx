@@ -1,16 +1,30 @@
 import React from 'react';
 
-interface Props { bioAge?: number; realAge?: number; status: string; statusColor: string; ai: any; subs: any; showDetail: boolean; setShowDetail: (v: boolean) => void; d: any; bodyAgeNora?: any; }
+interface Props {
+  bioAge?: number;
+  realAge?: number;
+  status: string;
+  statusColor: string;
+  ai: any;
+  subs: any;
+  showDetail: boolean;
+  setShowDetail: (v: boolean) => void;
+  d: any;
+  bodyAgeNora?: any;
+  agingRate?: { rate: number; label: string; color: string } | null;
+}
 
-export default function HeroScore({ bioAge, realAge, status, statusColor, ai, subs, showDetail, setShowDetail, d, bodyAgeNora }: Props) {
+export default function HeroScore({ bioAge, realAge, status, statusColor, ai, subs, showDetail, setShowDetail, d, bodyAgeNora, agingRate }: Props) {
   const ba = bioAge || 0;
   const ra = realAge || 0;
   const diff = ra > 0 && ba > 0 ? ra - ba : 0;
   const isNoraComputed = bodyAgeNora?.status === 'computed';
+  const ar = agingRate;
+
   return (
     <>
-      {/* Bio age info — no card, floating on background */}
-      <div style={{ textAlign: 'center', padding: '20px 20px 14px' } as any}>
+      {/* Bio age */}
+      <div style={{ textAlign: 'center', padding: '20px 20px 6px' } as any}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 10 } as any}>
           {isNoraComputed && (
             <div style={{ width: 18, height: 18, borderRadius: 6, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
@@ -32,11 +46,67 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
             <span style={{ fontSize: 11, fontWeight: 700, color: diff > 0 ? '#10B981' : '#EF4444' }}>{Math.abs(diff)} ans {diff > 0 ? 'de moins' : 'de plus'} que votre age reel</span>
           </div>
         )}
-        {/* Nora explanation */}
+      </div>
+
+      {/* ═══ AGING RATE GAUGE ═══ */}
+      {ar && ar.rate > 0 && (
+        <div style={{ padding: '14px 20px 20px' } as any}>
+          <div style={{ textAlign: 'center', marginBottom: 12 } as any}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Rythme de vieillissement</div>
+            <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{ar.rate.toFixed(1).replace('.', ',')}x</div>
+          </div>
+          {/* Gauge bar with tick marks */}
+          <div style={{ position: 'relative', height: 48, margin: '0 10px' } as any}>
+            {/* Labels */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.3)' } as any} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Lent</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Rapide</span>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'rgba(255,255,255,0.3)' } as any} />
+              </div>
+            </div>
+            {/* Tick marks bar */}
+            <svg viewBox="0 0 400 30" style={{ width: '100%', height: 30, display: 'block' }}>
+              {/* Tick marks — denser near center */}
+              {Array.from({ length: 60 }, (_, i) => {
+                const x = 6 + (i / 59) * 388;
+                const distFromCenter = Math.abs(i - 29.5) / 29.5;
+                const h = 8 + (1 - distFromCenter) * 12;
+                const opacity = 0.15 + (1 - distFromCenter) * 0.25;
+                return <rect key={i} x={x - 1} y={15 - h / 2} width={2} height={h} rx={1} fill={`rgba(255,255,255,${opacity})`} />;
+              })}
+              {/* Current position indicator — thick white line */}
+              {(() => {
+                // Map rate: 0.1 → 0%, 1.0 → 50%, 3.0 → 100%
+                const pct = ar.rate <= 1.0
+                  ? ((ar.rate - 0.1) / 0.9) * 50
+                  : 50 + ((ar.rate - 1.0) / 2.0) * 50;
+                const cx = 6 + Math.max(0, Math.min(100, pct)) / 100 * 388;
+                return <>
+                  <rect x={cx - 2} y={1} width={4} height={28} rx={2} fill="#FFF" />
+                  <rect x={cx - 1.5} y={3} width={3} height={24} rx={1.5} fill="#FFF" />
+                </>;
+              })()}
+            </svg>
+            {/* Scale values */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 } as any}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)' }}>-0,1x</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>1,0x</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)' }}>3,0x</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Nora explanation + hero line */}
+      <div style={{ textAlign: 'center', padding: '0 20px 14px' } as any}>
         {isNoraComputed && bodyAgeNora?.explanation && (
-          <div style={{ fontSize: 12, color: 'rgba(167,139,250,0.7)', marginTop: 10, lineHeight: 1.5, fontStyle: 'italic' }}>{bodyAgeNora.explanation}</div>
+          <div style={{ fontSize: 12, color: 'rgba(167,139,250,0.7)', marginBottom: 6, lineHeight: 1.5, fontStyle: 'italic' }}>{bodyAgeNora.explanation}</div>
         )}
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: isNoraComputed ? 6 : 10, lineHeight: 1.5 }}>{ai.hero_line || ''}</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{ai.hero_line || ''}</div>
         {/* Glass button */}
         <div onClick={() => setShowDetail(true)} style={{ marginTop: 14, padding: '12px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'background 0.2s' } as any}
           onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; }}

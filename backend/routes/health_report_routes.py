@@ -1606,3 +1606,186 @@ async def generate_health_report_pdf(period: str = "30j", user=Depends(get_curre
         headers={"Content-Disposition": f'attachment; filename="{filename}"'}
     )
 
+
+
+
+@router.get("/health/aging-rate")
+async def get_aging_rate(user=Depends(get_current_user)):
+    """
+    Compute aging rate based on biological age vs chronological age + real-time factors.
+    Returns a multiplier: <1.0 = aging slower, 1.0 = normal, >1.0 = aging faster.
+    """
+    uid = user['id']
+    u = await db.users.find_one({"id": uid}, {"_id": 0})
+    if not u:
+        return {"rate": None, "status": "no_user"}
+
+    # Chronological age
+    real_age = 0
+    dob = u.get("date_of_birth", "")
+    if dob:
+        for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
+            try:
+                born = datetime.strptime(dob.replace("Z", "").split("T")[0], fmt)
+                real_age = (datetime.now(timezone.utc) - born.replace(tzinfo=timezone.utc)).days // 365
+                break
+            except ValueError:
+                continue
+    if real_age <= 0:
+        return {"rate": None, "status": "no_dob"}
+
+    # Biological age from cache or scale data
+    bio_age = 0
+    body_age_cache = await db.body_age_cache.find_one({"user_id": uid}, {"_id": 0})
+    if body_age_cache and body_age_cache.get("body_age"):
+        bio_age = body_age_cache["body_age"]
+    else:
+        # Fallback: use scale body_age if available
+        scale_reading = await db.device_readings.find_one(
+            {"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)]
+        )
+        if scale_reading and scale_reading.get("data", {}).get("body_age", 0) > 0:
+            bio_age = scale_reading["data"]["body_age"]
+
+    # If no body age data, simulate based on health factors
+    if bio_age <= 0:
+        # Compute a simulated biological age from available data
+        bracelet = await db.device_readings.find_one(
+            {"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
+        )
+        scale = await db.device_readings.find_one(
+            {"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)]
+        )
+        bd = bracelet.get("data", {}) if bracelet else {}
+        sd = scale.get("data", {}) if scale else {}
+
+        if not bd and not sd:
+            return {"rate": None, "status": "no_data", "real_age": real_age}
+
+        # Start with chronological age, adjust based on factors
+        age_offset = 0.0
+
+        # HRV (high = younger)
+        hrv = bd.get("hrv", 0)
+        if hrv > 50: age_offset -= 3
+        elif hrv > 35: age_offset -= 1.5
+        elif hrv > 20: age_offset += 0
+        elif hrv > 0: age_offset += 3
+
+        # Resting HR (low = younger)
+        hr = bd.get("heart_rate", 0)
+        if hr > 0:
+            if hr < 65: age_offset -= 2
+            elif hr < 75: age_offset -= 0.5
+            elif hr > 85: age_offset += 2
+            elif hr > 95: age_offset += 4
+
+        # SpO2 (high = younger)
+        spo2 = bd.get("spo2", 0)
+        if spo2 >= 98: age_offset -= 1
+        elif spo2 >= 95: age_offset += 0
+        elif spo2 > 0: age_offset += 2
+
+        # BMI
+        bmi = sd.get("bmi", 0)
+        if 18.5 <= bmi <= 25: age_offset -= 2
+        elif 25 < bmi <= 28: age_offset += 1
+        elif bmi > 28: age_offset += 3
+
+        # Visceral fat
+        vf = sd.get("visceral_fat", 0)
+        if 0 < vf <= 8: age_offset -= 2
+        elif vf <= 12: age_offset += 1
+        elif vf > 12: age_offset += 4
+
+        # Muscle mass
+        mp = sd.get("muscle_pct", 0)
+        if mp > 35: age_offset -= 2
+        elif mp > 28: age_offset -= 0.5
+        elif 0 < mp < 25: age_offset += 2
+
+        # Sleep quality
+        sq = bd.get("sleep_quality", 0)
+        if sq > 80: age_offset -= 1.5
+        elif sq > 60: age_offset += 0
+        elif sq > 0: age_offset += 2
+
+        # Activity
+        steps = bd.get("steps", 0)
+        if steps > 7000: age_offset -= 2
+        elif steps > 4000: age_offset -= 0.5
+        elif 0 < steps < 2000: age_offset += 2
+
+        bio_age = max(30, min(100, round(real_age + age_offset)))
+
+        # Cache it
+        await db.body_age_cache.update_one(
+            {"user_id": uid},
+            {"$set": {
+                "user_id": uid, "body_age": bio_age, "status": "computed",
+                "explanation": f"Age biologique estime a {bio_age} ans base sur vos donnees capteurs.",
+                "computed_at": datetime.now(timezone.utc).isoformat(),
+                "last_reading_ts": datetime.now(timezone.utc).isoformat(),
+            }},
+            upsert=True
+        )
+
+    # === Compute aging rate ===
+    base_rate = bio_age / real_age if real_age > 0 else 1.0
+
+    # Real-time adjustments (small modifiers)
+    bracelet = await db.device_readings.find_one(
+        {"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    bd = bracelet.get("data", {}) if bracelet else {}
+
+    adjustment = 0.0
+    # Stress (high stress = ages faster)
+    stress = bd.get("stress_level", 0)
+    if stress > 70: adjustment += 0.05
+    elif stress > 50: adjustment += 0.02
+    elif 0 < stress <= 30: adjustment -= 0.02
+
+    # Sleep quality (good sleep = ages slower)
+    sq = bd.get("sleep_quality", 0)
+    if sq > 80: adjustment -= 0.03
+    elif 0 < sq < 50: adjustment += 0.04
+
+    # Steps (active = ages slower)
+    steps = bd.get("steps", 0)
+    if steps > 6000: adjustment -= 0.03
+    elif 0 < steps < 2000: adjustment += 0.03
+
+    rate = round(max(0.1, min(3.0, base_rate + adjustment)), 2)
+
+    # Label
+    if rate < 0.7:
+        label = "Tres lent"
+        color = "#10B981"
+    elif rate < 0.9:
+        label = "Lent"
+        color = "#84CC16"
+    elif rate <= 1.1:
+        label = "Normal"
+        color = "#F59E0B"
+    elif rate <= 1.5:
+        label = "Rapide"
+        color = "#F97316"
+    else:
+        label = "Tres rapide"
+        color = "#EF4444"
+
+    return {
+        "rate": rate,
+        "label": label,
+        "color": color,
+        "bio_age": bio_age,
+        "real_age": real_age,
+        "diff": real_age - bio_age,
+        "status": "computed",
+        "factors": {
+            "stress": stress,
+            "sleep_quality": sq,
+            "steps": steps,
+        },
+    }
