@@ -478,12 +478,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── SUBSCRIPTION BANNER (si pas d'abo bracelet) ── */}
           {/* Health data shown even without subscription — values show -- when no data */}
 
-          <div style={{ height: 8 } as any} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0 12px' } as any} />
 
           {/* ── 2. OBJECTIFS JOURNALIERS (remplace VitalsRow + ActivityCard) ── */}
           <DailyObjectivesOnDashboard token={token} />
 
-          <div style={{ height: 8 } as any} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0 12px' } as any} />
 
           {/* ── TEAM INVITATIONS ── */}
           {teamInvitations.length > 0 && teamInvitations.map((inv: any) => (
@@ -563,12 +563,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── WEIGHT GOAL CARD (si objectif en cours) ── */}
           <WeightGoalDashCard token={token} />
 
-          <div style={{ height: 8 } as any} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0 12px' } as any} />
 
           {/* ── 5. NORA IA ── */}
           <CopilotCard />
 
-          <div style={{ height: 8 } as any} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0 12px' } as any} />
 
           {/* ── 6. DISPOSITIFS ── */}
           <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
@@ -577,7 +577,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* Les alertes sont affichées en haut du dashboard */}
 
-          <div style={{ height: 8 } as any} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0 12px' } as any} />
 
 
           {/* ── Rappels — directly on background ── */}
